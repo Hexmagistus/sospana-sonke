@@ -1,4 +1,15 @@
-fatal: cannot lock ref 'HEAD': Unable to create 'C:/Users/Lungani Tshabalala/Downloads/sospana-sonke-fullstack/sospana-sonke/.git/HEAD.lock': File exists.
-
-Another git process seems to be running in this repository, or the lock file may be stale
-Everything up-to-date
+[main 2043134] Fix Render build: pin Python 3.12, bump psycopg2-binary
+ 9 files changed, 102 insertions(+), 8 deletions(-)
+ create mode 100644 2-UPLOAD.bat
+ create mode 100644 3-UPDATE-AND-PUSH.bat
+ create mode 100644 4-FIX-AND-PUSH.bat
+ create mode 100644 5-FORCE-FIX.bat
+ create mode 100644 backend/.python-version
+ create mode 100644 push-log.txt
+ create mode 100644 update-log.txt
+To https://github.com/Hexmagistus/sospana-sonke.git
+   b9f4a12..2043134  main -> main
+ 
+=== recent commits === 
+2043134 Fix Render build: pin Python 3.12, bump psycopg2-binary
+b9f4a12 Sospana Sonke - initial commit
