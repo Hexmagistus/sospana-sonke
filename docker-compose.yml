@@ -1,0 +1,31 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: sospana
+      POSTGRES_PASSWORD: sospana
+      POSTGRES_DB: sospana
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sospana"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  backend:
+    build: ./backend
+    environment:
+      ENV: development
+      DATABASE_URL: postgresql+psycopg2://sospana:sospana@db:5432/sospana
+      SECRET_KEY: ${SECRET_KEY:-CHANGE-ME-IN-PRODUCTION}
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+
+volumes:
+  pgdata:

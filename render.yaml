@@ -1,0 +1,32 @@
+# Render Blueprint — deploys the Sospana Sonke backend for free.
+# In Render: New ▸ Blueprint ▸ pick your repo. Render reads this file and creates
+# the service. You then paste a few values (marked sync:false) in the dashboard.
+#
+# Database: create a free Postgres on Neon (neon.tech) and paste its connection
+# string into DATABASE_URL. The frontend is deployed separately on Vercel.
+services:
+  - type: web
+    name: sospana-sonke-api
+    runtime: python
+    rootDir: backend
+    plan: free
+    healthCheckPath: /health
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: ENV
+        value: production
+      - key: SECRET_KEY
+        generateValue: true          # Render generates a strong random secret
+      - key: AUTO_SEED
+        value: "true"                # import the 367-company database on first boot
+      - key: PAYMENT_PROVIDER
+        value: mock                  # switch to "paystack" once you add PAYSTACK_SECRET_KEY
+      - key: DATABASE_URL
+        sync: false                  # paste your Neon Postgres connection string
+      - key: CORS_ORIGINS
+        sync: false                  # paste your Vercel frontend URL (e.g. https://sospana-sonke.vercel.app)
+      - key: ADMIN_EMAIL
+        sync: false                  # your admin login email
+      - key: ADMIN_PASSWORD
+        sync: false                  # your admin login password
