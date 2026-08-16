@@ -1,15 +1,11 @@
-[main 2043134] Fix Render build: pin Python 3.12, bump psycopg2-binary
- 9 files changed, 102 insertions(+), 8 deletions(-)
- create mode 100644 2-UPLOAD.bat
- create mode 100644 3-UPDATE-AND-PUSH.bat
- create mode 100644 4-FIX-AND-PUSH.bat
- create mode 100644 5-FORCE-FIX.bat
- create mode 100644 backend/.python-version
- create mode 100644 push-log.txt
- create mode 100644 update-log.txt
+[main 922d39b] Add frontend/vercel.json so Vercel builds it as Next.js
+ 3 files changed, 47 insertions(+), 4 deletions(-)
+ create mode 100644 6-PUSH.bat
+ create mode 100644 frontend/vercel.json
 To https://github.com/Hexmagistus/sospana-sonke.git
-   b9f4a12..2043134  main -> main
+   2043134..922d39b  main -> main
  
 === recent commits === 
+922d39b Add frontend/vercel.json so Vercel builds it as Next.js
 2043134 Fix Render build: pin Python 3.12, bump psycopg2-binary
 b9f4a12 Sospana Sonke - initial commit

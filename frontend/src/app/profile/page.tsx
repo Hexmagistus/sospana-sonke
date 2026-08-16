@@ -56,7 +56,9 @@ function ProfileInner() {
     return [];
   }
   function listToStr(v: unknown): string {
-    return Array.isArray(v) ? (v as string[]).join(", ") : "";
+    if (Array.isArray(v)) return (v as string[]).join(", ");
+    if (typeof v === "string") return v;   // echo what the user is typing
+    return "";
   }
   function set(k: string, v: unknown) {
     setProfile((p) => ({ ...(p || {}), [k]: v }));
