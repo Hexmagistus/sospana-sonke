@@ -14,19 +14,21 @@ services:
     buildCommand: pip install -r requirements.txt
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
     envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.7"              # wheels exist for all deps on 3.12 (fixes build)
       - key: ENV
         value: production
       - key: SECRET_KEY
-        generateValue: true          # Render generates a strong random secret
+        generateValue: true
       - key: AUTO_SEED
-        value: "true"                # import the 367-company database on first boot
+        value: "true"
       - key: PAYMENT_PROVIDER
-        value: mock                  # switch to "paystack" once you add PAYSTACK_SECRET_KEY
+        value: mock
       - key: DATABASE_URL
-        sync: false                  # paste your Neon Postgres connection string
+        sync: false
       - key: CORS_ORIGINS
-        sync: false                  # paste your Vercel frontend URL (e.g. https://sospana-sonke.vercel.app)
+        sync: false
       - key: ADMIN_EMAIL
-        sync: false                  # your admin login email
+        sync: false
       - key: ADMIN_PASSWORD
-        sync: false                  # your admin login password
+        sync: false

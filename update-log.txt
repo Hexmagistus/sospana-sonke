@@ -1,0 +1,4 @@
+fatal: cannot lock ref 'HEAD': Unable to create 'C:/Users/Lungani Tshabalala/Downloads/sospana-sonke-fullstack/sospana-sonke/.git/HEAD.lock': File exists.
+
+Another git process seems to be running in this repository, or the lock file may be stale
+Everything up-to-date

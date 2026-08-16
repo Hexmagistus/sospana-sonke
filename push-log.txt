@@ -1,0 +1,3 @@
+To https://github.com/Hexmagistus/sospana-sonke.git
+ * [new branch]      main -> main
+branch 'main' set up to track 'origin/main'.
