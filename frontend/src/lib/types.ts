@@ -138,6 +138,7 @@ export interface Company {
   source_type: string;
   country: string;
   careers_url: string | null;
+  official_website?: string | null;
   active: boolean;
   scraping_status: string;
   last_http_status: number | null;

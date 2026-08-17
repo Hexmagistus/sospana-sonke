@@ -11,6 +11,7 @@ class CompanyResponse(BaseModel):
     source_type: str
     country: str
     careers_url: str | None
+    official_website: str | None = None
     active: bool
     scraping_status: str
     last_checked: datetime | None

@@ -6,6 +6,7 @@ import Guard from "@/components/Guard";
 import { api } from "@/lib/api";
 import { Card, Input, Button, Spinner, Alert } from "@/components/ui";
 import { Banner } from "@/components/Banner";
+import { CompanyLogo } from "@/components/CompanyLogo";
 import type { Company } from "@/lib/types";
 
 type Accent = "sky" | "teal" | "gold" | "purple" | "coral" | "navy";
@@ -18,12 +19,6 @@ const AVATAR_GRADIENTS = [
   "from-coral to-gold",
   "from-navy to-brand",
 ];
-
-function initials(name: string): string {
-  const parts = name.replace(/[^A-Za-z0-9 ]/g, "").trim().split(/\s+/);
-  const two = ((parts[0]?.[0] || "") + (parts[1]?.[0] || "")).toUpperCase();
-  return two || (name[0] || "?").toUpperCase();
-}
 
 function CompaniesDirectoryInner() {
   const [companies, setCompanies] = useState<Company[]>([]);
@@ -95,9 +90,12 @@ function CompaniesDirectoryInner() {
             <Card key={c.id} accent={ACCENTS[i % ACCENTS.length]} className="hover:-translate-y-0.5 hover:shadow-md">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-start gap-3">
-                  <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${AVATAR_GRADIENTS[i % AVATAR_GRADIENTS.length]} text-sm font-bold text-white shadow-sm`}>
-                    {initials(c.company_name)}
-                  </div>
+                  <CompanyLogo
+                    name={c.company_name}
+                    website={c.official_website}
+                    careersUrl={c.careers_url}
+                    gradient={AVATAR_GRADIENTS[i % AVATAR_GRADIENTS.length]}
+                  />
                   <div>
                     <div className="font-semibold text-navy">{c.company_name}</div>
                     <div className="mt-1 flex flex-wrap items-center gap-1">
