@@ -22,8 +22,15 @@ _SEED = Path(__file__).resolve().parent.parent.parent / "seed" / "company_databa
 
 def bootstrap(db: Session) -> None:
     if settings.AUTO_SEED and _SEED.exists():
-        if (db.query(func.count(Company.id)).scalar() or 0) == 0:
+        # Upsert the bundled company list on every boot so that deploying an
+        # updated CSV keeps the live database in sync. The importer deduplicates
+        # on (normalised name + JSE code), so this creates new companies and
+        # refreshes existing ones without making duplicates. (Set AUTO_SEED=false
+        # once you manage companies only through the admin UI.)
+        try:
             import_companies_from_csv(db, _SEED.read_bytes())
+        except Exception:
+            db.rollback()
 
     if settings.ADMIN_EMAIL and settings.ADMIN_PASSWORD:
         email = settings.ADMIN_EMAIL.lower()

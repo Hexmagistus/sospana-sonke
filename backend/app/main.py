@@ -39,10 +39,14 @@ def create_app() -> FastAPI:
     )
 
     # CORS: allowed browser origins come from config (set the frontend URL in prod).
-    origins = [o.strip() for o in settings.CORS_ORIGINS.split(",") if o.strip()]
+    # Trailing slashes/whitespace are stripped so a stray "/" can't break matching.
+    origins = [o.strip().rstrip("/") for o in settings.CORS_ORIGINS.split(",") if o.strip()]
     app.add_middleware(
         CORSMiddleware,
         allow_origins=origins,
+        # Always allow this project's Vercel site and its preview deployments,
+        # so the frontend works even if CORS_ORIGINS is unset or mistyped.
+        allow_origin_regex=r"https://sospana-sonke[a-z0-9-]*\.vercel\.app",
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],

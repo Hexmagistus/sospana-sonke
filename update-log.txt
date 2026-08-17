@@ -1,11 +1,10 @@
-[main 922d39b] Add frontend/vercel.json so Vercel builds it as Next.js
- 3 files changed, 47 insertions(+), 4 deletions(-)
- create mode 100644 6-PUSH.bat
- create mode 100644 frontend/vercel.json
+[main f7f68ea] Fix profile form: comma-separated fields no longer clear while typing
+ 3 files changed, 36 insertions(+), 11 deletions(-)
+ create mode 100644 7-PUSH.bat
 To https://github.com/Hexmagistus/sospana-sonke.git
-   2043134..922d39b  main -> main
+   922d39b..f7f68ea  main -> main
  
 === recent commits === 
+f7f68ea Fix profile form: comma-separated fields no longer clear while typing
 922d39b Add frontend/vercel.json so Vercel builds it as Next.js
 2043134 Fix Render build: pin Python 3.12, bump psycopg2-binary
-b9f4a12 Sospana Sonke - initial commit
