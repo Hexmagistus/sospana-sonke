@@ -20,6 +20,7 @@ from app.models.match import CandidateMatch
 from app.models.profile import CandidateProfile, Education, Certification, Skill, WorkExperience
 from app.models.user import User
 from app.models.vacancy import Vacancy
+from app.matching.engine import VacancyData
 from app.services.match_service import build_vacancy_data
 from app.services.storage import get_storage
 
@@ -133,6 +134,63 @@ def generate_cover_letter_for_match(db: Session, user: User, match_id: str) -> C
     db.add(letter)
     db.flush()
 
+    storage = get_storage()
+    pdf_key = f"cover_letters/{user.id}/{letter.id}.pdf"
+    docx_key = f"cover_letters/{user.id}/{letter.id}.docx"
+    storage.put(pdf_key, render_letter_pdf(text))
+    storage.put(docx_key, render_letter_docx(text))
+    letter.storage_key_pdf = pdf_key
+    letter.storage_key_docx = docx_key
+    db.commit()
+    db.refresh(letter)
+    return letter
+
+
+# ---- Ad-hoc tailoring: generate against ANY job the candidate provides ------
+# (Works with no scraped vacancy — the candidate pastes/points at a role.)
+
+def generate_cv_for_target(db: Session, user: User, job_title: str | None,
+                           company_name: str | None, job_text: str | None) -> CVVersion:
+    facts, truth = _facts_and_truth(db, user)
+    title = (job_title or "the role").strip() or "the role"
+    skill_terms = VacancyData(title=title, description=job_text or "").skill_terms
+    cv_data = build_tailored_cv(facts, {"title": title, "skill_terms": skill_terms})
+    truth_result = validate_cv(cv_data, truth)
+    ats, breakdown = score_ats(cv_data, skill_terms)
+
+    label = safe_filename(facts["full_name"], title, company_name or "") + "_CV"
+    version = CVVersion(
+        user_id=user.id, match_id=None, vacancy_id=None, label=label,
+        content=cv_data, ats_score=ats, ats_breakdown=breakdown,
+        truthfulness_ok=truth_result.ok, truthfulness_violations=truth_result.violations or None,
+        generated_by="deterministic",
+    )
+    db.add(version)
+    db.flush()
+    storage = get_storage()
+    pdf_key = f"cv_versions/{user.id}/{version.id}.pdf"
+    docx_key = f"cv_versions/{user.id}/{version.id}.docx"
+    storage.put(pdf_key, render_cv_pdf(cv_data))
+    storage.put(docx_key, render_cv_docx(cv_data))
+    version.storage_key_pdf = pdf_key
+    version.storage_key_docx = docx_key
+    db.commit()
+    db.refresh(version)
+    return version
+
+
+def generate_cover_letter_for_target(db: Session, user: User, job_title: str | None,
+                                     company_name: str | None, job_text: str | None) -> CoverLetter:
+    facts, truth = _facts_and_truth(db, user)
+    title = (job_title or "the role").strip() or "the role"
+    text = build_cover_letter(facts, company_name or None, title)
+    truth_result = validate_cv({"summary": text, "skills": []}, truth)
+
+    label = safe_filename(facts["full_name"], title, company_name or "") + "_CoverLetter"
+    letter = CoverLetter(user_id=user.id, match_id=None, vacancy_id=None, label=label,
+                         body=text, truthfulness_ok=truth_result.ok, generated_by="deterministic")
+    db.add(letter)
+    db.flush()
     storage = get_storage()
     pdf_key = f"cover_letters/{user.id}/{letter.id}.pdf"
     docx_key = f"cover_letters/{user.id}/{letter.id}.docx"

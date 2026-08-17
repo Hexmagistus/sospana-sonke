@@ -11,7 +11,11 @@ from app.db.session import get_db
 from app.models.document import CVVersion, CoverLetter
 from app.models.user import User
 from app.schemas.document import CVVersionResponse, CoverLetterResponse
-from app.services.document_service import generate_cv_for_match, generate_cover_letter_for_match
+from pydantic import BaseModel
+from app.services.document_service import (
+    generate_cv_for_match, generate_cover_letter_for_match,
+    generate_cv_for_target, generate_cover_letter_for_target,
+)
 from app.services.storage import get_storage
 from app.services.subscription_service import require_active_subscription
 
@@ -33,6 +37,25 @@ def generate_cv(match_id: str, db: Session = Depends(get_db),
 def generate_cover_letter(match_id: str, db: Session = Depends(get_db),
                           user: User = Depends(require_active_subscription)):
     return CoverLetterResponse.model_validate(generate_cover_letter_for_match(db, user, match_id))
+
+
+class TailorRequest(BaseModel):
+    job_title: str | None = None
+    company_name: str | None = None
+    job_description: str | None = None
+
+
+@router.post("/tailor", status_code=status.HTTP_201_CREATED)
+def tailor_for_any_job(body: TailorRequest, db: Session = Depends(get_db),
+                       user: User = Depends(require_active_subscription)):
+    """Generate a tailored CV + cover letter for any job the candidate provides
+    (a pasted ad or a chosen employer) — no scraped vacancy required."""
+    cv = generate_cv_for_target(db, user, body.job_title, body.company_name, body.job_description)
+    letter = generate_cover_letter_for_target(db, user, body.job_title, body.company_name, body.job_description)
+    return {
+        "cv_version": CVVersionResponse.model_validate(cv),
+        "cover_letter": CoverLetterResponse.model_validate(letter),
+    }
 
 
 @router.get("/cv-versions", response_model=list[CVVersionResponse])

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import Guard from "@/components/Guard";
 import { api } from "@/lib/api";
 import { Card, Input, Button, Badge, Spinner, Alert } from "@/components/ui";
@@ -76,13 +77,18 @@ function CompaniesDirectoryInner() {
                   {c.country && <span className="text-xs text-gray-400">{c.country}</span>}
                 </div>
               </div>
-              {c.careers_url ? (
-                <a href={c.careers_url} target="_blank" rel="noopener noreferrer">
-                  <Button variant="ghost">View jobs →</Button>
-                </a>
-              ) : (
-                <span className="whitespace-nowrap text-xs text-gray-400">No careers page yet</span>
-              )}
+              <div className="flex shrink-0 flex-col items-end gap-1">
+                {c.careers_url ? (
+                  <a href={c.careers_url} target="_blank" rel="noopener noreferrer">
+                    <Button variant="ghost">View jobs →</Button>
+                  </a>
+                ) : (
+                  <span className="whitespace-nowrap text-xs text-gray-400">No careers page yet</span>
+                )}
+                <Link href={`/tailor?company=${encodeURIComponent(c.company_name)}`}>
+                  <Button variant="ghost">Tailor CV</Button>
+                </Link>
+              </div>
             </div>
           </Card>
         ))}
