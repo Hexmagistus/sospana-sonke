@@ -64,22 +64,39 @@ function DashboardInner() {
       )}
 
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        <Stat label="Vacancies found" value={d.vacancies_open} />
-        <Stat label="Strong matches" value={d.strong_matches} hint={`${d.total_matches} total`} />
-        <Stat label="Applications submitted" value={d.applications_submitted} />
-        <Stat label="Awaiting your action" value={d.applications_awaiting_action} />
-        <Stat label="Tailored CVs" value={d.cvs_generated} />
-        <Stat label="Cover letters" value={d.cover_letters_generated} />
-        <Stat label="Interviews" value={d.interviews} />
-        <Stat label="Offers" value={d.offers} />
+        <Stat label="Vacancies found" value={d.vacancies_open} accent="sky" />
+        <Stat label="Strong matches" value={d.strong_matches} hint={`${d.total_matches} total`} accent="teal" />
+        <Stat label="Applications submitted" value={d.applications_submitted} accent="purple" />
+        <Stat label="Awaiting your action" value={d.applications_awaiting_action} accent="coral" />
+        <Stat label="Tailored CVs" value={d.cvs_generated} accent="gold" />
+        <Stat label="Cover letters" value={d.cover_letters_generated} accent="navy" />
+        <Stat label="Interviews" value={d.interviews} accent="teal" />
+        <Stat label="Offers" value={d.offers} accent="gold" />
       </div>
 
-      <Card>
-        <div className="flex flex-wrap gap-3">
-          <Link href="/matches"><Button variant="ghost">View matches</Button></Link>
-          <Link href="/cv"><Button variant="ghost">Manage CV</Button></Link>
-          <Link href="/applications"><Button variant="ghost">Track applications</Button></Link>
-          <Link href="/profile"><Button variant="ghost">Edit profile</Button></Link>
+      <Card accent="gold">
+        <div className="mb-3 text-sm font-semibold text-navy">Quick actions</div>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <Link href="/companies" className="group rounded-xl bg-gradient-to-br from-sky/10 to-sky/5 p-4 ring-1 ring-sky/20 transition hover:shadow-md">
+            <div className="text-2xl">🔍</div>
+            <div className="mt-2 font-semibold text-navy">Browse companies</div>
+            <div className="text-xs text-gray-500">367+ SA employers</div>
+          </Link>
+          <Link href="/tailor" className="group rounded-xl bg-gradient-to-br from-purple/10 to-purple/5 p-4 ring-1 ring-purple/20 transition hover:shadow-md">
+            <div className="text-2xl">✍️</div>
+            <div className="mt-2 font-semibold text-navy">Tailor my CV</div>
+            <div className="text-xs text-gray-500">CV + cover letter</div>
+          </Link>
+          <Link href="/applications" className="group rounded-xl bg-gradient-to-br from-coral/10 to-coral/5 p-4 ring-1 ring-coral/20 transition hover:shadow-md">
+            <div className="text-2xl">📊</div>
+            <div className="mt-2 font-semibold text-navy">Track applications</div>
+            <div className="text-xs text-gray-500">Stay organised</div>
+          </Link>
+          <Link href="/profile" className="group rounded-xl bg-gradient-to-br from-brand/10 to-brand/5 p-4 ring-1 ring-brand/20 transition hover:shadow-md">
+            <div className="text-2xl">👤</div>
+            <div className="mt-2 font-semibold text-navy">Edit profile</div>
+            <div className="text-xs text-gray-500">Keep it current</div>
+          </Link>
         </div>
       </Card>
     </div>

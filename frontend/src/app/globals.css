@@ -3,5 +3,30 @@
 @tailwind utilities;
 
 body {
-  @apply bg-gray-50 text-gray-900;
+  @apply text-gray-900;
+  min-height: 100vh;
+  background:
+    radial-gradient(900px 520px at 100% -8%, rgba(245, 179, 1, 0.12), transparent 60%),
+    radial-gradient(760px 520px at -12% 6%, rgba(15, 118, 110, 0.12), transparent 60%),
+    radial-gradient(820px 620px at 50% 118%, rgba(124, 92, 255, 0.10), transparent 62%),
+    #fbf8f1;
+  background-attachment: fixed;
+}
+
+/* Colourful gradient accent under every internal page title.
+   Excluded on the public landing page (.landing) which has its own hero. */
+main h1 {
+  position: relative;
+}
+main h1::after {
+  content: "";
+  display: block;
+  width: 58px;
+  height: 5px;
+  margin-top: 10px;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #ff6b5b, #f5b301, #0f766e, #2f9bf6);
+}
+.landing h1::after {
+  display: none;
 }

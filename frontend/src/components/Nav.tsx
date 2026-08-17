@@ -23,17 +23,25 @@ export default function Nav() {
   if (!user) return null;
 
   return (
-    <nav className="border-b border-gray-200 bg-white">
-      <div className="mx-auto flex max-w-6xl items-center gap-1 px-4 py-2 overflow-x-auto">
-        <Link href="/dashboard" className="mr-3 font-semibold text-brand whitespace-nowrap">
-          Sospana&nbsp;Sonke
+    <nav className="bg-gradient-to-r from-navy via-navy-light to-brand-dark shadow-lg">
+      <div className="mx-auto flex max-w-6xl items-center gap-1 px-4 py-2.5 overflow-x-auto">
+        <Link href="/dashboard" className="mr-3 flex items-center gap-2 whitespace-nowrap">
+          <span
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-sm font-extrabold text-white shadow"
+            style={{ background: "conic-gradient(from 210deg,#ff6b5b,#f5b301,#22c58b,#2f9bf6,#7c5cff,#ff6b5b)" }}
+          >
+            S
+          </span>
+          <span className="font-bold text-white">Sospana&nbsp;Sonke</span>
         </Link>
         {LINKS.map((l) => (
           <Link
             key={l.href}
             href={l.href}
-            className={`rounded-md px-3 py-1.5 text-sm whitespace-nowrap ${
-              pathname === l.href ? "bg-brand/10 text-brand" : "text-gray-600 hover:bg-gray-100"
+            className={`rounded-md px-3 py-1.5 text-sm whitespace-nowrap transition ${
+              pathname === l.href
+                ? "bg-gold font-semibold text-navy shadow-sm"
+                : "text-blue-100 hover:bg-white/10 hover:text-white"
             }`}
           >
             {l.label}
@@ -42,21 +50,23 @@ export default function Nav() {
         {user.role === "admin" && (
           <Link
             href="/admin"
-            className={`rounded-md px-3 py-1.5 text-sm whitespace-nowrap ${
-              pathname.startsWith("/admin") ? "bg-brand/10 text-brand" : "text-gray-600 hover:bg-gray-100"
+            className={`rounded-md px-3 py-1.5 text-sm whitespace-nowrap transition ${
+              pathname.startsWith("/admin")
+                ? "bg-gold font-semibold text-navy shadow-sm"
+                : "text-blue-100 hover:bg-white/10 hover:text-white"
             }`}
           >
             Admin
           </Link>
         )}
         <div className="ml-auto flex items-center gap-3 whitespace-nowrap">
-          <span className="text-xs text-gray-500">{user.email}</span>
+          <span className="text-xs text-blue-200">{user.email}</span>
           <button
             onClick={() => {
               logout();
               router.push("/login");
             }}
-            className="text-sm text-gray-500 hover:text-gray-800"
+            className="text-sm text-blue-100 hover:text-white"
           >
             Sign out
           </button>

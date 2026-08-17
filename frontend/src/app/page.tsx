@@ -16,7 +16,7 @@ export default function Home() {
   }, [loading, user, router]);
 
   return (
-    <div className="-mx-4 -my-6">
+    <div className="landing -mx-4 -my-6">
       {/* Header */}
       <header className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
         <div className="flex items-center gap-2">
