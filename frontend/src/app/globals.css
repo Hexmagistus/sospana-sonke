@@ -27,6 +27,7 @@ main h1::after {
   border-radius: 6px;
   background: linear-gradient(90deg, #ff6b5b, #f5b301, #0f766e, #2f9bf6);
 }
-.landing h1::after {
+.landing h1::after,
+.banner h1::after {
   display: none;
 }

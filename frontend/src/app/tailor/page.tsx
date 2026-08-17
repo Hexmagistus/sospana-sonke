@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Guard from "@/components/Guard";
 import { api } from "@/lib/api";
 import { Card, Field, Input, Button, Alert, Spinner } from "@/components/ui";
+import { Banner } from "@/components/Banner";
 
 interface Doc { id: string; label: string; ats_score?: number | null; truthfulness_ok?: boolean }
 interface TailorResult { cv_version: Doc; cover_letter: Doc }
@@ -39,13 +40,12 @@ function TailorInner() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Tailor my CV</h1>
-        <p className="text-sm text-gray-500">
-          Pick an employer or paste a job ad, and we&apos;ll generate a CV and cover letter tailored to it —
-          built only from your real profile, never invented. Then apply on the employer&apos;s page.
-        </p>
-      </div>
+      <Banner
+        variant="tailor"
+        eyebrow="Apply smarter"
+        title="Tailor my CV"
+        subtitle="Pick an employer or paste a job ad, and we'll generate a CV and cover letter tailored to it — built only from your real profile, never invented. Then apply on the employer's page."
+      />
 
       {err && <Alert kind="error">{err}</Alert>}
 

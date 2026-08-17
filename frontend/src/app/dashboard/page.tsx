@@ -5,6 +5,7 @@ import Link from "next/link";
 import Guard from "@/components/Guard";
 import { api } from "@/lib/api";
 import { Stat, Card, Button, Alert, Spinner, Badge } from "@/components/ui";
+import { Banner } from "@/components/Banner";
 import type { Dashboard } from "@/lib/types";
 
 function DashboardInner() {
@@ -41,17 +42,21 @@ function DashboardInner() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-bold">Dashboard</h1>
-        <div className="flex items-center gap-3">
-          <span className="text-sm text-gray-500">
+      <Banner
+        variant="dashboard"
+        eyebrow="Welcome back"
+        title="Your dashboard"
+        subtitle="Discover opportunities, tailor your applications, and track everything in one place."
+      >
+        <div className="flex flex-wrap items-center gap-3">
+          <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-sm text-blue-100">
             Subscription: <Badge>{d.subscription_status}</Badge> · R{d.plan_amount_zar}/mo
           </span>
           <Button onClick={runMatching} disabled={running}>
             {running ? "Finding matches…" : "Find new matches"}
           </Button>
         </div>
-      </div>
+      </Banner>
 
       {!d.has_access && (
         <Alert kind="error">

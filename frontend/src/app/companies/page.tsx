@@ -5,6 +5,7 @@ import Link from "next/link";
 import Guard from "@/components/Guard";
 import { api } from "@/lib/api";
 import { Card, Input, Button, Badge, Spinner, Alert } from "@/components/ui";
+import { Banner } from "@/components/Banner";
 import type { Company } from "@/lib/types";
 
 function CompaniesDirectoryInner() {
@@ -34,13 +35,18 @@ function CompaniesDirectoryInner() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Companies &amp; opportunities</h1>
-        <p className="text-sm text-gray-500">
-          Browse every employer in our database and go straight to their official careers page to apply.{" "}
-          {companies.length} companies · {withLinks} with direct careers links.
-        </p>
-      </div>
+      <Banner
+        variant="companies"
+        eyebrow="Direct to employers"
+        title="Companies & opportunities"
+        subtitle={
+          <>
+            Browse every employer in our database and go straight to their official careers page to apply.{" "}
+            <strong className="text-white">{companies.length}</strong> companies ·{" "}
+            <strong className="text-white">{withLinks}</strong> with direct careers links.
+          </>
+        }
+      />
 
       <Card>
         <div className="flex flex-wrap items-center gap-2">
