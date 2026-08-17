@@ -4,9 +4,26 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Guard from "@/components/Guard";
 import { api } from "@/lib/api";
-import { Card, Input, Button, Badge, Spinner, Alert } from "@/components/ui";
+import { Card, Input, Button, Spinner, Alert } from "@/components/ui";
 import { Banner } from "@/components/Banner";
 import type { Company } from "@/lib/types";
+
+type Accent = "sky" | "teal" | "gold" | "purple" | "coral" | "navy";
+const ACCENTS: Accent[] = ["sky", "teal", "gold", "purple", "coral", "navy"];
+const AVATAR_GRADIENTS = [
+  "from-sky to-purple",
+  "from-brand to-brand-dark",
+  "from-gold to-coral",
+  "from-purple to-sky",
+  "from-coral to-gold",
+  "from-navy to-brand",
+];
+
+function initials(name: string): string {
+  const parts = name.replace(/[^A-Za-z0-9 ]/g, "").trim().split(/\s+/);
+  const two = ((parts[0]?.[0] || "") + (parts[1]?.[0] || "")).toUpperCase();
+  return two || (name[0] || "?").toUpperCase();
+}
 
 function CompaniesDirectoryInner() {
   const [companies, setCompanies] = useState<Company[]>([]);
@@ -58,8 +75,8 @@ function CompaniesDirectoryInner() {
               <button
                 key={f}
                 onClick={() => setFilter(f)}
-                className={`rounded-md px-3 py-1.5 text-sm whitespace-nowrap ${
-                  filter === f ? "bg-brand text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                className={`rounded-md px-3 py-1.5 text-sm whitespace-nowrap transition ${
+                  filter === f ? "bg-gradient-to-r from-brand to-brand-dark text-white shadow-sm" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                 }`}
               >
                 {f === "all" ? "All" : f}
@@ -72,32 +89,44 @@ function CompaniesDirectoryInner() {
       <p className="text-xs text-gray-500">{shown.length} shown</p>
 
       <div className="grid gap-3 md:grid-cols-2">
-        {shown.map((c) => (
-          <Card key={c.id}>
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <div className="font-semibold">{c.company_name}</div>
-                <div className="mt-1 flex flex-wrap items-center gap-1">
-                  <Badge>{(c.source_type || "").toUpperCase() === "SOE" ? "State-owned" : "JSE-listed"}</Badge>
-                  {c.jse_code && <Badge>{c.jse_code}</Badge>}
-                  {c.country && <span className="text-xs text-gray-400">{c.country}</span>}
+        {shown.map((c, i) => {
+          const isSOE = (c.source_type || "").toUpperCase() === "SOE";
+          return (
+            <Card key={c.id} accent={ACCENTS[i % ACCENTS.length]} className="hover:-translate-y-0.5 hover:shadow-md">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-start gap-3">
+                  <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${AVATAR_GRADIENTS[i % AVATAR_GRADIENTS.length]} text-sm font-bold text-white shadow-sm`}>
+                    {initials(c.company_name)}
+                  </div>
+                  <div>
+                    <div className="font-semibold text-navy">{c.company_name}</div>
+                    <div className="mt-1 flex flex-wrap items-center gap-1">
+                      <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${isSOE ? "bg-purple/10 text-purple" : "bg-brand/10 text-brand-dark"}`}>
+                        {isSOE ? "State-owned" : "JSE-listed"}
+                      </span>
+                      {c.jse_code && (
+                        <span className="rounded-full bg-gold/20 px-2 py-0.5 text-xs font-semibold text-[#a9791a]">{c.jse_code}</span>
+                      )}
+                      {c.country && <span className="text-xs text-gray-400">{c.country}</span>}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex shrink-0 flex-col items-end gap-1.5">
+                  {c.careers_url ? (
+                    <a href={c.careers_url} target="_blank" rel="noopener noreferrer">
+                      <Button>View jobs →</Button>
+                    </a>
+                  ) : (
+                    <span className="whitespace-nowrap text-xs text-gray-400">No careers page yet</span>
+                  )}
+                  <Link href={`/tailor?company=${encodeURIComponent(c.company_name)}`}>
+                    <Button variant="ghost">Tailor CV</Button>
+                  </Link>
                 </div>
               </div>
-              <div className="flex shrink-0 flex-col items-end gap-1">
-                {c.careers_url ? (
-                  <a href={c.careers_url} target="_blank" rel="noopener noreferrer">
-                    <Button variant="ghost">View jobs →</Button>
-                  </a>
-                ) : (
-                  <span className="whitespace-nowrap text-xs text-gray-400">No careers page yet</span>
-                )}
-                <Link href={`/tailor?company=${encodeURIComponent(c.company_name)}`}>
-                  <Button variant="ghost">Tailor CV</Button>
-                </Link>
-              </div>
-            </div>
-          </Card>
-        ))}
+            </Card>
+          );
+        })}
         {shown.length === 0 && <p className="text-sm text-gray-400">No companies match your search.</p>}
       </div>
     </div>
