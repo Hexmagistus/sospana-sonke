@@ -6,17 +6,12 @@ from app.core.deps import get_current_user, require_admin
 from app.db.session import get_db
 from app.models.report import Report
 from app.models.user import User
-from app.schemas.report import CandidateDashboardResponse, AdminDashboardResponse, ReportResponse
-from app.services.dashboard_service import candidate_dashboard, admin_dashboard, admin_analytics
+from app.schemas.report import AdminDashboardResponse, ReportResponse
+from app.services.dashboard_service import admin_dashboard, admin_analytics
 from app.services.report_service import generate_candidate_report
 from app.services.storage import get_storage
 
 router = APIRouter(tags=["dashboard"])
-
-
-@router.get("/dashboard", response_model=CandidateDashboardResponse)
-def get_dashboard(db: Session = Depends(get_db), user: User = Depends(get_current_user)):
-    return CandidateDashboardResponse(**candidate_dashboard(db, user))
 
 
 @router.get("/admin/dashboard", response_model=AdminDashboardResponse,
