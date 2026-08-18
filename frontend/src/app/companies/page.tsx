@@ -6,7 +6,7 @@ import Guard from "@/components/Guard";
 import { api } from "@/lib/api";
 import { Card, Input, Button, Spinner, Alert } from "@/components/ui";
 import { Banner } from "@/components/Banner";
-import { CompanyLogo } from "@/components/CompanyLogo";
+import { CompanyLogo, isAtsPortal } from "@/components/CompanyLogo";
 import type { Company } from "@/lib/types";
 
 type Accent = "sky" | "teal" | "gold" | "purple" | "coral" | "navy";
@@ -104,6 +104,9 @@ function CompaniesDirectoryInner() {
                       </span>
                       {c.jse_code && (
                         <span className="rounded-full bg-gold/20 px-2 py-0.5 text-xs font-semibold text-[#a9791a]">{c.jse_code}</span>
+                      )}
+                      {isAtsPortal(c.careers_url) && (
+                        <span className="rounded-full bg-navy/10 px-2 py-0.5 text-xs font-semibold text-navy">Apply on their portal</span>
                       )}
                       {c.country && <span className="text-xs text-gray-400">{c.country}</span>}
                     </div>

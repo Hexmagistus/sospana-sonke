@@ -10,6 +10,14 @@ from __future__ import annotations
 import re
 
 
+def _nat_join(items: list[str]) -> str:
+    """Join a list into natural English: 'A', 'A and B', 'A, B and C'."""
+    items = [i for i in items if i]
+    if len(items) <= 1:
+        return items[0] if items else ""
+    return ", ".join(items[:-1]) + " and " + items[-1]
+
+
 def _order_skills(skills: list[str], vacancy_skill_terms: set[str]) -> list[str]:
     relevant, others = [], []
     for s in skills:
@@ -29,23 +37,37 @@ def _neg_date(value) -> str:
     return "0000" if not value else "".join(c for c in str(value) if c.isdigit())[:8].rjust(8, "0")[::-1]
 
 
-def build_summary(facts: dict, vacancy_title: str | None) -> str:
-    """A truthful one/two-line professional summary built only from real fields."""
+def build_summary(facts: dict, vacancy_title: str | None, top_skills: list[str] | None = None) -> str:
+    """A truthful, professional 2–3 sentence summary built ONLY from real fields.
+
+    No skill, number, industry, or achievement is invented — every clause maps to
+    a value the candidate actually provided.
+    """
     role = facts.get("current_occupation") or (facts.get("desired_occupations") or [None])[0]
     years = facts.get("years_experience")
     industries = facts.get("industries") or []
+    top_skills = top_skills or []
     parts: list[str] = []
+
+    # Sentence 1 — who they are.
     if role:
         lead = role
         if years:
             lead += f" with {years} year{'s' if years != 1 else ''} of experience"
         if industries:
-            lead += f" in {', '.join(industries[:3])}"
+            lead += f" across {_nat_join(industries[:3])}"
         parts.append(lead + ".")
     elif years:
-        parts.append(f"Professional with {years} years of experience.")
-    if vacancy_title and role:
-        parts.append(f"Applying for the {vacancy_title} role.")
+        parts.append(f"Experienced professional with {years} year{'s' if years != 1 else ''} of experience.")
+
+    # Sentence 2 — core strengths (real skills only).
+    if top_skills:
+        parts.append(f"Skilled in {_nat_join(top_skills[:5])}.")
+
+    # Sentence 3 — the target role (truthful intent, not a claim of fit).
+    if vacancy_title and vacancy_title.strip().lower() != "the role":
+        parts.append(f"Seeking to bring this experience to the {vacancy_title} role.")
+
     return " ".join(parts).strip()
 
 
@@ -65,7 +87,7 @@ def build_tailored_cv(facts: dict, vacancy: dict | None = None) -> dict:
         "linkedin_url": facts.get("linkedin_url"),
         "github_url": facts.get("github_url"),
         "portfolio_url": facts.get("portfolio_url"),
-        "summary": build_summary(facts, vacancy.get("title")),
+        "summary": build_summary(facts, vacancy.get("title"), skills),
         "skills": skills,
         "experience": experience,
         "education": list(facts.get("education") or []),

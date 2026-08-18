@@ -23,6 +23,11 @@ function domainFrom(url?: string | null): string | null {
   }
 }
 
+export function isAtsPortal(url?: string | null): boolean {
+  const d = domainFrom(url);
+  return !!d && ATS_DOMAINS.some((x) => d === x || d.endsWith(`.${x}`));
+}
+
 function initials(name: string): string {
   const parts = name.replace(/[^A-Za-z0-9 ]/g, "").trim().split(/\s+/);
   const two = ((parts[0]?.[0] || "") + (parts[1]?.[0] || "")).toUpperCase();
