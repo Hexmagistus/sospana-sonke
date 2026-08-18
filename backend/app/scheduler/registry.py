@@ -9,15 +9,17 @@ from __future__ import annotations
 from sqlalchemy.orm import Session
 
 from app.models.match import SystemSetting
-from app.scheduler.jobs import scan_all_companies, match_all_candidates
+from app.scheduler.jobs import scan_all_companies, scan_due_companies, match_all_candidates
 
 # name -> callable(db) -> summary dict
 JOBS = {
-    "scan_all_companies": scan_all_companies,
+    "scan_all_companies": scan_all_companies,   # full sweep (slow; manual/admin use)
+    "scan_due_companies": scan_due_companies,   # fast rotating batch (external cron)
     "match_all_candidates": match_all_candidates,
 }
 
 DEFAULT_SCHEDULE = {
+    "scan_due_companies": "0 */3 * * *",     # every 3 hours — rotates through the list
     "scan_all_companies": "0 */6 * * *",     # every 6 hours
     "match_all_candidates": "0 2 * * *",     # nightly at 02:00
 }

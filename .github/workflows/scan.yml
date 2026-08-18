@@ -6,7 +6,7 @@ name: Scan careers pages
 
 on:
   schedule:
-    - cron: "0 */6 * * *"   # every 6 hours (UTC)
+    - cron: "0 */3 * * *"   # every 3 hours (UTC) - rotates through the company list
   workflow_dispatch:          # allow manual "Run workflow" from the Actions tab
 
 jobs:
@@ -22,10 +22,10 @@ jobs:
             echo "CRON_SECRET repo secret is not set — add it in Settings > Secrets and variables > Actions."
             exit 1
           fi
-          echo "Triggering scan_all_companies (the free Render instance may cold-start first)..."
+          echo "Triggering scan_due_companies (the free Render instance may cold-start first)..."
           code=$(curl -sS -o response.json -w "%{http_code}" \
             --max-time 600 --retry 2 --retry-delay 30 \
-            -X POST "$API_BASE/api/v1/cron/run/scan_all_companies" \
+            -X POST "$API_BASE/api/v1/cron/run/scan_due_companies" \
             -H "X-Cron-Secret: $CRON_SECRET")
           echo "HTTP $code"
           echo "Response:"; cat response.json || true

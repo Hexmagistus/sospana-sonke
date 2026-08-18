@@ -6,6 +6,8 @@ Jobs are deterministic and safe to re-run.
 """
 from __future__ import annotations
 
+from datetime import datetime, timezone
+
 from sqlalchemy.orm import Session
 
 from app.models.company import Company
@@ -32,6 +34,37 @@ def scan_all_companies(db: Session) -> dict:
         except Exception:
             failed += 1
     return {"companies_scanned": scanned, "vacancies_created": created, "sources_failed": failed}
+
+
+def scan_due_companies(db: Session, limit: int = 25) -> dict:
+    """Scan the N companies checked longest ago (never-checked first), then stamp
+    them so the next run picks up the following batch.
+
+    Keeps each run fast (seconds, not minutes) so a free external scheduler can
+    call it reliably every few hours; the whole database still cycles over a day.
+    """
+    companies = (db.query(Company)
+                 .filter(Company.active.is_(True), Company.deleted_at.is_(None),
+                         Company.careers_url.isnot(None))
+                 # NULL last_checked (never scanned) first, then oldest — DB-portable.
+                 .order_by(Company.last_checked.is_(None).desc(), Company.last_checked.asc())
+                 .limit(limit)
+                 .all())
+    scanned = created = failed = 0
+    now = datetime.now(timezone.utc)
+    for company in companies:
+        try:
+            reports = scan_company(db, company)
+            scanned += 1
+            created += sum(r.created for r in reports)
+            failed += sum(1 for r in reports if r.status not in ("ok", "empty"))
+        except Exception:
+            failed += 1
+        company.last_checked = now
+        db.add(company)
+        db.commit()
+    return {"batch_limit": limit, "companies_scanned": scanned,
+            "vacancies_created": created, "sources_failed": failed}
 
 
 def match_all_candidates(db: Session) -> dict:
