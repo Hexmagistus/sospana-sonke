@@ -22,7 +22,7 @@ export default function LoginPage() {
     setBusy(true);
     try {
       await login(email, password, otp);
-      router.push("/dashboard");
+      router.push("/jobs");
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Login failed";
       if (/mfa/i.test(msg)) {

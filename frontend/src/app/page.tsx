@@ -12,7 +12,7 @@ export default function Home() {
   const { user, loading } = useAuth();
   const router = useRouter();
   useEffect(() => {
-    if (!loading && user) router.replace("/dashboard");
+    if (!loading && user) router.replace("/jobs");
   }, [loading, user, router]);
 
   return (

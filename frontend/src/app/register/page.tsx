@@ -23,7 +23,7 @@ export default function RegisterPage() {
     setBusy(true);
     try {
       await register(form);
-      router.push("/dashboard");
+      router.push("/jobs");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Registration failed");
     } finally {
