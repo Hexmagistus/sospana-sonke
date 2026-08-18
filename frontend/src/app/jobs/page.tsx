@@ -94,10 +94,6 @@ function JobsInner() {
 
       {!busy && jobs !== null && (
         <>
-          <p className="text-xs text-gray-500">
-            {jobs.length} {jobs.length === 1 ? "vacancy" : "vacancies"}
-            {submitted ? ` for “${submitted}”` : " found across all employers"}
-          </p>
           <div className="grid gap-3">
             {jobs.map((j, i) => {
               const c = cmap.get(j.company_id);
