@@ -118,14 +118,19 @@ def scan_source(db: Session, source: VacancySource, client: httpx.Client | None 
                 seen_ids.add(vac.id)
                 report.created += 1
 
-        # Change detection: roles previously open for this source but not seen now are closed.
-        stale = (db.query(Vacancy)
-                 .filter(Vacancy.source_id == source.id, Vacancy.is_open.is_(True))
-                 .all())
-        for vac in stale:
-            if vac.id not in seen_ids:
-                vac.is_open = False
-                report.closed += 1
+        # Change detection: roles previously open for this source but not seen now
+        # are closed — BUT ONLY when this scan actually returned a listing. An empty
+        # result is treated as "couldn't read the page this time" (JS shell, cookie
+        # wall, transient 200, heuristic miss), NOT "every role closed at once" —
+        # otherwise a single flaky fetch would wipe a company's good vacancies.
+        if raw_list:
+            stale = (db.query(Vacancy)
+                     .filter(Vacancy.source_id == source.id, Vacancy.is_open.is_(True))
+                     .all())
+            for vac in stale:
+                if vac.id not in seen_ids:
+                    vac.is_open = False
+                    report.closed += 1
 
         prev_count = source.last_vacancy_count
         report.total_seen = len(raw_list)
