@@ -34,6 +34,7 @@ function JobsInner() {
 
   useEffect(() => {
     api.get<Company[]>("/companies?limit=1000").then(setCompanies).catch(() => {});
+    search("");   // load all open vacancies by default (browse mode)
   }, []);
 
   const cmap = useMemo(() => {
@@ -44,16 +45,12 @@ function JobsInner() {
 
   async function search(term: string) {
     const t = term.trim();
-    if (!t) {
-      setJobs(null);
-      setSubmitted("");
-      return;
-    }
     setBusy(true);
     setErr("");
     setSubmitted(t);
     try {
-      const r = await api.get<Vacancy[]>(`/vacancies?is_open=true&limit=200&q=${encodeURIComponent(t)}`);
+      const qs = t ? `&q=${encodeURIComponent(t)}` : "";
+      const r = await api.get<Vacancy[]>(`/vacancies?is_open=true&limit=500${qs}`);
       setJobs(r);
     } catch (e) {
       setErr(e instanceof Error ? e.message : "Search failed");
@@ -98,7 +95,8 @@ function JobsInner() {
       {!busy && jobs !== null && (
         <>
           <p className="text-xs text-gray-500">
-            {jobs.length} {jobs.length === 1 ? "result" : "results"} for “{submitted}”
+            {jobs.length} {jobs.length === 1 ? "vacancy" : "vacancies"}
+            {submitted ? ` for “${submitted}”` : " found across all employers"}
           </p>
           <div className="grid gap-3">
             {jobs.map((j, i) => {
@@ -136,7 +134,9 @@ function JobsInner() {
           </div>
           {jobs.length === 0 && (
             <Card accent="gold">
-              <p className="font-semibold text-navy">No “{submitted}” openings in our collected vacancies yet.</p>
+              <p className="font-semibold text-navy">
+                {submitted ? `No “${submitted}” openings in our collected vacancies yet.` : "No vacancies collected yet."}
+              </p>
               <p className="mt-1 text-sm text-gray-600">
                 We gather vacancies from employers&apos; official pages, and coverage is still growing. In the meantime you can browse
                 employers directly, or tailor a CV for this role and apply on their careers page.
@@ -150,13 +150,7 @@ function JobsInner() {
         </>
       )}
 
-      {!busy && jobs === null && !err && (
-        <Card>
-          <p className="text-sm text-gray-600">
-            Start by searching a job title above, or pick a popular one. We&apos;ll show matching openings across every employer we track.
-          </p>
-        </Card>
-      )}
+      {!busy && jobs === null && !err && <Spinner />}
     </div>
   );
 }

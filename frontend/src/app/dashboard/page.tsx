@@ -69,7 +69,7 @@ function DashboardInner() {
       )}
 
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        <Stat label="Vacancies found" value={d.vacancies_open} accent="sky" />
+        <Stat label="Vacancies found" value={d.vacancies_open} accent="sky" href="/jobs" />
         <Stat label="Strong matches" value={d.strong_matches} hint={`${d.total_matches} total`} accent="teal" />
         <Stat label="Applications submitted" value={d.applications_submitted} accent="purple" />
         <Stat label="Awaiting your action" value={d.applications_awaiting_action} accent="coral" />

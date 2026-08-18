@@ -1,6 +1,7 @@
 "use client";
 
 import { ReactNode, ButtonHTMLAttributes, InputHTMLAttributes } from "react";
+import Link from "next/link";
 
 type Accent = "teal" | "gold" | "coral" | "purple" | "sky" | "navy";
 
@@ -46,22 +47,33 @@ export function Stat({
   value,
   hint,
   accent = "teal",
+  href,
 }: {
   label: string;
   value: ReactNode;
   hint?: string;
   accent?: Accent;
+  href?: string;
 }) {
   const a = STAT_ACCENT[accent] ?? STAT_ACCENT.teal;
-  return (
-    <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+  const inner = (
+    <>
       <div className={`h-1.5 bg-gradient-to-r ${a.bar}`} />
       <div className="p-5">
-        <div className="text-sm text-gray-500">{label}</div>
+        <div className="flex items-center justify-between text-sm text-gray-500">
+          <span>{label}</span>
+          {href && <span className={`text-xs font-semibold ${a.val}`}>View →</span>}
+        </div>
         <div className={`mt-1 text-3xl font-bold ${a.val}`}>{value}</div>
         {hint && <div className="mt-1 text-xs text-gray-400">{hint}</div>}
       </div>
-    </div>
+    </>
+  );
+  const cls = "block overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md";
+  return href ? (
+    <Link href={href} className={cls}>{inner}</Link>
+  ) : (
+    <div className={cls}>{inner}</div>
   );
 }
 
