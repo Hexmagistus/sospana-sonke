@@ -68,6 +68,13 @@ function DashboardInner() {
         </Alert>
       )}
 
+      <div className="rounded-xl border border-gold/40 bg-gold/10 px-4 py-3 text-sm text-navy">
+        <span className="font-semibold">Heads up —</span> Sospana Sonke is still in development and actively gathering vacancies
+        from employers, so these numbers aren&apos;t final yet and will keep changing. In the meantime, jump straight to{" "}
+        <Link href="/jobs" className="font-semibold text-brand-dark underline">Find jobs</Link> or{" "}
+        <Link href="/companies" className="font-semibold text-brand-dark underline">Companies</Link> to start applying.
+      </div>
+
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         <Stat label="Vacancies found" value={d.vacancies_open} accent="sky" href="/jobs" />
         <Stat label="Strong matches" value={d.strong_matches} hint={`${d.total_matches} total`} accent="teal" />
