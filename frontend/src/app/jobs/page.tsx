@@ -69,6 +69,11 @@ function JobsInner() {
         subtitle="Type a role — like driver, accountant or engineer — and see matching openings across all the employers we track, in one place."
       />
 
+      <div className="rounded-xl border border-gold/40 bg-gold/10 px-4 py-3 text-sm text-navy">
+        <span className="font-semibold">Please note —</span> the jobs listed here are not complete. For the full experience, head to the{" "}
+        <Link href="/companies" className="font-semibold text-brand-dark underline">Companies</Link> tab.
+      </div>
+
       <Card>
         <form onSubmit={(e) => { e.preventDefault(); search(q); }} className="flex flex-wrap items-center gap-2">
           <div className="min-w-[16rem] flex-1">
