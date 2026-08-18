@@ -37,6 +37,11 @@ class Settings(BaseSettings):
     # Scraper health alerting
     SOURCE_FAILURE_ALERT_THRESHOLD: int = 3   # consecutive failures before an admin alert
 
+    # Cron trigger: shared secret that lets an external scheduler (GitHub Actions,
+    # cron-job.org, …) run a scheduler job without an admin login. Leave unset to
+    # disable the endpoint entirely.
+    CRON_SECRET: str | None = None
+
     # JavaScript-rendered careers pages (Phase 2). Uses headless Chromium — heavier,
     # so OFF by default (enable on infrastructure with enough memory).
     JS_RENDER_ENABLED: bool = False

@@ -9,7 +9,7 @@ from app.db.session import init_db
 from app.api import (
     routes_auth, routes_companies, routes_profile, routes_cv, routes_vacancies, routes_matches,
     routes_documents, routes_applications, routes_subscription, routes_dashboard,
-    routes_notifications,
+    routes_notifications, routes_cron,
 )
 
 
@@ -67,6 +67,7 @@ def create_app() -> FastAPI:
     app.include_router(routes_subscription.router, prefix=settings.API_V1_PREFIX)
     app.include_router(routes_dashboard.router, prefix=settings.API_V1_PREFIX)
     app.include_router(routes_notifications.router, prefix=settings.API_V1_PREFIX)
+    app.include_router(routes_cron.router, prefix=settings.API_V1_PREFIX)
     return app
 
 

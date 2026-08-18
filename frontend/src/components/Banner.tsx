@@ -2,7 +2,7 @@
 
 import { ReactNode } from "react";
 
-type Variant = "dashboard" | "companies" | "tailor";
+type Variant = "dashboard" | "companies" | "tailor" | "jobs";
 
 function RocketArt() {
   return (
@@ -78,10 +78,28 @@ function DocumentArt() {
   );
 }
 
+function SearchArt() {
+  return (
+    <svg viewBox="0 0 210 150" className="h-full w-full" aria-hidden="true">
+      <circle cx="150" cy="58" r="52" fill="rgba(255,255,255,0.06)" />
+      <rect x="20" y="34" width="118" height="16" rx="5" fill="#ffffff" opacity="0.9" />
+      <rect x="20" y="60" width="118" height="16" rx="5" fill="#5eead4" />
+      <rect x="20" y="86" width="90" height="16" rx="5" fill="#ffffff" opacity="0.7" />
+      <rect x="20" y="112" width="70" height="16" rx="5" fill="#ffffff" opacity="0.5" />
+      <g transform="translate(112 58)">
+        <circle cx="34" cy="34" r="26" fill="rgba(11,36,71,0.25)" stroke="#f5b301" strokeWidth="8" />
+        <rect x="52" y="52" width="38" height="11" rx="5.5" transform="rotate(45 52 52)" fill="#f5b301" />
+        <circle cx="34" cy="34" r="12" fill="#ff6b5b" />
+      </g>
+    </svg>
+  );
+}
+
 const ART: Record<Variant, ReactNode> = {
   dashboard: <RocketArt />,
   companies: <BuildingsArt />,
   tailor: <DocumentArt />,
+  jobs: <SearchArt />,
 };
 
 export function Banner({

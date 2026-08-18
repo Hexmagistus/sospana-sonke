@@ -1,0 +1,37 @@
+name: Scan careers pages
+
+# Free external scheduler for Sospana Sonke vacancy scanning (Path A).
+# Wakes the API and runs the scan_all_companies job on a cadence. Requires a
+# repository secret CRON_SECRET that matches the CRON_SECRET env var on Render.
+
+on:
+  schedule:
+    - cron: "0 */6 * * *"   # every 6 hours (UTC)
+  workflow_dispatch:          # allow manual "Run workflow" from the Actions tab
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger vacancy scan
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          API_BASE: https://sospana-sonke-api.onrender.com
+        run: |
+          if [ -z "$CRON_SECRET" ]; then
+            echo "CRON_SECRET repo secret is not set — add it in Settings > Secrets and variables > Actions."
+            exit 1
+          fi
+          echo "Triggering scan_all_companies (the free Render instance may cold-start first)..."
+          code=$(curl -sS -o response.json -w "%{http_code}" \
+            --max-time 600 --retry 2 --retry-delay 30 \
+            -X POST "$API_BASE/api/v1/cron/run/scan_all_companies" \
+            -H "X-Cron-Secret: $CRON_SECRET")
+          echo "HTTP $code"
+          echo "Response:"; cat response.json || true
+          echo
+          if [ "$code" != "200" ]; then
+            echo "Scan trigger failed (HTTP $code)."
+            exit 1
+          fi
+          echo "Scan completed."

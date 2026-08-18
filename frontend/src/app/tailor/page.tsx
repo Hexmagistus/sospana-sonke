@@ -18,8 +18,11 @@ function TailorInner() {
   const [res, setRes] = useState<TailorResult | null>(null);
 
   useEffect(() => {
-    const p = new URLSearchParams(window.location.search).get("company");
-    if (p) setCompany(p);
+    const params = new URLSearchParams(window.location.search);
+    const c = params.get("company");
+    if (c) setCompany(c);
+    const t = params.get("title");
+    if (t) setTitle(t);
   }, []);
 
   async function generate() {
