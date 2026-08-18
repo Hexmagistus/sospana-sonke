@@ -25,6 +25,32 @@ def get_admin_analytics(db: Session = Depends(get_db)):
     return admin_analytics(db)
 
 
+@router.get("/admin/users", dependencies=[Depends(require_admin)])
+def list_users(db: Session = Depends(get_db), limit: int = 1000):
+    """Every registered account, newest first — email, contact, and whether they
+    have built a candidate profile. Admin-only."""
+    from app.models.profile import CandidateProfile
+    profiles = {p.user_id: p for p in db.query(CandidateProfile).all()}
+    rows = db.query(User).order_by(User.created_at.desc()).limit(limit).all()
+    out = []
+    for u in rows:
+        p = profiles.get(u.id)
+        out.append({
+            "id": u.id,
+            "email": u.email,
+            "name": f"{u.first_name} {u.last_name}".strip(),
+            "mobile_number": u.mobile_number,
+            "role": u.role,
+            "email_verified": u.email_verified,
+            "is_active": u.is_active,
+            "created_at": u.created_at.isoformat() if u.created_at else None,
+            "has_profile": p is not None,
+            "city": p.city if p else None,
+            "current_occupation": p.current_occupation if p else None,
+        })
+    return out
+
+
 @router.post("/reports/generate", response_model=ReportResponse, status_code=status.HTTP_201_CREATED)
 def generate_report(db: Session = Depends(get_db), user: User = Depends(get_current_user)):
     return ReportResponse.model_validate(generate_candidate_report(db, user))
