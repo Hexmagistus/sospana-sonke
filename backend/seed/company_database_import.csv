@@ -4,7 +4,7 @@ Absa Group,ABG,https://absa.wd3.myworkdayjobs.com/ABSAcareersite,green_confirmed
 Accelerate Property Fund,APF,,grey_none_verified,,false,no_url,South Africa,JSE
 Acsion,ACS,,grey_none_verified,,false,no_url,South Africa,JSE
 Adcorp Holdings,ADR,https://adcorpgroup.wd3.myworkdayjobs.com/Adcorp-Careers-South-Africa,green_verified,direct Workday vacancy list,true,pending,South Africa,JSE
-ADvTECH,ADH,https://www.groupadvtech.com/careers,green_verified,,true,pending,South Africa,JSE
+ADvTECH,ADH,https://advtech.ci.hr/applicant/index.php?controller=Page&name=jobsearch,green_verified,direct ci.hr job search,true,pending,South Africa,JSE
 AECI,AFE,https://jobs.aeciworld.com/search/?createNewAlert=false&q=&optionsFacetsDD_location=&optionsFacetsDD_customfield1=&optionsFacetsDD_department=,green_confirmed,direct vacancy search list,true,pending,South Africa,JSE
 Afine Investments,ANI,https://www.afineinvestments.com/,amber_company_route,,true,pending,South Africa,JSE
 Africa Bitcoin Corporation,BAC,https://africabitcoincorporation.com/,amber_company_route,,true,pending,South Africa,JSE
@@ -18,7 +18,7 @@ AH-Vest,AHL,,grey_none_verified,,false,no_url,South Africa,JSE
 Alaris Holdings,ALH,,grey_none_verified,,false,no_url,South Africa,JSE
 Alexander Forbes,AFH,https://peoplefocus.alexanderforbes.com/Careers/login.aspx,green_verified,,true,pending,South Africa,JSE
 Alphamin Resources,APH,https://www.alphaminresources.com/,amber_company_route,,true,pending,South Africa,JSE
-Altron,AEL,https://www.altron.com/careers,green_verified,,true,pending,South Africa,JSE
+Altron,AEL,https://altron.wd3.myworkdayjobs.com/Altron_Careers,green_verified,direct Workday list,true,pending,South Africa,JSE
 Anglo American,AGL,https://www.angloamerican.com/careers/job-opportunities/apply,green_verified,direct job-opportunities list,true,pending,South Africa,JSE
 AngloGold Ashanti,ANG,https://careers.anglogoldashanti.com/search/,green_verified,direct SuccessFactors list 86 jobs,true,pending,South Africa,JSE
 Anheuser-Busch InBev,ANH,https://www.ab-inbev.com/careers/,green_verified,,true,pending,South Africa,JSE
@@ -26,18 +26,18 @@ Araxi,AXX,,grey_none_verified,,false,no_url,South Africa,JSE
 ArcelorMittal South Africa,ACL,,amber_company_route,,false,no_url,South Africa,JSE
 Argent Industrial,ART,,grey_none_verified,,false,no_url,South Africa,JSE
 Aspen Pharmacare,APN,https://www.aspenpharma.com/careers/,green_verified,,true,pending,South Africa,JSE
-Astral Foods,ARL,https://www.astralfoods.com/careers/,green_verified,,true,pending,South Africa,JSE
+Astral Foods,ARL,https://astral.ci.hr/index.php?controller=Page&name=jobsearch,green_verified,direct ci.hr job search,true,pending,South Africa,JSE
 Attacq,ATT,mailto:careers@attacq.co.za,amber_company_route,,true,pending,South Africa,JSE
-Aveng,AEG,https://aveng.co.za/careers-and-people/,green_verified,,true,pending,South Africa,JSE
-AVI,AVI,https://www.avi.co.za/careers/,green_verified,,true,pending,South Africa,JSE
+Aveng,AEG,https://aveng.erecruit.co/candidateapp/Jobs/Browse.aspx,green_verified,direct eRecruit browse,true,pending,South Africa,JSE
+AVI,AVI,https://avi.simplify.hr/,green_verified,direct recruitment portal,true,pending,South Africa,JSE
 Balwin Properties,BWN,,amber_company_route,,false,no_url,South Africa,JSE
 Bell Equipment,BEL,https://www.bellequipment.com/bell-equipment/careers/,green_verified,,true,pending,South Africa,JSE
-BHP,BHG,https://careers.bhp.com/careers/,green_verified,,true,pending,South Africa,JSE
+BHP,BHG,https://careers.bhp.com/viewalljobs/,green_verified,direct view-all-jobs list,true,pending,South Africa,JSE
 Bidcorp,BID,,amber_company_route,,false,no_url,South Africa,JSE
 Bidvest,BVT,https://www.bidvest.com/careers/,green_verified,,true,pending,South Africa,JSE
 Blue Label Telecoms,BLU,https://www.bluelabeltelecoms.co.za/careers/,green_verified,,true,pending,South Africa,JSE
 Bowler Metcalf,BCF,,grey_none_verified,,false,no_url,South Africa,JSE
-Boxer Retail,BOX,https://www.boxer.co.za/careers/,green_verified,,true,pending,South Africa,JSE
+Boxer Retail,BOX,https://boxer.erecruit.co/candidateapp/jobs/browse/?Source=Boxer%20Website,green_verified,fixed was 404 now direct eRecruit browse,true,pending,South Africa,JSE
 Brait,BAT,,amber_company_route,,false,no_url,South Africa,JSE
 Brikor,BIK,,grey_none_verified,,false,no_url,South Africa,JSE
 Brimstone Investment Corporation,BRN,https://www.brimstone.com/careers,green_verified,,true,pending,South Africa,JSE
@@ -51,7 +51,7 @@ CANAL+,CNP,https://www.canalplusgroup.com/en/join-us,green_verified,,true,pendin
 Capital Appreciation,CTA,,grey_none_verified,,false,no_url,South Africa,JSE
 Capital & Counties Property,CCO,,amber_company_route,,false,no_url,South Africa,JSE
 Capitec Bank,CPI,https://careers.capitecbank.co.za/viewalljobs/,green_verified,direct SuccessFactors list,true,pending,South Africa,JSE
-Cashbuild,CSB,https://www.cashbuild.co.za/careers/,green_verified,,true,pending,South Africa,JSE
+Cashbuild,CSB,https://www.careers-page.com/cashbuild-careers,green_verified,direct list 200+ positions,true,pending,South Africa,JSE
 Castleview Property Fund,CVW,,grey_none_verified,,false,no_url,South Africa,JSE
 Caxton & CTP Publishers and Printers,CAT,,amber_company_route,,false,no_url,South Africa,JSE
 Cell C,CCD,https://cellc.com/working-at-cell-c,green_verified,,true,pending,South Africa,JSE
@@ -64,7 +64,7 @@ Collins Property Group,CPP,,grey_none_verified,,false,no_url,South Africa,JSE
 Combined Motor Holdings,CMH,,amber_company_route,,false,no_url,South Africa,JSE
 Compagnie Financière Richemont,CFR,https://careers.richemont.com/,green_verified,,true,pending,South Africa,JSE
 Copper 360,CPR,,amber_company_route,,false,no_url,South Africa,JSE
-Coronation Fund Managers,CML,https://www.coronation.com/za/personal/about-us/careers/,green_verified,,true,pending,South Africa,JSE
+Coronation Fund Managers,CML,https://coronation.erecruit.co/,green_verified,direct eRecruit portal,true,pending,South Africa,JSE
 Crookes Brothers,CKS,,amber_company_route,,false,no_url,South Africa,JSE
 Datatec,DTC,https://www.datatec.com/careers/,green_verified,⭐ IT / operations,true,pending,South Africa,JSE
 Delta Property Fund,DPF,,amber_company_route,Property / facilities,false,no_url,South Africa,JSE
@@ -75,7 +75,7 @@ Discovery,DSY,https://careers.discovery.co.za/go/All-Jobs/4509301,green_verified
 DRDGOLD,DRD,https://www.drdgold.com/careers,green_verified,⭐ Mining / processing,true,pending,South Africa,JSE
 DRA Global,DRA,https://www.draglobal.com/careers/,green_verified,⭐ Engineering / mining / projects,true,pending,South Africa,JSE
 Dual-listed / other property issuers,—,,amber_company_route,Property,false,no_url,South Africa,JSE
-EOH Holdings,EOH,https://www.eoh.co.za/careers/,green_verified,IT / business operations,true,pending,South Africa,JSE
+EOH Holdings,EOH,https://www.eoh.co.za/join-us/vacancies/,green_verified,IT / business operations | direct vacancies page,true,pending,South Africa,JSE
 Equites Property Fund,EQU,,amber_company_route,Logistics property,false,no_url,South Africa,JSE
 Emira Property Fund,EMI,,amber_company_route,Property / facilities,false,no_url,South Africa,JSE
 Ethos Capital,ETO,,amber_company_route,Investment,false,no_url,South Africa,JSE
@@ -86,7 +86,7 @@ Eastern Platinum,ELR,,amber_company_route,⭐ Mining,false,no_url,South Africa,J
 Ellies Holdings,ELI,,amber_company_route,Manufacturing / distribution,false,no_url,South Africa,JSE
 enX Group,ENX,,amber_company_route,⭐ Industrial / energy,false,no_url,South Africa,JSE
 Ethos Mid Market Fund,EMM,,amber_company_route,Investment,false,no_url,South Africa,JSE
-Famous Brands,FBR,https://www.famousbrands.co.za/careers/,green_verified,⭐ Manufacturing / supply chain,true,pending,South Africa,JSE
+Famous Brands,FBR,https://www.pnet.co.za/cmp/en/famous-brands-limited-68096/jobs,green_verified,⭐ Manufacturing / supply chain | direct Pnet listing,true,pending,South Africa,JSE
 Fortress REIT,FFB / FFA,,amber_company_route,Property / logistics,false,no_url,South Africa,JSE
 Firstrand,FSR,https://firstrand.wd3.myworkdayjobs.com/FRB,green_verified,⭐ Operations / process | direct Workday list,true,pending,South Africa,JSE
 Foschini Group,TFG,https://careers.tfg.co.za/,green_verified,Operations / supply chain,true,pending,South Africa,JSE
@@ -115,7 +115,7 @@ Hosken Passenger Logistics & Rail,HPR,https://www.hplr.co.za/,green_verified,⭐
 Hyprop Investments,HYP,https://www.hyprop.co.za/careers/,green_verified,Property / facilities,true,pending,South Africa,JSE
 Impala Platinum Holdings,IMP,https://www.implats.co.za/careers-listings.php,green_verified,⭐⭐⭐ Mining / processing | fixed 2026-08-11: was /careers/ (404),true,pending,South Africa,JSE
 Investec,INL / INP,https://careers.investec.co.za/jobs/vacancy/find/results/,green_verified,⭐ Operations / analytics | direct vacancy results,true,pending,South Africa,JSE
-Italtile,ITE,https://www.italtile.com/careers/,green_verified,Manufacturing / retail,true,pending,South Africa,JSE
+Italtile,ITE,https://italtilecareers.ci.hr/applicant/index.php?controller=Page&name=jobsearch,green_verified,Manufacturing / retail | direct ci.hr job search,true,pending,South Africa,JSE
 ISA Holdings,ISA,,amber_company_route,Cybersecurity / IT,false,no_url,South Africa,JSE
 Insimbi Industrial Holdings,ISB,,amber_company_route,⭐ Industrial / manufacturing,false,no_url,South Africa,JSE
 Invicta Holdings,IVT,https://www.invictaholdings.co.za/careers/,green_verified,⭐ Industrial / engineering,true,pending,South Africa,JSE
@@ -135,10 +135,10 @@ Kumba Iron Ore,KIO,https://www.angloamericankumba.com/careers/,green_verified,�
 Kaap Agri,KAL,https://www.kaapagri.co.za/careers/,green_verified,⭐ Agriculture / operations,true,pending,South Africa,JSE
 Labat Africa,LAB,,amber_company_route,Healthcare / technology,false,no_url,South Africa,JSE
 Lesaka Technologies,LSK,https://www.lesakatech.com/careers/,green_verified,Technology / operations,true,pending,South Africa,JSE
-Lewis Group,LEW,https://www.lewisgroup.co.za/careers/,green_verified,Retail / operations,true,pending,South Africa,JSE
+Lewis Group,LEW,https://careers.lewisgroup.co.za/,green_verified,Retail / operations | direct job posts,true,pending,South Africa,JSE
 Liberty Holdings,LBH,https://www.liberty.co.za/careers,green_verified,Operations / financial services,true,pending,South Africa,JSE
 Liberty Two Degrees,L2D,,amber_company_route,Property / facilities,false,no_url,South Africa,JSE
-Libstar Holdings,LBR,https://www.libstar.co.za/careers/,green_verified,⭐⭐⭐ Food manufacturing / supply chain,true,pending,South Africa,JSE
+Libstar Holdings,LBR,https://www.libstar.co.za/careers/job-vacancies/,green_verified,⭐⭐⭐ Food manufacturing / supply chain | direct vacancy list,true,pending,South Africa,JSE
 Life Healthcare Group,LHC,https://www.lifehealthcare.co.za/careers/vacancies/,green_verified,⭐ Operations / healthcare | direct vacancies list,true,pending,South Africa,JSE
 Lighthouse Properties,LTE,,amber_company_route,Property,false,no_url,South Africa,JSE
 Lighthouse Capital,—,,amber_company_route,Property,false,no_url,South Africa,JSE
@@ -147,13 +147,13 @@ Mahube Infrastructure,MHB,,amber_company_route,⭐ Energy/infrastructure,false,n
 Mantengu Group,MTU,,amber_company_route,⭐ Mining/industrial,false,no_url,South Africa,JSE
 Marshall Monteagle,MMP,,amber_company_route,Industrial/investment,false,no_url,South Africa,JSE
 MAS P.L.C.,MSP,https://www.masrei.com/careers/,green_verified,Property,true,pending,South Africa,JSE
-Master Drilling Group,MDI,https://www.masterdrilling.com/careers/,green_verified,⭐⭐⭐ Mining/engineering,true,pending,South Africa,JSE
+Master Drilling Group,MDI,https://www.trending-talent.com/home/group/MasterDrillingGroup,green_verified,⭐⭐⭐ Mining/engineering | direct vacancy portal,true,pending,South Africa,JSE
 MC Mining,MCZ,https://www.mcmining.co.za/careers/,green_verified,⭐⭐⭐ Mining/operations,true,pending,South Africa,JSE
 Merafe Resources,MRF,https://www.meraferesources.co.za/careers/,green_verified,⭐⭐⭐ Mining/metals,true,pending,South Africa,JSE
 Metair Investments,MTA,https://www.metair.co.za/careers/,green_verified,⭐⭐⭐ Manufacturing/automotive,true,pending,South Africa,JSE
 Middle East Diamond Resources,MED,,amber_company_route,Mining,false,no_url,South Africa,JSE
 Mine Restoration Investments,MRI,,amber_company_route,Environmental/mining,false,no_url,South Africa,JSE
-Momentum Group,MTM,https://www.momentum.co.za/careers,green_verified,⭐ Operations/analytics,true,pending,South Africa,JSE
+Momentum Group,MTM,https://momentum.erecruit.co/candidateapp/Jobs/Browse,green_verified,⭐ Operations/analytics | direct eRecruit browse,true,pending,South Africa,JSE
 Mondi plc,MNP,https://www.mondigroup.com/careers/,green_verified,⭐⭐⭐ Manufacturing/process,true,pending,South Africa,JSE
 Montauk Renewables,MKR,https://www.montaukrenewables.com/careers/,green_verified,⭐ Energy/environment,true,pending,South Africa,JSE
 Motus Holdings,MTH,https://motus.simplify.hr/,green_verified,⭐ Operations/automotive | direct vacancy list,true,pending,South Africa,JSE
@@ -161,7 +161,7 @@ Mpact,MPT,https://www.mpact.co.za/careers/,green_verified,⭐⭐⭐ Manufacturin
 Mr Price Group,MRP,https://fa-etyi-saasfaprod1.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/MrPriceGroupCareers/jobs,green_verified,Retail/supply chain | direct Oracle list 116 jobs,true,pending,South Africa,JSE
 MTN Group,MTN,https://group.mtn.com/vacancies/,green_verified,⭐ Technology/operations | direct vacancy list,true,pending,South Africa,JSE
 Mustek,MST,https://www.mustek.co.za/careers/,green_verified,Technology/logistics,true,pending,South Africa,JSE
-Nampak,NPK,https://www.nampak.com/careers/,green_confirmed,⭐⭐⭐ Manufacturing | link verified 2026-08-11,true,pending,South Africa,JSE
+Nampak,NPK,https://www.nampak.com/about/careers,green_confirmed,⭐⭐⭐ Manufacturing | fixed was 404 now working careers page,true,pending,South Africa,JSE
 Naspers,NPN,https://www.naspers.com/careers/,green_confirmed,Technology/business | link verified 2026-08-11,true,pending,South Africa,JSE
 Nedbank Group,NED,https://jobs.nedbank.co.za/search/,green_verified,⭐ Operations/process | direct SuccessFactors list,true,pending,South Africa,JSE
 NEPI Rockcastle,NRP,https://nepirockcastle.com/careers/,green_verified,Property,true,pending,South Africa,JSE
@@ -191,11 +191,11 @@ PSG Financial Services,KST,https://www.psg.co.za/careers,green_verified,Finance 
 Purple Group,PPE,https://www.purplegroup.co.za/careers,green_verified,Technology / fintech,true,pending,South Africa,JSE
 Putprop,PPR,,amber_company_route,Property,false,no_url,South Africa,JSE
 PowerFleet,PWR,https://www.powerfleet.com/careers/,green_verified,Technology / logistics,true,pending,South Africa,JSE
-Quantum Foods,QFH,https://www.quantumfoods.co.za/careers/,green_verified,⭐⭐⭐ Food / production,true,pending,South Africa,JSE
+Quantum Foods,QFH,https://quantum.pnet.co.za/applicant/index.php?controller=Page&name=jobsearch,green_verified,⭐⭐⭐ Food / production | direct job search,true,pending,South Africa,JSE
 Quilter plc,QLT,https://www.quilter.com/careers/,green_verified,Finance / operations,true,pending,South Africa,JSE
-Rainbow Chicken,RBO,https://rainbowchickens.co.za/careers/,green_verified,⭐⭐⭐ Manufacturing / food,true,pending,South Africa,JSE
+Rainbow Chicken,RBO,https://trending-talent.com/home/Group/Rainbow,green_verified,⭐⭐⭐ Manufacturing / food | direct list 41 vacancies,true,pending,South Africa,JSE
 Rand Merchant Investment Holdings,RMI,https://www.rmicapital.co.za/,green_verified,Investment / operations,true,pending,South Africa,JSE
-Raubex Group,RBX,https://www.raubex.com/careers/,green_verified,⭐⭐⭐ Infrastructure / operations,true,pending,South Africa,JSE
+Raubex Group,RBX,https://raubex.simplify.hr/,green_verified,⭐⭐⭐ Infrastructure / operations | direct vacancy portal,true,pending,South Africa,JSE
 RCL Foods,RCL,https://rcl.erecruit.co/,green_verified,⭐⭐⭐⭐ Food manufacturing | direct eRecruit hub,true,pending,South Africa,JSE
 Redefine Properties,RDF,https://www.redefine.co.za/careers/,green_verified,Property / facilities,true,pending,South Africa,JSE
 Reinet Investments,RNI,,amber_company_route,Investment,false,no_url,South Africa,JSE
@@ -216,20 +216,20 @@ Shaftesbury Capital,SHC,https://www.shaftesburycapital.com/careers/,green_verifi
 Shoprite Holdings,SHP,https://shoprite.erecruit.co,green_verified,⭐⭐⭐ Operations / supply chain | fixed was wrong US site now direct eRecruit,true,pending,South Africa,JSE
 Sibanye-Stillwater,SSW,https://www.sibanyestillwater.com/careers/,green_verified,⭐⭐⭐⭐⭐ Mining / processing,true,pending,South Africa,JSE
 Sirius Real Estate,SRE,https://www.sirius-real-estate.com/careers/,green_verified,Property,true,pending,South Africa,JSE
-South32,S32,https://www.south32.net/careers,green_verified,⭐⭐⭐⭐⭐ Mining / processing,true,pending,South Africa,JSE
+South32,S32,https://careers.south32.net/search/,green_verified,⭐⭐⭐⭐⭐ Mining / processing | direct SuccessFactors list,true,pending,South Africa,JSE
 South Ocean Holdings,SOH,,amber_company_route,Manufacturing,false,no_url,South Africa,JSE
 Southern Palladium,SDL,https://southernpalladium.com/,amber_company_route,⭐⭐⭐ Mining,true,pending,South Africa,JSE
 Southern Sun,SSU,https://www.southernsun.com/careers,green_verified,Hospitality / operations,true,pending,South Africa,JSE
 Spear REIT,SEA,,amber_company_route,Property,false,no_url,South Africa,JSE
 SPAR Group,SPP,https://spar.pnet.co.za/applicant/index.php,green_verified,⭐⭐⭐ Supply chain / distribution | fixed was 404 now direct list,true,pending,South Africa,JSE
-Spur Corporation,SUR,https://www.spurcorporation.com/careers/,green_verified,Operations / hospitality,true,pending,South Africa,JSE
-Stadio Holdings,SDO,https://www.stadio.ac.za/careers,green_verified,Operations / education,true,pending,South Africa,JSE
+Spur Corporation,SUR,https://spurcorporationjobs.mcidirecthire.com/Vacancy,green_verified,Operations / hospitality | direct vacancy list,true,pending,South Africa,JSE
+Stadio Holdings,SDO,https://stadio.ac.za/careers-stadio,green_verified,Operations / education | direct vacancy list,true,pending,South Africa,JSE
 Standard Bank Group,SBK,https://www.standardbank.com/sbg/standard-bank-group/careers/apply/jobs/view-all-jobs,green_verified,⭐⭐⭐ Operations / process / technology | direct all-jobs list,true,pending,South Africa,JSE
 Stor-Age Property REIT,SSS,https://www.stor-age.co.za/careers/,green_verified,Operations / facilities,true,pending,South Africa,JSE
-Sun International,SUI,https://www.suninternational.com/careers/,green_verified,⭐ Operations / facilities,true,pending,South Africa,JSE
+Sun International,SUI,https://suninternationaljobs.mcidirecthire.com/Vacancy,green_verified,⭐ Operations / facilities | direct vacancy list,true,pending,South Africa,JSE
 Super Group,SPG,https://www.supergroup.co.za/careers/,green_verified,⭐⭐⭐⭐⭐ Logistics / operations,true,pending,South Africa,JSE
 Telkom SA,TKG,https://jobs.telkom.co.za/search/,green_verified,⭐ Operations / technology | direct SuccessFactors list,true,pending,South Africa,JSE
-Thungela Resources,TGA,https://www.thungela.com/careers/job-opportunities,green_confirmed,⭐⭐⭐⭐⭐ Mining / operations | link verified 2026-08-11,true,pending,South Africa,JSE
+Thungela Resources,TGA,https://careers.smartrecruiters.com/Thungela,green_confirmed,⭐⭐⭐⭐⭐ Mining / operations | direct SmartRecruiters list,true,pending,South Africa,JSE
 Tiger Brands,TBS,https://tigerbrands.wd103.myworkdayjobs.com/TigerBrands,green_verified,⭐⭐⭐⭐⭐ FMCG / manufacturing | direct Workday list,true,pending,South Africa,JSE
 Truworths,TRU,https://truworths.erecruit.co/candidateapp/Jobs/Browse,green_verified,Retail / supply chain | direct eRecruit list,true,pending,South Africa,JSE
 Tsogo Sun,TSG,https://www.tsogosun.com/careers/,green_verified,⭐ Operations / facilities,true,pending,South Africa,JSE
