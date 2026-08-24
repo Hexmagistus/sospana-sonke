@@ -38,6 +38,7 @@ function CompaniesDirectoryInner() {
   const [q, setQ] = useState("");
   const [mode, setMode] = useState<"companies" | "jobs">("companies");
   const [filter, setFilter] = useState<"all" | "JSE" | "SOE">("all");
+  const [country, setCountry] = useState("South Africa");
 
   useEffect(() => {
     api.get<Company[]>("/companies?limit=1000").then(setCompanies).catch((e) => setErr(e.message));
@@ -50,9 +51,20 @@ function CompaniesDirectoryInner() {
     return m;
   }, [companies]);
 
+  const COUNTRY_FLAGS: Record<string, string> = {
+    "South Africa": "🇿🇦", "Lesotho": "🇱🇸", "Botswana": "🇧🇼", "Namibia": "🇳🇦",
+    "Eswatini": "🇸🇿", "Zimbabwe": "🇿🇼", "Mozambique": "🇲🇿",
+  };
+  const countries = useMemo(() => {
+    const set = Array.from(new Set(companies.map((c) => c.country).filter(Boolean) as string[]));
+    set.sort((a, b) => (a === "South Africa" ? -1 : b === "South Africa" ? 1 : a.localeCompare(b)));
+    return set;
+  }, [companies]);
+
   const shownCompanies = useMemo(() => {
     const needle = q.trim().toLowerCase();
     return companies
+      .filter((c) => (c.country || "") === country)
       .filter((c) => filter === "all" || (c.source_type || "").toUpperCase() === filter)
       .filter((c) => !needle
         || c.company_name.toLowerCase().includes(needle)
@@ -63,9 +75,10 @@ function CompaniesDirectoryInner() {
   const shownJobs = useMemo(() => {
     const needle = q.trim().toLowerCase();
     return (vacancies || [])
+      .filter((v) => (cmap.get(v.company_id)?.country || "") === country)
       .filter((v) => !needle || v.title.toLowerCase().includes(needle))
       .sort((a, b) => a.title.localeCompare(b.title));
-  }, [vacancies, q]);
+  }, [vacancies, q, cmap, country]);
 
   const withLinks = companies.filter((c) => c.careers_url).length;
 
@@ -88,6 +101,21 @@ function CompaniesDirectoryInner() {
       />
 
       <Card>
+        {countries.length > 1 && (
+          <div className="mb-3 flex flex-wrap gap-1 border-b border-gray-100 pb-3">
+            {countries.map((cn) => (
+              <button
+                key={cn}
+                onClick={() => setCountry(cn)}
+                className={`rounded-full px-3 py-1.5 text-sm font-semibold transition ${
+                  country === cn ? "bg-navy text-white shadow-sm" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                }`}
+              >
+                {COUNTRY_FLAGS[cn] || "🌍"} {cn}
+              </button>
+            ))}
+          </div>
+        )}
         <div className="mb-3 flex gap-1">
           <button
             onClick={() => setMode("companies")}
