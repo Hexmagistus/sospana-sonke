@@ -602,3 +602,101 @@ Zimbabwe Electricity Transmission and Distribution Company (ZETDC),,,grey_none_v
 Zimbabwe Mining Development Corporation (ZMDC),,,grey_none_verified,SOE | Mining | no verified careers page,false,pending,Zimbabwe,SOE
 Postal and Telecommunications Regulatory Authority (POTRAZ),,,grey_none_verified,SOE | Telecoms regulator | no verified careers page,false,pending,Zimbabwe,SOE
 Cold Storage Company (CSC),,,grey_none_verified,SOE | Meat | no verified careers page,false,pending,Zimbabwe,SOE
+ZESCO,,https://careers.zesco.co.zm/,green_verified,SOE | Power utility | careers portal,true,pending,Zambia,SOE
+National Pension Scheme Authority (NAPSA),,https://careers.napsa.co.zm/,green_verified,SOE | Pensions | eRecruitment ATS,true,pending,Zambia,SOE
+Zambia Railways (ZRL),,https://zrl.com.zm/jobs/,green_verified,SOE | Rail | live jobs list,true,pending,Zambia,SOE
+Zambia Airports Corporation (ZACL),,https://www.zacl.co.zm/corporate/careers,green_verified,SOE | Airports | careers page,true,pending,Zambia,SOE
+TAZARA,,https://www.tazarasite.com/careers,green_verified,SOE | Rail | careers page,true,pending,Zambia,SOE
+Zambia Postal Services (ZamPost),,https://zampost.com.zm/job_vacancies.html,green_verified,SOE | Postal | vacancies page,true,pending,Zambia,SOE
+Zambia National Commercial Bank (Zanaco),,https://careers.zanaco.co.zm/,green_verified,SOE | Banking | careers ATS,true,pending,Zambia,SOE
+ZCCM Investments Holdings (ZCCM-IH),,https://zccmjobs.mcidirecthire.com/,green_verified,SOE | Mining investments | MCi ATS,true,pending,Zambia,SOE
+Road Development Agency (RDA),,https://rda.org.zm/vacancies,green_verified,SOE | Roads | vacancies list,true,pending,Zambia,SOE
+National Road Fund Agency (NRFA),,https://nrfa.org.zm/jobs/,green_verified,SOE | Road funding | jobs page,true,pending,Zambia,SOE
+University of Zambia (UNZA),,https://www.unza.zm/vacancies,green_verified,SOE | University | vacancies page,true,pending,Zambia,SOE
+Workers Compensation Fund Control Board (WCFCB),,https://jobportal.workers.com.zm/vacancies,green_verified,SOE | Compensation fund | job portal,true,pending,Zambia,SOE
+Zambia Revenue Authority (ZRA),,https://www.zra.org.zm/careers/,amber_company_route,SOE | Revenue | careers gateway to ATS,true,pending,Zambia,SOE
+Bank of Zambia,,https://www.boz.zm/careers/vacancies,amber_company_route,SOE | Central bank | vacancies page,true,pending,Zambia,SOE
+Zamtel,,https://vacancies.zamtel.co.zm/,amber_company_route,SOE | Telecoms | careers ATS,true,pending,Zambia,SOE
+Development Bank of Zambia (DBZ),,http://www.dbz.co.zm/careers,amber_company_route,SOE | Development bank | careers page,true,pending,Zambia,SOE
+ZICTA,,https://www.zicta.zm/jobs,amber_company_route,SOE | ICT regulator | jobs page,true,pending,Zambia,SOE
+Lusaka Water and Sanitation (LWSC),,https://www.lwsc.com.zm/vacancy,amber_company_route,SOE | Water | vacancy system,true,pending,Zambia,SOE
+Zambia Medicines and Medical Supplies Agency (ZAMMSA),,https://zammsa.co.zm/careers/,amber_company_route,SOE | Medical supplies | careers page,true,pending,Zambia,SOE
+Zambia National Building Society (ZNBS),,,grey_none_verified,SOE | Building society | no verified careers page,false,pending,Zambia,SOE
+ZNBC (Zambia National Broadcasting),,,grey_none_verified,SOE | Broadcasting | no verified careers page,false,pending,Zambia,SOE
+ZAFFICO (Zambia Forestry),,,grey_none_verified,SOE | Forestry | no verified careers page,false,pending,Zambia,SOE
+Public Service Recruitment Secretariat (Ajira),,https://www.ajira.go.tz/,green_verified,SOE | Central public-service recruitment portal,true,pending,Tanzania,SOE
+Tanzania Revenue Authority (TRA),,https://www.tra.go.tz/vacancies,green_verified,SOE | Revenue | vacancies page,true,pending,Tanzania,SOE
+Bank of Tanzania,,https://www.bot.go.tz/CareerOpportunities,green_verified,SOE | Central bank | careers page,true,pending,Tanzania,SOE
+TANROADS,,https://www.tanroads.go.tz/vacancy,green_verified,SOE | Roads | live vacancies,true,pending,Tanzania,SOE
+Tanzania Communications Regulatory Authority (TCRA),,https://www.tcra.go.tz/careers,green_verified,SOE | Comms regulator | careers list,true,pending,Tanzania,SOE
+National Housing Corporation (NHC),,https://ajira.nhc.co.tz/,green_verified,SOE | Housing | recruitment portal,true,pending,Tanzania,SOE
+Air Tanzania (ATCL),,https://www.airtanzania.co.tz/careers,green_verified,SOE | Airline | careers page,true,pending,Tanzania,SOE
+CRDB Bank,,https://www.crdbbank.co.tz/en/about-us/careers,green_verified,SOE | Banking govt stake | careers page,true,pending,Tanzania,SOE
+NMB Bank,,https://www.nmbbank.co.tz/careers/job-search,green_verified,SOE | Banking govt stake | job search,true,pending,Tanzania,SOE
+Tanzania Telecommunications (TTCL),,https://www.ttcl.com/en/careers,green_verified,SOE | Telecoms | careers page,true,pending,Tanzania,SOE
+University of Dar es Salaam (UDSM),,https://www.udsm.ac.tz/announcement/academic-vacancies,green_verified,SOE | University | vacancies page,true,pending,Tanzania,SOE
+Sokoine University of Agriculture (SUA),,https://www.sua.ac.tz/jobs,green_verified,SOE | University | jobs page,true,pending,Tanzania,SOE
+TANESCO,,https://www.ajira.go.tz/,amber_company_route,SOE | Power utility | recruits via Ajira portal,true,pending,Tanzania,SOE
+Tanzania Ports Authority (TPA),,https://www.ajira.go.tz/,amber_company_route,SOE | Ports | recruits via Ajira portal,true,pending,Tanzania,SOE
+Tanzania Petroleum Development Corporation (TPDC),,https://tpdc.co.tz/job-vacancies/,amber_company_route,SOE | Petroleum | vacancies page,true,pending,Tanzania,SOE
+National Social Security Fund (NSSF),,https://www.nssf.or.tz/index.php/careers,amber_company_route,SOE | Social security | careers page,true,pending,Tanzania,SOE
+Banco Nacional de Angola (BNA),,https://recrutamento.bna.ao/,green_verified,SOE | Central bank | recruitment portal,true,pending,Angola,SOE
+Unitel,,https://oportunidadesdecarreira.unitel.ao/viewalljobs/,green_verified,SOE | Telecoms part-state | jobs portal,true,pending,Angola,SOE
+Rede Nacional de Transporte (RNT),,https://www.rnt.co.ao/carreiras/,green_verified,SOE | Electricity transmission | careers page,true,pending,Angola,SOE
+Caminho de Ferro de Luanda (CFL),,https://cflep.co.ao/career/,green_verified,SOE | Rail | careers page,true,pending,Angola,SOE
+Sonangol,,https://www.sonangol.co.ao/recepcao-de-pedidos-de-emprego-e-estagios/,amber_company_route,SOE | Oil and gas | spontaneous applications,true,pending,Angola,SOE
+Empresa Nacional de Diamantes (ENDIAMA),,https://www.endiama.co.ao/capital-humano,amber_company_route,SOE | Diamonds | human capital page,true,pending,Angola,SOE
+Empresa Nacional de Seguros (ENSA),,https://www.ensa.co.ao/capital-humano.php,amber_company_route,SOE | Insurance | human capital page,true,pending,Angola,SOE
+Empresa Nacional de Distribuicao de Electricidade (ENDE),,,grey_none_verified,SOE | Electricity distribution | no verified careers page,false,pending,Angola,SOE
+TAAG Angola Airlines,,,grey_none_verified,SOE | Airline | no verified careers page,false,pending,Angola,SOE
+Banco de Poupanca e Credito (BPC),,,grey_none_verified,SOE | Banking | no verified careers page,false,pending,Angola,SOE
+Empresa Publica de Aguas de Luanda (EPAL),,,grey_none_verified,SOE | Water | no verified careers page,false,pending,Angola,SOE
+Central Electricity Board (CEB),,https://ceb.mu/vacancies,green_verified,SOE | Electricity | vacancies page,true,pending,Mauritius,SOE
+Central Water Authority (CWA),,https://cwa.govmu.org/cwa/?page_id=2106,green_verified,SOE | Water | vacancies page,true,pending,Mauritius,SOE
+Wastewater Management Authority (WMA),,https://www.wmamauritius.mu/careers/,green_verified,SOE | Wastewater | careers page,true,pending,Mauritius,SOE
+Mauritius Post,,https://www.mauritiuspost.mu/careers/,green_verified,SOE | Postal | careers page,true,pending,Mauritius,SOE
+Air Mauritius,,https://www.airmauritius.com/en-mu/footer/careers,green_verified,SOE | Airline | careers page,true,pending,Mauritius,SOE
+Airports of Mauritius (AML),,https://aml.mru.aero/index.php/corporate/careers,green_verified,SOE | Airports | vacancies list,true,pending,Mauritius,SOE
+Mauritius Ports Authority (MPA),,https://www.mauport.com/vacancies/,green_verified,SOE | Ports | vacancies page,true,pending,Mauritius,SOE
+Development Bank of Mauritius (DBM),,https://www.dbm.mu/careers/,green_verified,SOE | Development bank | careers page,true,pending,Mauritius,SOE
+National Transport Corporation (NTC),,https://www.buscnt.mu/jobs/,green_verified,SOE | Transport | jobs page,true,pending,Mauritius,SOE
+Mauritius Revenue Authority (MRA),,https://eservices.mra.mu/career/MRAcareers.html,green_verified,SOE | Revenue | careers page,true,pending,Mauritius,SOE
+State Insurance Company of Mauritius (SICOM),,https://www.sicom.mu/about/about-sicom/career-at-sicom,green_verified,SOE | Insurance | careers page,true,pending,Mauritius,SOE
+University of Technology Mauritius (UTM),,https://www.utm.ac.mu/vacancy/,green_verified,SOE | University | vacancies page,true,pending,Mauritius,SOE
+Economic Development Board (EDB),,https://edbmauritius.org/vacancy,green_verified,SOE | Investment promotion | vacancy page,true,pending,Mauritius,SOE
+Mauritius Housing Company (MHC),,https://mhc.mu/career,green_verified,SOE | Housing finance | careers page,true,pending,Mauritius,SOE
+Landscope Mauritius,,https://landscopemauritius.com/careers/,green_verified,SOE | Property | careers page,true,pending,Mauritius,SOE
+Human Resource Development Council (HRDC),,https://www.hrdc.mu/index.php/vacancies,green_verified,SOE | Skills development | vacancies page,true,pending,Mauritius,SOE
+Financial Services Commission (FSC),,https://www.fscmauritius.org/about-us/careers,green_verified,SOE | Financial regulator | careers page,true,pending,Mauritius,SOE
+Mauritius Telecom,,https://careers.telecom.mu/,amber_company_route,SOE | Telecoms | careers portal,true,pending,Mauritius,SOE
+Cargo Handling Corporation (CHCL),,https://www.chcl.mu/vacancies/,amber_company_route,SOE | Cargo handling | vacancies page,true,pending,Mauritius,SOE
+Bank of Mauritius,,https://www.bom.mu/vacancies,amber_company_route,SOE | Central bank | vacancies page,true,pending,Mauritius,SOE
+University of Mauritius (UoM),,https://uom.ac.mu/index.php?id=86,amber_company_route,SOE | University | vacancies page,true,pending,Mauritius,SOE
+Mauritius Institute of Training and Development (MITD),,https://www.mitd.mu/applynow/home,amber_company_route,SOE | Training | application portal,true,pending,Mauritius,SOE
+Public Service Commission (PSC),,https://psc.govmu.org/psc/,amber_company_route,SOE | Central civil-service recruiter,true,pending,Mauritius,SOE
+State Bank of Mauritius (SBM),,,grey_none_verified,SOE | Banking govt stake | no single careers page,false,pending,Mauritius,SOE
+ESCOM,,https://www.escom.mw/vacancies/,green_verified,SOE | Electricity | vacancies section,true,pending,Malawi,SOE
+EGENCO,,https://www.egenco.mw/adverts/,green_verified,SOE | Power generation | advert listings,true,pending,Malawi,SOE
+Malawi Revenue Authority (MRA),,https://careers.mra.mw/search/,green_verified,SOE | Revenue | ATS careers portal,true,pending,Malawi,SOE
+Reserve Bank of Malawi (RBM),,https://www.rbm.mw/mediacenter/vacancies/,green_verified,SOE | Central bank | vacancies page,true,pending,Malawi,SOE
+Malawi Telecommunications (MTL),,https://www.mtl.mw/careers/,green_verified,SOE | Telecoms | careers page,true,pending,Malawi,SOE
+Malawi Posts Corporation,,https://www.malawipost.post/careers/,green_verified,SOE | Postal | careers page,true,pending,Malawi,SOE
+Airport Developments Limited (Malawi Airports),,https://adlmw.com/careers/,green_verified,SOE | Airports | live vacancies,true,pending,Malawi,SOE
+Malawi Broadcasting Corporation (MBC),,http://mbc.mw/vacancies/,green_verified,SOE | Broadcasting | vacancies page,true,pending,Malawi,SOE
+Lilongwe Water Board (LWB),,https://www.lwb.mw/index.php/opportunities/,green_verified,SOE | Water | opportunities page,true,pending,Malawi,SOE
+Central Region Water Board (CRWB),,https://www.crwb.org.mw/vacancies.php?thread=Vacancies,green_verified,SOE | Water | vacancies list,true,pending,Malawi,SOE
+Northern Region Water Board (NRWB),,https://www.nrwb.org.mw/?page_id=1383,green_verified,SOE | Water | vacancies page,true,pending,Malawi,SOE
+Southern Region Water Board (SRWB),,https://srwb.mw/category/vacancies/,green_verified,SOE | Water | vacancies category,true,pending,Malawi,SOE
+Roads Authority (RA),,https://www.ra.org.mw/category/vacancies/,green_verified,SOE | Roads | live vacancies,true,pending,Malawi,SOE
+Roads Fund Administration (RFA),,https://rfamw.com/index.php/careers/,green_verified,SOE | Road funding | careers page,true,pending,Malawi,SOE
+Malawi Bureau of Standards (MBS),,https://mbsmw.org/vacancies/,green_verified,SOE | Standards | vacancies page,true,pending,Malawi,SOE
+Malawi Gaming and Lotteries Authority (MAGLA),,https://magla.org.mw/vacancies/,green_verified,SOE | Gaming regulator | vacancies page,true,pending,Malawi,SOE
+University of Malawi (UNIMA),,https://www.unima.ac.mw/vacancies,green_verified,SOE | University | vacancies page,true,pending,Malawi,SOE
+Malawi University of Business and Applied Sciences (MUBAS),,https://www.mubas.ac.mw/vacancies,green_verified,SOE | University | vacancies page,true,pending,Malawi,SOE
+LUANAR,,https://www.luanar.ac.mw/luanar/vacancies.php,green_verified,SOE | University | live vacancies,true,pending,Malawi,SOE
+Smallholder Farmers Fertilizer Revolving Fund (SFFRFM),,https://sffrfm.org/?v=careers,green_verified,SOE | Agriculture | careers page,true,pending,Malawi,SOE
+Agricultural Development and Marketing Corporation (ADMARC),,https://admarc.co.mw/opportunities/careers/,amber_company_route,SOE | Agriculture marketing | careers page,true,pending,Malawi,SOE
+National Oil Company of Malawi (NOCMA),,https://www.nocma.mw/careers/,amber_company_route,SOE | Petroleum | careers page,true,pending,Malawi,SOE
+MACRA,,https://macra.mw/vacancies-2/,amber_company_route,SOE | Comms regulator | vacancies page,true,pending,Malawi,SOE
+Blantyre Water Board (BWB),,https://www.bwb.mw/OnlineApplicationsInnovation.php,amber_company_route,SOE | Water | online applications portal,true,pending,Malawi,SOE
+Malawi Housing Corporation (MHC),,https://www.mhc.mw/,amber_company_route,SOE | Housing | vacancies nav section,true,pending,Malawi,SOE

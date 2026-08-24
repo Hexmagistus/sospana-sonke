@@ -58,21 +58,22 @@ const GREETINGS = [
 const VALUES = ["Ambition", "Opportunity", "Dignity", "Ubuntu", "Hustle", "Growth", "Pride", "Your future"];
 
 // Employer counts reflect the current verified directory (kept in step with the company database).
+// pending = state-owned entities are live, but the country's stock-exchange listings are still being added.
 const LIVE = [
-  { name: "South Africa", flag: "🇿🇦", count: 368 },
-  { name: "Zimbabwe", flag: "🇿🇼", count: 67 },
-  { name: "Namibia", flag: "🇳🇦", count: 46 },
-  { name: "Botswana", flag: "🇧🇼", count: 42 },
-  { name: "Mozambique", flag: "🇲🇿", count: 33 },
-  { name: "Eswatini", flag: "🇸🇿", count: 30 },
-  { name: "Lesotho", flag: "🇱🇸", count: 17 },
+  { name: "South Africa", flag: "🇿🇦", count: 368, pending: false },
+  { name: "Zimbabwe", flag: "🇿🇼", count: 67, pending: false },
+  { name: "Namibia", flag: "🇳🇦", count: 46, pending: false },
+  { name: "Botswana", flag: "🇧🇼", count: 42, pending: false },
+  { name: "Mozambique", flag: "🇲🇿", count: 33, pending: false },
+  { name: "Eswatini", flag: "🇸🇿", count: 30, pending: false },
+  { name: "Malawi", flag: "🇲🇼", count: 25, pending: true },
+  { name: "Mauritius", flag: "🇲🇺", count: 24, pending: true },
+  { name: "Zambia", flag: "🇿🇲", count: 22, pending: true },
+  { name: "Lesotho", flag: "🇱🇸", count: 17, pending: false },
+  { name: "Tanzania", flag: "🇹🇿", count: 16, pending: true },
+  { name: "Angola", flag: "🇦🇴", count: 11, pending: true },
 ];
 const SOON = [
-  { name: "Zambia", flag: "🇿🇲" },
-  { name: "Angola", flag: "🇦🇴" },
-  { name: "Malawi", flag: "🇲🇼" },
-  { name: "Tanzania", flag: "🇹🇿" },
-  { name: "Mauritius", flag: "🇲🇺" },
   { name: "Madagascar", flag: "🇲🇬" },
   { name: "DR Congo", flag: "🇨🇩" },
   { name: "Seychelles", flag: "🇸🇨" },
@@ -188,7 +189,7 @@ export default function Home() {
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-75" style={{ background: C.mint }} />
                   <span className="relative inline-flex h-2 w-2 rounded-full" style={{ background: C.mint }} />
                 </span>
-                Live across 7 Southern African markets · Growing across the continent
+                Live across 12 African markets · Growing across the continent
               </span>
 
               <div className="mb-5 mt-6 flex flex-wrap gap-2">
@@ -252,7 +253,7 @@ export default function Home() {
       <section className="mx-auto max-w-6xl px-4">
         <div className="-mt-6 grid grid-cols-2 gap-3 rounded-2xl bg-white p-4 shadow-lg sm:grid-cols-4">
           {[
-            ["600+", "Employers tracked", C.red],
+            ["700+", "Employers tracked", C.red],
             ["Direct", "To official careers pages", C.teal],
             ["100%", "Truthful CV tailoring", C.green],
             ["Free", "Full access, no charge", C.gold],
@@ -268,7 +269,7 @@ export default function Home() {
       {/* Pillars */}
       <section className="mx-auto grid max-w-6xl gap-5 px-4 py-12 sm:grid-cols-3">
         {[
-          ["🎯", "Straight to employers", "Direct links to 600+ companies' official careers pages across the region — no middle-man boards, no games.", C.red],
+          ["🎯", "Straight to employers", "Direct links to 700+ companies' official careers pages across the region — no middle-man boards, no games.", C.red],
           ["✍️", "Apply smarter", "We tailor your CV and cover letter to each role — truthfully, from your real story. Never invented.", C.gold],
           ["📈", "Track & rise", "Every application in one place. Stay organised, stay ready, and keep moving forward.", C.teal],
         ].map(([ic, t, d, col]) => (
@@ -311,9 +312,9 @@ export default function Home() {
           <div className="pointer-events-none absolute -right-10 -top-10 h-56 w-56 rounded-full blur-3xl" style={{ background: `radial-gradient(circle,${C.gold},transparent 70%)`, opacity: 0.4 }} />
           <div className="relative">
             <span className="inline-block rounded-full bg-white/10 px-4 py-1.5 text-xs font-semibold backdrop-blur-sm">🌍 Africa&apos;s Opportunity Map</span>
-            <h2 className="mt-4 text-2xl font-extrabold sm:text-4xl">Built for the region. Live across Southern Africa.</h2>
+            <h2 className="mt-4 text-2xl font-extrabold sm:text-4xl">Built for the region. Live across Africa.</h2>
             <p className="mt-3 max-w-3xl text-blue-100">
-              We&apos;re live in South Africa, Lesotho, Eswatini, Botswana, Namibia, Zimbabwe and Mozambique — seven markets, one platform. Wherever you are in the region, your ambition has a home here.
+              We&apos;re live in twelve African markets — from South Africa across the SADC region to Tanzania. For our newest markets we start with state-owned employers while their stock-exchange listings are added. Wherever you are, your ambition has a home here.
             </p>
 
             {/* Live now */}
@@ -333,6 +334,7 @@ export default function Home() {
                       <div className="text-sm font-bold leading-tight">{c.name}</div>
                       <div className="mt-0.5 text-xs font-semibold" style={{ color: C.mint }}>{c.count} employers</div>
                       <span className="mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-bold" style={{ background: C.green, color: "#fff" }}>● Live</span>
+                      {c.pending && <div className="mt-1 text-[10px] font-medium text-blue-200">Stock exchange listings coming soon</div>}
                     </div>
                   </div>
                 ))}
@@ -340,14 +342,40 @@ export default function Home() {
             </div>
 
             <p className="mt-5 text-sm font-semibold text-blue-100">
-              🎉 Live across all seven launch markets — and rolling out to the rest of the SADC region next.
+              🎉 Live across twelve African markets — with more of the continent to follow.
             </p>
+
+            {/* Contribution ranking — which country is powering the most opportunities */}
+            <div className="mt-8 rounded-2xl border border-white/10 bg-black/20 p-5">
+              <p className="text-xs font-semibold uppercase tracking-wider text-blue-200">Who&apos;s powering Africa&apos;s opportunities</p>
+              <p className="mt-1 text-sm text-blue-100">Verified employers on Sospana Sonke by country — a live picture of where the region&apos;s opportunities are opening up.</p>
+              <div className="mt-4 space-y-2.5">
+                {LIVE.map((c, i) => {
+                  const max = LIVE[0].count || 1;
+                  const pct = Math.max(6, Math.round((c.count / max) * 100));
+                  const cols = [C.gold, C.mint, C.sky, C.green, C.sun, C.plum, C.red, C.teal, C.amber, C.mint, C.sky, C.green];
+                  const col = cols[i % cols.length];
+                  return (
+                    <div key={c.name} className="flex items-center gap-3">
+                      <div className="flex w-28 shrink-0 items-center gap-1.5 text-sm font-semibold sm:w-36">
+                        <span>{c.flag}</span><span className="truncate">{c.name}</span>
+                      </div>
+                      <div className="relative h-6 flex-1 overflow-hidden rounded-full bg-white/10">
+                        <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: col }} />
+                      </div>
+                      <div className="w-8 shrink-0 text-right text-sm font-bold tabular-nums">{c.count}</div>
+                    </div>
+                  );
+                })}
+              </div>
+              <p className="mt-3 text-[11px] text-blue-200">South Africa leads today; as we verify more employers across each market, this picture will keep shifting.</p>
+            </div>
 
             {/* Coming soon */}
             {SOON.length > 0 && (
               <div className="mt-5">
                 <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-blue-200">Coming soon across SADC</p>
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                   {SOON.map((c) => (
                     <div key={c.name} className="rounded-xl border border-white/10 bg-white/5 p-3 text-center transition hover:bg-white/10">
                       <div className="text-3xl">{c.flag}</div>
