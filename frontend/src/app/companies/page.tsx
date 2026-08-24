@@ -42,6 +42,15 @@ function CompaniesDirectoryInner() {
     return set;
   }, [companies]);
 
+  const countryCounts = useMemo(() => {
+    const m: Record<string, number> = {};
+    for (const c of companies) {
+      const k = c.country || "";
+      if (k) m[k] = (m[k] || 0) + 1;
+    }
+    return m;
+  }, [companies]);
+
   const shownCompanies = useMemo(() => {
     const needle = q.trim().toLowerCase();
     return companies
@@ -80,11 +89,14 @@ function CompaniesDirectoryInner() {
               <button
                 key={cn}
                 onClick={() => setCountry(cn)}
-                className={`rounded-full px-3 py-1.5 text-sm font-semibold transition ${
+                className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-semibold transition ${
                   country === cn ? "bg-navy text-white shadow-sm" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                 }`}
               >
-                {COUNTRY_FLAGS[cn] || "🌍"} {cn}
+                <span>{COUNTRY_FLAGS[cn] || "🌍"} {cn}</span>
+                <span className={`rounded-full px-1.5 py-0.5 text-[11px] font-bold tabular-nums ${
+                  country === cn ? "bg-white/20 text-white" : "bg-white text-gray-500"
+                }`}>{countryCounts[cn] ?? 0}</span>
               </button>
             ))}
           </div>

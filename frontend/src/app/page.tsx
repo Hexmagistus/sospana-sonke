@@ -62,9 +62,9 @@ const LIVE = [
   { name: "Lesotho", flag: "🇱🇸" },
   { name: "Eswatini", flag: "🇸🇿" },
   { name: "Botswana", flag: "🇧🇼" },
+  { name: "Namibia", flag: "🇳🇦" },
 ];
 const SOON = [
-  { name: "Namibia", flag: "🇳🇦" },
   { name: "Zimbabwe", flag: "🇿🇼" },
   { name: "Mozambique", flag: "🇲🇿" },
 ];
@@ -154,7 +154,7 @@ export default function Home() {
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-75" style={{ background: C.mint }} />
                   <span className="relative inline-flex h-2 w-2 rounded-full" style={{ background: C.mint }} />
                 </span>
-                Live in South Africa, Lesotho, Eswatini &amp; Botswana · Expanding across SADC
+                Live in South Africa, Lesotho, Eswatini, Botswana &amp; Namibia · Expanding across SADC
               </span>
 
               <div className="mb-5 mt-6 flex flex-wrap gap-2">
@@ -206,7 +206,7 @@ export default function Home() {
       <section className="mx-auto max-w-6xl px-4">
         <div className="-mt-6 grid grid-cols-2 gap-3 rounded-2xl bg-white p-4 shadow-lg sm:grid-cols-4">
           {[
-            ["450+", "Employers tracked", C.red],
+            ["500+", "Employers tracked", C.red],
             ["Direct", "To official careers pages", C.teal],
             ["100%", "Truthful CV tailoring", C.green],
             ["R100", "Per month, all included", C.gold],
@@ -222,7 +222,7 @@ export default function Home() {
       {/* Pillars */}
       <section className="mx-auto grid max-w-6xl gap-5 px-4 py-12 sm:grid-cols-3">
         {[
-          ["🎯", "Straight to employers", "Direct links to 450+ companies' official careers pages across the region — no middle-man boards, no games.", C.red],
+          ["🎯", "Straight to employers", "Direct links to 500+ companies' official careers pages across the region — no middle-man boards, no games.", C.red],
           ["✍️", "Apply smarter", "We tailor your CV and cover letter to each role — truthfully, from your real story. Never invented.", C.gold],
           ["📈", "Track & rise", "Every application in one place. Stay organised, stay ready, and keep moving forward.", C.teal],
         ].map(([ic, t, d, col]) => (
@@ -267,7 +267,7 @@ export default function Home() {
             <span className="inline-block rounded-full bg-white/10 px-4 py-1.5 text-xs font-semibold backdrop-blur-sm">🌍 One platform for Southern Africa</span>
             <h2 className="mt-4 text-2xl font-extrabold sm:text-4xl">Built for the region. Expanding across SADC.</h2>
             <p className="mt-3 max-w-3xl text-blue-100">
-              We&apos;re live in South Africa, Lesotho, Eswatini and Botswana today, and rolling out to the rest of the SADC region next. Wherever you are, your ambition will have a home here.
+              We&apos;re live in South Africa, Lesotho, Eswatini, Botswana and Namibia today, and rolling out to the rest of the SADC region next. Wherever you are, your ambition will have a home here.
             </p>
 
             {/* Live now */}
@@ -279,7 +279,7 @@ export default function Home() {
                 </span>
                 Live now
               </p>
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
                 {LIVE.map((c) => (
                   <div key={c.name} className="flex items-center gap-3 rounded-2xl border border-white/15 bg-white/10 p-4 backdrop-blur-sm">
                     <span className="text-4xl leading-none">{c.flag}</span>

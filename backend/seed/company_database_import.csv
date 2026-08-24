@@ -456,3 +456,49 @@ Botswana Savings Bank (BSB),,https://bsb.mcidirecthire.com/External/CurrentOppor
 Botswana International University of Science and Technology (BIUST),,https://www.biust.ac.bw/jobs/,green_verified,Education | direct job openings list,true,pending,Botswana,SOE
 Human Resource Development Council (HRDC),,https://www.hrdc.org.bw/vacancies,green_verified,Skills development | direct vacancies list,true,pending,Botswana,SOE
 Botswana Oil,,https://botswanaoiljobs.mcidirecthire.com/,amber_company_route,Energy | mcidirecthire ATS,true,pending,Botswana,SOE
+Capricorn Group (Bank Windhoek),,https://careers.capricorn.com.na/applicant/index.php?controller=Page&name=jobsearch,green_verified,NSX-listed | Banking group ATS | Bank Windhoek Capricorn,true,pending,Namibia,NSX
+FirstRand Namibia (FNB Namibia),,https://firstrand.wd3.myworkdayjobs.com/FRB,green_verified,NSX-listed | Banking | group Workday single access point,true,pending,Namibia,NSX
+Letshego Holdings Namibia,,https://www.letshego.com.na/careers,green_verified,NSX-listed | Micro-finance | careers listing,true,pending,Namibia,NSX
+Namibia Breweries (NBL),,https://careers.theheinekencompany.com/Namibia/,green_verified,NSX-listed | Beverages | Namibia-filtered jobs list,true,pending,Namibia,NSX
+Oryx Properties,,https://oryxprop.com/careers/,green_verified,NSX-listed | Property | current vacancies table,true,pending,Namibia,NSX
+Paratus Namibia Holdings,,https://paratus.africa/namibia/vacancy/,green_verified,NSX-listed | Telecoms | live vacancy list,true,pending,Namibia,NSX
+Mobile Telecommunications (MTC),,https://fa-euud-saasfaprod1.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1001/jobs,green_verified,NSX-listed | Mobile telecoms | Oracle Recruiting jobs list,true,pending,Namibia,NSX
+Namibia Asset Management (NAM),,https://namasset.com.na/vacancies/,amber_company_route,NSX-listed | Asset management | official vacancies page,true,pending,Namibia,NSX
+SBN Holdings (Standard Bank Namibia),,https://www.standardbank.com/sbg/standard-bank-group/careers/apply/jobs/view-all-jobs,amber_company_route,NSX-listed | Banking | group jobs portal,true,pending,Namibia,NSX
+Trustco Group Holdings,,https://careers.tgh.na/,amber_company_route,NSX-listed | Diversified | official careers portal,true,pending,Namibia,NSX
+Nictus Holdings,,,grey_none_verified,NSX-listed | Holding co | no verified careers page,false,pending,Namibia,NSX
+Stimulus Investments,,,grey_none_verified,NSX-listed | Investment holding | no own careers page,false,pending,Namibia,NSX
+Tadvest Limited,,,grey_none_verified,NSX-listed | Investment holding | no careers page found,false,pending,Namibia,NSX
+Alpha Namibia Industries Renewable Power (ANIREP),,,grey_none_verified,NSX-listed | Renewables | no careers page found,false,pending,Namibia,NSX
+Telecom Namibia,,https://www.telecom.na/vacancies,green_verified,SOE | Telecoms | live vacancies list,true,pending,Namibia,SOE
+Namibian Ports Authority (Namport),,https://www.namport.com.na/careers/28/,green_verified,SOE | Ports | careers page live listings,true,pending,Namibia,SOE
+NamPower,,https://recruitment.nampower.com.na/,green_verified,SOE | Power utility | e-recruitment ATS,true,pending,Namibia,SOE
+NamPost,,https://www.nampost.com.na/corporate/vacancies,green_verified,SOE | Postal | official vacancies page,true,pending,Namibia,SOE
+Namibia Wildlife Resorts (NWR),,https://www.nwr.com.na/vacancies/,green_verified,SOE | Tourism | live vacancies,true,pending,Namibia,SOE
+TransNamib,,https://www.transnamib.com.na/career/,green_verified,SOE | Rail transport | careers page,true,pending,Namibia,SOE
+Namibia University of Science and Technology (NUST),,https://nustjobs.mcidirecthire.com/Vacancy,green_verified,SOE | Higher education | MCi ATS,true,pending,Namibia,SOE
+Government Institutions Pension Fund (GIPF),,https://gipfjobs.mcidirecthire.com/Vacancy,green_verified,SOE | Pension fund | MCi ATS,true,pending,Namibia,SOE
+Meat Corporation of Namibia (Meatco),,https://recruit.meatco.com.na/,green_verified,SOE | Meat processing | ATS job openings,true,pending,Namibia,SOE
+Communications Regulatory Authority (CRAN),,https://cranjobs.mcidirecthire.com/,green_verified,SOE | Regulator | MCi ATS,true,pending,Namibia,SOE
+Namibia Statistics Agency,,https://recruitment.nsa.org.na/,green_verified,SOE | Statistics | e-recruitment portal,true,pending,Namibia,SOE
+Namibian Standards Institution (NSI),,https://www.nsi.com.na/vacancies/,green_verified,SOE | Standards | live vacancies,true,pending,Namibia,SOE
+Namdeb,,https://namdeb.com/opportunities/vacancies/,green_verified,SOE | Diamond mining | vacancies page SmartRecruiters,true,pending,Namibia,SOE
+Road Fund Administration (RFA),,https://rfanam.com.na/vacancies/,green_verified,SOE | Road funding | official vacancies page,true,pending,Namibia,SOE
+Namib Desert Diamonds (NAMDIA),,https://namdia.na/vacancies/,green_verified,SOE | Diamond trading | official vacancies page,true,pending,Namibia,SOE
+Namibia Tourism Board,,https://visitnamibia.com.na/recruitment/,green_verified,SOE | Tourism | recruitment page with filters,true,pending,Namibia,SOE
+NamWater,,https://www.namwater.com.na/index.php/10-vacancies,amber_company_route,SOE | Water utility | official vacancies page,true,pending,Namibia,SOE
+Bank of Namibia,,https://www.bon.com.na/Vacancies.aspx,amber_company_route,SOE | Central bank | careers landing to portal,true,pending,Namibia,SOE
+NAMFISA,,https://www.namfisa.com.na/careers/,amber_company_route,SOE | Financial regulator | careers page,true,pending,Namibia,SOE
+Namibia Training Authority (NTA),,https://www.nta.com.na/vacancies-portal/,amber_company_route,SOE | Skills training | vacancy portal,true,pending,Namibia,SOE
+Electricity Control Board (ECB),,https://www.ecb.org.na/vacancies/,amber_company_route,SOE | Electricity regulator | careers to PE portal,true,pending,Namibia,SOE
+Namibia Industrial Development Agency (NIDA),,https://www.nida.com.na/employment/,amber_company_route,SOE | Industrial development | employment page,true,pending,Namibia,SOE
+Agricultural Bank of Namibia (Agribank),,https://agribank.com.na/page/vacancies/,amber_company_route,SOE | Development bank | vacancies gateway,true,pending,Namibia,SOE
+Roads Authority,,https://www.ra.org.na/vacancies,amber_company_route,SOE | Roads | vacancies page to portal,true,pending,Namibia,SOE
+Namibia Airports Company,,,grey_none_verified,SOE | Airports | careers URL unconfirmed no verified page,false,pending,Namibia,SOE
+Namibian Broadcasting Corporation (NBC),,,grey_none_verified,SOE | Broadcasting | careers URL unconfirmed,false,pending,Namibia,SOE
+Namibia Revenue Agency (NamRA),,,grey_none_verified,SOE | Revenue | vacancies only as PDF adverts,false,pending,Namibia,SOE
+University of Namibia (UNAM),,,grey_none_verified,SOE | Higher education | vacancies only as PDF adverts,false,pending,Namibia,SOE
+Namibia Institute of Pathology (NIP),,,grey_none_verified,SOE | Health pathology | no careers page found,false,pending,Namibia,SOE
+Epangelo Mining,,,grey_none_verified,SOE | Mining | no verified careers page,false,pending,Namibia,SOE
+Development Bank of Namibia (DBN),,,grey_none_verified,SOE | Development bank | no careers page found,false,pending,Namibia,SOE
+Social Security Commission (SSC),,,grey_none_verified,SOE | Social security | no careers page found,false,pending,Namibia,SOE
