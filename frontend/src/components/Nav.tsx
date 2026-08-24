@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth";
 
 const LINKS = [
+  { href: "/jobs", label: "Find jobs" },
   { href: "/companies", label: "Companies" },
   { href: "/tailor", label: "Tailor CV" },
   { href: "/profile", label: "Profile" },

@@ -145,3 +145,22 @@ export interface Company {
   url_looks_like_careers: boolean | null;
   notes: string | null;
 }
+
+export interface Vacancy {
+  id: string;
+  company_id: string;
+  external_id: string | null;
+  title: string;
+  department: string | null;
+  location: string | null;
+  work_mode: string | null;
+  employment_type: string | null;
+  salary: string | null;
+  posting_date: string | null;
+  closing_date: string | null;
+  application_url: string | null;
+  source_url: string | null;
+  is_open: boolean;
+  first_seen_at: string;
+  last_seen_at: string;
+}
