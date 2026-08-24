@@ -117,6 +117,7 @@ function CompaniesDirectoryInner() {
       <div className="grid gap-3 md:grid-cols-2">
         {shownCompanies.map((c, i) => {
           const isSOE = (c.source_type || "").toUpperCase() === "SOE";
+          const label = isSOE ? "State-owned" : (c.source_type ? `${c.source_type.toUpperCase()}-listed` : "Listed");
           return (
             <Card key={c.id} accent={ACCENTS[i % ACCENTS.length]} className="hover:-translate-y-0.5 hover:shadow-md">
               <div className="flex items-start justify-between gap-3">
@@ -126,7 +127,7 @@ function CompaniesDirectoryInner() {
                     <div className="font-semibold text-navy">{c.company_name}</div>
                     <div className="mt-1 flex flex-wrap items-center gap-1">
                       <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${isSOE ? "bg-purple/10 text-purple" : "bg-brand/10 text-brand-dark"}`}>
-                        {isSOE ? "State-owned" : "JSE-listed"}
+                        {label}
                       </span>
                       {c.jse_code && (
                         <span className="rounded-full bg-gold/20 px-2 py-0.5 text-xs font-semibold text-[#a9791a]">{c.jse_code}</span>
