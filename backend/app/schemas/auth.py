@@ -26,6 +26,10 @@ class RefreshRequest(BaseModel):
     refresh_token: str
 
 
+class GoogleLoginRequest(BaseModel):
+    credential: str   # the Google ID token (JWT) returned by Google Identity Services
+
+
 class UserResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     id: str

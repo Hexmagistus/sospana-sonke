@@ -1,4 +1,7 @@
 """Authentication routes (blueprint Step 1)."""
+import secrets
+
+import httpx
 import jwt
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -11,7 +14,7 @@ from app.core.config import settings
 from app.schemas.auth import (
     RegisterRequest, RegisterResponse, LoginRequest, TokenResponse,
     RefreshRequest, UserResponse, MFASetupResponse, MFACodeRequest,
-    PasswordResetRequest, PasswordResetConfirm, SimpleMessage,
+    PasswordResetRequest, PasswordResetConfirm, SimpleMessage, GoogleLoginRequest,
 )
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -62,6 +65,52 @@ def login(body: LoginRequest, db: Session = Depends(get_db)):
         if not security.verify_totp(user.mfa_secret, body.otp_code):
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                                 detail="MFA code required or invalid.")
+    return TokenResponse(
+        access_token=security.create_access_token(user.id, user.role),
+        refresh_token=security.create_refresh_token(user.id),
+    )
+
+
+@router.post("/google", response_model=TokenResponse)
+def google_login(body: GoogleLoginRequest, db: Session = Depends(get_db)):
+    """Sign in (or sign up) with a Google account.
+
+    The frontend obtains a Google ID token via Google Identity Services and posts it
+    here. We verify it against Google's tokeninfo endpoint, then find-or-create the
+    matching user and issue our own access/refresh tokens.
+    """
+    if not settings.GOOGLE_CLIENT_ID:
+        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                            detail="Google sign-in is not configured.")
+    try:
+        resp = httpx.get("https://oauth2.googleapis.com/tokeninfo",
+                         params={"id_token": body.credential}, timeout=10.0)
+    except httpx.HTTPError:
+        raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY,
+                            detail="Could not verify Google sign-in. Please try again.")
+    if resp.status_code != 200:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid Google sign-in.")
+    data = resp.json()
+    if data.get("aud") != settings.GOOGLE_CLIENT_ID:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Google sign-in token mismatch.")
+    email = (data.get("email") or "").lower()
+    if not email or str(data.get("email_verified", "false")).lower() != "true":
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                            detail="Google account email is not verified.")
+    user = db.query(User).filter(User.email == email).first()
+    if user is None:
+        user = User(
+            email=email,
+            password_hash=security.hash_password(secrets.token_urlsafe(32)),
+            first_name=(data.get("given_name") or "").strip() or email.split("@")[0],
+            last_name=(data.get("family_name") or "").strip() or "-",
+            email_verified=True,
+        )
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+    if not user.is_active or user.deleted_at is not None:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Account is disabled.")
     return TokenResponse(
         access_token=security.create_access_token(user.id, user.role),
         refresh_token=security.create_refresh_token(user.id),

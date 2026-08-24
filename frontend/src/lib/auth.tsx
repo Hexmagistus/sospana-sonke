@@ -8,6 +8,7 @@ interface AuthState {
   user: User | null;
   loading: boolean;
   login: (email: string, password: string, otp?: string) => Promise<void>;
+  loginWithGoogle: (credential: string) => Promise<void>;
   register: (data: RegisterData) => Promise<{ email_verification_token: string }>;
   logout: () => void;
   refreshUser: () => Promise<void>;
@@ -53,6 +54,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await refreshUser();
   }
 
+  async function loginWithGoogle(credential: string) {
+    const tokens = await api.post<Tokens>("/auth/google", { credential });
+    setTokens(tokens.access_token, tokens.refresh_token);
+    await refreshUser();
+  }
+
   async function register(data: RegisterData) {
     const res = await api.post<{ user: User; email_verification_token: string }>(
       "/auth/register",
@@ -69,7 +76,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, refreshUser }}>
+    <AuthContext.Provider value={{ user, loading, login, loginWithGoogle, register, logout, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );

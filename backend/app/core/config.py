@@ -34,6 +34,10 @@ class Settings(BaseSettings):
     PASSWORD_RESET_EXPIRE_HOURS: int = 2
     MFA_ISSUER: str = "Sospana Sonke"
 
+    # Google Sign-In (Google Identity Services). Set to the OAuth 2.0 Web client ID.
+    # When unset, the /auth/google endpoint and the frontend button are disabled.
+    GOOGLE_CLIENT_ID: str | None = None
+
     # Scraper health alerting
     SOURCE_FAILURE_ALERT_THRESHOLD: int = 3   # consecutive failures before an admin alert
 
