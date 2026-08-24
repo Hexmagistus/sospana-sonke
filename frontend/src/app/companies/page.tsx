@@ -67,12 +67,23 @@ function CompaniesDirectoryInner() {
   }, [companies, q, filter, country]);
 
   const withLinks = companies.filter((c) => c.careers_url).length;
+  const flag = COUNTRY_FLAGS[country] || "🌍";
+  const countryTotal = countryCounts[country] ?? 0;
+  const countryWithLinks = companies.filter((c) => (c.country || "") === country && c.careers_url).length;
 
   if (err) return <Alert kind="error">{err}</Alert>;
   if (!companies.length) return <Spinner />;
 
   return (
-    <div className="space-y-6">
+    <div className="relative">
+      {/* Full-page decoration: the selected country's flag, watermarked across the page */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 -z-0 overflow-hidden">
+        <span className="absolute -right-16 top-16 select-none text-[18rem] leading-none opacity-[0.06]">{flag}</span>
+        <span className="absolute -left-20 top-1/2 select-none text-[15rem] leading-none opacity-[0.05]">{flag}</span>
+        <span className="absolute -right-10 bottom-8 select-none text-[13rem] leading-none opacity-[0.05]">{flag}</span>
+      </div>
+
+      <div className="relative z-10 space-y-6">
       <Banner
         variant="companies"
         eyebrow="Direct to employers"
@@ -85,6 +96,17 @@ function CompaniesDirectoryInner() {
           </>
         }
       />
+
+      <div className="flex items-center gap-4 rounded-2xl border border-black/5 bg-white/70 px-5 py-4 shadow-sm backdrop-blur-sm">
+        <span className="text-5xl leading-none drop-shadow-sm">{flag}</span>
+        <div>
+          <div className="text-xl font-extrabold text-navy">{country}</div>
+          <div className="text-sm text-gray-500">
+            <strong className="text-navy">{countryTotal}</strong> companies ·{" "}
+            <strong className="text-navy">{countryWithLinks}</strong> with direct careers links
+          </div>
+        </div>
+      </div>
 
       <Card>
         {countries.length > 1 && (
@@ -172,6 +194,7 @@ function CompaniesDirectoryInner() {
           );
         })}
         {shownCompanies.length === 0 && <p className="text-sm text-gray-400">No companies match your search.</p>}
+      </div>
       </div>
     </div>
   );
