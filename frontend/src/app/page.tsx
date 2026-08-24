@@ -114,7 +114,7 @@ export default function Home() {
   const { user, loading } = useAuth();
   const router = useRouter();
   useEffect(() => {
-    if (!loading && user) router.replace("/jobs");
+    if (!loading && user) router.replace("/companies");
   }, [loading, user, router]);
 
   return (

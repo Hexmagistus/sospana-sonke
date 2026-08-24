@@ -5,7 +5,6 @@ import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth";
 
 const LINKS = [
-  { href: "/jobs", label: "Find jobs" },
   { href: "/companies", label: "Companies" },
   { href: "/tailor", label: "Tailor CV" },
   { href: "/profile", label: "Profile" },
@@ -25,7 +24,7 @@ export default function Nav() {
   return (
     <nav className="bg-gradient-to-r from-navy via-navy-light to-brand-dark shadow-lg">
       <div className="mx-auto flex max-w-6xl items-center gap-1 px-4 py-2.5 overflow-x-auto">
-        <Link href="/jobs" className="mr-3 flex items-center gap-2 whitespace-nowrap">
+        <Link href="/companies" className="mr-3 flex items-center gap-2 whitespace-nowrap">
           <span
             className="flex h-8 w-8 items-center justify-center rounded-lg text-sm font-extrabold text-white shadow"
             style={{ background: "conic-gradient(from 210deg,#ff6b5b,#f5b301,#22c58b,#2f9bf6,#7c5cff,#ff6b5b)" }}

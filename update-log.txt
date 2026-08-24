@@ -1,17 +1,9 @@
-On branch main
-Your branch is ahead of 'origin/main' by 1 commit.
-  (use "git push" to publish your local commits)
-
-Changes not staged for commit:
-  (use "git add <file>..." to update what will be committed)
-  (use "git restore <file>..." to discard changes in working directory)
-	modified:   update-log.txt
-
-no changes added to commit (use "git add" and/or "git commit -a")
+[main 9931503] Fix profile form: comma-separated fields no longer clear while typing
+ 2 files changed, 15 insertions(+), 8 deletions(-)
 To https://github.com/Hexmagistus/sospana-sonke.git
-   b978f36..c5041c7  main -> main
+   ab3b0ac..9931503  main -> main
  
 === recent commits === 
-c5041c7 Redesign landing formal and exciting add SADC region coming soon remove kasi
-b978f36 Redesign landing with South African identity: Ndebele geometric bands multilingual welcome township-sunrise hero
-32804f5 Widen logo coverage: derive company domain from name for ATS and unknown-domain companies
+9931503 Fix profile form: comma-separated fields no longer clear while typing
+ab3b0ac Update JSE careers links to direct vacancy lists batch 2
+0653a37 Update JSE careers links to direct one click vacancy lists batch 1

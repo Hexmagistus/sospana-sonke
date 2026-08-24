@@ -11,7 +11,7 @@ export default function Guard({ children, admin = false }: { children: React.Rea
 
   useEffect(() => {
     if (!loading && !user) router.replace("/login");
-    if (!loading && user && admin && user.role !== "admin") router.replace("/jobs");
+    if (!loading && user && admin && user.role !== "admin") router.replace("/companies");
   }, [loading, user, admin, router]);
 
   if (loading) return <div className="p-8"><Spinner /></div>;
