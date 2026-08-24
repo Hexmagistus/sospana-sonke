@@ -55,7 +55,7 @@ const GREETINGS = [
   ["Lotjhani", C.gold], ["Avuxeni", C.plum], ["Ndaa", C.sun], ["Hello", C.teal],
 ] as const;
 
-const LANGS = ["isiZulu", "isiXhosa", "Sesotho", "isiNdebele", "Setswana", "Xitsonga", "Tshivenda", "siSwati", "Sepedi", "Afrikaans", "English"];
+const VALUES = ["Ambition", "Opportunity", "Dignity", "Ubuntu", "Hustle", "Growth", "Pride", "Your future"];
 
 // Employer counts reflect the current verified directory (kept in step with the company database).
 const LIVE = [
@@ -367,10 +367,12 @@ export default function Home() {
         <div className="rounded-3xl bg-white px-6 py-9 shadow-sm ring-1 ring-black/5 sm:px-10">
           <h2 className="text-2xl font-extrabold sm:text-3xl" style={{ color: C.navy }}>Built for every young African. 🌍</h2>
           <p className="mt-3 max-w-3xl text-gray-600">
-            Zulu, Xhosa, Sotho, Tswana, Ndebele, Tsonga, Venda, Swati, Pedi, Afrikaans, English — and every language of the region to come. Your roots, your language, your ambition — one platform behind you.
+            Wherever you come from and whatever you dream in, your ambition speaks a language every employer
+            understands: skill, effort, and the will to rise. One continent, one generation ready to work —
+            and one platform standing behind you every step of the way.
           </p>
           <div className="mt-5 flex flex-wrap gap-2">
-            {LANGS.map((l, i) => {
+            {VALUES.map((l, i) => {
               const cols = [C.red, C.sun, C.gold, C.green, C.teal, C.sky, C.plum];
               const col = cols[i % cols.length];
               return <span key={l} className="rounded-full px-3 py-1 text-xs font-semibold" style={{ background: `${col}18`, color: col }}>{l}</span>;
