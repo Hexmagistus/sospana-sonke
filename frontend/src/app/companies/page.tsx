@@ -29,7 +29,7 @@ function CompaniesDirectoryInner() {
   const [companies, setCompanies] = useState<Company[]>([]);
   const [err, setErr] = useState("");
   const [q, setQ] = useState("");
-  const [filter, setFilter] = useState<"all" | "JSE" | "SOE">("all");
+  const [filter, setFilter] = useState<"all" | "listed" | "SOE">("all");
   const [country, setCountry] = useState("South Africa");
 
   useEffect(() => {
@@ -55,7 +55,11 @@ function CompaniesDirectoryInner() {
     const needle = q.trim().toLowerCase();
     return companies
       .filter((c) => (c.country || "") === country)
-      .filter((c) => filter === "all" || (c.source_type || "").toUpperCase() === filter)
+      .filter((c) => {
+        if (filter === "all") return true;
+        const isSOE = (c.source_type || "").toUpperCase() === "SOE";
+        return filter === "SOE" ? isSOE : !isSOE;
+      })
       .filter((c) => !needle
         || c.company_name.toLowerCase().includes(needle)
         || (c.jse_code || "").toLowerCase().includes(needle))
@@ -111,7 +115,7 @@ function CompaniesDirectoryInner() {
             />
           </div>
           <div className="flex gap-1">
-            {(["all", "JSE", "SOE"] as const).map((f) => (
+            {(["all", "listed", "SOE"] as const).map((f) => (
               <button
                 key={f}
                 onClick={() => setFilter(f)}
@@ -119,7 +123,7 @@ function CompaniesDirectoryInner() {
                   filter === f ? "bg-gradient-to-r from-brand to-brand-dark text-white shadow-sm" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                 }`}
               >
-                {f === "all" ? "All" : f}
+                {f === "all" ? "All" : f === "listed" ? "Listed" : "State-owned"}
               </button>
             ))}
           </div>
