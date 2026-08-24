@@ -57,11 +57,13 @@ const GREETINGS = [
 
 const LANGS = ["isiZulu", "isiXhosa", "Sesotho", "isiNdebele", "Setswana", "Xitsonga", "Tshivenda", "siSwati", "Sepedi", "Afrikaans", "English"];
 
-const LIVE = { name: "South Africa", flag: "🇿🇦" };
-const SOON = [
-  { name: "Botswana", flag: "🇧🇼" },
+const LIVE = [
+  { name: "South Africa", flag: "🇿🇦" },
   { name: "Lesotho", flag: "🇱🇸" },
   { name: "Eswatini", flag: "🇸🇿" },
+  { name: "Botswana", flag: "🇧🇼" },
+];
+const SOON = [
   { name: "Namibia", flag: "🇳🇦" },
   { name: "Zimbabwe", flag: "🇿🇼" },
   { name: "Mozambique", flag: "🇲🇿" },
@@ -152,7 +154,7 @@ export default function Home() {
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-75" style={{ background: C.mint }} />
                   <span className="relative inline-flex h-2 w-2 rounded-full" style={{ background: C.mint }} />
                 </span>
-                Now live in South Africa · Expanding across SADC
+                Live in South Africa, Lesotho, Eswatini &amp; Botswana · Expanding across SADC
               </span>
 
               <div className="mb-5 mt-6 flex flex-wrap gap-2">
@@ -204,7 +206,7 @@ export default function Home() {
       <section className="mx-auto max-w-6xl px-4">
         <div className="-mt-6 grid grid-cols-2 gap-3 rounded-2xl bg-white p-4 shadow-lg sm:grid-cols-4">
           {[
-            ["369+", "Employers tracked", C.red],
+            ["450+", "Employers tracked", C.red],
             ["Direct", "To official careers pages", C.teal],
             ["100%", "Truthful CV tailoring", C.green],
             ["R100", "Per month, all included", C.gold],
@@ -220,7 +222,7 @@ export default function Home() {
       {/* Pillars */}
       <section className="mx-auto grid max-w-6xl gap-5 px-4 py-12 sm:grid-cols-3">
         {[
-          ["🎯", "Straight to employers", "Direct links to 369+ companies' official careers pages — no middle-man boards, no games.", C.red],
+          ["🎯", "Straight to employers", "Direct links to 450+ companies' official careers pages across the region — no middle-man boards, no games.", C.red],
           ["✍️", "Apply smarter", "We tailor your CV and cover letter to each role — truthfully, from your real story. Never invented.", C.gold],
           ["📈", "Track & rise", "Every application in one place. Stay organised, stay ready, and keep moving forward.", C.teal],
         ].map(([ic, t, d, col]) => (
@@ -265,18 +267,28 @@ export default function Home() {
             <span className="inline-block rounded-full bg-white/10 px-4 py-1.5 text-xs font-semibold backdrop-blur-sm">🌍 One platform for Southern Africa</span>
             <h2 className="mt-4 text-2xl font-extrabold sm:text-4xl">Built for the region. Expanding across SADC.</h2>
             <p className="mt-3 max-w-3xl text-blue-100">
-              We&apos;re live in South Africa today, and rolling out to neighbouring SADC countries next. Wherever you are in the region, your ambition will have a home here.
+              We&apos;re live in South Africa, Lesotho, Eswatini and Botswana today, and rolling out to the rest of the SADC region next. Wherever you are, your ambition will have a home here.
             </p>
 
             {/* Live now */}
-            <div className="mt-8 flex flex-wrap items-center gap-4 rounded-2xl border border-white/15 bg-white/10 p-5 backdrop-blur-sm">
-              <span className="text-5xl leading-none">{LIVE.flag}</span>
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="text-lg font-bold">{LIVE.name}</span>
-                  <span className="rounded-full px-2.5 py-0.5 text-xs font-bold" style={{ background: C.green, color: "#fff" }}>● Live now</span>
-                </div>
-                <p className="text-sm text-blue-100">Full platform available — search jobs, tailor your CV, and apply today.</p>
+            <div className="mt-8">
+              <p className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-blue-200">
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-75" style={{ background: C.mint }} />
+                  <span className="relative inline-flex h-2 w-2 rounded-full" style={{ background: C.mint }} />
+                </span>
+                Live now
+              </p>
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                {LIVE.map((c) => (
+                  <div key={c.name} className="flex items-center gap-3 rounded-2xl border border-white/15 bg-white/10 p-4 backdrop-blur-sm">
+                    <span className="text-4xl leading-none">{c.flag}</span>
+                    <div>
+                      <div className="text-sm font-bold leading-tight">{c.name}</div>
+                      <span className="mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-bold" style={{ background: C.green, color: "#fff" }}>● Live</span>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
 
