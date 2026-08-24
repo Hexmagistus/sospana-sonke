@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.sospanasonke.app",
+      "sha256_cert_fingerprints": [
+        "0D:36:37:60:89:C1:F9:D4:4F:C8:F2:46:8B:3F:A1:DD:5C:DB:E8:91:A1:42:D7:F9:86:85:6F:71:B6:A0:79:27"
+      ]
+    }
+  }
+]
