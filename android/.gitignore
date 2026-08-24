@@ -1,0 +1,15 @@
+# Bubblewrap / Android build artifacts (do not commit)
+android.keystore
+*.aab
+*.apk
+app/
+.gradle/
+build/
+gradlew
+gradlew.bat
+gradle/
+gradle.properties
+build.gradle
+settings.gradle
+twa-manifest.json.bak
+store_icon.png
