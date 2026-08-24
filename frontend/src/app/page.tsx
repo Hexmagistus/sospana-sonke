@@ -204,9 +204,21 @@ export default function Home() {
               <p className="mt-6 max-w-xl text-lg leading-relaxed text-blue-100">
                 A professional job-search platform that connects ambitious young people directly to real employers — tailoring your CV truthfully to each role and tracking every application in one place.
               </p>
+
+              {/* Words to grow by */}
+              <blockquote className="mt-7 max-w-xl rounded-r-xl border-l-4 pl-4" style={{ borderColor: C.gold }}>
+                <p className="text-base italic leading-relaxed text-white sm:text-lg">
+                  &ldquo;Education is the most powerful weapon which you can use to change the world.&rdquo;
+                </p>
+                <footer className="mt-1.5 text-sm font-semibold" style={{ color: C.gold }}>
+                  — Nelson Mandela, former President of South Africa
+                </footer>
+              </blockquote>
+
               <div className="mt-8 flex flex-wrap gap-3">
                 <Link href="/register" className="rounded-xl px-6 py-3.5 font-extrabold shadow-lg transition hover:brightness-105" style={{ background: `linear-gradient(120deg,${C.gold},${C.amber})`, color: "#3a2b00" }}>Create your free account →</Link>
-                <Link href="/login" className="rounded-xl border border-white/40 bg-white/5 px-6 py-3.5 font-semibold text-white backdrop-blur-sm transition hover:bg-white/10">Browse companies</Link>
+                <Link href="/jobs" className="rounded-xl px-6 py-3.5 font-bold text-white shadow-lg transition hover:brightness-110" style={{ background: C.teal }}>Find jobs →</Link>
+                <Link href="/companies" className="rounded-xl border border-white/40 bg-white/5 px-6 py-3.5 font-semibold text-white backdrop-blur-sm transition hover:bg-white/10">Browse companies</Link>
               </div>
               <p className="mt-6 text-sm text-blue-200"><b style={{ color: C.gold }}>Free to use</b> · CV tailoring, cover letters &amp; application tracking all included.</p>
             </div>
