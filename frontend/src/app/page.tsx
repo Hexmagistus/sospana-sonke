@@ -208,7 +208,7 @@ export default function Home() {
                 <Link href="/register" className="rounded-xl px-6 py-3.5 font-extrabold shadow-lg transition hover:brightness-105" style={{ background: `linear-gradient(120deg,${C.gold},${C.amber})`, color: "#3a2b00" }}>Create your free account →</Link>
                 <Link href="/login" className="rounded-xl border border-white/40 bg-white/5 px-6 py-3.5 font-semibold text-white backdrop-blur-sm transition hover:bg-white/10">Browse companies</Link>
               </div>
-              <p className="mt-6 text-sm text-blue-200">One subscription · <b style={{ color: C.gold }}>R100/month</b> · CV tailoring, cover letters &amp; application tracking included.</p>
+              <p className="mt-6 text-sm text-blue-200"><b style={{ color: C.gold }}>Free to use</b> · CV tailoring, cover letters &amp; application tracking all included.</p>
             </div>
 
             {/* Hero art: sunrise over township skyline */}
@@ -243,7 +243,7 @@ export default function Home() {
             ["600+", "Employers tracked", C.red],
             ["Direct", "To official careers pages", C.teal],
             ["100%", "Truthful CV tailoring", C.green],
-            ["R100", "Per month, all included", C.gold],
+            ["Free", "Full access, no charge", C.gold],
           ].map(([n, l, col]) => (
             <div key={l as string} className="px-3 py-2 text-center">
               <div className="text-2xl font-extrabold" style={{ color: col as string }}>{n}</div>

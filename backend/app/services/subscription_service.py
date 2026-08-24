@@ -170,10 +170,10 @@ def handle_webhook(db: Session, raw_body: bytes, signature: str | None) -> dict:
 
 def require_active_subscription(user: User = Depends(get_current_user),
                                 db: Session = Depends(get_db)) -> User:
-    sub = get_or_create_subscription(db, user.id)
-    if not has_active_access(sub):
-        raise HTTPException(
-            status_code=http.HTTP_402_PAYMENT_REQUIRED,
-            detail="An active subscription is required. Please subscribe (R100/month) to use this feature.",
-        )
+    # Subscription temporarily disabled — Sospana Sonke is free for now.
+    # Every signed-in user has full access to all features. To re-enable
+    # paid gating later, restore the has_active_access() check below:
+    #     sub = get_or_create_subscription(db, user.id)
+    #     if not has_active_access(sub):
+    #         raise HTTPException(status_code=http.HTTP_402_PAYMENT_REQUIRED, detail="...")
     return user

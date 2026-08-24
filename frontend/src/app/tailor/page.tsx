@@ -35,7 +35,7 @@ function TailorInner() {
       });
       setRes(r);
     } catch (e) {
-      setErr(e instanceof Error ? e.message : "Could not generate. Is your subscription active?");
+      setErr(e instanceof Error ? e.message : "Could not generate. Please try again.");
     } finally {
       setBusy(false);
     }
