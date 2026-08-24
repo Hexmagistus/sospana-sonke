@@ -121,6 +121,24 @@ function FindJobsInner() {
         }
       />
 
+      {/* Unmissable honesty notice */}
+      <div className="rounded-2xl border-l-4 border-gold bg-gold/10 p-4 sm:p-5">
+        <div className="flex items-start gap-3">
+          <span className="text-2xl leading-none">📌</span>
+          <div>
+            <p className="font-bold text-navy">Heads up — this isn&apos;t every vacancy</p>
+            <p className="mt-1 text-sm leading-relaxed text-gray-700">
+              What you see here is only a portion of the jobs actually open across the region. Many employers
+              protect their careers pages from automated access (their robots and privacy rules), so we simply
+              can&apos;t list all of their vacancies here. To be sure you&apos;re not missing anything, open the{" "}
+              <Link href="/companies" className="font-semibold text-brand-dark underline">Companies</Link>{" "}
+              directory and check each employer&apos;s official careers page one by one — that&apos;s where their
+              full, up-to-date list of openings lives.
+            </p>
+          </div>
+        </div>
+      </div>
+
       <Card>
         <div className="mb-3 flex items-center justify-between gap-2">
           <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Regions</p>
