@@ -57,16 +57,27 @@ const GREETINGS = [
 
 const LANGS = ["isiZulu", "isiXhosa", "Sesotho", "isiNdebele", "Setswana", "Xitsonga", "Tshivenda", "siSwati", "Sepedi", "Afrikaans", "English"];
 
+// Employer counts reflect the current verified directory (kept in step with the company database).
 const LIVE = [
-  { name: "South Africa", flag: "🇿🇦" },
-  { name: "Lesotho", flag: "🇱🇸" },
-  { name: "Eswatini", flag: "🇸🇿" },
-  { name: "Botswana", flag: "🇧🇼" },
-  { name: "Namibia", flag: "🇳🇦" },
-  { name: "Zimbabwe", flag: "🇿🇼" },
-  { name: "Mozambique", flag: "🇲🇿" },
+  { name: "South Africa", flag: "🇿🇦", count: 368 },
+  { name: "Zimbabwe", flag: "🇿🇼", count: 67 },
+  { name: "Namibia", flag: "🇳🇦", count: 46 },
+  { name: "Botswana", flag: "🇧🇼", count: 42 },
+  { name: "Mozambique", flag: "🇲🇿", count: 33 },
+  { name: "Eswatini", flag: "🇸🇿", count: 30 },
+  { name: "Lesotho", flag: "🇱🇸", count: 17 },
 ];
-const SOON: { name: string; flag: string }[] = [];
+const SOON = [
+  { name: "Zambia", flag: "🇿🇲" },
+  { name: "Angola", flag: "🇦🇴" },
+  { name: "Malawi", flag: "🇲🇼" },
+  { name: "Tanzania", flag: "🇹🇿" },
+  { name: "Mauritius", flag: "🇲🇺" },
+  { name: "Madagascar", flag: "🇲🇬" },
+  { name: "DR Congo", flag: "🇨🇩" },
+  { name: "Seychelles", flag: "🇸🇨" },
+  { name: "Comoros", flag: "🇰🇲" },
+];
 
 // Wonders of Africa — line-art icons drawn inline (viewBox 0 0 72 52).
 const WONDERS: { name: string; place: string; art: ReactNode }[] = [
@@ -93,6 +104,30 @@ const WONDERS: { name: string; place: string; art: ReactNode }[] = [
   {
     name: "The Serengeti", place: "East Africa",
     art: (<><circle cx="52" cy="18" r="8" fill={C.sun} /><path d="M12 40 C20 30 26 30 34 34 C38 36 40 30 40 26 M34 34 C34 40 34 40 34 42 M40 30 C44 30 48 32 50 40 M30 34 L30 42 M22 33 L22 42" fill="none" stroke={C.gold} strokeWidth="2.2" strokeLinecap="round" /><line x1="6" y1="42" x2="66" y2="42" stroke={C.gold} strokeWidth="2.5" /></>),
+  },
+  {
+    name: "Great Zimbabwe", place: "Zimbabwe",
+    art: (<><path d="M28 44 L31 16 L41 16 L44 44 Z" fill="none" stroke={C.amber} strokeWidth="2.5" strokeLinejoin="round" /><path d="M8 44 C12 34 20 32 26 34 M46 34 C52 32 60 34 64 44" fill="none" stroke={C.amber} strokeWidth="2.2" strokeLinecap="round" /><line x1="6" y1="44" x2="66" y2="44" stroke={C.amber} strokeWidth="2.5" /></>),
+  },
+  {
+    name: "Okavango Delta", place: "Botswana",
+    art: (<><g stroke={C.sky} strokeWidth="2.2" fill="none" strokeLinecap="round"><path d="M8 40 C22 36 26 30 36 28 C46 26 52 20 64 14" /><path d="M36 28 C40 34 46 36 58 36" /><path d="M26 31 C28 37 30 40 30 44" /></g><path d="M14 22 C16 18 20 18 22 22 C20 24 16 24 14 22 Z" fill={C.green} /></>),
+  },
+  {
+    name: "Namib Dunes", place: "Namibia",
+    art: (<><circle cx="20" cy="17" r="7" fill={C.sun} /><path d="M6 44 C20 30 34 40 44 32 C54 24 62 30 66 34 L66 44 Z" fill="none" stroke={C.gold} strokeWidth="2.5" strokeLinejoin="round" /></>),
+  },
+  {
+    name: "Lake Malawi", place: "Malawi",
+    art: (<><g stroke={C.mint} strokeWidth="2.2" fill="none" strokeLinecap="round"><path d="M8 18 Q16 13 24 18 T40 18 T56 18 T64 18" /><path d="M8 28 Q16 23 24 28 T40 28 T56 28 T64 28" /></g><path d="M28 40 C32 36 42 36 46 40 C42 44 32 44 28 40 Z M46 40 L52 36 L52 44 Z" fill={C.sky} /></>),
+  },
+  {
+    name: "The Nile", place: "North-East Africa",
+    art: (<><path d="M22 6 C36 16 12 26 30 34 C44 40 30 46 40 48" fill="none" stroke={C.sky} strokeWidth="3" strokeLinecap="round" /><g stroke={C.green} strokeWidth="2" strokeLinecap="round"><line x1="52" y1="44" x2="52" y2="30" /><line x1="57" y1="44" x2="57" y2="34" /><line x1="47" y1="44" x2="47" y2="34" /></g></>),
+  },
+  {
+    name: "Sahara Desert", place: "North Africa",
+    art: (<><circle cx="54" cy="14" r="6" fill={C.sun} /><path d="M40 44 L40 26" stroke={C.amber} strokeWidth="2.5" strokeLinecap="round" /><path d="M40 26 C32 22 26 22 20 26 M40 26 C48 22 54 22 60 26 M40 26 C36 20 34 16 32 12 M40 26 C44 20 46 16 48 12 M40 26 L40 13" fill="none" stroke={C.green} strokeWidth="2" strokeLinecap="round" /><path d="M6 44 C18 36 30 42 40 44 L6 44 Z" fill="none" stroke={C.gold} strokeWidth="2.2" /></>),
   },
 ];
 
@@ -263,7 +298,7 @@ export default function Home() {
         <div className="relative overflow-hidden rounded-[2rem] px-6 py-12 text-white shadow-xl sm:px-12" style={{ background: `linear-gradient(135deg,${C.ink},${C.navy} 55%,#155e45)` }}>
           <div className="pointer-events-none absolute -right-10 -top-10 h-56 w-56 rounded-full blur-3xl" style={{ background: `radial-gradient(circle,${C.gold},transparent 70%)`, opacity: 0.4 }} />
           <div className="relative">
-            <span className="inline-block rounded-full bg-white/10 px-4 py-1.5 text-xs font-semibold backdrop-blur-sm">🌍 One platform for Southern Africa</span>
+            <span className="inline-block rounded-full bg-white/10 px-4 py-1.5 text-xs font-semibold backdrop-blur-sm">🌍 Africa&apos;s Opportunity Map</span>
             <h2 className="mt-4 text-2xl font-extrabold sm:text-4xl">Built for the region. Live across Southern Africa.</h2>
             <p className="mt-3 max-w-3xl text-blue-100">
               We&apos;re live in South Africa, Lesotho, Eswatini, Botswana, Namibia, Zimbabwe and Mozambique — seven markets, one platform. Wherever you are in the region, your ambition has a home here.
@@ -284,6 +319,7 @@ export default function Home() {
                     <span className="text-4xl leading-none">{c.flag}</span>
                     <div>
                       <div className="text-sm font-bold leading-tight">{c.name}</div>
+                      <div className="mt-0.5 text-xs font-semibold" style={{ color: C.mint }}>{c.count} employers</div>
                       <span className="mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-bold" style={{ background: C.green, color: "#fff" }}>● Live</span>
                     </div>
                   </div>
@@ -291,11 +327,15 @@ export default function Home() {
               </div>
             </div>
 
+            <p className="mt-5 text-sm font-semibold text-blue-100">
+              🎉 Live across all seven launch markets — and rolling out to the rest of the SADC region next.
+            </p>
+
             {/* Coming soon */}
-            {SOON.length > 0 ? (
+            {SOON.length > 0 && (
               <div className="mt-5">
-                <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-blue-200">Coming soon</p>
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+                <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-blue-200">Coming soon across SADC</p>
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
                   {SOON.map((c) => (
                     <div key={c.name} className="rounded-xl border border-white/10 bg-white/5 p-3 text-center transition hover:bg-white/10">
                       <div className="text-3xl">{c.flag}</div>
@@ -305,10 +345,6 @@ export default function Home() {
                   ))}
                 </div>
               </div>
-            ) : (
-              <p className="mt-5 text-sm font-semibold text-blue-100">
-                🎉 Now live across all seven of our launch markets — with more of the continent to follow.
-              </p>
             )}
           </div>
         </div>
