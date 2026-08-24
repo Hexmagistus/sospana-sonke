@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, type ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth";
@@ -68,7 +68,7 @@ const SOON = [
 ];
 
 // Wonders of Africa — line-art icons drawn inline (viewBox 0 0 72 52).
-const WONDERS: { name: string; place: string; art: React.ReactNode }[] = [
+const WONDERS: { name: string; place: string; art: ReactNode }[] = [
   {
     name: "Table Mountain", place: "South Africa",
     art: (<><path d="M6 40 L14 24 L40 24 L46 30 L58 30 L66 40 Z" fill="none" stroke={C.gold} strokeWidth="2.5" strokeLinejoin="round" /><line x1="6" y1="40" x2="66" y2="40" stroke={C.gold} strokeWidth="2.5" /></>),
