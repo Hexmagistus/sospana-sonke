@@ -32,6 +32,24 @@ function NdebeleStripe({ id }: { id: string }) {
   );
 }
 
+// Ndebele-inspired diamond band used as a section divider.
+function NdebeleDiamonds({ id }: { id: string }) {
+  return (
+    <svg className="block w-full" height={22} preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <pattern id={id} width="60" height="22" patternUnits="userSpaceOnUse">
+          <rect width="60" height="22" fill={C.navy} />
+          <path d="M15 1 L29 11 L15 21 L1 11 Z" fill={C.gold} stroke="#0b0b0b" strokeWidth="1.5" />
+          <path d="M45 1 L59 11 L45 21 L31 11 Z" fill={C.red} stroke="#0b0b0b" strokeWidth="1.5" />
+          <path d="M15 6 L24 11 L15 16 L6 11 Z" fill={C.green} />
+          <path d="M45 6 L54 11 L45 16 L36 11 Z" fill={C.sky} />
+        </pattern>
+      </defs>
+      <rect width="100%" height="22" fill={`url(#${id})`} />
+    </svg>
+  );
+}
+
 const GREETINGS = [
   ["Sawubona", C.red], ["Molo", C.sky], ["Dumela", C.green],
   ["Lotjhani", C.gold], ["Avuxeni", C.plum], ["Ndaa", C.sun], ["Hello", C.teal],
@@ -48,6 +66,49 @@ const SOON = [
   { name: "Zimbabwe", flag: "🇿🇼" },
   { name: "Mozambique", flag: "🇲🇿" },
 ];
+
+// Wonders of Africa — line-art icons drawn inline (viewBox 0 0 72 52).
+const WONDERS: { name: string; place: string; art: React.ReactNode }[] = [
+  {
+    name: "Table Mountain", place: "South Africa",
+    art: (<><path d="M6 40 L14 24 L40 24 L46 30 L58 30 L66 40 Z" fill="none" stroke={C.gold} strokeWidth="2.5" strokeLinejoin="round" /><line x1="6" y1="40" x2="66" y2="40" stroke={C.gold} strokeWidth="2.5" /></>),
+  },
+  {
+    name: "Victoria Falls", place: "Zim / Zambia",
+    art: (<><path d="M8 16 L64 16 L64 22 L8 22 Z" fill="none" stroke={C.mint} strokeWidth="2.5" /><g stroke={C.mint} strokeWidth="2" strokeLinecap="round"><line x1="16" y1="24" x2="16" y2="42" /><line x1="26" y1="24" x2="26" y2="44" /><line x1="36" y1="24" x2="36" y2="41" /><line x1="46" y1="24" x2="46" y2="44" /><line x1="56" y1="24" x2="56" y2="42" /></g></>),
+  },
+  {
+    name: "Mount Kilimanjaro", place: "Tanzania",
+    art: (<><path d="M6 42 L30 14 L42 26 L52 18 L66 42 Z" fill="none" stroke={C.sky} strokeWidth="2.5" strokeLinejoin="round" /><path d="M24 20 L30 14 L36 20 L32 22 L28 19 Z" fill="#fff" /></>),
+  },
+  {
+    name: "Baobab Tree", place: "Savanna",
+    art: (<><path d="M30 44 L30 26 M42 44 L42 26" stroke={C.amber} strokeWidth="3" strokeLinecap="round" /><path d="M36 26 C22 24 20 14 14 12 M36 26 C50 24 52 14 58 12 M36 26 L36 10 M36 14 C30 12 26 10 24 8 M36 14 C42 12 46 10 48 8" fill="none" stroke={C.amber} strokeWidth="2.2" strokeLinecap="round" /></>),
+  },
+  {
+    name: "Pyramids of Giza", place: "Egypt",
+    art: (<><path d="M8 42 L26 14 L44 42 Z" fill="none" stroke={C.gold} strokeWidth="2.5" strokeLinejoin="round" /><path d="M36 42 L50 22 L64 42 Z" fill="none" stroke={C.gold} strokeWidth="2.5" strokeLinejoin="round" /></>),
+  },
+  {
+    name: "The Serengeti", place: "East Africa",
+    art: (<><circle cx="52" cy="18" r="8" fill={C.sun} /><path d="M12 40 C20 30 26 30 34 34 C38 36 40 30 40 26 M34 34 C34 40 34 40 34 42 M40 30 C44 30 48 32 50 40 M30 34 L30 42 M22 33 L22 42" fill="none" stroke={C.gold} strokeWidth="2.2" strokeLinecap="round" /><line x1="6" y1="42" x2="66" y2="42" stroke={C.gold} strokeWidth="2.5" /></>),
+  },
+];
+
+// Savanna + acacia silhouette layered along the bottom of the hero.
+function SavannaSilhouette() {
+  return (
+    <svg className="pointer-events-none absolute inset-x-0 bottom-0 w-full" height="120" viewBox="0 0 1200 120" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M0 120 L0 92 C160 70 320 104 480 92 C640 80 760 60 900 82 C1040 104 1120 84 1200 92 L1200 120 Z" fill="#06101f" opacity="0.55" />
+      <g fill="#040c17" opacity="0.85">
+        <path d="M0 120 L0 104 C200 92 360 116 560 106 C760 96 900 112 1060 104 C1120 101 1160 106 1200 104 L1200 120 Z" />
+        {/* acacia tree */}
+        <path d="M1030 120 L1030 78 M1030 84 C1006 82 1000 70 984 68 M1030 84 C1054 82 1060 70 1076 68 M1030 78 L1030 66" stroke="#040c17" strokeWidth="5" fill="none" strokeLinecap="round" />
+        <path d="M965 70 C1005 54 1055 54 1095 70 C1075 62 985 62 965 70 Z" />
+      </g>
+    </svg>
+  );
+}
 
 export default function Home() {
   const { user, loading } = useAuth();
@@ -76,12 +137,13 @@ export default function Home() {
       {/* Hero */}
       <section className="mx-auto max-w-6xl px-4">
         <div className="relative overflow-hidden rounded-[2rem] px-6 py-14 text-white shadow-xl sm:px-14 sm:py-20"
-          style={{ background: `radial-gradient(120% 120% at 85% 10%, #16406e 0%, ${C.navy} 45%, ${C.ink} 100%)` }}>
+          style={{ background: `radial-gradient(120% 120% at 85% 8%, #1a4f7a 0%, ${C.navy} 45%, ${C.ink} 100%)` }}>
           {/* decorative orbs */}
           <div className="pointer-events-none absolute -right-16 -top-24 h-80 w-80 rounded-full blur-3xl" style={{ background: "radial-gradient(circle at 30% 30%,#ffcf5a,#ff7a1a)", opacity: 0.55 }} />
-          <div className="pointer-events-none absolute -bottom-24 -left-16 h-72 w-72 rounded-full blur-3xl" style={{ background: `radial-gradient(circle at 40% 40%,${C.mint},${C.teal})`, opacity: 0.35 }} />
+          <div className="pointer-events-none absolute -bottom-24 -left-16 h-72 w-72 rounded-full blur-3xl" style={{ background: `radial-gradient(circle at 40% 40%,${C.mint},${C.teal})`, opacity: 0.3 }} />
           <div className="pointer-events-none absolute inset-0 opacity-[0.06]"
             style={{ backgroundImage: "radial-gradient(#fff 1px, transparent 1px)", backgroundSize: "22px 22px" }} />
+          <SavannaSilhouette />
 
           <div className="relative flex flex-wrap items-center gap-10">
             <div className="min-w-[16rem] flex-1">
@@ -113,7 +175,7 @@ export default function Home() {
               <p className="mt-6 text-sm text-blue-200">One subscription · <b style={{ color: C.gold }}>R100/month</b> · CV tailoring, cover letters &amp; application tracking included.</p>
             </div>
 
-            {/* Hero art: sunrise over skyline */}
+            {/* Hero art: sunrise over township skyline */}
             <div className="hidden shrink-0 sm:block">
               <svg viewBox="0 0 320 320" width="300" height="300" aria-hidden="true">
                 <circle cx="160" cy="175" r="132" fill="rgba(255,255,255,.05)" />
@@ -142,7 +204,7 @@ export default function Home() {
       <section className="mx-auto max-w-6xl px-4">
         <div className="-mt-6 grid grid-cols-2 gap-3 rounded-2xl bg-white p-4 shadow-lg sm:grid-cols-4">
           {[
-            ["367+", "Employers tracked", C.red],
+            ["369+", "Employers tracked", C.red],
             ["Direct", "To official careers pages", C.teal],
             ["100%", "Truthful CV tailoring", C.green],
             ["R100", "Per month, all included", C.gold],
@@ -158,7 +220,7 @@ export default function Home() {
       {/* Pillars */}
       <section className="mx-auto grid max-w-6xl gap-5 px-4 py-12 sm:grid-cols-3">
         {[
-          ["🎯", "Straight to employers", "Direct links to 367+ companies' official careers pages — no middle-man boards, no games.", C.red],
+          ["🎯", "Straight to employers", "Direct links to 369+ companies' official careers pages — no middle-man boards, no games.", C.red],
           ["✍️", "Apply smarter", "We tailor your CV and cover letter to each role — truthfully, from your real story. Never invented.", C.gold],
           ["📈", "Track & rise", "Every application in one place. Stay organised, stay ready, and keep moving forward.", C.teal],
         ].map(([ic, t, d, col]) => (
@@ -170,8 +232,33 @@ export default function Home() {
         ))}
       </section>
 
-      {/* SADC region */}
+      {/* Wonders of Africa */}
       <section className="mx-auto max-w-6xl px-4">
+        <NdebeleDiamonds id="nd-wonders-top" />
+        <div className="relative overflow-hidden px-6 py-12 text-white shadow-xl sm:px-12" style={{ background: `linear-gradient(135deg,${C.ink},#123a2b 60%,#1d5a3a)` }}>
+          <div className="pointer-events-none absolute -left-10 -top-10 h-56 w-56 rounded-full blur-3xl" style={{ background: `radial-gradient(circle,${C.sun},transparent 70%)`, opacity: 0.35 }} />
+          <div className="relative text-center">
+            <span className="inline-block rounded-full bg-white/10 px-4 py-1.5 text-xs font-semibold backdrop-blur-sm">✨ Proudly African</span>
+            <h2 className="mt-4 text-2xl font-extrabold sm:text-4xl">The wonders of a continent behind you.</h2>
+            <p className="mx-auto mt-3 max-w-2xl text-blue-100">
+              From the Cape to the Rift Valley, Africa has always built the extraordinary. Your career is the next great thing this continent creates.
+            </p>
+          </div>
+          <div className="relative mt-9 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+            {WONDERS.map((w) => (
+              <div key={w.name} className="rounded-2xl border border-white/10 bg-white/5 p-4 text-center backdrop-blur-sm transition hover:-translate-y-1 hover:bg-white/10">
+                <svg viewBox="0 0 72 52" className="mx-auto h-14 w-full" aria-hidden="true">{w.art}</svg>
+                <div className="mt-2 text-sm font-bold">{w.name}</div>
+                <div className="text-[11px] text-blue-200">{w.place}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+        <NdebeleDiamonds id="nd-wonders-bottom" />
+      </section>
+
+      {/* SADC region */}
+      <section className="mx-auto max-w-6xl px-4 pt-12">
         <div className="relative overflow-hidden rounded-[2rem] px-6 py-12 text-white shadow-xl sm:px-12" style={{ background: `linear-gradient(135deg,${C.ink},${C.navy} 55%,#155e45)` }}>
           <div className="pointer-events-none absolute -right-10 -top-10 h-56 w-56 rounded-full blur-3xl" style={{ background: `radial-gradient(circle,${C.gold},transparent 70%)`, opacity: 0.4 }} />
           <div className="relative">

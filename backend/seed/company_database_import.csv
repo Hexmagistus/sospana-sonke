@@ -246,13 +246,13 @@ Texton Property Fund,TEX,,unknown,⚠️ No verified JSE Texton careers page fou
 Assura,AHR,,unknown,Assura Careers,false,no_url,South Africa,JSE
 Supermarket Income REIT,SRI,,unknown,Supermarket Income REIT official website,false,no_url,South Africa,JSE
 Accounting Standards Board,,,none,Official,false,no_url,South Africa,SOE
-Agricultural Research Council (ARC),,https://arcjobs.mcidirecthire.com/,js,Recruitment,true,pending,South Africa,SOE
+Agricultural Research Council (ARC),,https://arcjobs.mcidirecthire.com/Vacancy,js,direct vacancy list,true,pending,South Africa,SOE
 Air Traffic and Navigation Services (ATNS),,https://atns.ci.hr/applicant/index.php?controller=Page&name=jobsearch,js,Recruitment,true,pending,South Africa,SOE
 Airports Company South Africa (ACSA),,https://iaccgs.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1,js,Careers | /careers returned 404; official portal path unconfirmed,true,pending,South Africa,SOE
 Alexkor Limited,,,none,Official fallback,false,no_url,South Africa,SOE
 Armaments Corporation of South Africa (ARMSCOR),,https://www.armscor.co.za/working-at-armscor/,static,Official fallback,true,pending,South Africa,SOE
 Blind SA,,https://blindsa.org.za/blindsa-vacancies/,static,Official fallback,true,pending,South Africa,SOE
-Border Management Authority (BMA),,https://bmajobs.mcidirecthire.com/,js,Official fallback,true,pending,South Africa,SOE
+Border Management Authority (BMA),,https://bmajobs.mcidirecthire.com/Vacancy,js,direct vacancy list,true,pending,South Africa,SOE
 Brand South Africa,,https://brandsouthafrica.com/vacancies/,static,Vacancies,true,pending,South Africa,SOE
 Breede-Gouritz Catchment Management Agency,,,none,Official fallback,false,no_url,South Africa,SOE
 Broadband Infraco,,https://infraco.co.za/careers/,portal,Official fallback,true,pending,South Africa,SOE
@@ -261,22 +261,22 @@ Cape Town International Airport,,https://iaccgs.fa.ocs.oraclecloud.com/hcmUI/Can
 Central Energy Fund (CEF),,https://www.careers.cefgroup.co.za/jobs,portal,Official fallback,true,pending,South Africa,SOE
 CCMA,,https://www.ccma.org.za/opportunities/,static,Official fallback,true,pending,South Africa,SOE
 Companies and Intellectual Property Commission (CIPC),,https://jobs.mcidirecthire.com/AvailableVacancies/Index?CompanyName=cipc,js,Official fallback,true,pending,South Africa,SOE
-Competition Commission,,https://compcomjobs.mcidirecthire.com/,js,Official fallback,true,pending,South Africa,SOE
+Competition Commission,,https://compcomjobs.mcidirecthire.com/Vacancy,js,direct vacancy list,true,pending,South Africa,SOE
 Competition Tribunal,,https://www.comptrib.co.za/en/vacancies,static,Official fallback,true,pending,South Africa,SOE
-Council for Geoscience,,https://careers.geoscience.org.za/,js,Official fallback,true,pending,South Africa,SOE
+Council for Geoscience,,https://careers.geoscience.org.za/search/,js,direct SuccessFactors list,true,pending,South Africa,SOE
 Council for Medical Schemes,,https://www.medicalschemes.co.za/cms-vacancies/,static,Official fallback,true,pending,South Africa,SOE
 Council on Higher Education (CHE),,https://www.che.ac.za/about-us/vacancies,static,Vacancies,true,pending,South Africa,SOE
 Denel,,https://www.denel.co.za/careers,portal,Official fallback,true,pending,South Africa,SOE
 Development Bank of Southern Africa (DBSA),,https://dbsa.erecruit.co/candidateapp/Jobs/Browse.aspx,js,Careers,true,pending,South Africa,SOE
-Eskom,,https://eskomcareers.ci.hr/applicant/index.php,js,Official fallback,true,pending,South Africa,SOE
+Eskom,,https://eskomcareers.ci.hr/applicant/index.php?controller=Page&name=jobsearch,js,direct ci.hr job search,true,pending,South Africa,SOE
 Export Credit Insurance Corporation (ECIC),,,none,Official fallback,false,no_url,South Africa,SOE
 Film and Publication Board (FPB),,https://fpb.org.za/careers/,static,Official fallback,true,pending,South Africa,SOE
 Financial Sector Conduct Authority (FSCA),,https://fsca.mcidirecthire.com/External/CurrentOpportunities/,js,Official fallback,true,pending,South Africa,SOE
 Free State Development Corporation,,https://www.fdc.co.za/index.php/career,static,Official fallback,true,pending,South Africa,SOE
 Freedom Park,,https://recruit.freedompark.co.za/vacancies/,js,Official fallback,true,pending,South Africa,SOE
-Government Employees Medical Scheme (GEMS),,https://www.gems.gov.za/About-Gems/Careers,static,Official fallback,true,pending,South Africa,SOE
+Government Employees Medical Scheme (GEMS),,https://www.pnet.co.za/cmp/en/government-employees-medical-scheme-gems-68413/jobs,static,direct Pnet listing,true,pending,South Africa,SOE
 Government Employees Pension Fund (GEPF),,https://www.gepf.co.za/vacancies/,static,Official fallback,true,pending,South Africa,SOE
-Health and Welfare SETA (HWSETA),,https://www.hwseta.org.za/vacancies/,static,Official fallback,true,pending,South Africa,SOE
+Health and Welfare SETA (HWSETA),,https://hwseta.simplify.hr/,static,direct simplify.hr list,true,pending,South Africa,SOE
 Health Professions Council of SA (HPCSA),,,none,Official fallback,false,no_url,South Africa,SOE
 Housing Development Agency (HDA),,https://recruitment.thehda.co.za/,js,Official fallback,true,pending,South Africa,SOE
 Human Sciences Research Council (HSRC),,https://hsrc.erecruit.co/candidateapp/jobs/browse,js,Official fallback,true,pending,South Africa,SOE
@@ -286,12 +286,12 @@ Ingonyama Trust Board,,https://www.ingonyamatrust.org.za/careers/,static,Officia
 Institute of People Management (IPM),,,none,Official fallback,false,no_url,South Africa,SOE
 Ithala Development Finance Corporation,,https://ithala.co.za/vacancies/,static,Official fallback,true,pending,South Africa,SOE
 King Shaka International Airport,,https://iaccgs.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1,js,ACSA fallback,true,pending,South Africa,SOE
-Land Bank,,https://landbank.erecruit.co/candidateapp/jobs/categories/,js,Careers,true,pending,South Africa,SOE
+Land Bank,,https://landbank.erecruit.co/candidateapp/jobs/browse,js,direct eRecruit browse,true,pending,South Africa,SOE
 Legal Aid South Africa,,https://legal-aid.co.za/vacancies/,static,Vacancies,true,pending,South Africa,SOE
 Limpopo Economic Development Enterprise,,https://www.lieda.co.za/index.php/jobs/,portal,Official fallback,true,pending,South Africa,SOE
 Media Development and Diversity Agency (MDDA),,https://www.mdda.org.za/work.html,static,Official fallback,true,pending,South Africa,SOE
 Mining Qualifications Authority (MQA),,https://mqa.org.za/?post_type=job_listing,static,Official fallback,true,pending,South Africa,SOE
-Mintek,,https://mintek.ci.hr/applicant/index.php,js,Official fallback,true,pending,South Africa,SOE
+Mintek,,https://mintek.ci.hr/applicant/index.php?controller=Page&name=jobsearch,js,direct ci.hr job search,true,pending,South Africa,SOE
 National Advisory Council on Innovation (NACI),,,none,Official fallback,false,no_url,South Africa,SOE
 National Agricultural Marketing Council (NAMC),,https://namc.simplify.hr/,js,Official fallback,true,pending,South Africa,SOE
 National Archives and Records Service,,,none,Official fallback,false,no_url,South Africa,SOE
@@ -301,7 +301,7 @@ National Credit Regulator,,https://www.ncr.org.za/index.php/careers,static,Offic
 National Development Agency (NDA),,https://www.nda.org.za/who-we-are/vacancies,static,Official fallback,true,pending,South Africa,SOE
 NEDLAC,,https://vacancies.nedlac.org.za/,portal,Official fallback,true,pending,South Africa,SOE
 NEMISA,,https://www.nemisa.co.za/vacancies/,static,Official fallback,true,pending,South Africa,SOE
-National Empowerment Fund (NEF),,https://nefcareers.ci.hr/,js,Official fallback,true,pending,South Africa,SOE
+National Empowerment Fund (NEF),,https://nefcareers.ci.hr/?controller=Page&name=jobsearch,js,direct ci.hr job search,true,pending,South Africa,SOE
 National Energy Regulator (NERSA),,https://www.nersa.org.za/careers,portal,Official fallback,true,pending,South Africa,SOE
 National Film and Video Foundation,,https://www.nfvf.co.za/nfvf-vacancies/,static,Official fallback,true,pending,South Africa,SOE
 National Gambling Board,,https://www.ngb.org.za/career-opportunities/current-vacancies/,static,Official fallback,true,pending,South Africa,SOE
@@ -358,7 +358,7 @@ South African Weather Service (SAWS),,https://www.weathersa.co.za/home/vacancies
 Special Investigating Unit (SIU),,https://www.siu.org.za/careers/,static,Official fallback,true,pending,South Africa,SOE
 State Information Technology Agency (SITA),,https://www.sita.co.za/vacancylist,static,Official fallback,true,pending,South Africa,SOE
 Tax Ombud,,https://www.taxombud.gov.za/vacancies/,static,Official fallback,true,pending,South Africa,SOE
-Technology Innovation Agency (TIA),,https://www.tia.org.za/careers/,portal,Official fallback,true,pending,South Africa,SOE
+Technology Innovation Agency (TIA),,https://tia.erecruit.co/candidateapp/jobs/browse,green_verified,direct eRecruit vacancy list,true,pending,South Africa,SOE
 Trans-Caledon Tunnel Authority (TCTA),,https://www.tcta.co.za/careers/,portal,Official fallback,true,pending,South Africa,SOE
 Transnet,,https://transnettalentportal.csod.com/ux/ats/careersite/1/home,js,Official fallback,true,pending,South Africa,SOE
 Transnet National Ports Authority (TNPA),,https://www.transnetnationalportsauthority.net/our%20human%20development%20programme/pages/vacancies.aspx,portal,Transnet fallback,true,pending,South Africa,SOE
