@@ -1,10 +1,17 @@
-[main f7f68ea] Fix profile form: comma-separated fields no longer clear while typing
- 3 files changed, 36 insertions(+), 11 deletions(-)
- create mode 100644 7-PUSH.bat
+On branch main
+Your branch is ahead of 'origin/main' by 1 commit.
+  (use "git push" to publish your local commits)
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   update-log.txt
+
+no changes added to commit (use "git add" and/or "git commit -a")
 To https://github.com/Hexmagistus/sospana-sonke.git
-   922d39b..f7f68ea  main -> main
+   b978f36..c5041c7  main -> main
  
 === recent commits === 
-f7f68ea Fix profile form: comma-separated fields no longer clear while typing
-922d39b Add frontend/vercel.json so Vercel builds it as Next.js
-2043134 Fix Render build: pin Python 3.12, bump psycopg2-binary
+c5041c7 Redesign landing formal and exciting add SADC region coming soon remove kasi
+b978f36 Redesign landing with South African identity: Ndebele geometric bands multilingual welcome township-sunrise hero
+32804f5 Widen logo coverage: derive company domain from name for ATS and unknown-domain companies
