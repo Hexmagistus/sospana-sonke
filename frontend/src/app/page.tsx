@@ -394,12 +394,8 @@ export default function Home() {
       >
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
           <div className="flex items-center gap-3">
-            <span
-              className="flex h-10 w-10 items-center justify-center rounded-xl font-display font-extrabold text-white shadow-md"
-              style={{ background: "conic-gradient(from 210deg,#ff6b5b,#f5b301,#1a9e5f,#2f9bf6,#7c3aed,#ff6b5b)" }}
-            >
-              SS
-            </span>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo-mark.png" alt="Sospana Sonke" className="h-10 w-10 rounded-xl object-cover shadow-md" />
             <span className="font-display text-xl font-bold tracking-tight" style={{ color: C.navy }}>
               Sospana&nbsp;<span style={{ color: C.gold }}>Sonke</span>
             </span>

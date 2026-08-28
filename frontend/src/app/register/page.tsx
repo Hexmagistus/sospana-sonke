@@ -33,6 +33,8 @@ export default function RegisterPage() {
 
   return (
     <div className="mx-auto mt-10 max-w-md">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/logo-mark.png" alt="Sospana Sonke" className="mx-auto mb-3 h-16 w-16 rounded-2xl object-cover shadow-md" />
       <h1 className="mb-6 text-center text-2xl font-bold text-brand">Create your account</h1>
       <Card>
         <form onSubmit={submit} className="space-y-4">

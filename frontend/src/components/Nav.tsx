@@ -25,12 +25,8 @@ export default function Nav() {
     <nav className="bg-gradient-to-r from-navy via-navy-light to-brand-dark shadow-lg">
       <div className="mx-auto flex max-w-6xl items-center gap-1 px-4 py-2.5 overflow-x-auto">
         <Link href="/companies" className="mr-3 flex items-center gap-2 whitespace-nowrap">
-          <span
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-sm font-extrabold text-white shadow"
-            style={{ background: "conic-gradient(from 210deg,#ff6b5b,#f5b301,#22c58b,#2f9bf6,#7c5cff,#ff6b5b)" }}
-          >
-            S
-          </span>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo-mark.png" alt="Sospana Sonke" className="h-8 w-8 rounded-lg object-cover shadow" />
           <span className="font-bold text-white">Sospana&nbsp;Sonke</span>
         </Link>
         {LINKS.map((l) => (

@@ -69,6 +69,8 @@ export default function LoginPage() {
 
   return (
     <div className="mx-auto mt-10 max-w-md">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/logo-mark.png" alt="Sospana Sonke" className="mx-auto mb-3 h-16 w-16 rounded-2xl object-cover shadow-md" />
       <h1 className="mb-1 text-center text-2xl font-bold text-brand">Sospana Sonke</h1>
       <p className="mb-6 text-center text-sm text-gray-500">
         We find the opportunities. We tailor your application.
