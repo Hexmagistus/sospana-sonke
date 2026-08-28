@@ -29,7 +29,7 @@ function CompaniesDirectoryInner() {
   const [companies, setCompanies] = useState<Company[]>([]);
   const [err, setErr] = useState("");
   const [q, setQ] = useState("");
-  const [filter, setFilter] = useState<"all" | "listed" | "SOE">("all");
+  const [filter, setFilter] = useState<"all" | "listed" | "SOE" | "Private">("all");
   const [country, setCountry] = useState("South Africa");
 
   useEffect(() => {
@@ -57,8 +57,10 @@ function CompaniesDirectoryInner() {
       .filter((c) => (c.country || "") === country)
       .filter((c) => {
         if (filter === "all") return true;
-        const isSOE = (c.source_type || "").toUpperCase() === "SOE";
-        return filter === "SOE" ? isSOE : !isSOE;
+        const st = (c.source_type || "").toUpperCase();
+        if (filter === "SOE") return st === "SOE";
+        if (filter === "Private") return st === "PRIVATE";
+        return st !== "SOE" && st !== "PRIVATE";
       })
       .filter((c) => !needle
         || c.company_name.toLowerCase().includes(needle)
@@ -137,7 +139,7 @@ function CompaniesDirectoryInner() {
             />
           </div>
           <div className="flex gap-1">
-            {(["all", "listed", "SOE"] as const).map((f) => (
+            {(["all", "listed", "SOE", "Private"] as const).map((f) => (
               <button
                 key={f}
                 onClick={() => setFilter(f)}
@@ -145,7 +147,7 @@ function CompaniesDirectoryInner() {
                   filter === f ? "bg-gradient-to-r from-brand to-brand-dark text-white shadow-sm" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                 }`}
               >
-                {f === "all" ? "All" : f === "listed" ? "Listed" : "State-owned"}
+                {f === "all" ? "All" : f === "listed" ? "Listed" : f === "SOE" ? "State-owned" : "Private"}
               </button>
             ))}
           </div>
@@ -154,8 +156,10 @@ function CompaniesDirectoryInner() {
 
       <div className="grid gap-3 md:grid-cols-2">
         {shownCompanies.map((c, i) => {
-          const isSOE = (c.source_type || "").toUpperCase() === "SOE";
-          const label = isSOE ? "State-owned" : (c.source_type ? `${c.source_type.toUpperCase()}-listed` : "Listed");
+          const st = (c.source_type || "").toUpperCase();
+          const isSOE = st === "SOE";
+          const isPrivate = st === "PRIVATE";
+          const label = isSOE ? "State-owned" : isPrivate ? "Private company" : (c.source_type ? `${st}-listed` : "Listed");
           return (
             <Card key={c.id} accent={ACCENTS[i % ACCENTS.length]} className="hover:-translate-y-0.5 hover:shadow-md">
               <div className="flex items-start justify-between gap-3">
@@ -164,7 +168,7 @@ function CompaniesDirectoryInner() {
                   <div>
                     <div className="font-semibold text-navy">{c.company_name}</div>
                     <div className="mt-1 flex flex-wrap items-center gap-1">
-                      <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${isSOE ? "bg-purple/10 text-purple" : "bg-brand/10 text-brand-dark"}`}>
+                      <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${isSOE ? "bg-purple/10 text-purple" : isPrivate ? "bg-gold/20 text-[#a9791a]" : "bg-brand/10 text-brand-dark"}`}>
                         {label}
                       </span>
                       {c.jse_code && (
