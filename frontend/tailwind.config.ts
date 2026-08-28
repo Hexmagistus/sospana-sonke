@@ -12,6 +12,9 @@ const config: Config = {
         purple: "#7c5cff",
         sky: "#2f9bf6",
       },
+      fontFamily: {
+        display: ["var(--font-space)", "ui-sans-serif", "system-ui", "sans-serif"],
+      },
     },
   },
   plugins: [],

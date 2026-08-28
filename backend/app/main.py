@@ -52,6 +52,18 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
 
+    @app.middleware("http")
+    async def add_security_headers(request, call_next):
+        response = await call_next(request)
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-Frame-Options"] = "DENY"
+        response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+        response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=(), payment=()"
+        # Harmless on plain HTTP (browsers only honour HSTS on https responses);
+        # Render terminates TLS in front of this app, so this covers the real traffic.
+        response.headers["Strict-Transport-Security"] = "max-age=63072000; includeSubDomains"
+        return response
+
     @app.get("/health", tags=["system"])
     def health() -> dict:
         return {"status": "ok", "app": settings.APP_NAME, "env": settings.ENV}
