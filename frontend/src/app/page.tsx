@@ -65,9 +65,12 @@ function Reveal({
 
 function CountUp({ target, duration = 1400, suffix = "" }: { target: number; duration?: number; suffix?: string }) {
   const { ref, visible } = useReveal<HTMLSpanElement>(0.6);
-  const [n, setN] = useState(0);
+  // Default to the real number so SSR / no-JS / pre-hydration paints never show a
+  // misleading "0" — the count-up is a bonus flourish once it scrolls into view.
+  const [n, setN] = useState(target);
   useEffect(() => {
     if (!visible) return;
+    setN(0);
     let raf = 0;
     const start = performance.now();
     const tick = (t: number) => {
