@@ -13,3 +13,4 @@ build.gradle
 settings.gradle
 twa-manifest.json.bak
 store_icon.png
+keystore.secrets.bat

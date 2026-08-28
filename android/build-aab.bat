@@ -42,8 +42,14 @@ if not exist "android.keystore" (
   "!JDK!\bin\keytool" -genkeypair -v -keystore android.keystore -alias sospana -keyalg RSA -keysize 2048 -validity 10000 -storepass ***REMOVED*** -keypass ***REMOVED*** -dname "CN=Sospana Sonke, O=Sospana Sonke, L=Johannesburg, C=ZA"
 ) else ( echo Keystore already exists - reusing. )
 
-set "BUBBLEWRAP_KEYSTORE_PASSWORD=***REMOVED***"
-set "BUBBLEWRAP_KEY_PASSWORD=***REMOVED***"
+if not exist "%~dp0keystore.secrets.bat" (
+  echo ERROR: %~dp0keystore.secrets.bat not found.
+  echo Create it locally ^(git-ignored, never commit it^) with these two lines:
+  echo   set "BUBBLEWRAP_KEYSTORE_PASSWORD=your-password"
+  echo   set "BUBBLEWRAP_KEY_PASSWORD=your-password"
+  exit /b 1
+)
+call "%~dp0keystore.secrets.bat"
 
 echo ---- generating Android project from twa-manifest.json ----
 call bubblewrap update --skipVersionUpgrade
