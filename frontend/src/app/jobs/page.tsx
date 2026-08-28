@@ -11,6 +11,8 @@ import type { Company, Vacancy } from "@/lib/types";
 const COUNTRY_FLAGS: Record<string, string> = {
   "South Africa": "🇿🇦", "Lesotho": "🇱🇸", "Botswana": "🇧🇼", "Namibia": "🇳🇦",
   "Eswatini": "🇸🇿", "Zimbabwe": "🇿🇼", "Mozambique": "🇲🇿",
+  "Malawi": "🇲🇼", "Mauritius": "🇲🇺", "Zambia": "🇿🇲",
+  "Tanzania": "🇹🇿", "Angola": "🇦🇴",
 };
 
 type Accent = "sky" | "teal" | "gold" | "purple" | "coral" | "navy";

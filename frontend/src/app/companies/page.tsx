@@ -23,6 +23,8 @@ const AVATAR_GRADIENTS = [
 const COUNTRY_FLAGS: Record<string, string> = {
   "South Africa": "🇿🇦", "Lesotho": "🇱🇸", "Botswana": "🇧🇼", "Namibia": "🇳🇦",
   "Eswatini": "🇸🇿", "Zimbabwe": "🇿🇼", "Mozambique": "🇲🇿",
+  "Malawi": "🇲🇼", "Mauritius": "🇲🇺", "Zambia": "🇿🇲",
+  "Tanzania": "🇹🇿", "Angola": "🇦🇴",
 };
 
 function CompaniesDirectoryInner() {
