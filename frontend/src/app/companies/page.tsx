@@ -166,7 +166,7 @@ function CompaniesDirectoryInner() {
             <Card key={c.id} accent={ACCENTS[i % ACCENTS.length]} className="hover:-translate-y-0.5 hover:shadow-md">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-start gap-3">
-                  <CompanyLogo name={c.company_name} website={c.official_website} careersUrl={c.careers_url} gradient={AVATAR_GRADIENTS[i % AVATAR_GRADIENTS.length]} />
+                  <CompanyLogo name={c.company_name} website={c.official_website} careersUrl={c.careers_url} country={c.country} gradient={AVATAR_GRADIENTS[i % AVATAR_GRADIENTS.length]} />
                   <div>
                     <div className="font-semibold text-navy">{c.company_name}</div>
                     <div className="mt-1 flex flex-wrap items-center gap-1">

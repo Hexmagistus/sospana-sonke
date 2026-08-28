@@ -53,6 +53,7 @@ def import_companies_from_csv(db: Session, content: bytes) -> CompanyImportResul
         active = active_raw in ("true", "1", "yes", "y")
         notes = (row.get("relevance_note") or row.get("notes") or "").strip() or None
         country = (row.get("country") or "South Africa").strip() or "South Africa"
+        official_website = (row.get("official_website") or "").strip() or None
 
         company = existing.get(key)
         if company is None:
@@ -69,6 +70,8 @@ def import_companies_from_csv(db: Session, content: bytes) -> CompanyImportResul
         company.active = active
         company.notes = notes
         company.country = country
+        if official_website:
+            company.official_website = official_website
 
     db.commit()
     return CompanyImportResult(created=created, updated=updated, skipped=skipped,
