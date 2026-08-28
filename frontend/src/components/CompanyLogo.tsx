@@ -43,6 +43,10 @@ const COUNTRY_TLDS: Record<string, string[]> = {
   "Angola": ["co.ao", "ao"],
   "Lesotho": ["co.ls"],
   "Mauritius": ["mu"],
+  "Madagascar": ["mg"],
+  "DR Congo": ["cd"],
+  "Seychelles": ["sc"],
+  "Comoros": ["km"],
 };
 
 function domainFrom(url?: string | null): string | null {

@@ -291,13 +291,12 @@ const LIVE = [
   { name: "Lesotho", flag: "🇱🇸", count: 17, pending: false },
   { name: "Tanzania", flag: "🇹🇿", count: 16, pending: true },
   { name: "Angola", flag: "🇦🇴", count: 11, pending: true },
+  { name: "Madagascar", flag: "🇲🇬", count: 23, pending: false },
+  { name: "DR Congo", flag: "🇨🇩", count: 19, pending: false },
+  { name: "Seychelles", flag: "🇸🇨", count: 9, pending: false },
+  { name: "Comoros", flag: "🇰🇲", count: 5, pending: false },
 ];
-const SOON = [
-  { name: "Madagascar", flag: "🇲🇬" },
-  { name: "DR Congo", flag: "🇨🇩" },
-  { name: "Seychelles", flag: "🇸🇨" },
-  { name: "Comoros", flag: "🇰🇲" },
-];
+const SOON: { name: string; flag: string }[] = [];
 
 // Wonders of Africa — line-art icons drawn inline (viewBox 0 0 72 52).
 const WONDERS: { name: string; place: string; art: ReactNode }[] = [
@@ -447,7 +446,7 @@ export default function Home() {
                     <span className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-75" style={{ background: C.mint }} />
                     <span className="relative inline-flex h-2 w-2 rounded-full" style={{ background: C.mint }} />
                   </span>
-                  Live across 12 African markets · Growing across the continent
+                  Live across all 16 SADC markets · Growing across the continent
                 </span>
               </Reveal>
 
@@ -618,7 +617,7 @@ export default function Home() {
               <span className="inline-block rounded-full bg-white/10 px-4 py-1.5 text-xs font-semibold backdrop-blur-sm">🌍 Africa&apos;s Opportunity Map</span>
               <h2 className="mt-4 font-display text-2xl font-extrabold sm:text-4xl">Built for the region. Live across Africa.</h2>
               <p className="mt-3 max-w-3xl text-blue-100">
-                We&apos;re live in twelve African markets — from South Africa across the SADC region to Tanzania. For our newest markets we start with state-owned employers while their stock-exchange listings are added. Wherever you are, your ambition has a home here.
+                We&apos;re live across all 16 SADC member states — from South Africa to Madagascar, the Comoros and the Seychelles. For a few of our newest markets we start with state-owned employers while their stock-exchange listings are added. Wherever you are, your ambition has a home here.
               </p>
             </Reveal>
 
@@ -651,7 +650,7 @@ export default function Home() {
             </div>
 
             <p className="mt-5 text-sm font-semibold text-blue-100">
-              🎉 Live across twelve African markets — with more of the continent to follow.
+              🎉 Live across all 16 SADC member states — with more of the continent to follow.
             </p>
 
             {/* Contribution ranking — which country is powering the most opportunities */}
@@ -663,7 +662,7 @@ export default function Home() {
                   {LIVE.map((c, i) => {
                     const max = LIVE[0].count || 1;
                     const pct = Math.max(6, Math.round((c.count / max) * 100));
-                    const cols = [C.gold, C.mint, C.sky, C.green, C.sun, C.plum, C.red, C.teal, C.amber, C.mint, C.sky, C.green];
+                    const cols = [C.gold, C.mint, C.sky, C.green, C.sun, C.plum, C.red, C.teal, C.amber, C.mint, C.sky, C.green, C.gold, C.sun, C.teal, C.plum];
                     const col = cols[i % cols.length];
                     return (
                       <BarRow key={c.name} name={c.name} flag={c.flag} pct={pct} count={c.count} color={col} delay={i * 60} />

@@ -25,6 +25,7 @@ const COUNTRY_FLAGS: Record<string, string> = {
   "Eswatini": "🇸🇿", "Zimbabwe": "🇿🇼", "Mozambique": "🇲🇿",
   "Malawi": "🇲🇼", "Mauritius": "🇲🇺", "Zambia": "🇿🇲",
   "Tanzania": "🇹🇿", "Angola": "🇦🇴",
+  "Madagascar": "🇲🇬", "DR Congo": "🇨🇩", "Seychelles": "🇸🇨", "Comoros": "🇰🇲",
 };
 
 function CompaniesDirectoryInner() {
