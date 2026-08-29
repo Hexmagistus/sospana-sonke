@@ -97,6 +97,98 @@ def test_report_ready_notification(client, db_engine):
     assert any(n["type"] == "report_ready" for n in notes)
 
 
+# ---- broad "new jobs" alert ----
+
+def test_new_jobs_broadcast_notifies_active_candidates(client, db_engine):
+    from app.services.notification_service import notify_new_jobs_broadcast
+    from sqlalchemy.orm import sessionmaker
+
+    _, tokens = register_and_login(client)
+    vac_id = _seed_vacancy(db_engine, title="Warehouse Supervisor")
+
+    S = sessionmaker(bind=db_engine)
+    db = S()
+    try:
+        sent = notify_new_jobs_broadcast(db, vacancy_ids=[vac_id], job_run_id="run-1")
+        db.commit()
+    finally:
+        db.close()
+
+    assert sent == 1
+    notes = [n for n in client.get("/api/v1/notifications", headers=_auth(tokens)).json()
+             if n["type"] == "new_jobs"]
+    assert len(notes) == 1
+    assert "Warehouse Supervisor" in notes[0]["body"]
+
+
+def test_new_jobs_broadcast_idempotent_per_job_run(client, db_engine):
+    from app.services.notification_service import notify_new_jobs_broadcast
+    from sqlalchemy.orm import sessionmaker
+
+    _, tokens = register_and_login(client)
+    vac_id = _seed_vacancy(db_engine, title="Store Clerk")
+
+    S = sessionmaker(bind=db_engine)
+    db = S()
+    try:
+        notify_new_jobs_broadcast(db, vacancy_ids=[vac_id], job_run_id="run-2")
+        db.commit()
+        sent_again = notify_new_jobs_broadcast(db, vacancy_ids=[vac_id], job_run_id="run-2")
+        db.commit()
+    finally:
+        db.close()
+
+    assert sent_again == 0  # same job_run_id -> idempotent, no duplicate
+    notes = [n for n in client.get("/api/v1/notifications", headers=_auth(tokens)).json()
+             if n["type"] == "new_jobs"]
+    assert len(notes) == 1
+
+
+def test_scan_due_companies_alerts_on_new_vacancies(client, db_engine, monkeypatch):
+    from sqlalchemy.orm import sessionmaker
+    from app.models.company import Company
+    from app.scheduler.runner import run_job
+
+    _, tokens = register_and_login(client)
+
+    # Seed the "newly discovered" vacancy up front (its own committed transaction) so
+    # the fake scan below only has to report its id — mirrors how scan_source really
+    # works (create the row, then hand the id to the alerting step). Doing the write
+    # here rather than inside the monkeypatched scan avoids two sessions holding open
+    # writes against the same SQLite file at once ("database is locked").
+    vac_id = _seed_vacancy(db_engine, title="Retail Assistant")
+
+    S = sessionmaker(bind=db_engine)
+    db = S()
+    try:
+        db.add(Company(company_name="Fresh Foods Ltd", careers_url="https://boards.greenhouse.io/freshfoods",
+                       active=True))
+        db.commit()
+    finally:
+        db.close()
+
+    from app.services import scan_service as scan_service_module
+
+    def _fake_scan_company(db, company, client=None, check_robots=True):
+        report = scan_service_module.ScanReport(source_id="fake-source", status="ok", created=1)
+        report.created_vacancy_ids = [vac_id]
+        return [report]
+
+    monkeypatch.setattr("app.scheduler.jobs.scan_company", _fake_scan_company)
+
+    db = S()
+    try:
+        run = run_job(db, "scan_due_companies")
+    finally:
+        db.close()
+
+    assert run.status == "success"
+    notes = [n for n in client.get("/api/v1/notifications", headers=_auth(tokens)).json()
+             if n["type"] == "new_jobs"]
+    assert len(notes) == 1
+    assert "Retail Assistant" in notes[0]["body"]
+
+
 # ---- scheduler (admin) ----
 
 def _admin(client, db_engine):

@@ -22,10 +22,12 @@ function NotificationsInner() {
   async function markRead(id: string) {
     await api.post(`/notifications/${id}/read`);
     await load();
+    window.dispatchEvent(new Event("notifications:changed"));
   }
   async function markAll() {
     await api.post("/notifications/read-all");
     await load();
+    window.dispatchEvent(new Event("notifications:changed"));
   }
 
   if (loading) return <Spinner />;

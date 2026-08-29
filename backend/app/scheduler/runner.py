@@ -1,6 +1,7 @@
 """Job runner: executes a named job and records a JobRun for observability."""
 from __future__ import annotations
 
+import inspect
 import json
 from datetime import datetime, timezone
 
@@ -22,7 +23,11 @@ def run_job(db: Session, name: str) -> JobRun:
     db.add(run)
     db.flush()
     try:
-        summary = JOBS[name](db)
+        fn = JOBS[name]
+        # Jobs that support alerting on what they find (e.g. new-job broadcasts)
+        # accept a job_run_id kwarg for idempotency; others just take (db).
+        kwargs = {"job_run_id": run.id} if "job_run_id" in inspect.signature(fn).parameters else {}
+        summary = fn(db, **kwargs)
         run.detail = json.dumps(summary)[:2000]
         run.status = "success"
     except Exception as exc:  # record failure rather than crashing the scheduler

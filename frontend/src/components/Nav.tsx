@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth";
+import { api } from "@/lib/api";
 
 const LINKS = [
   { href: "/jobs", label: "Find jobs" },
@@ -18,6 +20,32 @@ export default function Nav() {
   const { user, logout } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
+  const [unread, setUnread] = useState(0);
+
+  // Keep the Notifications link's badge current: poll while logged in, and
+  // refresh immediately whenever the notifications page marks something read
+  // (it dispatches this event) or the user navigates between pages.
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    async function refresh() {
+      try {
+        const res = await api.get<{ unread: number }>("/notifications/unread-count");
+        if (!cancelled) setUnread(res.unread);
+      } catch {
+        // a missed poll shouldn't disrupt navigation
+      }
+    }
+    refresh();
+    const id = setInterval(refresh, 30000);
+    window.addEventListener("notifications:changed", refresh);
+    return () => {
+      cancelled = true;
+      clearInterval(id);
+      window.removeEventListener("notifications:changed", refresh);
+    };
+  }, [user, pathname]);
+
   if (!user) return null;
 
   return (
@@ -38,7 +66,16 @@ export default function Nav() {
                 : "text-blue-100 hover:bg-white/10 hover:text-white"
             }`}
           >
-            {l.label}
+            {l.href === "/notifications" && unread > 0 ? (
+              <span className="inline-flex items-center gap-1.5">
+                {l.label}
+                <span className="inline-flex h-4 min-w-[1rem] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold leading-none text-white">
+                  {unread > 9 ? "9+" : unread}
+                </span>
+              </span>
+            ) : (
+              l.label
+            )}
           </Link>
         ))}
         {user.role === "admin" && (

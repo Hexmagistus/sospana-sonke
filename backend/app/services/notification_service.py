@@ -78,6 +78,47 @@ def notify_action_required(db, *, user, application, vacancy_title, company_name
     )
 
 
+def notify_new_jobs_broadcast(db, *, vacancy_ids: list[str], job_run_id: str) -> int:
+    """Alert every active candidate that new vacancies were found in this scan run.
+
+    Broad (non-personalised) alert, distinct from notify_strong_match: this fires
+    for ANY newly discovered job, not just ones matching a candidate's profile.
+    Idempotent per (user, job_run_id) — one notification per candidate per scan
+    run, however many jobs it found, so re-running the same job never spams.
+    """
+    if not vacancy_ids:
+        return 0
+    from app.models.company import Company
+    from app.models.user import User
+    from app.models.vacancy import Vacancy
+
+    vacancies = db.query(Vacancy).filter(Vacancy.id.in_(vacancy_ids)).all()
+    if not vacancies:
+        return 0
+    companies = {
+        c.id: c.company_name
+        for c in db.query(Company).filter(Company.id.in_({v.company_id for v in vacancies})).all()
+    }
+
+    count = len(vacancies)
+    highlights = ", ".join(f"{v.title} at {companies.get(v.company_id, 'a company')}" for v in vacancies[:3])
+    if count > 3:
+        highlights += f", and {count - 3} more"
+    title = f"{count} new job{'s' if count != 1 else ''} just added"
+    body = f"{highlights}. Head to Find Jobs to see them all."
+
+    candidates = db.query(User).filter(User.role == "candidate", User.is_active.is_(True)).all()
+    sent = 0
+    for user in candidates:
+        note = create_notification(
+            db, user_id=user.id, to_email=user.email, type="new_jobs", title=title, body=body,
+            related_type="job_run", related_id=job_run_id, to_phone=getattr(user, "mobile_number", None),
+        )
+        if note is not None:
+            sent += 1
+    return sent
+
+
 def notify_admins(db, *, type: str, title: str, body: str,
                   related_type: str | None = None, related_id: str | None = None) -> int:
     """Send a dashboard notification to every active administrator (blueprint section 23)."""

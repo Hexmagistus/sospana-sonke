@@ -31,6 +31,9 @@ class ScanReport:
     total_seen: int = 0
     error: str | None = None
     warnings: list[str] = field(default_factory=list)
+    # Ids of vacancies newly created by this scan (not previously seen), so callers
+    # can alert candidates about them without re-querying "what changed".
+    created_vacancy_ids: list[str] = field(default_factory=list)
 
 
 def ensure_source(db: Session, company: Company) -> VacancySource | None:
@@ -117,6 +120,7 @@ def scan_source(db: Session, source: VacancySource, client: httpx.Client | None 
                     db.add(VacancyRequirement(vacancy_id=vac.id, **r))
                 seen_ids.add(vac.id)
                 report.created += 1
+                report.created_vacancy_ids.append(vac.id)
 
         # Change detection: roles previously open for this source but not seen now
         # are closed — BUT ONLY when this scan actually returned a listing. An empty

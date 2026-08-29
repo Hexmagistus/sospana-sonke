@@ -18,25 +18,41 @@ from app.services.match_service import run_match_for_user
 from app.services.subscription_service import get_or_create_subscription, has_active_access
 
 
-def scan_all_companies(db: Session) -> dict:
+def _alert_candidates_of_new_jobs(db: Session, new_vacancy_ids: list[str], job_run_id: str | None) -> int:
+    """Broad "new jobs" alert for a scan run — a no-op if the run has no id to key
+    idempotency on (e.g. called outside the job runner) or found nothing new."""
+    if not job_run_id or not new_vacancy_ids:
+        return 0
+    from app.services.notification_service import notify_new_jobs_broadcast
+    sent = notify_new_jobs_broadcast(db, vacancy_ids=new_vacancy_ids, job_run_id=job_run_id)
+    db.commit()
+    return sent
+
+
+def scan_all_companies(db: Session, job_run_id: str | None = None) -> dict:
     """Scan every active company that has a careers URL. Returns a summary."""
     companies = (db.query(Company)
                  .filter(Company.active.is_(True), Company.deleted_at.is_(None),
                          Company.careers_url.isnot(None))
                  .all())
     scanned = created = failed = 0
+    new_vacancy_ids: list[str] = []
     for company in companies:
         try:
             reports = scan_company(db, company)
             scanned += 1
             created += sum(r.created for r in reports)
             failed += sum(1 for r in reports if r.status not in ("ok", "empty"))
+            for r in reports:
+                new_vacancy_ids.extend(r.created_vacancy_ids)
         except Exception:
             failed += 1
-    return {"companies_scanned": scanned, "vacancies_created": created, "sources_failed": failed}
+    candidates_alerted = _alert_candidates_of_new_jobs(db, new_vacancy_ids, job_run_id)
+    return {"companies_scanned": scanned, "vacancies_created": created, "sources_failed": failed,
+            "candidates_alerted": candidates_alerted}
 
 
-def scan_due_companies(db: Session, limit: int = 25) -> dict:
+def scan_due_companies(db: Session, limit: int = 25, job_run_id: str | None = None) -> dict:
     """Scan the N companies checked longest ago (never-checked first), then stamp
     them so the next run picks up the following batch.
 
@@ -51,6 +67,7 @@ def scan_due_companies(db: Session, limit: int = 25) -> dict:
                  .limit(limit)
                  .all())
     scanned = created = failed = 0
+    new_vacancy_ids: list[str] = []
     now = datetime.now(timezone.utc)
     for company in companies:
         try:
@@ -58,13 +75,17 @@ def scan_due_companies(db: Session, limit: int = 25) -> dict:
             scanned += 1
             created += sum(r.created for r in reports)
             failed += sum(1 for r in reports if r.status not in ("ok", "empty"))
+            for r in reports:
+                new_vacancy_ids.extend(r.created_vacancy_ids)
         except Exception:
             failed += 1
         company.last_checked = now
         db.add(company)
         db.commit()
+    candidates_alerted = _alert_candidates_of_new_jobs(db, new_vacancy_ids, job_run_id)
     return {"batch_limit": limit, "companies_scanned": scanned,
-            "vacancies_created": created, "sources_failed": failed}
+            "vacancies_created": created, "sources_failed": failed,
+            "candidates_alerted": candidates_alerted}
 
 
 def match_all_candidates(db: Session) -> dict:
