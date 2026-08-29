@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import Guard from "@/components/Guard";
 import { api } from "@/lib/api";
 import { Card, Field, Input, Button, Alert, Spinner } from "@/components/ui";
@@ -8,6 +9,11 @@ import { Banner } from "@/components/Banner";
 
 interface Doc { id: string; label: string; ats_score?: number | null; truthfulness_ok?: boolean }
 interface TailorResult { cv_version: Doc; cover_letter: Doc }
+
+// CV tailoring is temporarily switched off while we focus on getting people
+// straight in front of employers and their open vacancies. Flip this back to
+// true to re-enable the feature — nothing else needs to change.
+const CV_TAILORING_ENABLED = false;
 
 function TailorInner() {
   const [company, setCompany] = useState("");
@@ -109,10 +115,26 @@ function TailorInner() {
   );
 }
 
+function TailorPaused() {
+  return (
+    <div className="mx-auto max-w-xl py-16 text-center">
+      <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gold/15 text-3xl">🛠️</div>
+      <h1 className="text-2xl font-bold text-navy">CV tailoring is paused for now</h1>
+      <p className="mt-3 text-gray-600">
+        We&apos;ve switched this off temporarily while we focus on getting you in front of employers. In the
+        meantime, explore{" "}
+        <Link href="/jobs" className="font-semibold text-brand-dark underline">open vacancies</Link> or the{" "}
+        <Link href="/companies" className="font-semibold text-brand-dark underline">companies directory</Link>{" "}
+        and apply direct on each employer&apos;s official page.
+      </p>
+    </div>
+  );
+}
+
 export default function TailorPage() {
   return (
     <Guard>
-      <TailorInner />
+      {CV_TAILORING_ENABLED ? <TailorInner /> : <TailorPaused />}
     </Guard>
   );
 }

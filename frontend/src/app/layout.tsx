@@ -13,7 +13,7 @@ const spaceGrotesk = Space_Grotesk({
 
 export const metadata: Metadata = {
   title: "Sospana Sonke",
-  description: "AI-powered job discovery, CV tailoring and applications for South Africa.",
+  description: "AI-powered job discovery and direct applications across Southern Africa.",
   manifest: "/manifest.webmanifest",
   applicationName: "Sospana Sonke",
   icons: {

@@ -23,6 +23,7 @@ interface EnrichedVacancy extends Vacancy {
   companyName: string;
   country: string;
   careersUrl: string | null;
+  sourceType: string;
 }
 
 function FindJobsInner() {
@@ -32,6 +33,17 @@ function FindJobsInner() {
   const [err, setErr] = useState("");
   const [q, setQ] = useState("");
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [typeFilter, setTypeFilter] = useState<"all" | "listed" | "SOE" | "Private">("all");
+
+  // Support deep links like /jobs?type=SOE&region=South%20Africa (used by the
+  // homepage's "SOE vacancies" shortcut) so a filtered view can be linked to directly.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const t = params.get("type");
+    if (t === "SOE" || t === "Private" || t === "listed") setTypeFilter(t);
+    const r = params.get("region");
+    if (r) setSelected(new Set([r]));
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -73,7 +85,7 @@ function FindJobsInner() {
       .map((v) => {
         const c = companyMap.get(v.company_id);
         if (!c) return null;
-        return { ...v, companyName: c.company_name, country: c.country, careersUrl: c.careers_url };
+        return { ...v, companyName: c.company_name, country: c.country, careersUrl: c.careers_url, sourceType: c.source_type };
       })
       .filter(Boolean) as EnrichedVacancy[];
   }, [vacancies, companyMap]);
@@ -88,12 +100,19 @@ function FindJobsInner() {
     const needle = q.trim().toLowerCase();
     return enriched
       .filter((v) => selected.has(v.country))
+      .filter((v) => {
+        if (typeFilter === "all") return true;
+        const st = (v.sourceType || "").toUpperCase();
+        if (typeFilter === "SOE") return st === "SOE";
+        if (typeFilter === "Private") return st === "PRIVATE";
+        return st !== "SOE" && st !== "PRIVATE";
+      })
       .filter((v) => !needle
         || v.title.toLowerCase().includes(needle)
         || v.companyName.toLowerCase().includes(needle)
         || (v.location || "").toLowerCase().includes(needle))
       .sort((a, b) => (b.last_seen_at || "").localeCompare(a.last_seen_at || ""));
-  }, [enriched, selected, q]);
+  }, [enriched, selected, q, typeFilter]);
 
   function toggle(region: string) {
     setSelected((prev) => {
@@ -173,12 +192,27 @@ function FindJobsInner() {
           })}
         </div>
 
-        <div className="mt-4">
-          <Input
-            placeholder="Search job title, company or location…"
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-          />
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          <div className="min-w-[14rem] flex-1">
+            <Input
+              placeholder="Search job title, company or location…"
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+            />
+          </div>
+          <div className="flex gap-1">
+            {(["all", "listed", "SOE", "Private"] as const).map((f) => (
+              <button
+                key={f}
+                onClick={() => setTypeFilter(f)}
+                className={`rounded-md px-3 py-1.5 text-sm whitespace-nowrap transition ${
+                  typeFilter === f ? "bg-gradient-to-r from-brand to-brand-dark text-white shadow-sm" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                }`}
+              >
+                {f === "all" ? "All" : f === "listed" ? "Listed" : f === "SOE" ? "State-owned" : "Private"}
+              </button>
+            ))}
+          </div>
         </div>
       </Card>
 
@@ -226,9 +260,6 @@ function FindJobsInner() {
                       ) : (
                         <span className="whitespace-nowrap text-xs text-gray-400">No link</span>
                       )}
-                      <Link href={`/tailor?company=${encodeURIComponent(v.companyName)}`}>
-                        <Button variant="ghost">Tailor CV</Button>
-                      </Link>
                     </div>
                   </div>
                 </Card>

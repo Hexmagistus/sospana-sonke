@@ -465,7 +465,7 @@ export default function Home() {
               </Reveal>
               <Reveal delay={240}>
                 <p className="mt-6 max-w-xl text-lg leading-relaxed text-blue-100">
-                  A professional job-search platform that connects ambitious young people directly to real employers — tailoring your CV truthfully to each role and tracking every application in one place.
+                  A professional job-search platform that connects ambitious young people directly to real employers — with every open vacancy across the region, including state-owned employers, in one place.
                 </p>
               </Reveal>
 
@@ -497,9 +497,12 @@ export default function Home() {
                   <Link href="/companies" className="rounded-xl border border-white/40 bg-white/5 px-6 py-3.5 font-semibold text-white backdrop-blur-sm transition hover:-translate-y-0.5 hover:bg-white/10">
                     Browse companies
                   </Link>
+                  <Link href="/jobs?type=SOE&region=South%20Africa" className="rounded-xl border border-white/40 bg-white/5 px-6 py-3.5 font-semibold text-white backdrop-blur-sm transition hover:-translate-y-0.5 hover:bg-white/10">
+                    🏛️ SOE vacancies (SA)
+                  </Link>
                 </div>
                 <p className="mt-6 text-sm text-blue-200">
-                  <b style={{ color: C.gold }}>Free to use</b> · CV tailoring, cover letters &amp; application tracking all included.
+                  <b style={{ color: C.gold }}>Free to use</b> · Direct employer links, SOE vacancies &amp; application tracking all included.
                 </p>
               </Reveal>
             </div>
@@ -536,7 +539,7 @@ export default function Home() {
             {[
               [700, "+", "Employers tracked", C.red],
               [null, "Direct", "To official careers pages", C.teal],
-              [100, "%", "Truthful CV tailoring", C.green],
+              [null, "SOE", "Vacancies across South Africa", C.green],
               [null, "Free", "Full access, no charge", C.gold],
             ].map(([n, suffixOrLabel, l, col], i) => (
               <div key={l as string} className="px-3 py-2 text-center">
@@ -554,7 +557,7 @@ export default function Home() {
       <section className="mx-auto grid max-w-6xl gap-5 px-4 py-12 sm:grid-cols-3">
         {[
           ["🎯", "Straight to employers", "Direct links to 700+ companies' official careers pages across the region — no middle-man boards, no games.", C.red],
-          ["✍️", "Apply smarter", "We tailor your CV and cover letter to each role — truthfully, from your real story. Never invented.", C.gold],
+          ["🏛️", "Don't miss the SOEs", "Browse open roles at state-owned enterprises across South Africa and the region — filtered and ready to explore.", C.gold],
           ["📈", "Track & rise", "Every application in one place. Stay organised, stay ready, and keep moving forward.", C.teal],
         ].map(([ic, t, d, col], i) => (
           <Reveal key={t as string} delay={i * 120}>
@@ -729,7 +732,7 @@ export default function Home() {
           {[
             ["1", "Create your profile", "Add your details and upload your CV — once.", C.red],
             ["2", "Search jobs", "Find roles by title across every employer we track.", C.sun],
-            ["3", "Tailor & apply", "Get a CV built for the role, then apply direct.", C.green],
+            ["3", "Apply direct", "Apply straight on the employer's official page — no middle-man.", C.green],
             ["4", "Track & win", "Follow every application in one place.", C.sky],
           ].map(([n, t, d, col], i) => (
             <Reveal key={n as string} delay={i * 100}>
@@ -751,7 +754,7 @@ export default function Home() {
             <div className="pointer-events-none absolute -inset-1 animate-pulse-glow rounded-[2rem]" style={{ boxShadow: `0 0 90px 10px ${C.gold}66` }} />
             <div className="relative">
               <h2 className="font-display text-3xl font-extrabold sm:text-4xl" style={{ color: "#2a1400" }}>Your ambition deserves a real platform.</h2>
-              <p className="mx-auto mt-3 max-w-xl text-lg" style={{ color: "#3a1e00" }}>Build your profile, tailor your CV, and start applying with confidence today.</p>
+              <p className="mx-auto mt-3 max-w-xl text-lg" style={{ color: "#3a1e00" }}>Build your profile, explore open vacancies, and start applying with confidence today.</p>
               <Link
                 href="/register"
                 className="group relative mt-7 inline-block overflow-hidden rounded-xl px-8 py-4 text-lg font-extrabold text-white shadow-lg transition hover:-translate-y-0.5 hover:brightness-110"

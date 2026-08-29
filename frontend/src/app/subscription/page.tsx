@@ -15,7 +15,7 @@ function SubscriptionInner() {
         <h2 className="mb-2 font-semibold">No subscription needed right now</h2>
         <p className="text-sm text-gray-600">
           While we grow across Southern Africa, every feature is free — browsing employers,
-          tailoring your CV, cover letters, and application tracking are all included at no charge.
+          direct careers links, and application tracking are all included at no charge.
           There&apos;s nothing to pay and nothing to set up.
         </p>
         <div className="mt-4">

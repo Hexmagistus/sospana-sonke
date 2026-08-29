@@ -192,9 +192,6 @@ function CompaniesDirectoryInner() {
                   ) : (
                     <span className="whitespace-nowrap text-xs text-gray-400">No careers page yet</span>
                   )}
-                  <Link href={`/tailor?company=${encodeURIComponent(c.company_name)}`}>
-                    <Button variant="ghost">Tailor CV</Button>
-                  </Link>
                 </div>
               </div>
             </Card>
