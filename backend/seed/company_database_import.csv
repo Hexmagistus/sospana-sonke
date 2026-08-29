@@ -1027,3 +1027,55 @@ Exim Bank Comores,,https://www.eximbank-km.com/fr/careers,amber_company_route,"B
 AFG Bank Comores,,https://afgbankcomores.com/category/offres-demploi/,amber_company_route,"Banking · HQ Moroni. Private, sold in 2020 to Ivorian investors and now part of Atlantic Financial Group (AFG, Cote d'Ivoire); not state-owned, not listed. Formerly Banque pour l'Industrie et le Commerce des Comores (BIC). Careers page exists per search index (Conseiller Clientele posting seen); site's robots.txt blocked direct verification.",true,pending,Comoros,Private,https://afgbankcomores.com/
 Banque Federale de Commerce,,,grey_none_verified,"Banking · HQ Moroni, serves Mohéli. Private, single-shareholder bank founded 2009 by Sheikh Sabah Jaber Moubarak Al Sabah (Kuwait); not state-owned, not listed. No dedicated careers/recruitment page located.",false,no_url,Comoros,Private,https://www.bfcbanque.com/
 Amana Assurances,,,grey_none_verified,"Insurance (distribution/brokerage) · HQ Oasis, Moroni. Private Comorian insurance distributor; not state-owned, not listed. No careers/jobs section found on the company site.",false,no_url,Comoros,Private,https://amanassurances.com/
+Buffalo City Metropolitan Municipality,,https://www.buffalocity.gov.za/vacancies.php,direct vacancy list,Metropolitan municipality,true,pending,South Africa,SOE,https://www.buffalocity.gov.za/
+Nelson Mandela Bay Metropolitan Municipality,,https://www.nelsonmandelabay.gov.za/vacancies,direct vacancy list,Metropolitan municipality,true,pending,South Africa,SOE,https://www.nelsonmandelabay.gov.za/
+Amathole District Municipality,,https://www.amathole.co.za/index.php/vacancies,pdf circular,District municipality,true,pending,South Africa,SOE,https://www.amathole.co.za/
+"Sarah Baartman District Municipality",,"https://www.sarahbaartman.co.za/index.php?option=com_content&view=article&id=130&Itemid=1992",pdf circular,District municipality (page not independently rendered by fetcher; based on indexed page match),true,pending,South Africa,SOE,https://www.sarahbaartman.co.za/
+Chris Hani District Municipality,,https://www.chrishanidm.gov.za/careers/,pdf circular,District municipality,true,pending,South Africa,SOE,https://www.chrishanidm.gov.za/
+Joe Gqabi District Municipality,,https://jgdm.gov.za/vacancies/,direct vacancy list,District municipality,true,pending,South Africa,SOE,https://jgdm.gov.za/
+OR Tambo District Municipality,,https://ortambodm.gov.za/vacancies/,js,District municipality,true,pending,South Africa,SOE,https://ortambodm.gov.za/
+Alfred Nzo District Municipality,,https://www.andm.gov.za/vacancies/,pdf circular,District municipality (page not independently rendered by fetcher; based on indexed page match),true,pending,South Africa,SOE,https://www.andm.gov.za/
+Mangaung Metropolitan Municipality,,https://www.mangaung.co.za/category/vacancies/,pdf circular,Metropolitan municipality,true,pending,South Africa,SOE,https://www.mangaung.co.za/
+Xhariep District Municipality,,,none,District municipality (domain resolves but serves only a bare directory listing; site appears down),false,no_url,South Africa,SOE,https://xhariep.gov.za/
+Lejweleputswa District Municipality,,https://www.lejweleputswa.fs.gov.za/?page_id=3573,pdf circular,District municipality (redirect loop on direct fetch; based on homepage plus indexed title match),true,pending,South Africa,SOE,https://www.lejweleputswa.fs.gov.za/
+Thabo Mofutsanyana District Municipality,,http://www.thabomofutsanyana.gov.za/Vacancies.aspx,pdf circular,District municipality (site is HTTP-only; no working HTTPS),true,pending,South Africa,SOE,http://www.thabomofutsanyana.gov.za/
+Fezile Dabi District Municipality,,https://feziledabi.gov.za/vacancies/,pdf circular,District municipality,true,pending,South Africa,SOE,https://feziledabi.gov.za/
+City of Johannesburg Metropolitan Municipality,,https://joburg.org.za/work_/Pages/Work%20in%20Joburg/Vacancies/Vacancies.aspx,direct vacancy list,Metropolitan municipality,true,pending,South Africa,SOE,https://www.joburg.org.za/
+City of Tshwane Metropolitan Municipality,,https://careers.tshwane.gov.za/,js,Metropolitan municipality,true,pending,South Africa,SOE,https://www.tshwane.gov.za/
+City of Ekurhuleni Metropolitan Municipality,,https://vacancies.ekurhuleni.gov.za/web/job/careers,js,Metropolitan municipality,true,pending,South Africa,SOE,https://www.ekurhuleni.gov.za/
+Sedibeng District Municipality,,,none,District municipality (official site unreachable after multiple attempts),false,no_url,South Africa,SOE,
+West Rand District Municipality,,https://www.wrdm.gov.za/jobs/,direct vacancy list,District municipality,true,pending,South Africa,SOE,https://www.wrdm.gov.za/
+eThekwini Metropolitan Municipality,,https://www.durban.gov.za/page/jobs,direct vacancy list,Metropolitan municipality,true,pending,South Africa,SOE,https://www.durban.gov.za/
+Zululand District Municipality,,,none,District municipality (vacancies page unreachable after multiple attempts),false,no_url,South Africa,SOE,https://www.zululand.gov.za/
+Uthukela District Municipality,,http://www.uthukela.gov.za/vacancies/posts-available,pdf circular,District municipality,true,pending,South Africa,SOE,http://www.uthukela.gov.za/
+"Umkhanyakude District Municipality",,"https://www.ukdm.gov.za/index.php/vacancies?layout=table",pdf circular,District municipality,true,pending,South Africa,SOE,https://www.ukdm.gov.za/
+Amajuba District Municipality,,https://www.amajuba.gov.za/vacancies.php,direct vacancy list,District municipality,true,pending,South Africa,SOE,https://www.amajuba.gov.za/
+Harry Gwala District Municipality,,https://www.harrygwaladm.gov.za/vacancies.html,pdf circular,District municipality,true,pending,South Africa,SOE,https://www.harrygwaladm.gov.za/
+uMgungundlovu District Municipality,,,none,District municipality (official site unreachable after multiple attempts),false,no_url,South Africa,SOE,
+Umzinyathi District Municipality,,https://www.umzinyathi.gov.za/vacancies/,direct vacancy list,District municipality,true,pending,South Africa,SOE,https://www.umzinyathi.gov.za/
+iLembe District Municipality,,https://ilembe.gov.za/current-vacancies/,direct vacancy list,District municipality,true,pending,South Africa,SOE,https://ilembe.gov.za/
+King Cetshwayo District Municipality,,,none,District municipality (official site unreachable after multiple attempts),false,no_url,South Africa,SOE,
+Ugu District Municipality,,https://ugu.gov.za/vacancy/,direct vacancy list,District municipality,true,pending,South Africa,SOE,https://ugu.gov.za/
+Mopani District Municipality,,https://www.mopani.gov.za/vacancies/vacancies.php,pdf circular,District municipality,true,pending,South Africa,SOE,https://www.mopani.gov.za/
+Vhembe District Municipality,,https://www.vhembe.gov.za/job-opportunities/,pdf circular,District municipality,true,pending,South Africa,SOE,https://www.vhembe.gov.za/
+Capricorn District Municipality,,https://www.cdm.org.za/category/cdm-careers/,direct vacancy list,District municipality,true,pending,South Africa,SOE,https://www.cdm.org.za/
+Waterberg District Municipality,,https://www.waterberg.gov.za/vacancies/,pdf circular,District municipality,true,pending,South Africa,SOE,https://www.waterberg.gov.za/
+Sekhukhune District Municipality,,https://www.sekhukhunedistrict.gov.za/?q=vacancies,direct vacancy list,District municipality,true,pending,South Africa,SOE,https://www.sekhukhunedistrict.gov.za/
+Gert Sibande District Municipality,,,none,District municipality,false,no_url,South Africa,SOE,https://www.gsibande.gov.za/
+Nkangala District Municipality,,https://www.nkangaladm.gov.za/about-us/vacancies/,pdf circular,District municipality,true,pending,South Africa,SOE,https://www.nkangaladm.gov.za/
+Ehlanzeni District Municipality,,https://www.ehlanzeni.gov.za/vacancies/,direct vacancy list,District municipality,true,pending,South Africa,SOE,https://www.ehlanzeni.gov.za/
+ZF Mgcawu District Municipality,,https://www.zfm-dm.gov.za/administration/corporate-services/human-resource-management/,js,District municipality,true,pending,South Africa,SOE,https://www.zfm-dm.gov.za/
+Frances Baard District Municipality,,https://francesbaard.gov.za/vacancies/,direct vacancy list,District municipality,true,pending,South Africa,SOE,https://francesbaard.gov.za/
+Pixley ka Seme District Municipality,,https://www.pksdm.gov.za/vacancies.html,pdf circular,District municipality,true,pending,South Africa,SOE,https://www.pksdm.gov.za/
+John Taolo Gaetsewe District Municipality,,https://taologaetsewe.gov.za/vacancies/,pdf circular,District municipality,true,pending,South Africa,SOE,https://taologaetsewe.gov.za/
+Namakwa District Municipality,,https://www.namakwa-dm.gov.za/current-vacancies/,pdf circular,District municipality,true,pending,South Africa,SOE,https://www.namakwa-dm.gov.za/
+Bojanala Platinum District Municipality,,https://www.bojanala.gov.za/vacancies.html,js,District municipality,true,pending,South Africa,SOE,https://www.bojanala.gov.za/
+Ngaka Modiri Molema District Municipality,,https://www.nmmdm.gov.za/vacancies/,pdf circular,District municipality,true,pending,South Africa,SOE,https://www.nmmdm.gov.za/
+Dr Kenneth Kaunda District Municipality,,https://www.kaundadistrict.gov.za/vacancies.html,pdf circular,District municipality,true,pending,South Africa,SOE,https://www.kaundadistrict.gov.za/
+Dr Ruth Segomotsi Mompati District Municipality,,https://www.drrsmdm.gov.za/vacancies/,pdf circular,District municipality,true,pending,South Africa,SOE,https://www.drrsmdm.gov.za/
+City of Cape Town Metropolitan Municipality,,https://www.capetown.gov.za/careers,js,Metropolitan municipality,true,pending,South Africa,SOE,https://www.capetown.gov.za/
+West Coast District Municipality,,https://westcoastdm.co.za/vacancies-2/,pdf circular,District municipality,true,pending,South Africa,SOE,https://westcoastdm.co.za/
+Cape Winelands District Municipality,,https://www.capewinelands.gov.za/vacancies/,pdf circular,District municipality,true,pending,South Africa,SOE,https://www.capewinelands.gov.za/
+Overberg District Municipality,,https://odm.org.za/current-opportunities,direct vacancy list,District municipality,true,pending,South Africa,SOE,https://odm.org.za/
+Central Karoo District Municipality,,https://skdm.co.za/careers-list,js,District municipality,true,pending,South Africa,SOE,https://skdm.co.za/
+Garden Route District Municipality,,https://www.gardenroute.gov.za/manual-job-applications/,pdf circular,District municipality,true,pending,South Africa,SOE,https://www.gardenroute.gov.za/
