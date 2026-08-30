@@ -1091,7 +1091,7 @@ Kou-Kamma Local Municipality,,https://www.koukammamunicipality.gov.za/vacancies/
 Kouga Local Municipality,,https://www.kouga.gov.za/vacancies,direct vacancy list,Local municipality (vacancies subpage timed out intermittently; homepage confirmed reachable),true,pending,South Africa,MUNI,https://www.kouga.gov.za/
 Makana Local Municipality,,https://www.makana.gov.za/vacancies/,direct vacancy list,Local municipality,true,pending,South Africa,MUNI,https://www.makana.gov.za/
 Ndlambe Local Municipality,,https://www.ndlambe.gov.za/category/vacancies/,direct vacancy list,Local municipality (no open vacancies listed at time of check),true,pending,South Africa,MUNI,https://www.ndlambe.gov.za/
-Sundays River Valley Local Municipality,,,none,Local municipality (site unreachable during repeated verification attempts; a vacancies page at srvm.gov.za/vacancies/ is indexed but could not be confirmed live),false,no_url,South Africa,MUNI,https://www.srvm.gov.za/
+Sundays River Valley Local Municipality,,https://www.srvm.gov.za/job-openings/,direct vacancy list,Local municipality,true,pending,South Africa,MUNI,https://www.srvm.gov.za/
 Dr AB Xuma Local Municipality,,https://drabxumalm.gov.za/careers/,direct vacancy list,Local municipality (formerly Engcobo Local Municipality),true,pending,South Africa,MUNI,https://drabxumalm.gov.za/
 Emalahleni Local Municipality (Eastern Cape),,https://www.emalahlenilm.gov.za/notices/vacancies,direct vacancy list,Local municipality (no open vacancies listed at time of check),true,pending,South Africa,MUNI,https://www.emalahlenilm.gov.za/
 Enoch Mgijima Local Municipality,,https://www.enochmgijima.gov.za/vacancies/,direct vacancy list,Local municipality,true,pending,South Africa,MUNI,https://www.enochmgijima.gov.za/
@@ -1108,7 +1108,7 @@ Nyandeni Local Municipality,,https://www.nyandenilm.gov.za/current-vacancies,dir
 Port St Johns Local Municipality,,https://psjmunicipality.gov.za/za/open-vacancies/,direct vacancy list,Local municipality,true,pending,South Africa,MUNI,https://psjmunicipality.gov.za/za/
 Matatiele Local Municipality,,https://www.matatiele.gov.za/vacancies/,direct vacancy list,Local municipality,true,pending,South Africa,MUNI,https://www.matatiele.gov.za/
 Ntabankulu Local Municipality,,https://ntabankulu.gov.za/category/careers/open-vacancies/,direct vacancy list,Local municipality,true,pending,South Africa,MUNI,https://ntabankulu.gov.za/
-Umzimvubu Local Municipality,,,none,Local municipality (homepage confirmed reachable but no specific careers/vacancies URL could be located),false,no_url,South Africa,MUNI,https://www.umzimvubu.gov.za/
+Umzimvubu Local Municipality,,https://www.umzimvubu.gov.za/vacancies/,direct vacancy list,Local municipality,true,pending,South Africa,MUNI,https://www.umzimvubu.gov.za/
 Winnie Madikizela-Mandela Local Municipality,,https://www.winniemmlm.gov.za/vacancies/,direct vacancy list,Local municipality (formerly Bizana LM),true,pending,South Africa,MUNI,https://www.winniemmlm.gov.za/
 Letsemeng Local Municipality,,https://www.letsemeng.fs.gov.za/?page_id=743,direct vacancy list,Local municipality,true,pending,South Africa,MUNI,https://www.letsemeng.fs.gov.za/
 Kopanong Local Municipality,,https://kopanonglm.gov.za/notices/vacancies/,direct vacancy list,Local municipality (page reachable but currently empty),true,pending,South Africa,MUNI,https://kopanonglm.gov.za/
@@ -1117,17 +1117,17 @@ Masilonyana Local Municipality,,https://www.masilonyana.fs.gov.za/?page_id=651,d
 Matjhabeng Local Municipality,,https://www.matjhabengmunicipality.co.za/Vacancies.html,direct vacancy list,Local municipality (a separate legacy site also exists with stale postings),true,pending,South Africa,MUNI,https://www.matjhabengmunicipality.co.za/
 Nala Local Municipality,,https://nala.org.za/vacancies/,pdf circular,Local municipality (vacancy notices posted as PDF documents),true,pending,South Africa,MUNI,https://nala.org.za/
 Tokologo Local Municipality,,https://tokologolm.gov.za/vacancies/,direct vacancy list,Local municipality (found via live navigation; not independently refetched),true,pending,South Africa,MUNI,https://tokologolm.gov.za/
-Tswelopele Local Municipality,,,none,Local municipality (site unreachable - redirect loop between HTTP and HTTPS),false,no_url,South Africa,MUNI,https://www.tswelopele.fs.gov.za/
+Tswelopele Local Municipality,,https://www.tswelopele.gov.za/category/vacancies/,direct vacancy list,Local municipality (domain changed from tswelopele.fs.gov.za to tswelopele.gov.za),true,pending,South Africa,MUNI,https://www.tswelopele.gov.za/
 Dihlabeng Local Municipality,,http://www.dihlabeng.fs.gov.za/?page_id=1074,direct vacancy list,Local municipality (HTTP-only since HTTPS redirects to HTTP),true,pending,South Africa,MUNI,http://www.dihlabeng.fs.gov.za/
-Maluti-a-Phofung Local Municipality,,,none,Local municipality (domain confirmed to exist via redirect but content could not be verified),false,no_url,South Africa,MUNI,http://www.malutiaphofung.fs.gov.za/
-Mantsopa Local Municipality,,,none,Local municipality (site unreachable - redirect loop between HTTP and HTTPS),false,no_url,South Africa,MUNI,http://www.mantsopa.fs.gov.za/
+Maluti-a-Phofung Local Municipality,,https://www.malutiaphofung.fs.gov.za/?page_id=1054,pdf circular,"Local municipality (careers page reachable but listed notices are outdated, most recent from 2013)",true,pending,South Africa,MUNI,https://www.malutiaphofung.fs.gov.za/
+Mantsopa Local Municipality,,https://www.mantsopa.co.za/category/vacancies/,direct vacancy list,Local municipality (domain changed from mantsopa.fs.gov.za to mantsopa.co.za),true,pending,South Africa,MUNI,https://www.mantsopa.co.za/
 Nketoana Local Municipality,,https://www.nketoana.fs.gov.za/?page_id=753,direct vacancy list,Local municipality,true,pending,South Africa,MUNI,https://www.nketoana.fs.gov.za/
 Phumelela Local Municipality,,http://phumelela.fs.gov.za/?page_id=700,direct vacancy list,"Local municipality (HTTP-only; listings outdated, most recent from 2013)",true,pending,South Africa,MUNI,http://phumelela.fs.gov.za/
-Setsoto Local Municipality,,,none,Local municipality (site unreachable - connection timeouts on all URL variants),false,no_url,South Africa,MUNI,https://www.setsoto.fs.gov.za/
+Setsoto Local Municipality,,https://www.setsoto.gov.za/category/vacancies/,direct vacancy list,Local municipality (domain changed from setsoto.fs.gov.za to setsoto.gov.za),true,pending,South Africa,MUNI,https://www.setsoto.gov.za/
 Mafube Local Municipality,,https://www.mafube.fs.gov.za/index.php/vacancies/,direct vacancy list,Local municipality,true,pending,South Africa,MUNI,https://www.mafube.fs.gov.za/
-Metsimaholo Local Municipality,,,none,Local municipality (site unreachable - redirect loop between HTTP and HTTPS),false,no_url,South Africa,MUNI,http://www.metsimaholo.fs.gov.za/
+Metsimaholo Local Municipality,,https://www.metsimaholo.gov.za/vacancies/,direct vacancy list,Local municipality (domain changed from metsimaholo.fs.gov.za to metsimaholo.gov.za),true,pending,South Africa,MUNI,https://www.metsimaholo.gov.za/
 Moqhaka Local Municipality,,https://www.moqhaka.fs.gov.za/?page_id=747,pdf circular,"Local municipality (page reachable but listings outdated, most recent from 2012)",true,pending,South Africa,MUNI,https://www.moqhaka.fs.gov.za/
-Ngwathe Local Municipality,,,none,Local municipality (site unreachable - redirect loop between HTTP and HTTPS),false,no_url,South Africa,MUNI,http://www.ngwathe.fs.gov.za/
+Ngwathe Local Municipality,,https://www.ngwathe.fs.gov.za/?page_id=392,pdf circular,Local municipality (fs.gov.za domain verified working with Feb 2026 postings),true,pending,South Africa,MUNI,https://www.ngwathe.fs.gov.za/
 Lesedi Local Municipality,,,none,Local municipality (site blocks automated fetch via robots.txt),false,no_url,South Africa,MUNI,https://lesedi-lm.gauteng.gov.za/
 Midvaal Local Municipality,,https://www.midvaal.gov.za/vacancies/,direct vacancy list,Local municipality (page not independently reachable; domain confirmed live),true,pending,South Africa,MUNI,https://www.midvaal.gov.za/
 Emfuleni Local Municipality,,https://emfuleni.gov.za/vacancies/,direct vacancy list,Local municipality (page not independently reachable; domain confirmed live),true,pending,South Africa,MUNI,https://emfuleni.gov.za/
@@ -1140,18 +1140,18 @@ Nongoma Local Municipality,,https://nongoma.gov.za/vacancies/,direct vacancy lis
 Ulundi Local Municipality,,,none,Local municipality (no working vacancies/careers page found),false,no_url,South Africa,MUNI,https://www.ulundi.gov.za/
 uPhongolo Local Municipality,,https://www.uphongolo.gov.za/index.php/opportunities/vacancies?layout=table,pdf circular,Local municipality,true,pending,South Africa,MUNI,https://www.uphongolo.gov.za/
 Alfred Duma Local Municipality,,,none,Local municipality (careers page could not be checked this session; official_website unverified),false,no_url,South Africa,MUNI,https://www.alfredduma.gov.za/
-Inkosi Langalibalele Local Municipality,,,none,Local municipality (careers page could not be checked this session; official_website unverified),false,no_url,South Africa,MUNI,https://ilm.gov.za/
-Okhahlamba Local Municipality,,,none,Local municipality (careers page could not be checked this session; official_website unverified),false,no_url,South Africa,MUNI,https://okhahlamba.gov.za/
+Inkosi Langalibalele Local Municipality,,https://ilm.gov.za/downloads/vacancies/,direct vacancy list,Local municipality,true,pending,South Africa,MUNI,https://ilm.gov.za/
+Okhahlamba Local Municipality,,https://www.okhahlamba.gov.za/vacancies/recent-vacancies/,pdf circular,Local municipality,true,pending,South Africa,MUNI,https://www.okhahlamba.gov.za/
 Big Five Hlabisa Local Municipality,,,none,Local municipality (could not locate a working official domain),false,no_url,South Africa,MUNI,
-Jozini Local Municipality,,,none,Local municipality (careers page could not be checked this session; official_website unverified),false,no_url,South Africa,MUNI,https://www.jozini.gov.za
+Jozini Local Municipality,,https://www.jozini.gov.za/departments/#vacancies,js,Local municipality (vacancies section loads on own domain but renders dynamically),true,pending,South Africa,MUNI,https://www.jozini.gov.za/
 Mtubatuba Local Municipality,,,none,Local municipality (connection timed out; official_website unverified),false,no_url,South Africa,MUNI,https://www.mtubatuba.gov.za/
 uMhlabuyalingana Local Municipality,,,none,Local municipality (careers page could not be checked this session; official_website unverified),false,no_url,South Africa,MUNI,https://umhlabuyalingana.gov.za/
-Dannhauser Local Municipality,,,none,Local municipality (careers page could not be checked this session; official_website unverified),false,no_url,South Africa,MUNI,https://www.dannhauser.gov.za/
+Dannhauser Local Municipality,,https://www.dannhauser.gov.za/vacancies/,pdf circular,Local municipality,true,pending,South Africa,MUNI,https://www.dannhauser.gov.za/
 eMadlangeni Local Municipality,,,none,Local municipality (careers page could not be checked this session; official_website unverified),false,no_url,South Africa,MUNI,https://emadlangeni.gov.za/
 Newcastle Local Municipality,,https://newcastle.gov.za/services/vacancies/,direct vacancy list,Local municipality,true,pending,South Africa,MUNI,https://newcastle.gov.za/
 Dr Nkosazana Dlamini Zuma Local Municipality,,https://ndz.gov.za/corporate-services/human-resources/vacancies/,direct vacancy list,Local municipality (site confirmed live; not independently refetched this session),true,pending,South Africa,MUNI,https://ndz.gov.za/
 Greater Kokstad Local Municipality,,https://www.kokstad.gov.za/index.php/en/vacancies-kokstad/current-vacancies?layout=table,direct vacancy list,Local municipality,true,pending,South Africa,MUNI,https://www.kokstad.gov.za/
-Johannes Phumani Phungula Local Municipality,,,none,"Local municipality (real careers portal is off-domain on Zoho Recruit, not municipality's own domain)",false,no_url,South Africa,MUNI,https://www.jppmunicipality.gov.za/
+Johannes Phumani Phungula Local Municipality,,https://www.jppmunicipality.gov.za/category/vacancies/,direct vacancy list,Local municipality (formerly Ubuhlebezwe; own-domain page verified but listings dated 2021),true,pending,South Africa,MUNI,https://www.jppmunicipality.gov.za/
 Umzimkhulu Local Municipality,,https://umzimkhululm.gov.za/employment/,direct vacancy list,Local municipality (site confirmed live; not independently refetched this session),true,pending,South Africa,MUNI,https://umzimkhululm.gov.za/
 Impendle Local Municipality,,,none,Local municipality (domain could not be verified: SSL hostname mismatch),false,no_url,South Africa,MUNI,
 Mkhambathini Local Municipality,,https://www.mkhambathini.gov.za/vacancies/,direct vacancy list,Local municipality,true,pending,South Africa,MUNI,https://www.mkhambathini.gov.za/
@@ -1159,20 +1159,20 @@ Mpofana Local Municipality,,https://www.mpofana.gov.za/vacancies/,direct vacancy
 Msunduzi Local Municipality,,,none,Local municipality (official domain believed msunduzi.gov.za but could not be verified reachable),false,no_url,South Africa,MUNI,https://www.msunduzi.gov.za/
 Richmond Local Municipality,,,none,Local municipality (official domain unconfirmed; timed out on every attempt),false,no_url,South Africa,MUNI,
 uMngeni Local Municipality,,,none,Local municipality (homepage reachable but no vacancies page located/verified),false,no_url,South Africa,MUNI,https://umngeni.gov.za/
-uMshwathi Local Municipality,,,none,Local municipality (homepage reachable but no vacancies page located/verified),false,no_url,South Africa,MUNI,https://www.umshwathi.gov.za/
+uMshwathi Local Municipality,,https://umshwathi.gov.za/vacancies/,pdf circular,Local municipality,true,pending,South Africa,MUNI,https://umshwathi.gov.za
 Endumeni Local Municipality,,https://endumeni.gov.za/vacancies/,direct vacancy list,Local municipality,true,pending,South Africa,MUNI,https://endumeni.gov.za/
-Msinga Local Municipality,,,none,Local municipality (domain does not resolve; correct official domain not found),false,no_url,South Africa,MUNI,
+Msinga Local Municipality,,https://www.umsinga.gov.za/current-vacancies/,direct vacancy list,"Local municipality (correct domain is umsinga.gov.za, not msinga.gov.za)",true,pending,South Africa,MUNI,https://www.umsinga.gov.za/
 Nqutu Local Municipality,,https://www.nquthu.gov.za/Careers.html,direct vacancy list,"Local municipality (listings on page outdated, 2023-2025)",true,pending,South Africa,MUNI,https://www.nquthu.gov.za/
 Umvoti Local Municipality,,,none,"Local municipality (HTTP-only, redirect loop between http/https)",false,no_url,South Africa,MUNI,http://umvoti.gov.za/
 KwaDukuza Local Municipality,,https://www.kwadukuza.gov.za/index.php/vacancies,direct vacancy list,"Local municipality (listings shown are outdated, dated 2018)",true,pending,South Africa,MUNI,https://www.kwadukuza.gov.za/
 Mandeni Local Municipality,,https://mandeni.gov.za/job-openings/,direct vacancy list,Local municipality,true,pending,South Africa,MUNI,https://mandeni.gov.za/
-Maphumulo Local Municipality,,,none,Local municipality (no dedicated vacancies/careers page found),false,no_url,South Africa,MUNI,https://maphumulo.gov.za/
+Maphumulo Local Municipality,,https://maphumulo.gov.za/vacancies/,direct vacancy list,Local municipality,true,pending,South Africa,MUNI,https://maphumulo.gov.za
 Ndwedwe Local Municipality,,,none,Local municipality (homepage references a Vacancies link but exact URL could not be confirmed),false,no_url,South Africa,MUNI,https://www.ndwedwe.gov.za/
 Mthonjaneni Local Municipality,,https://www.mthonjaneni.org.za/download-category/vacancies/,pdf circular,Local municipality (indexed-but-not-refetched),true,pending,South Africa,MUNI,https://www.mthonjaneni.org.za/
 Nkandla Local Municipality,,https://www.nkandla.gov.za/index.php/vacancies,pdf circular,Local municipality,true,pending,South Africa,MUNI,https://www.nkandla.gov.za/
-uMfolozi Local Municipality,,,none,Local municipality (homepage reachable but no vacancies/careers page found),false,no_url,South Africa,MUNI,https://umfolozi.gov.za/
+uMfolozi Local Municipality,,https://umfolozi.org.za/vacancies/,pdf circular,Local municipality (correct working domain is umfolozi.org.za; .gov.za has a certificate mismatch),true,pending,South Africa,MUNI,https://umfolozi.org.za
 uMhlathuze Local Municipality,,https://www.umhlathuze.gov.za/index.php/media-gallery/vacancies/51-current-vacancies,pdf circular,Local municipality,true,pending,South Africa,MUNI,https://www.umhlathuze.gov.za/
-uMlalazi Local Municipality,,,none,Local municipality (site unreachable across repeated fetch attempts),false,no_url,South Africa,MUNI,https://www.umlalazi.gov.za/
+uMlalazi Local Municipality,,https://umlalazi.gov.za/index.php/vacancies,pdf circular,Local municipality,true,pending,South Africa,MUNI,https://umlalazi.gov.za
 Ray Nkonyeni Local Municipality,,https://www.rnm.gov.za/index.php/opportunities/vacancies,pdf circular,Local municipality (listings dated 2023-2024),true,pending,South Africa,MUNI,https://www.rnm.gov.za/
 uMdoni Local Municipality,,https://www.umdoni.gov.za/vacancies/index,direct vacancy list,Local municipality,true,pending,South Africa,MUNI,https://www.umdoni.gov.za/
 uMmuziwabantu Local Municipality,,https://www.umuziwabantu.gov.za/vacancies/,direct vacancy list,Local municipality (indexed-but-not-refetched),true,pending,South Africa,MUNI,https://www.umuziwabantu.gov.za/
@@ -1213,7 +1213,7 @@ Emakhazeni Local Municipality,,https://www.emakhazeni.gov.za/vacancies,pdf circu
 Thembisile Hani Local Municipality,,https://www.thembisilehanilm.gov.za/careers,direct vacancy list,Local municipality,true,pending,South Africa,MUNI,https://www.thembisilehanilm.gov.za/
 Dr JS Moroka Local Municipality,,https://www.moroka.gov.za/?page_id=138,pdf circular,"Local municipality (listings shown as titles/PDFs, not fully rendered in fetch)",true,pending,South Africa,MUNI,https://www.moroka.gov.za/
 Bushbuckridge Local Municipality,,https://www.bushbuckridge.gov.za/careers/vacancies.html,direct vacancy list,Local municipality,true,pending,South Africa,MUNI,https://bushbuckridge.gov.za/
-City of Mbombela Local Municipality,,,none,Local municipality (homepage reachable; dedicated vacancies page could not be verified),false,no_url,South Africa,MUNI,https://www.mbombela.gov.za/
+City of Mbombela Local Municipality,,https://www.mbombela.gov.za/vacancies/vacancies,pdf circular,Local municipality (postings are PDF/ZIP downloads),true,pending,South Africa,MUNI,https://www.mbombela.gov.za
 Nkomazi Local Municipality,,https://www.nkomazi.gov.za/information-center/jobs/,direct vacancy list,Local municipality,true,pending,South Africa,MUNI,https://www.nkomazi.gov.za/
 Thaba Chweu Local Municipality,,,none,Local municipality (official site reachable but no working careers/vacancies page found),false,no_url,South Africa,MUNI,https://www.tclm.gov.za/
 !Kheis Local Municipality,,,none,Local municipality (official site unreachable during verification),false,no_url,South Africa,MUNI,https://www.kheis.co.za/
@@ -1223,8 +1223,8 @@ Kgatelopele Local Municipality,,https://www.kgatelopele.gov.za/vacancies,direct 
 Tsantsabane Local Municipality,,,none,Local municipality (careers page indexed but could not be confirmed reachable),false,no_url,South Africa,MUNI,https://tsantsabane.gov.za/
 Dikgatlong Local Municipality,,https://www.dikgatlong.gov.za/notices/vacancies,direct vacancy list,Local municipality,true,pending,South Africa,MUNI,https://www.dikgatlong.gov.za/
 Magareng Local Municipality,,https://www.magareng.gov.za/notices/vacancies,direct vacancy list,Local municipality (listings include stale/expired postings mixed with current ones),true,pending,South Africa,MUNI,https://www.magareng.gov.za/
-Phokwane Local Municipality,,,none,Local municipality (Vacant Posts section exists but no working subpage URL confirmed),false,no_url,South Africa,MUNI,https://www.phokwane.gov.za/
-Sol Plaatje Local Municipality,,,none,Local municipality (official site has SSL/certificate issues on subpages),false,no_url,South Africa,MUNI,http://www.solplaatje.org.za/
+Phokwane Local Municipality,,https://www.phokwane.gov.za/final-adverts/,pdf circular,Local municipality (nav Vacant Posts link is dead but /final-adverts/ is live),true,pending,South Africa,MUNI,https://www.phokwane.gov.za/
+Sol Plaatje Local Municipality,,https://www.solplaatje.org.za/wordpress/vacancies/,direct vacancy list,Local municipality,true,pending,South Africa,MUNI,https://www.solplaatje.org.za/
 Emthanjeni Local Municipality,,https://www.emthanjeni.co.za/index.php?option=com_docman&Itemid=145,pdf circular,Local municipality (documents folder currently shows no files),true,pending,South Africa,MUNI,https://www.emthanjeni.co.za/
 Kareeberg Local Municipality,,https://kareeberg.gov.za/Vacancies.htm,pdf circular,Local municipality (links to year-by-year archives rather than current list),true,pending,South Africa,MUNI,https://kareeberg.gov.za/
 Renosterberg Local Municipality,,,none,Local municipality (no official website found; only a Facebook page exists),false,no_url,South Africa,MUNI,
@@ -1240,13 +1240,13 @@ Hantam Local Municipality,,,none,Local municipality (homepage reachable; /vacanc
 Kamiesberg Local Municipality,,,none,Local municipality (site could not be reached on any page attempted),false,no_url,South Africa,MUNI,https://www.kamiesberg.gov.za/
 Karoo Hoogland Local Municipality,,,none,Local municipality (homepage reachable; /vacancies/ page known to exist but could not be reached),false,no_url,South Africa,MUNI,https://www.karoohoogland.gov.za/
 Khâi-Ma Local Municipality,,,none,Local municipality (homepage reachable but no careers/vacancies link found),false,no_url,South Africa,MUNI,https://khaima.gov.za/
-Nama Khoi Local Municipality,,,none,Local municipality (homepage reachable but no careers/vacancies link found),false,no_url,South Africa,MUNI,https://www.namakhoi.gov.za/
+Nama Khoi Local Municipality,,https://www.namakhoi.gov.za/home/careers/,direct vacancy list,Local municipality,true,pending,South Africa,MUNI,https://www.namakhoi.gov.za/
 Richtersveld Local Municipality,,https://www.richtersveld.gov.za/current-vacancies/,direct vacancy list,Local municipality (page works but states no vacancies currently),true,pending,South Africa,MUNI,https://www.richtersveld.gov.za/
-Kgetlengrivier Local Municipality,,,none,Local municipality (no dedicated vacancies page found),false,no_url,South Africa,MUNI,https://kgetlengrivier.gov.za/
+Kgetlengrivier Local Municipality,,https://kgetlengrivier.gov.za/vacancies/,direct vacancy list,Local municipality,true,pending,South Africa,MUNI,https://kgetlengrivier.gov.za
 Madibeng Local Municipality,,https://www.madibeng.gov.za/vacancies/,pdf circular,Local municipality,true,pending,South Africa,MUNI,https://www.madibeng.gov.za/
 Moretele Local Municipality,,https://moretele.gov.za/vacancies/,pdf circular,Local municipality (expired SSL certificate; vacancies subpage intermittently unreachable),true,pending,South Africa,MUNI,https://moretele.gov.za/
 Moses Kotane Local Municipality,,https://www.moseskotane.gov.za/category/vacancies/,direct vacancy list,Local municipality,true,pending,South Africa,MUNI,https://www.moseskotane.gov.za/
-Rustenburg Local Municipality,,,none,Local municipality (homepage reachable but no working vacancies/careers page located),false,no_url,South Africa,MUNI,https://www.rustenburg.gov.za/
+Rustenburg Local Municipality,,https://www.rustenburg.gov.za/pages/archive_careers.php,direct vacancy list,Local municipality (archive table mixing old and recent postings),true,pending,South Africa,MUNI,https://www.rustenburg.gov.za
 Ditsobotla Local Municipality,,https://www.ditsobotla.gov.za/index.php/notices/vacancies,direct vacancy list,Local municipality,true,pending,South Africa,MUNI,https://www.ditsobotla.gov.za/
 Mahikeng Local Municipality,,https://www.mahikeng.gov.za/vacancies/,pdf circular,Local municipality,true,pending,South Africa,MUNI,https://www.mahikeng.gov.za/
 Ramotshere Moiloa Local Municipality,,https://www.ramotshere.gov.za/vacancies,direct vacancy list,Local municipality (currently shows only a closed/old entry),true,pending,South Africa,MUNI,https://www.ramotshere.gov.za/
@@ -1266,10 +1266,10 @@ Bergrivier Local Municipality,,https://www.bergmun.org.za/vacancies,direct vacan
 Saldanha Bay Local Municipality,,https://sbm.gov.za/jobs/,direct vacancy list,Local municipality,true,pending,South Africa,MUNI,https://sbm.gov.za/
 Swartland Local Municipality,,https://www.swartland.org.za/vacancies,direct vacancy list,Local municipality,true,pending,South Africa,MUNI,https://www.swartland.org.za/
 Witzenberg Local Municipality,,https://www.witzenberg.gov.za/careers,direct vacancy list,Local municipality,true,pending,South Africa,MUNI,https://www.witzenberg.gov.za/
-Drakenstein Local Municipality,,,none,Local municipality (site reachable but navigation/CMS broken; no working careers page found),false,no_url,South Africa,MUNI,https://www.drakenstein.gov.za/
+Drakenstein Local Municipality,,https://www.drakenstein.gov.za/sites/dw/SitePages/Vacancies.aspx,direct vacancy list,Local municipality (SharePoint page intermittently renders blank),true,pending,South Africa,MUNI,https://www.drakenstein.gov.za
 Stellenbosch Local Municipality,,https://www.stellenbosch.gov.za/documents/vacancies,pdf circular,Local municipality (page reachable but listed vacancy document link expired),true,pending,South Africa,MUNI,https://www.stellenbosch.gov.za/
-Breede Valley Local Municipality,,,none,Local municipality (no working domain could be located),false,no_url,South Africa,MUNI,
-Langeberg Local Municipality,,,none,Local municipality (WorkFinder job portal referenced but no stable URL confirmed),false,no_url,South Africa,MUNI,https://www.langeberg.gov.za/
+Breede Valley Local Municipality,,https://bvm.gov.za/tag/jobs/,direct vacancy list,Local municipality (new working domain bvm.gov.za; mostly archived 2023-2024 postings),true,pending,South Africa,MUNI,https://bvm.gov.za
+Langeberg Local Municipality,,https://www.langeberg.gov.za/notices/vacancies.html,direct vacancy list,Local municipality,true,pending,South Africa,MUNI,https://www.langeberg.gov.za
 Theewaterskloof Local Municipality,,https://twk.gov.za/category/documents/vacancies/,pdf circular,Local municipality,true,pending,South Africa,MUNI,https://twk.gov.za/
 Overstrand Local Municipality,,https://jobs.overstrand.gov.za/,js,Local municipality,true,pending,South Africa,MUNI,https://www.overstrand.gov.za/
 Cape Agulhas Local Municipality,,https://capeagulhas.gov.za/careers/vacancies/,direct vacancy list,Local municipality,true,pending,South Africa,MUNI,https://capeagulhas.gov.za
