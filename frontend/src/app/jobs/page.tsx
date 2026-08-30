@@ -33,14 +33,14 @@ function FindJobsInner() {
   const [err, setErr] = useState("");
   const [q, setQ] = useState("");
   const [selected, setSelected] = useState<Set<string>>(new Set());
-  const [typeFilter, setTypeFilter] = useState<"all" | "listed" | "SOE" | "Private">("all");
+  const [typeFilter, setTypeFilter] = useState<"all" | "listed" | "SOE" | "Municipality" | "Private">("all");
 
   // Support deep links like /jobs?type=SOE&region=South%20Africa (used by the
   // homepage's "SOE vacancies" shortcut) so a filtered view can be linked to directly.
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const t = params.get("type");
-    if (t === "SOE" || t === "Private" || t === "listed") setTypeFilter(t);
+    if (t === "SOE" || t === "Municipality" || t === "Private" || t === "listed") setTypeFilter(t);
     const r = params.get("region");
     if (r) setSelected(new Set([r]));
   }, []);
@@ -104,8 +104,9 @@ function FindJobsInner() {
         if (typeFilter === "all") return true;
         const st = (v.sourceType || "").toUpperCase();
         if (typeFilter === "SOE") return st === "SOE";
+        if (typeFilter === "Municipality") return st === "MUNI";
         if (typeFilter === "Private") return st === "PRIVATE";
-        return st !== "SOE" && st !== "PRIVATE";
+        return st !== "SOE" && st !== "MUNI" && st !== "PRIVATE";
       })
       .filter((v) => !needle
         || v.title.toLowerCase().includes(needle)
@@ -201,7 +202,7 @@ function FindJobsInner() {
             />
           </div>
           <div className="flex gap-1">
-            {(["all", "listed", "SOE", "Private"] as const).map((f) => (
+            {(["all", "listed", "SOE", "Municipality", "Private"] as const).map((f) => (
               <button
                 key={f}
                 onClick={() => setTypeFilter(f)}
@@ -209,7 +210,7 @@ function FindJobsInner() {
                   typeFilter === f ? "bg-gradient-to-r from-brand to-brand-dark text-white shadow-sm" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                 }`}
               >
-                {f === "all" ? "All" : f === "listed" ? "Listed" : f === "SOE" ? "State-owned" : "Private"}
+                {f === "all" ? "All" : f === "listed" ? "Listed" : f === "SOE" ? "State-owned" : f === "Municipality" ? "Municipalities" : "Private"}
               </button>
             ))}
           </div>
