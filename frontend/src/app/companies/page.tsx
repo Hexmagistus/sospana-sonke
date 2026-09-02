@@ -32,7 +32,7 @@ function CompaniesDirectoryInner() {
   const [companies, setCompanies] = useState<Company[]>([]);
   const [err, setErr] = useState("");
   const [q, setQ] = useState("");
-  const [filter, setFilter] = useState<"all" | "listed" | "SOE" | "Municipality" | "Private">("all");
+  const [filter, setFilter] = useState<"all" | "listed" | "SOE" | "Municipality" | "Department" | "Private">("all");
   const [country, setCountry] = useState("South Africa");
 
   useEffect(() => {
@@ -63,6 +63,7 @@ function CompaniesDirectoryInner() {
         const st = (c.source_type || "").toUpperCase();
         if (filter === "SOE") return st === "SOE";
         if (filter === "Municipality") return st === "MUNI";
+        if (filter === "Department") return st === "DEPT";
         if (filter === "Private") return st === "PRIVATE";
         return st !== "SOE" && st !== "MUNI" && st !== "PRIVATE";
       })
@@ -143,7 +144,7 @@ function CompaniesDirectoryInner() {
             />
           </div>
           <div className="flex gap-1">
-            {(["all", "listed", "SOE", "Municipality", "Private"] as const).map((f) => (
+            {(["all", "listed", "SOE", "Municipality", "Department", "Private"] as const).map((f) => (
               <button
                 key={f}
                 onClick={() => setFilter(f)}
@@ -151,7 +152,7 @@ function CompaniesDirectoryInner() {
                   filter === f ? "bg-gradient-to-r from-brand to-brand-dark text-white shadow-sm" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                 }`}
               >
-                {f === "all" ? "All" : f === "listed" ? "Listed" : f === "SOE" ? "State-owned" : f === "Municipality" ? "Municipalities" : "Private"}
+                {f === "all" ? "All" : f === "listed" ? "Listed" : f === "SOE" ? "State-owned" : f === "Municipality" ? "Municipalities" : f === "Department" ? "Government depts" : "Private"}
               </button>
             ))}
           </div>
@@ -163,8 +164,9 @@ function CompaniesDirectoryInner() {
           const st = (c.source_type || "").toUpperCase();
           const isSOE = st === "SOE";
           const isMuni = st === "MUNI";
+          const isDept = st === "DEPT";
           const isPrivate = st === "PRIVATE";
-          const label = isSOE ? "State-owned" : isMuni ? "Municipality" : isPrivate ? "Private company" : (c.source_type ? `${st}-listed` : "Listed");
+          const label = isSOE ? "State-owned" : isMuni ? "Municipality" : isDept ? "Government department" : isPrivate ? "Private company" : (c.source_type ? `${st}-listed` : "Listed");
           return (
             <Card key={c.id} accent={ACCENTS[i % ACCENTS.length]} className="hover:-translate-y-0.5 hover:shadow-md">
               <div className="flex items-start justify-between gap-3">
@@ -173,7 +175,7 @@ function CompaniesDirectoryInner() {
                   <div>
                     <div className="font-semibold text-navy">{c.company_name}</div>
                     <div className="mt-1 flex flex-wrap items-center gap-1">
-                      <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${isSOE ? "bg-purple/10 text-purple" : isMuni ? "bg-teal/10 text-teal" : isPrivate ? "bg-gold/20 text-[#a9791a]" : "bg-brand/10 text-brand-dark"}`}>
+                      <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${isSOE ? "bg-purple/10 text-purple" : isMuni ? "bg-teal/10 text-teal" : isDept ? "bg-navy/10 text-navy" : isPrivate ? "bg-gold/20 text-[#a9791a]" : "bg-brand/10 text-brand-dark"}`}>
                         {label}
                       </span>
                       {c.jse_code && (
@@ -189,7 +191,7 @@ function CompaniesDirectoryInner() {
                 <div className="flex shrink-0 flex-col items-end gap-1.5">
                   {c.careers_url ? (
                     <a href={c.careers_url} target="_blank" rel="noopener noreferrer">
-                      <Button>View jobs →</Button>
+                      <Button>{isDept ? "Visit department →" : "View jobs →"}</Button>
                     </a>
                   ) : (
                     <span className="whitespace-nowrap text-xs text-gray-400">No careers page yet</span>
