@@ -152,7 +152,7 @@ function CompaniesDirectoryInner() {
                   filter === f ? "bg-gradient-to-r from-brand to-brand-dark text-white shadow-sm" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                 }`}
               >
-                {f === "all" ? "All" : f === "listed" ? "Listed" : f === "SOE" ? "State-owned" : f === "Municipality" ? "Municipalities" : f === "Department" ? "Government depts" : "Private"}
+                {f === "all" ? "All" : f === "listed" ? "Listed" : f === "SOE" ? "State-owned" : f === "Municipality" ? "Municipalities" : f === "Department" ? "🏛️ Government depts" : "Private"}
               </button>
             ))}
           </div>
@@ -166,7 +166,7 @@ function CompaniesDirectoryInner() {
           const isMuni = st === "MUNI";
           const isDept = st === "DEPT";
           const isPrivate = st === "PRIVATE";
-          const label = isSOE ? "State-owned" : isMuni ? "Municipality" : isDept ? "Government department" : isPrivate ? "Private company" : (c.source_type ? `${st}-listed` : "Listed");
+          const label = isSOE ? "State-owned" : isMuni ? "Municipality" : isDept ? "🏛️ Government department" : isPrivate ? "Private company" : (c.source_type ? `${st}-listed` : "Listed");
           return (
             <Card key={c.id} accent={ACCENTS[i % ACCENTS.length]} className="hover:-translate-y-0.5 hover:shadow-md">
               <div className="flex items-start justify-between gap-3">
