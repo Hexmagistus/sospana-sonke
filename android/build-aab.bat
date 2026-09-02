@@ -39,17 +39,27 @@ if errorlevel 1 (echo Installing bubblewrap... & call npm install -g @bubblewrap
 REM ---- upload keystore ----
 if not exist "android.keystore" (
   echo Creating upload keystore...
-  "!JDK!\bin\keytool" -genkeypair -v -keystore android.keystore -alias sospana -keyalg RSA -keysize 2048 -validity 10000 -storepass ***REMOVED*** -keypass ***REMOVED*** -dname "CN=Sospana Sonke, O=Sospana Sonke, L=Johannesburg, C=ZA"
+  if not exist "%~dp0keystore.secrets.bat" (
+    echo ERROR: %~dp0keystore.secrets.bat not found - needed to set the new keystore's password.
+    echo Create it locally ^(git-ignored, never commit it^) with these two lines:
+    echo   set "BUBBLEWRAP_KEYSTORE_PASSWORD=your-password"
+    echo   set "BUBBLEWRAP_KEY_PASSWORD=your-password"
+    exit /b 1
+  )
+  call "%~dp0keystore.secrets.bat"
+  "!JDK!\bin\keytool" -genkeypair -v -keystore android.keystore -alias sospana -keyalg RSA -keysize 2048 -validity 10000 -storepass "%BUBBLEWRAP_KEYSTORE_PASSWORD%" -keypass "%BUBBLEWRAP_KEY_PASSWORD%" -dname "CN=Sospana Sonke, O=Sospana Sonke, L=Johannesburg, C=ZA"
 ) else ( echo Keystore already exists - reusing. )
 
-if not exist "%~dp0keystore.secrets.bat" (
-  echo ERROR: %~dp0keystore.secrets.bat not found.
-  echo Create it locally ^(git-ignored, never commit it^) with these two lines:
-  echo   set "BUBBLEWRAP_KEYSTORE_PASSWORD=your-password"
-  echo   set "BUBBLEWRAP_KEY_PASSWORD=your-password"
-  exit /b 1
+if not defined BUBBLEWRAP_KEYSTORE_PASSWORD (
+  if not exist "%~dp0keystore.secrets.bat" (
+    echo ERROR: %~dp0keystore.secrets.bat not found.
+    echo Create it locally ^(git-ignored, never commit it^) with these two lines:
+    echo   set "BUBBLEWRAP_KEYSTORE_PASSWORD=your-password"
+    echo   set "BUBBLEWRAP_KEY_PASSWORD=your-password"
+    exit /b 1
+  )
+  call "%~dp0keystore.secrets.bat"
 )
-call "%~dp0keystore.secrets.bat"
 
 echo ---- generating Android project from twa-manifest.json ----
 call bubblewrap update --skipVersionUpgrade
@@ -68,7 +78,7 @@ if exist "app-release-bundle.aab" (
 
 echo.
 echo ---- UPLOAD KEY SHA-256 (for Digital Asset Links / testing) ----
-"!JDK!\bin\keytool" -list -v -keystore android.keystore -alias sospana -storepass ***REMOVED*** | findstr /i "SHA256:"
+"!JDK!\bin\keytool" -list -v -keystore android.keystore -alias sospana -storepass "%BUBBLEWRAP_KEYSTORE_PASSWORD%" | findstr /i "SHA256:"
 echo.
 echo NOTE: For production, use the App signing SHA-256 from Play Console after upload.
 endlocal

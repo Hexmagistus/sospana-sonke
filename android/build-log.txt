@@ -1,0 +1,39 @@
+==== Sospana Sonke : building signed Android App Bundle ====
+Working dir: C:\Users\Lungani Tshabalala\Downloads\sospana-sonke-fullstack\sospana-sonke\android
+JDK: C:\Program Files\Android\Android Studio\jbr
+SDK: C:\Users\Lungani Tshabalala\android-sdk
+Wrote bubblewrap config.
+Creating upload keystore...
+Generating 2 048 bit RSA key pair and self-signed certificate (SHA384withRSA) with a validity of 10 000 days
+	for: CN=Sospana Sonke, O=Sospana Sonke, L=Johannesburg, C=ZA
+[Storing android.keystore]
+---- generating Android project from twa-manifest.json ----
+[35m,-----.        ,--.  ,--.  ,--.[39m
+[35m|  |) /_,--.,--|  |-.|  |-.|  |,---.,--.   ,--,--.--.,--,--.,---.[39m
+[35m|  .-.  |  ||  | .-. | .-. |  | .-. |  |.'.|  |  .--' ,-.  | .-. |[39m
+[35m|  '--' '  ''  | `-' | `-' |  \   --|   .'.   |  |  \ '-'  | '-' '[39m
+[35m`------' `----' `---' `---'`--'`----'--'   '--`--'   `--`--|  |-'[39m
+[35m                                                           `--'    [39m
+Generating Android Project.
+
+Project updated successfully.
+Build it by running [36mbubblewrap build[39m
+---- building signed bundle ----
+[35m,-----.        ,--.  ,--.  ,--.[39m
+[35m|  |) /_,--.,--|  |-.|  |-.|  |,---.,--.   ,--,--.--.,--,--.,---.[39m
+[35m|  .-.  |  ||  | .-. | .-. |  | .-. |  |.'.|  |  .--' ,-.  | .-. |[39m
+[35m|  '--' '  ''  | `-' | `-' |  \   --|   .'.   |  |  \ '-'  | '-' '[39m
+[35m`------' `----' `---' `---'`--'`----'--'   '--`--'   `--`--|  |-'[39m
+[35m                                                           `--'    [39m
+
+
+[7mcli[0m [31mERROR The provided androidSdk isn't correct.[0m
+
+
+
+BUILD DID NOT PRODUCE app-release-bundle.aab - see log above.
+
+---- UPLOAD KEY SHA-256 (for Digital Asset Links / testing) ----
+	 SHA256: 0D:36:37:60:89:C1:F9:D4:4F:C8:F2:46:8B:3F:A1:DD:5C:DB:E8:91:A1:42:D7:F9:86:85:6F:71:B6:A0:79:27
+
+NOTE: For production, use the App signing SHA-256 from Play Console after upload.

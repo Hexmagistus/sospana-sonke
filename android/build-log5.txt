@@ -1,0 +1,130 @@
+---- creating tools junction (Bubblewrap expects SDK\tools\bin\sdkmanager) ----
+Junction created for C:\Android\Sdk\tools <<===>> C:\Android\Sdk\cmdline-tools\latest
+---- accepting licenses ----
+---- installing build-tools 36.1.0 + platform android-36 ----
+Warning: This version only understands SDK XML versions up to 3 but an SDK XML file of version 4 was encountered. This can happen if you use versions of Android Studio and the command-line tools that were released at different times.
+Warning: Observed package id 'cmdline-tools;12.0' in inconsistent location 'C:\Android\Sdk\cmdline-tools\latest' (Expected 'C:\Android\Sdk\cmdline-tools\12.0')
+Warning: Observed package id 'cmdline-tools;12.0' in inconsistent location 'C:\Android\Sdk\tools' (Expected 'C:\Android\Sdk\cmdline-tools\12.0')
+Warning: Already observed package id 'cmdline-tools;12.0' in 'C:\Android\Sdk\cmdline-tools\latest'. Skipping duplicate at 'C:\Android\Sdk\tools'
+Loading package information...                                                  Loading local repository...                                                     Warning: Observed package id 'cmdline-tools;12.0' in inconsistent location 'C:\Android\Sdk\cmdline-tools\latest' (Expected 'C:\Android\Sdk\cmdline-tools\12.0')
+Warning: Observed package id 'cmdline-tools;12.0' in inconsistent location 'C:\Android\Sdk\tools' (Expected 'C:\Android\Sdk\cmdline-tools\12.0')
+Warning: Already observed package id 'cmdline-tools;12.0' in 'C:\Android\Sdk\cmdline-tools\latest'. Skipping duplicate at 'C:\Android\Sdk\tools'
+[                                       ] 3% Loading local repository...        [                                       ] 3% Fetch remote repository...         [=                                      ] 3% Fetch remote repository...         [=                                      ] 4% Fetch remote repository...         [=                                      ] 5% Fetch remote repository...         [==                                     ] 5% Fetch remote repository...         [==                                     ] 6% Fetch remote repository...         [==                                     ] 7% Fetch remote repository...         [==                                     ] 7% Computing updates...               [===                                    ] 8% Computing updates...               [===                                    ] 10% Computing updates...              [===                                    ] 10% Installing Android SDK Platform-To[===                                    ] 10% Downloading platform-tools_r37.0.1[====                                   ] 10% Downloading platform-tools_r37.0.1[====                                   ] 11% Downloading platform-tools_r37.0.1[====                                   ] 12% Downloading platform-tools_r37.0.1[=====                                  ] 13% Downloading platform-tools_r37.0.1[=====                                  ] 14% Downloading platform-tools_r37.0.1[=====                                  ] 15% Downloading platform-tools_r37.0.1[======                                 ] 15% Downloading platform-tools_r37.0.1[======                                 ] 16% Downloading platform-tools_r37.0.1[======                                 ] 17% Downloading platform-tools_r37.0.1[=======                                ] 18% Downloading platform-tools_r37.0.1[=======                                ] 19% Downloading platform-tools_r37.0.1[=======                                ] 20% Downloading platform-tools_r37.0.1[========                               ] 20% Downloading platform-tools_r37.0.1[========                               ] 21% Downloading platform-tools_r37.0.1[========                               ] 21% Unzipping...                      [========                               ] 21% Unzipping... platform-tools/      [========                               ] 21% Unzipping... platform-tools/adb.ex[========                               ] 22% Unzipping... platform-tools/adb.ex[=========                              ] 23% Unzipping... platform-tools/adb.ex[=========                              ] 24% Unzipping... platform-tools/adb.ex[=========                              ] 25% Unzipping... platform-tools/adb.ex[==========                             ] 25% Unzipping... platform-tools/adb.ex[==========                             ] 26% Unzipping... platform-tools/adb.ex[==========                             ] 27% Unzipping... platform-tools/adb.ex[==========                             ] 27% Unzipping... platform-tools/AdbWin[==========                             ] 27% Unzipping... platform-tools/etc1to[==========                             ] 27% Unzipping... platform-tools/fastbo[===========                            ] 28% Unzipping... platform-tools/fastbo[===========                            ] 29% Unzipping... platform-tools/fastbo[===========                            ] 29% Unzipping... platform-tools/hprof-[===========                            ] 29% Unzipping... platform-tools/libwin[===========                            ] 29% Unzipping... platform-tools/make_f[===========                            ] 29% Unzipping... platform-tools/mke2fs[===========                            ] 30% Unzipping... platform-tools/mke2fs[============                           ] 30% Unzipping... platform-tools/mke2fs[============                           ] 30% Unzipping... platform-tools/NOTICE[============                           ] 30% Unzipping... platform-tools/source[============                           ] 30% Unzipping... platform-tools/sqlite[============                           ] 31% Unzipping... platform-tools/sqlite[============                           ] 32% Unzipping... platform-tools/sqlite[=============                          ] 33% Unzipping... platform-tools/sqlite                                                                                Warning: An error occurred during installation: C:\Android\Sdk\platform-tools\adb.exe.
+[=============                          ] 33% Unzipping... platform-tools/sqlite[=====================                  ] 55% Unzipping... platform-tools/sqlite---- bubblewrap config + doctor ----
+[35m,-----.        ,--.  ,--.  ,--.[39m
+[35m|  |) /_,--.,--|  |-.|  |-.|  |,---.,--.   ,--,--.--.,--,--.,---.[39m
+[35m|  .-.  |  ||  | .-. | .-. |  | .-. |  |.'.|  |  .--' ,-.  | .-. |[39m
+[35m|  '--' '  ''  | `-' | `-' |  \   --|   .'.   |  |  \ '-'  | '-' '[39m
+[35m`------' `----' `---' `---'`--'`----'--'   '--`--'   `--`--|  |-'[39m
+[35m                                                           `--'    [39m
+[35m,-----.        ,--.  ,--.  ,--.[39m
+[35m|  |) /_,--.,--|  |-.|  |-.|  |,---.,--.   ,--,--.--.,--,--.,---.[39m
+[35m|  .-.  |  ||  | .-. | .-. |  | .-. |  |.'.|  |  .--' ,-.  | .-. |[39m
+[35m|  '--' '  ''  | `-' | `-' |  \   --|   .'.   |  |  \ '-'  | '-' '[39m
+[35m`------' `----' `---' `---'`--'`----'--'   '--`--'   `--`--|  |-'[39m
+[35m                                                           `--'    [39m
+[7mdoctor[0m Your jdkpath and androidSdkPath are valid.
+---- build ----
+[35m,-----.        ,--.  ,--.  ,--.[39m
+[35m|  |) /_,--.,--|  |-.|  |-.|  |,---.,--.   ,--,--.--.,--,--.,---.[39m
+[35m|  .-.  |  ||  | .-. | .-. |  | .-. |  |.'.|  |  .--' ,-.  | .-. |[39m
+[35m|  '--' '  ''  | `-' | `-' |  \   --|   .'.   |  |  \ '-'  | '-' '[39m
+[35m`------' `----' `---' `---'`--'`----'--'   '--`--'   `--`--|  |-'[39m
+[35m                                                           `--'    [39m
+Installing Android Build Tools. Please, read and accept the license agreement.
+[7mbuild[0m Installing Build Tools
+(node:1716) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+Warning: This version only understands SDK XML versions up to 3 but an SDK XML file of version 4 was encountered. This can happen if you use versions of Android Studio and the command-line tools that were released at different times.
+Warning: Observed package id 'cmdline-tools;12.0' in inconsistent location 'C:\Android\Sdk\cmdline-tools\latest' (Expected 'C:\Android\Sdk\cmdline-tools\12.0')
+Warning: Observed package id 'cmdline-tools;12.0' in inconsistent location 'C:\Android\Sdk\tools' (Expected 'C:\Android\Sdk\cmdline-tools\12.0')
+Warning: Already observed package id 'cmdline-tools;12.0' in 'C:\Android\Sdk\cmdline-tools\latest'. Skipping duplicate at 'C:\Android\Sdk\tools'
+Loading package information...                                                  Loading local repository...                                                     Warning: Observed package id 'cmdline-tools;12.0' in inconsistent location 'C:\Android\Sdk\cmdline-tools\latest' (Expected 'C:\Android\Sdk\cmdline-tools\12.0')
+Warning: Observed package id 'cmdline-tools;12.0' in inconsistent location 'C:\Android\Sdk\tools' (Expected 'C:\Android\Sdk\cmdline-tools\12.0')
+Warning: Already observed package id 'cmdline-tools;12.0' in 'C:\Android\Sdk\cmdline-tools\latest'. Skipping duplicate at 'C:\Android\Sdk\tools'
+[                                       ] 3% Loading local repository...        [                                       ] 3% Fetch remote repository...         [=                                      ] 3% Fetch remote repository...         [=                                      ] 4% Fetch remote repository...         [=                                      ] 5% Fetch remote repository...         [==                                     ] 5% Fetch remote repository...         [==                                     ] 6% Fetch remote repository...         [==                                     ] 7% Fetch remote repository...         [==                                     ] 7% Computing updates...               [===                                    ] 8% Computing updates...               [===                                    ] 10% Computing updates...              [===                                    ] 10% Installing Android SDK Build-Tools[===                                    ] 10% Downloading build-tools_r36.1_wind[====                                   ] 10% Downloading build-tools_r36.1_wind[====                                   ] 11% Downloading build-tools_r36.1_wind[====                                   ] 12% Downloading build-tools_r36.1_wind[=====                                  ] 13% Downloading build-tools_r36.1_wind[=====                                  ] 14% Downloading build-tools_r36.1_wind[=====                                  ] 15% Downloading build-tools_r36.1_wind[======                                 ] 15% Downloading build-tools_r36.1_wind[======                                 ] 16% Downloading build-tools_r36.1_wind[======                                 ] 17% Downloading build-tools_r36.1_wind[=======                                ] 18% Downloading build-tools_r36.1_wind[=======                                ] 19% Downloading build-tools_r36.1_wind[=======                                ] 20% Downloading build-tools_r36.1_wind[========                               ] 20% Downloading build-tools_r36.1_wind[========                               ] 21% Downloading build-tools_r36.1_wind[========                               ] 22% Downloading build-tools_r36.1_wind[=========                              ] 23% Downloading build-tools_r36.1_wind[=========                              ] 24% Downloading build-tools_r36.1_wind[=========                              ] 25% Downloading build-tools_r36.1_wind[==========                             ] 25% Downloading build-tools_r36.1_wind[==========                             ] 26% Downloading build-tools_r36.1_wind[==========                             ] 27% Downloading build-tools_r36.1_wind[===========                            ] 28% Downloading build-tools_r36.1_wind[===========                            ] 29% Downloading build-tools_r36.1_wind[===========                            ] 30% Downloading build-tools_r36.1_wind[============                           ] 30% Downloading build-tools_r36.1_wind[============                           ] 31% Downloading build-tools_r36.1_wind[============                           ] 32% Downloading build-tools_r36.1_wind[============                           ] 33% Downloading build-tools_r36.1_wind[============                           ] 33% Unzipping...                      [============                           ] 33% Unzipping... android-16/          [============                           ] 33% Unzipping... android-16/lib/      [============                           ] 33% Unzipping... android-16/lib64/    [============                           ] 33% Unzipping... android-16/lld-bin/  [============                           ] 33% Unzipping... android-16/renderscri[============                           ] 33% Unzipping... android-16/aapt.exe  [=============                          ] 33% Unzipping... android-16/aapt.exe  [=============                          ] 33% Unzipping... android-16/aapt2.exe [=============                          ] 34% Unzipping... android-16/aapt2.exe [=============                          ] 34% Unzipping... android-16/aarch64-li[=============                          ] 34% Unzipping... android-16/aidl.exe  [=============                          ] 34% Unzipping... android-16/apksigner.[=============                          ] 34% Unzipping... android-16/arm-linux-[=============                          ] 34% Unzipping... android-16/bcc_compat[=============                          ] 34% Unzipping... android-16/core-lambd[=============                          ] 34% Unzipping... android-16/d8.bat    [=============                          ] 34% Unzipping... android-16/dexdump.ex[=============                          ] 35% Unzipping... android-16/dexdump.ex[=============                          ] 35% Unzipping... android-16/i686-linux[=============                          ] 35% Unzipping... android-16/libbcc.dll[=============                          ] 35% Unzipping... android-16/libbcinfo.[=============                          ] 35% Unzipping... android-16/libclang_a[==============                         ] 35% Unzipping... android-16/libclang_a[==============                         ] 36% Unzipping... android-16/libclang_a[==============                         ] 37% Unzipping... android-16/libclang_a[==============                         ] 37% Unzipping... android-16/libLLVM_an[===============                        ] 38% Unzipping... android-16/libLLVM_an[===============                        ] 39% Unzipping... android-16/libLLVM_an[===============                        ] 40% Unzipping... android-16/libLLVM_an[===============                        ] 40% Unzipping... android-16/libwinpthr[===============                        ] 40% Unzipping... android-16/lld.exe   [===============                        ] 40% Unzipping... android-16/llvm-rs-cc[================                       ] 40% Unzipping... android-16/llvm-rs-cc[================                       ] 40% Unzipping... android-16/mipsel-lin[================                       ] 40% Unzipping... android-16/NOTICE.txt[================                       ] 40% Unzipping... android-16/runtime.pr[================                       ] 40% Unzipping... android-16/source.pro[================                       ] 40% Unzipping... android-16/split-sele[================                       ] 41% Unzipping... android-16/split-sele[================                       ] 41% Unzipping... android-16/x86_64-lin[================                       ] 41% Unzipping... android-16/zipalign.e[================                       ] 41% Unzipping... android-16/lib/apksig[================                       ] 41% Unzipping... android-16/lib/d8.jar[================                       ] 42% Unzipping... android-16/lib/d8.jar[=================                      ] 43% Unzipping... android-16/lib/d8.jar[=================                      ] 44% Unzipping... android-16/lib/d8.jar[=================                      ] 45% Unzipping... android-16/lib/d8.jar[==================                     ] 45% Unzipping... android-16/lib/d8.jar[==================                     ] 46% Unzipping... android-16/lib/d8.jar[==================                     ] 46% Unzipping... android-16/lib64/libw[==================                     ] 46% Unzipping... android-16/lld-bin/li[==================                     ] 46% Unzipping... android-16/lld-bin/ll[==================                     ] 47% Unzipping... android-16/lld-bin/ll[===================                    ] 48% Unzipping... android-16/lld-bin/ll[===================                    ] 49% Unzipping... android-16/lld-bin/ll[===================                    ] 50% Unzipping... android-16/lld-bin/ll[====================                   ] 50% Unzipping... android-16/lld-bin/ll[====================                   ] 51% Unzipping... android-16/lld-bin/ll[====================                   ] 52% Unzipping... android-16/lld-bin/ll[====================                   ] 52% Unzipping... android-16/renderscri[=====================                  ] 53% Unzipping... android-16/renderscri[=====================                  ] 54% Unzipping... android-16/renderscri[=====================                  ] 55% Unzipping... android-16/renderscri[=======================================] 100% Unzipping... android-16/renderscr
+
+Using passwords set in the BUBBLEWRAP_KEYSTORE_PASSWORD and BUBBLEWRAP_KEY_PASSWORD environmental variables.
+
+Building the Android App...
+
+
+[7mcli[0m [31mERROR Command failed: gradlew.bat assembleRelease --stacktrace
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+java.io.IOException: Unable to establish loopback connection
+
+* Try:
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+* Exception is:
+org.gradle.api.UncheckedIOException: java.io.IOException: Unable to establish loopback connection
+	at org.gradle.internal.UncheckedException.throwAsUncheckedException(UncheckedException.java:63)
+	at org.gradle.internal.UncheckedException.throwAsUncheckedException(UncheckedException.java:42)
+	at org.gradle.internal.remote.internal.inet.SocketConnection.<init>(SocketConnection.java:67)
+	at org.gradle.internal.remote.internal.inet.SocketConnectCompletion.create(SocketConnectCompletion.java:40)
+	at org.gradle.launcher.daemon.client.DefaultDaemonConnector.connectToDaemon(DefaultDaemonConnector.java:268)
+	at org.gradle.launcher.daemon.client.DefaultDaemonConnector.connectToDaemonWithId(DefaultDaemonConnector.java:254)
+	at org.gradle.launcher.daemon.client.DefaultDaemonConnector.doStartDaemon(DefaultDaemonConnector.java:221)
+	at org.gradle.launcher.daemon.client.DefaultDaemonConnector.startDaemon(DefaultDaemonConnector.java:210)
+	at org.gradle.launcher.daemon.client.DaemonClient.execute(DaemonClient.java:169)
+	at org.gradle.launcher.daemon.client.DaemonClient.execute(DaemonClient.java:97)
+	at org.gradle.launcher.cli.RunBuildAction.run(RunBuildAction.java:56)
+	at org.gradle.internal.Actions$RunnableActionAdapter.execute(Actions.java:167)
+	at org.gradle.launcher.cli.DefaultCommandLineActionFactory$ParseAndBuildAction.execute(DefaultCommandLineActionFactory.java:370)
+	at org.gradle.launcher.cli.DefaultCommandLineActionFactory$ParseAndBuildAction.execute(DefaultCommandLineActionFactory.java:334)
+	at org.gradle.launcher.cli.DebugLoggerWarningAction.execute(DebugLoggerWarningAction.java:74)
+	at org.gradle.launcher.cli.DebugLoggerWarningAction.execute(DebugLoggerWarningAction.java:30)
+	at org.gradle.launcher.cli.WelcomeMessageAction.execute(WelcomeMessageAction.java:97)
+	at org.gradle.launcher.cli.WelcomeMessageAction.execute(WelcomeMessageAction.java:40)
+	at org.gradle.launcher.cli.NativeServicesInitializingAction.execute(NativeServicesInitializingAction.java:50)
+	at org.gradle.launcher.cli.NativeServicesInitializingAction.execute(NativeServicesInitializingAction.java:27)
+	at org.gradle.launcher.cli.ExceptionReportingAction.execute(ExceptionReportingAction.java:41)
+	at org.gradle.launcher.cli.ExceptionReportingAction.execute(ExceptionReportingAction.java:26)
+	at org.gradle.launcher.cli.DefaultCommandLineActionFactory$WithLogging.execute(DefaultCommandLineActionFactory.java:482)
+	at org.gradle.launcher.Main.doAction(Main.java:35)
+	at org.gradle.launcher.bootstrap.EntryPoint.run(EntryPoint.java:52)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	at org.gradle.launcher.bootstrap.ProcessBootstrap.runNoExit(ProcessBootstrap.java:72)
+	at org.gradle.launcher.bootstrap.ProcessBootstrap.run(ProcessBootstrap.java:39)
+	at org.gradle.launcher.GradleMain.main(GradleMain.java:31)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	at org.gradle.wrapper.BootstrapMainStarter.start(BootstrapMainStarter.java:31)
+	at org.gradle.wrapper.WrapperExecutor.execute(WrapperExecutor.java:108)
+	at org.gradle.wrapper.GradleWrapperMain.main(GradleWrapperMain.java:63)
+Caused by: java.io.IOException: Unable to establish loopback connection
+	at java.base/sun.nio.ch.PipeImpl$Initializer.run(PipeImpl.java:103)
+	at java.base/sun.nio.ch.PipeImpl$Initializer.run(PipeImpl.java:67)
+	at java.base/java.security.AccessController.doPrivileged(AccessController.java:569)
+	at java.base/sun.nio.ch.PipeImpl.<init>(PipeImpl.java:198)
+	at java.base/sun.nio.ch.WEPollSelectorImpl.<init>(WEPollSelectorImpl.java:78)
+	at java.base/sun.nio.ch.WEPollSelectorProvider.openSelector(WEPollSelectorProvider.java:33)
+	at java.base/java.nio.channels.Selector.open(Selector.java:295)
+	at org.gradle.internal.remote.internal.inet.SocketConnection$SocketInputStream.<init>(SocketConnection.java:167)
+	at org.gradle.internal.remote.internal.inet.SocketConnection.<init>(SocketConnection.java:65)
+	... 36 more
+Caused by: java.net.SocketException: Invalid argument: connect
+	at java.base/sun.nio.ch.UnixDomainSockets.connect0(Native Method)
+	at java.base/sun.nio.ch.UnixDomainSockets.connect(UnixDomainSockets.java:148)
+	at java.base/sun.nio.ch.UnixDomainSockets.connect(UnixDomainSockets.java:144)
+	at java.base/sun.nio.ch.SocketChannelImpl.connect(SocketChannelImpl.java:851)
+	at java.base/java.nio.channels.SocketChannel.open(SocketChannel.java:285)
+	at java.base/sun.nio.ch.PipeImpl$Initializer$LoopbackConnector.run(PipeImpl.java:133)
+	at java.base/sun.nio.ch.PipeImpl$Initializer.run(PipeImpl.java:85)
+	... 44 more
+
+[0m
+
+
+ 
+FAILED-NO-AAB - see log 

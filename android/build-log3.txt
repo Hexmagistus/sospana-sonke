@@ -1,0 +1,36 @@
+==== bubblewrap config in use: ====
+{"jdkPath":"C:\\Program Files\\Android\\Android Studio\\jbr","androidSdkPath":"C:\\Android\\Sdk"}
+
+---- doctor ----
+[35m,-----.        ,--.  ,--.  ,--.[39m
+[35m|  |) /_,--.,--|  |-.|  |-.|  |,---.,--.   ,--,--.--.,--,--.,---.[39m
+[35m|  .-.  |  ||  | .-. | .-. |  | .-. |  |.'.|  |  .--' ,-.  | .-. |[39m
+[35m|  '--' '  ''  | `-' | `-' |  \   --|   .'.   |  |  \ '-'  | '-' '[39m
+[35m`------' `----' `---' `---'`--'`----'--'   '--`--'   `--`--|  |-'[39m
+[35m                                                           `--'    [39m
+
+
+[7mdoctor[0m [31mERROR Unsupported jdk version. Please download "OpenJDK 17(LTS)" at the link below:
+https://adoptium.net/temurin/releases/?version=17&package=jdk.[0m
+
+
+
+
+[7mdoctor[0m [31mERROR The androidSdkPath isn't correct, please run the following command to update it:
+bubblewrap updateConfig --androidSdkPath <path-to-sdk>, such that the folder of the path contains the folder "build". Then run bubblewrap doctor again.[0m
+
+
+---- build ----
+[35m,-----.        ,--.  ,--.  ,--.[39m
+[35m|  |) /_,--.,--|  |-.|  |-.|  |,---.,--.   ,--,--.--.,--,--.,---.[39m
+[35m|  .-.  |  ||  | .-. | .-. |  | .-. |  |.'.|  |  .--' ,-.  | .-. |[39m
+[35m|  '--' '  ''  | `-' | `-' |  \   --|   .'.   |  |  \ '-'  | '-' '[39m
+[35m`------' `----' `---' `---'`--'`----'--'   '--`--'   `--`--|  |-'[39m
+[35m                                                           `--'    [39m
+
+
+[7mcli[0m [31mERROR The provided androidSdk isn't correct.[0m
+
+
+ 
+FAILED-NO-AAB - see log above 
