@@ -279,22 +279,22 @@ const VALUES = ["Ambition", "Opportunity", "Dignity", "Ubuntu", "Hustle", "Growt
 // Employer counts reflect the current verified directory (kept in step with the company database).
 // pending = state-owned entities are live, but the country's stock-exchange listings are still being added.
 const LIVE = [
-  { name: "South Africa", flag: "🇿🇦", count: 530, pending: false },
-  { name: "Zimbabwe", flag: "🇿🇼", count: 110, pending: false },
-  { name: "Botswana", flag: "🇧🇼", count: 94, pending: false },
-  { name: "Namibia", flag: "🇳🇦", count: 77, pending: false },
-  { name: "DR Congo", flag: "🇨🇩", count: 72, pending: false },
-  { name: "Zambia", flag: "🇿🇲", count: 61, pending: true },
-  { name: "Mauritius", flag: "🇲🇺", count: 61, pending: true },
-  { name: "Madagascar", flag: "🇲🇬", count: 55, pending: false },
-  { name: "Malawi", flag: "🇲🇼", count: 52, pending: true },
-  { name: "Lesotho", flag: "🇱🇸", count: 49, pending: false },
-  { name: "Eswatini", flag: "🇸🇿", count: 48, pending: false },
-  { name: "Tanzania", flag: "🇹🇿", count: 47, pending: true },
-  { name: "Mozambique", flag: "🇲🇿", count: 45, pending: false },
-  { name: "Angola", flag: "🇦🇴", count: 43, pending: true },
+  { name: "South Africa", flag: "🇿🇦", count: 750, pending: false },
+  { name: "Zimbabwe", flag: "🇿🇼", count: 147, pending: false },
+  { name: "Botswana", flag: "🇧🇼", count: 117, pending: false },
+  { name: "Namibia", flag: "🇳🇦", count: 100, pending: false },
+  { name: "Mozambique", flag: "🇲🇿", count: 85, pending: false },
+  { name: "Mauritius", flag: "🇲🇺", count: 78, pending: true },
+  { name: "Zambia", flag: "🇿🇲", count: 76, pending: true },
+  { name: "DR Congo", flag: "🇨🇩", count: 73, pending: false },
+  { name: "Lesotho", flag: "🇱🇸", count: 68, pending: false },
+  { name: "Eswatini", flag: "🇸🇿", count: 64, pending: false },
+  { name: "Tanzania", flag: "🇹🇿", count: 62, pending: true },
+  { name: "Angola", flag: "🇦🇴", count: 62, pending: true },
+  { name: "Malawi", flag: "🇲🇼", count: 60, pending: true },
+  { name: "Madagascar", flag: "🇲🇬", count: 59, pending: false },
   { name: "Seychelles", flag: "🇸🇨", count: 28, pending: false },
-  { name: "Comoros", flag: "🇰🇲", count: 21, pending: false },
+  { name: "Comoros", flag: "🇰🇲", count: 23, pending: false },
 ];
 const SOON: { name: string; flag: string }[] = [];
 
