@@ -279,18 +279,18 @@ const VALUES = ["Ambition", "Opportunity", "Dignity", "Ubuntu", "Hustle", "Growt
 // Employer counts reflect the current verified directory (kept in step with the company database).
 // pending = state-owned entities are live, but the country's stock-exchange listings are still being added.
 const LIVE = [
-  { name: "South Africa", flag: "🇿🇦", count: 368, pending: false },
-  { name: "Zimbabwe", flag: "🇿🇼", count: 67, pending: false },
-  { name: "Namibia", flag: "🇳🇦", count: 46, pending: false },
-  { name: "Botswana", flag: "🇧🇼", count: 42, pending: false },
-  { name: "Mozambique", flag: "🇲🇿", count: 33, pending: false },
-  { name: "Eswatini", flag: "🇸🇿", count: 30, pending: false },
-  { name: "Malawi", flag: "🇲🇼", count: 25, pending: true },
-  { name: "Mauritius", flag: "🇲🇺", count: 24, pending: true },
-  { name: "Zambia", flag: "🇿🇲", count: 22, pending: true },
-  { name: "Lesotho", flag: "🇱🇸", count: 17, pending: false },
-  { name: "Tanzania", flag: "🇹🇿", count: 16, pending: true },
-  { name: "Angola", flag: "🇦🇴", count: 11, pending: true },
+  { name: "South Africa", flag: "🇿🇦", count: 750, pending: false },
+  { name: "Zimbabwe", flag: "🇿🇼", count: 89, pending: false },
+  { name: "Botswana", flag: "🇧🇼", count: 86, pending: false },
+  { name: "Namibia", flag: "🇳🇦", count: 61, pending: false },
+  { name: "Lesotho", flag: "🇱🇸", count: 57, pending: false },
+  { name: "Mozambique", flag: "🇲🇿", count: 53, pending: false },
+  { name: "Mauritius", flag: "🇲🇺", count: 44, pending: true },
+  { name: "Eswatini", flag: "🇸🇿", count: 38, pending: false },
+  { name: "Zambia", flag: "🇿🇲", count: 38, pending: true },
+  { name: "Malawi", flag: "🇲🇼", count: 34, pending: true },
+  { name: "Tanzania", flag: "🇹🇿", count: 32, pending: true },
+  { name: "Angola", flag: "🇦🇴", count: 29, pending: true },
   { name: "Madagascar", flag: "🇲🇬", count: 23, pending: false },
   { name: "DR Congo", flag: "🇨🇩", count: 19, pending: false },
   { name: "Seychelles", flag: "🇸🇨", count: 9, pending: false },
@@ -537,7 +537,7 @@ export default function Home() {
         <Reveal delay={80}>
           <div className="-mt-6 grid grid-cols-2 gap-3 rounded-2xl bg-white p-4 shadow-lg sm:grid-cols-4">
             {[
-              [700, "+", "Employers tracked", C.red],
+              [1350, "+", "Employers tracked", C.red],
               [null, "Direct", "To official careers pages", C.teal],
               [null, "SOE", "Vacancies across South Africa", C.green],
               [null, "Free", "Full access, no charge", C.gold],
@@ -556,7 +556,7 @@ export default function Home() {
       {/* Pillars */}
       <section className="mx-auto grid max-w-6xl gap-5 px-4 py-12 sm:grid-cols-3">
         {[
-          ["🎯", "Straight to employers", "Direct links to 700+ companies' official careers pages across the region — no middle-man boards, no games.", C.red],
+          ["🎯", "Straight to employers", "Direct links to 1,350+ companies' official careers pages across the region — no middle-man boards, no games.", C.red],
           ["🏛️", "Don't miss the SOEs", "Browse open roles at state-owned enterprises across South Africa and the region — filtered and ready to explore.", C.gold],
           ["📈", "Track & rise", "Every application in one place. Stay organised, stay ready, and keep moving forward.", C.teal],
         ].map(([ic, t, d, col], i) => (
