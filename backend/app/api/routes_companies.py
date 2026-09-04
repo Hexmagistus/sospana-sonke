@@ -27,7 +27,7 @@ def list_companies(
     _: User = Depends(get_current_user),
     source_type: str | None = Query(default=None, description="Filter by JSE or SOE"),
     active: bool | None = Query(default=None),
-    limit: int = Query(default=100, le=1000),
+    limit: int = Query(default=100, le=5000),
     offset: int = Query(default=0, ge=0),
 ):
     q = db.query(Company).filter(Company.deleted_at.is_(None))

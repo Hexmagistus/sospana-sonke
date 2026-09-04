@@ -49,7 +49,7 @@ function FindJobsInner() {
     (async () => {
       try {
         const [cos, vacs] = await Promise.all([
-          api.get<Company[]>("/companies?limit=1000"),
+          api.get<Company[]>("/companies?limit=5000"),
           api.get<Vacancy[]>("/vacancies?is_open=true&limit=500"),
         ]);
         setCompanies(cos);

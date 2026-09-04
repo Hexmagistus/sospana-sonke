@@ -68,7 +68,7 @@ function CompaniesDirectoryInner() {
   const [country, setCountry] = useState("South Africa");
 
   useEffect(() => {
-    api.get<Company[]>("/companies?limit=1000").then(setCompanies).catch((e) => setErr(e.message));
+    api.get<Company[]>("/companies?limit=5000").then(setCompanies).catch((e) => setErr(e.message));
   }, []);
 
   const countries = useMemo(() => {

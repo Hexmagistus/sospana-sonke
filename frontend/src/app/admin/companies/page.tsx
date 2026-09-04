@@ -15,7 +15,7 @@ function CompaniesInner() {
   const fileRef = useRef<HTMLInputElement>(null);
 
   async function load() {
-    setCompanies(await api.get<Company[]>("/companies?limit=1000"));
+    setCompanies(await api.get<Company[]>("/companies?limit=5000"));
   }
   useEffect(() => {
     load().catch((e) => setErr(e.message));
