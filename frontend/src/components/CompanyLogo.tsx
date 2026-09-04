@@ -88,33 +88,43 @@ export function CompanyLogo({
   careersUrl,
   country,
   gradient,
+  logoUrl,
 }: {
   name: string;
   website?: string | null;
   careersUrl?: string | null;
   country?: string | null;
   gradient: string;
+  // An explicit, verified logo image URL taken directly from the entity's own
+  // official website. When set, it's tried first — ahead of the Clearbit/
+  // favicon auto-guessing below — since it's a real confirmed logo, not a guess.
+  logoUrl?: string | null;
 }) {
   const sources = useMemo(() => {
+    const guessed: string[] = [];
     const siteDomain = domainFrom(website);
     const careersDomain = domainFrom(careersUrl);
     // Prefer a real, non-ATS domain we already know.
     const known = siteDomain || (careersDomain && !isATS(careersDomain) ? careersDomain : null);
     if (known) {
-      return [`https://logo.clearbit.com/${known}`, `https://www.google.com/s2/favicons?domain=${known}&sz=128`];
+      guessed.push(`https://logo.clearbit.com/${known}`, `https://www.google.com/s2/favicons?domain=${known}&sz=128`);
+    } else {
+      // Otherwise guess the company's own domain from its name and only accept a
+      // genuine logo (Clearbit 404s for unknown domains → we fall back to initials,
+      // so a wrong brand is never shown). Try the country's own TLD(s) first
+      // (most African corporate sites live there, not .com), then .com/.co.za.
+      const slug = slugFromName(name);
+      if (slug.length >= 3) {
+        const tlds = [...(country ? COUNTRY_TLDS[country] || [] : []), "com", "co.za"];
+        const uniqueTlds = Array.from(new Set(tlds));
+        guessed.push(...uniqueTlds.map((tld) => `https://logo.clearbit.com/${slug}.${tld}`));
+      }
     }
-    // Otherwise guess the company's own domain from its name and only accept a
-    // genuine logo (Clearbit 404s for unknown domains → we fall back to initials,
-    // so a wrong brand is never shown). Try the country's own TLD(s) first
-    // (most African corporate sites live there, not .com), then .com/.co.za.
-    const slug = slugFromName(name);
-    if (slug.length >= 3) {
-      const tlds = [...(country ? COUNTRY_TLDS[country] || [] : []), "com", "co.za"];
-      const uniqueTlds = Array.from(new Set(tlds));
-      return uniqueTlds.map((tld) => `https://logo.clearbit.com/${slug}.${tld}`);
-    }
-    return [];
-  }, [name, website, careersUrl, country]);
+    // A verified logo URL (lifted directly off the entity's own site) always
+    // comes first; the guessed sources above remain as a fallback chain if it
+    // 404s or fails to load.
+    return logoUrl ? [logoUrl, ...guessed] : guessed;
+  }, [name, website, careersUrl, country, logoUrl]);
 
   const [idx, setIdx] = useState(0);
   const useLogo = sources.length > 0 && idx < sources.length;

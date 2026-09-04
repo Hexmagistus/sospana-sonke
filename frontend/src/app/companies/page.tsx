@@ -28,6 +28,38 @@ const COUNTRY_FLAGS: Record<string, string> = {
   "Madagascar": "🇲🇬", "DR Congo": "🇨🇩", "Seychelles": "🇸🇨", "Comoros": "🇰🇲",
 };
 
+// Verified logo images lifted directly from each department's own official
+// website (not a favicon/Clearbit guess) -- keyed by exact company_name.
+// Departments not listed here fall back to CompanyLogo's normal favicon
+// lookup because no distinct logo image could be confirmed on their site
+// (e.g. a legacy ASP.NET/SharePoint page with no separate crest asset) or
+// the site could not be reached from here at all.
+const DEPARTMENT_LOGOS: Record<string, string> = {
+  "The Presidency": "https://www.thepresidency.gov.za/themes/gavias_edubiz/images/thepresidency.png",
+  "Department of Cooperative Governance": "https://www.cogta.gov.za/cgta_2016/wp-content/uploads/2016/05/correctlogosmall-350x101.png",
+  "Department of International Relations and Cooperation": "https://dirco.gov.za/wp-content/uploads/2020/04/DIRCO-website-header-1140x144.jpg",
+  "South African Police Service": "https://www.saps.gov.za/_design/files/assets/images/top/saps_topBanner_sm_sm.jpg",
+  "Department of Justice and Constitutional Development": "https://www.justice.gov.za/images/banner2020/home.gif",
+  "Department of Correctional Services": "https://www.dcs.gov.za/wp-content/uploads/2017/01/cropped-newnew.png",
+  "Department of Public Service and Administration": "https://www.dpsa.gov.za/site/templates/styles/images/header_small.png",
+  "Department of Public Works and Infrastructure": "http://www.publicworks.gov.za/img/coatofarms.jpg",
+  "Department of Communications and Digital Technologies": "https://www.dcdt.gov.za/images/dcdt/dcdt_banner.jpg",
+  "Department of Water and Sanitation": "https://erecruitment.dws.gov.za/DWS-logo.png",
+  "Department of Human Settlements": "https://www.dhs.gov.za/sites/default/files/images/logo.png",
+  "Department of Transport": "https://www.transport.gov.za/wp-content/uploads/2023/02/newlogo.png",
+  "Department of Electricity and Energy": "https://www.dee.gov.za/wp-content/uploads/2025/03/DDE-Logo1-scaled-e1773744806964.png",
+  "Department of Trade Industry and Competition": "https://www.thedtic.gov.za/wp-content/uploads/cropped-The-dtic-logo-trade-industry-competition-Full-C-scaled-300x101.jpg",
+  "Department of Small Business Development": "https://www.dsbd.gov.za/sites/default/files/2021-08/logo.png",
+  "Department of Tourism": "https://www.tourism.gov.za/images/tourlogo.png",
+  "Department of Forestry Fisheries and the Environment": "https://www.dffe.gov.za/sites/default/files/logo_0.png",
+  "Department of Basic Education": "https://www.education.gov.za/Portals/0/dbeLogo2.png",
+  "Department of Health": "https://a206977a.delivery.rocketcdn.me/wp-content/uploads/2024/03/Internet-header-Banner-768x67.png",
+  "Department of Social Development": "https://www.dsd.gov.za/images/soc.png",
+  "Department of Employment and Labour": "https://www.labour.gov.za/Style%20Library/_DOL/images/banner.jpg",
+  "Department of Sport Arts and Culture": "https://www.dsac.gov.za/sites/default/files/logo_2.png",
+  "Department of Women Youth and Persons with Disabilities": "https://dwypd.gov.za/wp-content/uploads/2020/07/logo-2.png",
+};
+
 function CompaniesDirectoryInner() {
   const [companies, setCompanies] = useState<Company[]>([]);
   const [err, setErr] = useState("");
@@ -171,7 +203,7 @@ function CompaniesDirectoryInner() {
             <Card key={c.id} accent={ACCENTS[i % ACCENTS.length]} className="hover:-translate-y-0.5 hover:shadow-md">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-start gap-3">
-                  <CompanyLogo name={c.company_name} website={c.official_website} careersUrl={c.careers_url} country={c.country} gradient={AVATAR_GRADIENTS[i % AVATAR_GRADIENTS.length]} />
+                  <CompanyLogo name={c.company_name} website={c.official_website} careersUrl={c.careers_url} country={c.country} gradient={AVATAR_GRADIENTS[i % AVATAR_GRADIENTS.length]} logoUrl={DEPARTMENT_LOGOS[c.company_name]} />
                   <div>
                     <div className="font-semibold text-navy">{c.company_name}</div>
                     <div className="mt-1 flex flex-wrap items-center gap-1">
