@@ -1,9 +1,15 @@
-[main 9931503] Fix profile form: comma-separated fields no longer clear while typing
- 2 files changed, 15 insertions(+), 8 deletions(-)
-To https://github.com/Hexmagistus/sospana-sonke.git
-   ab3b0ac..9931503  main -> main
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   update-log.txt
+
+no changes added to commit (use "git add" and/or "git commit -a")
+Everything up-to-date
  
 === recent commits === 
-9931503 Fix profile form: comma-separated fields no longer clear while typing
-ab3b0ac Update JSE careers links to direct vacancy lists batch 2
-0653a37 Update JSE careers links to direct one click vacancy lists batch 1
+4a56a1c Fix landing page employer counts: restore total-row convention
+25824c5 Update landing page live employer counts to match current database
+cad15c6 Add 2 new Comoros private companies (PRIVATE)
