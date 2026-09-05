@@ -10,8 +10,6 @@ const LINKS = [
   { href: "/jobs", label: "Find jobs" },
   { href: "/companies", label: "Companies" },
   { href: "/profile", label: "Profile" },
-  { href: "/cv", label: "CV" },
-  { href: "/applications", label: "Applications" },
   { href: "/notifications", label: "Notifications" },
   { href: "/security", label: "Security" },
 ];
