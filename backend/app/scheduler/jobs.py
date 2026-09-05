@@ -29,12 +29,17 @@ def _alert_candidates_of_new_jobs(db: Session, new_vacancy_ids: list[str], job_r
     return sent
 
 
-def scan_all_companies(db: Session, job_run_id: str | None = None) -> dict:
-    """Scan every active company that has a careers URL. Returns a summary."""
-    companies = (db.query(Company)
-                 .filter(Company.active.is_(True), Company.deleted_at.is_(None),
-                         Company.careers_url.isnot(None))
-                 .all())
+def scan_all_companies(db: Session, job_run_id: str | None = None, country: str | None = None) -> dict:
+    """Scan every active company that has a careers URL. Returns a summary.
+
+    country: when given, restrict the sweep to that country only (e.g. "South Africa").
+    """
+    query = (db.query(Company)
+             .filter(Company.active.is_(True), Company.deleted_at.is_(None),
+                     Company.careers_url.isnot(None)))
+    if country:
+        query = query.filter(Company.country == country)
+    companies = query.all()
     scanned = created = failed = 0
     new_vacancy_ids: list[str] = []
     for company in companies:
@@ -50,6 +55,15 @@ def scan_all_companies(db: Session, job_run_id: str | None = None) -> dict:
     candidates_alerted = _alert_candidates_of_new_jobs(db, new_vacancy_ids, job_run_id)
     return {"companies_scanned": scanned, "vacancies_created": created, "sources_failed": failed,
             "candidates_alerted": candidates_alerted}
+
+
+def scan_south_africa(db: Session, job_run_id: str | None = None) -> dict:
+    """Scan every active South African company with a careers URL.
+
+    A scoped entry point for the current rollout phase (South Africa first) that
+    reuses scan_all_companies's logic and change-detection/alerting behaviour.
+    """
+    return scan_all_companies(db, job_run_id=job_run_id, country="South Africa")
 
 
 def scan_due_companies(db: Session, limit: int = 25, job_run_id: str | None = None) -> dict:

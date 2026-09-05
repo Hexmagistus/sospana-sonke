@@ -90,8 +90,11 @@ function AdminInner() {
       <Card>
         <h2 className="mb-3 font-semibold">Scheduled jobs</h2>
         <div className="flex flex-wrap gap-3">
+          <Button variant="ghost" disabled={!!job} onClick={() => runJob("scan_south_africa")}>
+            {job === "scan_south_africa" ? "Scanning South Africa…" : "Scan South Africa now"}
+          </Button>
           <Button variant="ghost" disabled={!!job} onClick={() => runJob("scan_all_companies")}>
-            {job === "scan_all_companies" ? "Scanning…" : "Run scan-all-companies"}
+            {job === "scan_all_companies" ? "Scanning…" : "Run scan-all-companies (all regions)"}
           </Button>
           <Button variant="ghost" disabled={!!job} onClick={() => runJob("match_all_candidates")}>
             {job === "match_all_candidates" ? "Matching…" : "Run match-all-candidates"}

@@ -9,11 +9,12 @@ from __future__ import annotations
 from sqlalchemy.orm import Session
 
 from app.models.match import SystemSetting
-from app.scheduler.jobs import scan_all_companies, scan_due_companies, match_all_candidates
+from app.scheduler.jobs import scan_all_companies, scan_south_africa, scan_due_companies, match_all_candidates
 
 # name -> callable(db) -> summary dict
 JOBS = {
-    "scan_all_companies": scan_all_companies,   # full sweep (slow; manual/admin use)
+    "scan_all_companies": scan_all_companies,   # full sweep, every country (slow; manual/admin use)
+    "scan_south_africa": scan_south_africa,     # full sweep, South Africa only (current rollout phase)
     "scan_due_companies": scan_due_companies,   # fast rotating batch (external cron)
     "match_all_candidates": match_all_candidates,
 }
