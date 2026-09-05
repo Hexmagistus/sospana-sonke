@@ -279,22 +279,22 @@ const VALUES = ["Ambition", "Opportunity", "Dignity", "Ubuntu", "Hustle", "Growt
 // Employer counts reflect the current verified directory (kept in step with the company database).
 // pending = state-owned entities are live, but the country's stock-exchange listings are still being added.
 const LIVE = [
-  { name: "South Africa", flag: "🇿🇦", count: 750, pending: false },
-  { name: "Zimbabwe", flag: "🇿🇼", count: 147, pending: false },
-  { name: "Botswana", flag: "🇧🇼", count: 117, pending: false },
-  { name: "Namibia", flag: "🇳🇦", count: 100, pending: false },
-  { name: "Mozambique", flag: "🇲🇿", count: 85, pending: false },
-  { name: "Mauritius", flag: "🇲🇺", count: 78, pending: true },
-  { name: "Zambia", flag: "🇿🇲", count: 76, pending: true },
-  { name: "DR Congo", flag: "🇨🇩", count: 73, pending: false },
-  { name: "Lesotho", flag: "🇱🇸", count: 68, pending: false },
-  { name: "Eswatini", flag: "🇸🇿", count: 64, pending: false },
-  { name: "Tanzania", flag: "🇹🇿", count: 62, pending: true },
-  { name: "Angola", flag: "🇦🇴", count: 62, pending: true },
-  { name: "Malawi", flag: "🇲🇼", count: 60, pending: true },
-  { name: "Madagascar", flag: "🇲🇬", count: 59, pending: false },
-  { name: "Seychelles", flag: "🇸🇨", count: 28, pending: false },
-  { name: "Comoros", flag: "🇰🇲", count: 23, pending: false },
+  { name: "South Africa", flag: "🇿🇦", count: 547, pending: false },
+  { name: "Zimbabwe", flag: "🇿🇼", count: 116, pending: false },
+  { name: "Botswana", flag: "🇧🇼", count: 103, pending: false },
+  { name: "Namibia", flag: "🇳🇦", count: 83, pending: false },
+  { name: "DR Congo", flag: "🇨🇩", count: 80, pending: true },
+  { name: "Zambia", flag: "🇿🇲", count: 67, pending: true },
+  { name: "Mauritius", flag: "🇲🇺", count: 65, pending: true },
+  { name: "Madagascar", flag: "🇲🇬", count: 62, pending: true },
+  { name: "Malawi", flag: "🇲🇼", count: 58, pending: true },
+  { name: "Eswatini", flag: "🇸🇿", count: 56, pending: false },
+  { name: "Lesotho", flag: "🇱🇸", count: 55, pending: true },
+  { name: "Tanzania", flag: "🇹🇿", count: 53, pending: true },
+  { name: "Mozambique", flag: "🇲🇿", count: 51, pending: false },
+  { name: "Angola", flag: "🇦🇴", count: 50, pending: true },
+  { name: "Seychelles", flag: "🇸🇨", count: 31, pending: true },
+  { name: "Comoros", flag: "🇰🇲", count: 24, pending: true },
 ];
 const SOON: { name: string; flag: string }[] = [];
 
@@ -537,7 +537,7 @@ export default function Home() {
         <Reveal delay={80}>
           <div className="-mt-6 grid grid-cols-2 gap-3 rounded-2xl bg-white p-4 shadow-lg sm:grid-cols-4">
             {[
-              [1350, "+", "Employers tracked", C.red],
+              [1500, "+", "Employers tracked", C.red],
               [null, "Direct", "To official careers pages", C.teal],
               [null, "SOE", "Vacancies across South Africa", C.green],
               [null, "Free", "Full access, no charge", C.gold],
@@ -556,7 +556,7 @@ export default function Home() {
       {/* Pillars */}
       <section className="mx-auto grid max-w-6xl gap-5 px-4 py-12 sm:grid-cols-3">
         {[
-          ["🎯", "Straight to employers", "Direct links to 1,350+ companies' official careers pages across the region — no middle-man boards, no games.", C.red],
+          ["🎯", "Straight to employers", "Direct links to 1,500+ companies' official careers pages across the region — no middle-man boards, no games.", C.red],
           ["🏛️", "Don't miss the SOEs", "Browse open roles at state-owned enterprises across South Africa and the region — filtered and ready to explore.", C.gold],
           ["📈", "Track & rise", "Every application in one place. Stay organised, stay ready, and keep moving forward.", C.teal],
         ].map(([ic, t, d, col], i) => (
