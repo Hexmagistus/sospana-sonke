@@ -1,16 +1,12 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
 import Guard from "@/components/Guard";
 import { api } from "@/lib/api";
-import { Card, Input, Button, Spinner, Alert, Skeleton } from "@/components/ui";
-import { Banner } from "@/components/Banner";
+import { Alert, Spinner } from "@/components/ui";
 import { CompanyLogo, isAtsPortal } from "@/components/CompanyLogo";
-import type { Company } from "@/lib/types";
+import type { Company, Vacancy } from "@/lib/types";
 
-type Accent = "sky" | "teal" | "gold" | "purple" | "coral" | "navy";
-const ACCENTS: Accent[] = ["sky", "teal", "gold", "purple", "coral", "navy"];
 const AVATAR_GRADIENTS = [
   "from-sky to-purple",
   "from-brand to-brand-dark",
@@ -60,16 +56,49 @@ const DEPARTMENT_LOGOS: Record<string, string> = {
   "Department of Women Youth and Persons with Disabilities": "https://dwypd.gov.za/wp-content/uploads/2020/07/logo-2.png",
 };
 
+// Badge treatment per source_type, kept to the palette above (navy / teal /
+// emerald / gold / muted) rather than introducing new colours.
+const TYPE_BADGE: Record<string, { label: string; cls: string }> = {
+  SOE: { label: "State-owned", cls: "bg-[#087F73]/20 text-[#5EEAD4] ring-1 ring-[#087F73]/40" },
+  MUNI: { label: "Municipality", cls: "bg-[#0A3150] text-[#A8B5C5] ring-1 ring-white/10" },
+  DEPT: { label: "🏛️ Government department", cls: "bg-[#0A3150] text-[#A8B5C5] ring-1 ring-white/10" },
+  PRIVATE: { label: "Private company", cls: "bg-white/10 text-[#F8FAFC] ring-1 ring-white/15" },
+  NGO: { label: "🤝 NGO", cls: "bg-[#20B26B]/15 text-[#6EE7B7] ring-1 ring-[#20B26B]/40" },
+};
+
+function typeBadge(sourceType: string | null | undefined) {
+  const st = (sourceType || "").toUpperCase();
+  return TYPE_BADGE[st] || { label: sourceType ? `${st}-listed` : "Listed", cls: "bg-[#F5B900]/15 text-[#F5B900] ring-1 ring-[#F5B900]/30" };
+}
+
+type SortKey = "name" | "jobs";
+
 function CompaniesDirectoryInner() {
   const [companies, setCompanies] = useState<Company[]>([]);
+  const [vacancies, setVacancies] = useState<Vacancy[]>([]);
   const [err, setErr] = useState("");
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState<"all" | "listed" | "SOE" | "Municipality" | "Department" | "Private" | "NGO">("all");
   const [country, setCountry] = useState("South Africa");
+  const [sortBy, setSortBy] = useState<SortKey>("name");
 
   useEffect(() => {
-    api.get<Company[]>("/companies?limit=5000").then(setCompanies).catch((e) => setErr(e.message));
+    Promise.all([
+      api.get<Company[]>("/companies?limit=5000"),
+      api.get<Vacancy[]>("/vacancies?is_open=true&limit=5000").catch(() => [] as Vacancy[]),
+    ]).then(([cos, vacs]) => {
+      setCompanies(cos);
+      setVacancies(vacs);
+    }).catch((e) => setErr(e.message));
   }, []);
+
+  // Real open-position counts per company, from the same vacancy data the
+  // Find Jobs page uses -- never fabricated.
+  const jobsByCompany = useMemo(() => {
+    const m: Record<string, number> = {};
+    for (const v of vacancies) m[v.company_id] = (m[v.company_id] || 0) + 1;
+    return m;
+  }, [vacancies]);
 
   const countries = useMemo(() => {
     const set = Array.from(new Set(companies.map((c) => c.country).filter(Boolean) as string[]));
@@ -88,7 +117,7 @@ function CompaniesDirectoryInner() {
 
   const shownCompanies = useMemo(() => {
     const needle = q.trim().toLowerCase();
-    return companies
+    const filtered = companies
       .filter((c) => (c.country || "") === country)
       .filter((c) => {
         if (filter === "all") return true;
@@ -102,9 +131,13 @@ function CompaniesDirectoryInner() {
       })
       .filter((c) => !needle
         || c.company_name.toLowerCase().includes(needle)
-        || (c.jse_code || "").toLowerCase().includes(needle))
-      .sort((a, b) => a.company_name.localeCompare(b.company_name));
-  }, [companies, q, filter, country]);
+        || (c.jse_code || "").toLowerCase().includes(needle));
+    if (sortBy === "jobs") {
+      return [...filtered].sort((a, b) => (jobsByCompany[b.id] || 0) - (jobsByCompany[a.id] || 0)
+        || a.company_name.localeCompare(b.company_name));
+    }
+    return [...filtered].sort((a, b) => a.company_name.localeCompare(b.company_name));
+  }, [companies, q, filter, country, sortBy, jobsByCompany]);
 
   const withLinks = companies.filter((c) => c.careers_url).length;
   const flag = COUNTRY_FLAGS[country] || "🌍";
@@ -114,141 +147,235 @@ function CompaniesDirectoryInner() {
   if (err) return <Alert kind="error">{err}</Alert>;
   if (!companies.length) {
     return (
-      <div className="space-y-6">
-        <Skeleton className="h-40 w-full rounded-2xl" />
-        <div className="grid gap-3 md:grid-cols-2">
-          {Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-24 w-full" />)}
-        </div>
+      <div className="flex justify-center py-16">
+        <Spinner label="Loading the directory…" />
       </div>
     );
   }
 
+  const FILTERS = ["all", "listed", "SOE", "Municipality", "Department", "Private", "NGO"] as const;
+  const filterLabel: Record<(typeof FILTERS)[number], string> = {
+    all: "All", listed: "Listed", SOE: "State-owned", Municipality: "Municipalities",
+    Department: "🏛️ Gov depts", Private: "Private", NGO: "🤝 NGOs",
+  };
+
   return (
-    <div className="relative">
-      {/* Full-page decoration: the selected country's flag, watermarked across the page */}
-      <div aria-hidden className="pointer-events-none absolute inset-0 -z-0 overflow-hidden">
-        <span className="absolute -right-16 top-16 select-none text-[18rem] leading-none opacity-[0.06]">{flag}</span>
-        <span className="absolute -left-20 top-1/2 select-none text-[15rem] leading-none opacity-[0.05]">{flag}</span>
-        <span className="absolute -right-10 bottom-8 select-none text-[13rem] leading-none opacity-[0.05]">{flag}</span>
-      </div>
+    <div className="-mx-4 min-h-[calc(100vh-4rem)] bg-[#031525] px-4 pb-12 pt-6 sm:px-6">
+      <div className="mx-auto max-w-6xl space-y-6">
+        {/* ---------------- Hero ---------------- */}
+        <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-[#08233D] via-[#0A3150] to-[#031525] p-6 shadow-[0_0_60px_-20px_rgba(8,127,115,0.35)] sm:p-8">
+          {/* subtle premium-tech texture: dot grid + glows, no literal imagery */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 opacity-[0.35]"
+            style={{
+              backgroundImage: "radial-gradient(rgba(255,255,255,0.14) 1px, transparent 1px)",
+              backgroundSize: "22px 22px",
+              maskImage: "radial-gradient(ellipse at top right, black, transparent 70%)",
+            }}
+          />
+          <div aria-hidden className="pointer-events-none absolute -right-16 -top-20 h-72 w-72 rounded-full bg-[#087F73]/25 blur-3xl" />
+          <div aria-hidden className="pointer-events-none absolute -bottom-24 left-10 h-56 w-56 rounded-full bg-[#F5B900]/10 blur-3xl" />
 
-      <div className="relative z-10 space-y-6">
-      <Banner
-        variant="companies"
-        eyebrow="Direct to employers"
-        title="Companies & opportunities"
-        subtitle={
-          <>
-            Browse the full directory and apply on each employer&apos;s official careers page.{" "}
-            <strong className="text-white">{companies.length}</strong> companies ·{" "}
-            <strong className="text-white">{withLinks}</strong> with direct careers links.
-          </>
-        }
-      />
-
-      <div className="flex items-center gap-4 rounded-2xl border border-black/5 bg-white/70 px-5 py-4 shadow-sm backdrop-blur-sm">
-        <span className="text-5xl leading-none drop-shadow-sm">{flag}</span>
-        <div>
-          <div className="text-xl font-extrabold text-navy">{country}</div>
-          <div className="text-sm text-gray-500">
-            <strong className="text-navy">{countryTotal}</strong> companies ·{" "}
-            <strong className="text-navy">{countryWithLinks}</strong> with direct careers links
-          </div>
-        </div>
-      </div>
-
-      <Card>
-        {countries.length > 1 && (
-          <div className="mb-3 flex flex-wrap gap-1 border-b border-gray-100 pb-3">
-            {countries.map((cn) => (
-              <button
-                key={cn}
-                onClick={() => setCountry(cn)}
-                className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-semibold transition ${
-                  country === cn ? "bg-navy text-white shadow-sm" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                }`}
-              >
-                <span>{COUNTRY_FLAGS[cn] || "🌍"} {cn}</span>
-                <span className={`rounded-full px-1.5 py-0.5 text-[11px] font-bold tabular-nums ${
-                  country === cn ? "bg-white/20 text-white" : "bg-white text-gray-500"
-                }`}>{countryCounts[cn] ?? 0}</span>
-              </button>
-            ))}
-          </div>
-        )}
-
-        <div className="flex flex-wrap items-center gap-2">
-          <div className="min-w-[14rem] flex-1">
-            <Input
-              placeholder="Search company or JSE code…"
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-            />
-          </div>
-          <div className="flex flex-wrap gap-1">
-            {(["all", "listed", "SOE", "Municipality", "Department", "Private", "NGO"] as const).map((f) => (
-              <button
-                key={f}
-                onClick={() => setFilter(f)}
-                className={`rounded-md px-3 py-1.5 text-sm whitespace-nowrap transition ${
-                  filter === f ? "bg-gradient-to-r from-brand to-brand-dark text-white shadow-sm" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                }`}
-              >
-                {f === "all" ? "All" : f === "listed" ? "Listed" : f === "SOE" ? "State-owned" : f === "Municipality" ? "Municipalities" : f === "Department" ? "🏛️ Government depts" : f === "NGO" ? "🤝 NGOs" : "Private"}
-              </button>
-            ))}
-          </div>
-        </div>
-      </Card>
-
-      <div className="grid gap-3 md:grid-cols-2">
-        {shownCompanies.map((c, i) => {
-          const st = (c.source_type || "").toUpperCase();
-          const isSOE = st === "SOE";
-          const isMuni = st === "MUNI";
-          const isDept = st === "DEPT";
-          const isPrivate = st === "PRIVATE";
-          const isNgo = st === "NGO";
-          const label = isSOE ? "State-owned" : isMuni ? "Municipality" : isDept ? "🏛️ Government department" : isPrivate ? "Private company" : isNgo ? "🤝 NGO" : (c.source_type ? `${st}-listed` : "Listed");
-          return (
-            <Card key={c.id} accent={ACCENTS[i % ACCENTS.length]} className="hover:-translate-y-0.5 hover:shadow-md">
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex items-start gap-3">
-                  <CompanyLogo name={c.company_name} website={c.official_website} careersUrl={c.careers_url} country={c.country} gradient={AVATAR_GRADIENTS[i % AVATAR_GRADIENTS.length]} logoUrl={DEPARTMENT_LOGOS[c.company_name]} />
+          <div className="relative flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+            <div className="max-w-xl">
+              <p className="mb-2 text-xs font-bold uppercase tracking-[0.2em] text-[#F5B900]">Direct to employers</p>
+              <h1 className="text-3xl font-extrabold text-[#F8FAFC] sm:text-4xl">Companies &amp; opportunities</h1>
+              <p className="mt-2 text-sm text-[#A8B5C5] sm:text-base">
+                Browse the full directory and apply on each employer&apos;s official careers page.
+              </p>
+              <div className="mt-5 flex flex-wrap gap-3">
+                <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
+                  <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#087F73]/20 text-lg">🏢</span>
                   <div>
-                    <div className="font-semibold text-navy">{c.company_name}</div>
-                    <div className="mt-1 flex flex-wrap items-center gap-1">
-                      <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${isSOE ? "bg-purple/10 text-purple" : isMuni ? "bg-teal/10 text-teal" : isDept ? "bg-navy/10 text-navy" : isPrivate ? "bg-gold/20 text-[#a9791a]" : isNgo ? "bg-coral/10 text-coral" : "bg-brand/10 text-brand-dark"}`}>
-                        {label}
-                      </span>
+                    <div className="text-lg font-extrabold leading-none text-[#F8FAFC]">{companies.length.toLocaleString()}</div>
+                    <div className="text-xs text-[#A8B5C5]">Companies</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
+                  <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#20B26B]/20 text-lg">🔗</span>
+                  <div>
+                    <div className="text-lg font-extrabold leading-none text-[#F8FAFC]">{withLinks.toLocaleString()}</div>
+                    <div className="text-xs text-[#A8B5C5]">Direct careers links</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ---------------- Country summary + pills ---------------- */}
+        <div className="rounded-2xl border border-white/10 bg-[#08233D] p-5">
+          <div className="flex items-center gap-4 border-b border-white/10 pb-4">
+            <span className="text-4xl leading-none">{flag}</span>
+            <div>
+              <div className="text-lg font-extrabold text-[#F8FAFC]">{country}</div>
+              <div className="text-sm text-[#A8B5C5]">
+                <strong className="text-[#F8FAFC]">{countryTotal}</strong> companies ·{" "}
+                <strong className="text-[#F8FAFC]">{countryWithLinks}</strong> with direct careers links
+              </div>
+            </div>
+          </div>
+
+          {countries.length > 1 && (
+            <div className="flex flex-wrap gap-1.5 overflow-x-auto pt-4">
+              {countries.map((cn) => {
+                const active = country === cn;
+                return (
+                  <button
+                    key={cn}
+                    onClick={() => setCountry(cn)}
+                    className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-semibold transition ${
+                      active
+                        ? "bg-[#20B26B]/15 text-[#F8FAFC] shadow-[0_0_0_1px_rgba(32,178,107,0.6),0_0_16px_-2px_rgba(32,178,107,0.5)]"
+                        : "bg-white/5 text-[#A8B5C5] hover:bg-white/10 hover:text-[#F8FAFC]"
+                    }`}
+                  >
+                    <span>{COUNTRY_FLAGS[cn] || "🌍"} {cn}</span>
+                    <span className={`rounded-full px-1.5 py-0.5 text-[11px] font-bold tabular-nums ${
+                      active ? "bg-[#20B26B]/25 text-[#6EE7B7]" : "bg-white/10 text-[#A8B5C5]"
+                    }`}>{countryCounts[cn] ?? 0}</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* ---------------- Search + filters ---------------- */}
+        <div className="rounded-2xl border border-white/10 bg-[#08233D] p-5">
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="relative min-w-[14rem] flex-1">
+              <svg viewBox="0 0 20 20" fill="none" className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#A8B5C5]">
+                <circle cx="9" cy="9" r="6.5" stroke="currentColor" strokeWidth="1.6" />
+                <path d="M18 18l-4-4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+              </svg>
+              <input
+                placeholder="Search company or JSE code…"
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                className="w-full rounded-lg border border-white/15 bg-white/5 py-2.5 pl-9 pr-3.5 text-sm text-[#F8FAFC] placeholder:text-[#6E7F94] transition focus:border-[#087F73] focus:outline-none focus:ring-2 focus:ring-[#087F73]/30"
+              />
+            </div>
+            <div className="flex flex-wrap gap-1">
+              {FILTERS.map((f) => (
+                <button
+                  key={f}
+                  onClick={() => setFilter(f)}
+                  className={`rounded-md px-3 py-1.5 text-sm font-medium whitespace-nowrap transition ${
+                    filter === f
+                      ? "bg-[#F5B900] text-[#031525] shadow-sm"
+                      : "bg-white/5 text-[#A8B5C5] hover:bg-white/10 hover:text-[#F8FAFC]"
+                  }`}
+                >
+                  {filterLabel[f]}
+                </button>
+              ))}
+            </div>
+            <label className="ml-auto flex items-center gap-2 text-xs text-[#A8B5C5]">
+              Sort by
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as SortKey)}
+                className="rounded-md border border-white/15 bg-white/5 px-2.5 py-1.5 text-sm text-[#F8FAFC] focus:border-[#087F73] focus:outline-none focus:ring-2 focus:ring-[#087F73]/30"
+              >
+                <option className="bg-[#08233D]" value="name">Name (A–Z)</option>
+                <option className="bg-[#08233D]" value="jobs">Most jobs available</option>
+              </select>
+            </label>
+          </div>
+        </div>
+
+        {/* ---------------- Results ---------------- */}
+        <p className="text-sm text-[#A8B5C5]">
+          Showing <strong className="text-[#F8FAFC]">{shownCompanies.length}</strong> of {countryTotal} companies in {country}.
+        </p>
+
+        <div className="grid gap-3 md:grid-cols-2">
+          {shownCompanies.map((c) => {
+            const st = (c.source_type || "").toUpperCase();
+            const isDept = st === "DEPT";
+            const badge = typeBadge(c.source_type);
+            const openJobs = jobsByCompany[c.id] || 0;
+            return (
+              <div
+                key={c.id}
+                className="group rounded-2xl border border-white/10 bg-[#08233D] p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-[#087F73]/50 hover:shadow-[0_8px_30px_-12px_rgba(8,127,115,0.5)]"
+              >
+                <div className="flex items-start gap-3">
+                  <CompanyLogo
+                    name={c.company_name}
+                    website={c.official_website}
+                    careersUrl={c.careers_url}
+                    country={c.country}
+                    gradient={AVATAR_GRADIENTS[Math.abs(hashCode(c.id)) % AVATAR_GRADIENTS.length]}
+                    logoUrl={DEPARTMENT_LOGOS[c.company_name]}
+                  />
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate font-semibold text-[#F8FAFC]">{c.company_name}</div>
+                    <div className="mt-1 flex flex-wrap items-center gap-1.5">
+                      <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${badge.cls}`}>{badge.label}</span>
                       {c.jse_code && (
-                        <span className="rounded-full bg-gold/20 px-2 py-0.5 text-xs font-semibold text-[#a9791a]">{c.jse_code}</span>
+                        <span className="rounded-full bg-[#F5B900]/15 px-2 py-0.5 text-xs font-semibold text-[#F5B900] ring-1 ring-[#F5B900]/30">{c.jse_code}</span>
                       )}
                       {isAtsPortal(c.careers_url) && (
-                        <span className="rounded-full bg-navy/10 px-2 py-0.5 text-xs font-semibold text-navy">Apply on their portal</span>
+                        <span className="rounded-full bg-white/10 px-2 py-0.5 text-xs font-medium text-[#A8B5C5]">Apply on their portal</span>
                       )}
-                      {c.country && <span className="text-xs text-gray-400">{c.country}</span>}
                     </div>
                   </div>
                 </div>
-                <div className="flex shrink-0 flex-col items-end gap-1.5">
+
+                <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2 border-t border-white/10 pt-4 text-sm">
+                  <div>
+                    <div className="text-xs text-[#6E7F94]">Location</div>
+                    <div className="font-medium text-[#F8FAFC]">{c.country}</div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-[#6E7F94]">Jobs available</div>
+                    <div className={`font-medium ${openJobs > 0 ? "text-[#6EE7B7]" : "text-[#6E7F94]"}`}>
+                      {openJobs > 0 ? `${openJobs} open position${openJobs === 1 ? "" : "s"}` : "None listed yet"}
+                    </div>
+                  </div>
+                  <div className="col-span-2">
+                    <div className="text-xs text-[#6E7F94]">Direct careers link</div>
+                    <div className={`font-medium ${c.careers_url ? "text-[#6EE7B7]" : "text-[#6E7F94]"}`}>
+                      {c.careers_url ? "Active ✓" : "Not available yet"}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-4">
                   {c.careers_url ? (
                     <a href={c.careers_url} target="_blank" rel="noopener noreferrer">
-                      <Button>{isDept ? "Visit department →" : "View jobs →"}</Button>
+                      <span className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-[#F5B900] px-4 py-2 text-sm font-semibold text-[#031525] shadow-sm transition hover:brightness-110 active:scale-[0.98]">
+                        {isDept ? "Visit department" : "View jobs"}
+                        <svg viewBox="0 0 20 20" fill="none" className="h-3.5 w-3.5"><path d="M7 13l6-6M13 7H8m5 0v5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                      </span>
                     </a>
                   ) : (
-                    <span className="whitespace-nowrap text-xs text-gray-400">No careers page yet</span>
+                    <span className="block rounded-lg border border-white/10 px-4 py-2 text-center text-xs text-[#6E7F94]">No careers page yet</span>
                   )}
                 </div>
               </div>
-            </Card>
-          );
-        })}
-        {shownCompanies.length === 0 && <p className="text-sm text-gray-400">No companies match your search.</p>}
-      </div>
+            );
+          })}
+          {shownCompanies.length === 0 && (
+            <p className="col-span-2 rounded-2xl border border-white/10 bg-[#08233D] p-6 text-center text-sm text-[#A8B5C5]">
+              No companies match your search.
+            </p>
+          )}
+        </div>
       </div>
     </div>
   );
+}
+
+// Cheap deterministic hash so each company gets a stable (not literally
+// random) avatar gradient without depending on list position/index.
+function hashCode(s: string): number {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h << 5) - h + s.charCodeAt(i) | 0;
+  return h;
 }
 
 export default function CompaniesDirectoryPage() {

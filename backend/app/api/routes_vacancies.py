@@ -58,7 +58,7 @@ def list_company_vacancies(company_id: str, db: Session = Depends(get_db),
 def list_vacancies(db: Session = Depends(get_db), _: User = Depends(get_current_user),
                    q: str | None = Query(default=None, description="Search in title"),
                    is_open: bool | None = Query(default=True),
-                   limit: int = Query(default=50, le=500), offset: int = Query(default=0, ge=0)):
+                   limit: int = Query(default=50, le=5000), offset: int = Query(default=0, ge=0)):
     query = db.query(Vacancy)
     if is_open is not None:
         query = query.filter(Vacancy.is_open == is_open)
