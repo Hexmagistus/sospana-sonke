@@ -125,7 +125,7 @@ export default function LoginPage() {
               <Input value={otp} onChange={(e) => setOtp(e.target.value)} inputMode="numeric" placeholder="6-digit code" />
             </Field>
           )}
-          <Button type="submit" disabled={busy} className="w-full">
+          <Button type="submit" loading={busy} disabled={busy} className="w-full">
             {busy ? "Signing in…" : "Sign in"}
           </Button>
         </form>

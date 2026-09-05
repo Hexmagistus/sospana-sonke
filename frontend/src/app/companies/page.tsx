@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Guard from "@/components/Guard";
 import { api } from "@/lib/api";
-import { Card, Input, Button, Spinner, Alert } from "@/components/ui";
+import { Card, Input, Button, Spinner, Alert, Skeleton } from "@/components/ui";
 import { Banner } from "@/components/Banner";
 import { CompanyLogo, isAtsPortal } from "@/components/CompanyLogo";
 import type { Company } from "@/lib/types";
@@ -112,7 +112,16 @@ function CompaniesDirectoryInner() {
   const countryWithLinks = companies.filter((c) => (c.country || "") === country && c.careers_url).length;
 
   if (err) return <Alert kind="error">{err}</Alert>;
-  if (!companies.length) return <Spinner />;
+  if (!companies.length) {
+    return (
+      <div className="space-y-6">
+        <Skeleton className="h-40 w-full rounded-2xl" />
+        <div className="grid gap-3 md:grid-cols-2">
+          {Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-24 w-full" />)}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="relative">

@@ -56,7 +56,7 @@ export default function RegisterPage() {
           <Field label="Password (min 8 characters)">
             <Input type="password" value={form.password} onChange={(e) => set("password", e.target.value)} required minLength={8} />
           </Field>
-          <Button type="submit" disabled={busy} className="w-full">
+          <Button type="submit" loading={busy} disabled={busy} className="w-full">
             {busy ? "Creating…" : "Create account"}
           </Button>
         </form>

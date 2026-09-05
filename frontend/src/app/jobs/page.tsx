@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Guard from "@/components/Guard";
 import { api } from "@/lib/api";
-import { Card, Input, Button, Spinner, Alert } from "@/components/ui";
+import { Card, Input, Button, Spinner, Alert, Skeleton } from "@/components/ui";
 import { Banner } from "@/components/Banner";
 import type { Company, Vacancy } from "@/lib/types";
 
@@ -125,7 +125,16 @@ function FindJobsInner() {
   const allOn = selected.size === regions.length && regions.length > 0;
 
   if (err) return <Alert kind="error">{err}</Alert>;
-  if (loading) return <Spinner />;
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <Skeleton className="h-40 w-full rounded-2xl" />
+        <div className="grid gap-3 md:grid-cols-2">
+          {Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-24 w-full" />)}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
