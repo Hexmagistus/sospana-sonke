@@ -5,6 +5,7 @@ import Guard from "@/components/Guard";
 import { api } from "@/lib/api";
 import { Alert, Spinner } from "@/components/ui";
 import { CompanyLogo, isAtsPortal } from "@/components/CompanyLogo";
+import { NdebeleStrip } from "@/components/NdebeleStrip";
 import type { Company, Vacancy } from "@/lib/types";
 
 const AVATAR_GRADIENTS = [
@@ -72,6 +73,11 @@ function typeBadge(sourceType: string | null | undefined) {
 }
 
 type SortKey = "name" | "jobs";
+
+// A restrained pull from the Ndebele strip's palette, used as a rotating
+// per-card left-edge accent so colour shows up through the whole grid, not
+// just the hero band. Kept as a thin border, not a fill, to stay premium.
+const CARD_ACCENTS = ["#e4322b", "#f5b301", "#2f9bf6", "#1a9e5f", "#ff7a1a"];
 
 function CompaniesDirectoryInner() {
   const [companies, setCompanies] = useState<Company[]>([]);
@@ -163,7 +169,9 @@ function CompaniesDirectoryInner() {
     <div className="-mx-4 min-h-[calc(100vh-4rem)] bg-[#031525] px-4 pb-12 pt-6 sm:px-6">
       <div className="mx-auto max-w-6xl space-y-6">
         {/* ---------------- Hero ---------------- */}
-        <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-[#08233D] via-[#0A3150] to-[#031525] p-6 shadow-[0_0_60px_-20px_rgba(8,127,115,0.35)] sm:p-8">
+        <div className="overflow-hidden rounded-3xl shadow-[0_0_60px_-20px_rgba(8,127,115,0.35)]">
+        <NdebeleStrip id="companies-hero-top" palette="vivid" />
+        <div className="relative border-x border-white/10 bg-gradient-to-br from-[#08233D] via-[#0A3150] to-[#031525] p-6 sm:p-8">
           {/* subtle premium-tech texture: dot grid + glows, no literal imagery */}
           <div
             aria-hidden
@@ -203,6 +211,8 @@ function CompaniesDirectoryInner() {
             </div>
           </div>
         </div>
+        <NdebeleStrip id="companies-hero-bottom" palette="vivid" flip />
+        </div>
 
         {/* ---------------- Country summary + pills ---------------- */}
         <div className="rounded-2xl border border-white/10 bg-[#08233D] p-5">
@@ -218,7 +228,7 @@ function CompaniesDirectoryInner() {
           </div>
 
           {countries.length > 1 && (
-            <div className="flex flex-wrap gap-1.5 overflow-x-auto pt-4">
+            <div className="flex gap-1.5 overflow-x-auto pt-4 sm:flex-wrap sm:overflow-visible">
               {countries.map((cn) => {
                 const active = country === cn;
                 return (
@@ -272,12 +282,12 @@ function CompaniesDirectoryInner() {
                 </button>
               ))}
             </div>
-            <label className="ml-auto flex items-center gap-2 text-xs text-[#A8B5C5]">
+            <label className="flex w-full items-center justify-between gap-2 text-xs text-[#A8B5C5] sm:ml-auto sm:w-auto sm:justify-start">
               Sort by
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as SortKey)}
-                className="rounded-md border border-white/15 bg-white/5 px-2.5 py-1.5 text-sm text-[#F8FAFC] focus:border-[#087F73] focus:outline-none focus:ring-2 focus:ring-[#087F73]/30"
+                className="flex-1 rounded-md border border-white/15 bg-white/5 px-2.5 py-1.5 text-sm text-[#F8FAFC] focus:border-[#087F73] focus:outline-none focus:ring-2 focus:ring-[#087F73]/30 sm:flex-none"
               >
                 <option className="bg-[#08233D]" value="name">Name (A–Z)</option>
                 <option className="bg-[#08233D]" value="jobs">Most jobs available</option>
@@ -297,10 +307,12 @@ function CompaniesDirectoryInner() {
             const isDept = st === "DEPT";
             const badge = typeBadge(c.source_type);
             const openJobs = jobsByCompany[c.id] || 0;
+            const accent = CARD_ACCENTS[Math.abs(hashCode(c.id)) % CARD_ACCENTS.length];
             return (
               <div
                 key={c.id}
-                className="group rounded-2xl border border-white/10 bg-[#08233D] p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-[#087F73]/50 hover:shadow-[0_8px_30px_-12px_rgba(8,127,115,0.5)]"
+                style={{ borderLeftColor: accent }}
+                className="group rounded-2xl border border-white/10 border-l-[3px] bg-[#08233D] p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-[#087F73]/50 hover:shadow-[0_8px_30px_-12px_rgba(8,127,115,0.5)]"
               >
                 <div className="flex items-start gap-3">
                   <CompanyLogo
