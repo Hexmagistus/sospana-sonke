@@ -46,6 +46,31 @@ commit it (and push, if you pushed the rest of your work). Newest entry on top.
 
 ## Session Log
 
+### 2026-09-06 (night) — Claude (this account)
+- Added an `NGO` source_type category to the 10 new countries' seed CSVs, matching
+  the convention already used for all 16 SADC countries in
+  `backend/seed/company_database_import.csv` (South Africa alone carries 17 NGO
+  rows, every other SADC state 3-9). Each new country got major UN agencies
+  (UNICEF/UNDP country offices, plus UNHCR/WFP where there's a large
+  refugee/humanitarian caseload — Uganda, Ethiopia, Egypt, Algeria) and 3-5
+  well-known international or national NGOs (Red Cross/Red Crescent society,
+  World Vision, Plan International, Save the Children, CARE, etc., picked per
+  country's actual NGO footprint). 5-8 rows per country, 68 rows total. Committed
+  one country at a time (`backend/seed/countries/<Country>.csv`, commits
+  `e8a3ac9`..`577c446`) — same desk-research caveat as the DEPT/MUNI/SOE/PRIVATE
+  batch: careers URLs are `amber_company_route` (known org domain pattern) or
+  `grey_none_verified` (best guess), not browser-verified this session.
+- Imported all 68 NGO rows into the live DB via the same admin-endpoint /
+  authenticated-fetch technique as before, then refreshed `LIVE` counts in
+  `frontend/src/app/page.tsx` again (Kenya 45->53, Nigeria 61->68, Ethiopia
+  38->46, Egypt 41->48, Morocco 34->40, Ghana 37->44, Senegal 36->42, Uganda
+  39->47, Rwanda 39->45, Algeria 39->44; total DB now 2,439 companies), commit
+  `40833eb`.
+- **Not yet done:** same verification-pass caveat as the prior entry — none of
+  today's additions (DEPT/MUNI/SOE/PRIVATE or NGO) have been run through the URL
+  tester yet.
+
+
 ### 2026-09-06 (evening) — Claude (this account)
 - Imported all 10 `backend/seed/countries/<Country>.csv` files into the live
   production Postgres DB via the admin `/api/v1/companies/import` endpoint — done
