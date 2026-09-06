@@ -204,7 +204,7 @@ function CompaniesDirectoryInner() {
 
         <Card>
           {countries.length > 1 && (
-            <div className="mb-3 flex gap-1.5 overflow-x-auto border-b border-gray-100 pb-3 sm:flex-wrap sm:overflow-visible">
+            <div className="mb-3 flex flex-wrap gap-1.5 border-b border-gray-100 pb-3">
               {countries.map((cn) => {
                 const active = country === cn;
                 return (
@@ -304,10 +304,14 @@ function CompaniesDirectoryInner() {
                 </div>
 
                 <div className="mt-3 flex flex-wrap items-center gap-3 border-t border-gray-100 pt-3 text-xs">
-                  <span className={openJobs > 0 ? "font-semibold text-brand-dark" : "text-gray-400"}>
-                    {openJobs > 0 ? `${openJobs} open position${openJobs === 1 ? "" : "s"}` : "No open positions listed yet"}
-                  </span>
-                  <span className="text-gray-300">·</span>
+                  {openJobs > 0 && (
+                    <>
+                      <span className="font-semibold text-brand-dark">
+                        {`${openJobs} open position${openJobs === 1 ? "" : "s"}`}
+                      </span>
+                      <span className="text-gray-300">·</span>
+                    </>
+                  )}
                   <span className={c.careers_url ? "font-semibold text-brand-dark" : "text-gray-400"}>
                     {c.careers_url ? "Direct careers link active ✓" : "No careers page yet"}
                   </span>
