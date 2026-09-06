@@ -46,6 +46,85 @@ commit it (and push, if you pushed the rest of your work). Newest entry on top.
 
 ## Session Log
 
+### 2026-09-06 (later same day) — Claude (this account) — SECURITY HARDENING IN PROGRESS, HANDOFF
+Lungani asked for a full security audit + hardening pass (protect secrets, prevent
+source theft, protect DB/admin/API endpoints, rate limiting, security headers,
+production config, copy-deterrence, final report with before/after score). This is a
+**priority task, still in progress** — if this session ran out of quota, **the next
+session should pick up here, not restart the audit.**
+
+**Status: audit-only so far, ZERO code edits made yet, ZERO commits made for this
+security work.** Read-only review of the whole backend + frontend is done.
+
+**Confirmed SAFE (no changes needed):**
+- Admin role always re-verified from a fresh DB fetch server-side
+  (`backend/app/core/deps.py`) — never trusted from JWT/client. IDOR protection
+  (ownership checks) consistent across all resource routes. No raw SQL anywhere
+  (ORM-only). No hardcoded live secrets in tracked files. `.gitignore` excludes
+  `.env`/`.db`. CORS is a real allowlist (no wildcard+credentials). Cron endpoint
+  (`routes_cron.py`) uses `hmac.compare_digest` + 404-when-unconfigured. Path
+  traversal already defended in `services/storage.py`. Matching-algorithm
+  weights/thresholds (`matching/config.py`) are admin-only, not leaked to users.
+
+**Confirmed VULNERABLE — fixes identified but NOT YET IMPLEMENTED:**
+1. `backend/app/core/config.py` — `SECRET_KEY` has a weak hardcoded default with no
+   startup fail-safe if `ENV == "production"` still uses it (mitigated today only by
+   `render.yaml`'s `generateValue: true`, not by the code itself).
+2. `backend/app/api/routes_auth.py` + `backend/app/schemas/auth.py` —
+   `RegisterResponse.email_verification_token` is returned unconditionally in ALL
+   envs including production. Needs the same production-masking already correctly
+   done for `reset_token` in `SimpleMessage`.
+3. Zero rate limiting anywhere (`backend/requirements.txt` has no slowapi/limits) —
+   `/auth/login`, `/register`, `/password-reset/request`, `/refresh`, MFA endpoints
+   all brute-forceable.
+4. `backend/app/main.py` — `/docs`, `/redoc`, `/openapi.json` enabled in all envs
+   including production.
+5. `frontend/next.config.mjs` — deliberately has NO Content-Security-Policy (a prior
+   attempt broke login — see comment in that file). Needs a carefully scoped CSP;
+   draft policy already drafted (see prior session notes / ask Claude to re-derive
+   from `login/page.tsx`'s Google Sign-In script + Render API host + Clearbit/gov.za
+   logo hosts).
+6. `list_vacancies` has `le=5000` limit — lower-priority bulk-scraping tightening.
+7. No client-side copy-deterrence layer yet (text-selection/copy/right-click/
+   Ctrl+C/Ctrl+U deterrents) — explicitly UX-only per the task spec, not real
+   security, not yet started.
+
+**Testing infra (device VM, NOT this repo folder):** created a venv at
+`~/scratch/venv` on the linked Windows machine's Linux VM (outside `mnt/`, per the
+scratch-stays-outside-mnt rule) and installed `backend/requirements.txt` + pytest +
+pytest-asyncio into it — this worked and is reusable. **Important VM quirk
+discovered:** background/`nohup`/`setsid`-detached processes do NOT survive between
+separate device-shell calls in this environment (confirmed by test — a detached
+`sleep`+echo loop produced zero output). So the full pytest suite (22 files, ~145
+tests) must be run in foreground, chunked into batches that fit one command's ~170s
+window — Argon2 hashing makes auth-related tests ~9s/test, so batches of 1-2 files
+at a time. Baseline run in progress at hand-off: confirmed passing so far —
+`test_account_security.py` (5/5), `test_applications.py` + `test_auth.py` (18/18,
+run together). Remaining files not yet run this baseline pass: `test_automation.py`,
+`test_channels_analytics.py`, `test_companies.py`, `test_cv.py`, `test_dashboard.py`,
+`test_documents.py`, `test_match_routes.py`, `test_match_service.py`,
+`test_matching_engine.py`, `test_notifications.py`, `test_phase2_extras.py`,
+`test_profile.py`, `test_scan_service.py`, `test_scraper_extract.py`,
+`test_scraper_js.py`, `test_scraper_parsers.py`, `test_subscription.py`,
+`test_url_tester.py`, `test_vacancy_routes.py`.
+
+**Next steps for whichever session picks this up:**
+1. Finish the pre-change baseline (remaining test files above) — or skip straight to
+   implementing fixes 1-7 above if baseline time is a concern, since all confirmed-
+   passing so far and no code has been touched.
+2. Implement fixes 1-5 as the smallest effective changes (rate limiting = add
+   `slowapi` to requirements.txt), fix 6 optionally, fix 7 (copy-deterrence) last.
+3. Re-run the same test files after each change batch to catch regressions.
+4. Commit locally only (never push — Lungani pushes himself via his `.bat` scripts).
+5. Produce the full A–G security report Lungani asked for (what changed / secrets
+   found — type+location only, never values / remaining vulnerabilities / copy
+   protection explained honestly as deterrence not security / architecture / a
+   before-and-after score out of 100 / confirmation tests still pass). Must NOT
+   claim "unhackable" anywhere.
+6. Also standing: remind Lungani, once new-country expansion settles, to run the
+   admin URL-tester verification pass across all countries (already saved to
+   Claude's persistent memory too, not just here).
+
 ### 2026-09-06 (night) — Claude (this account)
 - Added an `NGO` source_type category to the 10 new countries' seed CSVs, matching
   the convention already used for all 16 SADC countries in
