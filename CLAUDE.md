@@ -319,3 +319,18 @@ Set up the real Google OAuth in the owner's Google Cloud + Vercel via browser co
 - **NEXT (in progress):** build `/privacy` and `/terms` frontend pages, deploy, add
   their URLs on the Google Branding page, then **Publish app** (no Google verification
   needed for basic email/profile/openid scopes). Then set the Render env var.
+
+### 2026-09-06 (later) — Claude (Opus) — Google app PUBLISHED to production
+- Added `/privacy` and `/terms` pages (commit a637007) and set them as the app's
+  privacy-policy / terms links + home page on the Google Branding page.
+- **Published the OAuth app to "In production"** (basic scopes → NO Google verification
+  needed, NO user cap). Result: ANY Google user can now use "Continue with Google" —
+  the earlier test-user list is no longer needed.
+- **STILL REQUIRED (2 items, owner action):**
+  1. **Push** the pending local commits so `/privacy` + `/terms` actually deploy to
+     Vercel (Google's consent screen links to them). `git rev-list origin/main..HEAD`.
+  2. **Render → sospana-sonke-api → Environment:** set `GOOGLE_CLIENT_ID` =
+     `343080221936-307hr2su2ufv6n4t443jb2crjtk0bdho.apps.googleusercontent.com`.
+     Until then `POST /auth/google` returns 503 and Google logins fail at the backend.
+- Vercel already has `NEXT_PUBLIC_GOOGLE_CLIENT_ID` (Production) and was redeployed, so
+  the button shows on the live site.
