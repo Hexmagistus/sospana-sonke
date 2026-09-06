@@ -296,7 +296,18 @@ const LIVE = [
   { name: "Seychelles", flag: "🇸🇨", count: 31, pending: true },
   { name: "Comoros", flag: "🇰🇲", count: 24, pending: true },
 ];
-const SOON: { name: string; flag: string }[] = [];
+const SOON: { name: string; flag: string }[] = [
+  { name: "Kenya", flag: "🇰🇪" },
+  { name: "Nigeria", flag: "🇳🇬" },
+  { name: "Ethiopia", flag: "🇪🇹" },
+  { name: "Egypt", flag: "🇪🇬" },
+  { name: "Morocco", flag: "🇲🇦" },
+  { name: "Ghana", flag: "🇬🇭" },
+  { name: "Senegal", flag: "🇸🇳" },
+  { name: "Uganda", flag: "🇺🇬" },
+  { name: "Rwanda", flag: "🇷🇼" },
+  { name: "Algeria", flag: "🇩🇿" },
+];
 
 // Wonders of Africa — line-art icons drawn inline (viewBox 0 0 72 52).
 const WONDERS: { name: string; place: string; art: ReactNode }[] = [
@@ -680,7 +691,7 @@ export default function Home() {
             {SOON.length > 0 && (
               <Reveal delay={140}>
                 <div className="mt-5">
-                  <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-blue-200">Coming soon across SADC</p>
+                  <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-blue-200">Coming soon across Africa</p>
                   <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                     {SOON.map((c) => (
                       <div key={c.name} className="rounded-xl border border-white/10 bg-white/5 p-3 text-center transition hover:bg-white/10">
