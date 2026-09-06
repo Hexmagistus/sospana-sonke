@@ -283,3 +283,19 @@ Implemented the remaining audit fixes (1–4 were committed earlier in `62a8b9a`
 - Still open: no frontend `/verify` or `/reset-password` pages — the verify link hits
   the API directly (works, returns JSON); password reset still needs a frontend page
   to enter the token (or a GET-based flow).
+
+### 2026-09-06 (later) — Claude (Opus) — Google sign-in audited (already existed)
+- "Continue with Google" was ALREADY implemented (Google Identity Services ID-token
+  flow): frontend renders GIS button when `NEXT_PUBLIC_GOOGLE_CLIENT_ID` is set; backend
+  `POST /auth/google` verifies the ID token (aud + email_verified), find-or-creates a
+  `candidate` user, issues our own JWTs with the DB role. No client secret anywhere.
+- Hardened: added `iss` (issuer) pin to `accounts.google.com` (`e62b05a`).
+- Wrote `docs/GOOGLE-AUTH-REPORT.md` (what auth exists, security audit, manual config).
+- **MANUAL config still required (I can't do these):** create a Google Cloud OAuth 2.0
+  **Web** client; add Authorized JavaScript **origins** (localhost:3000 + prod Vercel
+  domain — no redirect URIs, no secret for this flow); set `NEXT_PUBLIC_GOOGLE_CLIENT_ID`
+  in Vercel and `GOOGLE_CLIENT_ID` (same value) in Render. Button stays hidden until set.
+- Recommended later: store Google `sub` + `last_login` (needs migration); local
+  `google-auth` verification; build `/verify` + `/reset-password` frontend pages.
+- Note: app login is email+password(+TOTP), not passwordless email-OTP — confirm with
+  Lungani if he actually wants passwordless email codes.
