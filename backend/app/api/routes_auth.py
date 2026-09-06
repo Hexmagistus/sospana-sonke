@@ -113,6 +113,11 @@ def google_login(request: Request, body: GoogleLoginRequest, db: Session = Depen
     data = resp.json()
     if data.get("aud") != settings.GOOGLE_CLIENT_ID:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Google sign-in token mismatch.")
+    # Defence-in-depth: confirm the token was actually minted by Google. tokeninfo
+    # already validates the signature + expiry, but pin the issuer too so nothing
+    # else can be accepted as a Google identity.
+    if data.get("iss") not in ("accounts.google.com", "https://accounts.google.com"):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Google sign-in token issuer invalid.")
     email = (data.get("email") or "").lower()
     if not email or str(data.get("email_verified", "false")).lower() != "true":
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
