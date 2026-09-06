@@ -264,3 +264,22 @@ Implemented the remaining audit fixes (1–4 were committed earlier in `62a8b9a`
 - **Security task done.** Optional follow-ups: enforce the CSP after review;
   integrate an email provider (verification/reset flows aren't deliverable without one);
   run the full pytest suite.
+
+### 2026-09-06 (later) — Claude (Opus) — Gmail email delivery wired
+- **Gap closed:** registration created a verification token but never emailed it, so
+  in production (where the token is masked out of the API response) users got nothing.
+  `register` now sends a verification email (link = `PUBLIC_API_URL` + `/api/v1/auth/verify?token=`)
+  via the existing email-provider abstraction. Reset email copy improved too.
+- `config.py`: added `PUBLIC_API_URL` (build links) and defaulted `SMTP_HOST=smtp.gmail.com`.
+- `email.py`: 15s SMTP timeout.
+- `.env.example` + `render.yaml`: Gmail SMTP env (`EMAIL_PROVIDER=smtp`, `SMTP_HOST/PORT`,
+  `SMTP_USER`/`SMTP_PASSWORD`/`EMAIL_FROM` as sync:false secrets, `NOTIFY_EMAILS=true`,
+  `PUBLIC_API_URL`).
+- **ACTION REQUIRED by Lungani (I can't set secrets):** in Gmail enable 2-Step
+  Verification, create an App Password (Google Account ▸ Security ▸ App passwords),
+  then in the Render dashboard set `SMTP_USER` = the Gmail address, `SMTP_PASSWORD` =
+  the 16-char App Password, `EMAIL_FROM` = e.g. `Sospana Sonke <address@gmail.com>`.
+  Gmail rejects the normal account password over SMTP.
+- Still open: no frontend `/verify` or `/reset-password` pages — the verify link hits
+  the API directly (works, returns JSON); password reset still needs a frontend page
+  to enter the token (or a GET-based flow).

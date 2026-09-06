@@ -32,3 +32,19 @@ services:
         sync: false
       - key: ADMIN_PASSWORD
         sync: false
+      - key: EMAIL_PROVIDER
+        value: smtp
+      - key: SMTP_HOST
+        value: smtp.gmail.com
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_USER
+        sync: false                 # your Gmail address
+      - key: SMTP_PASSWORD
+        sync: false                 # Gmail App Password (2FA required), NOT the account password
+      - key: EMAIL_FROM
+        sync: false                 # e.g. Sospana Sonke <youraddress@gmail.com>
+      - key: NOTIFY_EMAILS
+        value: "true"
+      - key: PUBLIC_API_URL
+        value: https://sospana-sonke-api.onrender.com

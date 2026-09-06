@@ -14,6 +14,9 @@ class Settings(BaseSettings):
     APP_NAME: str = "Sospana Sonke"
     ENV: str = "development"
     API_V1_PREFIX: str = "/api/v1"
+    # Public base URL of THIS API, used to build clickable email links
+    # (e.g. the account-verification link). Set to the deployed API URL in prod.
+    PUBLIC_API_URL: str = "http://localhost:8000"
     # Comma-separated list of allowed browser origins (the frontend URL in production).
     CORS_ORIGINS: str = "http://localhost:3000"
 
@@ -100,7 +103,7 @@ class Settings(BaseSettings):
     TWILIO_ACCOUNT_SID: str | None = None
     TWILIO_AUTH_TOKEN: str | None = None
     TWILIO_FROM: str | None = None
-    SMTP_HOST: str | None = None
+    SMTP_HOST: str | None = "smtp.gmail.com"   # Gmail SMTP; only used when EMAIL_PROVIDER=smtp
     SMTP_PORT: int = 587
     SMTP_USER: str | None = None
     SMTP_PASSWORD: str | None = None
