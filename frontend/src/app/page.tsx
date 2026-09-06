@@ -279,35 +279,34 @@ const VALUES = ["Ambition", "Opportunity", "Dignity", "Ubuntu", "Hustle", "Growt
 // Employer counts reflect the current verified directory (kept in step with the company database).
 // pending = state-owned entities are live, but the country's stock-exchange listings are still being added.
 const LIVE = [
-  { name: "South Africa", flag: "🇿🇦", count: 547, pending: false },
-  { name: "Zimbabwe", flag: "🇿🇼", count: 116, pending: false },
-  { name: "Botswana", flag: "🇧🇼", count: 103, pending: false },
-  { name: "Namibia", flag: "🇳🇦", count: 83, pending: false },
-  { name: "DR Congo", flag: "🇨🇩", count: 80, pending: true },
-  { name: "Zambia", flag: "🇿🇲", count: 67, pending: true },
-  { name: "Mauritius", flag: "🇲🇺", count: 65, pending: true },
-  { name: "Madagascar", flag: "🇲🇬", count: 62, pending: true },
-  { name: "Malawi", flag: "🇲🇼", count: 58, pending: true },
-  { name: "Eswatini", flag: "🇸🇿", count: 56, pending: false },
-  { name: "Lesotho", flag: "🇱🇸", count: 55, pending: true },
-  { name: "Tanzania", flag: "🇹🇿", count: 53, pending: true },
-  { name: "Mozambique", flag: "🇲🇿", count: 51, pending: false },
-  { name: "Angola", flag: "🇦🇴", count: 50, pending: true },
+  { name: "South Africa", flag: "🇿🇦", count: 767, pending: false },
+  { name: "Zimbabwe", flag: "🇿🇼", count: 153, pending: false },
+  { name: "Botswana", flag: "🇧🇼", count: 125, pending: false },
+  { name: "Namibia", flag: "🇳🇦", count: 106, pending: false },
+  { name: "Mozambique", flag: "🇲🇿", count: 91, pending: false },
+  { name: "Zambia", flag: "🇿🇲", count: 82, pending: true },
+  { name: "Mauritius", flag: "🇲🇺", count: 82, pending: true },
+  { name: "DR Congo", flag: "🇨🇩", count: 81, pending: true },
+  { name: "Lesotho", flag: "🇱🇸", count: 77, pending: true },
+  { name: "Eswatini", flag: "🇸🇿", count: 72, pending: false },
+  { name: "Angola", flag: "🇦🇴", count: 69, pending: true },
+  { name: "Tanzania", flag: "🇹🇿", count: 68, pending: true },
+  { name: "Madagascar", flag: "🇲🇬", count: 66, pending: true },
+  { name: "Malawi", flag: "🇲🇼", count: 66, pending: true },
+  { name: "Nigeria", flag: "🇳🇬", count: 61, pending: false },
+  { name: "Kenya", flag: "🇰🇪", count: 45, pending: false },
+  { name: "Egypt", flag: "🇪🇬", count: 41, pending: false },
+  { name: "Ethiopia", flag: "🇪🇹", count: 38, pending: false },
+  { name: "Rwanda", flag: "🇷🇼", count: 39, pending: false },
+  { name: "Algeria", flag: "🇩🇿", count: 39, pending: false },
+  { name: "Uganda", flag: "🇺🇬", count: 39, pending: false },
+  { name: "Ghana", flag: "🇬🇭", count: 37, pending: false },
+  { name: "Senegal", flag: "🇸🇳", count: 36, pending: false },
+  { name: "Morocco", flag: "🇲🇦", count: 34, pending: false },
   { name: "Seychelles", flag: "🇸🇨", count: 31, pending: true },
-  { name: "Comoros", flag: "🇰🇲", count: 24, pending: true },
+  { name: "Comoros", flag: "🇰🇲", count: 26, pending: true },
 ];
-const SOON: { name: string; flag: string }[] = [
-  { name: "Kenya", flag: "🇰🇪" },
-  { name: "Nigeria", flag: "🇳🇬" },
-  { name: "Ethiopia", flag: "🇪🇹" },
-  { name: "Egypt", flag: "🇪🇬" },
-  { name: "Morocco", flag: "🇲🇦" },
-  { name: "Ghana", flag: "🇬🇭" },
-  { name: "Senegal", flag: "🇸🇳" },
-  { name: "Uganda", flag: "🇺🇬" },
-  { name: "Rwanda", flag: "🇷🇼" },
-  { name: "Algeria", flag: "🇩🇿" },
-];
+const SOON: { name: string; flag: string }[] = [];
 
 // Wonders of Africa — line-art icons drawn inline (viewBox 0 0 72 52).
 const WONDERS: { name: string; place: string; art: ReactNode }[] = [
@@ -457,7 +456,7 @@ export default function Home() {
                     <span className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-75" style={{ background: C.mint }} />
                     <span className="relative inline-flex h-2 w-2 rounded-full" style={{ background: C.mint }} />
                   </span>
-                  Live across all 16 SADC markets · Growing across the continent
+                  Live across 26 African markets · Growing across the continent
                 </span>
               </Reveal>
 
@@ -631,7 +630,7 @@ export default function Home() {
               <span className="inline-block rounded-full bg-white/10 px-4 py-1.5 text-xs font-semibold backdrop-blur-sm">🌍 Africa&apos;s Opportunity Map</span>
               <h2 className="mt-4 font-display text-2xl font-extrabold sm:text-4xl">Built for the region. Live across Africa.</h2>
               <p className="mt-3 max-w-3xl text-blue-100">
-                We&apos;re live across all 16 SADC member states — from South Africa to Madagascar, the Comoros and the Seychelles. For a few of our newest markets we start with state-owned employers while their stock-exchange listings are added. Wherever you are, your ambition has a home here.
+                We&apos;re live across 26 African markets — all 16 SADC member states, plus Kenya, Nigeria, Ethiopia, Egypt, Morocco, Ghana, Senegal, Uganda, Rwanda and Algeria. For a few of our newest markets we start with state-owned employers while their stock-exchange listings are added. Wherever you are, your ambition has a home here.
               </p>
             </Reveal>
 
@@ -664,7 +663,7 @@ export default function Home() {
             </div>
 
             <p className="mt-5 text-sm font-semibold text-blue-100">
-              🎉 Live across all 16 SADC member states — with more of the continent to follow.
+              🎉 Live across 26 African markets — with more of the continent to follow.
             </p>
 
             {/* Contribution ranking — which country is powering the most opportunities */}
