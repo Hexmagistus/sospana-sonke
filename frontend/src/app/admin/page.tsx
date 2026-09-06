@@ -66,15 +66,10 @@ function AdminInner() {
       </div>
       {err && <Alert kind="error">{err}</Alert>}
 
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
         <Stat label="Registered candidates" value={d.registered_candidates} />
-        <Stat label="Active subscriptions" value={d.active_subscriptions} />
-        <Stat label="Paying subscriptions" value={d.paying_subscriptions} />
-        <Stat label="Estimated MRR" value={`R${d.estimated_mrr_zar.toLocaleString()}`} />
         <Stat label="Companies" value={d.companies_total} hint={`${d.companies_active} active`} />
-        <Stat label="Sources failing" value={d.sources_failing} />
         <Stat label="Open vacancies" value={d.vacancies_open} hint={`${d.vacancies_total} total`} />
-        <Stat label="CVs generated" value={d.cv_versions_total} />
       </div>
 
       <Card>
@@ -90,13 +85,13 @@ function AdminInner() {
       <Card>
         <h2 className="mb-3 font-semibold">Scheduled jobs</h2>
         <div className="flex flex-wrap gap-3">
-          <Button variant="ghost" disabled={!!job} onClick={() => runJob("scan_south_africa")}>
+          <Button variant="ghost" disabled={!!job} loading={job === "scan_south_africa"} onClick={() => runJob("scan_south_africa")}>
             {job === "scan_south_africa" ? "Scanning South Africa…" : "Scan South Africa now"}
           </Button>
-          <Button variant="ghost" disabled={!!job} onClick={() => runJob("scan_all_companies")}>
+          <Button variant="ghost" disabled={!!job} loading={job === "scan_all_companies"} onClick={() => runJob("scan_all_companies")}>
             {job === "scan_all_companies" ? "Scanning…" : "Run scan-all-companies (all regions)"}
           </Button>
-          <Button variant="ghost" disabled={!!job} onClick={() => runJob("match_all_candidates")}>
+          <Button variant="ghost" disabled={!!job} loading={job === "match_all_candidates"} onClick={() => runJob("match_all_candidates")}>
             {job === "match_all_candidates" ? "Matching…" : "Run match-all-candidates"}
           </Button>
         </div>
