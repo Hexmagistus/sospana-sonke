@@ -3,11 +3,12 @@ import secrets
 
 import httpx
 import jwt
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
 
 from app.core import security
 from app.core.deps import get_current_user
+from app.core.rate_limit import limiter
 from app.db.session import get_db
 from app.models.user import User
 from app.core.config import settings
@@ -21,7 +22,8 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 
 
 @router.post("/register", response_model=RegisterResponse, status_code=status.HTTP_201_CREATED)
-def register(body: RegisterRequest, db: Session = Depends(get_db)):
+@limiter.limit("10/hour")
+def register(request: Request, body: RegisterRequest, db: Session = Depends(get_db)):
     email = body.email.lower()
     if db.query(User).filter(User.email == email).first():
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="An account with this email already exists.")
@@ -36,7 +38,10 @@ def register(body: RegisterRequest, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(user)
     token = security.create_email_verification_token(user.id)
-    return RegisterResponse(user=UserResponse.model_validate(user), email_verification_token=token)
+    return RegisterResponse(
+        user=UserResponse.model_validate(user),
+        email_verification_token=token if settings.ENV != "production" else None,
+    )
 
 
 @router.get("/verify")
@@ -54,7 +59,8 @@ def verify_email(token: str, db: Session = Depends(get_db)):
 
 
 @router.post("/login", response_model=TokenResponse)
-def login(body: LoginRequest, db: Session = Depends(get_db)):
+@limiter.limit("10/minute")
+def login(request: Request, body: LoginRequest, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == body.email.lower()).first()
     # Constant-ish response regardless of which check fails, to avoid user enumeration.
     if user is None or not security.verify_password(body.password, user.password_hash):
@@ -72,7 +78,8 @@ def login(body: LoginRequest, db: Session = Depends(get_db)):
 
 
 @router.post("/google", response_model=TokenResponse)
-def google_login(body: GoogleLoginRequest, db: Session = Depends(get_db)):
+@limiter.limit("20/minute")
+def google_login(request: Request, body: GoogleLoginRequest, db: Session = Depends(get_db)):
     """Sign in (or sign up) with a Google account.
 
     The frontend obtains a Google ID token via Google Identity Services and posts it
@@ -118,7 +125,8 @@ def google_login(body: GoogleLoginRequest, db: Session = Depends(get_db)):
 
 
 @router.post("/refresh", response_model=TokenResponse)
-def refresh(body: RefreshRequest, db: Session = Depends(get_db)):
+@limiter.limit("30/minute")
+def refresh(request: Request, body: RefreshRequest, db: Session = Depends(get_db)):
     try:
         payload = security.decode_token(body.refresh_token, expected_type="refresh")
     except jwt.PyJWTError:
@@ -151,7 +159,8 @@ def mfa_setup(db: Session = Depends(get_db), user: User = Depends(get_current_us
 
 
 @router.post("/mfa/enable", response_model=UserResponse)
-def mfa_enable(body: MFACodeRequest, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+@limiter.limit("10/minute")
+def mfa_enable(request: Request, body: MFACodeRequest, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
     if not user.mfa_secret:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Start MFA setup first.")
     if not security.verify_totp(user.mfa_secret, body.code):
@@ -163,7 +172,8 @@ def mfa_enable(body: MFACodeRequest, db: Session = Depends(get_db), user: User =
 
 
 @router.post("/mfa/disable", response_model=UserResponse)
-def mfa_disable(body: MFACodeRequest, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+@limiter.limit("10/minute")
+def mfa_disable(request: Request, body: MFACodeRequest, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
     if not user.mfa_enabled:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="MFA is not enabled.")
     if not security.verify_totp(user.mfa_secret, body.code):
@@ -178,7 +188,8 @@ def mfa_disable(body: MFACodeRequest, db: Session = Depends(get_db), user: User 
 # ---- Password reset ----
 
 @router.post("/password-reset/request", response_model=SimpleMessage)
-def password_reset_request(body: PasswordResetRequest, db: Session = Depends(get_db)):
+@limiter.limit("5/hour")
+def password_reset_request(request: Request, body: PasswordResetRequest, db: Session = Depends(get_db)):
     """Always returns success (no account enumeration). Emails a reset link if the
     account exists; in non-production the token is returned for testing."""
     user = db.query(User).filter(User.email == body.email.lower()).first()
@@ -196,7 +207,8 @@ def password_reset_request(body: PasswordResetRequest, db: Session = Depends(get
 
 
 @router.post("/password-reset/confirm", response_model=SimpleMessage)
-def password_reset_confirm(body: PasswordResetConfirm, db: Session = Depends(get_db)):
+@limiter.limit("10/hour")
+def password_reset_confirm(request: Request, body: PasswordResetConfirm, db: Session = Depends(get_db)):
     try:
         payload = security.decode_token(body.token, expected_type="password_reset")
     except jwt.PyJWTError:

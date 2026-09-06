@@ -113,9 +113,22 @@ class Settings(BaseSettings):
     PLAYWRIGHT_USER_AGENT: str = "SospanaSonkeBot/0.1 (+https://sospanasonke.co.za/bot)"
 
 
+# The SECRET_KEY above must never be used in production: it is a well-known
+# placeholder, publicly visible in this file, so any deployment left on it would
+# have forgeable JWTs. Render sets SECRET_KEY via `generateValue: true`, but this
+# fail-safe protects any other deployment target too.
+_INSECURE_DEFAULT_SECRET_KEY = "CHANGE-ME-IN-PRODUCTION-use-a-long-random-string"
+
+
 @lru_cache
 def get_settings() -> "Settings":
-    return Settings()
+    s = Settings()
+    if s.ENV == "production" and s.SECRET_KEY == _INSECURE_DEFAULT_SECRET_KEY:
+        raise RuntimeError(
+            "Refusing to start: ENV=production but SECRET_KEY is still the insecure "
+            "placeholder value. Set a strong, random SECRET_KEY environment variable."
+        )
+    return s
 
 
 settings = get_settings()

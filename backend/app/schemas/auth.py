@@ -67,6 +67,9 @@ class SimpleMessage(BaseModel):
 
 class RegisterResponse(BaseModel):
     user: UserResponse
-    # In production this token is emailed to the user; in development it is
-    # returned directly so the flow can be exercised without an email provider.
-    email_verification_token: str
+    # Returned only outside production (no email-sending integration exists yet,
+    # so this lets the verification flow be exercised in dev/test). In production
+    # it is masked to None so a bare API response can never hand out a live,
+    # unexpired auth token for someone else's account to a client that merely
+    # guessed/observed their email address.
+    email_verification_token: str | None = None

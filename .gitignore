@@ -19,3 +19,7 @@ venv/
 # Node / frontend
 node_modules/
 .next/
+
+# Test DB artifacts
+*.db-journal
+backend/test_sospana.db

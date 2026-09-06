@@ -3,8 +3,12 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from slowapi.middleware import SlowAPIMiddleware
 
 from app.core.config import settings
+from app.core.rate_limit import limiter
 from app.db.session import init_db
 from app.api import (
     routes_auth, routes_companies, routes_profile, routes_cv, routes_vacancies, routes_matches,
@@ -31,12 +35,25 @@ async def lifespan(app: FastAPI):
 
 
 def create_app() -> FastAPI:
+    # In production, hide the interactive API docs and raw OpenAPI schema: they
+    # map out every endpoint, request/response shape and internal route name for
+    # anyone who finds the URL. Still fully available in dev/staging for testing.
+    is_production = settings.ENV == "production"
     app = FastAPI(
         title=f"{settings.APP_NAME} API",
         version="0.1.0",
         description="AI-powered job discovery, CV tailoring and application platform (Phase 1 foundation).",
         lifespan=lifespan,
+        docs_url=None if is_production else "/docs",
+        redoc_url=None if is_production else "/redoc",
+        openapi_url=None if is_production else "/openapi.json",
     )
+
+    # Rate limiting (brute-force / abuse protection on sensitive endpoints -- see
+    # app/core/rate_limit.py and the @limiter.limit(...) decorators in routes_auth.py).
+    app.state.limiter = limiter
+    app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+    app.add_middleware(SlowAPIMiddleware)
 
     # CORS: allowed browser origins come from config (set the frontend URL in prod).
     # Trailing slashes/whitespace are stripped so a stray "/" can't break matching.
@@ -62,6 +79,12 @@ def create_app() -> FastAPI:
         # Harmless on plain HTTP (browsers only honour HSTS on https responses);
         # Render terminates TLS in front of this app, so this covers the real traffic.
         response.headers["Strict-Transport-Security"] = "max-age=63072000; includeSubDomains"
+        # This API only ever serves JSON, never HTML/JS meant to run in a browser
+        # (docs UI aside, and that's disabled in production), so a locked-down CSP
+        # is free security with no functionality cost. Skip it on the docs routes
+        # in non-production so Swagger/Redoc's own scripts still load for testing.
+        if request.url.path not in ("/docs", "/redoc", "/openapi.json"):
+            response.headers["Content-Security-Policy"] = "default-src 'none'; frame-ancestors 'none'"
         return response
 
     @app.get("/health", tags=["system"])
