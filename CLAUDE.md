@@ -299,3 +299,23 @@ Implemented the remaining audit fixes (1–4 were committed earlier in `62a8b9a`
   `google-auth` verification; build `/verify` + `/reset-password` frontend pages.
 - Note: app login is email+password(+TOTP), not passwordless email-OTP — confirm with
   Lungani if he actually wants passwordless email codes.
+
+### 2026-09-06 (later) — Claude (Opus) — Google login CONFIGURED live (browser-driven)
+Set up the real Google OAuth in the owner's Google Cloud + Vercel via browser control:
+- **Google Cloud** ("My First Project"): OAuth consent screen configured (External,
+  publishing status = **Testing**), app name "Sospana Sonke", support/dev email
+  gastricl@gmail.com. Created a **Web** OAuth client. **Client ID (public):**
+  `343080221936-307hr2su2ufv6n4t443jb2crjtk0bdho.apps.googleusercontent.com`
+  (client secret is NOT used by the GIS ID-token flow and was never recorded).
+  Authorized JavaScript origins: `http://localhost:3000` and
+  `https://sospana-sonke.vercel.app`. Added test user gastricl@gmail.com.
+- **Vercel** (project sospana-sonke, prod domain sospana-sonke.vercel.app): added
+  `NEXT_PUBLIC_GOOGLE_CLIENT_ID` (Config type, Production) = the Client ID above;
+  triggered a Production redeploy.
+- **Render** (sospana-sonke-api): `GOOGLE_CLIENT_ID` = same Client ID **STILL TO BE
+  SET** (owner needs to sign into Render). REQUIRED or /auth/google returns 503.
+- App is in **Testing** mode → only test users can sign in. To open to ALL users,
+  publishing is blocked until the app has a **privacy policy + terms of service** page.
+- **NEXT (in progress):** build `/privacy` and `/terms` frontend pages, deploy, add
+  their URLs on the Google Branding page, then **Publish app** (no Google verification
+  needed for basic email/profile/openid scopes). Then set the Render env var.
