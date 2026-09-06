@@ -334,3 +334,15 @@ Set up the real Google OAuth in the owner's Google Cloud + Vercel via browser co
      Until then `POST /auth/google` returns 503 and Google logins fail at the backend.
 - Vercel already has `NEXT_PUBLIC_GOOGLE_CLIENT_ID` (Production) and was redeployed, so
   the button shows on the live site.
+
+### 2026-09-06 (later) — Claude (Opus) — Google login FULLY WIRED
+- **Render** `sospana-sonke-api`: added `GOOGLE_CLIENT_ID` =
+  `343080221936-307hr2su2ufv6n4t443jb2crjtk0bdho.apps.googleusercontent.com` and
+  triggered Save/rebuild/deploy. Backend can now verify Google ID tokens.
+- Everything for "Continue with Google" is now configured: Google app published,
+  Client ID in Vercel (NEXT_PUBLIC_GOOGLE_CLIENT_ID) + Render (GOOGLE_CLIENT_ID),
+  origins + privacy/terms set, /privacy + /terms pages deployed.
+- Free-tier note: the Render backend spins down when idle, so the FIRST Google
+  login after a quiet period can take ~50s while it wakes.
+- Remaining optional: Render SMTP_USER / SMTP_PASSWORD (Gmail app password) for the
+  email/verification feature — separate from Google login.
