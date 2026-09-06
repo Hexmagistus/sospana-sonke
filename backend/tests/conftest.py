@@ -3,6 +3,11 @@ import os
 
 os.environ.setdefault("DATABASE_URL", "sqlite:///./test_sospana.db")
 os.environ.setdefault("SECRET_KEY", "test-secret-key-not-for-production")
+# Rate limiting (see app/core/rate_limit.py) is disabled under ENV=test: the
+# FastAPI `app` object is a single import-time singleton reused by every test
+# in the whole pytest run, so per-IP counters would otherwise accumulate across
+# hundreds of unrelated test cases and cause flaky, unrelated 429 failures.
+os.environ.setdefault("ENV", "test")
 
 import pytest
 from fastapi.testclient import TestClient
