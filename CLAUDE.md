@@ -17,10 +17,11 @@ commit it (and push, if you pushed the rest of your work). Newest entry on top.
   Next.js (`frontend/`), deployed on Vercel as `sospana-sonke.vercel.app` (account
   `hexmagistus1`). Backend: FastAPI (`backend/`), deployed on Render
   (`srv-da0le7tg1s2s73btqmbg`).
-- **Country coverage:** all 16 SADC states are live (`LIVE` array,
-  `frontend/src/app/page.tsx`). Next wave — Kenya, Nigeria, Ethiopia, Egypt, Morocco,
-  Ghana, Senegal, Uganda, Rwanda, Algeria — is in the `SOON` ("Coming soon") array in
-  the same file, not yet built out with real company/vacancy data.
+- **Country coverage:** all 26 African markets are live (`LIVE` array,
+  `frontend/src/app/page.tsx`) — the original 16 SADC states plus Kenya, Nigeria,
+  Ethiopia, Egypt, Morocco, Ghana, Senegal, Uganda, Rwanda and Algeria, imported into
+  the production DB 2026-09-06. `SOON` is currently `[]` (empty) — there's no next
+  wave queued yet.
 - **Company seed data:** `backend/seed/company_database_import.csv` is the original
   bootstrap file (South Africa/Botswana/Eswatini/Lesotho only — stale, not the live
   DB's source of truth any more). Per-country research CSVs live in
@@ -44,6 +45,35 @@ commit it (and push, if you pushed the rest of your work). Newest entry on top.
   silently failing, and let Lungani run the `.bat` script if needed.
 
 ## Session Log
+
+### 2026-09-06 (evening) — Claude (this account)
+- Imported all 10 `backend/seed/countries/<Country>.csv` files into the live
+  production Postgres DB via the admin `/api/v1/companies/import` endpoint — done
+  from the browser (Lungani logged in, JWT read from `localStorage`), one country at
+  a time, since the built-in browser toolset has no file-upload tool: transformed
+  each staging CSV to the header format `csv_import.py` expects (Python script,
+  base64-encoded), then executed an authenticated `fetch()` POST directly in page JS.
+  Results (created/updated out of total_rows): Kenya 48/0/48, Nigeria 61/0/61 (after
+  fixing a corrupt row, commit `a2f9150`), Ethiopia 42/2/44, Egypt 43/4/47,
+  Morocco 39/0/39, Ghana 35/7/42, Senegal 34/5/39, Uganda 39/2/41, Rwanda 32/7/39,
+  Algeria 36/3/39. Updated/skipped rows are near-duplicates already seeded from
+  earlier SADC-market company lists (e.g. pan-African banks/telcos) — expected, not
+  an error.
+- Queried the live DB for authoritative per-country company counts (409 new + 1962
+  existing = 2371 total) and used them to move all 10 countries from `SOON` to
+  `LIVE` in `frontend/src/app/page.tsx`, each with its real `count`. Also refreshed
+  the 16 existing SADC counts (they'd drifted from the live DB) and re-sorted `LIVE`
+  descending by count so the "who's powering Africa's opportunities" bar chart (which
+  uses `LIVE[0].count` as its 100% baseline) stays correct. Updated the hero badge and
+  the Africa-section copy from "16 SADC markets" to "26 African markets". `SOON` is
+  now `[]`, so its "Coming soon" section on the homepage hides itself (by design —
+  `{SOON.length > 0 && (...)}`). Commit `8f46436`.
+- **Not yet done:** the verification pass on the `grey_none_verified` rows noted in
+  the entry below is still outstanding — these companies are live in the DB and on
+  the homepage now, but a chunk of their careers URLs are desk-research best-guesses,
+  not confirmed. Worth an admin URL-tester pass
+  (`backend/app/services/url_tester.py`) when there's time.
+
 
 ### 2026-09-06 — Claude (this account)
 - Added 10 non-SADC countries to the homepage "Coming soon" list (Kenya, Nigeria,
