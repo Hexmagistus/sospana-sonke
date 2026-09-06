@@ -281,28 +281,28 @@ const VALUES = ["Ambition", "Opportunity", "Dignity", "Ubuntu", "Hustle", "Growt
 const LIVE = [
   { name: "South Africa", flag: "🇿🇦", count: 767, pending: false },
   { name: "Zimbabwe", flag: "🇿🇼", count: 153, pending: false },
-  { name: "Botswana", flag: "🇧🇼", count: 125, pending: false },
+  { name: "Botswana", flag: "🇧🇼", count: 126, pending: false },
   { name: "Namibia", flag: "🇳🇦", count: 106, pending: false },
   { name: "Mozambique", flag: "🇲🇿", count: 91, pending: false },
   { name: "Zambia", flag: "🇿🇲", count: 82, pending: true },
   { name: "Mauritius", flag: "🇲🇺", count: 82, pending: true },
   { name: "DR Congo", flag: "🇨🇩", count: 81, pending: true },
-  { name: "Lesotho", flag: "🇱🇸", count: 77, pending: true },
+  { name: "Lesotho", flag: "🇱🇸", count: 74, pending: false },
   { name: "Eswatini", flag: "🇸🇿", count: 72, pending: false },
   { name: "Angola", flag: "🇦🇴", count: 69, pending: true },
   { name: "Nigeria", flag: "🇳🇬", count: 68, pending: false },
   { name: "Tanzania", flag: "🇹🇿", count: 68, pending: true },
   { name: "Madagascar", flag: "🇲🇬", count: 66, pending: true },
   { name: "Malawi", flag: "🇲🇼", count: 66, pending: true },
-  { name: "Kenya", flag: "🇰🇪", count: 53, pending: false },
-  { name: "Egypt", flag: "🇪🇬", count: 48, pending: false },
-  { name: "Uganda", flag: "🇺🇬", count: 47, pending: false },
-  { name: "Ethiopia", flag: "🇪🇹", count: 46, pending: false },
+  { name: "Kenya", flag: "🇰🇪", count: 56, pending: false },
+  { name: "Egypt", flag: "🇪🇬", count: 54, pending: false },
+  { name: "Ethiopia", flag: "🇪🇹", count: 52, pending: false },
+  { name: "Ghana", flag: "🇬🇭", count: 49, pending: false },
+  { name: "Uganda", flag: "🇺🇬", count: 49, pending: false },
   { name: "Rwanda", flag: "🇷🇼", count: 45, pending: false },
+  { name: "Senegal", flag: "🇸🇳", count: 45, pending: false },
+  { name: "Morocco", flag: "🇲🇦", count: 45, pending: false },
   { name: "Algeria", flag: "🇩🇿", count: 44, pending: false },
-  { name: "Ghana", flag: "🇬🇭", count: 44, pending: false },
-  { name: "Senegal", flag: "🇸🇳", count: 42, pending: false },
-  { name: "Morocco", flag: "🇲🇦", count: 40, pending: false },
   { name: "Seychelles", flag: "🇸🇨", count: 31, pending: true },
   { name: "Comoros", flag: "🇰🇲", count: 26, pending: true },
 ];
@@ -547,7 +547,7 @@ export default function Home() {
         <Reveal delay={80}>
           <div className="-mt-6 grid grid-cols-2 gap-3 rounded-2xl bg-white p-4 shadow-lg sm:grid-cols-4">
             {[
-              [1500, "+", "Employers tracked", C.red],
+              [2400, "+", "Employers tracked", C.red],
               [null, "Direct", "To official careers pages", C.teal],
               [null, "SOE", "Vacancies across South Africa", C.green],
               [null, "Free", "Full access, no charge", C.gold],
@@ -566,7 +566,7 @@ export default function Home() {
       {/* Pillars */}
       <section className="mx-auto grid max-w-6xl gap-5 px-4 py-12 sm:grid-cols-3">
         {[
-          ["🎯", "Straight to employers", "Direct links to 1,500+ companies' official careers pages across the region — no middle-man boards, no games.", C.red],
+          ["🎯", "Straight to employers", "Direct links to 2,400+ companies' official careers pages across the region — no middle-man boards, no games.", C.red],
           ["🏛️", "Don't miss the SOEs", "Browse open roles at state-owned enterprises across South Africa and the region — filtered and ready to explore.", C.gold],
           ["📈", "Track & rise", "Every application in one place. Stay organised, stay ready, and keep moving forward.", C.teal],
         ].map(([ic, t, d, col], i) => (

@@ -9,6 +9,43 @@ import { NdebeleStrip } from "@/components/NdebeleStrip";
 
 const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
 
+function AuthLoader() {
+  const messages = [
+    "Signing you in…",
+    "Waking up the server — the first sign-in after a quiet spell can take up to a minute…",
+    "Getting your opportunities ready…",
+    "Almost there…",
+  ];
+  const [pct, setPct] = useState(8);
+  const [mi, setMi] = useState(0);
+  useEffect(() => {
+    const start = Date.now();
+    const id = setInterval(() => {
+      const t = (Date.now() - start) / 1000;
+      setPct(Math.min(96, 8 + 88 * (1 - Math.exp(-t / 16))));
+      setMi(t > 40 ? 3 : t > 20 ? 2 : t > 6 ? 1 : 0);
+    }, 200);
+    return () => clearInterval(id);
+  }, []);
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center px-6 backdrop-blur-sm"
+         style={{ background: "rgba(250,246,238,0.92)" }}>
+      <div className="w-full max-w-sm rounded-2xl bg-white p-8 text-center shadow-xl">
+        <svg viewBox="0 0 50 50" className="mx-auto mb-5 h-14 w-14 animate-spin" style={{ animationDuration: "1.1s" }}>
+          <circle cx="25" cy="25" r="20" fill="none" stroke="#e5e7eb" strokeWidth="5" />
+          <circle cx="25" cy="25" r="20" fill="none" stroke="#0f766e" strokeWidth="5" strokeLinecap="round" strokeDasharray="90 160" />
+        </svg>
+        <p className="mb-1 font-semibold" style={{ color: "#0b2a4a" }}>{messages[mi]}</p>
+        <p className="mb-5 text-xs text-gray-400">This can take up to a minute the first time — hang tight.</p>
+        <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100">
+          <div className="h-full rounded-full transition-all duration-200 ease-out"
+               style={{ width: pct + "%", background: "#0f766e" }} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function LoginPage() {
   const { login, loginWithGoogle } = useAuth();
   const router = useRouter();
@@ -18,6 +55,7 @@ export default function LoginPage() {
   const [needsOtp, setNeedsOtp] = useState(false);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [authing, setAuthing] = useState(false);
 
   // Load Google Identity Services and render the "Sign in with Google" button,
   // only when a client ID is configured (otherwise the feature stays hidden).
@@ -33,10 +71,13 @@ export default function LoginPage() {
       g.accounts.id.initialize({
         client_id: GOOGLE_CLIENT_ID,
         callback: async (resp: { credential: string }) => {
+          setError("");
+          setAuthing(true);
           try {
             await loginWithGoogle(resp.credential);
             router.push("/companies");
           } catch (err) {
+            setAuthing(false);
             setError(err instanceof Error ? err.message : "Google sign-in failed.");
           }
         },
@@ -52,6 +93,7 @@ export default function LoginPage() {
     e.preventDefault();
     setError("");
     setBusy(true);
+    setAuthing(true);
     try {
       await login(email, password, otp);
       router.push("/companies");
@@ -65,11 +107,13 @@ export default function LoginPage() {
       }
     } finally {
       setBusy(false);
+      setAuthing(false);
     }
   }
 
   return (
     <div className="mx-auto mt-10 max-w-md">
+      {authing && <AuthLoader />}
       <NdebeleStrip id="ndebele-login-top" className="mb-6 overflow-hidden rounded-t-xl shadow-sm" />
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src="/logo-mark.png" alt="Sospana Sonke" className="mx-auto mb-3 h-16 w-16 rounded-2xl object-cover shadow-md" />
