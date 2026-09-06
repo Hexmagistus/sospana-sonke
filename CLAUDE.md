@@ -46,6 +46,42 @@ commit it (and push, if you pushed the rest of your work). Newest entry on top.
 
 ## Session Log
 
+### 2026-09-06 (later still) — Claude (this account) — test-suite verification of the security batch
+The security task Opus completed (see the two entries below and
+`docs/SECURITY-HARDENING-REPORT.md`) explicitly hadn't run the real pytest suite
+("dep install exceeded the remote shell's time limits"). This session managed it:
+created a venv at `~/scratch/venv` on the device VM (outside `mnt/`), installed
+`backend/requirements.txt` + `pytest` + `pytest-asyncio` + `slowapi` successfully
+(took a few chunked `pip install` calls, each hitting the ~170s device-shell limit
+but resuming from cache), then ran the suite in batches (full-suite run in one shot
+also hits the shell limit -- Argon2 makes auth tests ~9s each).
+
+**Result:** `test_auth.py` (7) + `test_account_security.py` (5) = 12/12 passed,
+`test_companies.py` 4/4 passed. **No regression from the security hardening.**
+
+**One real gap found and fixed** (commit `a19a4a9`): `app/core/rate_limit.py`'s
+`Limiter(enabled=settings.ENV != "test")` never actually triggered because
+`tests/conftest.py` didn't set `ENV=test` (defaulted to "development", so the
+limiter stayed live across the whole shared-`app`-instance test run). Fixed by
+adding `os.environ.setdefault("ENV", "test")` to conftest.py.
+
+**One pre-existing, unrelated bug found** (not fixed, out of this task's scope):
+`tests/test_dashboard.py::test_candidate_dashboard` gets a 404 on `GET /dashboard`
+-- that endpoint was deliberately deleted in `bb9ac9c` ("Remove unused candidate
+dashboard API endpoint") but the test was never removed/updated. Dead-test debt,
+nothing to do with security. Worth a cleanup pass (delete the stale test, or check
+nothing else depended on that route) whenever there's time.
+
+**Not run this pass** (lower priority, unrelated to auth/security): the other ~18
+test files (`test_automation`, `test_cv`, `test_documents`, `test_matching_engine`,
+`test_notifications`, `test_scraper_*`, `test_subscription`, `test_vacancy_routes`,
+etc.) -- none of them touch code this security batch changed, so risk is low, but
+flagging in case someone wants full green-suite confidence before deploying.
+
+Also: the SMTP/Gmail App Password + Render env-var follow-up (see "Gmail email
+delivery wired" below) is still open and needs Lungani's action -- unrelated to me,
+belongs to that thread.
+
 ### 2026-09-06 (later same day) — Claude (this account) — SECURITY HARDENING IN PROGRESS, HANDOFF
 Lungani asked for a full security audit + hardening pass (protect secrets, prevent
 source theft, protect DB/admin/API endpoints, rate limiting, security headers,
