@@ -216,3 +216,32 @@ run together). Remaining files not yet run this baseline pass: `test_automation.
   3. Once imported and verified, flip each country from `SOON` to `LIVE` in
      `frontend/src/app/page.tsx` (with an employer `count`), the same way the 16 SADC
      states were promoted.
+
+### 2026-09-06 (later) — Claude (Opus, other account)
+Picked up the in-progress security-hardening batch the previous session left
+uncommitted and committed it (`62a8b9a`):
+- `app/core/rate_limit.py` (new): shared slowapi Limiter, per-IP, disabled under
+  ENV=test. Limits applied in `routes_auth.py` to register/login/google/refresh/
+  mfa-enable/mfa-disable/password-reset request+confirm.
+- `main.py`: `/docs`,`/redoc`,`/openapi.json` disabled when ENV=production; limiter +
+  SlowAPIMiddleware + 429 handler wired; strict CSP (`default-src 'none'`) on JSON routes.
+- `config.py`: refuses to boot in production if SECRET_KEY is still the placeholder.
+- `schemas/auth.py` + `routes_auth.py`: email-verification / password-reset tokens
+  masked to None when ENV=production.
+- `requirements.txt`: +slowapi==0.1.10 (MUST `pip install -r requirements.txt` before
+  running the app or the import fails). `.gitignore`: ignore test DB journal.
+- Verified: `py_compile` passes on all changed files; token-masking confirmed at
+  routes_auth.py L43/L206. NOT yet run: the pytest suite (needs slowapi installed).
+- Also earlier this session (already committed by the data session): removed the
+  "No open positions listed yet" label on company cards + made the country filter
+  chips wrap instead of horizontal-scroll on mobile (`companies/page.tsx`); set
+  Assmang's careers_url to https://assmang.ci.hr (verified live portal).
+
+**Note for whoever runs git here via device_bash:** the bridge can't delete files, so
+every git op leaves a stale `.git/index.lock` (and sometimes `HEAD.lock`) that blocks
+the next op. Clear with `mv .git/index.lock .git/index.lock.stale.$(date +%s%N)` before
+each git command (rename is allowed; rm is not), or grant delete permission.
+
+**Not yet done (security task remaining):** verification pass / pytest run of the above;
+plus any still-open items in the security checklist earlier in this file (DB access,
+admin-route protection, copy-deterrence, final report).
