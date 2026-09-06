@@ -4,6 +4,7 @@ import "./globals.css";
 import { AuthProvider } from "@/lib/auth";
 import Nav from "@/components/Nav";
 import PwaRegister from "@/components/PwaRegister";
+import CopyGuard from "@/components/CopyGuard";
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -38,6 +39,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={spaceGrotesk.variable}>
       <body>
         <PwaRegister />
+        <CopyGuard />
         <AuthProvider>
           <Nav />
           <main className="mx-auto max-w-6xl px-4 py-6">{children}</main>
