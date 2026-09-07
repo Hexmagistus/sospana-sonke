@@ -86,6 +86,10 @@ class Settings(BaseSettings):
     PAYSTACK_SECRET_KEY: str | None = None
     PAYSTACK_PUBLIC_KEY: str | None = None
     PAYMENT_CALLBACK_URL: str = "http://localhost:3000/subscription/return"
+    # Donations (one-off, voluntary "keep the app free" support) reuse the
+    # same Paystack account but return the browser to a different page.
+    # In prod set this to https://sospana-sonke.vercel.app/donate/thanks
+    DONATION_RETURN_URL: str = "http://localhost:3000/donate/thanks"
     PLAN_AMOUNT_ZAR: int = 100              # the R100/month price
     PLAN_CURRENCY: str = "ZAR"
     BILLING_PERIOD_DAYS: int = 30

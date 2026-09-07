@@ -12,6 +12,7 @@ from app.models.application import (  # noqa: F401
     ApplicationSettings, Application, ApplicationAnswer, ApplicationEvent,
 )
 from app.models.subscription import Subscription, Payment  # noqa: F401
+from app.models.donation import Donation  # noqa: F401
 from app.models.report import Report  # noqa: F401
 from app.models.notification import Notification, JobRun, PushToken  # noqa: F401
 from app.models.interview import InterviewPrep  # noqa: F401

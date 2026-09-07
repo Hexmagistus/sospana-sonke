@@ -781,7 +781,10 @@ export default function Home() {
       <NdebeleStripe id="nd-bottom" />
       <footer className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-4 py-8 text-sm text-gray-500">
         <span>© 2026 Sospana Sonke · Southern Africa</span>
-        <a href="/privacy.html" className="hover:text-gray-800">Privacy Policy</a>
+        <div className="flex items-center gap-4">
+          <Link href="/donate" className="hover:text-gray-800">Donate</Link>
+          <a href="/privacy.html" className="hover:text-gray-800">Privacy Policy</a>
+        </div>
       </footer>
     </div>
   );

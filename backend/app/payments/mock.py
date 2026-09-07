@@ -18,7 +18,7 @@ _MOCK_SECRET = b"mock-dev-secret"
 class MockProvider(PaymentProvider):
     name = "mock"
 
-    def start_checkout(self, *, email, amount_zar, reference, metadata) -> CheckoutSession:
+    def start_checkout(self, *, email, amount_zar, reference, metadata, callback_url=None) -> CheckoutSession:
         return CheckoutSession(
             authorization_url=f"https://mock-pay.local/checkout/{reference}",
             reference=reference,

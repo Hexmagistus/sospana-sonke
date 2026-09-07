@@ -24,12 +24,12 @@ class PaystackProvider(PaymentProvider):
             raise RuntimeError("PAYSTACK_SECRET_KEY is not configured.")
         self._secret = settings.PAYSTACK_SECRET_KEY
 
-    def start_checkout(self, *, email, amount_zar, reference, metadata) -> CheckoutSession:
+    def start_checkout(self, *, email, amount_zar, reference, metadata, callback_url=None) -> CheckoutSession:
         resp = httpx.post(
             "https://api.paystack.co/transaction/initialize",
             headers={"Authorization": f"Bearer {self._secret}", "Content-Type": "application/json"},
             json={"email": email, "amount": amount_zar * 100, "currency": settings.PLAN_CURRENCY,
-                  "reference": reference, "callback_url": settings.PAYMENT_CALLBACK_URL,
+                  "reference": reference, "callback_url": callback_url or settings.PAYMENT_CALLBACK_URL,
                   "metadata": metadata},
             timeout=30.0,
         )

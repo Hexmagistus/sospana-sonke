@@ -12,6 +12,7 @@ const LINKS = [
   { href: "/profile", label: "Profile" },
   { href: "/notifications", label: "Notifications" },
   { href: "/security", label: "Security" },
+  { href: "/donate", label: "Donate" },
 ];
 
 export default function Nav() {

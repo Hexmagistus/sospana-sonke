@@ -146,6 +146,13 @@ def handle_webhook(db: Session, raw_body: bytes, signature: str | None) -> dict:
     if event.type == "ignored":
         return {"handled": False, "reason": "ignored event type"}
 
+    # Donations share this same Paystack account/webhook endpoint but aren't
+    # tied to a user subscription -- their references are prefixed `DON-` so
+    # they can be routed to the separate donation ledger instead.
+    if event.reference and event.reference.startswith("DON-"):
+        from app.services.donation_service import handle_donation_event
+        return handle_donation_event(db, event)
+
     sub = None
     if event.customer_email:
         user = db.query(User).filter(User.email == event.customer_email.lower()).first()
