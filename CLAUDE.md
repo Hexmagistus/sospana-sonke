@@ -46,6 +46,33 @@ commit it (and push, if you pushed the rest of your work). Newest entry on top.
 
 ## Session Log
 
+### 2026-09-07 — Claude (this account) — donations page
+- Added a `/donate` page (no login required) with R20/R50/R100 presets plus a
+  custom "Other" amount, going through the existing Paystack integration
+  (one-off checkout, not a subscription). Also lists a direct-bank-transfer
+  option (Capitec, acc 2581657193, SWIFT CABLZAJJ) for people who'd rather
+  skip card fees. New `/donate/thanks` return page.
+- Backend: new `Donation` model/ledger (separate table, not tied to a user
+  account or the subscription access-gating) + `donation_service.py` +
+  `routes_donation.py` (`POST /donations/checkout`). Donations share the
+  same Paystack account/webhook as subscriptions -- references are prefixed
+  `DON-` and `subscription_service.handle_webhook` routes those to the new
+  donation handler, so no second webhook URL needs configuring in Paystack.
+  `PaymentProvider.start_checkout` gained an optional `callback_url` so
+  donations return to `/donate/thanks` instead of `/subscription/return`.
+- Commit `e8caa3e`. 6 new backend tests pass; reran the full subscription
+  suite -- no regressions (the 2 failures there are pre-existing/unrelated,
+  from the deliberate paywall-disable in `90b1da7`).
+- **Action needed from Lungani** (same pattern as `PAYSTACK_SECRET_KEY` /
+  the Gmail SMTP vars): once Paystack is live, set `DONATION_RETURN_URL` in
+  Render to `https://sospana-sonke.vercel.app/donate/thanks` (defaults to
+  a localhost URL otherwise). `PAYSTACK_SECRET_KEY`/`PAYMENT_PROVIDER=paystack`
+  need to be set too if they aren't already -- donations use whatever
+  provider subscriptions are configured for.
+- Paused mid-way through the Google Play Console setup for the Android
+  app (see the entry above/below on that) to build this at Lungani's
+  request; resuming Play Console work next.
+
 ### 2026-09-06 (later still) — Claude (this account) — test-suite verification of the security batch
 The security task Opus completed (see the two entries below and
 `docs/SECURITY-HARDENING-REPORT.md`) explicitly hadn't run the real pytest suite
