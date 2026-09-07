@@ -46,6 +46,30 @@ commit it (and push, if you pushed the rest of your work). Newest entry on top.
 
 ## Session Log
 
+### 2026-09-07 (later again) — App pricing set to Free; icon resolved
+- App pricing (Monetize with Play > App pricing): switched from the
+  default "Paid" to "Free" and saved. That was the last of the original 9
+  Play Console sections except the store listing itself.
+- Store listing: found the app icon was already sitting in Play Console's
+  asset library (the gold/silver "Sospana Sonke" logo, previously uploaded
+  as a WhatsApp image, cropped to 512x512) — selected it for the App icon
+  slot (had to delete one accidental duplicate first) and saved the draft.
+  Dashboard checklist now shows **12 of 13 complete** — only "Set up your
+  store listing" remains, blocked on the feature graphic + 2-8 screenshots
+  (see prior entry for why — native file-dialog upload isn't reliably
+  automatable from here). Waiting on Lungani to either upload those two
+  asset types himself or say how he'd like to proceed.
+- Lungani confirmed he has Android Studio installed and can build the
+  signed `.aab` himself. Checked `android/app/build.gradle`: it's a
+  Bubblewrap-generated TWA (applicationId `com.sospanasonke.app`,
+  versionCode 1, versionName "1.0.0"), no `signingConfigs` block baked in
+  (expected — Bubblewrap projects sign via Android Studio's "Generate
+  Signed Bundle" wizard at build time, not gradle). `android/android.keystore`
+  already exists in the repo root of `android/`. Pointed him to
+  Build > Generate Signed Bundle/APK > Android App Bundle > select that
+  keystore file > enter his alias/passwords > release build variant.
+  Passwords obviously not handled by Claude.
+
 ### 2026-09-07 (even later) — Play Store store listing: text done, assets blocked
 - Filled in Default store listing text (Play Console): app name confirmed
   "Sospana Sonke", short description (71/80 chars), full description (~1238
