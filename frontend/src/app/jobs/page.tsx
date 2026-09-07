@@ -55,7 +55,7 @@ function FindJobsInner() {
         const vacs: Vacancy[] = [];
         for (let offset = 0; ; offset += PAGE) {
           const page = await api.get<Vacancy[]>(
-            `/vacancies?is_open=true&limit=${PAGE}&offset=${offset}`
+            `/vacancies?is_open=true&max_age_days=31&limit=${PAGE}&offset=${offset}`
           );
           vacs.push(...page);
           if (page.length < PAGE) break;

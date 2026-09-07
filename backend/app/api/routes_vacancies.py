@@ -5,6 +5,7 @@ available to any authenticated user (candidates browse matched vacancies; the
 matching module will layer per-candidate scoring on top in the next step).
 """
 from dataclasses import asdict
+from datetime import datetime, timedelta, timezone, date
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
@@ -58,12 +59,24 @@ def list_company_vacancies(company_id: str, db: Session = Depends(get_db),
 def list_vacancies(db: Session = Depends(get_db), _: User = Depends(get_current_user),
                    q: str | None = Query(default=None, description="Search in title"),
                    is_open: bool | None = Query(default=True),
+                   max_age_days: int | None = Query(
+                       default=None, ge=1,
+                       description="Only vacancies last seen within this many days (drops stale/old listings)."),
                    limit: int = Query(default=50, le=200), offset: int = Query(default=0, ge=0)):
     query = db.query(Vacancy)
     if is_open is not None:
         query = query.filter(Vacancy.is_open == is_open)
     if q:
         query = query.filter(Vacancy.title.ilike(f"%{q}%"))
+    if max_age_days is not None:
+        # Drop listings we haven't seen on the employer's careers page recently...
+        cutoff = datetime.now(timezone.utc) - timedelta(days=max_age_days)
+        query = query.filter(Vacancy.last_seen_at >= cutoff)
+        # ...and anything whose advertised closing date has already passed.
+        today = date.today()
+        query = query.filter(
+            (Vacancy.closing_date.is_(None)) | (Vacancy.closing_date >= today)
+        )
     query = query.order_by(Vacancy.last_seen_at.desc()).offset(offset).limit(limit)
     return [VacancyResponse.model_validate(v) for v in query.all()]
 
