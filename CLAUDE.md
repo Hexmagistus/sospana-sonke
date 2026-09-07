@@ -46,6 +46,36 @@ commit it (and push, if you pushed the rest of your work). Newest entry on top.
 
 ## Session Log
 
+### 2026-09-07 (even later) — Play Store store listing: text done, assets blocked
+- Filled in Default store listing text (Play Console): app name confirmed
+  "Sospana Sonke", short description (71/80 chars), full description (~1238
+  chars) covering free job search + CV tailoring + all 16 SADC states + the
+  new donations option. **Not yet saved** — still needs "Save as draft"
+  once assets are attached (see below).
+- Prepared image assets on disk: resized `frontend/public/logo-mark.png`
+  (1024x1024) down to `play-assets/app-icon-512x512.png` (512x512 RGB, no
+  alpha); `play-assets/feature-graphic-1024x500.png` already existed and is
+  ready as-is.
+- **Blocked on uploading them**: Play Console's "Add assets" opens the
+  native Windows file-picker dialog, and remote control of that dialog is
+  restricted to view + single-click only (no double-click, no typing, no
+  Enter key) for security reasons — couldn't navigate folders or confirm a
+  selection. Asked Lungani to click through `Add assets` → `Upload` himself
+  and pick the two files above (30-second task) — message sent, no reply
+  yet as of this entry.
+- Identified 4 good phone-screenshot candidates from the live site
+  (sospana-sonke.vercel.app) at 1080x1920: (1) hero "Where talent meets
+  opportunity" w/ Mandela quote, (2) stats panel (2400+ employers tracked /
+  Direct to careers pages / SOE vacancies / Free), (3) pan-African
+  landmarks grid (Kilimanjaro, Pyramids, Serengeti, etc.), (4) sign-in
+  screen w/ tagline "We find the opportunities. You apply direct." Could
+  not save these as actual image files (no file-save path from the browser
+  pane back to disk) — Lungani will need to screenshot these himself, or
+  ask to explore another capture method.
+- **Not yet done**: attach the 2 prepared assets + 2-8 screenshots, save
+  the store listing draft, then set the app price (Free) — the last of the
+  9 Play Console sections from the original plan.
+
 ### 2026-09-07 (later still) — Claude (this account) — Play Console: all App content declarations done
 - Completed all 4 outstanding "App content" policy declarations, in order: Advertising
   ID (No -- no ad SDKs), Government apps (No), Financial features (selected "My app
