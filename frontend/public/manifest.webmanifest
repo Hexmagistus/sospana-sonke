@@ -1,7 +1,7 @@
 {
   "name": "Sospana Sonke",
   "short_name": "Sospana Sonke",
-  "description": "AI-powered job discovery, CV tailoring and applications for South Africa.",
+  "description": "Find verified employers across Africa, tailor your CV, and apply directly on their official careers pages.",
   "start_url": "/dashboard",
   "scope": "/",
   "display": "standalone",
