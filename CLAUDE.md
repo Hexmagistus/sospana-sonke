@@ -46,6 +46,17 @@ commit it (and push, if you pushed the rest of your work). Newest entry on top.
 
 ## Session Log
 
+### 2026-09-07 (later still) — Claude (this account) — Play Console: all App content declarations done
+- Completed all 4 outstanding "App content" policy declarations, in order: Advertising
+  ID (No -- no ad SDKs), Government apps (No), Financial features (selected "My app
+  doesn't provide any financial features" -- the R100/month subscription and the new
+  donation checkout are plain payment/checkout flows via Paystack, not a regulated
+  financial feature like lending/wallets/trading/insurance), Health apps (selected
+  "My app does not have any health features"). Play Console's App content page now
+  shows "You're all caught up."
+- Remaining from the original 9-section plan: Store listing (description text +
+  screenshots) and Set the price (Free). Data safety, Content rating, Target
+  audience, and all App content declarations are done.
 ### 2026-09-07 (later) — Claude (this account) — Play Console: Data safety section done
 - Continuing from "yes, fill in the 9 remaining Play Console sections": finished the
   Data safety form in full (all 5 steps: Overview, Data collection and security,
