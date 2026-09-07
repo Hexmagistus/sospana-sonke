@@ -46,6 +46,27 @@ commit it (and push, if you pushed the rest of your work). Newest entry on top.
 
 ## Session Log
 
+### 2026-09-07 (later) — Claude (this account) — Play Console: Data safety section done
+- Continuing from "yes, fill in the 9 remaining Play Console sections": finished the
+  Data safety form in full (all 5 steps: Overview, Data collection and security,
+  Data types, Data usage and handling, Preview) and saved -- Play Console now shows
+  "Change saved. Send for review in Publishing overview." for this section.
+- Data types disclosed, based on reading the actual backend models
+  (`User`, `CandidateProfile`, `CV`, `Subscription`/`Payment`): Personal info (Name,
+  Email address, Phone number), Financial info (Purchase history), Files and docs
+  (CV uploads), App activity (App interactions), Device or other IDs (push
+  notification token). Health and fitness/Messages/Photos/Audio/Calendar/Contacts/
+  Web browsing/Location left unchecked -- not applicable. Email address and Files
+  and docs are marked "Shared" (with Paystack for payment, and the AI provider for
+  CV parsing/tailoring, respectively) in addition to "Collected".
+- Delete-account URL set to the `/privacy` page (no dedicated in-app deletion
+  endpoint exists) and "encrypted in transit: Yes" from the earlier
+  Data-collection-and-security step.
+- UI quirk confirmed again: the final "Save" on the Preview step is not a visible
+  button -- it's in the kebab (⋮) "More options" menu next to "Discard".
+- Next up (still pending, per the original 9-section plan): Government apps (answer
+  No), Financial features (review needed for the R100/month + new donation flow),
+  Health (answer No), Store listing text + screenshots, Set the price (Free).
 ### 2026-09-07 — Claude (this account) — donations page
 - Added a `/donate` page (no login required) with R20/R50/R100 presets plus a
   custom "Other" amount, going through the existing Paystack integration
