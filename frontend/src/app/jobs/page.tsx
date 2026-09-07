@@ -48,10 +48,18 @@ function FindJobsInner() {
   useEffect(() => {
     (async () => {
       try {
-        const [cos, vacs] = await Promise.all([
-          api.get<Company[]>("/companies?limit=5000"),
-          api.get<Vacancy[]>("/vacancies?is_open=true&limit=500"),
-        ]);
+        // Page through the API (per-request cap is 200) so there is no limit
+        // on how many vacancies we display — we keep fetching until exhausted.
+        const PAGE = 200;
+        const cos = await api.get<Company[]>("/companies?limit=5000");
+        const vacs: Vacancy[] = [];
+        for (let offset = 0; ; offset += PAGE) {
+          const page = await api.get<Vacancy[]>(
+            `/vacancies?is_open=true&limit=${PAGE}&offset=${offset}`
+          );
+          vacs.push(...page);
+          if (page.length < PAGE) break;
+        }
         setCompanies(cos);
         setVacancies(vacs);
       } catch (e) {
