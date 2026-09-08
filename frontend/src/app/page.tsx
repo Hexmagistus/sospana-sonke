@@ -299,8 +299,10 @@ const LIVE = [
   { name: "Kenya", flag: "🇰🇪", count: 56, pending: false },
   { name: "Cameroon", flag: "🇨🇲", count: 56, pending: false },
   { name: "Egypt", flag: "🇪🇬", count: 54, pending: false },
+  { name: "Togo", flag: "🇹🇬", count: 53, pending: false },
   { name: "Ethiopia", flag: "🇪🇹", count: 52, pending: false },
   { name: "Guinea", flag: "🇬🇳", count: 52, pending: false },
+  { name: "Benin", flag: "🇧🇯", count: 52, pending: false },
   { name: "Ghana", flag: "🇬🇭", count: 49, pending: false },
   { name: "Uganda", flag: "🇺🇬", count: 49, pending: false },
   { name: "Gabon", flag: "🇬🇦", count: 49, pending: false },
@@ -461,7 +463,7 @@ export default function Home() {
                     <span className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-75" style={{ background: C.mint }} />
                     <span className="relative inline-flex h-2 w-2 rounded-full" style={{ background: C.mint }} />
                   </span>
-                  Live across 26 African markets · Growing across the continent
+                  Live across 33 African markets · Growing across the continent
                 </span>
               </Reveal>
 
@@ -552,7 +554,7 @@ export default function Home() {
         <Reveal delay={80}>
           <div className="-mt-6 grid grid-cols-2 gap-3 rounded-2xl bg-white p-4 shadow-lg sm:grid-cols-4">
             {[
-              [2400, "+", "Employers tracked", C.red],
+              [2800, "+", "Employers tracked", C.red],
               [null, "Direct", "To official careers pages", C.teal],
               [null, "SOE", "Vacancies across South Africa", C.green],
               [null, "Free", "Full access, no charge", C.gold],
@@ -571,7 +573,7 @@ export default function Home() {
       {/* Pillars */}
       <section className="mx-auto grid max-w-6xl gap-5 px-4 py-12 sm:grid-cols-3">
         {[
-          ["🎯", "Straight to employers", "Direct links to 2,400+ companies' official careers pages across the region — no middle-man boards, no games.", C.red],
+          ["🎯", "Straight to employers", "Direct links to 2,800+ companies' official careers pages across the region — no middle-man boards, no games.", C.red],
           ["🏛️", "Don't miss the SOEs", "Browse open roles at state-owned enterprises across South Africa and the region — filtered and ready to explore.", C.gold],
           ["📈", "Track & rise", "Every application in one place. Stay organised, stay ready, and keep moving forward.", C.teal],
         ].map(([ic, t, d, col], i) => (
@@ -635,7 +637,7 @@ export default function Home() {
               <span className="inline-block rounded-full bg-white/10 px-4 py-1.5 text-xs font-semibold backdrop-blur-sm">🌍 Africa&apos;s Opportunity Map</span>
               <h2 className="mt-4 font-display text-2xl font-extrabold sm:text-4xl">Built for the region. Live across Africa.</h2>
               <p className="mt-3 max-w-3xl text-blue-100">
-                We&apos;re live across 26 African markets — all 16 SADC member states, plus Kenya, Nigeria, Ethiopia, Egypt, Morocco, Ghana, Senegal, Uganda, Rwanda and Algeria. For a few of our newest markets we start with state-owned employers while their stock-exchange listings are added. Wherever you are, your ambition has a home here.
+                We&apos;re live across 33 African markets — all 16 SADC member states plus 17 more across West, Central, East and North Africa. For a few of our newest markets we start with state-owned employers while their stock-exchange listings are added. Wherever you are, your ambition has a home here.
               </p>
             </Reveal>
 
@@ -668,7 +670,7 @@ export default function Home() {
             </div>
 
             <p className="mt-5 text-sm font-semibold text-blue-100">
-              🎉 Live across 26 African markets — with more of the continent to follow.
+              🎉 Live across 33 African markets — with more of the continent to follow.
             </p>
 
             {/* Contribution ranking — which country is powering the most opportunities */}

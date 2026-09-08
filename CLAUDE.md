@@ -495,3 +495,7 @@ Set up the real Google OAuth in the owner's Google Cloud + Vercel via browser co
   login after a quiet period can take ~50s while it wakes.
 - Remaining optional: Render SMTP_USER / SMTP_PASSWORD (Gmail app password) for the
   email/verification feature — separate from Google login.
+
+## Standing rule (data)
+- STANDING RULE: EVERY time countries are added, update ALL landing-page copy in `frontend/src/app/page.tsx`: the LIVE array (country + count, sorted desc) AND every hardcoded "N African markets" / employer-count number (currently the hero badge, the animated "Employers tracked" stat, the "2,800+ companies" feature line, the closing paragraph, and the footer banner) — user directive 2026-09-08.
+- Country adds so far beyond the base 26: Cote dIvoire, Tunisia, Cameroon, Guinea, Gabon (commit b50bc79); Benin, Togo (this commit). Seed files: `backend/seed/countries/<Country>.csv` (headerless); import to live DB via admin `/api/v1/companies/import` (prepend header first).
