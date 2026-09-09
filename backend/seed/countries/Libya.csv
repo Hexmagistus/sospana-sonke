@@ -1,0 +1,27 @@
+Ministry of Finance,,https://mof.gov.ly/en/,green_verified,"GNU ministry, Tripoli-based",false,no_url,Libya,DEPT,https://mof.gov.ly/en/
+Ministry of Foreign Affairs and International Cooperation,,http://www.foreign.gov.ly/,green_verified,"GNU ministry, Tripoli-based",false,no_url,Libya,DEPT,http://www.foreign.gov.ly/
+Ministry of Justice,,http://www.aladel.gov.ly/,green_verified,"GNU ministry, Tripoli-based",false,no_url,Libya,DEPT,http://www.aladel.gov.ly/
+Ministry of Labor and Rehabilitation,,http://www.labour.gov.ly/,green_verified,"GNU ministry, Tripoli-based",false,no_url,Libya,DEPT,http://www.labour.gov.ly/
+Ministry of Economy and Trade,,https://economy.gov.ly/,green_verified,"GNU ministry, Tripoli-based",false,no_url,Libya,DEPT,https://economy.gov.ly/
+Ministry of Education and Teaching,,https://moe.gov.ly/,green_verified,"GNU ministry, Tripoli-based",false,no_url,Libya,DEPT,https://moe.gov.ly/
+Ministry of Interior,,https://moi.gov.ly/,grey_none_verified,"GNU ministry, unverified this session",false,no_url,Libya,DEPT,https://moi.gov.ly/
+Ministry of Health,,https://www.health.gov.ly/,grey_none_verified,"GNU ministry, site down this session",false,no_url,Libya,DEPT,https://www.health.gov.ly/
+Ministry of Oil and Gas,,https://www.facebook.com/Ministry.oil.gas/,grey_none_verified,"GNU ministry, Facebook page only, Tripoli",false,no_url,Libya,DEPT,https://www.facebook.com/Ministry.oil.gas/
+Ministry of Transportation,,https://www.facebook.com/mot.gov.ly/,grey_none_verified,"GNU ministry, Facebook page only, Tripoli",false,no_url,Libya,DEPT,https://www.facebook.com/mot.gov.ly/
+World Food Programme Libya,,https://www.wfp.org/countries/libya,green_verified,"UN food agency, humanitarian response, divided Libya",false,no_url,Libya,NGO,https://www.wfp.org/countries/libya
+UNHCR Libya,,https://www.unhcr.org/us/where-we-work/countries/libya,green_verified,"UN refugee agency, displacement and migration response",false,no_url,Libya,NGO,https://www.unhcr.org/us/where-we-work/countries/libya
+UNDP Libya,,https://www.undp.org/libya/jobs,green_verified,"UN development agency, Tripoli-based office",true,pending,Libya,NGO,https://www.undp.org/libya
+WHO Libya,,https://www.who.int/countries/lby,green_verified,"UN health agency, country office",false,no_url,Libya,NGO,https://www.who.int/countries/lby
+IOM Libya,,https://libya.iom.int/careers,green_verified,"UN migration agency, major Libya presence since 2006",true,pending,Libya,NGO,https://libya.iom.int/
+UNICEF Libya,,https://www.unicef.org/libya,grey_none_verified,"UN children's agency, site blocked this session",false,no_url,Libya,NGO,https://www.unicef.org/libya
+National Oil Corporation,,https://noc.ly/en/jobs/,green_verified,"State oil company, Tripoli-based, Graduate Programme",true,pending,Libya,SOE,https://noc.ly/en/
+General Electricity Company of Libya,,https://www.gecol.ly/,grey_none_verified,"State electricity utility, unverified this session",false,no_url,Libya,SOE,https://www.gecol.ly/
+Ras Lanuf Oil and Gas Manufacturing Company,,https://raslanuf.ly/,amber_company_route,"NOC subsidiary, petrochemicals, jobs section seen",false,no_url,Libya,SOE,https://raslanuf.ly/
+Waha Oil Company,,https://wahaoil.ly/,grey_none_verified,"NOC subsidiary oil producer, site blocks bots",false,no_url,Libya,SOE,https://wahaoil.ly/
+Sirte Oil Company,,https://sirteoil.com.ly/,grey_none_verified,"NOC subsidiary, SSL error this session",false,no_url,Libya,SOE,https://sirteoil.com.ly/
+Zueitina Oil Company,,https://zueitina.com.ly/en,amber_company_route,"NOC subsidiary oil producer, minimal page found",false,no_url,Libya,SOE,https://zueitina.com.ly/en
+Sahara Bank,,https://www.saharabank.ly/,grey_none_verified,"State-owned commercial bank, unverified this session",false,no_url,Libya,SOE,https://www.saharabank.ly/
+Wahda Bank,,https://www.wahdabank.com/,grey_none_verified,"State-owned bank, domain currently parked",false,no_url,Libya,SOE,https://www.wahdabank.com/
+Libyana Mobile Phone,,https://libyana.ly/,green_verified,"State-owned mobile operator, no careers page found",false,no_url,Libya,SOE,https://libyana.ly/
+Al-Madar Al-Jadid,,https://almadar.ly/,grey_none_verified,"State-owned mobile operator, unverified this session",false,no_url,Libya,SOE,https://almadar.ly/
+Bank of Commerce and Development,,https://www.bcd.ly/en/careers,green_verified,"Libya's first and largest private bank, Benghazi",true,pending,Libya,PRIVATE,https://www.bcd.ly/en/
