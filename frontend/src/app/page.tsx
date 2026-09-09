@@ -403,6 +403,92 @@ function SavannaSilhouette() {
   );
 }
 
+// Freehand, stylised Africa continent outline (decorative — not a precise map).
+const AFRICA_PATH =
+  "M148 6 C172 4 198 10 214 26 C226 38 222 52 232 62 C246 76 268 82 274 100 " +
+  "C280 118 268 130 254 136 C244 140 238 150 246 162 C254 174 250 190 236 198 " +
+  "C226 204 222 216 228 230 C234 244 226 258 210 262 C200 265 196 276 200 288 " +
+  "C204 302 194 316 178 326 C168 332 160 330 156 318 C152 306 142 300 132 292 " +
+  "C118 280 110 264 112 246 C114 230 104 220 90 214 C74 207 64 194 66 176 " +
+  "C68 160 56 150 48 136 C40 122 44 106 58 98 C68 92 68 80 60 70 " +
+  "C52 58 58 44 72 36 C86 28 84 16 100 10 C116 4 132 8 148 6 Z";
+const MADAGASCAR_PATH =
+  "M250 250 C258 246 264 254 262 268 C260 282 252 292 246 286 C240 280 244 256 250 250 Z";
+
+// Africa rendered as a mosaic of the continent's own flags, echoing the brand mark.
+function AfricaMosaic() {
+  const spots: { flag: string; x: number; y: number }[] = [
+    { flag: "🇲🇦", x: 92, y: 42 }, { flag: "🇩🇿", x: 128, y: 50 }, { flag: "🇪🇬", x: 208, y: 66 },
+    { flag: "🇸🇩", x: 190, y: 108 }, { flag: "🇳🇬", x: 90, y: 168 }, { flag: "🇪🇹", x: 244, y: 118 },
+    { flag: "🇰🇪", x: 230, y: 158 }, { flag: "🇹🇿", x: 220, y: 190 }, { flag: "🇨🇩", x: 168, y: 200 },
+    { flag: "🇬🇭", x: 74, y: 190 }, { flag: "🇦🇴", x: 138, y: 240 }, { flag: "🇿🇦", x: 174, y: 300 },
+  ];
+  return (
+    <svg viewBox="0 0 300 340" width="280" height="320" aria-hidden="true">
+      <defs>
+        <pattern id="africa-mosaic" width="26" height="26" patternUnits="userSpaceOnUse" patternTransform="rotate(18)">
+          <rect width="26" height="26" fill={C.green} />
+          <rect width="13" height="26" fill={C.gold} />
+          <rect x="13" width="7" height="13" fill={C.red} />
+        </pattern>
+        <filter id="africa-glow" x="-60%" y="-60%" width="220%" height="220%">
+          <feGaussianBlur stdDeviation="5" />
+        </filter>
+      </defs>
+      <path d={AFRICA_PATH} fill="none" stroke={C.gold} strokeWidth="10" opacity="0.55" filter="url(#africa-glow)" />
+      <path d={MADAGASCAR_PATH} fill="none" stroke={C.gold} strokeWidth="6" opacity="0.5" filter="url(#africa-glow)" />
+      <path d={AFRICA_PATH} fill="url(#africa-mosaic)" stroke={C.gold} strokeWidth="2.5" />
+      <path d={AFRICA_PATH} fill="#000" opacity="0.16" />
+      <path d={MADAGASCAR_PATH} fill="url(#africa-mosaic)" stroke={C.gold} strokeWidth="1.75" />
+      {spots.map((s, i) => (
+        <g key={s.flag} className="animate-float-slow" style={{ animationDelay: `${i * 0.25}s` }}>
+          <circle cx={s.x} cy={s.y} r="14" fill={C.navy} stroke="#fff" strokeWidth="2" />
+          <text x={s.x} y={s.y + 5} fontSize="15" textAnchor="middle">{s.flag}</text>
+        </g>
+      ))}
+    </svg>
+  );
+}
+
+const FEATURES: { kind: "search" | "cap" | "support" | "grow"; title: string; sub: string }[] = [
+  { kind: "search", title: "Find Jobs", sub: "Across Africa" },
+  { kind: "cap", title: "Build Skills", sub: "For a Brighter Future" },
+  { kind: "support", title: "Access Support", sub: "When You Need It" },
+  { kind: "grow", title: "Grow Together", sub: "Stronger Communities" },
+];
+
+function FeatureIcon({ kind }: { kind: "search" | "cap" | "support" | "grow" }) {
+  const common = { fill: "none", stroke: C.gold, strokeWidth: 2, strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
+  return (
+    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl" style={{ background: `${C.gold}1f` }}>
+      <svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true">
+        {kind === "search" && (<><circle cx="10.5" cy="10.5" r="6.5" {...common} /><line x1="21" y1="21" x2="15.2" y2="15.2" {...common} /></>)}
+        {kind === "cap" && (<><path d="M12 4 L22 9 L12 14 L2 9 Z" {...common} /><path d="M6 11.5 V17 C6 18.5 8.5 20 12 20 C15.5 20 18 18.5 18 17 V11.5" {...common} /><line x1="22" y1="9" x2="22" y2="15" {...common} /></>)}
+        {kind === "support" && (<><circle cx="9" cy="8" r="3.2" {...common} /><path d="M2.5 20 C2.5 15.5 5.5 13 9 13 C12.5 13 15.5 15.5 15.5 20" {...common} /><circle cx="17.5" cy="9" r="2.6" {...common} /><path d="M15.5 20 C15.5 16.6 17 14.6 19.2 14 C20.8 14.6 21.8 16.5 21.8 19" {...common} /></>)}
+        {kind === "grow" && (<><polyline points="3,17 9,11 13,15 21,6" {...common} /><polyline points="14,6 21,6 21,13" {...common} /></>)}
+      </svg>
+    </span>
+  );
+}
+
+// Dark ribbon of every live country's flag, closing out the hero card — the whole continent, at a glance.
+function FlagRibbon() {
+  const flags = [...LIVE].sort((a, b) => a.name.localeCompare(b.name));
+  return (
+    <div className="relative overflow-hidden rounded-b-[2rem] px-4 py-6 shadow-xl sm:px-8" style={{ background: C.ink }}>
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px" style={{ background: `${C.gold}40` }} />
+      <div className="flex flex-wrap justify-center gap-x-5 gap-y-4">
+        {flags.map((c) => (
+          <div key={c.name} className="flex w-16 flex-col items-center gap-1 text-center">
+            <span className="text-2xl leading-none">{c.flag}</span>
+            <span className="text-[10px] font-medium leading-tight text-blue-200">{c.name}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function Home() {
   const { user, loading } = useAuth();
   const router = useRouter();
@@ -455,12 +541,12 @@ export default function Home() {
       {/* Hero */}
       <section className="mx-auto max-w-6xl px-4 pt-2">
         <div
-          className="relative overflow-hidden rounded-[2rem] px-6 py-14 text-white shadow-xl sm:px-14 sm:py-20"
+          className="relative overflow-hidden rounded-t-[2rem] px-6 pb-14 pt-14 text-white shadow-xl sm:px-14 sm:pb-16 sm:pt-20"
           style={{ background: `radial-gradient(120% 120% at 85% 8%, #1a4f7a 0%, ${C.navy} 45%, ${C.ink} 100%)` }}
         >
           <Starfield className="opacity-80" />
           <CursorGlow />
-          {/* decorative orbs */}
+          {/* decorative orbs — a warm sunrise glow behind the continent art */}
           <div
             className="pointer-events-none absolute -right-16 -top-24 h-80 w-80 animate-float-slow rounded-full blur-3xl"
             style={{ background: "radial-gradient(circle at 30% 30%,#ffcf5a,#ff7a1a)", opacity: 0.5 }}
@@ -479,7 +565,20 @@ export default function Home() {
           <div className="relative flex flex-wrap items-center gap-10">
             <div className="min-w-[16rem] flex-1">
               <Reveal>
-                <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-semibold backdrop-blur-sm">
+                <div className="flex items-center gap-3">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="/logo-mark.png" alt="" className="h-10 w-10 rounded-xl object-cover shadow-md" />
+                  <span className="font-display text-2xl font-extrabold tracking-tight">
+                    Sospana<span style={{ color: C.gold }}>-Sonke</span>
+                  </span>
+                </div>
+                <p className="mt-1 pl-[3.25rem] text-xs font-medium uppercase tracking-[0.2em] text-blue-200">
+                  Together we find opportunities
+                </p>
+              </Reveal>
+
+              <Reveal delay={80}>
+                <span className="mt-6 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-semibold backdrop-blur-sm">
                   <span className="relative flex h-2 w-2">
                     <span className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-75" style={{ background: C.mint }} />
                     <span className="relative inline-flex h-2 w-2 rounded-full" style={{ background: C.mint }} />
@@ -488,56 +587,56 @@ export default function Home() {
                 </span>
               </Reveal>
 
-              <Reveal delay={80}>
+              <Reveal delay={140}>
                 <GreetingsMarquee />
               </Reveal>
 
-              <Reveal delay={160}>
-                <h1 className="mt-6 font-display text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-6xl">
-                  Where talent meets
+              <Reveal delay={200}>
+                <h1 className="mt-6 font-display text-5xl font-extrabold leading-[1.02] tracking-tight sm:text-7xl">
+                  Your Future
                   <br />
-                  <span className="animate-gradient-text bg-clip-text text-transparent" style={{ backgroundImage: `linear-gradient(90deg,${C.gold},${C.sun},${C.amber},${C.gold})` }}>
-                    opportunity.
-                  </span>
+                  <span style={{ color: C.gold }}>Is Here</span>
                 </h1>
               </Reveal>
-              <Reveal delay={240}>
+              <Reveal delay={260}>
                 <p className="mt-6 max-w-xl text-lg leading-relaxed text-blue-100">
-                  A professional job-search platform that connects ambitious young people directly to real employers — with every open vacancy across the region, including state-owned employers, in one place.
+                  Sospana Sonke connects job seekers, learners, and communities across{" "}
+                  <span className="font-bold" style={{ color: C.gold }}>all 54 African countries</span>{" "}
+                  with real opportunities, skills and resources — for a better tomorrow.
                 </p>
               </Reveal>
 
-              {/* Words to grow by */}
-              <Reveal delay={320}>
-                <blockquote className="mt-7 max-w-xl rounded-r-xl border-l-4 pl-4" style={{ borderColor: C.gold }}>
-                  <p className="text-base italic leading-relaxed text-white sm:text-lg">
-                    &ldquo;Education is the most powerful weapon which you can use to change the world.&rdquo;
-                  </p>
-                  <footer className="mt-1.5 text-sm font-semibold" style={{ color: C.gold }}>
-                    — Nelson Mandela, former President of South Africa
-                  </footer>
-                </blockquote>
-              </Reveal>
-
-              <Reveal delay={400}>
-                <div className="mt-8 flex flex-wrap gap-3">
+              <Reveal delay={340}>
+                <div className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-3">
                   <Link
                     href="/register"
-                    className="group relative overflow-hidden rounded-xl px-6 py-3.5 font-extrabold shadow-lg transition hover:brightness-105 hover:-translate-y-0.5"
+                    className="group relative overflow-hidden rounded-full px-8 py-4 text-base font-extrabold shadow-lg transition hover:brightness-105 hover:-translate-y-0.5"
                     style={{ background: `linear-gradient(120deg,${C.gold},${C.amber})`, color: "#3a2b00" }}
                   >
-                    <span className="relative z-10">Create your free account →</span>
+                    <span className="relative z-10">Get Started →</span>
                     <span className="pointer-events-none absolute inset-0 -translate-x-full skew-x-[-20deg] bg-white/40 opacity-0 transition-all duration-700 group-hover:translate-x-full group-hover:opacity-100" />
                   </Link>
-                  <Link href="/jobs" className="rounded-xl px-6 py-3.5 font-bold text-white shadow-lg transition hover:-translate-y-0.5 hover:brightness-110" style={{ background: C.teal }}>
-                    Find jobs →
-                  </Link>
-                  <Link href="/companies" className="rounded-xl border border-white/40 bg-white/5 px-6 py-3.5 font-semibold text-white backdrop-blur-sm transition hover:-translate-y-0.5 hover:bg-white/10">
-                    Browse companies
-                  </Link>
-                  <Link href="/jobs?type=SOE&region=South%20Africa" className="rounded-xl border border-white/40 bg-white/5 px-6 py-3.5 font-semibold text-white backdrop-blur-sm transition hover:-translate-y-0.5 hover:bg-white/10">
-                    🏛️ SOE vacancies (SA)
-                  </Link>
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm font-semibold text-blue-200">
+                    <Link href="/jobs" className="transition hover:text-white">Find jobs →</Link>
+                    <span className="text-white/20">|</span>
+                    <Link href="/companies" className="transition hover:text-white">Browse companies</Link>
+                    <span className="text-white/20">|</span>
+                    <Link href="/jobs?type=SOE&region=South%20Africa" className="transition hover:text-white">🏛️ SOE vacancies (SA)</Link>
+                  </div>
+                </div>
+              </Reveal>
+
+              <Reveal delay={420}>
+                <div className="mt-10 grid grid-cols-2 gap-x-6 gap-y-5 sm:grid-cols-4 sm:gap-x-4">
+                  {FEATURES.map((f) => (
+                    <div key={f.title} className="flex items-start gap-2.5">
+                      <FeatureIcon kind={f.kind} />
+                      <div>
+                        <div className="text-sm font-bold leading-tight text-white">{f.title}</div>
+                        <div className="text-xs leading-tight text-blue-200">{f.sub}</div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
                 <p className="mt-6 text-sm text-blue-200">
                   <b style={{ color: C.gold }}>Free to use</b> · Direct employer links, SOE vacancies &amp; application tracking all included.
@@ -545,29 +644,28 @@ export default function Home() {
               </Reveal>
             </div>
 
-            {/* Hero art: sunrise over township skyline */}
-            <Reveal delay={200} className="hidden shrink-0 sm:block">
-              <svg viewBox="0 0 320 320" width="300" height="300" aria-hidden="true" className="animate-float-slow">
-                <circle cx="160" cy="175" r="132" fill="rgba(255,255,255,.05)" />
-                <circle cx="160" cy="175" r="96" fill="rgba(255,255,255,.04)" />
-                <path d="M160 175 L160 44 L194 66 Z" fill={C.gold} />
-                <path d="M160 175 L226 74 L250 110 Z" fill={C.sun} />
-                <path d="M160 175 L262 138 L268 178 Z" fill={C.red} />
-                <path d="M160 175 L160 44 L126 66 Z" fill={C.green} />
-                <path d="M160 175 L94 74 L70 110 Z" fill={C.sky} />
-                <path d="M160 175 L58 138 L52 178 Z" fill={C.plum} />
-                <circle cx="160" cy="175" r="38" fill={C.gold} stroke="#0b0b0b" strokeWidth="3" />
-                <g fill="#071528">
-                  <rect x="44" y="220" width="36" height="60" /><rect x="86" y="202" width="44" height="78" />
-                  <rect x="136" y="228" width="32" height="52" /><rect x="174" y="196" width="48" height="84" />
-                  <rect x="228" y="220" width="36" height="60" />
-                </g>
-                <g fill={C.gold}><rect x="98" y="218" width="8" height="9" /><rect x="114" y="218" width="8" height="9" /><rect x="186" y="212" width="8" height="9" /><rect x="202" y="212" width="8" height="9" /></g>
-                <rect x="22" y="278" width="276" height="6" fill="#0b0b0b" />
-              </svg>
+            {/* Hero art: the continent, made of its own flags */}
+            <Reveal delay={220} className="hidden shrink-0 sm:block">
+              <AfricaMosaic />
             </Reveal>
           </div>
         </div>
+
+        <FlagRibbon />
+      </section>
+
+      {/* Words to grow by */}
+      <section className="mx-auto max-w-4xl px-4 pt-8">
+        <Reveal>
+          <blockquote className="rounded-2xl border-l-4 bg-white p-6 shadow-sm" style={{ borderColor: C.gold }}>
+            <p className="text-base italic leading-relaxed text-gray-700 sm:text-lg">
+              &ldquo;Education is the most powerful weapon which you can use to change the world.&rdquo;
+            </p>
+            <footer className="mt-1.5 text-sm font-semibold" style={{ color: C.navy }}>
+              — Nelson Mandela, former President of South Africa
+            </footer>
+          </blockquote>
+        </Reveal>
       </section>
 
       {/* Trust strip */}
