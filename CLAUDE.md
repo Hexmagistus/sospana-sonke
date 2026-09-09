@@ -45,6 +45,59 @@ commit it (and push, if you pushed the rest of your work). Newest entry on top.
   silently failing, and let Lungani run the `.bat` script if needed.
 
 ## Session Log
+### 2026-09-08 (later still) — Claude (this account) — 5 more Sahel/West African markets
+- Continued straight on from the Sierra Leone/Liberia/Mali/Burkina Faso batch
+  above (42 markets now). Added **Niger, Gambia, Guinea-Bissau, Chad,
+  Mauritania** — user said "add 5 more" with no list, so this session picked
+  the Sahel/West Africa neighbors of the countries just added.
+- Same 5-agent parallel research process, same verification-honesty
+  convention (green/amber/grey `careers_status`), all `source_type` confirmed
+  UPPERCASE.
+  - Niger: 43 rows (25 DEPT, 10 PRIVATE, 5 NGO, 3 SOE). Flagged another
+    hijacked government domain: the Ministry of Health's usual site now
+    redirects to gambling spam (3rd such finding this week, after the 2 in
+    Sierra Leone — worth a heads-up to someone if there's ever a channel for
+    it).
+  - Gambia: 38 rows (21 DEPT, 9 PRIVATE, 5 NGO, 3 SOE). Substituted UNICEF for
+    Plan International (no Gambia office found) and swapped 3 requested
+    private companies for verified alternatives (Trust Bank/GTBank/Julbrew
+    had no working sites; used Zenith Bank, FBNBank, Capital Express
+    Assurance, Gambia International Airlines, GamSwitch instead).
+  - **Guinea-Bissau: 28 rows (18 DEPT, 5 PRIVATE, 5 NGO, 0 SOE, 0 MUNI) —
+    genuinely thin, reported honestly rather than padded.** Government runs
+    through one portal (`bissaugov.com`) with no per-ministry sites and no
+    careers functionality at all; no working SOE website could be found for
+    the electricity/water utility, ports authority, or state telecom (only
+    Facebook/Wikipedia); MTN Guinea-Bissau no longer exists (rebranded to
+    Telecel in 2025) — substituted accordingly.
+  - **Chad: 29 rows (20 DEPT, 4 PRIVATE, 5 NGO, 0 SOE)** — 4 ministries and
+    all SOE candidates skipped outright (no findable working domain, agent
+    declined to guess). ExxonMobil/Esso Chad confirmed exited the country in
+    2022 (sold to Savannah Energy) so wasn't listed as a going concern.
+  - Mauritania: 44 rows (26 DEPT, 8 PRIVATE, 5 NGO, 5 SOE).
+  - Commit `6f14eaa`: `backend/seed/countries/{Niger,Gambia,GuineaBissau,Chad,
+    Mauritania}.csv` (182 rows total).
+  - Both Niger and Mauritania agents hit the WebSearch 200-call session cap
+    partway through, so a handful of private-company/SOE domain guesses in
+    those two files are unverified this session (marked `grey_none_verified`
+    honestly, not upgraded) — worth a follow-up check before importing.
+- Landing page updated per the standing rule: LIVE array (5 new entries,
+  `pending: true`), hero badge/footer banner/closing paragraph (37->42
+  markets, 16 SADC + 21->26 more), "Employers tracked" stat (3019->3201).
+  `tsc --noEmit` clean. Commit `e88f0f8`.
+- **Not yet done (same 3 items as the batch before this one, now covering 9
+  new countries total):**
+  1. **DB import still blocked — needs Lungani's admin login**, same as noted
+     below for the Sierra Leone/Liberia/Mali/Burkina Faso batch. All 9 new
+     countries (backend/seed/countries/{SierraLeone,Liberia,Mali,BurkinaFaso,
+     Niger,Gambia,GuineaBissau,Chad,Mauritania}.csv) need the header row
+     prepended and POSTing to `/api/v1/companies/import`.
+  2. Verification pass on `grey_none_verified`/`amber_company_route` rows —
+     growing backlog, same recurring item as every country batch.
+  3. **Push:** now 5 commits ahead of `origin/main` (`fc27ae1`, `c566b12`,
+     `9ac85dc`, `6f14eaa`, `e88f0f8`) — still needs Lungani's interactive
+     GitHub login via the push `.bat` script.
+
 ### 2026-09-08 (later) — Claude (this account) — 4 more West African markets
 - Continued from the SADC-completion + Benin/Togo work (33 markets live) noted
   above. Added **Sierra Leone, Liberia, Mali, Burkina Faso** — extends the West
