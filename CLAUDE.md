@@ -17,11 +17,14 @@ commit it (and push, if you pushed the rest of your work). Newest entry on top.
   Next.js (`frontend/`), deployed on Vercel as `sospana-sonke.vercel.app` (account
   `hexmagistus1`). Backend: FastAPI (`backend/`), deployed on Render
   (`srv-da0le7tg1s2s73btqmbg`).
-- **Country coverage:** all 26 African markets are live (`LIVE` array,
-  `frontend/src/app/page.tsx`) — the original 16 SADC states plus Kenya, Nigeria,
-  Ethiopia, Egypt, Morocco, Ghana, Senegal, Uganda, Rwanda and Algeria, imported into
-  the production DB 2026-09-06. `SOON` is currently `[]` (empty) — there's no next
-  wave queued yet.
+- **Country coverage:** all 54 African nations are live in the `LIVE` array
+  (`frontend/src/app/page.tsx`) as of 2026-09-09 — see the Session Log for the
+  full history of batches. `SOON` is `[]` (empty) — coverage is complete, nothing
+  queued. **Caveat: "live" here means the seed CSV exists in
+  `backend/seed/countries/` and the landing page reflects it — most of these
+  countries (everything with `pending: true`) have NOT actually been imported into
+  the production Postgres DB yet.** Only the original 16 SADC states plus the 10
+  countries imported 2026-09-06 are confirmed live in the real database.
 - **Company seed data:** `backend/seed/company_database_import.csv` is the original
   bootstrap file (South Africa/Botswana/Eswatini/Lesotho only — stale, not the live
   DB's source of truth any more). Per-country research CSVs live in
@@ -45,6 +48,66 @@ commit it (and push, if you pushed the rest of your work). Newest entry on top.
   silently failing, and let Lungani run the `.bat` script if needed.
 
 ## Session Log
+### 2026-09-09 — Claude (this account) — FULL 54/54 AFRICAN COVERAGE REACHED
+- User asked "how many countries left?" then "add all of them across all
+  categories and update the get started page" — finished the remaining 12
+  uncovered African countries in one pass: **Burundi, Cabo Verde, Central
+  African Republic, Congo (Brazzaville), Djibouti, Equatorial Guinea,
+  Eritrea, Libya, Sao Tome and Principe, Somalia, South Sudan, Sudan.**
+  Every one of the 54 UN-recognized African states now has a seed CSV in
+  `backend/seed/countries/`.
+- Same 12-agent parallel research process, same verification-honesty
+  convention. Several of these are genuinely hard cases and were researched
+  candidly rather than padded:
+  - **Eritrea: only 4 rows** (1 DEPT, 3 NGO, 0 PRIVATE, 0 SOE) — the
+    thinnest file in the whole database. One-party state, near-total
+    internet isolation; only the state news portal and UN
+    country-team/UNDP/WHO pages have any real web presence at all. No bank,
+    telecom, or SOE website could be verified to exist.
+  - **Equatorial Guinea: 10 rows**, 0 PRIVATE — ExxonMobil/Marathon have
+    exited, GEPetrol has no resolvable domain.
+  - **CAR: 15 rows**, only 1 SOE (ENERCA, and even that's a squatted-domain
+    situation — real presence is a third-party customer portal).
+  - **Sudan (15) and South Sudan (16):** conflict-context caveats on most
+    rows; several government sites down, hijacked-looking, or redirect-loop
+    broken; UNHCR Sudan confirmed relocated to Port Sudan.
+  - **Libya (27):** GNU/Tripoli-based government flagged per-row given the
+    divided-government situation; 10 SOE rows (oil-sector heavy) but only 1
+    PRIVATE survived verification.
+  - **Somalia (20):** unusually NGO-heavy (7) given the humanitarian
+    context, but has a genuinely vibrant verified private mobile-money/telco
+    sector (Hormuud, Golis, Premier Bank, Amana, Salaam Somali Bank).
+  - Congo-Brazzaville (32), Cabo Verde (30, notably clean — Portuguese
+    government portal + public-employment site all verified), Burundi (27),
+    Djibouti (23), Sao Tome and Principe (19) were all comparatively
+    straightforward.
+  - Commit `4402671`: 238 rows across the 12 files.
+- Landing page rewritten for full coverage, not just another incremental
+  batch: hero badge and footer banner no longer say "growing" / "more to
+  follow" since there's nowhere left to add — now "Live across all 54
+  African nations · The full continent, one platform." LIVE array now has
+  all 54 entries (sum 3439), sorted descending, verified no dupes. Employers
+  stat 3201->3439, feature line 3,000+->3,400+. `tsc --noEmit` clean.
+  Commit `6464c0a`.
+- Checked for a separate "get started" page per the user's request — there
+  isn't one; "Get started" is just the CTA button label on this same
+  landing page (`frontend/src/app/page.tsx`, linking to `/register`), which
+  is what got updated above.
+- **What's left (same recurring items, now covering all 21 non-original
+  countries added since the SADC-completion baseline):**
+  1. **DB import still blocked — needs Lungani's admin login** (see the
+     entries above for the exact `/api/v1/companies/import` procedure).
+     All 21 CSVs from the last 2 days of sessions need this.
+  2. Verification pass on the accumulated `grey_none_verified`/
+     `amber_company_route` backlog — now larger than ever; a single
+     admin URL-tester sweep across everything would be more efficient than
+     re-verifying piecemeal per country.
+  3. **Push:** now 8 commits ahead of `origin/main` (`fc27ae1` through
+     `6464c0a`) — still needs Lungani's interactive GitHub login.
+  4. Consider whether `SOON` messaging elsewhere in the app (not just this
+     landing page) still references "more countries coming" now that
+     coverage is complete — worth a broader grep next session.
+
 ### 2026-09-08 (later still) — Claude (this account) — 5 more Sahel/West African markets
 - Continued straight on from the Sierra Leone/Liberia/Mali/Burkina Faso batch
   above (42 markets now). Added **Niger, Gambia, Guinea-Bissau, Chad,
