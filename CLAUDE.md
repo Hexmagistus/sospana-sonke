@@ -663,3 +663,27 @@ Set up the real Google OAuth in the owner's Google Cloud + Vercel via browser co
 ## Standing rule (data)
 - STANDING RULE: EVERY time countries are added, update ALL landing-page copy in `frontend/src/app/page.tsx`: the LIVE array (country + count, sorted desc) AND every hardcoded "N African markets" / employer-count number (currently the hero badge, the animated "Employers tracked" stat, the "2,800+ companies" feature line, the closing paragraph, and the footer banner) — user directive 2026-09-08.
 - Country adds so far beyond the base 26: Cote dIvoire, Tunisia, Cameroon, Guinea, Gabon (commit b50bc79); Benin, Togo (this commit). Seed files: `backend/seed/countries/<Country>.csv` (headerless); import to live DB via admin `/api/v1/companies/import` (prepend header first).
+
+### 2026-09-09 — Claude (this account) — Landing hero redesigned to match brand reference
+- User supplied a reference hero-banner image ("Sospana-Sonke — Your Future Is Here")
+  and asked to redesign the landing "get started" hero to match it. There is no
+  separate `/get-started` route — this refers to the hero section of `frontend/src/app/page.tsx`.
+- Rebuilt the hero (commit 49c10e7): "Your Future / Is Here" headline (white + gold),
+  tagline highlighting "all 54 African countries", a single primary gold pill
+  "Get Started →" CTA (secondary Find jobs / Browse companies / SOE links kept as
+  smaller text links), a 4-icon feature row (Find Jobs / Build Skills / Access
+  Support / Grow Together), and a new `AfricaMosaic` SVG (continent silhouette
+  filled with a flag-colour mosaic pattern + ~12 scattered country-flag badges) in
+  place of the old sunrise-skyline art.
+- Added `FlagRibbon`: a dark strip closing out the bottom of the hero card, listing
+  all 54 `LIVE` countries' flags + names alphabetically (reuses the existing `LIVE`
+  array — no new data).
+- Moved the Nelson Mandela quote out of the hero into its own small quote-strip
+  section directly below, to keep the new hero visually clean like the reference.
+- Verified with `npx tsc --noEmit -p tsconfig.json` (clean). Not yet pushed — push
+  needs to go through the user's own interactive GitHub login (same limitation as
+  every prior session).
+- Also confirmed the earlier database-import handoff is unchanged/still pending:
+  `sospana-sonke-import-ready.zip` (28 header-ready CSVs) was delivered to the user
+  for manual upload via `/admin/companies`; only 26/54 countries are actually in the
+  production DB as of this session.
