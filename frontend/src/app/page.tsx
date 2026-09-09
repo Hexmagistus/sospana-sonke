@@ -312,9 +312,14 @@ const LIVE = [
   { name: "Senegal", flag: "🇸🇳", count: 45, pending: false },
   { name: "Morocco", flag: "🇲🇦", count: 45, pending: false },
   { name: "Algeria", flag: "🇩🇿", count: 44, pending: false },
+  { name: "Mauritania", flag: "🇲🇷", count: 44, pending: true },
+  { name: "Niger", flag: "🇳🇪", count: 43, pending: true },
   { name: "Burkina Faso", flag: "🇧🇫", count: 41, pending: true },
+  { name: "Gambia", flag: "🇬🇲", count: 38, pending: true },
   { name: "Liberia", flag: "🇱🇷", count: 35, pending: true },
   { name: "Seychelles", flag: "🇸🇨", count: 31, pending: true },
+  { name: "Chad", flag: "🇹🇩", count: 29, pending: true },
+  { name: "Guinea-Bissau", flag: "🇬🇼", count: 28, pending: true },
   { name: "Comoros", flag: "🇰🇲", count: 26, pending: true },
 ];
 const SOON: { name: string; flag: string }[] = [];
@@ -467,7 +472,7 @@ export default function Home() {
                     <span className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-75" style={{ background: C.mint }} />
                     <span className="relative inline-flex h-2 w-2 rounded-full" style={{ background: C.mint }} />
                   </span>
-                  Live across 37 African markets · Growing across the continent
+                  Live across 42 African markets · Growing across the continent
                 </span>
               </Reveal>
 
@@ -558,7 +563,7 @@ export default function Home() {
         <Reveal delay={80}>
           <div className="-mt-6 grid grid-cols-2 gap-3 rounded-2xl bg-white p-4 shadow-lg sm:grid-cols-4">
             {[
-              [3019, "+", "Employers tracked", C.red],
+              [3201, "+", "Employers tracked", C.red],
               [null, "Direct", "To official careers pages", C.teal],
               [null, "SOE", "Vacancies across South Africa", C.green],
               [null, "Free", "Full access, no charge", C.gold],
@@ -641,7 +646,7 @@ export default function Home() {
               <span className="inline-block rounded-full bg-white/10 px-4 py-1.5 text-xs font-semibold backdrop-blur-sm">🌍 Africa&apos;s Opportunity Map</span>
               <h2 className="mt-4 font-display text-2xl font-extrabold sm:text-4xl">Built for the region. Live across Africa.</h2>
               <p className="mt-3 max-w-3xl text-blue-100">
-                We&apos;re live across 37 African markets — all 16 SADC member states plus 21 more across West, Central, East and North Africa. For a few of our newest markets we start with state-owned employers while their stock-exchange listings are added. Wherever you are, your ambition has a home here.
+                We&apos;re live across 42 African markets — all 16 SADC member states plus 26 more across West, Central, East and North Africa. For a few of our newest markets we start with state-owned employers while their stock-exchange listings are added. Wherever you are, your ambition has a home here.
               </p>
             </Reveal>
 
@@ -674,7 +679,7 @@ export default function Home() {
             </div>
 
             <p className="mt-5 text-sm font-semibold text-blue-100">
-              🎉 Live across 37 African markets — with more of the continent to follow.
+              🎉 Live across 42 African markets — with more of the continent to follow.
             </p>
 
             {/* Contribution ranking — which country is powering the most opportunities */}
