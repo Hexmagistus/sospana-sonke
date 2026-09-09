@@ -45,6 +45,54 @@ commit it (and push, if you pushed the rest of your work). Newest entry on top.
   silently failing, and let Lungani run the `.bat` script if needed.
 
 ## Session Log
+### 2026-09-08 (later) — Claude (this account) — 4 more West African markets
+- Continued from the SADC-completion + Benin/Togo work (33 markets live) noted
+  above. Added **Sierra Leone, Liberia, Mali, Burkina Faso** — extends the West
+  Africa cluster already live (Nigeria, Ghana, Senegal, Cote d'Ivoire, Guinea,
+  Gabon, Benin, Togo). Chosen by this session (no explicit list from Lungani);
+  flag if a different set was wanted.
+- Researched via 4 parallel agents (WebSearch/WebFetch, real verification, not
+  pattern-guessed domains): national government ministries (DEPT), 5 UN/INGO
+  country offices each (NGO), 8-10 major private companies (PRIVATE), 3-5
+  parastatals (SOE). `careers_status` honestly reflects verification depth
+  (green_verified = fetched and confirmed this session; amber_company_route =
+  real section found, not pinned; grey_none_verified = best-guess official
+  domain). All `source_type` values confirmed UPPERCASE (the casing bug from
+  the Lesotho/Botswana session, `aa98f47`/`8b4b7cc`, did not recur).
+  - Sierra Leone: 47 rows (28 DEPT, 9 PRIVATE, 5 NGO, 5 SOE). Flagged 2
+    compromised/hijacked .gov.sl domains found during research (Ministry of
+    Justice's site, and the Basic/Senior Secondary Education jobs sub-page) —
+    both now serve gambling-spam content; worth reporting to Sierra Leone's
+    government IT if anyone has that channel.
+  - Liberia: 35 rows (18 DEPT, 9 PRIVATE, 5 NGO, 3 SOE).
+  - Mali: 46 rows (28 DEPT, 10 PRIVATE, 5 NGO, 3 SOE) — French ministry names,
+    matching the Togo/Benin/Cote d'Ivoire style.
+  - Burkina Faso: 41 rows (24 DEPT, 9 PRIVATE, 5 NGO, 3 SOE) — French ministry
+    names; reflects the Jan 2026 transitional-government ministry renaming.
+  - Commit `fc27ae1`: `backend/seed/countries/{SierraLeone,Liberia,Mali,
+    BurkinaFaso}.csv` (headerless, 10-column format, 169 rows total).
+- Landing page updated per the standing rule below: LIVE array (4 new entries,
+  `pending: true`), hero badge/footer banner/closing paragraph (33->37 markets,
+  16 SADC + 17->21 more), "Employers tracked" stat (2800->3019), "2,800+
+  companies" feature line (->3,000+). `tsc --noEmit` clean. Commit `c566b12`.
+- **Not yet done:**
+  1. **DB import blocked — needs Lungani's admin login.** Tried the admin
+     panel at `sospana-sonke.vercel.app/admin` via the built-in browser; it's
+     a fresh (logged-out) browser profile on this device, and entering a
+     password isn't something this session does. Once Lungani (or a session
+     with an active admin browser session) is logged in, import the 4 new
+     CSVs the same way the original 10 were done 2026-09-06: prepend the
+     header (`company_name,jse_code,careers_url,careers_status,relevance_note,
+     active,scraping_status,country,source_type,official_website`) to each
+     CSV and POST to `/api/v1/companies/import`.
+  2. Verification pass on the `grey_none_verified` / `amber_company_route`
+     rows (same outstanding item as every prior country batch — still worth
+     an admin URL-tester pass across everything at once eventually).
+  3. **Push:** this session's commits (`fc27ae1`, `c566b12`) are local only —
+     same non-interactive-push limitation noted below; Lungani needs to run
+     the push `.bat` script (or push manually) to get them onto GitHub/
+     deployed. Current `origin/main` is 3 commits behind local HEAD.
+
 
 ### 2026-09-07 (later again) — App pricing set to Free; icon resolved
 - App pricing (Monetize with Play > App pricing): switched from the
