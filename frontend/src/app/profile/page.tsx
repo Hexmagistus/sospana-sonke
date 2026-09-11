@@ -5,6 +5,7 @@ import Link from "next/link";
 import Guard from "@/components/Guard";
 import { api } from "@/lib/api";
 import { Card, Field, Input, Button, Alert, Spinner, Badge, Skeleton } from "@/components/ui";
+import { CvUpload } from "@/components/CvUpload";
 
 interface Child {
   id: string;
@@ -17,6 +18,8 @@ function ProfileInner() {
   const [profile, setProfile] = useState<Record<string, unknown> | null>(null);
   const [skills, setSkills] = useState<Child[]>([]);
   const [education, setEducation] = useState<Child[]>([]);
+  const [experience, setExperience] = useState<Child[]>([]);
+  const [certifications, setCertifications] = useState<Child[]>([]);
   const [msg, setMsg] = useState("");
   const [err, setErr] = useState("");
   const [saving, setSaving] = useState(false);
@@ -25,6 +28,8 @@ function ProfileInner() {
     setProfile(await api.get("/profile"));
     setSkills(await api.get("/profile/skills"));
     setEducation(await api.get("/profile/education"));
+    setExperience(await api.get("/profile/experience"));
+    setCertifications(await api.get("/profile/certifications"));
   }
   useEffect(() => {
     loadAll().catch((e) => setErr(e.message));
@@ -68,10 +73,22 @@ function ProfileInner() {
     setProfile((p) => ({ ...(p || {}), [k]: v }));
   }
 
+  const header = (
+    <div>
+      <h1 className="text-2xl font-bold text-navy">My profile</h1>
+      <p className="mt-1 text-sm text-gray-500">
+        Kept up to date, this is what powers stronger job matches and tailored applications.{" "}
+        <Link href="/master-cv" className="font-medium text-brand hover:underline">View my Master CV →</Link>
+      </p>
+    </div>
+  );
+
   if (err && !profile) return <Alert kind="error">{err}</Alert>;
   if (!profile) {
     return (
       <div className="space-y-6">
+        {header}
+        <CvUpload onApplied={() => loadAll().catch((e) => setErr(e.message))} />
         <Skeleton className="h-9 w-48" />
         <Card>
           <div className="grid gap-4 md:grid-cols-2">
@@ -90,15 +107,11 @@ function ProfileInner() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-navy">My profile</h1>
-        <p className="mt-1 text-sm text-gray-500">
-          Kept up to date, this is what powers stronger job matches and tailored applications.{" "}
-          <Link href="/master-cv" className="font-medium text-brand hover:underline">View my Master CV →</Link>
-        </p>
-      </div>
+      {header}
       {msg && <Alert kind="success">{msg}</Alert>}
       {err && <Alert kind="error">{err}</Alert>}
+
+      <CvUpload onApplied={() => loadAll().catch((e) => setErr(e.message))} />
 
       <Card accent="teal">
         <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-navy">
@@ -156,6 +169,26 @@ function ProfileInner() {
         onAdd={async (v) => { await api.post("/profile/education", v); setEducation(await api.get("/profile/education")); }}
         onDelete={async (id) => { await api.del(`/profile/education/${id}`); setEducation(await api.get("/profile/education")); }}
         render={(i) => `${i.qualification || ""} — ${i.institution}`}
+      />
+
+      <ChildSection
+        title="Work experience"
+        icon="💼"
+        items={experience}
+        fields={[{ key: "employer", label: "Employer" }, { key: "position", label: "Position" }]}
+        onAdd={async (v) => { await api.post("/profile/experience", v); setExperience(await api.get("/profile/experience")); }}
+        onDelete={async (id) => { await api.del(`/profile/experience/${id}`); setExperience(await api.get("/profile/experience")); }}
+        render={(i) => `${i.position ? `${i.position} — ` : ""}${i.employer}`}
+      />
+
+      <ChildSection
+        title="Certifications"
+        icon="📜"
+        items={certifications}
+        fields={[{ key: "name", label: "Certification" }, { key: "issuing_organization", label: "Issuing organisation" }]}
+        onAdd={async (v) => { await api.post("/profile/certifications", v); setCertifications(await api.get("/profile/certifications")); }}
+        onDelete={async (id) => { await api.del(`/profile/certifications/${id}`); setCertifications(await api.get("/profile/certifications")); }}
+        render={(i) => `${i.name}${i.issuing_organization ? ` — ${i.issuing_organization}` : ""}`}
       />
     </div>
   );

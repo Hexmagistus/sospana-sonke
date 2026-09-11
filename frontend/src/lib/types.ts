@@ -146,6 +146,36 @@ export interface Company {
   notes: string | null;
 }
 
+// ---- CV upload & auto-import ("system picks it up automatically") ----
+
+export interface UploadedCv {
+  id: string;
+  original_filename: string;
+  content_type: string;
+  extension: string;
+  size_bytes: number;
+  is_original: boolean;
+  parse_status: "uploaded" | "extracted" | "parsed" | "failed";
+  parse_error: string | null;
+  ai_model: string | null;
+  created_at: string;
+}
+
+export interface CvStructuredSuggestion {
+  cv_id: string;
+  parse_status: string;
+  ai_model: string | null;
+  structured: Record<string, unknown> | null;
+}
+
+export interface CvApplyResult {
+  skills_added: number;
+  education_added: number;
+  work_experience_added: number;
+  certifications_added: number;
+  profile_fields_filled: string[];
+}
+
 // ---- AI CV Enhancement / Job-Aligned CV Builder ("Tailor my CV to a job") ----
 
 export interface TemplateInfo {

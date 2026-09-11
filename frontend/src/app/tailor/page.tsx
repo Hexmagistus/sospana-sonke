@@ -228,6 +228,10 @@ function TailorInner() {
       {step === 0 && (
         <Card>
           <h2 className="mb-4 text-lg font-semibold">1. Tell us about the job</h2>
+          <p className="mb-4 -mt-2 text-sm text-gray-500">
+            First time here? <Link href="/profile" className="font-medium text-brand hover:underline">Upload your existing CV</Link> and
+            we&apos;ll pick up your details automatically, so every tailored CV is built from real information.
+          </p>
           <div className="grid gap-4 md:grid-cols-2">
             <Field label="Company (optional)">
               <Input value={company} onChange={(e) => setCompany(e.target.value)} placeholder="e.g. Eskom" />
