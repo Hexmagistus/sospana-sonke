@@ -4,9 +4,13 @@ import io
 from tests.conftest import register_and_login
 
 SAMPLE_CV = """Thandi Mokoena
+Johannesburg, South Africa
 thandi.mokoena@example.com | +27 82 123 4567
 https://www.linkedin.com/in/thandimokoena
 https://github.com/thandim
+
+PROFILE
+Operations professional with 6 years of experience in logistics and warehouse management.
 
 EXPERIENCE
 Operations Supervisor at Acme Logistics
@@ -72,6 +76,15 @@ def test_upload_txt_extracts_and_structures(client):
     assert {"python", "sql", "sap"}.issubset(skill_names)
     assert "English" in structured.get("languages", [])
 
+    # "About you" fields — occupation from the role line, years from the explicit
+    # statement, city from the header line — never computed or guessed beyond that.
+    assert structured["current_occupation"] == "Operations Supervisor"
+    assert structured["years_experience"] == 6
+    assert structured["city"] == "Johannesburg"
+    exp = structured["work_experience"][0]
+    assert exp["position"] == "Operations Supervisor"
+    assert exp["employer"] == "Acme Logistics"
+
 
 def test_upload_docx_and_pdf(client):
     _, tokens = register_and_login(client)
@@ -112,11 +125,34 @@ def test_apply_to_profile_adds_unconfirmed_records(client):
     applied = client.post(f"/api/v1/cv/{cv['id']}/apply-to-profile", headers=h, json={}).json()
     assert applied["skills_added"] >= 3
     assert "linkedin_url" in applied["profile_fields_filled"]
+    assert "current_occupation" in applied["profile_fields_filled"]
+    assert "city" in applied["profile_fields_filled"]
+    assert "years_experience" in applied["profile_fields_filled"]
 
     # Imported skills must be UNCONFIRMED (candidate has not verified them yet).
     skills = client.get("/api/v1/profile/skills", headers=h).json()
     assert skills and all(s["confirmed_by_candidate"] is False for s in skills)
     assert all(s["source"] == "cv_extraction" for s in skills)
+
+    # "About you" is filled straight onto the profile (visible/editable there).
+    profile = client.get("/api/v1/profile", headers=h).json()
+    assert profile["current_occupation"] == "Operations Supervisor"
+    assert profile["city"] == "Johannesburg"
+    assert profile["years_experience"] == 6
+
+
+def test_apply_to_profile_never_overwrites_existing_values(client):
+    _, tokens = register_and_login(client)
+    h = _auth(tokens)
+    # The candidate has already set their own occupation — a CV import must not
+    # clobber it, even if the CV suggests something different.
+    client.put("/api/v1/profile", headers=h, json={"current_occupation": "Senior Analyst", "city": "Cape Town"})
+    cv = client.post("/api/v1/cv", headers=h, files={"file": _txt()}).json()
+    client.post(f"/api/v1/cv/{cv['id']}/apply-to-profile", headers=h, json={})
+
+    profile = client.get("/api/v1/profile", headers=h).json()
+    assert profile["current_occupation"] == "Senior Analyst"
+    assert profile["city"] == "Cape Town"
 
 
 def test_download_and_ownership(client):

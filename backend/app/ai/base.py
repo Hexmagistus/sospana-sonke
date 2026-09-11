@@ -18,6 +18,9 @@ class StructuredCV(TypedDict, total=False):
     linkedin_url: str | None
     github_url: str | None
     portfolio_url: str | None
+    current_occupation: str | None   # from the most recent role, or an explicit title/label line
+    city: str | None                 # from an explicit location label or a "City, Region" line
+    years_experience: int | None     # ONLY from an explicit "N years of experience" statement
     skills: list[dict]          # {name, category}
     languages: list[str]
     education: list[dict]       # {institution, qualification, field_of_study, level}

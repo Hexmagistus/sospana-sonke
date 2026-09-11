@@ -26,6 +26,27 @@ _EDU_HINTS = ["university", "college", "institute", "polytechnic", "tvet", "scho
 
 _EXP_HEADINGS = ["experience", "employment", "work history", "professional experience", "career history"]
 _EDU_HEADINGS = ["education", "qualifications", "academic", "training"]
+_OTHER_HEADINGS = ["skills", "languages", "certifications", "references", "profile", "summary",
+                   "objective", "personal details", "contact", "curriculum vitae", "resume", "cv"]
+
+# Only an EXPLICIT statement counts — never computed from date ranges, which
+# would be an estimate presented as fact.
+_YEARS_EXPERIENCE = re.compile(
+    r"(\d{1,2})\+?\s*years?\s*(?:of\s*)?(?:relevant\s*|professional\s*|working\s*|work\s*)?experience", re.I
+)
+_TITLE_LABEL = re.compile(r"^(?:current\s+)?(?:job\s+)?title\s*[:\-]\s*(.+)$", re.I)
+_LOCATION_LABEL = re.compile(r"^(?:location|city|address|based\s+in)\s*[:\-]\s*(.+)$", re.I)
+_CITY_LINE = re.compile(r"^([A-Z][a-zA-Z'\-]+(?:\s[A-Z][a-zA-Z'\-]+){0,2}),\s*([A-Za-z .]+)$")
+
+
+def _split_role_line(line: str) -> tuple[str | None, str | None]:
+    """'Operations Supervisor at Acme Logistics' -> (position, employer). Only the
+    unambiguous ' at ' pattern is split — a dash or pipe separator is left as one
+    unsplit line rather than guessing which side is the role and which the employer."""
+    m = re.search(r"^(.+?)\s+\bat\b\s+(.+)$", line, re.I)
+    if m:
+        return m.group(1).strip(" -–—|"), m.group(2).strip(" -–—|")
+    return None, line.strip(" -–—|")
 
 
 def _lines(text: str) -> list[str]:
@@ -122,11 +143,62 @@ class HeuristicProvider(AIProvider):
         for ln in sections.get("experience", []):
             # crude "Role at Employer" or "Employer — Role" detection
             if re.search(r"\bat\b|—|–|\|", ln) and len(ln) < 160:
-                experience.append({"employer": ln, "position": None,
+                position, employer = _split_role_line(ln)
+                experience.append({"employer": employer, "position": position,
                                    "responsibilities": None, "technologies": []})
             if len(experience) >= 12:
                 break
         if experience:
             result["work_experience"] = experience
+
+        # Years of experience — only ever from an explicit statement in the text.
+        if m := _YEARS_EXPERIENCE.search(text):
+            result["years_experience"] = int(m.group(1))
+
+        # Current occupation: prefer the position of the most recent (first-listed,
+        # assuming reverse-chronological order) role, then an explicit "Title:" label,
+        # then a short title-like line directly under the candidate's name.
+        occupation = None
+        for exp in experience:
+            if exp.get("position"):
+                occupation = exp["position"]
+                break
+        if not occupation:
+            for ln in lines[:8]:
+                if m := _TITLE_LABEL.match(ln):
+                    occupation = m.group(1).strip()
+                    break
+        if not occupation and result.get("full_name") in lines:
+            name_idx = lines.index(result["full_name"])
+            if name_idx + 1 < len(lines):
+                candidate = lines[name_idx + 1].strip()
+                words = candidate.split()
+                low_candidate = candidate.lower().strip(" :")
+                is_heading = any(low_candidate == h or low_candidate.startswith(h)
+                                 for h in _EXP_HEADINGS + _EDU_HEADINGS + _OTHER_HEADINGS)
+                if (1 < len(words) <= 6 and not candidate.isupper() and not is_heading
+                        and not _EMAIL.search(candidate) and not _URL.search(candidate)
+                        and not _PHONE.search(candidate)):
+                    occupation = candidate
+        if occupation:
+            result["current_occupation"] = occupation
+
+        # City: an explicit label first, then a plain "City, Region/Country" line
+        # near the top of the document (where contact/header details usually sit).
+        city = None
+        for ln in lines[:8]:
+            if m := _LOCATION_LABEL.match(ln):
+                city = m.group(1).split(",")[0].strip()
+                break
+        if not city:
+            for ln in lines[:8]:
+                if (_EMAIL.search(ln) or _URL.search(ln) or _PHONE.search(ln)
+                        or ln == result.get("full_name")):
+                    continue
+                if m := _CITY_LINE.match(ln):
+                    city = m.group(1).strip()
+                    break
+        if city:
+            result["city"] = city
 
         return result

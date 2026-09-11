@@ -27,9 +27,9 @@ function summarize(r: CvApplyResult): string {
   if (r.education_added) parts.push(`${r.education_added} education entr${r.education_added === 1 ? "y" : "ies"}`);
   if (r.work_experience_added) parts.push(`${r.work_experience_added} work experience entr${r.work_experience_added === 1 ? "y" : "ies"}`);
   if (r.certifications_added) parts.push(`${r.certifications_added} certification${r.certifications_added === 1 ? "" : "s"}`);
-  if (r.profile_fields_filled.length) parts.push(`${r.profile_fields_filled.length} contact detail${r.profile_fields_filled.length === 1 ? "" : "s"}`);
+  if (r.profile_fields_filled.length) parts.push(`${r.profile_fields_filled.length} detail${r.profile_fields_filled.length === 1 ? "" : "s"} in "About you" (occupation, city, years of experience, links)`);
   if (parts.length === 0) return "We couldn't find anything new to add — your profile may already cover everything in this CV.";
-  return `Picked up ${parts.join(", ")}. Review the “from CV” items below and confirm what's correct.`;
+  return `Picked up ${parts.join(", ")}. Review the “from CV” items and the About you section below, and correct anything that's off.`;
 }
 
 export function CvUpload({ onApplied }: { onApplied?: () => void }) {

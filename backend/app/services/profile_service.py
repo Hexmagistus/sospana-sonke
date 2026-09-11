@@ -94,7 +94,10 @@ def apply_structured_to_profile(
     added = {"skills": 0, "education": 0, "work_experience": 0, "certifications": 0, "profile_fields": []}
 
     if opts.get("contact_and_links", True):
-        for field in ("linkedin_url", "github_url", "portfolio_url"):
+        # "About you" scalar fields — filled only when the profile doesn't already
+        # have a value there, so a candidate's own edits are never overwritten by
+        # a later re-import.
+        for field in ("linkedin_url", "github_url", "portfolio_url", "current_occupation", "city"):
             val = structured.get(field)
             if val and getattr(profile, field) in (None, ""):
                 setattr(profile, field, val)
@@ -103,6 +106,10 @@ def apply_structured_to_profile(
         if langs and not profile.languages:
             profile.languages = langs
             added["profile_fields"].append("languages")
+        years = structured.get("years_experience")
+        if years and not profile.years_experience:
+            profile.years_experience = years
+            added["profile_fields"].append("years_experience")
 
     if opts.get("skills", True) and structured.get("skills"):
         existing = {s.name.lower() for s in profile.skills}
