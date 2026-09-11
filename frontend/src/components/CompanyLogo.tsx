@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { API_BASE } from "@/lib/api";
 
 // Careers links that sit on a third-party ATS / job board — their favicon is the
 // platform's logo, not the employer's, so we never take the logo from these.
@@ -89,6 +90,7 @@ export function CompanyLogo({
   country,
   gradient,
   logoUrl,
+  id,
 }: {
   name: string;
   website?: string | null;
@@ -99,6 +101,10 @@ export function CompanyLogo({
   // official website. When set, it's tried first — ahead of the Clearbit/
   // favicon auto-guessing below — since it's a real confirmed logo, not a guess.
   logoUrl?: string | null;
+  // The company's id — when set, we ask the backend for the real favicon it
+  // found on this company's own page (GET /companies/{id}/icon, cached there)
+  // before falling back to the guessed Clearbit/favicon chain below.
+  id?: string | null;
 }) {
   const sources = useMemo(() => {
     const guessed: string[] = [];
@@ -120,11 +126,16 @@ export function CompanyLogo({
         guessed.push(...uniqueTlds.map((tld) => `https://logo.clearbit.com/${slug}.${tld}`));
       }
     }
-    // A verified logo URL (lifted directly off the entity's own site) always
-    // comes first; the guessed sources above remain as a fallback chain if it
-    // 404s or fails to load.
-    return logoUrl ? [logoUrl, ...guessed] : guessed;
-  }, [name, website, careersUrl, country, logoUrl]);
+    // Order: a manually-verified logo first, then the real icon the backend
+    // pulled off this company's own page (more trustworthy than a guessed
+    // domain), then the guessed Clearbit/favicon chain as a last resort before
+    // initials.
+    const chain: string[] = [];
+    if (logoUrl) chain.push(logoUrl);
+    if (id) chain.push(`${API_BASE}/companies/${id}/icon`);
+    chain.push(...guessed);
+    return chain;
+  }, [name, website, careersUrl, country, logoUrl, id]);
 
   const [idx, setIdx] = useState(0);
   const useLogo = sources.length > 0 && idx < sources.length;

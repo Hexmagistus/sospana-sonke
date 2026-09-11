@@ -1,6 +1,10 @@
 "use client";
 
 const BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
+// Exposed for building plain <img src> / <a href> URLs that must hit the API
+// directly rather than through the request()/api.* helpers (which attach an
+// Authorization header a browser element can't send) — e.g. a company icon.
+export const API_BASE = BASE;
 const TOKEN_KEY = "sospana_access_token";
 const REFRESH_KEY = "sospana_refresh_token";
 

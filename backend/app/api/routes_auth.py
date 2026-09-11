@@ -33,6 +33,8 @@ def register(request: Request, body: RegisterRequest, db: Session = Depends(get_
         first_name=body.first_name,
         last_name=body.last_name,
         mobile_number=body.mobile_number,
+        preferred_position=body.preferred_position,
+        qualification_name=body.qualification_name,
     )
     db.add(user)
     db.commit()

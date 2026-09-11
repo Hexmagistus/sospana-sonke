@@ -20,6 +20,8 @@ interface RegisterData {
   email: string;
   password: string;
   mobile_number?: string;
+  preferred_position?: string;
+  qualification_name?: string;
 }
 
 const AuthContext = createContext<AuthState | null>(null);

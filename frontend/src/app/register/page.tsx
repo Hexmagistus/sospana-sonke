@@ -9,7 +9,10 @@ import { Card, Field, Input, Button, Alert } from "@/components/ui";
 export default function RegisterPage() {
   const { register } = useAuth();
   const router = useRouter();
-  const [form, setForm] = useState({ first_name: "", last_name: "", email: "", password: "", mobile_number: "" });
+  const [form, setForm] = useState({
+    first_name: "", last_name: "", email: "", password: "", mobile_number: "",
+    preferred_position: "", qualification_name: "",
+  });
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
 
@@ -52,6 +55,20 @@ export default function RegisterPage() {
           </Field>
           <Field label="Mobile number">
             <Input value={form.mobile_number} onChange={(e) => set("mobile_number", e.target.value)} />
+          </Field>
+          <Field label="Preferred post (the role you're looking for)">
+            <Input
+              value={form.preferred_position}
+              onChange={(e) => set("preferred_position", e.target.value)}
+              placeholder="e.g. Process Controller"
+            />
+          </Field>
+          <Field label="Name of qualification">
+            <Input
+              value={form.qualification_name}
+              onChange={(e) => set("qualification_name", e.target.value)}
+              placeholder="e.g. National Diploma in Biotechnology"
+            />
           </Field>
           <Field label="Password (min 8 characters)">
             <Input type="password" value={form.password} onChange={(e) => set("password", e.target.value)} required minLength={8} />

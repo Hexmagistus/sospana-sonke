@@ -95,6 +95,28 @@ def test_report_generate_and_download(client, db_engine):
     assert len(listed) == 1
 
 
+def test_admin_users_list_includes_preferred_post_and_qualification(client, db_engine):
+    client.post("/api/v1/auth/register", json={
+        "email": "candidate@example.com", "password": "Password123!",
+        "first_name": "Thandi", "last_name": "Mokoena",
+        "preferred_position": "Process Controller",
+        "qualification_name": "National Diploma in Biotechnology",
+    })
+    email, password = make_admin(db_engine)
+    admin = client.post("/api/v1/auth/login", json={"email": email, "password": password}).json()
+
+    r = client.get("/api/v1/admin/users", headers=_auth(admin))
+    assert r.status_code == 200
+    row = next(u for u in r.json() if u["email"] == "candidate@example.com")
+    assert row["preferred_position"] == "Process Controller"
+    assert row["qualification_name"] == "National Diploma in Biotechnology"
+
+
+def test_admin_users_requires_admin(client, db_engine):
+    _, tokens = register_and_login(client)
+    assert client.get("/api/v1/admin/users", headers=_auth(tokens)).status_code == 403
+
+
 def test_report_ownership(client, db_engine):
     _, tokens_a = register_and_login(client, email="a@example.com")
     _, tokens_b = register_and_login(client, email="b@example.com")

@@ -41,4 +41,11 @@ class Company(UUIDMixin, TimestampMixin, Base):
     requires_login: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     has_captcha: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
+    # The real favicon/icon URL discovered on this company's own official page
+    # (app/services/logo_service.py) — cached here so a repeat request for the
+    # same company's icon (GET /companies/{id}/icon) never re-fetches their site.
+    # None after a checked attempt means no icon was found there.
+    favicon_url: Mapped[str | None] = mapped_column(Text, nullable=True)
+    favicon_checked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)

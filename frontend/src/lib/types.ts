@@ -4,6 +4,8 @@ export interface User {
   first_name: string;
   last_name: string;
   mobile_number: string | null;
+  preferred_position?: string | null;
+  qualification_name?: string | null;
   email_verified: boolean;
   mfa_enabled: boolean;
   role: string;

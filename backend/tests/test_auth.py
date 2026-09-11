@@ -57,3 +57,25 @@ def test_short_password_rejected(client):
         "email": "x@example.com", "password": "short", "first_name": "X", "last_name": "Y",
     })
     assert r.status_code == 422
+
+
+def test_register_captures_preferred_post_and_qualification(client):
+    r = client.post("/api/v1/auth/register", json={
+        "email": "p@example.com", "password": "Password123!",
+        "first_name": "P", "last_name": "Q",
+        "preferred_position": "Process Controller",
+        "qualification_name": "National Diploma in Biotechnology",
+    })
+    assert r.status_code == 201, r.text
+    user = r.json()["user"]
+    assert user["preferred_position"] == "Process Controller"
+    assert user["qualification_name"] == "National Diploma in Biotechnology"
+
+    # And these two fields are optional — registering without them still works.
+    r2 = client.post("/api/v1/auth/register", json={
+        "email": "q@example.com", "password": "Password123!",
+        "first_name": "A", "last_name": "B",
+    })
+    assert r2.status_code == 201, r2.text
+    assert r2.json()["user"]["preferred_position"] is None
+    assert r2.json()["user"]["qualification_name"] is None

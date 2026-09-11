@@ -8,6 +8,10 @@ class RegisterRequest(BaseModel):
     first_name: str = Field(min_length=1, max_length=100)
     last_name: str = Field(min_length=1, max_length=100)
     mobile_number: str | None = Field(default=None, max_length=30)
+    # Free text, in the candidate's own words — not validated against any list,
+    # since neither is a structured taxonomy yet at registration time.
+    preferred_position: str | None = Field(default=None, max_length=150)
+    qualification_name: str | None = Field(default=None, max_length=200)
 
 
 class LoginRequest(BaseModel):
@@ -37,6 +41,8 @@ class UserResponse(BaseModel):
     first_name: str
     last_name: str
     mobile_number: str | None
+    preferred_position: str | None = None
+    qualification_name: str | None = None
     email_verified: bool
     mfa_enabled: bool
     role: str

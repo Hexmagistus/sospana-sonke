@@ -12,6 +12,8 @@ interface AdminUser {
   email: string;
   name: string;
   mobile_number: string | null;
+  preferred_position: string | null;
+  qualification_name: string | null;
   role: string;
   email_verified: boolean;
   is_active: boolean;
@@ -111,6 +113,8 @@ function AdminInner() {
                 <th className="py-2 pr-4">Email</th>
                 <th className="py-2 pr-4">Name</th>
                 <th className="py-2 pr-4">Mobile</th>
+                <th className="py-2 pr-4">Preferred post</th>
+                <th className="py-2 pr-4">Qualification</th>
                 <th className="py-2 pr-4">Profile</th>
                 <th className="py-2 pr-4">Joined</th>
               </tr>
@@ -121,6 +125,8 @@ function AdminInner() {
                   <td className="py-2 pr-4 font-medium text-navy">{u.email}</td>
                   <td className="py-2 pr-4">{u.name}</td>
                   <td className="py-2 pr-4">{u.mobile_number || "—"}</td>
+                  <td className="py-2 pr-4">{u.preferred_position || "—"}</td>
+                  <td className="py-2 pr-4">{u.qualification_name || "—"}</td>
                   <td className="py-2 pr-4">
                     <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${u.has_profile ? "bg-brand/10 text-brand-dark" : "bg-gray-100 text-gray-500"}`}>
                       {u.has_profile ? "Yes" : "No"}
@@ -130,7 +136,7 @@ function AdminInner() {
                 </tr>
               ))}
               {users.length === 0 && (
-                <tr><td colSpan={5} className="py-3 text-gray-400">No users yet.</td></tr>
+                <tr><td colSpan={7} className="py-3 text-gray-400">No users yet.</td></tr>
               )}
             </tbody>
           </table>

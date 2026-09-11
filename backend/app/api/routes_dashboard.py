@@ -40,6 +40,8 @@ def list_users(db: Session = Depends(get_db), limit: int = 1000):
             "email": u.email,
             "name": f"{u.first_name} {u.last_name}".strip(),
             "mobile_number": u.mobile_number,
+            "preferred_position": u.preferred_position,
+            "qualification_name": u.qualification_name,
             "role": u.role,
             "email_verified": u.email_verified,
             "is_active": u.is_active,

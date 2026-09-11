@@ -3,9 +3,10 @@
 Listing is available to any authenticated user; import, edit, and URL testing are
 administrator-only (role-based access control).
 """
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Query, status
+from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
 from app.core.deps import get_current_user, require_admin
@@ -16,7 +17,12 @@ from app.schemas.company import (
     CompanyResponse, CompanyImportResult, UrlTestResult, AutomationPolicyRequest,
 )
 from app.services.csv_import import import_companies_from_csv
+from app.services.logo_service import discover_favicon
 from app.services.url_tester import test_url, status_from_result
+
+# How long a discovered (or "nothing found") icon result stays cached on the
+# company row before we try that company's site again.
+_FAVICON_RECHECK = timedelta(days=30)
 
 router = APIRouter(prefix="/companies", tags=["companies"])
 
@@ -37,6 +43,37 @@ def list_companies(
         q = q.filter(Company.active == active)
     q = q.order_by(Company.company_name).offset(offset).limit(limit)
     return [CompanyResponse.model_validate(c) for c in q.all()]
+
+
+@router.get("/{company_id}/icon")
+async def company_icon(company_id: str, db: Session = Depends(get_db)):
+    """Redirect to the real icon pulled directly from this company's own page —
+    not a guessed domain. Cached on the company row (see Company.favicon_url) so
+    a given company's site is fetched at most once every 30 days.
+
+    Intentionally unauthenticated: a plain <img src> can't send an Authorization
+    header, and this only ever exposes a company's own already-public favicon —
+    nothing about Sospana Sonke's data.
+    """
+    company = db.get(Company, company_id)
+    if company is None or company.deleted_at is not None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Company not found.")
+
+    # SQLite (used in tests/dev) drops tzinfo from DateTime(timezone=True) columns
+    # on read-back, so normalise before comparing rather than assuming Postgres's
+    # behaviour everywhere.
+    checked_at = company.favicon_checked_at
+    if checked_at is not None and checked_at.tzinfo is None:
+        checked_at = checked_at.replace(tzinfo=timezone.utc)
+    stale = checked_at is None or datetime.now(timezone.utc) - checked_at > _FAVICON_RECHECK
+    if stale:
+        company.favicon_url = await discover_favicon(company.official_website, company.careers_url)
+        company.favicon_checked_at = datetime.now(timezone.utc)
+        db.commit()
+
+    if not company.favicon_url:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No icon found for this company.")
+    return RedirectResponse(company.favicon_url, status_code=status.HTTP_302_FOUND)
 
 
 @router.post("/import", response_model=CompanyImportResult, dependencies=[Depends(require_admin)])

@@ -273,6 +273,7 @@ function CompaniesDirectoryInner() {
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-start gap-3">
                     <CompanyLogo
+                      id={c.id}
                       name={c.company_name}
                       website={c.official_website}
                       careersUrl={c.careers_url}
