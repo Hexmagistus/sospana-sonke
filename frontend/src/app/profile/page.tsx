@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import Guard from "@/components/Guard";
 import { api } from "@/lib/api";
 import { Card, Field, Input, Button, Alert, Spinner, Badge, Skeleton } from "@/components/ui";
@@ -92,7 +93,8 @@ function ProfileInner() {
       <div>
         <h1 className="text-2xl font-bold text-navy">My profile</h1>
         <p className="mt-1 text-sm text-gray-500">
-          Kept up to date, this is what powers stronger job matches and tailored applications.
+          Kept up to date, this is what powers stronger job matches and tailored applications.{" "}
+          <Link href="/master-cv" className="font-medium text-brand hover:underline">View my Master CV →</Link>
         </p>
       </div>
       {msg && <Alert kind="success">{msg}</Alert>}

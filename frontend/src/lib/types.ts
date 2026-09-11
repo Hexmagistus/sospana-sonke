@@ -146,6 +146,120 @@ export interface Company {
   notes: string | null;
 }
 
+// ---- AI CV Enhancement / Job-Aligned CV Builder ("Tailor my CV to a job") ----
+
+export interface TemplateInfo {
+  id: string;
+  label: string;
+  description: string;
+}
+
+export interface RequirementMatch {
+  text: string;
+  note: string;
+}
+
+export interface JobAnalysisSummary {
+  id: string;
+  job_title: string;
+  company_name: string | null;
+  match_score: number;
+  band: string;
+  decision: string;
+  ats_score: number | null;
+  quality_score: number | null;
+  readiness_score: number | null;
+  readiness_label: string | null;
+  template: string;
+  status: string;
+  date_applied: string | null;
+  cv_version_id: string | null;
+  cover_letter_id: string | null;
+  created_at: string;
+}
+
+export interface JobAnalysisDetail extends JobAnalysisSummary {
+  job_description: string;
+  extracted: {
+    title: string;
+    seniority: string;
+    keywords: string[];
+    action_verbs: string[];
+    industries: string[];
+    requirement_counts: Record<string, number>;
+    requirements: { text: string; kind: string; category: string }[];
+  };
+  sub_scores: Record<string, number>;
+  confidence: string;
+  hard_ok: boolean;
+  strong_matches: RequirementMatch[];
+  partial_matches: RequirementMatch[];
+  missing_requirements: RequirementMatch[];
+  ats_breakdown: Record<string, number> | null;
+  quality_breakdown: Record<string, number> | null;
+  quality_suggestions: string[] | null;
+  recommended_action: string | null;
+  notes: string | null;
+}
+
+export interface FactCheck {
+  ok: boolean;
+  violations: string[];
+}
+
+export interface CvExperience {
+  employer?: string | null;
+  position?: string | null;
+  start_date?: string | null;
+  end_date?: string | null;
+  is_current?: boolean;
+  responsibilities?: string | null;
+  achievements?: string | null;
+  [k: string]: unknown;
+}
+
+export interface CvData {
+  full_name: string;
+  email?: string | null;
+  phone?: string | null;
+  city?: string | null;
+  country?: string | null;
+  linkedin_url?: string | null;
+  github_url?: string | null;
+  portfolio_url?: string | null;
+  summary: string;
+  skills: string[];
+  experience: CvExperience[];
+  education: Record<string, unknown>[];
+  certifications: Record<string, unknown>[];
+  languages: string[];
+  drivers_licence?: string | null;
+  target_vacancy_title?: string | null;
+}
+
+export interface AnalyzeJobResult {
+  job_analysis: JobAnalysisDetail;
+  draft_cv: CvData;
+  fact_check: FactCheck;
+}
+
+export interface MasterCv {
+  full_name: string;
+  email?: string | null;
+  phone?: string | null;
+  current_occupation?: string | null;
+  years_experience?: number | null;
+  industries?: string[];
+  skills: string[];
+  skills_detailed?: { name: string; category: string; confirmed_by_candidate: boolean }[];
+  experience: (CvExperience & { confirmed_by_candidate?: boolean })[];
+  education: (Record<string, unknown> & { confirmed_by_candidate?: boolean })[];
+  certifications: (Record<string, unknown> & { confirmed_by_candidate?: boolean })[];
+  professional_memberships?: string[];
+  languages: string[];
+  [k: string]: unknown;
+}
+
 export interface Vacancy {
   id: string;
   company_id: string;

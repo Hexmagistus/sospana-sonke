@@ -41,6 +41,17 @@ def update_profile(body: ProfileUpdate, db: Session = Depends(get_db), user: Use
     return ProfileResponse.model_validate(profile)
 
 
+@router.get("/master-cv")
+def get_master_cv(db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    """The candidate's Master CV: the complete, verified career record every
+    tailored CV is generated from (blueprint: Master CV, never auto-
+    overwritten). Read-only here — edit via /profile and the child-record
+    endpoints below; generating a tailored CV never writes back to this."""
+    from app.services.profile_service import get_full_profile_facts
+    facts, _ = get_full_profile_facts(db, user)
+    return facts
+
+
 def _register_child_crud(model: Type[Base], create_schema: Type[BaseModel],
                          response_schema: Type[BaseModel], path: str, tag_name: str):
     """Attach list/create/update/delete for a profile child model, ownership-scoped."""

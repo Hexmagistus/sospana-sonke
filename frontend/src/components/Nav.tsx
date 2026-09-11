@@ -9,6 +9,7 @@ import { api } from "@/lib/api";
 const LINKS = [
   { href: "/jobs", label: "Find jobs" },
   { href: "/companies", label: "Companies" },
+  { href: "/tailor", label: "CV Builder" },
   { href: "/profile", label: "Profile" },
   { href: "/notifications", label: "Notifications" },
   { href: "/security", label: "Security" },
