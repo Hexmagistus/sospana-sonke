@@ -7,6 +7,7 @@ import { Card, Input, Button, Alert, Spinner } from "@/components/ui";
 import { Banner } from "@/components/Banner";
 import { NdebeleStrip } from "@/components/NdebeleStrip";
 import { CompanyLogo, isAtsPortal } from "@/components/CompanyLogo";
+import { COUNTRY_FLAGS } from "@/lib/countryFlags";
 import type { Company, Vacancy } from "@/lib/types";
 
 const AVATAR_GRADIENTS = [
@@ -17,14 +18,6 @@ const AVATAR_GRADIENTS = [
   "from-coral to-gold",
   "from-navy to-brand",
 ];
-
-const COUNTRY_FLAGS: Record<string, string> = {
-  "South Africa": "🇿🇦", "Lesotho": "🇱🇸", "Botswana": "🇧🇼", "Namibia": "🇳🇦",
-  "Eswatini": "🇸🇿", "Zimbabwe": "🇿🇼", "Mozambique": "🇲🇿",
-  "Malawi": "🇲🇼", "Mauritius": "🇲🇺", "Zambia": "🇿🇲",
-  "Tanzania": "🇹🇿", "Angola": "🇦🇴",
-  "Madagascar": "🇲🇬", "DR Congo": "🇨🇩", "Seychelles": "🇸🇨", "Comoros": "🇰🇲",
-};
 
 // Verified logo images lifted directly from each department's own official
 // website (not a favicon/Clearbit guess) -- keyed by exact company_name.

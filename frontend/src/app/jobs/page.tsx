@@ -6,15 +6,8 @@ import Guard from "@/components/Guard";
 import { api } from "@/lib/api";
 import { Card, Input, Button, Spinner, Alert, Skeleton } from "@/components/ui";
 import { Banner } from "@/components/Banner";
+import { COUNTRY_FLAGS } from "@/lib/countryFlags";
 import type { Company, Vacancy } from "@/lib/types";
-
-const COUNTRY_FLAGS: Record<string, string> = {
-  "South Africa": "🇿🇦", "Lesotho": "🇱🇸", "Botswana": "🇧🇼", "Namibia": "🇳🇦",
-  "Eswatini": "🇸🇿", "Zimbabwe": "🇿🇼", "Mozambique": "🇲🇿",
-  "Malawi": "🇲🇼", "Mauritius": "🇲🇺", "Zambia": "🇿🇲",
-  "Tanzania": "🇹🇿", "Angola": "🇦🇴",
-  "Madagascar": "🇲🇬", "DR Congo": "🇨🇩", "Seychelles": "🇸🇨", "Comoros": "🇰🇲",
-};
 
 type Accent = "sky" | "teal" | "gold" | "purple" | "coral" | "navy";
 const ACCENTS: Accent[] = ["sky", "teal", "gold", "purple", "coral", "navy"];
