@@ -8,6 +8,7 @@ import { api } from "@/lib/api";
 import { Card, Input, Button, Alert, Spinner, Select } from "@/components/ui";
 import { Banner } from "@/components/Banner";
 import { NdebeleStrip } from "@/components/NdebeleStrip";
+import { CircuitOverlay, GlowFrame } from "@/components/HighTech";
 import { CompanyLogo, isAtsPortal } from "@/components/CompanyLogo";
 import { CompanyActionsRow, TrendingBadge, ShortlistStar } from "@/components/CompanyActions";
 import { CompanyPreviewModal } from "@/components/CompanyPreviewModal";
@@ -228,6 +229,7 @@ function CompaniesDirectoryInner() {
 
   return (
     <div className="relative">
+      <CircuitOverlay className="-z-10 opacity-70" opacity={0.07} stroke="#0b1f3a" dotColor="#f5b301" />
       {/* Full-page decoration: the selected country's flag, watermarked across the page */}
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-0 overflow-hidden">
         <span className="absolute -right-16 top-16 select-none text-[18rem] leading-none opacity-[0.06]">{flag}</span>
@@ -237,7 +239,7 @@ function CompaniesDirectoryInner() {
 
       <div className="relative z-10 space-y-6">
         <div className="overflow-hidden rounded-2xl shadow-sm">
-          <NdebeleStrip id="companies-hero-top" palette="vivid" />
+          <NdebeleStrip id="companies-hero-top" palette="vivid" glow />
           <Banner
             variant="companies"
             eyebrow="Direct to employers"
@@ -245,14 +247,14 @@ function CompaniesDirectoryInner() {
             subtitle={
               <>
                 Browse the full directory and apply on each employer&apos;s official careers page.{" "}
-                <strong className="text-white"><AnimatedNumber value={companies.length} /></strong> companies ·{" "}
+                <strong className="text-white"><AnimatedNumber value={companies.length} /></strong> companies across Africa ·{" "}
                 <strong className="text-white"><AnimatedNumber value={withLinks} /></strong> with direct careers links.
               </>
             }
           >
-            <Button variant="secondary" onClick={surpriseMe}>🎲 Surprise me</Button>
+            <Button variant="secondary" glow onClick={surpriseMe}>🎲 Surprise me</Button>
           </Banner>
-          <NdebeleStrip id="companies-hero-bottom" palette="vivid" flip />
+          <NdebeleStrip id="companies-hero-bottom" palette="vivid" flip glow />
         </div>
 
         <div className="flex items-center gap-4 rounded-2xl border border-black/5 bg-white/70 px-5 py-4 shadow-sm backdrop-blur-sm">
@@ -266,6 +268,7 @@ function CompaniesDirectoryInner() {
           </div>
         </div>
 
+        <GlowFrame ringClassName="rounded-2xl">
         <Card>
           {countries.length > 1 && (
             <div className="mb-3 flex flex-wrap items-center gap-2 border-b border-gray-100 pb-3">
@@ -284,14 +287,14 @@ function CompaniesDirectoryInner() {
               </div>
               <button
                 onClick={() => setShortlistOnly((v) => !v)}
-                className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-semibold transition ${
+                className={`flex shrink-0 flex-col items-center rounded-xl px-3.5 py-1.5 leading-tight transition ${
                   shortlistOnly ? "bg-gold text-white shadow-sm" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                 }`}
               >
-                ⭐ My shortlist
-                <span className={`rounded-full px-1.5 py-0.5 text-[11px] font-bold tabular-nums ${
-                  shortlistOnly ? "bg-white/20 text-white" : "bg-white text-gray-500"
-                }`}>{shortlistIds.size}</span>
+                <span className="text-sm font-semibold">⭐ My shortlist</span>
+                <span className={`text-[11px] font-bold tabular-nums ${shortlistOnly ? "text-white/85" : "text-gray-500"}`}>
+                  {shortlistIds.size} saved
+                </span>
               </button>
             </div>
           )}
@@ -331,6 +334,7 @@ function CompaniesDirectoryInner() {
             </label>
           </div>
         </Card>
+        </GlowFrame>
 
         <p className="text-sm text-gray-500">
           Showing <strong className="text-navy">{shownCompanies.length}</strong> of{" "}
