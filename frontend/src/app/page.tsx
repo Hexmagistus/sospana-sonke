@@ -474,8 +474,6 @@ export default function Home() {
   const { user, loading } = useAuth();
   const router = useRouter();
   const [scrolled, setScrolled] = useState(false);
-  const [showAllLive, setShowAllLive] = useState(false);
-  const [showAllRanking, setShowAllRanking] = useState(false);
   const LIVE_PREVIEW = 8;
   const RANKING_PREVIEW = 10;
 
@@ -782,30 +780,9 @@ export default function Home() {
                 ))}
               </div>
 
-              {/* Every remaining country lives here, collapsed by default to keep
-                  the page short — the button below expands it in place. */}
-              <div
-                className="grid overflow-hidden transition-all duration-500 ease-out"
-                style={{ gridTemplateRows: showAllLive ? "1fr" : "0fr", opacity: showAllLive ? 1 : 0 }}
-              >
-                <div className="min-h-0">
-                  <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-                    {LIVE.slice(LIVE_PREVIEW).map((c, i) => (
-                      <LiveCountryCard key={c.name} c={c} i={i + LIVE_PREVIEW} />
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => setShowAllLive((v) => !v)}
-                aria-expanded={showAllLive}
-                className="group mt-4 inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-4 py-2 text-xs font-bold uppercase tracking-wider text-white backdrop-blur-sm transition hover:border-white/40 hover:bg-white/20"
-              >
-                {showAllLive ? "Show fewer countries" : `Show all ${LIVE.length} countries`}
-                <span className={`inline-block transition-transform duration-300 ${showAllLive ? "rotate-180" : ""}`} aria-hidden="true">▾</span>
-              </button>
+              {/* Every other country lives in this dropdown, not as more big
+                  cards on the page -- click to open, click again to close. */}
+              <CountriesDropdown live={LIVE.slice(LIVE_PREVIEW)} soon={SOON} />
             </div>
 
             <p className="mt-5 text-sm font-semibold text-blue-100">
@@ -829,59 +806,13 @@ export default function Home() {
                   })}
                 </div>
 
-                <div
-                  className="grid overflow-hidden transition-all duration-500 ease-out"
-                  style={{ gridTemplateRows: showAllRanking ? "1fr" : "0fr", opacity: showAllRanking ? 1 : 0 }}
-                >
-                  <div className="min-h-0">
-                    <div className="mt-2.5 space-y-2.5">
-                      {LIVE.slice(RANKING_PREVIEW).map((c, i) => {
-                        const max = LIVE[0].count || 1;
-                        const pct = Math.max(6, Math.round((c.count / max) * 100));
-                        const cols = [C.gold, C.mint, C.sky, C.green, C.sun, C.plum, C.red, C.teal, C.amber, C.mint, C.sky, C.green, C.gold, C.sun, C.teal, C.plum];
-                        const col = cols[(i + RANKING_PREVIEW) % cols.length];
-                        return (
-                          <BarRow key={c.name} name={c.name} flag={c.flag} pct={pct} count={c.count} color={col} delay={i * 40} />
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => setShowAllRanking((v) => !v)}
-                  aria-expanded={showAllRanking}
-                  className="mt-4 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-4 py-1.5 text-[11px] font-bold uppercase tracking-wider text-blue-100 transition hover:border-white/40 hover:bg-white/10"
-                >
-                  {showAllRanking ? "Show fewer" : `Show full ranking (${LIVE.length})`}
-                  <span className={`inline-block transition-transform duration-300 ${showAllRanking ? "rotate-180" : ""}`} aria-hidden="true">▾</span>
-                </button>
-
-                <p className="mt-3 text-[11px] text-blue-200">South Africa leads today; as we verify more employers across each market, this picture will keep shifting.</p>
+                <p className="mt-3 text-[11px] text-blue-200">
+                  South Africa leads today; as we verify more employers across each market, this picture will keep shifting.
+                  The full ranking for all {LIVE.length} countries is in the dropdown above.
+                </p>
               </div>
             </Reveal>
 
-            {/* Coming soon */}
-            {SOON.length > 0 && (
-              <Reveal delay={140}>
-                <div className="mt-5">
-                  <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-blue-200">Coming soon across Africa</p>
-                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                    {SOON.map((c) => (
-                      <div key={c.name} className="rounded-xl border border-dashed border-white/20 bg-white/5 p-3 text-center transition hover:border-white/40 hover:bg-white/10">
-                        <div className="text-3xl grayscale-[0.3] opacity-90">{c.flag}</div>
-                        <div className="mt-1 text-sm font-semibold">{c.name}</div>
-                        <div className="mt-1 inline-flex items-center gap-1 rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-semibold text-blue-100">
-                          <span className="h-1.5 w-1.5 animate-pulse-glow rounded-full" style={{ background: C.sky }} />
-                          Coming soon
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </Reveal>
-            )}
           </div>
         </div>
       </section>
@@ -1007,6 +938,73 @@ function LiveCountryCard({ c, i }: { c: { name: string; flag: string; count: num
         </div>
       </div>
     </Reveal>
+  );
+}
+
+/* A real dropdown -- click the button, a compact scrollable panel of every
+   remaining country drops open below it (rows, not big cards), click again
+   to close. This is what actually saves space, instead of just adding more
+   full-size cards to the page. */
+function CountriesDropdown({
+  live,
+  soon,
+}: {
+  live: { name: string; flag: string; count: number; pending: boolean }[];
+  soon: { name: string; flag: string }[];
+}) {
+  const [open, setOpen] = useState(false);
+  const total = live.length + soon.length;
+  if (total === 0) return null;
+  return (
+    <div className="mt-4">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        className="inline-flex w-full items-center justify-between gap-3 rounded-xl border border-white/20 bg-white/10 px-4 py-3 text-sm font-bold text-white backdrop-blur-sm transition hover:border-white/40 hover:bg-white/20 sm:w-auto sm:min-w-[22rem]"
+      >
+        <span className="inline-flex items-center gap-2">
+          <span className="relative flex h-2 w-2">
+            <span className="absolute inline-flex h-full w-full animate-node-pulse rounded-full bg-white/60" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-white" />
+          </span>
+          View all {total} other countries
+        </span>
+        <span className={`inline-block text-base transition-transform duration-300 ${open ? "rotate-180" : ""}`} aria-hidden="true">▾</span>
+      </button>
+
+      <div
+        className="grid overflow-hidden transition-all duration-400 ease-out"
+        style={{ gridTemplateRows: open ? "1fr" : "0fr", opacity: open ? 1 : 0 }}
+      >
+        <div className="min-h-0">
+          <div className="mt-3 max-h-[26rem] overflow-y-auto rounded-xl border border-white/15 bg-black/30 p-2 backdrop-blur-sm sm:max-w-2xl">
+            <div className="grid grid-cols-1 gap-0.5 sm:grid-cols-2">
+              {live.map((c) => (
+                <div key={c.name} className="flex items-center justify-between gap-2 rounded-lg px-2.5 py-2 text-sm transition-colors hover:bg-white/10">
+                  <span className="flex min-w-0 items-center gap-2">
+                    <span className="text-lg leading-none">{c.flag}</span>
+                    <span className="truncate font-medium">{c.name}</span>
+                  </span>
+                  <span className="shrink-0 whitespace-nowrap font-mono text-xs font-semibold" style={{ color: C.mint }}>
+                    {c.count} {c.count === 1 ? "employer" : "employers"}
+                  </span>
+                </div>
+              ))}
+              {soon.map((c) => (
+                <div key={c.name} className="flex items-center justify-between gap-2 rounded-lg px-2.5 py-2 text-sm opacity-60">
+                  <span className="flex min-w-0 items-center gap-2">
+                    <span className="text-lg leading-none grayscale-[0.3]">{c.flag}</span>
+                    <span className="truncate font-medium">{c.name}</span>
+                  </span>
+                  <span className="shrink-0 whitespace-nowrap text-[10px] font-semibold uppercase tracking-wide text-blue-200">Coming soon</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 
