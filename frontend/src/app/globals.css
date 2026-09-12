@@ -70,6 +70,40 @@ main h1::after {
 }
 .animate-pulse-glow { animation: pulse-glow 3.5s ease-in-out infinite; }
 
+/* ------------------------------------------------------------------ */
+/* Afro-futurist / hightech accents -- slow rotating holo-frames,      */
+/* scanner sweeps, shimmering data-bars and pulsing sensor nodes.      */
+/* ------------------------------------------------------------------ */
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.animate-spin-slow { animation: spin-slow 7s linear infinite; }
+
+@keyframes scan-sweep {
+  0% { transform: translateY(-120%); opacity: 0; }
+  10% { opacity: 1; }
+  85% { opacity: 1; }
+  100% { transform: translateY(520%); opacity: 0; }
+}
+.animate-scan-sweep { animation: scan-sweep 7s ease-in-out infinite; }
+
+@keyframes shimmer-sweep {
+  0% { background-position: -140% 0; }
+  100% { background-position: 240% 0; }
+}
+.animate-shimmer {
+  background-size: 200% 100%;
+  animation: shimmer-sweep 2.4s ease-in-out infinite;
+}
+
+@keyframes node-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(245, 179, 1, 0.45); }
+  50% { box-shadow: 0 0 0 7px rgba(245, 179, 1, 0); }
+}
+.animate-node-pulse { animation: node-pulse 2.2s ease-in-out infinite; }
+
 /* Subtle fractal-noise grain for premium texture on dark hero panels. */
 .bg-noise {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
@@ -80,7 +114,11 @@ main h1::after {
   .animate-float-slow,
   .animate-marquee,
   .animate-gradient-text,
-  .animate-pulse-glow {
+  .animate-pulse-glow,
+  .animate-spin-slow,
+  .animate-scan-sweep,
+  .animate-shimmer,
+  .animate-node-pulse {
     animation: none !important;
   }
 }

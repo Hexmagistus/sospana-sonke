@@ -132,6 +132,62 @@ function CursorGlow({ color = "rgba(245,179,1,0.28)" }: { color?: string }) {
   );
 }
 
+/* Faint circuit-board / network-mesh overlay -- the hightech layer that sits
+   quietly behind the platform's existing Ndebele patterns and savanna art,
+   fusing "connecting talent to opportunity" with a sensor-grid aesthetic. */
+function CircuitOverlay({ className = "", opacity = 0.16 }: { className?: string; opacity?: number }) {
+  const nodes: [number, number][] = [
+    [30, 26], [130, 14], [220, 42], [66, 84], [182, 96], [274, 62],
+    [18, 132], [116, 146], [242, 140], [322, 34], [332, 114], [78, 20],
+  ];
+  const edges: [number, number][] = [
+    [0, 1], [1, 2], [1, 3], [3, 4], [4, 5], [3, 6], [6, 7], [7, 8],
+    [2, 9], [9, 10], [4, 10], [0, 11], [11, 1],
+  ];
+  return (
+    <svg
+      className={`pointer-events-none absolute inset-0 h-full w-full ${className}`}
+      viewBox="0 0 360 180"
+      preserveAspectRatio="xMidYMid slice"
+      aria-hidden="true"
+      style={{ opacity }}
+    >
+      {edges.map(([a, b], i) => (
+        <line key={i} x1={nodes[a][0]} y1={nodes[a][1]} x2={nodes[b][0]} y2={nodes[b][1]} stroke="#fff" strokeWidth="0.6" />
+      ))}
+      {nodes.map(([x, y], i) => (
+        <circle key={i} cx={x} cy={y} r={i % 3 === 0 ? 2.6 : 1.4} fill={i % 3 === 0 ? C.gold : "#fff"} />
+      ))}
+    </svg>
+  );
+}
+
+/* Slow-rotating tri-colour holo-frame -- wraps a panel in a thin conic-gradient
+   ring (gold → green → red, echoing the platform's palette) for a hightech,
+   "powered on" edge-glow. The wrapped child supplies its own background. */
+function GlowFrame({
+  children,
+  className = "",
+  colors = [C.gold, C.green, C.red, C.sky, C.gold],
+  ringClassName = "rounded-[2rem]",
+}: {
+  children: ReactNode;
+  className?: string;
+  colors?: string[];
+  ringClassName?: string;
+}) {
+  return (
+    <div className={`relative p-[2px] ${ringClassName} ${className}`}>
+      <div
+        className={`absolute inset-0 animate-spin-slow ${ringClassName}`}
+        style={{ background: `conic-gradient(from 0deg, ${colors.join(",")})`, opacity: 0.8 }}
+        aria-hidden="true"
+      />
+      <div className={`relative ${ringClassName}`}>{children}</div>
+    </div>
+  );
+}
+
 /* Southern-sky starfield with a hand-placed Southern Cross — the sky that
    actually sits over the region this platform serves. */
 function Starfield({ className = "" }: { className?: string }) {
@@ -442,8 +498,15 @@ export default function Home() {
       >
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
           <div className="flex items-center gap-3">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo-mark.png" alt="Sospana Sonke" className="h-10 w-10 rounded-xl object-cover shadow-md" />
+            <div className="relative">
+              <div
+                className="absolute inset-0 -z-10 animate-pulse-glow rounded-xl blur-md"
+                style={{ background: C.gold, opacity: 0.45 }}
+                aria-hidden="true"
+              />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/logo-mark.png" alt="Sospana Sonke" className="h-10 w-10 rounded-xl object-cover shadow-md" />
+            </div>
             <span className="font-display text-xl font-bold tracking-tight" style={{ color: C.navy }}>
               Sospana&nbsp;<span style={{ color: C.gold }}>Sonke</span>
             </span>
@@ -470,6 +533,12 @@ export default function Home() {
           style={{ background: `radial-gradient(120% 120% at 85% 8%, #1a4f7a 0%, ${C.navy} 45%, ${C.ink} 100%)` }}
         >
           <Starfield className="opacity-80" />
+          <CircuitOverlay className="opacity-60" opacity={0.14} />
+          <div
+            className="pointer-events-none absolute inset-x-0 top-0 h-28 animate-scan-sweep"
+            style={{ background: `linear-gradient(180deg, transparent, ${C.mint}2e, transparent)` }}
+            aria-hidden="true"
+          />
           <CursorGlow />
           {/* decorative orbs */}
           <div
@@ -581,23 +650,30 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Trust strip */}
+      {/* Trust strip — HUD-style readout panel */}
       <section className="mx-auto max-w-6xl px-4">
         <Reveal delay={80}>
-          <div className="-mt-6 grid grid-cols-2 gap-3 rounded-2xl bg-white p-4 shadow-lg sm:grid-cols-4">
-            {[
-              [TOTAL_EMPLOYERS, "+", "Employers tracked", C.red],
-              [null, "Direct", "To official careers pages", C.teal],
-              [null, "SOE", "Vacancies across South Africa", C.green],
-              [null, "Free", "Full access, no charge", C.gold],
-            ].map(([n, suffixOrLabel, l, col], i) => (
-              <div key={l as string} className="px-3 py-2 text-center">
-                <div className="font-display text-2xl font-extrabold" style={{ color: col as string }}>
-                  {n === null ? (suffixOrLabel as string) : <CountUp target={n as number} suffix={suffixOrLabel as string} duration={1200 + i * 150} />}
+          <div className="relative -mt-6 overflow-hidden rounded-2xl p-4 shadow-lg" style={{ background: `linear-gradient(120deg,${C.ink},${C.navy})` }}>
+            <CircuitOverlay className="opacity-40" opacity={0.14} />
+            <div className="pointer-events-none absolute inset-0 bg-noise opacity-[0.04]" />
+            <div className="relative grid grid-cols-2 gap-3 sm:grid-cols-4">
+              {[
+                [TOTAL_EMPLOYERS, "+", "Employers tracked", C.gold],
+                [null, "Direct", "To official careers pages", C.mint],
+                [null, "SOE", "Vacancies across South Africa", C.green],
+                [null, "Free", "Full access, no charge", C.sky],
+              ].map(([n, suffixOrLabel, l, col], i) => (
+                <div key={l as string} className="rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-center backdrop-blur-sm">
+                  <div
+                    className="font-mono text-2xl font-extrabold tracking-tight"
+                    style={{ color: col as string, textShadow: `0 0 14px ${col as string}66` }}
+                  >
+                    {n === null ? (suffixOrLabel as string) : <CountUp target={n as number} suffix={suffixOrLabel as string} duration={1200 + i * 150} />}
+                  </div>
+                  <div className="mt-0.5 text-[11px] font-medium uppercase tracking-wider text-blue-200">{l as string}</div>
                 </div>
-                <div className="text-xs font-medium text-gray-500">{l as string}</div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </Reveal>
       </section>
@@ -611,8 +687,15 @@ export default function Home() {
         ].map(([ic, t, d, col], i) => (
           <Reveal key={t as string} delay={i * 120}>
             <TiltCard>
-              <div className="group rounded-2xl bg-white p-7 shadow-sm ring-1 ring-black/5 transition-shadow hover:shadow-xl" style={{ borderTop: `5px solid ${col}` }}>
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl text-2xl transition-transform group-hover:scale-110" style={{ background: `${col}1a` }}>
+              <div
+                className="group rounded-2xl bg-white p-7 shadow-sm ring-1 ring-black/5 transition-shadow duration-300 hover:shadow-xl"
+                style={{ borderTop: `5px solid ${col}`, boxShadow: `0 10px 34px -18px ${col}88` }}
+              >
+                <div
+                  className="relative flex h-12 w-12 items-center justify-center rounded-xl text-2xl transition-transform group-hover:scale-110"
+                  style={{ background: `${col}1a` }}
+                >
+                  <span className="absolute inset-0 -z-10 rounded-xl opacity-0 blur-md transition-opacity duration-300 group-hover:opacity-70" style={{ background: col }} aria-hidden="true" />
                   {ic}
                 </div>
                 <h3 className="mt-4 font-display text-lg font-bold" style={{ color: C.navy }}>{t}</h3>
@@ -628,6 +711,7 @@ export default function Home() {
         <NdebeleDiamonds id="nd-wonders-top" />
         <div className="relative overflow-hidden px-6 py-12 text-white shadow-xl sm:px-12" style={{ background: `linear-gradient(135deg,${C.ink},#123a2b 60%,#1d5a3a)` }}>
           <div className="pointer-events-none absolute inset-0 bg-noise opacity-[0.05]" />
+          <CircuitOverlay className="opacity-50" opacity={0.12} />
           <div
             className="pointer-events-none absolute -left-10 -top-10 h-56 w-56 animate-float rounded-full blur-3xl"
             style={{ background: `radial-gradient(circle,${C.sun},transparent 70%)`, opacity: 0.35 }}
@@ -643,7 +727,12 @@ export default function Home() {
             {WONDERS.map((w, i) => (
               <Reveal key={w.name} delay={(i % 6) * 70}>
                 <TiltCard>
-                  <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-center backdrop-blur-sm transition-colors hover:border-white/25 hover:bg-white/10">
+                  <div className="group overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-4 text-center backdrop-blur-sm transition-colors hover:border-white/25 hover:bg-white/10">
+                    <div
+                      className="-mx-4 -mt-4 mb-3 h-1 animate-shimmer opacity-70 transition-opacity group-hover:opacity-100"
+                      style={{ backgroundImage: `linear-gradient(90deg,${C.gold},${C.green},${C.red},${C.gold})` }}
+                      aria-hidden="true"
+                    />
                     <svg viewBox="0 0 72 52" className="mx-auto h-14 w-full" aria-hidden="true">{w.art}</svg>
                     <div className="mt-2 text-sm font-bold">{w.name}</div>
                     <div className="text-[11px] text-blue-200">{w.place}</div>
@@ -660,6 +749,7 @@ export default function Home() {
       <section className="mx-auto max-w-6xl px-4 pt-12">
         <div className="relative overflow-hidden rounded-[2rem] px-6 py-12 text-white shadow-xl sm:px-12" style={{ background: `linear-gradient(135deg,${C.ink},${C.navy} 55%,#155e45)` }}>
           <div className="pointer-events-none absolute inset-0 bg-noise opacity-[0.05]" />
+          <CircuitOverlay className="opacity-45" opacity={0.12} />
           <div
             className="pointer-events-none absolute -right-10 -top-10 h-56 w-56 animate-float-slow rounded-full blur-3xl"
             style={{ background: `radial-gradient(circle,${C.gold},transparent 70%)`, opacity: 0.4 }}
@@ -683,21 +773,34 @@ export default function Home() {
                 Live now
               </p>
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-                {LIVE.map((c, i) => (
-                  <Reveal key={c.name} delay={(i % 4) * 70}>
-                    <div className="flex items-center gap-3 rounded-2xl border border-white/15 bg-white/10 p-4 backdrop-blur-sm transition-colors hover:border-white/30 hover:bg-white/[0.15]">
-                      <span className="text-4xl leading-none">{c.flag}</span>
-                      <div>
-                        <div className="text-sm font-bold leading-tight">{c.name}</div>
-                        <div className="mt-0.5 text-xs font-semibold" style={{ color: C.mint }}>
-                          <CountUp target={c.count} suffix=" employers" duration={1000} />
+                {LIVE.map((c, i) => {
+                  const nodeCols = [C.gold, C.mint, C.sky, C.green, C.sun, C.plum, C.red, C.teal];
+                  const nodeCol = nodeCols[i % nodeCols.length];
+                  return (
+                    <Reveal key={c.name} delay={(i % 4) * 70}>
+                      <div
+                        className="relative flex items-center gap-3 overflow-hidden rounded-2xl border border-white/15 bg-white/10 p-4 backdrop-blur-sm transition-colors hover:border-white/30 hover:bg-white/[0.15]"
+                        style={{ borderLeft: `3px solid ${nodeCol}` }}
+                      >
+                        <span className="text-4xl leading-none">{c.flag}</span>
+                        <div>
+                          <div className="text-sm font-bold leading-tight">{c.name}</div>
+                          <div className="mt-0.5 font-mono text-xs font-semibold" style={{ color: C.mint }}>
+                            <CountUp target={c.count} suffix=" employers" duration={1000} />
+                          </div>
+                          <span className="mt-1 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold" style={{ background: C.green, color: "#fff" }}>
+                            <span className="relative flex h-1.5 w-1.5">
+                              <span className="absolute inline-flex h-full w-full animate-node-pulse rounded-full bg-white/60" />
+                              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-white" />
+                            </span>
+                            Live
+                          </span>
+                          {c.pending && <div className="mt-1 text-[10px] font-medium text-blue-200">Stock exchange listings coming soon</div>}
                         </div>
-                        <span className="mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-bold" style={{ background: C.green, color: "#fff" }}>● Live</span>
-                        {c.pending && <div className="mt-1 text-[10px] font-medium text-blue-200">Stock exchange listings coming soon</div>}
                       </div>
-                    </div>
-                  </Reveal>
-                ))}
+                    </Reveal>
+                  );
+                })}
               </div>
             </div>
 
@@ -732,10 +835,13 @@ export default function Home() {
                   <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-blue-200">Coming soon across Africa</p>
                   <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                     {SOON.map((c) => (
-                      <div key={c.name} className="rounded-xl border border-white/10 bg-white/5 p-3 text-center transition hover:bg-white/10">
-                        <div className="text-3xl">{c.flag}</div>
+                      <div key={c.name} className="rounded-xl border border-dashed border-white/20 bg-white/5 p-3 text-center transition hover:border-white/40 hover:bg-white/10">
+                        <div className="text-3xl grayscale-[0.3] opacity-90">{c.flag}</div>
                         <div className="mt-1 text-sm font-semibold">{c.name}</div>
-                        <div className="mt-1 inline-block rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-semibold text-blue-100">Coming soon</div>
+                        <div className="mt-1 inline-flex items-center gap-1 rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-semibold text-blue-100">
+                          <span className="h-1.5 w-1.5 animate-pulse-glow rounded-full" style={{ background: C.sky }} />
+                          Coming soon
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -785,10 +891,17 @@ export default function Home() {
             ["4", "Track & win", "Follow every application in one place.", C.sky],
           ].map(([n, t, d, col], i) => (
             <Reveal key={n as string} delay={i * 100}>
-              <div className="relative rounded-2xl bg-white p-6 shadow-sm ring-1 ring-black/5 transition hover:-translate-y-1 hover:shadow-md">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl font-display text-lg font-extrabold text-white shadow-md" style={{ background: col as string }}>{n}</div>
+              <div
+                className="group relative rounded-2xl bg-white p-6 shadow-sm ring-1 ring-black/5 transition duration-300 hover:-translate-y-1 hover:shadow-md"
+                style={{ boxShadow: `0 8px 26px -16px ${col as string}80` }}
+              >
+                <div className="relative flex h-11 w-11 items-center justify-center rounded-xl font-display text-lg font-extrabold text-white shadow-md" style={{ background: col as string }}>
+                  <span className="absolute -inset-1 -z-10 animate-node-pulse rounded-xl" aria-hidden="true" />
+                  {n}
+                </div>
                 <h4 className="mt-4 font-bold" style={{ color: C.navy }}>{t}</h4>
                 <p className="mt-1.5 text-sm leading-relaxed text-gray-600">{d}</p>
+                <div className="mt-3 h-[3px] w-0 rounded-full transition-all duration-500 group-hover:w-full" style={{ background: col as string }} />
               </div>
             </Reveal>
           ))}
@@ -798,22 +911,25 @@ export default function Home() {
       {/* Final CTA */}
       <section className="mx-auto max-w-6xl px-4 py-12">
         <Reveal>
-          <div className="relative overflow-hidden rounded-[2rem] px-6 py-14 text-center shadow-xl" style={{ background: `linear-gradient(120deg,${C.red},${C.sun} 45%,${C.gold})` }}>
-            <div className="pointer-events-none absolute inset-0 opacity-10" style={{ backgroundImage: "radial-gradient(#000 1px, transparent 1px)", backgroundSize: "20px 20px" }} />
-            <div className="pointer-events-none absolute -inset-1 animate-pulse-glow rounded-[2rem]" style={{ boxShadow: `0 0 90px 10px ${C.gold}66` }} />
-            <div className="relative">
-              <h2 className="font-display text-3xl font-extrabold sm:text-4xl" style={{ color: "#2a1400" }}>Your ambition deserves a real platform.</h2>
-              <p className="mx-auto mt-3 max-w-xl text-lg" style={{ color: "#3a1e00" }}>Build your profile, explore open vacancies, and start applying with confidence today.</p>
-              <Link
-                href="/register"
-                className="group relative mt-7 inline-block overflow-hidden rounded-xl px-8 py-4 text-lg font-extrabold text-white shadow-lg transition hover:-translate-y-0.5 hover:brightness-110"
-                style={{ background: C.navy }}
-              >
-                <span className="relative z-10">Get started today →</span>
-                <span className="pointer-events-none absolute inset-0 -translate-x-full skew-x-[-20deg] bg-white/25 opacity-0 transition-all duration-700 group-hover:translate-x-full group-hover:opacity-100" />
-              </Link>
+          <GlowFrame colors={[C.gold, C.sky, C.mint, C.red, C.gold]}>
+            <div className="relative overflow-hidden rounded-[2rem] px-6 py-14 text-center shadow-xl" style={{ background: `linear-gradient(120deg,${C.red},${C.sun} 45%,${C.gold})` }}>
+              <div className="pointer-events-none absolute inset-0 opacity-10" style={{ backgroundImage: "radial-gradient(#000 1px, transparent 1px)", backgroundSize: "20px 20px" }} />
+              <CircuitOverlay className="opacity-25 mix-blend-overlay" opacity={0.5} />
+              <div className="pointer-events-none absolute -inset-1 animate-pulse-glow rounded-[2rem]" style={{ boxShadow: `0 0 90px 10px ${C.gold}66` }} />
+              <div className="relative">
+                <h2 className="font-display text-3xl font-extrabold sm:text-4xl" style={{ color: "#2a1400" }}>Your ambition deserves a real platform.</h2>
+                <p className="mx-auto mt-3 max-w-xl text-lg" style={{ color: "#3a1e00" }}>Build your profile, explore open vacancies, and start applying with confidence today.</p>
+                <Link
+                  href="/register"
+                  className="group relative mt-7 inline-block overflow-hidden rounded-xl px-8 py-4 text-lg font-extrabold text-white shadow-lg transition hover:-translate-y-0.5 hover:brightness-110"
+                  style={{ background: C.navy }}
+                >
+                  <span className="relative z-10">Get started today →</span>
+                  <span className="pointer-events-none absolute inset-0 -translate-x-full skew-x-[-20deg] bg-white/25 opacity-0 transition-all duration-700 group-hover:translate-x-full group-hover:opacity-100" />
+                </Link>
+              </div>
             </div>
-          </div>
+          </GlowFrame>
         </Reveal>
       </section>
 
@@ -839,9 +955,15 @@ function BarRow({ name, flag, pct, count, color, delay }: { name: string; flag: 
       </div>
       <div className="relative h-6 flex-1 overflow-hidden rounded-full bg-white/10">
         <div
-          className="h-full rounded-full transition-[width] duration-1000 ease-out"
+          className="relative h-full overflow-hidden rounded-full transition-[width] duration-1000 ease-out"
           style={{ width: visible ? `${pct}%` : "0%", background: color, transitionDelay: `${delay}ms` }}
-        />
+        >
+          <div
+            className="absolute inset-0 animate-shimmer"
+            style={{ backgroundImage: "linear-gradient(100deg,transparent 30%,rgba(255,255,255,0.55) 50%,transparent 70%)" }}
+            aria-hidden="true"
+          />
+        </div>
       </div>
       <div className="w-8 shrink-0 text-right text-sm font-bold tabular-nums">{count}</div>
     </div>
