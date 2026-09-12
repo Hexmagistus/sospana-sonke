@@ -379,8 +379,8 @@ Lesotho Post Bank,,https://careers.lpb.co.ls/,green_verified,Finance | dedicated
 Lesotho Communications Authority (LCA),,https://lca.org.ls/jobs/,amber_company_route,Regulator | jobs page,true,pending,Lesotho,SOE,
 Lesotho Housing and Land Development Corporation (LHLDC),,https://lesothohousing.org.ls/Jobs/,green_verified,Property / development | direct jobs page,true,pending,Lesotho,SOE,
 Lesotho Tourism Development Corporation (LTDC),,https://www.visitlesotho.org.ls/careers,green_verified,Tourism | direct careers page,true,pending,Lesotho,SOE,
-National University of Lesotho (NUL),,https://nul.ls/opportunities/,green_verified,Education | direct vacancies page,true,pending,Lesotho,SOE,
-Lerotholi Polytechnic,,https://www.lp.ac.ls/careers/,green_verified,Education / TVET | direct careers page,true,pending,Lesotho,SOE,
+National University of Lesotho (NUL),,https://nul.ls/opportunities/,green_verified,Education | direct vacancies page,true,pending,Lesotho,UNI,
+Lerotholi Polytechnic,,https://www.lp.ac.ls/careers/,green_verified,Education / TVET | direct careers page,true,pending,Lesotho,UNI,
 Lesotho National Broadcasting Service (LNBS),,,grey_none_verified,Media | recruitment via public service no web list,false,no_url,Lesotho,SOE,
 Lesotho Post Office,,,grey_none_verified,Postal | no web vacancy list,false,no_url,Lesotho,SOE,
 Royal Eswatini Sugar Corporation (RSSC),,https://career2.successfactors.eu/career?company=theroyalsw,green_verified,ESE-listed | Sugar / manufacturing | direct SuccessFactors list,true,pending,Eswatini,ESE,
@@ -401,7 +401,7 @@ Public Service Pensions Fund (PSPF),,https://www.pspf.co.sz/vacancies/,amber_com
 Eswatini Development Finance Corporation (FINCORP),,https://www.fincorp.co.sz/vacancies/,amber_company_route,Development finance | on-site vacancies page,true,pending,Eswatini,SOE,
 Eswatini Bank,,https://ib.swazibank.co.sz/media-centre/vacancies.php,green_verified,Finance | on-site vacancies listing,true,pending,Eswatini,SOE,
 Eswatini Posts and Telecommunications Corporation (EPTC),,,grey_none_verified,Telecom | no web vacancy page,false,no_url,Eswatini,SOE,
-University of Eswatini (UNESWA),,https://www.uneswa.ac.sz/administration/vacancies/,green_verified,Education | on-site vacancies listing,true,pending,Eswatini,SOE,
+University of Eswatini (UNESWA),,https://www.uneswa.ac.sz/administration/vacancies/,green_verified,Education | on-site vacancies listing,true,pending,Eswatini,UNI,
 Eswatini National Housing Board,,https://ehb.co.sz/vacancies.php,green_verified,Property / housing | direct vacancies list,true,pending,Eswatini,SOE,
 Eswatini Communications Commission (ESCCOM),,https://www.esccom.org.sz/careers/,amber_company_route,Regulator | careers page,true,pending,Eswatini,SOE,
 Eswatini Tourism Authority,,https://www.thekingdomofeswatini.com/job-opportunities-at-eta/,green_verified,Tourism | direct vacancies list,true,pending,Eswatini,SOE,
@@ -449,10 +449,10 @@ Botswana Tourism Organisation (BTO),,https://www.botswanatourism.co.bw/job-oppor
 Local Enterprise Authority (LEA),,https://www.lea.co.bw/careers,green_verified,Enterprise development | direct careers list,true,pending,Botswana,SOE,
 Botswana Investment and Trade Centre (BITC),,https://www.gobotswana.com/employment-opportunities-0,amber_company_route,Investment promotion | employment page,true,pending,Botswana,SOE,
 Botswana Communications Regulatory Authority (BOCRA),,https://www.bocra.org.bw/careers,amber_company_route,Regulator | careers page,true,pending,Botswana,SOE,
-University of Botswana (UB),,https://www.ub.bw/connect/job-opportunities,green_verified,Education | direct vacancies list 20+ roles,true,pending,Botswana,SOE,
+University of Botswana (UB),,https://www.ub.bw/connect/job-opportunities,green_verified,Education | direct vacancies list 20+ roles,true,pending,Botswana,UNI,
 Botswana Qualifications Authority (BQA),,https://bqajobs.mcidirecthire.com/,green_verified,Education regulator | direct mcidirecthire list,true,pending,Botswana,SOE,
 Botswana Savings Bank (BSB),,https://bsb.mcidirecthire.com/External/CurrentOpportunities/,green_verified,Finance | direct mcidirecthire list,true,pending,Botswana,SOE,
-Botswana International University of Science and Technology (BIUST),,https://www.biust.ac.bw/jobs/,green_verified,Education | direct job openings list,true,pending,Botswana,SOE,
+Botswana International University of Science and Technology (BIUST),,https://www.biust.ac.bw/jobs/,green_verified,Education | direct job openings list,true,pending,Botswana,UNI,
 Human Resource Development Council (HRDC),,https://www.hrdc.org.bw/vacancies,green_verified,Skills development | direct vacancies list,true,pending,Botswana,SOE,
 Botswana Oil,,https://botswanaoiljobs.mcidirecthire.com/,amber_company_route,Energy | mcidirecthire ATS,true,pending,Botswana,SOE,
 Capricorn Group (Bank Windhoek),,https://careers.capricorn.com.na/applicant/index.php?controller=Page&name=jobsearch,green_verified,NSX-listed | Banking group ATS | Bank Windhoek Capricorn,true,pending,Namibia,NSX,
@@ -475,7 +475,7 @@ NamPower,,https://recruitment.nampower.com.na/,green_verified,SOE | Power utilit
 NamPost,,https://www.nampost.com.na/corporate/vacancies,green_verified,SOE | Postal | official vacancies page,true,pending,Namibia,SOE,
 Namibia Wildlife Resorts (NWR),,https://www.nwr.com.na/vacancies/,green_verified,SOE | Tourism | live vacancies,true,pending,Namibia,SOE,
 TransNamib,,https://www.transnamib.com.na/career/,green_verified,SOE | Rail transport | careers page,true,pending,Namibia,SOE,
-Namibia University of Science and Technology (NUST),,https://nustjobs.mcidirecthire.com/Vacancy,green_verified,SOE | Higher education | MCi ATS,true,pending,Namibia,SOE,
+Namibia University of Science and Technology (NUST),,https://nustjobs.mcidirecthire.com/Vacancy,green_verified,SOE | Higher education | MCi ATS,true,pending,Namibia,UNI,
 Government Institutions Pension Fund (GIPF),,https://gipfjobs.mcidirecthire.com/Vacancy,green_verified,SOE | Pension fund | MCi ATS,true,pending,Namibia,SOE,
 Meat Corporation of Namibia (Meatco),,https://recruit.meatco.com.na/,green_verified,SOE | Meat processing | ATS job openings,true,pending,Namibia,SOE,
 Communications Regulatory Authority (CRAN),,https://cranjobs.mcidirecthire.com/,green_verified,SOE | Regulator | MCi ATS,true,pending,Namibia,SOE,
@@ -496,7 +496,7 @@ Roads Authority,,https://www.ra.org.na/vacancies,amber_company_route,SOE | Roads
 Namibia Airports Company,,,grey_none_verified,SOE | Airports | careers URL unconfirmed no verified page,false,pending,Namibia,SOE,
 Namibian Broadcasting Corporation (NBC),,,grey_none_verified,SOE | Broadcasting | careers URL unconfirmed,false,pending,Namibia,SOE,
 Namibia Revenue Agency (NamRA),,,grey_none_verified,SOE | Revenue | vacancies only as PDF adverts,false,pending,Namibia,SOE,
-University of Namibia (UNAM),,,grey_none_verified,SOE | Higher education | vacancies only as PDF adverts,false,pending,Namibia,SOE,
+University of Namibia (UNAM),,,grey_none_verified,SOE | Higher education | vacancies only as PDF adverts,false,pending,Namibia,UNI,
 Namibia Institute of Pathology (NIP),,,grey_none_verified,SOE | Health pathology | no careers page found,false,pending,Namibia,SOE,
 Epangelo Mining,,,grey_none_verified,SOE | Mining | no verified careers page,false,pending,Namibia,SOE,
 Development Bank of Namibia (DBN),,,grey_none_verified,SOE | Development bank | no careers page found,false,pending,Namibia,SOE,
@@ -517,7 +517,7 @@ Zaya Group,,,grey_none_verified,BVM-listed | no careers researched,false,pending
 Trassus,,,grey_none_verified,BVM-listed | no careers researched,false,pending,Mozambique,BVM,
 RGS Agro,,,grey_none_verified,BVM-listed | Agriculture | no careers researched,false,pending,Mozambique,BVM,
 Banco de Mocambique,,https://recrutamento.bancomoc.mz/,green_verified,SOE | Central bank | recruitment portal,true,pending,Mozambique,SOE,
-Universidade Eduardo Mondlane (UEM),,https://carreiras.uem.mz/,green_verified,SOE | University | careers portal,true,pending,Mozambique,SOE,
+Universidade Eduardo Mondlane (UEM),,https://carreiras.uem.mz/,green_verified,SOE | University | careers portal,true,pending,Mozambique,UNI,
 Petromoc,,https://www.petromoc.co.mz/oportunidades/,amber_company_route,SOE | Fuel distribution | opportunities page,true,pending,Mozambique,SOE,
 Linhas Aereas de Mocambique (LAM),,https://www.lam.co.mz/pt/Sobre-a-LAM/Recrutamento,amber_company_route,SOE | Airline | recruitment page,true,pending,Mozambique,SOE,
 Electricidade de Mocambique (EDM),,https://www.edm.co.mz/concursos/divulgacoes,amber_company_route,SOE | Power utility | concursos page,true,pending,Mozambique,SOE,
@@ -581,8 +581,8 @@ Minerals Marketing Corporation of Zimbabwe (MMCZ),,https://mmcz.co.zw/careers/,g
 Peoples Own Savings Bank (POSB),,https://www.posb.co.zw/vacancies/,green_verified,SOE | Banking | current vacancies,true,pending,Zimbabwe,SOE,
 Petrotrade,,https://petrotrade.co.zw/vacancies/,green_verified,SOE | Fuel | vacancies page,true,pending,Zimbabwe,SOE,
 Zimbabwe Tourism Authority,,https://zimbabwetourism.net/vacancies/,green_verified,SOE | Tourism | vacancies page,true,pending,Zimbabwe,SOE,
-University of Zimbabwe (UZ),,https://www.uzcareers.co.zw/,green_verified,SOE | University | eRecruitment portal,true,pending,Zimbabwe,SOE,
-National University of Science and Technology (NUST Zimbabwe),,https://vacancies.nust.ac.zw/,green_verified,SOE | University | recruitment portal,true,pending,Zimbabwe,SOE,
+University of Zimbabwe (UZ),,https://www.uzcareers.co.zw/,green_verified,SOE | University | eRecruitment portal,true,pending,Zimbabwe,UNI,
+National University of Science and Technology (NUST Zimbabwe),,https://vacancies.nust.ac.zw/,green_verified,SOE | University | recruitment portal,true,pending,Zimbabwe,UNI,
 Central Mechanical Equipment Department (CMED),,https://cmed.co.zw/job.html,green_verified,SOE | Fleet services | careers page,true,pending,Zimbabwe,SOE,
 TeleCel Zimbabwe,,https://telecel.co.zw/vacancy/,green_verified,SOE | Telecoms state stake | careers page,true,pending,Zimbabwe,SOE,
 National Social Security Authority (NSSA),,https://www.nssa.org.zw/careers/,amber_company_route,SOE | Social security | careers page,true,pending,Zimbabwe,SOE,
@@ -611,7 +611,7 @@ Zambia National Commercial Bank (Zanaco),,https://careers.zanaco.co.zm/,green_ve
 ZCCM Investments Holdings (ZCCM-IH),,https://zccmjobs.mcidirecthire.com/,green_verified,SOE | Mining investments | MCi ATS,true,pending,Zambia,SOE,
 Road Development Agency (RDA),,https://rda.org.zm/vacancies,green_verified,SOE | Roads | vacancies list,true,pending,Zambia,SOE,
 National Road Fund Agency (NRFA),,https://nrfa.org.zm/jobs/,green_verified,SOE | Road funding | jobs page,true,pending,Zambia,SOE,
-University of Zambia (UNZA),,https://www.unza.zm/vacancies,green_verified,SOE | University | vacancies page,true,pending,Zambia,SOE,
+University of Zambia (UNZA),,https://www.unza.zm/vacancies,green_verified,SOE | University | vacancies page,true,pending,Zambia,UNI,
 Workers Compensation Fund Control Board (WCFCB),,https://jobportal.workers.com.zm/vacancies,green_verified,SOE | Compensation fund | job portal,true,pending,Zambia,SOE,
 Zambia Revenue Authority (ZRA),,https://www.zra.org.zm/careers/,amber_company_route,SOE | Revenue | careers gateway to ATS,true,pending,Zambia,SOE,
 Bank of Zambia,,https://www.boz.zm/careers/vacancies,amber_company_route,SOE | Central bank | vacancies page,true,pending,Zambia,SOE,
@@ -633,8 +633,8 @@ Air Tanzania (ATCL),,https://www.airtanzania.co.tz/careers,green_verified,SOE | 
 CRDB Bank,,https://www.crdbbank.co.tz/en/about-us/careers,green_verified,SOE | Banking govt stake | careers page,true,pending,Tanzania,SOE,
 NMB Bank,,https://www.nmbbank.co.tz/careers/job-search,green_verified,SOE | Banking govt stake | job search,true,pending,Tanzania,SOE,
 Tanzania Telecommunications (TTCL),,https://www.ttcl.com/en/careers,green_verified,SOE | Telecoms | careers page,true,pending,Tanzania,SOE,
-University of Dar es Salaam (UDSM),,https://www.udsm.ac.tz/announcement/academic-vacancies,green_verified,SOE | University | vacancies page,true,pending,Tanzania,SOE,
-Sokoine University of Agriculture (SUA),,https://www.sua.ac.tz/jobs,green_verified,SOE | University | jobs page,true,pending,Tanzania,SOE,
+University of Dar es Salaam (UDSM),,https://www.udsm.ac.tz/announcement/academic-vacancies,green_verified,SOE | University | vacancies page,true,pending,Tanzania,UNI,
+Sokoine University of Agriculture (SUA),,https://www.sua.ac.tz/jobs,green_verified,SOE | University | jobs page,true,pending,Tanzania,UNI,
 TANESCO,,https://www.ajira.go.tz/,amber_company_route,SOE | Power utility | recruits via Ajira portal,true,pending,Tanzania,SOE,
 Tanzania Ports Authority (TPA),,https://www.ajira.go.tz/,amber_company_route,SOE | Ports | recruits via Ajira portal,true,pending,Tanzania,SOE,
 Tanzania Petroleum Development Corporation (TPDC),,https://tpdc.co.tz/job-vacancies/,amber_company_route,SOE | Petroleum | vacancies page,true,pending,Tanzania,SOE,
@@ -661,7 +661,7 @@ Development Bank of Mauritius (DBM),,https://www.dbm.mu/careers/,green_verified,
 National Transport Corporation (NTC),,https://www.buscnt.mu/jobs/,green_verified,SOE | Transport | jobs page,true,pending,Mauritius,SOE,
 Mauritius Revenue Authority (MRA),,https://eservices.mra.mu/career/MRAcareers.html,green_verified,SOE | Revenue | careers page,true,pending,Mauritius,SOE,
 State Insurance Company of Mauritius (SICOM),,https://www.sicom.mu/about/about-sicom/career-at-sicom,green_verified,SOE | Insurance | careers page,true,pending,Mauritius,SOE,
-University of Technology Mauritius (UTM),,https://www.utm.ac.mu/vacancy/,green_verified,SOE | University | vacancies page,true,pending,Mauritius,SOE,
+University of Technology Mauritius (UTM),,https://www.utm.ac.mu/vacancy/,green_verified,SOE | University | vacancies page,true,pending,Mauritius,UNI,
 Economic Development Board (EDB),,https://edbmauritius.org/vacancy,green_verified,SOE | Investment promotion | vacancy page,true,pending,Mauritius,SOE,
 Mauritius Housing Company (MHC),,https://mhc.mu/career,green_verified,SOE | Housing finance | careers page,true,pending,Mauritius,SOE,
 Landscope Mauritius,,https://landscopemauritius.com/careers/,green_verified,SOE | Property | careers page,true,pending,Mauritius,SOE,
@@ -670,7 +670,7 @@ Financial Services Commission (FSC),,https://www.fscmauritius.org/about-us/caree
 Mauritius Telecom,,https://careers.telecom.mu/,amber_company_route,SOE | Telecoms | careers portal,true,pending,Mauritius,SOE,
 Cargo Handling Corporation (CHCL),,https://www.chcl.mu/vacancies/,amber_company_route,SOE | Cargo handling | vacancies page,true,pending,Mauritius,SOE,
 Bank of Mauritius,,https://www.bom.mu/vacancies,amber_company_route,SOE | Central bank | vacancies page,true,pending,Mauritius,SOE,
-University of Mauritius (UoM),,https://uom.ac.mu/index.php?id=86,amber_company_route,SOE | University | vacancies page,true,pending,Mauritius,SOE,
+University of Mauritius (UoM),,https://uom.ac.mu/index.php?id=86,amber_company_route,SOE | University | vacancies page,true,pending,Mauritius,UNI,
 Mauritius Institute of Training and Development (MITD),,https://www.mitd.mu/applynow/home,amber_company_route,SOE | Training | application portal,true,pending,Mauritius,SOE,
 Public Service Commission (PSC),,https://psc.govmu.org/psc/,amber_company_route,SOE | Central civil-service recruiter,true,pending,Mauritius,SOE,
 State Bank of Mauritius (SBM),,,grey_none_verified,SOE | Banking govt stake | no single careers page,false,pending,Mauritius,SOE,
@@ -690,8 +690,8 @@ Roads Authority (RA),,https://www.ra.org.mw/category/vacancies/,green_verified,S
 Roads Fund Administration (RFA),,https://rfamw.com/index.php/careers/,green_verified,SOE | Road funding | careers page,true,pending,Malawi,SOE,
 Malawi Bureau of Standards (MBS),,https://mbsmw.org/vacancies/,green_verified,SOE | Standards | vacancies page,true,pending,Malawi,SOE,
 Malawi Gaming and Lotteries Authority (MAGLA),,https://magla.org.mw/vacancies/,green_verified,SOE | Gaming regulator | vacancies page,true,pending,Malawi,SOE,
-University of Malawi (UNIMA),,https://www.unima.ac.mw/vacancies,green_verified,SOE | University | vacancies page,true,pending,Malawi,SOE,
-Malawi University of Business and Applied Sciences (MUBAS),,https://www.mubas.ac.mw/vacancies,green_verified,SOE | University | vacancies page,true,pending,Malawi,SOE,
+University of Malawi (UNIMA),,https://www.unima.ac.mw/vacancies,green_verified,SOE | University | vacancies page,true,pending,Malawi,UNI,
+Malawi University of Business and Applied Sciences (MUBAS),,https://www.mubas.ac.mw/vacancies,green_verified,SOE | University | vacancies page,true,pending,Malawi,UNI,
 LUANAR,,https://www.luanar.ac.mw/luanar/vacancies.php,green_verified,SOE | University | live vacancies,true,pending,Malawi,SOE,
 Smallholder Farmers Fertilizer Revolving Fund (SFFRFM),,https://sffrfm.org/?v=careers,green_verified,SOE | Agriculture | careers page,true,pending,Malawi,SOE,
 Agricultural Development and Marketing Corporation (ADMARC),,https://admarc.co.mw/opportunities/careers/,amber_company_route,SOE | Agriculture marketing | careers page,true,pending,Malawi,SOE,
@@ -1316,7 +1316,7 @@ Department of Sport Arts and Culture,,https://www.dsac.gov.za/DSACVacancies,dire
 Department of Women Youth and Persons with Disabilities,,https://www.dwypd.gov.za/,official website (no confirmed vacancies page),National government department,true,pending,South Africa,DEPT,https://www.dwypd.gov.za/
 Storm Mountain Diamonds,,https://stormmountaindiamonds.com/careers.php,direct careers page (no open roles currently listed),Private-sector employer,true,pending,Lesotho,PRIVATE,https://stormmountaindiamonds.com
 Lesotho Flour Mills,,https://lesothoflourmills.co.ls/vacancies/,dedicated vacancies page (site blocks automated verification of live listings),Private-sector employer,true,pending,Lesotho,PRIVATE,https://lesothoflourmills.co.ls
-Limkokwing University of Creative Technology Lesotho,,http://limkokwing.ac.ls/university/career.asp,dedicated career opportunities page,Private-sector employer,true,pending,Lesotho,PRIVATE,http://limkokwing.ac.ls
+Limkokwing University of Creative Technology Lesotho,,http://limkokwing.ac.ls/university/career.asp,dedicated career opportunities page,Private-sector employer,true,pending,Lesotho,UNI,http://limkokwing.ac.ls
 Liberty Life Lesotho,,https://www.liberty.co.ls/Careers.aspx,careers page exists; live listings not confirmed,Private-sector employer,true,pending,Lesotho,PRIVATE,https://www.liberty.co.ls
 Ministry of Defence and National Security Lesotho,,https://www.defence.gov.ls/services,vacancies page live (no current openings),National government ministry,true,pending,Lesotho,DEPT,https://www.defence.gov.ls/
 Ministry of Parliamentary Affairs Lesotho,,https://www.gov.ls/government-ministries/,no dedicated ministry website found; official government ministries listing only,National government ministry,true,pending,Lesotho,DEPT,https://www.gov.ls/government-ministries/
@@ -1973,3 +1973,29 @@ Siemens South Africa,,https://www.siemens.com/za/en/company/jobs.html,pending ve
 Samsung Electronics South Africa,,https://www.samsung.com/za/about-us/careers/,pending verification,"Consumer Electronics/Manufacturing · Private subsidiary of Samsung Electronics Co. Ltd (KRX-listed), not JSE-listed. Dedicated South Africa careers page on the company's own site.",true,pending,South Africa,Private,https://www.samsung.com/za
 BASF South Africa,,https://www.basf.com/southernafrica/en/careers,pending verification,"Chemicals · Private subsidiary of BASF SE (Frankfurt-listed), not JSE-listed. Dedicated Southern Africa careers page on the company's own site.",true,pending,South Africa,Private,https://www.basf.com/southernafrica/en.html
 Robert Bosch South Africa,,https://careers.smartrecruiters.com/BoschGroup/south-africa,pending verification,"Industrial/Automotive Technology · Private (controlled by Robert Bosch Stiftung, not publicly listed anywhere), not JSE-listed. Group SmartRecruiters applicant portal filtered to South Africa; no standalone company careers page confirmed.",true,pending,South Africa,Private,
+University of Cape Town (UCT),,https://hr.uct.ac.za/recruitment/employment-opportunities-vacancies,pending verification,"Traditional research university, Cape Town. Africa's top-ranked university (QS). Dedicated HR vacancies page on the university's own site.",true,pending,South Africa,UNI,https://www.uct.ac.za
+Stellenbosch University (SU),,https://www.su.ac.za/en/careers-su,pending verification,"Traditional research university, Stellenbosch, Western Cape. Dedicated careers page on the university's own site.",true,pending,South Africa,UNI,https://www.su.ac.za
+University of the Witwatersrand (Wits),,https://www.wits.ac.za/vacancies/,pending verification,"Traditional research university, Johannesburg. Dedicated vacancies page on the university's own site.",true,pending,South Africa,UNI,https://www.wits.ac.za
+University of Pretoria (UP),,https://www.up.ac.za/human-resources-department/careersup,pending verification,"Traditional research university, Pretoria/Tshwane. Dedicated Careers@UP page run by the HR department.",true,pending,South Africa,UNI,https://www.up.ac.za
+University of KwaZulu-Natal (UKZN),,https://ukzn.ci.hr/applicant/index.php?controller=Page&name=jobsearch,pending verification,"Traditional research university, Durban/Pietermaritzburg. Own-managed ci.hr recruitment portal.",true,pending,South Africa,UNI,https://www.ukzn.ac.za
+Rhodes University,,https://www.ru.ac.za/jobs/,pending verification,"Traditional research university, Makhanda, Eastern Cape. Dedicated jobs page on the university's own site.",true,pending,South Africa,UNI,https://www.ru.ac.za
+University of the Free State (UFS),,https://ufs.hua.hrsmart.com/hr/ats/JobSearch/viewAll,pending verification,"Traditional research university, Bloemfontein. Own-managed Deltek/HRSmart applicant portal.",true,pending,South Africa,UNI,https://www.ufs.ac.za
+North-West University (NWU),,https://www.nwu.ac.za/vacancies,pending verification,"Traditional research university, Potchefstroom/Mahikeng/Vanderbijlpark campuses. Dedicated vacancies page on the university's own site.",true,pending,South Africa,UNI,https://www.nwu.ac.za
+University of the Western Cape (UWC),,https://www.uwc.ac.za/about/work-at-uwc/vacancies,pending verification,"Traditional research university, Bellville, Cape Town. Dedicated vacancies page on the university's own site.",true,pending,South Africa,UNI,https://www.uwc.ac.za
+University of Fort Hare (UFH),,https://www.ufh.ac.za/jobs,pending verification,"Traditional research university, Alice/East London, Eastern Cape. Dedicated jobs page on the university's own site.",true,pending,South Africa,UNI,https://www.ufh.ac.za
+University of Limpopo (UL),,https://www.ul.ac.za/careers/,pending verification,"Traditional research university, Polokwane/Mankweng, Limpopo. Dedicated careers page on the university's own site.",true,pending,South Africa,UNI,https://www.ul.ac.za
+University of South Africa (UNISA),,https://www.unisa.ac.za/sites/corporate/default/About/Employment-at-Unisa/Jobs-and-careers,pending verification,"Comprehensive open-distance-learning university, Pretoria (largest university in Africa by enrolment). Dedicated jobs-and-careers page on the university's own site.",true,pending,South Africa,UNI,https://www.unisa.ac.za
+University of Johannesburg (UJ),,https://jobs.uj.ac.za/,pending verification,"Comprehensive university, Johannesburg. Own-managed recruitment portal.",true,pending,South Africa,UNI,https://www.uj.ac.za
+Nelson Mandela University (NMU),,https://vacancies.mandela.ac.za/,pending verification,"Comprehensive university, Gqeberha (Port Elizabeth), Eastern Cape. Own-managed vacancies portal.",true,pending,South Africa,UNI,https://www.mandela.ac.za
+University of Venda (Univen),,https://www.univen.ac.za/vacancies/,pending verification,"Comprehensive university, Thohoyandou, Limpopo. Dedicated vacancies page on the university's own site.",true,pending,South Africa,UNI,https://www.univen.ac.za
+University of Zululand (UNIZULU),,https://www.unizulu.ac.za/vacancies/,pending verification,"Comprehensive university, KwaDlangezwa, KwaZulu-Natal. Dedicated vacancies page on the university's own site.",true,pending,South Africa,UNI,https://www.unizulu.ac.za
+Walter Sisulu University (WSU),,https://wsucareers.ci.hr/applicant,pending verification,"Comprehensive university, Mthatha/East London/Butterworth/Queenstown, Eastern Cape. Own-managed ci.hr recruitment portal.",true,pending,South Africa,UNI,https://www.wsu.ac.za
+Cape Peninsula University of Technology (CPUT),,https://www.cput.ac.za/jobs,pending verification,"University of technology, Cape Town. Dedicated jobs page on the university's own site.",true,pending,South Africa,UNI,https://www.cput.ac.za
+Central University of Technology (CUT),,https://www.cut.ac.za/careers,pending verification,"University of technology, Bloemfontein, Free State. Dedicated careers page on the university's own site.",true,pending,South Africa,UNI,https://www.cut.ac.za
+Durban University of Technology (DUT),,https://www.dut.ac.za/careers/,pending verification,"University of technology, Durban, KwaZulu-Natal. Dedicated Careers@DUT page on the university's own site.",true,pending,South Africa,UNI,https://www.dut.ac.za
+Mangosuthu University of Technology (MUT),,https://www.mut.ac.za/vacancies/,pending verification,"University of technology, Umlazi, Durban. Dedicated vacancies page on the university's own site.",true,pending,South Africa,UNI,https://www.mut.ac.za
+Tshwane University of Technology (TUT),,https://www.tut.ac.za/vacancies/,pending verification,"University of technology, Pretoria/Tshwane (largest residential university of technology in SA). Dedicated vacancies page on the university's own site.",true,pending,South Africa,UNI,https://www.tut.ac.za
+Vaal University of Technology (VUT),,https://vut.ac.za/vacancies/,pending verification,"University of technology, Vanderbijlpark, Gauteng. Dedicated vacancies page on the university's own site.",true,pending,South Africa,UNI,https://www.vut.ac.za
+Sefako Makgatho Health Sciences University (SMU),,https://www.smu.ac.za/vacancies/,pending verification,"Dedicated health-sciences university, Ga-Rankuwa, Pretoria/Tshwane. Dedicated vacancies page on the university's own site.",true,pending,South Africa,UNI,https://www.smu.ac.za
+Sol Plaatje University (SPU),,https://spu.simplify.hr/,pending verification,"Newer public university (est. 2014), Kimberley, Northern Cape. Own-managed Simplify.hr recruitment portal (no dedicated vacancies page confirmed on the main site).",true,pending,South Africa,UNI,https://www.spu.ac.za
+University of Mpumalanga (UMP),,https://www.ump.ac.za/vacancies/,pending verification,"Newer public university (est. 2014), Mbombela/Siyabuswa, Mpumalanga. Dedicated vacancies page on the university's own site.",true,pending,South Africa,UNI,https://www.ump.ac.za
