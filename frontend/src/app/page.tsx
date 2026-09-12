@@ -276,65 +276,76 @@ const GREETINGS = [
 
 const VALUES = ["Ambition", "Opportunity", "Dignity", "Ubuntu", "Hustle", "Growth", "Pride", "Your future"];
 
-// Employer counts reflect the current verified directory (kept in step with the company database).
-// pending = state-owned entities are live, but the country's stock-exchange listings are still being added.
+// Employer counts are the real, current active-row counts from the company
+// database (backend/seed/company_database_import.csv), recomputed 2026-09-12
+// -- the previous numbers here were stale placeholders that had drifted far
+// from the actual data (some listed countries had zero real rows at all).
+// pending = this country's directory is still just a single flagship
+// university entry, with no company/SOE/private-sector data added yet.
 const LIVE = [
-  { name: "South Africa", flag: "🇿🇦", count: 767, pending: false },
-  { name: "Zimbabwe", flag: "🇿🇼", count: 153, pending: false },
-  { name: "Botswana", flag: "🇧🇼", count: 126, pending: false },
-  { name: "Namibia", flag: "🇳🇦", count: 106, pending: false },
-  { name: "Mozambique", flag: "🇲🇿", count: 91, pending: false },
-  { name: "Zambia", flag: "🇿🇲", count: 82, pending: true },
-  { name: "Mauritius", flag: "🇲🇺", count: 82, pending: true },
-  { name: "DR Congo", flag: "🇨🇩", count: 81, pending: true },
-  { name: "Lesotho", flag: "🇱🇸", count: 74, pending: false },
-  { name: "Eswatini", flag: "🇸🇿", count: 72, pending: false },
-  { name: "Angola", flag: "🇦🇴", count: 69, pending: true },
-  { name: "Nigeria", flag: "🇳🇬", count: 68, pending: false },
-  { name: "Tanzania", flag: "🇹🇿", count: 68, pending: true },
-  { name: "Madagascar", flag: "🇲🇬", count: 66, pending: true },
-  { name: "Malawi", flag: "🇲🇼", count: 66, pending: true },
-  { name: "Côte d'Ivoire", flag: "🇨🇮", count: 62, pending: false },
-  { name: "Tunisia", flag: "🇹🇳", count: 59, pending: false },
-  { name: "Kenya", flag: "🇰🇪", count: 56, pending: false },
-  { name: "Cameroon", flag: "🇨🇲", count: 56, pending: false },
-  { name: "Egypt", flag: "🇪🇬", count: 54, pending: false },
-  { name: "Togo", flag: "🇹🇬", count: 53, pending: false },
-  { name: "Ethiopia", flag: "🇪🇹", count: 52, pending: false },
-  { name: "Guinea", flag: "🇬🇳", count: 52, pending: false },
-  { name: "Benin", flag: "🇧🇯", count: 52, pending: false },
-  { name: "Ghana", flag: "🇬🇭", count: 49, pending: false },
-  { name: "Uganda", flag: "🇺🇬", count: 49, pending: false },
-  { name: "Gabon", flag: "🇬🇦", count: 49, pending: false },
-  { name: "Sierra Leone", flag: "🇸🇱", count: 47, pending: true },
-  { name: "Mali", flag: "🇲🇱", count: 46, pending: true },
-  { name: "Rwanda", flag: "🇷🇼", count: 45, pending: false },
-  { name: "Senegal", flag: "🇸🇳", count: 45, pending: false },
-  { name: "Morocco", flag: "🇲🇦", count: 45, pending: false },
-  { name: "Algeria", flag: "🇩🇿", count: 44, pending: false },
-  { name: "Mauritania", flag: "🇲🇷", count: 44, pending: true },
-  { name: "Niger", flag: "🇳🇪", count: 43, pending: true },
-  { name: "Burkina Faso", flag: "🇧🇫", count: 41, pending: true },
-  { name: "Gambia", flag: "🇬🇲", count: 38, pending: true },
-  { name: "Liberia", flag: "🇱🇷", count: 35, pending: true },
-  { name: "Congo", flag: "🇨🇬", count: 32, pending: true },
-  { name: "Seychelles", flag: "🇸🇨", count: 31, pending: true },
-  { name: "Cabo Verde", flag: "🇨🇻", count: 30, pending: true },
-  { name: "Chad", flag: "🇹🇩", count: 29, pending: true },
-  { name: "Guinea-Bissau", flag: "🇬🇼", count: 28, pending: true },
-  { name: "Burundi", flag: "🇧🇮", count: 27, pending: true },
-  { name: "Libya", flag: "🇱🇾", count: 27, pending: true },
-  { name: "Comoros", flag: "🇰🇲", count: 26, pending: true },
-  { name: "Djibouti", flag: "🇩🇯", count: 23, pending: true },
-  { name: "Somalia", flag: "🇸🇴", count: 20, pending: true },
-  { name: "Sao Tome and Principe", flag: "🇸🇹", count: 19, pending: true },
-  { name: "South Sudan", flag: "🇸🇸", count: 16, pending: true },
-  { name: "Sudan", flag: "🇸🇩", count: 15, pending: true },
-  { name: "Central African Republic", flag: "🇨🇫", count: 15, pending: true },
-  { name: "Equatorial Guinea", flag: "🇬🇶", count: 10, pending: true },
-  { name: "Eritrea", flag: "🇪🇷", count: 4, pending: true },
+  { name: "South Africa", flag: "🇿🇦", count: 587, pending: false },
+  { name: "Zimbabwe", flag: "🇿🇼", count: 123, pending: false },
+  { name: "Botswana", flag: "🇧🇼", count: 106, pending: false },
+  { name: "DR Congo", flag: "🇨🇩", count: 85, pending: false },
+  { name: "Namibia", flag: "🇳🇦", count: 85, pending: false },
+  { name: "Zambia", flag: "🇿🇲", count: 71, pending: false },
+  { name: "Madagascar", flag: "🇲🇬", count: 68, pending: false },
+  { name: "Mauritius", flag: "🇲🇺", count: 66, pending: false },
+  { name: "Malawi", flag: "🇲🇼", count: 62, pending: false },
+  { name: "Tanzania", flag: "🇹🇿", count: 60, pending: false },
+  { name: "Eswatini", flag: "🇸🇿", count: 59, pending: false },
+  { name: "Lesotho", flag: "🇱🇸", count: 56, pending: false },
+  { name: "Angola", flag: "🇦🇴", count: 55, pending: false },
+  { name: "Mozambique", flag: "🇲🇿", count: 55, pending: false },
+  { name: "Seychelles", flag: "🇸🇨", count: 32, pending: false },
+  { name: "Comoros", flag: "🇰🇲", count: 25, pending: false },
+  { name: "Egypt", flag: "🇪🇬", count: 2, pending: true },
+  { name: "Algeria", flag: "🇩🇿", count: 1, pending: true },
+  { name: "Benin", flag: "🇧🇯", count: 1, pending: true },
+  { name: "Burkina Faso", flag: "🇧🇫", count: 1, pending: true },
+  { name: "Burundi", flag: "🇧🇮", count: 1, pending: true },
+  { name: "Cabo Verde", flag: "🇨🇻", count: 1, pending: true },
+  { name: "Cameroon", flag: "🇨🇲", count: 1, pending: true },
+  { name: "Central African Republic", flag: "🇨🇫", count: 1, pending: true },
+  { name: "Chad", flag: "🇹🇩", count: 1, pending: true },
+  { name: "Congo", flag: "🇨🇬", count: 1, pending: true },
+  { name: "Côte d'Ivoire", flag: "🇨🇮", count: 1, pending: true },
+  { name: "Djibouti", flag: "🇩🇯", count: 1, pending: true },
+  { name: "Ethiopia", flag: "🇪🇹", count: 1, pending: true },
+  { name: "Gabon", flag: "🇬🇦", count: 1, pending: true },
+  { name: "Gambia", flag: "🇬🇲", count: 1, pending: true },
+  { name: "Ghana", flag: "🇬🇭", count: 1, pending: true },
+  { name: "Guinea", flag: "🇬🇳", count: 1, pending: true },
+  { name: "Kenya", flag: "🇰🇪", count: 1, pending: true },
+  { name: "Liberia", flag: "🇱🇷", count: 1, pending: true },
+  { name: "Libya", flag: "🇱🇾", count: 1, pending: true },
+  { name: "Mali", flag: "🇲🇱", count: 1, pending: true },
+  { name: "Mauritania", flag: "🇲🇷", count: 1, pending: true },
+  { name: "Morocco", flag: "🇲🇦", count: 1, pending: true },
+  { name: "Nigeria", flag: "🇳🇬", count: 1, pending: true },
+  { name: "Rwanda", flag: "🇷🇼", count: 1, pending: true },
+  { name: "Sao Tome and Principe", flag: "🇸🇹", count: 1, pending: true },
+  { name: "Senegal", flag: "🇸🇳", count: 1, pending: true },
+  { name: "Sierra Leone", flag: "🇸🇱", count: 1, pending: true },
+  { name: "Somalia", flag: "🇸🇴", count: 1, pending: true },
+  { name: "South Sudan", flag: "🇸🇸", count: 1, pending: true },
+  { name: "Sudan", flag: "🇸🇩", count: 1, pending: true },
+  { name: "Togo", flag: "🇹🇬", count: 1, pending: true },
+  { name: "Tunisia", flag: "🇹🇳", count: 1, pending: true },
+  { name: "Uganda", flag: "🇺🇬", count: 1, pending: true },
 ];
-const SOON: { name: string; flag: string }[] = [];
+// These four have no rows in the company database at all yet (two rounds of
+// research turned up no official, checkable university site to seed even a
+// single starter entry) -- listed honestly as not-yet-started rather than
+// given a fabricated count.
+const SOON: { name: string; flag: string }[] = [
+  { name: "Niger", flag: "🇳🇪" },
+  { name: "Guinea-Bissau", flag: "🇬🇼" },
+  { name: "Equatorial Guinea", flag: "🇬🇶" },
+  { name: "Eritrea", flag: "🇪🇷" },
+];
+// Derived from LIVE so this can never drift out of sync with the array above again.
+const TOTAL_EMPLOYERS = LIVE.reduce((sum, c) => sum + c.count, 0);
 
 // Wonders of Africa — line-art icons drawn inline (viewBox 0 0 72 52).
 const WONDERS: { name: string; place: string; art: ReactNode }[] = [
@@ -575,7 +586,7 @@ export default function Home() {
         <Reveal delay={80}>
           <div className="-mt-6 grid grid-cols-2 gap-3 rounded-2xl bg-white p-4 shadow-lg sm:grid-cols-4">
             {[
-              [3439, "+", "Employers tracked", C.red],
+              [TOTAL_EMPLOYERS, "+", "Employers tracked", C.red],
               [null, "Direct", "To official careers pages", C.teal],
               [null, "SOE", "Vacancies across South Africa", C.green],
               [null, "Free", "Full access, no charge", C.gold],
@@ -594,7 +605,7 @@ export default function Home() {
       {/* Pillars */}
       <section className="mx-auto grid max-w-6xl gap-5 px-4 py-12 sm:grid-cols-3">
         {[
-          ["🎯", "Straight to employers", "Direct links to 3,400+ companies' official careers pages across the region — no middle-man boards, no games.", C.red],
+          ["🎯", "Straight to employers", `Direct links to ${TOTAL_EMPLOYERS.toLocaleString()}+ companies' official careers pages across the region — no middle-man boards, no games.`, C.red],
           ["🏛️", "Don't miss the SOEs", "Browse open roles at state-owned enterprises across South Africa and the region — filtered and ready to explore.", C.gold],
           ["📈", "Track & rise", "Every application in one place. Stay organised, stay ready, and keep moving forward.", C.teal],
         ].map(([ic, t, d, col], i) => (
