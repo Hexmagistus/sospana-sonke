@@ -925,7 +925,7 @@ function LiveCountryCard({ c, i }: { c: { name: string; flag: string; count: num
         <div>
           <div className="text-sm font-bold leading-tight">{c.name}</div>
           <div className="mt-0.5 font-mono text-xs font-semibold" style={{ color: C.mint }}>
-            <CountUp target={c.count} suffix=" employers" duration={1000} />
+            <CountUp target={c.count} suffix={c.count === 1 ? " employer" : " employers"} duration={1000} />
           </div>
           <span className="mt-1 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold" style={{ background: C.green, color: "#fff" }}>
             <span className="relative flex h-1.5 w-1.5">
