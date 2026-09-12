@@ -3,9 +3,10 @@
 import { useEffect, useMemo, useState } from "react";
 import Guard from "@/components/Guard";
 import { api } from "@/lib/api";
-import { Card, Alert, Spinner } from "@/components/ui";
+import { Card, Alert } from "@/components/ui";
 import { Banner } from "@/components/Banner";
 import { NdebeleStrip } from "@/components/NdebeleStrip";
+import { FunSpinner } from "@/components/FunSpinner";
 import { COUNTRY_FLAGS } from "@/lib/countryFlags";
 import type { CoverageRow } from "@/lib/types";
 
@@ -44,7 +45,7 @@ function CoverageInner() {
   );
 
   if (err) return <Alert kind="error">{err}</Alert>;
-  if (!rows.length) return <Spinner label="Loading coverage…" />;
+  if (!rows.length) return <FunSpinner label="Loading coverage…" />;
 
   return (
     <div className="space-y-6">

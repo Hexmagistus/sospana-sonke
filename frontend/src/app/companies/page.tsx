@@ -10,6 +10,7 @@ import { Banner } from "@/components/Banner";
 import { NdebeleStrip } from "@/components/NdebeleStrip";
 import { CompanyLogo, isAtsPortal } from "@/components/CompanyLogo";
 import { CompanyActionsRow } from "@/components/CompanyActions";
+import { FunSpinner } from "@/components/FunSpinner";
 import { COUNTRY_FLAGS } from "@/lib/countryFlags";
 import type { Company, Vacancy } from "@/lib/types";
 
@@ -168,7 +169,7 @@ function CompaniesDirectoryInner() {
   const countryWithLinks = companies.filter((c) => (c.country || "") === country && c.careers_url).length;
 
   if (err) return <Alert kind="error">{err}</Alert>;
-  if (!companies.length) return <Spinner label="Loading the directory…" />;
+  if (!companies.length) return <FunSpinner label="Loading the directory…" />;
 
   const FILTERS = ["all", "listed", "SOE", "Municipality", "Department", "Private", "NGO", "University"] as const;
   const filterLabel: Record<(typeof FILTERS)[number], string> = {

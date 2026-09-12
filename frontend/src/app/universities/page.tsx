@@ -10,6 +10,7 @@ import { Banner } from "@/components/Banner";
 import { NdebeleStrip } from "@/components/NdebeleStrip";
 import { CompanyLogo, isAtsPortal } from "@/components/CompanyLogo";
 import { CompanyActionsRow } from "@/components/CompanyActions";
+import { FunSpinner } from "@/components/FunSpinner";
 import { COUNTRY_FLAGS } from "@/lib/countryFlags";
 import type { Company, Vacancy } from "@/lib/types";
 
@@ -106,7 +107,7 @@ function UniversitiesDirectoryInner() {
   const countryWithLinks = universities.filter((c) => (c.country || "") === country && c.careers_url).length;
 
   if (err) return <Alert kind="error">{err}</Alert>;
-  if (!universities.length) return <Spinner label="Loading universities…" />;
+  if (!universities.length) return <FunSpinner label="Loading universities…" />;
 
   return (
     <div className="relative">
