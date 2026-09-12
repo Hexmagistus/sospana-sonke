@@ -9,10 +9,13 @@ import { Card, Input, Button, Alert, Spinner } from "@/components/ui";
 import { Banner } from "@/components/Banner";
 import { NdebeleStrip } from "@/components/NdebeleStrip";
 import { CompanyLogo, isAtsPortal } from "@/components/CompanyLogo";
-import { CompanyActionsRow } from "@/components/CompanyActions";
+import { CompanyActionsRow, TrendingBadge, ShortlistStar } from "@/components/CompanyActions";
+import { CompanyPreviewModal } from "@/components/CompanyPreviewModal";
+import { AnimatedNumber } from "@/components/AnimatedNumber";
 import { FunSpinner } from "@/components/FunSpinner";
 import { COUNTRY_FLAGS } from "@/lib/countryFlags";
-import type { Company, Vacancy } from "@/lib/types";
+import { getShortlist, SHORTLIST_EVENT } from "@/lib/shortlist";
+import type { Company, Vacancy, TrendingCompany } from "@/lib/types";
 
 const AVATAR_GRADIENTS = [
   "from-sky to-purple",
@@ -80,17 +83,21 @@ function hashCode(s: string): number {
   return h;
 }
 
-type SortKey = "name" | "jobs";
+type SortKey = "name" | "jobs" | "updated";
 
 function CompaniesDirectoryInner() {
   const searchParams = useSearchParams();
   const [companies, setCompanies] = useState<Company[]>([]);
   const [vacancies, setVacancies] = useState<Vacancy[]>([]);
+  const [trending, setTrending] = useState<Set<string>>(new Set());
   const [err, setErr] = useState("");
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState<"all" | "listed" | "SOE" | "Municipality" | "Department" | "Private" | "NGO" | "University">("all");
   const [country, setCountry] = useState("South Africa");
   const [sortBy, setSortBy] = useState<SortKey>("name");
+  const [shortlistOnly, setShortlistOnly] = useState(false);
+  const [shortlistIds, setShortlistIds] = useState<Set<string>>(new Set());
+  const [previewCompany, setPreviewCompany] = useState<Company | null>(null);
 
   useEffect(() => {
     Promise.all([
@@ -100,18 +107,40 @@ function CompaniesDirectoryInner() {
       setCompanies(cos);
       setVacancies(vacs);
     }).catch((e) => setErr(e.message));
+    // Best-effort: a quiet directory with no watches yet just shows no badges.
+    api.get<TrendingCompany[]>("/companies/trending?days=7&limit=200")
+      .then((rows) => setTrending(new Set(rows.map((r) => r.company_id))))
+      .catch(() => {});
   }, []);
 
-  // Deep link from a "Share" button elsewhere (?company=<id>): jump to that
-  // company's own country and filter the list down to just it.
   useEffect(() => {
-    const wanted = searchParams.get("company");
-    if (!wanted || !companies.length) return;
-    const found = companies.find((c) => c.id === wanted);
-    if (found) {
-      setCountry(found.country || "South Africa");
-      setQ(found.company_name);
-      setFilter("all");
+    const sync = () => setShortlistIds(getShortlist());
+    sync();
+    window.addEventListener(SHORTLIST_EVENT, sync);
+    window.addEventListener("storage", sync);
+    return () => {
+      window.removeEventListener(SHORTLIST_EVENT, sync);
+      window.removeEventListener("storage", sync);
+    };
+  }, []);
+
+  // Deep link from a "Share" button elsewhere (?company=<id>), or from the
+  // Coverage map (?country=<name>): jump straight to that view.
+  useEffect(() => {
+    const wantedCompany = searchParams.get("company");
+    const wantedCountry = searchParams.get("country");
+    if (wantedCompany && companies.length) {
+      const found = companies.find((c) => c.id === wantedCompany);
+      if (found) {
+        setCountry(found.country || "South Africa");
+        setQ(found.company_name);
+        setFilter("all");
+        return;
+      }
+    }
+    if (wantedCountry) {
+      setCountry(wantedCountry);
+      setShortlistOnly(false);
     }
   }, [searchParams, companies]);
 
@@ -141,7 +170,8 @@ function CompaniesDirectoryInner() {
   const shownCompanies = useMemo(() => {
     const needle = q.trim().toLowerCase();
     const filtered = companies
-      .filter((c) => (c.country || "") === country)
+      .filter((c) => shortlistOnly || (c.country || "") === country)
+      .filter((c) => !shortlistOnly || shortlistIds.has(c.id))
       .filter((c) => {
         if (filter === "all") return true;
         const st = (c.source_type || "").toUpperCase();
@@ -160,8 +190,27 @@ function CompaniesDirectoryInner() {
       return [...filtered].sort((a, b) => (jobsByCompany[b.id] || 0) - (jobsByCompany[a.id] || 0)
         || a.company_name.localeCompare(b.company_name));
     }
+    if (sortBy === "updated") {
+      return [...filtered].sort((a, b) => {
+        const at = a.content_changed_at ? new Date(a.content_changed_at).getTime() : 0;
+        const bt = b.content_changed_at ? new Date(b.content_changed_at).getTime() : 0;
+        return bt - at || a.company_name.localeCompare(b.company_name);
+      });
+    }
     return [...filtered].sort((a, b) => a.company_name.localeCompare(b.company_name));
-  }, [companies, q, filter, country, sortBy, jobsByCompany]);
+  }, [companies, q, filter, country, sortBy, jobsByCompany, shortlistOnly, shortlistIds]);
+
+  function surpriseMe() {
+    if (!companies.length) return;
+    const withLinks = companies.filter((c) => c.careers_url);
+    const pool = withLinks.length ? withLinks : companies;
+    const pick = pool[Math.floor(Math.random() * pool.length)];
+    setShortlistOnly(false);
+    setFilter("all");
+    setQ("");
+    setCountry(pick.country || "South Africa");
+    setPreviewCompany(pick);
+  }
 
   const withLinks = companies.filter((c) => c.careers_url).length;
   const flag = COUNTRY_FLAGS[country] || "🌍";
@@ -196,11 +245,13 @@ function CompaniesDirectoryInner() {
             subtitle={
               <>
                 Browse the full directory and apply on each employer&apos;s official careers page.{" "}
-                <strong className="text-white">{companies.length}</strong> companies ·{" "}
-                <strong className="text-white">{withLinks}</strong> with direct careers links.
+                <strong className="text-white"><AnimatedNumber value={companies.length} /></strong> companies ·{" "}
+                <strong className="text-white"><AnimatedNumber value={withLinks} /></strong> with direct careers links.
               </>
             }
-          />
+          >
+            <Button variant="secondary" onClick={surpriseMe}>🎲 Surprise me</Button>
+          </Banner>
           <NdebeleStrip id="companies-hero-bottom" palette="vivid" flip />
         </div>
 
@@ -209,8 +260,8 @@ function CompaniesDirectoryInner() {
           <div>
             <div className="text-xl font-extrabold text-navy">{country}</div>
             <div className="text-sm text-gray-500">
-              <strong className="text-navy">{countryTotal}</strong> companies ·{" "}
-              <strong className="text-navy">{countryWithLinks}</strong> with direct careers links
+              <strong className="text-navy"><AnimatedNumber value={countryTotal} /></strong> companies ·{" "}
+              <strong className="text-navy"><AnimatedNumber value={countryWithLinks} /></strong> with direct careers links
             </div>
           </div>
         </div>
@@ -219,11 +270,11 @@ function CompaniesDirectoryInner() {
           {countries.length > 1 && (
             <div className="mb-3 flex flex-wrap gap-1.5 border-b border-gray-100 pb-3">
               {countries.map((cn) => {
-                const active = country === cn;
+                const active = !shortlistOnly && country === cn;
                 return (
                   <button
                     key={cn}
-                    onClick={() => setCountry(cn)}
+                    onClick={() => { setShortlistOnly(false); setCountry(cn); }}
                     className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-semibold transition ${
                       active ? "bg-navy text-white shadow-sm" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                     }`}
@@ -235,6 +286,17 @@ function CompaniesDirectoryInner() {
                   </button>
                 );
               })}
+              <button
+                onClick={() => setShortlistOnly((v) => !v)}
+                className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-semibold transition ${
+                  shortlistOnly ? "bg-gold text-white shadow-sm" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                }`}
+              >
+                ⭐ My shortlist
+                <span className={`rounded-full px-1.5 py-0.5 text-[11px] font-bold tabular-nums ${
+                  shortlistOnly ? "bg-white/20 text-white" : "bg-white text-gray-500"
+                }`}>{shortlistIds.size}</span>
+              </button>
             </div>
           )}
 
@@ -268,13 +330,15 @@ function CompaniesDirectoryInner() {
               >
                 <option value="name">Name (A–Z)</option>
                 <option value="jobs">Most jobs available</option>
+                <option value="updated">Recently updated</option>
               </select>
             </label>
           </div>
         </Card>
 
         <p className="text-sm text-gray-500">
-          Showing <strong className="text-navy">{shownCompanies.length}</strong> of {countryTotal} companies in {country}.
+          Showing <strong className="text-navy">{shownCompanies.length}</strong> of{" "}
+          {shortlistOnly ? shortlistIds.size : countryTotal} {shortlistOnly ? "shortlisted companies" : `companies in ${country}`}.
         </p>
 
         <div className="grid gap-3 md:grid-cols-2">
@@ -287,10 +351,14 @@ function CompaniesDirectoryInner() {
             return (
               <div
                 key={c.id}
+                onClick={() => setPreviewCompany(c)}
                 style={{ borderLeftColor: accent }}
-                className="rounded-2xl border border-gray-200/80 border-l-4 bg-white p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_1px_3px_rgba(16,24,40,0.06)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+                className="relative cursor-pointer rounded-2xl border border-gray-200/80 border-l-4 bg-white p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_1px_3px_rgba(16,24,40,0.06)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
               >
-                <div className="flex items-start justify-between gap-3">
+                <div className="absolute right-3 top-3" onClick={(e) => e.stopPropagation()}>
+                  <ShortlistStar companyId={c.id} />
+                </div>
+                <div className="flex items-start justify-between gap-3 pr-6">
                   <div className="flex items-start gap-3">
                     <CompanyLogo
                       id={c.id}
@@ -311,6 +379,7 @@ function CompaniesDirectoryInner() {
                         {isAtsPortal(c.careers_url) && (
                           <span className="rounded-full bg-navy/10 px-2 py-0.5 text-xs font-semibold text-navy">Apply on their portal</span>
                         )}
+                        {trending.has(c.id) && <TrendingBadge />}
                         {c.country && <span className="text-xs text-gray-400">{c.country}</span>}
                       </div>
                     </div>
@@ -331,7 +400,7 @@ function CompaniesDirectoryInner() {
                   </span>
                 </div>
 
-                <div className="mt-3">
+                <div className="mt-3" onClick={(e) => e.stopPropagation()}>
                   {c.careers_url ? (
                     <a href={c.careers_url} target="_blank" rel="noopener noreferrer">
                       <Button>{isDept ? "Visit department →" : "View jobs →"}</Button>
@@ -341,11 +410,17 @@ function CompaniesDirectoryInner() {
                   )}
                 </div>
 
-                <CompanyActionsRow company={c} shareBasePath="/companies" />
+                <div onClick={(e) => e.stopPropagation()}>
+                  <CompanyActionsRow company={c} shareBasePath="/companies" />
+                </div>
               </div>
             );
           })}
-          {shownCompanies.length === 0 && <p className="text-sm text-gray-400">No companies match your search.</p>}
+          {shownCompanies.length === 0 && (
+            <p className="text-sm text-gray-400">
+              {shortlistOnly ? "Your shortlist is empty — tap the ☆ on any card to add one." : "No companies match your search."}
+            </p>
+          )}
         </div>
 
         <p className="text-center text-xs text-gray-400">
@@ -355,6 +430,15 @@ function CompaniesDirectoryInner() {
           </Link>
         </p>
       </div>
+
+      {previewCompany && (
+        <CompanyPreviewModal
+          company={previewCompany}
+          openJobs={jobsByCompany[previewCompany.id] || 0}
+          shareBasePath="/companies"
+          onClose={() => setPreviewCompany(null)}
+        />
+      )}
     </div>
   );
 }

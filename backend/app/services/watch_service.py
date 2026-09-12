@@ -9,7 +9,10 @@ the alert.
 """
 from __future__ import annotations
 
+from datetime import datetime, timedelta, timezone
+
 from fastapi import HTTPException, status
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.models.company import Company
@@ -75,3 +78,23 @@ def find_watchers_for_company(db: Session, company: Company) -> list[CompanyWatc
     SQL expression across three optional dimensions."""
     return [w for w in db.query(CompanyWatch).filter(CompanyWatch.active.is_(True)).all()
             if matches(w, company)]
+
+
+def trending_company_ids(db: Session, *, days: int = 7, limit: int = 50) -> list[tuple[str, int]]:
+    """Companies with the most new company-specific notify-me subscriptions in
+    the last `days` days, most-watched first. This is the only honest
+    "popular" signal available for the 🔥 trending badge -- there is no
+    share/click tracking to build a fuller popularity score from, so a quiet
+    but well-loved employer with few watches simply won't show as trending."""
+    cutoff = datetime.now(timezone.utc) - timedelta(days=days)
+    rows = (
+        db.query(CompanyWatch.company_id, func.count(CompanyWatch.id).label("cnt"))
+        .filter(CompanyWatch.company_id.isnot(None))
+        .filter(CompanyWatch.active.is_(True))
+        .filter(CompanyWatch.created_at >= cutoff)
+        .group_by(CompanyWatch.company_id)
+        .order_by(func.count(CompanyWatch.id).desc())
+        .limit(limit)
+        .all()
+    )
+    return [(r[0], r[1]) for r in rows]

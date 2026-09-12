@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import Guard from "@/components/Guard";
 import { api } from "@/lib/api";
 import { Card, Alert } from "@/components/ui";
 import { Banner } from "@/components/Banner";
 import { NdebeleStrip } from "@/components/NdebeleStrip";
 import { FunSpinner } from "@/components/FunSpinner";
+import { AnimatedNumber } from "@/components/AnimatedNumber";
 import { COUNTRY_FLAGS } from "@/lib/countryFlags";
 import type { CoverageRow } from "@/lib/types";
 
@@ -57,10 +59,10 @@ function CoverageInner() {
           title="Coverage map"
           subtitle={
             <>
-              <strong className="text-white">{totals.verified_ok}</strong> verified working ·{" "}
-              <strong className="text-white">{totals.pending_verification}</strong> pending verification ·{" "}
-              <strong className="text-white">{totals.needs_attention}</strong> need attention — out of{" "}
-              <strong className="text-white">{totals.total}</strong> entries across every country and category.
+              <strong className="text-white"><AnimatedNumber value={totals.verified_ok} /></strong> verified working ·{" "}
+              <strong className="text-white"><AnimatedNumber value={totals.pending_verification} /></strong> pending verification ·{" "}
+              <strong className="text-white"><AnimatedNumber value={totals.needs_attention} /></strong> need attention — out of{" "}
+              <strong className="text-white"><AnimatedNumber value={totals.total} /></strong> entries across every country and category.
             </>
           }
         />
@@ -73,6 +75,32 @@ function CoverageInner() {
         live — most new university entries fall here first. This is the same data we use internally to decide
         what to check next, not a marketing number.
       </Alert>
+
+      <Card>
+        <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">
+          Tap a country to jump straight to its listings
+        </h2>
+        <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-6">
+          {byCountry.map(([country, list]) => {
+            const total = list.reduce((s, r) => s + r.total, 0);
+            const verified = list.reduce((s, r) => s + r.verified_ok, 0);
+            const ratio = total ? verified / total : 0;
+            return (
+              <Link
+                key={country}
+                href={`/companies?country=${encodeURIComponent(country)}`}
+                className="flex flex-col items-center gap-1 rounded-xl border border-gray-100 p-2.5 text-center transition hover:-translate-y-0.5 hover:border-brand/40 hover:shadow-md"
+                style={{ backgroundColor: `rgba(26,158,95,${0.05 + ratio * 0.25})` }}
+                title={`${verified} of ${total} verified working`}
+              >
+                <span className="text-2xl leading-none">{COUNTRY_FLAGS[country] || "🌍"}</span>
+                <span className="text-[11px] font-semibold leading-tight text-navy">{country}</span>
+                <span className="text-[10px] tabular-nums text-gray-500">{total}</span>
+              </Link>
+            );
+          })}
+        </div>
+      </Card>
 
       {byCountry.map(([country, list]) => (
         <Card key={country}>

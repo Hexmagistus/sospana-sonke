@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { api, ApiError } from "@/lib/api";
 import { Button, Textarea } from "@/components/ui";
+import { isShortlisted, toggleShortlist } from "@/lib/shortlist";
 import type { Company } from "@/lib/types";
 
 function timeAgo(iso: string | null | undefined): string | null {
@@ -19,27 +20,77 @@ function timeAgo(iso: string | null | undefined): string | null {
   return `${years} year${years === 1 ? "" : "s"} ago`;
 }
 
-/** "Last verified" / "Updated recently" badges — honest, not guessed: sourced
- * directly from the URL tester / scan run (last_checked) and the page-hash
- * checker (content_changed_at). See app/services/link_check_service.py. */
+const NEW_WINDOW_MS = 1000 * 60 * 60 * 24 * 30;
+
+/** "Last verified" / "Updated recently" / "Recently added" badges — honest,
+ * not guessed: sourced directly from the URL tester / scan run (last_checked),
+ * the page-hash checker (content_changed_at), and the row's own created_at.
+ * See app/services/link_check_service.py. */
 export function VerifiedBadge({ company }: { company: Company }) {
   const verified = timeAgo(company.last_checked);
   const updated = timeAgo(company.content_changed_at);
   const recentlyUpdated =
     !!company.content_changed_at &&
     Date.now() - new Date(company.content_changed_at).getTime() < 1000 * 60 * 60 * 24 * 14;
+  const isNew =
+    !!company.created_at && Date.now() - new Date(company.created_at).getTime() < NEW_WINDOW_MS;
 
   return (
     <span className="flex flex-wrap items-center gap-1.5">
+      {isNew && (
+        <span className="rounded-full bg-gold/20 px-2 py-0.5 text-[11px] font-semibold text-[#a9791a]">
+          ✨ Recently added
+        </span>
+      )}
       {recentlyUpdated && (
         <span className="rounded-full bg-brand/10 px-2 py-0.5 text-[11px] font-semibold text-brand-dark">
-          ✨ Updated {updated}
+          🔄 Updated {updated}
         </span>
       )}
       <span className="text-[11px] text-gray-400">
         {verified ? `Last verified ${verified}` : "Not yet verified"}
       </span>
     </span>
+  );
+}
+
+/** "Popular this week" badge — driven by real notify-me subscription counts
+ * (see watch_service.trending_company_ids), the only honest popularity signal
+ * available without share/click tracking. The caller decides who qualifies. */
+export function TrendingBadge() {
+  return (
+    <span className="rounded-full bg-coral/10 px-2 py-0.5 text-[11px] font-semibold text-coral">
+      🔥 Popular this week
+    </span>
+  );
+}
+
+/** A star toggle backed by a per-browser localStorage shortlist (see
+ * lib/shortlist.ts) — no account/server state, so it works the same whether
+ * or not notify-me subscriptions are also in play. */
+export function ShortlistStar({ companyId }: { companyId: string }) {
+  const [on, setOn] = useState(false);
+
+  useEffect(() => {
+    setOn(isShortlisted(companyId));
+  }, [companyId]);
+
+  return (
+    <button
+      type="button"
+      onClick={(e) => {
+        e.stopPropagation();
+        setOn(toggleShortlist(companyId));
+      }}
+      aria-label={on ? "Remove from shortlist" : "Add to shortlist"}
+      aria-pressed={on}
+      title={on ? "In your shortlist" : "Add to shortlist"}
+      className={`rounded-full p-1 text-xl leading-none transition ${
+        on ? "text-gold drop-shadow-sm" : "text-gray-300 hover:text-gray-400"
+      }`}
+    >
+      {on ? "★" : "☆"}
+    </button>
   );
 }
 
@@ -51,10 +102,18 @@ export function CompanyActionsRow({ company, shareBasePath }: { company: Company
   const [reason, setReason] = useState("");
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
+  const [celebrate, setCelebrate] = useState(false);
 
   function toggle(which: "notify" | "report") {
     setOpen((cur) => (cur === which ? null : which));
     setMsg("");
+  }
+
+  // A small checkmark/confetti flourish on success, not on error -- gone on
+  // its own after a moment so it doesn't linger and clutter the card.
+  function flashSuccess() {
+    setCelebrate(true);
+    window.setTimeout(() => setCelebrate(false), 1700);
   }
 
   async function subscribe() {
@@ -64,6 +123,7 @@ export function CompanyActionsRow({ company, shareBasePath }: { company: Company
       await api.post("/watches", { company_id: company.id });
       setMsg("Done — you'll get an email if this page changes.");
       setOpen(null);
+      flashSuccess();
     } catch (e) {
       setMsg(e instanceof ApiError ? e.message : "Couldn't subscribe — try again.");
     } finally {
@@ -83,6 +143,7 @@ export function CompanyActionsRow({ company, shareBasePath }: { company: Company
       setMsg("Thanks — flagged for review.");
       setOpen(null);
       setReason("");
+      flashSuccess();
     } catch (e) {
       setMsg(e instanceof ApiError ? e.message : "Couldn't send the report — try again.");
     } finally {
@@ -169,7 +230,12 @@ export function CompanyActionsRow({ company, shareBasePath }: { company: Company
         </div>
       )}
 
-      {msg && <p className="mt-1.5 text-xs text-brand-dark">{msg}</p>}
+      {msg && (
+        <p className="mt-1.5 flex items-center gap-1.5 text-xs text-brand-dark">
+          {celebrate && <span className="animate-bounce text-sm" aria-hidden="true">🎉</span>}
+          {msg}
+        </p>
+      )}
     </div>
   );
 }

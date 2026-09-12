@@ -26,6 +26,10 @@ class CompanyResponse(BaseModel):
     # have found a difference. Most useful for careers links that are just a
     # homepage/news feed rather than a structured job board.
     content_changed_at: datetime | None = None
+    # When this row was first added to the directory -- powers the "Recently
+    # added" badge on the Companies/Universities cards. Real TimestampMixin
+    # data, not a guess.
+    created_at: datetime
 
 
 class CompanyImportResult(BaseModel):
@@ -49,6 +53,14 @@ class UrlTestResult(BaseModel):
     final_url: str | None
     looks_like_careers: bool
     error: str | None = None
+
+
+class TrendingCompany(BaseModel):
+    """One row of the "popular this week" ranking (GET /companies/trending) --
+    ranked purely by real notify-me subscriptions in the window, since no
+    share/click tracking exists to build a fuller "popularity" signal from."""
+    company_id: str
+    watch_count: int
 
 
 class CoverageRow(BaseModel):

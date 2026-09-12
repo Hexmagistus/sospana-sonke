@@ -16,12 +16,14 @@ from app.models.link_report import LinkReport
 from app.models.user import User
 from app.schemas.company import (
     CompanyResponse, CompanyImportResult, UrlTestResult, AutomationPolicyRequest, CoverageRow,
+    TrendingCompany,
 )
 from app.schemas.link_report import LinkReportCreateRequest, LinkReportResponse
 from app.services.csv_import import import_companies_from_csv
 from app.services.link_report_service import create_link_report
 from app.services.logo_service import discover_favicon
 from app.services.url_tester import test_url, status_from_result
+from app.services.watch_service import trending_company_ids
 
 _NEEDS_ATTENTION = {"needs_real_url", "needs_review", "no_url", "error"}
 
@@ -74,6 +76,20 @@ def coverage_map(db: Session = Depends(get_db), _: User = Depends(get_current_us
     rows = [CoverageRow(country=k[0], source_type=k[1], **v) for k, v in buckets.items()]
     rows.sort(key=lambda r: (r.country, r.source_type))
     return rows
+
+
+@router.get("/trending", response_model=list[TrendingCompany])
+def trending_companies(
+    db: Session = Depends(get_db),
+    _: User = Depends(get_current_user),
+    days: int = Query(default=7, ge=1, le=90),
+    limit: int = Query(default=50, le=200),
+):
+    """Companies picking up the most notify-me subscriptions lately -- powers
+    the directory's 🔥 "Popular this week" badge. See trending_company_ids()
+    for why this (and not shares, which aren't tracked) is the signal used."""
+    rows = trending_company_ids(db, days=days, limit=limit)
+    return [TrendingCompany(company_id=cid, watch_count=cnt) for cid, cnt in rows]
 
 
 @router.post("/{company_id}/report-link", response_model=LinkReportResponse,

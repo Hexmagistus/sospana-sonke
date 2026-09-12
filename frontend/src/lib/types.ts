@@ -148,9 +148,15 @@ export interface Company {
   url_looks_like_careers: boolean | null;
   notes: string | null;
   content_changed_at?: string | null;
+  created_at?: string;
 }
 
 // ---- Notify-me subscriptions & coverage map ----
+
+export interface TrendingCompany {
+  company_id: string;
+  watch_count: number;
+}
 
 export interface Watch {
   id: string;
