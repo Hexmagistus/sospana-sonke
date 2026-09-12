@@ -83,7 +83,7 @@ function CompaniesDirectoryInner() {
   const [vacancies, setVacancies] = useState<Vacancy[]>([]);
   const [err, setErr] = useState("");
   const [q, setQ] = useState("");
-  const [filter, setFilter] = useState<"all" | "listed" | "SOE" | "Municipality" | "Department" | "Private" | "NGO">("all");
+  const [filter, setFilter] = useState<"all" | "listed" | "SOE" | "Municipality" | "Department" | "Private" | "NGO" | "University">("all");
   const [country, setCountry] = useState("South Africa");
   const [sortBy, setSortBy] = useState<SortKey>("name");
 
@@ -132,7 +132,8 @@ function CompaniesDirectoryInner() {
         if (filter === "Department") return st === "DEPT";
         if (filter === "Private") return st === "PRIVATE";
         if (filter === "NGO") return st === "NGO";
-        return st !== "SOE" && st !== "MUNI" && st !== "PRIVATE" && st !== "NGO";
+        if (filter === "University") return st === "UNI";
+        return st !== "SOE" && st !== "MUNI" && st !== "PRIVATE" && st !== "NGO" && st !== "UNI";
       })
       .filter((c) => !needle
         || c.company_name.toLowerCase().includes(needle)
@@ -152,10 +153,10 @@ function CompaniesDirectoryInner() {
   if (err) return <Alert kind="error">{err}</Alert>;
   if (!companies.length) return <Spinner label="Loading the directory…" />;
 
-  const FILTERS = ["all", "listed", "SOE", "Municipality", "Department", "Private", "NGO"] as const;
+  const FILTERS = ["all", "listed", "SOE", "Municipality", "Department", "Private", "NGO", "University"] as const;
   const filterLabel: Record<(typeof FILTERS)[number], string> = {
     all: "All", listed: "Listed", SOE: "State-owned", Municipality: "Municipalities",
-    Department: "🏛️ Gov depts", Private: "Private", NGO: "🤝 NGOs",
+    Department: "🏛️ Gov depts", Private: "Private", NGO: "🤝 NGOs", University: "🎓 Universities",
   };
 
   return (
