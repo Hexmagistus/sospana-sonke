@@ -102,6 +102,50 @@ def scan_due_companies(db: Session, limit: int = 25, job_run_id: str | None = No
             "candidates_alerted": candidates_alerted}
 
 
+def check_link_changes(db: Session, limit: int = 25, job_run_id: str | None = None) -> dict:
+    """Hash-check the careers pages checked longest ago and alert any
+    CompanyWatch subscribers when a page's content changed since last time.
+
+    A companion to scan_due_companies for the many companies/universities
+    whose careers link is a homepage or news feed rather than a structured
+    job board -- app/scraper can't extract individual vacancies from those,
+    so this gives them a cheaper "did anything change" signal instead. Same
+    rotating-batch shape so a free external cron can call it often and the
+    whole database still cycles through over time.
+    """
+    from app.services.link_check_service import check_company_content, notify_watchers_of_change, make_client
+
+    companies = (db.query(Company)
+                 .filter(Company.active.is_(True), Company.deleted_at.is_(None),
+                         Company.careers_url.isnot(None))
+                 # NULL content_checked_at (never checked) first, then oldest.
+                 .order_by(Company.content_checked_at.is_(None).desc(),
+                           Company.content_checked_at.asc())
+                 .limit(limit)
+                 .all())
+
+    checked = changed_count = notified = errors = 0
+    client = make_client()
+    try:
+        for company in companies:
+            try:
+                did_change = check_company_content(company, client=client)
+                checked += 1
+                if did_change:
+                    changed_count += 1
+                    notified += notify_watchers_of_change(db, company)
+                db.add(company)
+                db.commit()
+            except Exception:
+                errors += 1
+                db.rollback()
+    finally:
+        client.close()
+
+    return {"batch_limit": limit, "companies_checked": checked,
+            "pages_changed": changed_count, "watchers_notified": notified, "errors": errors}
+
+
 def match_all_candidates(db: Session) -> dict:
     """Run matching for every candidate with active access; notifications fire inside."""
     users = db.query(User).filter(User.role == "candidate", User.is_active.is_(True)).all()

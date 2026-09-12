@@ -48,4 +48,13 @@ class Company(UUIDMixin, TimestampMixin, Base):
     favicon_url: Mapped[str | None] = mapped_column(Text, nullable=True)
     favicon_checked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
+    # Lightweight change-detection for careers pages that don't yield
+    # structured vacancies via app/scraper (most homepage/news-feed careers
+    # links -- see app/services/link_check_service.py). Distinct from
+    # last_checked/scraping_status above, which the URL tester and the
+    # vacancy scanner own.
+    content_hash: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    content_checked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    content_changed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)

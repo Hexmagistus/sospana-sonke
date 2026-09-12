@@ -143,9 +143,33 @@ export interface Company {
   official_website?: string | null;
   active: boolean;
   scraping_status: string;
+  last_checked?: string | null;
   last_http_status: number | null;
   url_looks_like_careers: boolean | null;
   notes: string | null;
+  content_changed_at?: string | null;
+}
+
+// ---- Notify-me subscriptions & coverage map ----
+
+export interface Watch {
+  id: string;
+  company_id: string | null;
+  country: string | null;
+  source_type: string | null;
+  active: boolean;
+  created_at: string;
+}
+
+export interface CoverageRow {
+  country: string;
+  source_type: string;
+  total: number;
+  active: number;
+  with_careers_url: number;
+  verified_ok: number;
+  pending_verification: number;
+  needs_attention: number;
 }
 
 // ---- CV upload & auto-import ("system picks it up automatically") ----

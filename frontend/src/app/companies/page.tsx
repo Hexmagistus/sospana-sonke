@@ -1,12 +1,15 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 import Guard from "@/components/Guard";
 import { api } from "@/lib/api";
 import { Card, Input, Button, Alert, Spinner } from "@/components/ui";
 import { Banner } from "@/components/Banner";
 import { NdebeleStrip } from "@/components/NdebeleStrip";
 import { CompanyLogo, isAtsPortal } from "@/components/CompanyLogo";
+import { CompanyActionsRow } from "@/components/CompanyActions";
 import { COUNTRY_FLAGS } from "@/lib/countryFlags";
 import type { Company, Vacancy } from "@/lib/types";
 
@@ -79,6 +82,7 @@ function hashCode(s: string): number {
 type SortKey = "name" | "jobs";
 
 function CompaniesDirectoryInner() {
+  const searchParams = useSearchParams();
   const [companies, setCompanies] = useState<Company[]>([]);
   const [vacancies, setVacancies] = useState<Vacancy[]>([]);
   const [err, setErr] = useState("");
@@ -96,6 +100,19 @@ function CompaniesDirectoryInner() {
       setVacancies(vacs);
     }).catch((e) => setErr(e.message));
   }, []);
+
+  // Deep link from a "Share" button elsewhere (?company=<id>): jump to that
+  // company's own country and filter the list down to just it.
+  useEffect(() => {
+    const wanted = searchParams.get("company");
+    if (!wanted || !companies.length) return;
+    const found = companies.find((c) => c.id === wanted);
+    if (found) {
+      setCountry(found.country || "South Africa");
+      setQ(found.company_name);
+      setFilter("all");
+    }
+  }, [searchParams, companies]);
 
   // Real open-position counts per company, from the same vacancy data the
   // Find Jobs page uses -- never fabricated.
@@ -322,11 +339,20 @@ function CompaniesDirectoryInner() {
                     <span className="whitespace-nowrap text-xs text-gray-400">No careers page yet</span>
                   )}
                 </div>
+
+                <CompanyActionsRow company={c} shareBasePath="/companies" />
               </div>
             );
           })}
           {shownCompanies.length === 0 && <p className="text-sm text-gray-400">No companies match your search.</p>}
         </div>
+
+        <p className="text-center text-xs text-gray-400">
+          Wondering how complete this directory really is?{" "}
+          <Link href="/coverage" className="font-semibold text-brand-dark hover:underline">
+            See the coverage map →
+          </Link>
+        </p>
       </div>
     </div>
   );
@@ -335,7 +361,9 @@ function CompaniesDirectoryInner() {
 export default function CompaniesDirectoryPage() {
   return (
     <Guard>
-      <CompaniesDirectoryInner />
+      <Suspense fallback={<Spinner label="Loading the directory…" />}>
+        <CompaniesDirectoryInner />
+      </Suspense>
     </Guard>
   );
 }

@@ -54,6 +54,9 @@ _NEW_COLUMNS: list[tuple[str, str, str]] = [
     ("users", "qualification_name", "VARCHAR(200)"),
     ("companies", "favicon_url", "TEXT"),
     ("companies", "favicon_checked_at", "TIMESTAMP WITH TIME ZONE" if not DATABASE_URL.startswith("sqlite") else "TIMESTAMP"),
+    ("companies", "content_hash", "VARCHAR(64)"),
+    ("companies", "content_checked_at", "TIMESTAMP WITH TIME ZONE" if not DATABASE_URL.startswith("sqlite") else "TIMESTAMP"),
+    ("companies", "content_changed_at", "TIMESTAMP WITH TIME ZONE" if not DATABASE_URL.startswith("sqlite") else "TIMESTAMP"),
 ]
 
 

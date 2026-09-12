@@ -9,7 +9,9 @@ from __future__ import annotations
 from sqlalchemy.orm import Session
 
 from app.models.match import SystemSetting
-from app.scheduler.jobs import scan_all_companies, scan_south_africa, scan_due_companies, match_all_candidates
+from app.scheduler.jobs import (
+    scan_all_companies, scan_south_africa, scan_due_companies, match_all_candidates, check_link_changes,
+)
 
 # name -> callable(db) -> summary dict
 JOBS = {
@@ -17,12 +19,14 @@ JOBS = {
     "scan_south_africa": scan_south_africa,     # full sweep, South Africa only (current rollout phase)
     "scan_due_companies": scan_due_companies,   # fast rotating batch (external cron)
     "match_all_candidates": match_all_candidates,
+    "check_link_changes": check_link_changes,   # fast rotating batch: page-hash "did it change" check
 }
 
 DEFAULT_SCHEDULE = {
     "scan_due_companies": "0 */3 * * *",     # every 3 hours — rotates through the list
     "scan_all_companies": "0 */6 * * *",     # every 6 hours
     "match_all_candidates": "0 2 * * *",     # nightly at 02:00
+    "check_link_changes": "0 */4 * * *",     # every 4 hours — rotates through the list
 }
 
 SCHEDULE_KEY = "schedule_config"

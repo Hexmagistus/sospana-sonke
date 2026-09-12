@@ -12,13 +12,18 @@ from sqlalchemy.orm import Session
 from app.core.deps import get_current_user, require_admin
 from app.db.session import get_db
 from app.models.company import Company
+from app.models.link_report import LinkReport
 from app.models.user import User
 from app.schemas.company import (
-    CompanyResponse, CompanyImportResult, UrlTestResult, AutomationPolicyRequest,
+    CompanyResponse, CompanyImportResult, UrlTestResult, AutomationPolicyRequest, CoverageRow,
 )
+from app.schemas.link_report import LinkReportCreateRequest, LinkReportResponse
 from app.services.csv_import import import_companies_from_csv
+from app.services.link_report_service import create_link_report
 from app.services.logo_service import discover_favicon
 from app.services.url_tester import test_url, status_from_result
+
+_NEEDS_ATTENTION = {"needs_real_url", "needs_review", "no_url", "error"}
 
 # How long a discovered (or "nothing found") icon result stays cached on the
 # company row before we try that company's site again.
@@ -43,6 +48,54 @@ def list_companies(
         q = q.filter(Company.active == active)
     q = q.order_by(Company.company_name).offset(offset).limit(limit)
     return [CompanyResponse.model_validate(c) for c in q.all()]
+
+
+@router.get("/coverage", response_model=list[CoverageRow])
+def coverage_map(db: Session = Depends(get_db), _: User = Depends(get_current_user)):
+    """Honest per-country/category rollup: how much of the directory is a
+    verified working link vs. still pending verification vs. needs attention.
+    Doubles as the team's own to-do list for filling gaps, not just a stat for
+    users -- see the "Full-Africa university coverage" note in the project
+    doc for why this matters for the rows added fastest (universities)."""
+    buckets: dict[tuple[str, str], dict] = {}
+    for c in db.query(Company).filter(Company.deleted_at.is_(None)).all():
+        key = (c.country or "Unknown", (c.source_type or "").upper() or "OTHER")
+        b = buckets.setdefault(key, {"total": 0, "active": 0, "with_careers_url": 0,
+                                     "verified_ok": 0, "pending_verification": 0, "needs_attention": 0})
+        b["total"] += 1
+        b["active"] += int(c.active)
+        b["with_careers_url"] += int(bool(c.careers_url))
+        if c.scraping_status == "ok":
+            b["verified_ok"] += 1
+        elif c.scraping_status == "pending":
+            b["pending_verification"] += 1
+        elif c.scraping_status in _NEEDS_ATTENTION:
+            b["needs_attention"] += 1
+    rows = [CoverageRow(country=k[0], source_type=k[1], **v) for k, v in buckets.items()]
+    rows.sort(key=lambda r: (r.country, r.source_type))
+    return rows
+
+
+@router.post("/{company_id}/report-link", response_model=LinkReportResponse,
+            status_code=status.HTTP_201_CREATED)
+def report_broken_link(company_id: str, body: LinkReportCreateRequest,
+                       db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    """Crowd-sourced verification: let any signed-in candidate flag a link
+    that's broken, wrong, or redirects elsewhere -- far faster at scale than
+    waiting for the periodic re-check or an admin's manual URL test."""
+    report = create_link_report(db, user_id=user.id, company_id=company_id, reason=body.reason)
+    return LinkReportResponse.model_validate(report)
+
+
+@router.get("/link-reports", response_model=list[LinkReportResponse], dependencies=[Depends(require_admin)])
+def list_link_reports(db: Session = Depends(get_db),
+                      status_filter: str | None = Query(default=None, alias="status"),
+                      limit: int = Query(default=100, le=500)):
+    q = db.query(LinkReport)
+    if status_filter:
+        q = q.filter(LinkReport.status == status_filter)
+    q = q.order_by(LinkReport.created_at.desc()).limit(limit)
+    return [LinkReportResponse.model_validate(r) for r in q.all()]
 
 
 @router.get("/{company_id}/icon")

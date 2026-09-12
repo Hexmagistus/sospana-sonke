@@ -17,3 +17,5 @@ from app.models.report import Report  # noqa: F401
 from app.models.notification import Notification, JobRun, PushToken  # noqa: F401
 from app.models.interview import InterviewPrep  # noqa: F401
 from app.models.job_analysis import JobAnalysis  # noqa: F401
+from app.models.watch import CompanyWatch  # noqa: F401
+from app.models.link_report import LinkReport  # noqa: F401
