@@ -780,9 +780,9 @@ export default function Home() {
                 ))}
               </div>
 
-              {/* Every other country lives in this dropdown, not as more big
-                  cards on the page -- click to open, click again to close. */}
-              <CountriesDropdown live={LIVE.slice(LIVE_PREVIEW)} soon={SOON} />
+              {/* A real "jump to a country" dropdown -- pick any of the 54,
+                  its card appears right below. No long list on the page. */}
+              <CountryJumpSelect live={LIVE} soon={SOON} />
             </div>
 
             <p className="mt-5 text-sm font-semibold text-blue-100">
@@ -808,7 +808,7 @@ export default function Home() {
 
                 <p className="mt-3 text-[11px] text-blue-200">
                   South Africa leads today; as we verify more employers across each market, this picture will keep shifting.
-                  The full ranking for all {LIVE.length} countries is in the dropdown above.
+                  Use the country picker above to look up any of the other {LIVE.length + SOON.length} countries.
                 </p>
               </div>
             </Reveal>
@@ -941,69 +941,65 @@ function LiveCountryCard({ c, i }: { c: { name: string; flag: string; count: num
   );
 }
 
-/* A real dropdown -- click the button, a compact scrollable panel of every
-   remaining country drops open below it (rows, not big cards), click again
-   to close. This is what actually saves space, instead of just adding more
-   full-size cards to the page. */
-function CountriesDropdown({
+/* A real "jump to a country" dropdown -- a native <select> (so it gets
+   keyboard type-ahead and a proper mobile picker for free) listing every
+   one of the 54 countries alphabetically. Choosing one shows just that
+   country's card below -- no long list sitting on the page at all. */
+function CountryJumpSelect({
   live,
   soon,
 }: {
   live: { name: string; flag: string; count: number; pending: boolean }[];
   soon: { name: string; flag: string }[];
 }) {
-  const [open, setOpen] = useState(false);
-  const total = live.length + soon.length;
-  if (total === 0) return null;
+  const [selected, setSelected] = useState("");
+  const options = [
+    ...live.map((c) => ({ ...c, kind: "live" as const })),
+    ...soon.map((c) => ({ ...c, kind: "soon" as const, count: 0, pending: true })),
+  ].sort((a, b) => a.name.localeCompare(b.name));
+  const chosen = options.find((o) => o.name === selected);
+
   return (
     <div className="mt-4">
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        aria-expanded={open}
-        className="inline-flex w-full items-center justify-between gap-3 rounded-xl border border-white/20 bg-white/10 px-4 py-3 text-sm font-bold text-white backdrop-blur-sm transition hover:border-white/40 hover:bg-white/20 sm:w-auto sm:min-w-[22rem]"
-      >
-        <span className="inline-flex items-center gap-2">
-          <span className="relative flex h-2 w-2">
-            <span className="absolute inline-flex h-full w-full animate-node-pulse rounded-full bg-white/60" />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-white" />
-          </span>
-          View all {total} other countries
+      <label className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-blue-200">
+        <span className="relative flex h-2 w-2">
+          <span className="absolute inline-flex h-full w-full animate-node-pulse rounded-full bg-white/60" />
+          <span className="relative inline-flex h-2 w-2 rounded-full bg-white" />
         </span>
-        <span className={`inline-block text-base transition-transform duration-300 ${open ? "rotate-180" : ""}`} aria-hidden="true">▾</span>
-      </button>
-
-      <div
-        className="grid overflow-hidden transition-all duration-400 ease-out"
-        style={{ gridTemplateRows: open ? "1fr" : "0fr", opacity: open ? 1 : 0 }}
-      >
-        <div className="min-h-0">
-          <div className="mt-3 max-h-[26rem] overflow-y-auto rounded-xl border border-white/15 bg-black/30 p-2 backdrop-blur-sm sm:max-w-2xl">
-            <div className="grid grid-cols-1 gap-0.5 sm:grid-cols-2">
-              {live.map((c) => (
-                <div key={c.name} className="flex items-center justify-between gap-2 rounded-lg px-2.5 py-2 text-sm transition-colors hover:bg-white/10">
-                  <span className="flex min-w-0 items-center gap-2">
-                    <span className="text-lg leading-none">{c.flag}</span>
-                    <span className="truncate font-medium">{c.name}</span>
-                  </span>
-                  <span className="shrink-0 whitespace-nowrap font-mono text-xs font-semibold" style={{ color: C.mint }}>
-                    {c.count} {c.count === 1 ? "employer" : "employers"}
-                  </span>
-                </div>
-              ))}
-              {soon.map((c) => (
-                <div key={c.name} className="flex items-center justify-between gap-2 rounded-lg px-2.5 py-2 text-sm opacity-60">
-                  <span className="flex min-w-0 items-center gap-2">
-                    <span className="text-lg leading-none grayscale-[0.3]">{c.flag}</span>
-                    <span className="truncate font-medium">{c.name}</span>
-                  </span>
-                  <span className="shrink-0 whitespace-nowrap text-[10px] font-semibold uppercase tracking-wide text-blue-200">Coming soon</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
+        Jump to a country
+      </label>
+      <div className="relative w-full sm:max-w-sm">
+        <select
+          value={selected}
+          onChange={(e) => setSelected(e.target.value)}
+          className="w-full appearance-none rounded-xl border border-white/20 bg-white/10 py-3 pl-4 pr-10 text-sm font-bold text-white backdrop-blur-sm transition hover:border-white/40 hover:bg-white/20 focus:border-white/50 focus:outline-none"
+        >
+          <option value="" className="text-navy">Choose from all {options.length} countries…</option>
+          {options.map((o) => (
+            <option key={o.name} value={o.name} className="text-navy">
+              {o.flag} {o.name}{o.kind === "live" ? ` — ${o.count} ${o.count === 1 ? "employer" : "employers"}` : " — coming soon"}
+            </option>
+          ))}
+        </select>
+        <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-sm text-white">▾</span>
       </div>
+
+      {chosen && (
+        <div className="mt-3 max-w-xs">
+          {chosen.kind === "live" ? (
+            <LiveCountryCard c={chosen} i={0} />
+          ) : (
+            <div className="rounded-2xl border border-dashed border-white/20 bg-white/5 p-4 text-center backdrop-blur-sm">
+              <div className="text-4xl grayscale-[0.3]">{chosen.flag}</div>
+              <div className="mt-1.5 text-sm font-bold">{chosen.name}</div>
+              <div className="mt-1.5 inline-flex items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-semibold text-blue-100">
+                <span className="h-1.5 w-1.5 animate-pulse-glow rounded-full" style={{ background: C.sky }} />
+                Coming soon
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
