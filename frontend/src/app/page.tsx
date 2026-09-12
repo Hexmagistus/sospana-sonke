@@ -474,6 +474,10 @@ export default function Home() {
   const { user, loading } = useAuth();
   const router = useRouter();
   const [scrolled, setScrolled] = useState(false);
+  const [showAllLive, setShowAllLive] = useState(false);
+  const [showAllRanking, setShowAllRanking] = useState(false);
+  const LIVE_PREVIEW = 8;
+  const RANKING_PREVIEW = 10;
 
   useEffect(() => {
     if (!loading && user) router.replace("/companies");
@@ -773,35 +777,35 @@ export default function Home() {
                 Live now
               </p>
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-                {LIVE.map((c, i) => {
-                  const nodeCols = [C.gold, C.mint, C.sky, C.green, C.sun, C.plum, C.red, C.teal];
-                  const nodeCol = nodeCols[i % nodeCols.length];
-                  return (
-                    <Reveal key={c.name} delay={(i % 4) * 70}>
-                      <div
-                        className="relative flex items-center gap-3 overflow-hidden rounded-2xl border border-white/15 bg-white/10 p-4 backdrop-blur-sm transition-colors hover:border-white/30 hover:bg-white/[0.15]"
-                        style={{ borderLeft: `3px solid ${nodeCol}` }}
-                      >
-                        <span className="text-4xl leading-none">{c.flag}</span>
-                        <div>
-                          <div className="text-sm font-bold leading-tight">{c.name}</div>
-                          <div className="mt-0.5 font-mono text-xs font-semibold" style={{ color: C.mint }}>
-                            <CountUp target={c.count} suffix=" employers" duration={1000} />
-                          </div>
-                          <span className="mt-1 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold" style={{ background: C.green, color: "#fff" }}>
-                            <span className="relative flex h-1.5 w-1.5">
-                              <span className="absolute inline-flex h-full w-full animate-node-pulse rounded-full bg-white/60" />
-                              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-white" />
-                            </span>
-                            Live
-                          </span>
-                          {c.pending && <div className="mt-1 text-[10px] font-medium text-blue-200">Stock exchange listings coming soon</div>}
-                        </div>
-                      </div>
-                    </Reveal>
-                  );
-                })}
+                {LIVE.slice(0, LIVE_PREVIEW).map((c, i) => (
+                  <LiveCountryCard key={c.name} c={c} i={i} />
+                ))}
               </div>
+
+              {/* Every remaining country lives here, collapsed by default to keep
+                  the page short — the button below expands it in place. */}
+              <div
+                className="grid overflow-hidden transition-all duration-500 ease-out"
+                style={{ gridTemplateRows: showAllLive ? "1fr" : "0fr", opacity: showAllLive ? 1 : 0 }}
+              >
+                <div className="min-h-0">
+                  <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+                    {LIVE.slice(LIVE_PREVIEW).map((c, i) => (
+                      <LiveCountryCard key={c.name} c={c} i={i + LIVE_PREVIEW} />
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setShowAllLive((v) => !v)}
+                aria-expanded={showAllLive}
+                className="group mt-4 inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-4 py-2 text-xs font-bold uppercase tracking-wider text-white backdrop-blur-sm transition hover:border-white/40 hover:bg-white/20"
+              >
+                {showAllLive ? "Show fewer countries" : `Show all ${LIVE.length} countries`}
+                <span className={`inline-block transition-transform duration-300 ${showAllLive ? "rotate-180" : ""}`} aria-hidden="true">▾</span>
+              </button>
             </div>
 
             <p className="mt-5 text-sm font-semibold text-blue-100">
@@ -814,7 +818,7 @@ export default function Home() {
                 <p className="text-xs font-semibold uppercase tracking-wider text-blue-200">Who&apos;s powering Africa&apos;s opportunities</p>
                 <p className="mt-1 text-sm text-blue-100">Verified employers on Sospana Sonke by country — a live picture of where the region&apos;s opportunities are opening up.</p>
                 <div className="mt-4 space-y-2.5">
-                  {LIVE.map((c, i) => {
+                  {LIVE.slice(0, RANKING_PREVIEW).map((c, i) => {
                     const max = LIVE[0].count || 1;
                     const pct = Math.max(6, Math.round((c.count / max) * 100));
                     const cols = [C.gold, C.mint, C.sky, C.green, C.sun, C.plum, C.red, C.teal, C.amber, C.mint, C.sky, C.green, C.gold, C.sun, C.teal, C.plum];
@@ -824,6 +828,36 @@ export default function Home() {
                     );
                   })}
                 </div>
+
+                <div
+                  className="grid overflow-hidden transition-all duration-500 ease-out"
+                  style={{ gridTemplateRows: showAllRanking ? "1fr" : "0fr", opacity: showAllRanking ? 1 : 0 }}
+                >
+                  <div className="min-h-0">
+                    <div className="mt-2.5 space-y-2.5">
+                      {LIVE.slice(RANKING_PREVIEW).map((c, i) => {
+                        const max = LIVE[0].count || 1;
+                        const pct = Math.max(6, Math.round((c.count / max) * 100));
+                        const cols = [C.gold, C.mint, C.sky, C.green, C.sun, C.plum, C.red, C.teal, C.amber, C.mint, C.sky, C.green, C.gold, C.sun, C.teal, C.plum];
+                        const col = cols[(i + RANKING_PREVIEW) % cols.length];
+                        return (
+                          <BarRow key={c.name} name={c.name} flag={c.flag} pct={pct} count={c.count} color={col} delay={i * 40} />
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setShowAllRanking((v) => !v)}
+                  aria-expanded={showAllRanking}
+                  className="mt-4 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-4 py-1.5 text-[11px] font-bold uppercase tracking-wider text-blue-100 transition hover:border-white/40 hover:bg-white/10"
+                >
+                  {showAllRanking ? "Show fewer" : `Show full ranking (${LIVE.length})`}
+                  <span className={`inline-block transition-transform duration-300 ${showAllRanking ? "rotate-180" : ""}`} aria-hidden="true">▾</span>
+                </button>
+
                 <p className="mt-3 text-[11px] text-blue-200">South Africa leads today; as we verify more employers across each market, this picture will keep shifting.</p>
               </div>
             </Reveal>
@@ -942,6 +976,37 @@ export default function Home() {
         </div>
       </footer>
     </div>
+  );
+}
+
+/* One country tile in the "Live now" grid — pulled out so it can be reused for
+   both the always-visible preview and the collapsible full list. */
+function LiveCountryCard({ c, i }: { c: { name: string; flag: string; count: number; pending: boolean }; i: number }) {
+  const nodeCols = [C.gold, C.mint, C.sky, C.green, C.sun, C.plum, C.red, C.teal];
+  const nodeCol = nodeCols[i % nodeCols.length];
+  return (
+    <Reveal delay={(i % 4) * 70}>
+      <div
+        className="relative flex items-center gap-3 overflow-hidden rounded-2xl border border-white/15 bg-white/10 p-4 backdrop-blur-sm transition-colors hover:border-white/30 hover:bg-white/[0.15]"
+        style={{ borderLeft: `3px solid ${nodeCol}` }}
+      >
+        <span className="text-4xl leading-none">{c.flag}</span>
+        <div>
+          <div className="text-sm font-bold leading-tight">{c.name}</div>
+          <div className="mt-0.5 font-mono text-xs font-semibold" style={{ color: C.mint }}>
+            <CountUp target={c.count} suffix=" employers" duration={1000} />
+          </div>
+          <span className="mt-1 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold" style={{ background: C.green, color: "#fff" }}>
+            <span className="relative flex h-1.5 w-1.5">
+              <span className="absolute inline-flex h-full w-full animate-node-pulse rounded-full bg-white/60" />
+              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-white" />
+            </span>
+            Live
+          </span>
+          {c.pending && <div className="mt-1 text-[10px] font-medium text-blue-200">Stock exchange listings coming soon</div>}
+        </div>
+      </div>
+    </Reveal>
   );
 }
 
