@@ -4,6 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import { Card, Button, Input, Textarea, Field, Alert } from "@/components/ui";
 import { api, ApiError } from "@/lib/api";
+import { NdebeleStrip } from "@/components/NdebeleStrip";
+import { CircuitOverlay, GlowFrame } from "@/components/HighTech";
 
 const PRESET_AMOUNTS = [20, 50, 100] as const;
 
@@ -49,7 +51,9 @@ export default function DonatePage() {
   }
 
   return (
-    <div className="mx-auto max-w-xl space-y-5">
+    <div className="relative mx-auto max-w-xl space-y-5">
+      <CircuitOverlay className="-z-10 opacity-70" opacity={0.1} stroke="#0b1f3a" dotColor="#f5b301" />
+      <NdebeleStrip id="ndebele-donate-top" glow className="overflow-hidden rounded-xl shadow-sm" />
       <div>
         <h1 className="text-2xl font-bold text-navy">Help keep Sospana Sonke free</h1>
         <p className="mt-1.5 text-sm text-gray-600">
@@ -59,6 +63,7 @@ export default function DonatePage() {
         </p>
       </div>
 
+      <GlowFrame>
       <Card>
         <form onSubmit={submit} className="space-y-4">
           <Field label="Choose an amount (ZAR)">
@@ -136,7 +141,7 @@ export default function DonatePage() {
 
           {error && <Alert kind="error">{error}</Alert>}
 
-          <Button type="submit" size="lg" loading={loading} disabled={!canSubmit} className="w-full">
+          <Button type="submit" size="lg" loading={loading} disabled={!canSubmit} glow className="w-full">
             Donate R{Number.isFinite(effectiveAmount) && effectiveAmount > 0 ? Math.round(effectiveAmount) : "…"} →
           </Button>
           <p className="text-center text-xs text-gray-400">
@@ -145,6 +150,7 @@ export default function DonatePage() {
           </p>
         </form>
       </Card>
+      </GlowFrame>
 
       <Card>
         <h2 className="mb-2 font-semibold text-navy">Prefer a direct bank transfer?</h2>
@@ -163,6 +169,8 @@ export default function DonatePage() {
           Please use &quot;Sospana Sonke donation&quot; as your payment reference.
         </p>
       </Card>
+
+      <NdebeleStrip id="ndebele-donate-bottom" flip glow className="overflow-hidden rounded-xl shadow-sm" />
 
       <p className="text-center text-sm">
         <Link href="/companies" className="text-brand hover:underline">← Back to Sospana Sonke</Link>

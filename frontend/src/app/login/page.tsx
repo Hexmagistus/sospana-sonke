@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth";
 import { Card, Field, Input, Button, Alert } from "@/components/ui";
 import { NdebeleStrip } from "@/components/NdebeleStrip";
+import { CircuitOverlay, GlowFrame, LogoGlow } from "@/components/HighTech";
 
 const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
 
@@ -112,11 +113,14 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="mx-auto mt-10 max-w-md">
+    <div className="relative mx-auto mt-10 max-w-md">
       {authing && <AuthLoader />}
-      <NdebeleStrip id="ndebele-login-top" className="mb-6 overflow-hidden rounded-t-xl shadow-sm" />
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/logo-mark.png" alt="Sospana Sonke" className="mx-auto mb-3 h-16 w-16 rounded-2xl object-cover shadow-md" />
+      <CircuitOverlay className="-z-10 opacity-70" opacity={0.1} stroke="#0b1f3a" dotColor="#f5b301" />
+      <NdebeleStrip id="ndebele-login-top" glow className="mb-6 overflow-hidden rounded-t-xl shadow-sm" />
+      <LogoGlow className="mx-auto mb-3 block w-fit">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/logo-mark.png" alt="Sospana Sonke" className="h-16 w-16 rounded-2xl object-cover shadow-md" />
+      </LogoGlow>
       <h1 className="mb-1 text-center text-2xl font-bold text-brand">Sospana Sonke</h1>
       <p className="mb-4 text-center text-sm text-gray-500">
         We find the opportunities. You apply direct.
@@ -127,47 +131,49 @@ export default function LoginPage() {
           scenes — it can take a minute or two, not a sign anything&apos;s wrong.
         </Alert>
       </div>
-      <Card>
-        <h2 className="mb-4 text-lg font-semibold">Sign in</h2>
-        <form onSubmit={submit} className="space-y-4">
-          {error && <Alert kind="error">{error}</Alert>}
-          <Field label="Email">
-            <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-          </Field>
-          <Field label="Password">
-            <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-          </Field>
-          {needsOtp && (
-            <Field label="Authenticator code">
-              <Input value={otp} onChange={(e) => setOtp(e.target.value)} inputMode="numeric" placeholder="6-digit code" />
+      <GlowFrame>
+        <Card>
+          <h2 className="mb-4 text-lg font-semibold">Sign in</h2>
+          <form onSubmit={submit} className="space-y-4">
+            {error && <Alert kind="error">{error}</Alert>}
+            <Field label="Email">
+              <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
             </Field>
+            <Field label="Password">
+              <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+            </Field>
+            {needsOtp && (
+              <Field label="Authenticator code">
+                <Input value={otp} onChange={(e) => setOtp(e.target.value)} inputMode="numeric" placeholder="6-digit code" />
+              </Field>
+            )}
+            <Button type="submit" loading={busy} disabled={busy} glow className="w-full">
+              {busy ? "Signing in…" : "Sign in"}
+            </Button>
+          </form>
+
+          {GOOGLE_CLIENT_ID && (
+            <div className="mt-5">
+              <div className="mb-4 flex items-center gap-3">
+                <span className="h-px flex-1 bg-gray-200" />
+                <span className="text-xs font-medium uppercase tracking-wider text-gray-400">or</span>
+                <span className="h-px flex-1 bg-gray-200" />
+              </div>
+              <div className="flex justify-center">
+                <div id="google-signin-btn" />
+              </div>
+            </div>
           )}
-          <Button type="submit" loading={busy} disabled={busy} className="w-full">
-            {busy ? "Signing in…" : "Sign in"}
-          </Button>
-        </form>
 
-        {GOOGLE_CLIENT_ID && (
-          <div className="mt-5">
-            <div className="mb-4 flex items-center gap-3">
-              <span className="h-px flex-1 bg-gray-200" />
-              <span className="text-xs font-medium uppercase tracking-wider text-gray-400">or</span>
-              <span className="h-px flex-1 bg-gray-200" />
-            </div>
-            <div className="flex justify-center">
-              <div id="google-signin-btn" />
-            </div>
-          </div>
-        )}
-
-        <p className="mt-4 text-center text-sm text-gray-500">
-          No account?{" "}
-          <Link href="/register" className="text-brand hover:underline">
-            Create one
-          </Link>
-        </p>
-      </Card>
-      <NdebeleStrip id="ndebele-login-bottom" flip className="mt-6 overflow-hidden rounded-b-xl shadow-sm" />
+          <p className="mt-4 text-center text-sm text-gray-500">
+            No account?{" "}
+            <Link href="/register" className="text-brand hover:underline">
+              Create one
+            </Link>
+          </p>
+        </Card>
+      </GlowFrame>
+      <NdebeleStrip id="ndebele-login-bottom" flip glow className="mt-6 overflow-hidden rounded-b-xl shadow-sm" />
     </div>
   );
 }

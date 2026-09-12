@@ -86,12 +86,16 @@ export function Button({
   variant = "primary",
   size = "md",
   loading = false,
+  glow = false,
   ...props
 }: {
   children: ReactNode;
   variant?: "primary" | "secondary" | "ghost" | "danger";
   size?: "sm" | "md" | "lg";
   loading?: boolean;
+  /** Adds a diagonal sheen sweep on hover -- the same hightech touch used on
+      the homepage's hero CTAs. Opt-in and off by default. */
+  glow?: boolean;
 } & ButtonHTMLAttributes<HTMLButtonElement>) {
   const styles = {
     primary: "bg-gradient-to-r from-brand to-brand-dark text-white shadow-sm hover:shadow-md hover:brightness-110 focus-visible:ring-brand/40",
@@ -108,7 +112,7 @@ export function Button({
     <button
       {...props}
       disabled={props.disabled || loading}
-      className={`inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-all duration-150 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 ${sizes} ${styles} ${props.className || ""}`}
+      className={`group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-lg font-medium transition-all duration-150 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 ${sizes} ${styles} ${props.className || ""}`}
     >
       {loading && (
         <svg className="h-3.5 w-3.5 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -116,7 +120,10 @@ export function Button({
           <path className="opacity-90" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
         </svg>
       )}
-      {children}
+      <span className="relative z-10 inline-flex items-center gap-2">{children}</span>
+      {glow && (
+        <span className="pointer-events-none absolute inset-0 -translate-x-full skew-x-[-20deg] bg-white/25 opacity-0 transition-all duration-700 group-hover:translate-x-full group-hover:opacity-100" />
+      )}
     </button>
   );
 }

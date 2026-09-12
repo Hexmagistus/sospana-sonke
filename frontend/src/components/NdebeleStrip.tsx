@@ -27,16 +27,20 @@ export function NdebeleStrip({
   flip = false,
   className = "",
   palette = "classic",
+  glow = false,
 }: {
   id: string;
   flip?: boolean;
   className?: string;
   palette?: "classic" | "vivid";
+  /** Adds a slow tri-colour shimmer sweep across the strip -- an opt-in
+      hightech accent, off by default so existing callers are unaffected. */
+  glow?: boolean;
 }) {
   const base = PALETTES[palette] || PALETTES.classic;
   const rows = flip ? [...base].reverse() : base;
   return (
-    <div className={`flex flex-col ${className}`} aria-hidden="true">
+    <div className={`relative flex flex-col ${className}`} aria-hidden="true">
       {rows.map((row, i) => (
         <svg key={i} viewBox="0 0 200 18" preserveAspectRatio="none" className="block h-4 w-full">
           <defs>
@@ -54,6 +58,12 @@ export function NdebeleStrip({
           <rect width="200" height="18" fill={`url(#${id}-tri-${i})`} />
         </svg>
       ))}
+      {glow && (
+        <div
+          className="pointer-events-none absolute inset-0 animate-shimmer opacity-60"
+          style={{ backgroundImage: "linear-gradient(100deg,transparent 30%,rgba(255,255,255,0.65) 50%,transparent 70%)" }}
+        />
+      )}
     </div>
   );
 }
