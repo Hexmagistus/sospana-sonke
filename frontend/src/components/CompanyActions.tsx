@@ -90,8 +90,30 @@ export function CompanyActionsRow({ company, shareBasePath }: { company: Company
     }
   }
 
-  function share() {
+  async function share() {
     const url = `${window.location.origin}${shareBasePath}?company=${company.id}`;
+    const text = `${company.company_name} — careers page on Sospana Sonke`;
+
+    // Prefer the device's own share sheet (WhatsApp, Gmail, Messages, etc.) —
+    // this is what people actually expect "Share" to do on a phone. Typed
+    // loosely (not every TS/DOM lib version ships ShareData yet) rather than
+    // assuming it's declared. Falls back to a plain clipboard copy where the
+    // Web Share API isn't available (most desktop browsers).
+    const nav = typeof navigator !== "undefined"
+      ? (navigator as Navigator & { share?: (data: { title?: string; text?: string; url?: string }) => Promise<void> })
+      : undefined;
+    if (nav?.share) {
+      try {
+        await nav.share({ title: company.company_name, text, url });
+        return;
+      } catch (err) {
+        // The user cancelling the share sheet isn't an error worth reporting.
+        if (err instanceof Error && err.name === "AbortError") return;
+        // Any other failure (unsupported combination, permissions, …) falls
+        // through to the clipboard fallback below.
+      }
+    }
+
     if (navigator.clipboard?.writeText) {
       navigator.clipboard.writeText(url).then(
         () => setMsg("Link copied to your clipboard."),
