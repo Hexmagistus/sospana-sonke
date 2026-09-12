@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Guard from "@/components/Guard";
 import { api } from "@/lib/api";
-import { Card, Input, Button, Alert, Spinner } from "@/components/ui";
+import { Card, Input, Button, Alert, Spinner, Select } from "@/components/ui";
 import { Banner } from "@/components/Banner";
 import { NdebeleStrip } from "@/components/NdebeleStrip";
 import { CompanyLogo, isAtsPortal } from "@/components/CompanyLogo";
@@ -268,24 +268,20 @@ function CompaniesDirectoryInner() {
 
         <Card>
           {countries.length > 1 && (
-            <div className="mb-3 flex flex-wrap gap-1.5 border-b border-gray-100 pb-3">
-              {countries.map((cn) => {
-                const active = !shortlistOnly && country === cn;
-                return (
-                  <button
-                    key={cn}
-                    onClick={() => { setShortlistOnly(false); setCountry(cn); }}
-                    className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-semibold transition ${
-                      active ? "bg-navy text-white shadow-sm" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                    }`}
-                  >
-                    <span>{COUNTRY_FLAGS[cn] || "🌍"} {cn}</span>
-                    <span className={`rounded-full px-1.5 py-0.5 text-[11px] font-bold tabular-nums ${
-                      active ? "bg-white/20 text-white" : "bg-white text-gray-500"
-                    }`}>{countryCounts[cn] ?? 0}</span>
-                  </button>
-                );
-              })}
+            <div className="mb-3 flex flex-wrap items-center gap-2 border-b border-gray-100 pb-3">
+              <div className="min-w-[12rem] flex-1 sm:max-w-xs">
+                <Select
+                  value={country}
+                  onChange={(e) => { setShortlistOnly(false); setCountry(e.target.value); }}
+                  aria-label="Country"
+                >
+                  {countries.map((cn) => (
+                    <option key={cn} value={cn}>
+                      {COUNTRY_FLAGS[cn] || "🌍"} {cn} — {countryCounts[cn] ?? 0}
+                    </option>
+                  ))}
+                </Select>
+              </div>
               <button
                 onClick={() => setShortlistOnly((v) => !v)}
                 className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-semibold transition ${
