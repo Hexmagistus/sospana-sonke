@@ -118,13 +118,15 @@ export default function LoginPage() {
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src="/logo-mark.png" alt="Sospana Sonke" className="mx-auto mb-3 h-16 w-16 rounded-2xl object-cover shadow-md" />
       <h1 className="mb-1 text-center text-2xl font-bold text-brand">Sospana Sonke</h1>
-      <p className="mb-1 text-center text-sm text-gray-500">
+      <p className="mb-4 text-center text-sm text-gray-500">
         We find the opportunities. You apply direct.
       </p>
-      <p className="mb-6 text-center text-xs text-gray-400">
-        Sign-in taking a while? That&apos;s just our server being woken up (or occasionally updated) behind the
-        scenes — it can take a minute or two, not a sign anything&apos;s wrong.
-      </p>
+      <div className="mb-6">
+        <Alert kind="info">
+          Sign-in taking a while? That&apos;s just our server being woken up (or occasionally updated) behind the
+          scenes — it can take a minute or two, not a sign anything&apos;s wrong.
+        </Alert>
+      </div>
       <Card>
         <h2 className="mb-4 text-lg font-semibold">Sign in</h2>
         <form onSubmit={submit} className="space-y-4">

@@ -38,11 +38,13 @@ export default function RegisterPage() {
     <div className="mx-auto mt-10 max-w-md">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src="/logo-mark.png" alt="Sospana Sonke" className="mx-auto mb-3 h-16 w-16 rounded-2xl object-cover shadow-md" />
-      <h1 className="mb-1 text-center text-2xl font-bold text-brand">Create your account</h1>
-      <p className="mb-6 text-center text-xs text-gray-400">
-        First sign-in taking a while? That&apos;s just our server being woken up (or occasionally updated) behind
-        the scenes — it can take a minute or two, not a sign anything&apos;s wrong.
-      </p>
+      <h1 className="mb-4 text-center text-2xl font-bold text-brand">Create your account</h1>
+      <div className="mb-6">
+        <Alert kind="info">
+          First sign-in taking a while? That&apos;s just our server being woken up (or occasionally updated)
+          behind the scenes — it can take a minute or two, not a sign anything&apos;s wrong.
+        </Alert>
+      </div>
       <Card>
         <form onSubmit={submit} className="space-y-4">
           {error && <Alert kind="error">{error}</Alert>}
