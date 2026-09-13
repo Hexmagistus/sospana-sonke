@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import Guard from "@/components/Guard";
 import { Banner } from "@/components/Banner";
 import { Alert, Card, Skeleton, Stat } from "@/components/ui";
@@ -33,6 +34,15 @@ function DashboardInner() {
       />
 
       {err && <Alert kind="error">{err}</Alert>}
+
+      {data?.profile_nudge && (
+        <Alert kind="info">
+          <span>{data.profile_nudge} </span>
+          <Link href="/profile" className="font-semibold underline underline-offset-2">
+            Complete your profile →
+          </Link>
+        </Alert>
+      )}
 
       {!data && !err && (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">

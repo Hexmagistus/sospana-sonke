@@ -15,6 +15,10 @@ class CandidateDashboardResponse(BaseModel):
     applications_awaiting_action: int
     interviews: int
     offers: int
+    # A one-line personalized nudge to complete the profile, referencing the
+    # candidate's own registration answers -- None once they've engaged with
+    # their profile (see dashboard_service._profile_nudge).
+    profile_nudge: str | None = None
 
 
 class AdminDashboardResponse(BaseModel):

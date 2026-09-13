@@ -60,6 +60,46 @@ def test_candidate_dashboard(client, db_engine):
     assert "subscription_status" not in body and "plan_amount_zar" not in body
 
 
+def test_dashboard_nudges_toward_profile_using_registration_answers(client):
+    email = "nudge@example.com"
+    reg = client.post("/api/v1/auth/register", json={
+        "email": email, "password": "Password123!",
+        "first_name": "Palesa", "last_name": "M", "mobile_number": "0821234567",
+        "preferred_position": "Warehouse Supervisor", "qualification_name": "National Diploma: Logistics",
+    })
+    assert reg.status_code == 201, reg.text
+    tokens = client.post("/api/v1/auth/login", json={"email": email, "password": "Password123!"}).json()
+
+    body = client.get("/api/v1/dashboard", headers=_auth(tokens)).json()
+    assert body["profile_nudge"] is not None
+    assert "Warehouse Supervisor" in body["profile_nudge"]
+    assert "National Diploma: Logistics" in body["profile_nudge"]
+
+
+def test_dashboard_nudge_clears_once_candidate_confirms_profile_data(client):
+    email = "nudge2@example.com"
+    client.post("/api/v1/auth/register", json={
+        "email": email, "password": "Password123!",
+        "first_name": "Palesa", "last_name": "M", "mobile_number": "0821234567",
+        "preferred_position": "Warehouse Supervisor",
+    })
+    tokens = client.post("/api/v1/auth/login", json={"email": email, "password": "Password123!"}).json()
+    h = _auth(tokens)
+
+    assert client.get("/api/v1/dashboard", headers=h).json()["profile_nudge"] is not None
+
+    # The candidate confirms one real piece of profile data of their own --
+    # the nudge should stop, whether or not they touch desired_occupations.
+    client.post("/api/v1/profile/skills", headers=h, json={"name": "Forklift", "category": "technical"})
+    assert client.get("/api/v1/dashboard", headers=h).json()["profile_nudge"] is None
+
+
+def test_dashboard_no_nudge_without_registration_answers(client):
+    _, tokens = register_and_login(client)  # leaves both fields blank
+    body = client.get("/api/v1/dashboard", headers=_auth(tokens)).json()
+    assert body["profile_nudge"] is None
+
+
 def test_admin_dashboard_requires_admin(client, db_engine):
     _, tokens = register_and_login(client)
     assert client.get("/api/v1/admin/dashboard", headers=_auth(tokens)).status_code == 403

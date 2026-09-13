@@ -13,12 +13,47 @@ from app.models.application import Application
 from app.models.company import Company
 from app.models.document import CVVersion, CoverLetter
 from app.models.match import CandidateMatch
+from app.models.profile import CandidateProfile, Education, Skill, WorkExperience
 from app.models.subscription import Subscription
 from app.models.user import User
 from app.models.vacancy import Vacancy, VacancySource
 
 _STRONG_BANDS = ("Strong", "Good")
 _AWAITING = ("AWAITING_APPROVAL", "CANDIDATE_ACTION_REQUIRED")
+
+
+def _profile_nudge(db: Session, user: User) -> str | None:
+    """A one-line, personalized banner nudging a candidate to finish their
+    profile -- referencing the "Preferred post" / "Name of qualification"
+    answers they already gave at registration, so it reads as a callback to
+    something they told us rather than a generic nag. Only returns a nudge
+    when there's something real to reference (registration left at least one
+    of those two fields filled in) AND the candidate hasn't already engaged
+    with their profile (no confirmed education, skill, or work-experience
+    record) -- once they have, this stops showing.
+    """
+    if not (user.preferred_position or user.qualification_name):
+        return None
+
+    profile = db.query(CandidateProfile).filter(CandidateProfile.user_id == user.id).first()
+    if profile is not None:
+        has_confirmed = (
+            db.query(Education.id).filter(Education.profile_id == profile.id,
+                                          Education.confirmed_by_candidate.is_(True)).first()
+            or db.query(Skill.id).filter(Skill.profile_id == profile.id).first()
+            or db.query(WorkExperience.id).filter(WorkExperience.profile_id == profile.id).first()
+        )
+        if has_confirmed:
+            return None
+
+    if user.preferred_position and user.qualification_name:
+        return (f"You told us you're aiming for a {user.preferred_position} role with your "
+                f"{user.qualification_name} -- complete your profile so we can match you more precisely.")
+    if user.preferred_position:
+        return (f"You told us you're aiming for a {user.preferred_position} role -- "
+                f"complete your profile so we can match you more precisely.")
+    return (f"You told us about your {user.qualification_name} -- "
+            f"complete your profile so we can match you more precisely.")
 
 
 def candidate_dashboard(db: Session, user: User) -> dict:
@@ -53,6 +88,7 @@ def candidate_dashboard(db: Session, user: User) -> dict:
         "applications_awaiting_action": app_count(*_AWAITING),
         "interviews": app_count("INTERVIEW"),
         "offers": app_count("OFFER"),
+        "profile_nudge": _profile_nudge(db, user),
     }
 
 
