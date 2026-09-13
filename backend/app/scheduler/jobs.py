@@ -66,12 +66,16 @@ def scan_south_africa(db: Session, job_run_id: str | None = None) -> dict:
     return scan_all_companies(db, job_run_id=job_run_id, country="South Africa")
 
 
-def scan_due_companies(db: Session, limit: int = 25, job_run_id: str | None = None) -> dict:
+def scan_due_companies(db: Session, limit: int = 100, job_run_id: str | None = None) -> dict:
     """Scan the N companies checked longest ago (never-checked first), then stamp
     them so the next run picks up the following batch.
 
-    Keeps each run fast (seconds, not minutes) so a free external scheduler can
-    call it reliably every few hours; the whole database still cycles over a day.
+    Keeps each run bounded (a couple of minutes, not hours) so a free external
+    scheduler can call it reliably every few hours; the whole database still
+    cycles through in a few days rather than a few weeks. 100 was picked to stay
+    comfortably inside the calling workflow's request timeout even on a slow
+    batch (observed ~1.5 min per 25 companies from Render's free tier, so ~6 min
+    worst case for 100 -- see .github/workflows/scan.yml's --max-time).
     """
     companies = (db.query(Company)
                  .filter(Company.active.is_(True), Company.deleted_at.is_(None),
