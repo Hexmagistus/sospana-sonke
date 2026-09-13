@@ -17,6 +17,7 @@ from app.matching.prefilter import prefilter
 from app.models.company import Company
 from app.models.match import CandidateMatch, SystemSetting
 from app.models.profile import CandidateProfile, Education, Certification, Skill
+from app.models.user import User
 from app.models.vacancy import Vacancy, VacancyRequirement
 
 MATCH_CONFIG_KEY = "match_config"
@@ -40,31 +41,58 @@ def set_match_config(db: Session, config: MatchConfig) -> MatchConfig:
     return config
 
 
+def _levels_in_text(text: str | None) -> set[str]:
+    if not text:
+        return set()
+    blob = text.lower()
+    return {kw for kw in EDUCATION_RANK if kw in blob}
+
+
 def _education_levels(edu_rows: list[Education]) -> set[str]:
     levels: set[str] = set()
     for e in edu_rows:
-        blob = " ".join(x for x in [e.level, e.qualification] if x).lower()
-        for kw in EDUCATION_RANK:
-            if kw in blob:
-                levels.add(kw)
+        levels |= _levels_in_text(" ".join(x for x in [e.level, e.qualification] if x))
     return levels
 
 
 def build_candidate_data(db: Session, user_id: str) -> tuple[CandidateData, CandidateProfile | None]:
+    """Assemble the matching engine's input for a candidate.
+
+    A full `CandidateProfile` is the primary source, but a candidate is
+    matched against live vacancies even before they ever open the Profile
+    page (e.g. the scheduled `match_all_candidates` job runs for everyone).
+    So the free-text "Preferred post" / "Name of qualification" answers
+    captured at registration (`User.preferred_position` /
+    `User.qualification_name`) are folded in as extra signals -- added
+    alongside whatever the profile already has (never replacing it), and
+    still contributing even when no profile row exists at all yet.
+    """
     profile = db.query(CandidateProfile).filter(CandidateProfile.user_id == user_id).first()
+    user = db.get(User, user_id)
+
+    desired = list(profile.desired_occupations or []) if profile else []
+    if user and user.preferred_position and user.preferred_position not in desired:
+        desired.append(user.preferred_position)
+
+    edu_levels = _education_levels(
+        db.query(Education).filter(Education.profile_id == profile.id).all()
+    ) if profile else set()
+    if user:
+        edu_levels |= _levels_in_text(user.qualification_name)
+
     if profile is None:
-        return CandidateData(), None
+        return CandidateData(desired_occupations=desired, education_levels=edu_levels), None
+
     skills = {s.name.strip().lower() for s in
               db.query(Skill).filter(Skill.profile_id == profile.id).all()}
-    edu_rows = db.query(Education).filter(Education.profile_id == profile.id).all()
     certs = {c.name.strip().lower() for c in
              db.query(Certification).filter(Certification.profile_id == profile.id).all()}
     cand = CandidateData(
         years_experience=profile.years_experience,
         skills=skills,
-        education_levels=_education_levels(edu_rows),
+        education_levels=edu_levels,
         certifications=certs,
-        desired_occupations=list(profile.desired_occupations or []),
+        desired_occupations=desired,
         current_occupation=profile.current_occupation,
         industries={i.strip().lower() for i in (profile.industries or [])},
         preferred_locations=[p.strip().lower() for p in (profile.preferred_locations or [])],

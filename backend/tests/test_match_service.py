@@ -53,6 +53,55 @@ def test_build_candidate_data(db):
     assert cand.desired_occupations == ["Operations Manager"]
 
 
+def test_build_candidate_data_falls_back_to_registration_answers_without_profile(db):
+    # No CandidateProfile row at all -- e.g. the candidate has never opened
+    # the Profile page -- but they did answer the two free-text questions at
+    # registration. Matching should still have something to go on.
+    user = User(email="sipho@x.co", password_hash=security.hash_password("Password123!"),
+                first_name="Sipho", last_name="D", role="candidate", email_verified=True,
+                preferred_position="Warehouse Supervisor",
+                qualification_name="National Diploma: Logistics")
+    db.add(user); db.commit(); db.refresh(user)
+
+    cand, profile = build_candidate_data(db, user.id)
+    assert profile is None
+    assert cand.desired_occupations == ["Warehouse Supervisor"]
+    assert "diploma" in cand.education_levels
+
+
+def test_build_candidate_data_supplements_profile_without_overwriting(db):
+    # A candidate who *has* built out a profile keeps their own data; the
+    # registration answers are added alongside it, not instead of it, and
+    # never duplicated.
+    user = _make_candidate(db)  # profile.desired_occupations == ["Operations Manager"]
+    user.preferred_position = "Operations Manager"  # duplicate -> should not double up
+    user.qualification_name = "MBA"  # adds a higher education signal
+    db.commit()
+
+    cand, profile = build_candidate_data(db, user.id)
+    assert cand.desired_occupations == ["Operations Manager"]  # no duplicate appended
+    assert "degree" in cand.education_levels and "mba" in cand.education_levels
+
+
+def test_registration_only_signal_can_drive_a_match(db):
+    # A candidate with zero profile data at all should still be matchable
+    # off their registration answers alone.
+    user = User(email="thabo@x.co", password_hash=security.hash_password("Password123!"),
+                first_name="Thabo", last_name="N", role="candidate", email_verified=True,
+                preferred_position="Operations Manager")
+    db.add(user); db.commit(); db.refresh(user)
+    _make_vacancy(db, title="Operations Manager", exp="0")
+    # Drop the hard qualification requirement for this vacancy -- this
+    # candidate has no education data at all, only a title preference.
+    db.query(VacancyRequirement).filter(VacancyRequirement.category == "qualification").delete()
+    db.commit()
+
+    summary = run_match_for_user(db, user.id)
+    m = db.query(CandidateMatch).filter(CandidateMatch.user_id == user.id).one()
+    assert summary.matched == 1
+    assert any("target occupation" in r for r in m.reasons)
+
+
 def test_run_match_creates_and_updates(db):
     user = _make_candidate(db)
     _make_vacancy(db)
