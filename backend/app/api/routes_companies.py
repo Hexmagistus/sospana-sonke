@@ -145,11 +145,27 @@ async def company_icon(company_id: str, db: Session = Depends(get_db)):
     return RedirectResponse(company.favicon_url, status_code=status.HTTP_302_FOUND)
 
 
+_MAX_IMPORT_MB = 25  # admin-only, but still capped -- see app/api/routes_cv.py's
+                     # _read_capped for why an unbounded await file.read() is unsafe.
+
+
 @router.post("/import", response_model=CompanyImportResult, dependencies=[Depends(require_admin)])
 async def import_companies(file: UploadFile = File(...), db: Session = Depends(get_db)):
     if not file.filename or not file.filename.lower().endswith(".csv"):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Please upload a .csv file.")
-    content = await file.read()
+    max_bytes = _MAX_IMPORT_MB * 1024 * 1024
+    chunks: list[bytes] = []
+    total = 0
+    while True:
+        chunk = await file.read(1024 * 1024)
+        if not chunk:
+            break
+        total += len(chunk)
+        if total > max_bytes:
+            raise HTTPException(status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+                                detail=f"File exceeds the {_MAX_IMPORT_MB} MB limit.")
+        chunks.append(chunk)
+    content = b"".join(chunks)
     return import_companies_from_csv(db, content)
 
 

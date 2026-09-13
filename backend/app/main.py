@@ -76,6 +76,27 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
 
+    # Generous global cap on declared request size, ahead of everything else. The
+    # upload endpoints (CV upload, company CSV import) already abort mid-read past
+    # their own limit rather than buffering the whole body first -- but that only
+    # covers those two routes. Any endpoint accepting a body (a large JSON payload,
+    # say) had no size limit at all otherwise. This only catches requests with an
+    # honest Content-Length header (chunked-encoding without one slips past it),
+    # so it's defense-in-depth alongside the per-upload caps, not a replacement.
+    _MAX_REQUEST_BYTES = 30 * 1024 * 1024  # 30MB: above the largest allowed upload (CV + margin)
+
+    @app.middleware("http")
+    async def limit_request_size(request, call_next):
+        content_length = request.headers.get("content-length")
+        if content_length is not None:
+            try:
+                if int(content_length) > _MAX_REQUEST_BYTES:
+                    from fastapi.responses import PlainTextResponse
+                    return PlainTextResponse("Request body too large.", status_code=413)
+            except ValueError:
+                pass
+        return await call_next(request)
+
     @app.middleware("http")
     async def log_unhandled_exceptions(request, call_next):
         # Outermost middleware (registered after add_security_headers, so it

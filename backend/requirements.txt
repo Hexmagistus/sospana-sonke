@@ -1,20 +1,24 @@
-fastapi==0.115.0
+fastapi==0.141.1
+starlette==1.6.0             # pinned explicitly -- fastapi's own floor (>=0.46.0) still had
+                              # known CVEs; see PYSEC-2026-249/248 (fixed in 1.3.0/1.3.1)
 uvicorn[standard]==0.30.6
 SQLAlchemy==2.0.35
 pydantic==2.9.2
 pydantic-settings==2.5.2
-PyJWT==2.9.0
+PyJWT==2.13.0                 # was 2.9.0 -- fixes 7 known CVEs (pip-audit, 2026-09)
 argon2-cffi==23.1.0
 httpx==0.27.2
-python-multipart==0.0.12
+python-multipart==0.0.32      # was 0.0.12 -- fixes 7 known CVEs (pip-audit, 2026-09)
 email-validator==2.2.0
 psycopg2-binary==2.9.10
-pypdf==5.0.1
+pypdf==6.18.1                  # was 5.0.1 -- fixes 41 known CVEs (pip-audit, 2026-09);
+                               # verified against app/services/cv_extract.py's PdfReader
+                               # usage via the existing PDF-upload test
 python-docx==1.1.2
 reportlab==4.2.2
 playwright==1.55.0
 pyotp==2.9.0
-pytest==8.3.3
+pytest==9.1.1                  # was 8.3.3 -- fixes 1 known CVE; dev-only, not shipped
 slowapi==0.1.10
 # Optional error tracking -- inert unless SENTRY_DSN is set (see app/core/logging.py).
 sentry-sdk[fastapi]==2.17.0

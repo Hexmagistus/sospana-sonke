@@ -11,6 +11,7 @@ from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Respons
 from sqlalchemy.orm import Session
 
 from app.ai import structure_cv_with_fallback
+from app.core.config import settings
 from app.core.deps import get_current_user
 from app.db.session import get_db
 from app.models.cv import CV
@@ -35,6 +36,28 @@ def _get_owned_cv(db: Session, user: User, cv_id: str) -> CV:
     return cv
 
 
+async def _read_capped(file: UploadFile, max_mb: int) -> bytes:
+    """Read an upload, aborting the instant it exceeds max_mb rather than
+    reading (and disk-spooling, via UploadFile's SpooledTemporaryFile) an
+    arbitrarily large body first -- scan_upload's own MAX_UPLOAD_MB check
+    only ever saw the file after this endpoint had already fully received
+    it, so a multi-GB upload could fill Render's disk/memory for every user
+    before that check ever got a chance to reject it."""
+    max_bytes = max_mb * 1024 * 1024
+    chunks: list[bytes] = []
+    total = 0
+    while True:
+        chunk = await file.read(1024 * 1024)
+        if not chunk:
+            break
+        total += len(chunk)
+        if total > max_bytes:
+            raise HTTPException(status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+                                detail=f"File exceeds the {max_mb} MB limit.")
+        chunks.append(chunk)
+    return b"".join(chunks)
+
+
 def _process(cv: CV, data: bytes) -> None:
     """Extract text and structure it; mutate the CV record in place (no commit)."""
     try:
@@ -56,7 +79,9 @@ async def upload_cv(file: UploadFile = File(...), db: Session = Depends(get_db),
                     user: User = Depends(get_current_user)):
     filename = file.filename or "cv"
     ext = filename.rsplit(".", 1)[-1].lower() if "." in filename else ""
-    data = await file.read()
+    # A generous +1MB slack over the real limit so the cap-triggered 413 always
+    # comes from _read_capped with a clear message, not a leftover mid-loop cut.
+    data = await _read_capped(file, settings.MAX_UPLOAD_MB + 1)
 
     scan = scan_upload(data, ext)
     if not scan.ok:
