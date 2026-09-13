@@ -6,6 +6,7 @@ Jobs are deterministic and safe to re-run.
 """
 from __future__ import annotations
 
+import time
 from datetime import datetime, timezone
 
 from sqlalchemy.orm import Session
@@ -66,22 +67,31 @@ def scan_south_africa(db: Session, job_run_id: str | None = None) -> dict:
     return scan_all_companies(db, job_run_id=job_run_id, country="South Africa")
 
 
-def scan_due_companies(db: Session, limit: int = 50, job_run_id: str | None = None) -> dict:
+def scan_due_companies(db: Session, limit: int = 60, job_run_id: str | None = None,
+                       max_seconds: float = 240.0) -> dict:
     """Scan the N companies checked longest ago (never-checked first), then stamp
     them so the next run picks up the following batch.
 
-    Keeps each run bounded (a couple of minutes, not hours) so a free external
+    Keeps each run bounded (a few minutes, not hours) so a free external
     scheduler can call it reliably every few hours; the whole database still
     cycles through in under a week rather than 15+ days.
 
-    Batch size history: 25 (safe, ~1.5 min, but too slow to matter) -> tried 100
-    and it failed with an HTTP 502 at ~9m13s -- Render's free-tier gateway kills
-    a long-running synchronous request before it can finish that many companies,
-    independent of the calling workflow's own --max-time. 50 (~3 min observed)
-    is the current compromise: roughly double the old throughput with real
-    headroom under that gateway cutoff. Don't raise this again without either
-    re-measuring the actual timeout ceiling or moving the scan to a background
-    task so it isn't tied to one HTTP request's lifetime.
+    Batch size ALONE turned out not to bound the run's wall-clock time: 25
+    companies took ~1.5 min, but the "due" batch is dominated by companies
+    that have NEVER been checked -- many of those URLs are slow, unreachable
+    or block robots.txt, and each one can burn close to the full per-request
+    timeout (robots.txt + page fetch, ~10s each -> up to ~20s of dead weight
+    per bad company) before scan_service gives up on it. limit=100 hit an
+    HTTP 502 at 9m13s and limit=50 still took 7m53s -- both cut off by
+    Render's free-tier gateway before finishing, because a handful of slow
+    companies dominated the batch regardless of its size.
+
+    So this now bails out of the loop once max_seconds of wall-clock time has
+    passed, whatever count it has reached -- every run is bounded by TIME, not
+    by how many of the batch happen to be slow, so it always returns well
+    inside the calling workflow's timeout. limit is now just an upper cap for
+    a lucky all-fast batch, not the throttle; raising it further is safe on
+    its own, since the time budget is what actually protects each run.
     """
     companies = (db.query(Company)
                  .filter(Company.active.is_(True), Company.deleted_at.is_(None),
@@ -93,7 +103,12 @@ def scan_due_companies(db: Session, limit: int = 50, job_run_id: str | None = No
     scanned = created = failed = 0
     new_vacancy_ids: list[str] = []
     now = datetime.now(timezone.utc)
+    started = time.monotonic()
+    timed_out = False
     for company in companies:
+        if time.monotonic() - started > max_seconds:
+            timed_out = True
+            break
         try:
             reports = scan_company(db, company)
             scanned += 1
@@ -109,7 +124,7 @@ def scan_due_companies(db: Session, limit: int = 50, job_run_id: str | None = No
     candidates_alerted = _alert_candidates_of_new_jobs(db, new_vacancy_ids, job_run_id)
     return {"batch_limit": limit, "companies_scanned": scanned,
             "vacancies_created": created, "sources_failed": failed,
-            "candidates_alerted": candidates_alerted}
+            "candidates_alerted": candidates_alerted, "stopped_early_on_time_budget": timed_out}
 
 
 def check_link_changes(db: Session, limit: int = 25, job_run_id: str | None = None) -> dict:
