@@ -9,10 +9,11 @@ from app.models.notification import Notification, JobRun, PushToken
 from app.models.user import User
 from app.schemas.notification import (
     NotificationResponse, UnreadCountResponse, ScheduleResponse, ScheduleUpdateRequest, JobRunResponse,
-    PushTokenRequest, PushTokenResponse,
+    PushTokenRequest, PushTokenResponse, AdminSuggestionRequest, AdminSuggestionResponse,
 )
 from app.scheduler.registry import get_schedule, set_schedule, JOBS
 from app.scheduler.runner import run_job, UnknownJob
+from app.services.notification_service import notify_admin_suggestion
 
 router = APIRouter(tags=["notifications"])
 
@@ -72,6 +73,26 @@ def register_push_token(body: PushTokenRequest, db: Session = Depends(get_db),
     db.commit()
     db.refresh(tok)
     return PushTokenResponse(id=tok.id, platform=tok.platform)
+
+
+# ---- admin: suggest a post/link to relevant candidates ----
+
+@router.post("/admin/suggestions", response_model=AdminSuggestionResponse,
+             dependencies=[Depends(require_admin)])
+def send_admin_suggestion(body: AdminSuggestionRequest, db: Session = Depends(get_db)):
+    if body.all_candidates:
+        targets = db.query(User).filter(User.role == "candidate", User.is_active.is_(True)).all()
+    elif body.user_ids:
+        targets = (db.query(User)
+                   .filter(User.id.in_(body.user_ids), User.is_active.is_(True))
+                   .all())
+    else:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail="Provide user_ids or set all_candidates to true.")
+    sent = notify_admin_suggestion(db, users=targets, title=body.title, body=body.body,
+                                   link_url=body.link_url)
+    db.commit()
+    return AdminSuggestionResponse(sent=sent)
 
 
 # ---- admin scheduler ----

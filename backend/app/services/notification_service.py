@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 def create_notification(db: Session, *, user_id: str, to_email: str | None, type: str,
                         title: str, body: str, related_type: str | None = None,
                         related_id: str | None = None, send_email: bool | None = None,
-                        to_phone: str | None = None) -> Notification | None:
+                        to_phone: str | None = None, link_url: str | None = None) -> Notification | None:
     # Idempotency: skip if a notification for the same trigger already exists.
     if related_id is not None:
         existing = (db.query(Notification)
@@ -31,7 +31,7 @@ def create_notification(db: Session, *, user_id: str, to_email: str | None, type
             return None
 
     note = Notification(user_id=user_id, type=type, title=title, body=body,
-                        related_type=related_type, related_id=related_id)
+                        related_type=related_type, related_id=related_id, link_url=link_url)
 
     should_email = settings.NOTIFY_EMAILS if send_email is None else send_email
     if should_email and to_email:
@@ -142,6 +142,28 @@ def notify_admins(db, *, type: str, title: str, body: str,
                                    title=title, body=body, related_type=related_type,
                                    related_id=None, send_email=False)
         # related_id kept None so repeated breakage episodes each alert (edge-triggered upstream).
+        if note is not None:
+            sent += 1
+    return sent
+
+
+def notify_admin_suggestion(db, *, users: list, title: str, body: str,
+                            link_url: str | None = None) -> int:
+    """Send an admin-curated post/link to a hand-picked (or "all candidates")
+    list of registered users, as a normal dashboard notification.
+
+    No idempotency key -- each admin send is a deliberate one-off action, so
+    unlike the automated notify_* helpers above it's never a re-run of the same
+    trigger that should be suppressed. Email/SMS/push are always off here: this
+    is meant to surface on the candidate's own page (Notifications, and the Nav
+    badge), not to push another outbound message on the admin's behalf.
+    """
+    sent = 0
+    for user in users:
+        note = create_notification(
+            db, user_id=user.id, to_email=user.email, type="admin_suggestion",
+            title=title, body=body, link_url=link_url, send_email=False,
+        )
         if note is not None:
             sent += 1
     return sent

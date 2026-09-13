@@ -18,7 +18,7 @@ class Notification(UUIDMixin, TimestampMixin, Base):
     user_id: Mapped[str] = mapped_column(
         String(36), ForeignKey("users.id", ondelete="CASCADE"), index=True, nullable=False
     )
-    # strong_match | action_required | report_ready | system
+    # strong_match | action_required | report_ready | system | new_jobs | admin_suggestion
     type: Mapped[str] = mapped_column(String(30), nullable=False)
     title: Mapped[str] = mapped_column(String(200), nullable=False)
     body: Mapped[str] = mapped_column(Text, nullable=False)
@@ -26,6 +26,11 @@ class Notification(UUIDMixin, TimestampMixin, Base):
     # Link back to the thing that triggered it (for idempotency + deep-linking).
     related_type: Mapped[str | None] = mapped_column(String(30), nullable=True)
     related_id: Mapped[str | None] = mapped_column(String(36), index=True, nullable=True)
+
+    # Optional outbound link an admin (or a future automated notifier) wants the
+    # candidate to open -- e.g. a post or article an admin curated for them.
+    # Rendered as a clickable "Open" link on the notifications page when present.
+    link_url: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     is_read: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     email_sent: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)

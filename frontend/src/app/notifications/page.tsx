@@ -51,6 +51,16 @@ function NotificationsInner() {
                     <Badge>{n.type}</Badge>
                   </div>
                   <p className="mt-1 text-sm text-gray-600">{n.body}</p>
+                  {n.link_url && (
+                    <a
+                      href={n.link_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-1 inline-block text-xs font-semibold text-brand hover:underline"
+                    >
+                      Open →
+                    </a>
+                  )}
                   <p className="mt-1 text-xs text-gray-400">{new Date(n.created_at).toLocaleString()}</p>
                 </div>
                 {!n.is_read && (

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Guard from "@/components/Guard";
 import { api } from "@/lib/api";
-import { Stat, Card, Alert, Spinner, Button } from "@/components/ui";
+import { Stat, Card, Alert, Spinner, Button, Field, Input, Textarea } from "@/components/ui";
 import type { AdminDashboard } from "@/lib/types";
 
 interface AdminUser {
@@ -30,6 +30,15 @@ function AdminInner() {
   const [job, setJob] = useState("");
   const [copied, setCopied] = useState(false);
 
+  // ---- suggest a post/link to relevant candidates ----
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [suggestTitle, setSuggestTitle] = useState("");
+  const [suggestBody, setSuggestBody] = useState("");
+  const [suggestLink, setSuggestLink] = useState("");
+  const [suggestBusy, setSuggestBusy] = useState(false);
+  const [suggestMsg, setSuggestMsg] = useState("");
+  const [suggestErr, setSuggestErr] = useState("");
+
   async function load() {
     setD(await api.get<AdminDashboard>("/admin/dashboard"));
   }
@@ -43,6 +52,46 @@ function AdminInner() {
     navigator.clipboard?.writeText(list);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  }
+
+  function toggleUser(id: string) {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  }
+
+  function toggleAll() {
+    setSelected((prev) => (prev.size === users.length ? new Set() : new Set(users.map((u) => u.id))));
+  }
+
+  async function sendSuggestion(allCandidates: boolean) {
+    setSuggestErr(""); setSuggestMsg("");
+    if (!suggestTitle.trim() || !suggestBody.trim()) {
+      setSuggestErr("Add a title and a message first.");
+      return;
+    }
+    if (!allCandidates && selected.size === 0) {
+      setSuggestErr("Select at least one candidate, or send to everyone instead.");
+      return;
+    }
+    setSuggestBusy(true);
+    try {
+      const res = await api.post<{ sent: number }>("/admin/suggestions", {
+        title: suggestTitle.trim(),
+        body: suggestBody.trim(),
+        link_url: suggestLink.trim() || undefined,
+        all_candidates: allCandidates,
+        user_ids: allCandidates ? [] : Array.from(selected),
+      });
+      setSuggestMsg(`Sent to ${res.sent} candidate${res.sent === 1 ? "" : "s"}.`);
+      setSuggestTitle(""); setSuggestBody(""); setSuggestLink(""); setSelected(new Set());
+    } catch (e) {
+      setSuggestErr(e instanceof Error ? e.message : "Failed to send.");
+    } finally {
+      setSuggestBusy(false);
+    }
   }
 
   async function runJob(name: string) {
@@ -100,16 +149,56 @@ function AdminInner() {
       </Card>
 
       <Card>
+        <h2 className="mb-1 font-semibold">Suggest a post or link</h2>
+        <p className="mb-3 text-sm text-gray-500">
+          Curate something relevant -- an article, a resource, a company post -- and alert specific
+          candidates (or everyone) with it. It shows up as a notification on their own dashboard/notifications page.
+        </p>
+        {suggestErr && <Alert kind="error">{suggestErr}</Alert>}
+        {suggestMsg && <Alert kind="success">{suggestMsg}</Alert>}
+        <div className="mt-3 grid gap-3 sm:grid-cols-2">
+          <Field label="Title">
+            <Input value={suggestTitle} onChange={(e) => setSuggestTitle(e.target.value)}
+                  placeholder="e.g. New logistics roles opening in Gauteng" maxLength={200} />
+          </Field>
+          <Field label="Link (optional)" hint="must start with http(s)://">
+            <Input value={suggestLink} onChange={(e) => setSuggestLink(e.target.value)}
+                  placeholder="https://example.com/article" type="url" />
+          </Field>
+        </div>
+        <Field label="Message" hint={`${suggestBody.length}/2000`}>
+          <Textarea value={suggestBody} onChange={(e) => setSuggestBody(e.target.value)}
+                    placeholder="Why this is relevant to them" rows={3} maxLength={2000} />
+        </Field>
+        <div className="mt-3 flex flex-wrap items-center gap-3">
+          <Button onClick={() => sendSuggestion(false)} disabled={suggestBusy} loading={suggestBusy}>
+            Send to selected ({selected.size})
+          </Button>
+          <Button variant="ghost" onClick={() => sendSuggestion(true)} disabled={suggestBusy}>
+            Send to all candidates ({users.length})
+          </Button>
+        </div>
+      </Card>
+
+      <Card>
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <h2 className="font-semibold">Registered users ({users.length})</h2>
-          <Button variant="ghost" onClick={copyEmails} disabled={users.length === 0}>
-            {copied ? "Copied!" : "Copy all emails"}
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button variant="ghost" onClick={toggleAll} disabled={users.length === 0}>
+              {selected.size === users.length && users.length > 0 ? "Deselect all" : "Select all"}
+            </Button>
+            <Button variant="ghost" onClick={copyEmails} disabled={users.length === 0}>
+              {copied ? "Copied!" : "Copy all emails"}
+            </Button>
+          </div>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="text-left text-gray-500">
+                <th className="py-2 pr-4">
+                  <span className="sr-only">Select</span>
+                </th>
                 <th className="py-2 pr-4">Email</th>
                 <th className="py-2 pr-4">Name</th>
                 <th className="py-2 pr-4">Mobile</th>
@@ -122,6 +211,10 @@ function AdminInner() {
             <tbody>
               {users.map((u) => (
                 <tr key={u.id} className="border-t border-gray-100">
+                  <td className="py-2 pr-4">
+                    <input type="checkbox" checked={selected.has(u.id)} onChange={() => toggleUser(u.id)}
+                          aria-label={`Select ${u.email}`} />
+                  </td>
                   <td className="py-2 pr-4 font-medium text-navy">{u.email}</td>
                   <td className="py-2 pr-4">{u.name}</td>
                   <td className="py-2 pr-4">{u.mobile_number || "—"}</td>
@@ -136,7 +229,7 @@ function AdminInner() {
                 </tr>
               ))}
               {users.length === 0 && (
-                <tr><td colSpan={7} className="py-3 text-gray-400">No users yet.</td></tr>
+                <tr><td colSpan={8} className="py-3 text-gray-400">No users yet.</td></tr>
               )}
             </tbody>
           </table>

@@ -115,6 +115,9 @@ export interface Notification {
   type: string;
   title: string;
   body: string;
+  // An optional outbound link (e.g. an admin-curated post/article) to open --
+  // rendered as a clickable "Open" action when present.
+  link_url: string | null;
   is_read: boolean;
   created_at: string;
 }

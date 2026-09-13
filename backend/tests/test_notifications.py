@@ -231,3 +231,67 @@ def test_trigger_job_and_run_log(client, db_engine):
 def test_trigger_unknown_job(client, db_engine):
     admin = _admin(client, db_engine)
     assert client.post("/api/v1/admin/jobs/nope/run", headers=_auth(admin)).status_code == 404
+
+
+# ---- admin: suggest a post/link to relevant candidates ----
+
+def test_admin_can_suggest_to_specific_candidates(client, db_engine):
+    admin = _admin(client, db_engine)
+    reg, tokens = register_and_login(client, email="candidate1@example.com")
+    candidate_id = reg["user"]["id"]
+
+    resp = client.post("/api/v1/admin/suggestions", headers=_auth(admin), json={
+        "title": "Worth a read", "body": "This article matches your field.",
+        "link_url": "https://example.com/article", "user_ids": [candidate_id],
+    })
+    assert resp.status_code == 200, resp.text
+    assert resp.json()["sent"] == 1
+
+    notes = [n for n in client.get("/api/v1/notifications", headers=_auth(tokens)).json()
+             if n["type"] == "admin_suggestion"]
+    assert len(notes) == 1
+    assert notes[0]["title"] == "Worth a read"
+    assert notes[0]["link_url"] == "https://example.com/article"
+
+
+def test_admin_suggestion_to_all_candidates(client, db_engine):
+    admin = _admin(client, db_engine)
+    _, tokens_a = register_and_login(client, email="candidatea@example.com")
+    _, tokens_b = register_and_login(client, email="candidateb@example.com")
+
+    resp = client.post("/api/v1/admin/suggestions", headers=_auth(admin), json={
+        "title": "New guide for everyone", "body": "Check this out.",
+        "all_candidates": True,
+    })
+    assert resp.status_code == 200
+    assert resp.json()["sent"] == 2
+
+    for t in (tokens_a, tokens_b):
+        notes = [n for n in client.get("/api/v1/notifications", headers=_auth(t)).json()
+                 if n["type"] == "admin_suggestion"]
+        assert len(notes) == 1
+        assert notes[0]["link_url"] is None
+
+
+def test_admin_suggestion_requires_admin(client, db_engine):
+    _, tokens = register_and_login(client)
+    resp = client.post("/api/v1/admin/suggestions", headers=_auth(tokens), json={
+        "title": "x", "body": "y", "all_candidates": True,
+    })
+    assert resp.status_code == 403
+
+
+def test_admin_suggestion_requires_a_target(client, db_engine):
+    admin = _admin(client, db_engine)
+    resp = client.post("/api/v1/admin/suggestions", headers=_auth(admin), json={
+        "title": "x", "body": "y",
+    })
+    assert resp.status_code == 400
+
+
+def test_admin_suggestion_rejects_non_http_link(client, db_engine):
+    admin = _admin(client, db_engine)
+    resp = client.post("/api/v1/admin/suggestions", headers=_auth(admin), json={
+        "title": "x", "body": "y", "link_url": "javascript:alert(1)", "all_candidates": True,
+    })
+    assert resp.status_code == 422

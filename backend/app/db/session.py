@@ -60,6 +60,7 @@ _NEW_COLUMNS: list[tuple[str, str, str]] = [
     ("companies", "content_hash", "VARCHAR(64)"),
     ("companies", "content_checked_at", "TIMESTAMP WITH TIME ZONE" if not DATABASE_URL.startswith("sqlite") else "TIMESTAMP"),
     ("companies", "content_changed_at", "TIMESTAMP WITH TIME ZONE" if not DATABASE_URL.startswith("sqlite") else "TIMESTAMP"),
+    ("notifications", "link_url", "TEXT"),
 ]
 
 
