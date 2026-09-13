@@ -145,6 +145,15 @@ export interface Company {
   url_looks_like_careers: boolean | null;
   notes: string | null;
   content_changed_at?: string | null;
+  // When this row was first added to the directory -- powers the "Recently
+  // added" badge on the Companies/Universities cards (see CompanyActions.tsx).
+  created_at: string;
+}
+
+// One row of the "popular this week" ranking (GET /companies/trending).
+export interface TrendingCompany {
+  company_id: string;
+  watch_count: number;
 }
 
 // ---- Notify-me subscriptions & coverage map ----
