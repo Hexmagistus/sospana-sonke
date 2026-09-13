@@ -66,16 +66,22 @@ def scan_south_africa(db: Session, job_run_id: str | None = None) -> dict:
     return scan_all_companies(db, job_run_id=job_run_id, country="South Africa")
 
 
-def scan_due_companies(db: Session, limit: int = 100, job_run_id: str | None = None) -> dict:
+def scan_due_companies(db: Session, limit: int = 50, job_run_id: str | None = None) -> dict:
     """Scan the N companies checked longest ago (never-checked first), then stamp
     them so the next run picks up the following batch.
 
     Keeps each run bounded (a couple of minutes, not hours) so a free external
     scheduler can call it reliably every few hours; the whole database still
-    cycles through in a few days rather than a few weeks. 100 was picked to stay
-    comfortably inside the calling workflow's request timeout even on a slow
-    batch (observed ~1.5 min per 25 companies from Render's free tier, so ~6 min
-    worst case for 100 -- see .github/workflows/scan.yml's --max-time).
+    cycles through in under a week rather than 15+ days.
+
+    Batch size history: 25 (safe, ~1.5 min, but too slow to matter) -> tried 100
+    and it failed with an HTTP 502 at ~9m13s -- Render's free-tier gateway kills
+    a long-running synchronous request before it can finish that many companies,
+    independent of the calling workflow's own --max-time. 50 (~3 min observed)
+    is the current compromise: roughly double the old throughput with real
+    headroom under that gateway cutoff. Don't raise this again without either
+    re-measuring the actual timeout ceiling or moving the scan to a background
+    task so it isn't tied to one HTTP request's lifetime.
     """
     companies = (db.query(Company)
                  .filter(Company.active.is_(True), Company.deleted_at.is_(None),
