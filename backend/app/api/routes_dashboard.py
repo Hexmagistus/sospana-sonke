@@ -6,12 +6,21 @@ from app.core.deps import get_current_user, require_admin
 from app.db.session import get_db
 from app.models.report import Report
 from app.models.user import User
-from app.schemas.report import AdminDashboardResponse, ReportResponse
-from app.services.dashboard_service import admin_dashboard, admin_analytics
+from app.schemas.report import AdminDashboardResponse, CandidateDashboardResponse, ReportResponse
+from app.services.dashboard_service import admin_dashboard, admin_analytics, candidate_dashboard
 from app.services.report_service import generate_candidate_report
 from app.services.storage import get_storage
 
 router = APIRouter(tags=["dashboard"])
+
+
+@router.get("/dashboard", response_model=CandidateDashboardResponse)
+def get_candidate_dashboard(db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    """Candidate-facing home base: at-a-glance counts across matches, CVs,
+    cover letters and applications, plus subscription status. The service
+    function and response schema behind this were already fully built -- this
+    route was the only missing piece (see tests/test_dashboard.py)."""
+    return CandidateDashboardResponse(**candidate_dashboard(db, user))
 
 
 @router.get("/admin/dashboard", response_model=AdminDashboardResponse,
