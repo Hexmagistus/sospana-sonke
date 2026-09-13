@@ -28,12 +28,12 @@ router = APIRouter(prefix="/profile", tags=["profile"])
 
 @router.get("", response_model=ProfileResponse)
 def get_profile(db: Session = Depends(get_db), user: User = Depends(get_current_user)):
-    return ProfileResponse.model_validate(get_or_create_profile(db, user.id))
+    return ProfileResponse.model_validate(get_or_create_profile(db, user))
 
 
 @router.put("", response_model=ProfileResponse)
 def update_profile(body: ProfileUpdate, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
-    profile = get_or_create_profile(db, user.id)
+    profile = get_or_create_profile(db, user)
     for field, value in body.model_dump(exclude_unset=True).items():
         setattr(profile, field, value)
     db.commit()
@@ -58,14 +58,14 @@ def _register_child_crud(model: Type[Base], create_schema: Type[BaseModel],
 
     @router.get(f"/{path}", response_model=list[response_schema], name=f"list_{path}")
     def _list(db: Session = Depends(get_db), user: User = Depends(get_current_user)):
-        profile = get_or_create_profile(db, user.id)
+        profile = get_or_create_profile(db, user)
         rows = db.query(model).filter(model.profile_id == profile.id).all()
         return [response_schema.model_validate(r) for r in rows]
 
     @router.post(f"/{path}", response_model=response_schema, status_code=status.HTTP_201_CREATED,
                  name=f"create_{path}")
     def _create(body: create_schema, db: Session = Depends(get_db), user: User = Depends(get_current_user)):  # type: ignore
-        profile = get_or_create_profile(db, user.id)
+        profile = get_or_create_profile(db, user)
         row = model(profile_id=profile.id, confirmed_by_candidate=True, source="manual",
                     **body.model_dump())
         db.add(row)
@@ -76,7 +76,7 @@ def _register_child_crud(model: Type[Base], create_schema: Type[BaseModel],
     @router.put(f"/{path}/{{item_id}}", response_model=response_schema, name=f"update_{path}")
     def _update(item_id: str, body: create_schema, db: Session = Depends(get_db),  # type: ignore
                 user: User = Depends(get_current_user)):
-        profile = get_or_create_profile(db, user.id)
+        profile = get_or_create_profile(db, user)
         row = db.get(model, item_id)
         if row is None or row.profile_id != profile.id:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not found.")
@@ -90,7 +90,7 @@ def _register_child_crud(model: Type[Base], create_schema: Type[BaseModel],
 
     @router.delete(f"/{path}/{{item_id}}", status_code=status.HTTP_204_NO_CONTENT, name=f"delete_{path}")
     def _delete(item_id: str, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
-        profile = get_or_create_profile(db, user.id)
+        profile = get_or_create_profile(db, user)
         row = db.get(model, item_id)
         if row is None or row.profile_id != profile.id:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not found.")

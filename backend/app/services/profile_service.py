@@ -8,14 +8,51 @@ from app.models.profile import CandidateProfile, Education, Certification, WorkE
 from app.models.user import User
 
 
-def get_or_create_profile(db: Session, user_id: str) -> CandidateProfile:
-    profile = db.query(CandidateProfile).filter(CandidateProfile.user_id == user_id).first()
+def get_or_create_profile(db: Session, user: User) -> CandidateProfile:
+    profile = db.query(CandidateProfile).filter(CandidateProfile.user_id == user.id).first()
     if profile is None:
-        profile = CandidateProfile(user_id=user_id)
+        profile = CandidateProfile(user_id=user.id)
         db.add(profile)
         db.commit()
         db.refresh(profile)
+        _seed_from_registration(db, profile, user)
     return profile
+
+
+def _seed_from_registration(db: Session, profile: CandidateProfile, user: User) -> None:
+    """One-time head start for a brand-new profile: carry over the free-text
+    "preferred position" / "qualification" answers captured at registration
+    so a candidate who already told us those doesn't have to retype them.
+
+    Runs exactly once, right after the profile row is first created. Follows
+    the same non-destructive, unconfirmed-until-verified convention as
+    `apply_structured_to_profile`: nothing here is marked confirmed, and a
+    field already holding a value is never touched (defensive only -- a
+    brand-new profile has nothing to overwrite yet).
+    """
+    changed = False
+
+    if user.preferred_position and not profile.desired_occupations:
+        profile.desired_occupations = [user.preferred_position]
+        changed = True
+
+    if user.qualification_name:
+        # Registration only captures a free-text qualification name, not an
+        # institution -- placeholder here, source="registration" flags it as
+        # a candidate-to-verify starting point (shows up alongside CV-import
+        # rows in the Education list, distinguished by `source`).
+        db.add(Education(
+            profile_id=profile.id,
+            institution="Not specified",
+            qualification=user.qualification_name,
+            confirmed_by_candidate=False,
+            source="registration",
+        ))
+        changed = True
+
+    if changed:
+        db.commit()
+        db.refresh(profile)
 
 
 def get_full_profile_facts(db: Session, user: User):

@@ -14,6 +14,48 @@ def test_get_creates_empty_profile(client):
     assert body["user_id"] and body["city"] is None
 
 
+def test_profile_seeded_from_registration_answers(client):
+    # A candidate who wrote down a preferred role and qualification at
+    # registration shouldn't have to retype them: the first-ever profile
+    # fetch seeds desired_occupations and an unconfirmed Education row from
+    # those answers.
+    email = "seeded@example.com"
+    reg = client.post("/api/v1/auth/register", json={
+        "email": email, "password": "Password123!",
+        "first_name": "Sipho", "last_name": "Dlamini", "mobile_number": "0821234567",
+        "preferred_position": "Warehouse Supervisor", "qualification_name": "National Diploma: Logistics",
+    })
+    assert reg.status_code == 201, reg.text
+    tokens = client.post("/api/v1/auth/login", json={"email": email, "password": "Password123!"}).json()
+    h = _auth(tokens)
+
+    body = client.get("/api/v1/profile", headers=h).json()
+    assert body["desired_occupations"] == ["Warehouse Supervisor"]
+
+    edu = client.get("/api/v1/profile/education", headers=h).json()
+    assert len(edu) == 1
+    assert edu[0]["qualification"] == "National Diploma: Logistics"
+    assert edu[0]["source"] == "registration"
+    assert edu[0]["confirmed_by_candidate"] is False
+
+    # It's a one-time seed, never re-applied and never overwriting a
+    # candidate's own edit.
+    client.put("/api/v1/profile", headers=h, json={"desired_occupations": ["Fleet Manager"]})
+    body2 = client.get("/api/v1/profile", headers=h).json()
+    assert body2["desired_occupations"] == ["Fleet Manager"]
+    assert len(client.get("/api/v1/profile/education", headers=h).json()) == 1
+
+
+def test_profile_not_seeded_without_registration_answers(client):
+    # register_and_login leaves preferred_position/qualification_name blank --
+    # confirms the seed is opt-in and doesn't fabricate data.
+    _, tokens = register_and_login(client)
+    h = _auth(tokens)
+    body = client.get("/api/v1/profile", headers=h).json()
+    assert body["desired_occupations"] in (None, [])
+    assert client.get("/api/v1/profile/education", headers=h).json() == []
+
+
 def test_update_profile(client):
     _, tokens = register_and_login(client)
     r = client.put("/api/v1/profile", headers=_auth(tokens), json={

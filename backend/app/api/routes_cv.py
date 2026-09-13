@@ -160,7 +160,7 @@ def apply_to_profile(cv_id: str, body: ApplyToProfileRequest, db: Session = Depe
     if cv.parse_status != "parsed" or not cv.structured:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT,
                             detail="CV has not been parsed successfully; nothing to apply.")
-    profile = get_or_create_profile(db, user.id)
+    profile = get_or_create_profile(db, user)
     added = apply_structured_to_profile(db, profile, cv.structured, body.model_dump())
     return ApplyToProfileResult(
         skills_added=added["skills"],
