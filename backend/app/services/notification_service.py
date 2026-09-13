@@ -6,11 +6,15 @@ never spams the candidate with duplicates.
 """
 from __future__ import annotations
 
+import logging
+
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.models.notification import Notification
 from app.notifications.email import get_email_provider
+
+logger = logging.getLogger(__name__)
 
 
 def create_notification(db: Session, *, user_id: str, to_email: str | None, type: str,
@@ -34,13 +38,20 @@ def create_notification(db: Session, *, user_id: str, to_email: str | None, type
         try:
             note.email_sent = get_email_provider().send(to_email, title, body)
         except Exception:
-            note.email_sent = False  # never let a channel failure break the flow
+            # Never let a channel failure break the flow -- but this used to be
+            # completely silent, which matters a lot with NOTIFY_EMAILS on in
+            # production: a candidate could simply never get a notification they
+            # were relying on (e.g. "your application needs action") with nothing
+            # anywhere recording that the send failed.
+            logger.warning("Failed to email notification %r to user %s", type, user_id, exc_info=True)
+            note.email_sent = False
 
     if settings.NOTIFY_SMS and to_phone:
         try:
             from app.notifications.channels import get_sms_provider
             note.sms_sent = get_sms_provider().send(to_phone, f"{title}: {body}")
         except Exception:
+            logger.warning("Failed to SMS notification %r to user %s", type, user_id, exc_info=True)
             note.sms_sent = False
 
     if settings.NOTIFY_PUSH:
@@ -51,6 +62,7 @@ def create_notification(db: Session, *, user_id: str, to_email: str | None, type
             tokens = db.query(PushToken).filter(PushToken.user_id == user_id).all()
             note.push_sent = any(provider.send(t.token, title, body) for t in tokens)
         except Exception:
+            logger.warning("Failed to push notification %r to user %s", type, user_id, exc_info=True)
             note.push_sent = False
 
     db.add(note)

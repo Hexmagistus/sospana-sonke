@@ -5,12 +5,15 @@ when this can't find anything). Mirrors app/services/url_tester.py's shape.
 """
 from __future__ import annotations
 
+import logging
 import re
 from urllib.parse import urljoin, urlparse
 
 import httpx
 
 from app.core.config import settings
+
+logger = logging.getLogger(__name__)
 
 # Careers links that sit on a third-party ATS / job board — their favicon is the
 # platform's, not the employer's, so we never treat one of these as the source.
@@ -110,7 +113,8 @@ async def discover_favicon(
         head_resp = await client.head(fallback)
         if head_resp.status_code < 400:
             return fallback
-    except Exception:
+    except Exception as exc:
+        logger.debug("Favicon discovery failed for %s: %s", url, exc)
         return None
     finally:
         if owns_client:

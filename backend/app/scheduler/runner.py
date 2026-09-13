@@ -3,12 +3,15 @@ from __future__ import annotations
 
 import inspect
 import json
+import logging
 from datetime import datetime, timezone
 
 from sqlalchemy.orm import Session
 
 from app.models.notification import JobRun
 from app.scheduler.registry import JOBS
+
+logger = logging.getLogger(__name__)
 
 
 class UnknownJob(Exception):
@@ -33,6 +36,11 @@ def run_job(db: Session, name: str) -> JobRun:
     except Exception as exc:  # record failure rather than crashing the scheduler
         run.status = "error"
         run.detail = f"{type(exc).__name__}: {exc}"[:2000]
+        # JobRun already persists this to the DB, but that's only visible if
+        # someone queries /admin/jobs/runs -- log it too so it shows up
+        # immediately in Render's log stream (and, if SENTRY_DSN is set, fires
+        # an alert) without anyone having to go look.
+        logger.exception("Scheduled job %r failed", name)
     run.finished_at = datetime.now(timezone.utc)
     db.commit()
     db.refresh(run)

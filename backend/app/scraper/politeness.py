@@ -7,6 +7,7 @@ robots handling can be exercised offline.
 """
 from __future__ import annotations
 
+import logging
 import time
 from urllib.parse import urlparse
 from urllib.robotparser import RobotFileParser
@@ -14,6 +15,8 @@ from urllib.robotparser import RobotFileParser
 import httpx
 
 from app.core.config import settings
+
+logger = logging.getLogger(__name__)
 
 
 class RobotsChecker:
@@ -34,8 +37,9 @@ class RobotsChecker:
                 rp = None  # no robots.txt -> allowed
             else:
                 rp.parse(resp.text.splitlines())
-        except Exception:
-            rp = None  # unreachable robots -> treat as allowed but caller may log
+        except Exception as exc:
+            logger.debug("robots.txt unreachable for %s, treating as allowed: %s", base, exc)
+            rp = None  # unreachable robots -> treat as allowed
         self._cache[base] = rp
         return rp
 

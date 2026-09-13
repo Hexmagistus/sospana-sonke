@@ -16,3 +16,5 @@ playwright==1.55.0
 pyotp==2.9.0
 pytest==8.3.3
 slowapi==0.1.10
+# Optional error tracking -- inert unless SENTRY_DSN is set (see app/core/logging.py).
+sentry-sdk[fastapi]==2.17.0

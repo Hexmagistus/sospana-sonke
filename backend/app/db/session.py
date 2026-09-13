@@ -1,10 +1,13 @@
 """Database engine and session management."""
+import logging
 from collections.abc import Generator
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
 from app.core.config import settings
+
+logger = logging.getLogger(__name__)
 
 
 def _normalise_db_url(url: str) -> str:
@@ -75,4 +78,12 @@ def _add_new_columns() -> None:
             with engine.begin() as conn:
                 conn.execute(text(f"ALTER TABLE {table} ADD COLUMN {column} {ddl_type}"))
         except Exception:
-            pass  # never let optional column backfill block startup
+            # Never let optional column backfill block startup -- but this used to
+            # fail completely silently, which is a real data-integrity risk: the
+            # app would carry on writing/reading a table that's missing a column
+            # it expects, with no record anywhere of why. Log it loudly instead.
+            logger.exception(
+                "Failed to add column %s.%s (%s) -- schema may now be out of "
+                "sync with the models; writes touching this column may fail.",
+                table, column, ddl_type,
+            )

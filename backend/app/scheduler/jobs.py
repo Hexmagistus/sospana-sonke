@@ -6,6 +6,7 @@ Jobs are deterministic and safe to re-run.
 """
 from __future__ import annotations
 
+import logging
 import time
 from datetime import datetime, timezone
 
@@ -17,6 +18,8 @@ from app.models.user import User
 from app.services.scan_service import scan_company
 from app.services.match_service import run_match_for_user
 from app.services.subscription_service import get_or_create_subscription, has_active_access
+
+logger = logging.getLogger(__name__)
 
 
 def _alert_candidates_of_new_jobs(db: Session, new_vacancy_ids: list[str], job_run_id: str | None) -> int:
@@ -52,6 +55,8 @@ def scan_all_companies(db: Session, job_run_id: str | None = None, country: str 
             for r in reports:
                 new_vacancy_ids.extend(r.created_vacancy_ids)
         except Exception:
+            logger.warning("scan_all_companies: failed to scan %s (%s)",
+                           company.company_name, company.id, exc_info=True)
             failed += 1
     candidates_alerted = _alert_candidates_of_new_jobs(db, new_vacancy_ids, job_run_id)
     return {"companies_scanned": scanned, "vacancies_created": created, "sources_failed": failed,
@@ -128,6 +133,8 @@ def scan_due_companies(db: Session, limit: int = 60, job_run_id: str | None = No
             for r in reports:
                 new_vacancy_ids.extend(r.created_vacancy_ids)
         except Exception:
+            logger.warning("scan_due_companies: failed to scan %s (%s)",
+                           company.company_name, company.id, exc_info=True)
             failed += 1
         company.last_checked = now
         db.add(company)
@@ -175,6 +182,8 @@ def check_link_changes(db: Session, limit: int = 25, job_run_id: str | None = No
                 db.add(company)
                 db.commit()
             except Exception:
+                logger.warning("check_link_changes: failed to check %s (%s)",
+                               company.company_name, company.id, exc_info=True)
                 errors += 1
                 db.rollback()
     finally:

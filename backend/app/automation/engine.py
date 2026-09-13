@@ -7,9 +7,12 @@ Safety order: global switch → per-source policy → live blocker detection →
 """
 from __future__ import annotations
 
+import logging
 from datetime import datetime, timezone
 
 from sqlalchemy.orm import Session
+
+logger = logging.getLogger(__name__)
 
 from app.automation.base import Submitter
 from app.automation.detector import classify_page, extract_form_fields
@@ -63,6 +66,7 @@ def attempt_auto_submit(db: Session, user: User, app: Application,
     try:
         html = submitter.load(url)
     except Exception as exc:
+        logger.warning("Auto-submit: could not load application page for app %s: %s", app.id, exc)
         _transition(db, app, "APPLICATION_FAILED", "auto_submit_failed", actor="system",
                     detail=f"Could not load application page: {type(exc).__name__}: {exc}")
         db.commit(); db.refresh(app)

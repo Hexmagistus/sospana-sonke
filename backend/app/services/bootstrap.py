@@ -6,10 +6,13 @@ creates an administrator. Safe to run on every startup — it only acts when nee
 """
 from __future__ import annotations
 
+import logging
 from pathlib import Path
 
 from sqlalchemy import func
 from sqlalchemy.orm import Session
+
+logger = logging.getLogger(__name__)
 
 from app.core.config import settings
 from app.core import security
@@ -30,6 +33,7 @@ def bootstrap(db: Session) -> None:
         try:
             import_companies_from_csv(db, _SEED.read_bytes())
         except Exception:
+            logger.exception("Bootstrap CSV import failed; rolled back")
             db.rollback()
 
     if settings.ADMIN_EMAIL and settings.ADMIN_PASSWORD:

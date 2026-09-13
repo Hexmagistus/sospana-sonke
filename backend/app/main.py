@@ -1,4 +1,5 @@
 """Sospana Sonke API entrypoint."""
+import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -8,6 +9,7 @@ from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 
 from app.core.config import settings
+from app.core.logging import configure_logging
 from app.core.rate_limit import limiter
 from app.db.session import init_db
 from app.api import (
@@ -15,6 +17,11 @@ from app.api import (
     routes_documents, routes_applications, routes_subscription, routes_donation, routes_dashboard,
     routes_notifications, routes_cron, routes_tailor, routes_watches,
 )
+
+# Set up logging (and Sentry, if SENTRY_DSN is configured) before anything else
+# runs, so startup itself — and every request/job after it — is observable.
+configure_logging()
+logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
@@ -30,7 +37,7 @@ async def lifespan(app: FastAPI):
         finally:
             db.close()
     except Exception:
-        pass  # never let optional bootstrap block startup
+        logger.exception("Optional startup bootstrap failed; continuing without it")
     yield
 
 
@@ -68,6 +75,21 @@ def create_app() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
+    @app.middleware("http")
+    async def log_unhandled_exceptions(request, call_next):
+        # Outermost middleware (registered after add_security_headers, so it
+        # wraps it): catches anything that reaches here unhandled from a route,
+        # dependency, or another middleware, logs it with request context, then
+        # re-raises so FastAPI/Starlette's normal 500 handling is unchanged.
+        # Without this, an error outside the job runner or the routes with their
+        # own try/except left literally no trace anywhere.
+        try:
+            return await call_next(request)
+        except Exception:
+            logging.getLogger("app.request").exception(
+                "Unhandled exception on %s %s", request.method, request.url.path)
+            raise
 
     @app.middleware("http")
     async def add_security_headers(request, call_next):

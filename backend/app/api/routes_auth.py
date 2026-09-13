@@ -1,4 +1,5 @@
 """Authentication routes (blueprint Step 1)."""
+import logging
 import secrets
 
 import httpx
@@ -17,6 +18,8 @@ from app.schemas.auth import (
     RefreshRequest, UserResponse, MFASetupResponse, MFACodeRequest,
     PasswordResetRequest, PasswordResetConfirm, SimpleMessage, GoogleLoginRequest,
 )
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -52,7 +55,11 @@ def register(request: Request, body: RegisterRequest, db: Session = Depends(get_
             f"The link expires in {settings.EMAIL_VERIFICATION_EXPIRE_HOURS} hours.",
         )
     except Exception:
-        pass
+        # Registration still succeeds either way (the token is returned outside
+        # production for testing), but a silent failure here meant a real user
+        # could be stuck unverified with no record anywhere of why their email
+        # never arrived.
+        logger.error("Failed to send verification email to %s", user.email, exc_info=True)
     return RegisterResponse(
         user=UserResponse.model_validate(user),
         email_verification_token=token if settings.ENV != "production" else None,
@@ -225,7 +232,7 @@ def password_reset_request(request: Request, body: PasswordResetRequest, db: Ses
                 f"If you didn't request this, you can safely ignore this email.",
             )
         except Exception:
-            pass
+            logger.error("Failed to send password-reset email to %s", user.email, exc_info=True)
     return SimpleMessage(status="If that email exists, a reset link has been sent.",
                          reset_token=token if settings.ENV != "production" else None)
 

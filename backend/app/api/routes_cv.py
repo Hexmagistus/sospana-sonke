@@ -5,6 +5,7 @@ extracted, and an AI provider produces a structured suggestion the candidate can
 review and import into their profile. The original CV is never overwritten.
 """
 import hashlib
+import logging
 
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Response, status
 from sqlalchemy.orm import Session
@@ -21,6 +22,8 @@ from app.services.cv_extract import extract_text, CVExtractionError
 from app.services.malware_scan import scan_upload
 from app.services.storage import get_storage
 from app.services.profile_service import get_or_create_profile, apply_structured_to_profile
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/cv", tags=["cv"])
 
@@ -152,5 +155,8 @@ def delete_cv(cv_id: str, db: Session = Depends(get_db), user: User = Depends(ge
     try:
         get_storage().delete(cv.storage_key)
     except Exception:
-        pass
+        # The record is soft-deleted either way; this just leaves an orphaned
+        # file if it fails, which used to happen with zero record anywhere.
+        logger.warning("Failed to delete stored file for CV %s (key=%s)",
+                       cv.id, cv.storage_key, exc_info=True)
     db.commit()

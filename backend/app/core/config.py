@@ -119,6 +119,11 @@ class Settings(BaseSettings):
     PLAYWRIGHT_TIMEOUT_MS: int = 20000
     PLAYWRIGHT_USER_AGENT: str = "SospanaSonkeBot/0.1 (+https://sospanasonke.co.za/bot)"
 
+    # Observability. Logging itself (app/core/logging.py) always runs; Sentry error
+    # tracking is opt-in — leave unset and it's a no-op, set it to a real Sentry DSN
+    # to get exception alerting in production.
+    SENTRY_DSN: str | None = None
+
 
 # The SECRET_KEY above must never be used in production: it is a well-known
 # placeholder, publicly visible in this file, so any deployment left on it would

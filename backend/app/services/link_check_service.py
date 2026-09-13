@@ -15,6 +15,7 @@ app/scheduler/jobs.py.
 from __future__ import annotations
 
 import hashlib
+import logging
 import re
 from datetime import datetime, timezone
 
@@ -23,6 +24,8 @@ from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.models.company import Company
+
+logger = logging.getLogger(__name__)
 
 _TAG_RE = re.compile(r"<[^>]+>")
 _WS_RE = re.compile(r"\s+")
@@ -62,7 +65,8 @@ def check_company_content(company: Company, client: httpx.Client | None = None) 
         if resp.status_code >= 400:
             return False
         new_hash = hash_page_content(resp.text)
-    except Exception:
+    except Exception as exc:
+        logger.debug("Content check failed for %s: %s", company.careers_url, exc)
         return False
     finally:
         if owns_client:
