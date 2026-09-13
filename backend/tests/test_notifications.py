@@ -1,4 +1,5 @@
 """Tests for notifications and the admin scheduler."""
+import json
 from datetime import datetime, timezone
 
 from tests.conftest import register_and_login, make_admin
@@ -144,7 +145,13 @@ def test_new_jobs_broadcast_idempotent_per_job_run(client, db_engine):
     assert len(notes) == 1
 
 
-def test_scan_due_companies_alerts_on_new_vacancies(client, db_engine, monkeypatch):
+def test_scan_due_companies_does_not_broadcast_to_candidates(client, db_engine, monkeypatch):
+    """scan_due_companies deliberately skips the "N new jobs" candidate broadcast
+    (unlike scan_all_companies): NOTIFY_EMAILS is on in production, and that
+    broadcast emails every active candidate synchronously, one HTTP call each,
+    inside the same request -- with even a couple hundred candidates that alone
+    can run minutes past this job's own time budget, which is the whole point of
+    it being a small, frequent rotating-batch job. See its docstring."""
     from sqlalchemy.orm import sessionmaker
     from app.models.company import Company
     from app.scheduler.runner import run_job
@@ -183,10 +190,12 @@ def test_scan_due_companies_alerts_on_new_vacancies(client, db_engine, monkeypat
         db.close()
 
     assert run.status == "success"
+    detail = json.loads(run.detail)
+    assert detail["vacancies_created"] >= 1
+    assert detail["candidates_alerted"] == 0
     notes = [n for n in client.get("/api/v1/notifications", headers=_auth(tokens)).json()
              if n["type"] == "new_jobs"]
-    assert len(notes) == 1
-    assert "Retail Assistant" in notes[0]["body"]
+    assert len(notes) == 0
 
 
 # ---- scheduler (admin) ----

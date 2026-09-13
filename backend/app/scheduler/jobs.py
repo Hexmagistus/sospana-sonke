@@ -92,6 +92,17 @@ def scan_due_companies(db: Session, limit: int = 60, job_run_id: str | None = No
     inside the calling workflow's timeout. limit is now just an upper cap for
     a lucky all-fast batch, not the throttle; raising it further is safe on
     its own, since the time budget is what actually protects each run.
+
+    Deliberately skips the "N new jobs" candidate broadcast that
+    scan_all_companies/scan_south_africa send: NOTIFY_EMAILS is on in
+    production, and notify_new_jobs_broadcast emails every active candidate
+    synchronously, one HTTP call per candidate, inside this same request --
+    with even a couple hundred candidates that alone can run minutes past the
+    scan loop's own time budget (this is what was actually causing runs to
+    blow well past 240s even after the loop itself was bounded). A partial
+    rotating batch finding a handful of jobs every 3 hours isn't the right
+    trigger for a mass email anyway; a full/manual sweep (scan_all_companies)
+    is a more sensible place for that broadcast.
     """
     companies = (db.query(Company)
                  .filter(Company.active.is_(True), Company.deleted_at.is_(None),
@@ -121,10 +132,12 @@ def scan_due_companies(db: Session, limit: int = 60, job_run_id: str | None = No
         company.last_checked = now
         db.add(company)
         db.commit()
-    candidates_alerted = _alert_candidates_of_new_jobs(db, new_vacancy_ids, job_run_id)
+    # No candidate broadcast here -- see the docstring; it's the one uncapped,
+    # potentially-per-candidate-email step and doesn't belong in a job whose
+    # whole point is to return within a tight time budget every few hours.
     return {"batch_limit": limit, "companies_scanned": scanned,
             "vacancies_created": created, "sources_failed": failed,
-            "candidates_alerted": candidates_alerted, "stopped_early_on_time_budget": timed_out}
+            "candidates_alerted": 0, "stopped_early_on_time_budget": timed_out}
 
 
 def check_link_changes(db: Session, limit: int = 25, job_run_id: str | None = None) -> dict:
