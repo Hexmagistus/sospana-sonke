@@ -16,14 +16,14 @@ from app.models.match import CandidateMatch
 from app.models.subscription import Subscription
 from app.models.user import User
 from app.models.vacancy import Vacancy, VacancySource
-from app.services.subscription_service import get_or_create_subscription, has_active_access
 
 _STRONG_BANDS = ("Strong", "Good")
 _AWAITING = ("AWAITING_APPROVAL", "CANDIDATE_ACTION_REQUIRED")
 
 
 def candidate_dashboard(db: Session, user: User) -> dict:
-    sub = get_or_create_subscription(db, user.id)
+    # No subscription fields here -- Sospana Sonke is free forever, so a
+    # candidate's dashboard has nothing to report about billing.
 
     def match_count(**filt):
         q = db.query(func.count(CandidateMatch.id)).filter(CandidateMatch.user_id == user.id)
@@ -42,9 +42,6 @@ def candidate_dashboard(db: Session, user: User) -> dict:
               .scalar() or 0)
 
     return {
-        "subscription_status": sub.status,
-        "has_access": has_active_access(sub),
-        "plan_amount_zar": sub.amount_zar,
         "vacancies_open": db.query(func.count(Vacancy.id)).filter(Vacancy.is_open.is_(True)).scalar() or 0,
         "total_matches": match_count(),
         "strong_matches": strong,

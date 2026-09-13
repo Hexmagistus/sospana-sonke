@@ -1,20 +1,27 @@
-"""Subscription state machine, access gating, checkout, and webhook handling.
+"""Subscription bookkeeping and webhook handling.
 
-Deterministic and idempotent. Access is computed from status + period dates (never
-from an LLM). Webhook handling is keyed on the provider reference so replays don't
-double-charge or double-extend (blueprint section 26).
+Sospana Sonke is free forever -- subscriptions were permanently removed as a
+gate on 2026-09-12; nothing in the product checks payment status to decide
+access anymore. What remains here is: (1) the Subscription/Payment ledger,
+kept so admin analytics can still report on historical revenue, and (2) the
+webhook handler, which donations also route through (see the `DON-`
+reference check in handle_webhook) and whose URL is configured directly in
+the Paystack dashboard -- so the route and this module stay in place even
+though nothing can enrol in a new subscription anymore (see
+routes_subscription.py, where checkout/mock-pay/cancel now return 410).
+
+Deterministic and idempotent. Webhook handling is keyed on the provider
+reference so replays don't double-charge or double-extend (blueprint section 26).
 """
 from __future__ import annotations
 
 import uuid
 from datetime import datetime, timedelta, timezone
 
-from fastapi import Depends, HTTPException, status as http
+from fastapi import HTTPException, status as http
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
-from app.core.deps import get_current_user
-from app.db.session import get_db
 from app.models.subscription import Subscription, Payment
 from app.models.user import User
 from app.payments import get_payment_provider
@@ -52,36 +59,17 @@ def get_or_create_subscription(db: Session, user_id: str) -> Subscription:
 
 
 def has_active_access(sub: Subscription) -> bool:
-    now = _now()
-    if sub.status == "ACTIVE":
-        end = _aware(sub.current_period_end)
-        return end is None or end > now
-    if sub.status == "TRIAL":
-        end = _aware(sub.trial_end)
-        return end is not None and end > now
-    if sub.status == "PAST_DUE":
-        end = _aware(sub.current_period_end)
-        grace = timedelta(days=settings.PAST_DUE_GRACE_DAYS)
-        return end is not None and (end + grace) > now
-    return False  # CANCELLED / EXPIRED
-
-
-# ---- checkout ---------------------------------------------------------------
-
-def start_checkout(db: Session, user: User) -> dict:
-    sub = get_or_create_subscription(db, user.id)
-    provider = get_payment_provider()
-    reference = f"SPS-{user.id[:8]}-{uuid.uuid4().hex[:10]}"
-    session = provider.start_checkout(email=user.email, amount_zar=sub.amount_zar,
-                                      reference=reference, metadata={"user_id": user.id})
-    sub.provider = provider.name
-    sub.provider_customer_ref = user.email
-    sub.last_checkout_ref = session.reference
-    db.commit()
-    return {"authorization_url": session.authorization_url, "reference": session.reference}
+    """Always True: Sospana Sonke is free forever, for every account,
+    regardless of subscription status. `sub` is accepted (and unused) so
+    existing call sites don't need to change; kept as a function rather than
+    inlined `True` so a single place documents the decision."""
+    return True
 
 
 # ---- state transitions (idempotent) ----------------------------------------
+# No new subscription can be started (see routes_subscription.py), but these
+# stay in place to process any subscription-shaped event a webhook replay
+# might still deliver, without special-casing it away from the payment ledger.
 
 def _record_payment(db, sub, user_id, reference, amount, status_str, raw, provider_name) -> bool:
     """Record a payment; return False if this reference was already processed."""
@@ -127,17 +115,6 @@ def apply_cancelled(db: Session, sub: Subscription) -> Subscription:
     return sub
 
 
-def cancel_subscription(db: Session, user: User) -> Subscription:
-    sub = get_or_create_subscription(db, user.id)
-    # Cancel at period end: keep access until the paid period lapses.
-    sub.cancel_at_period_end = True
-    if not _aware(sub.current_period_end):
-        sub.status = "CANCELLED"
-    db.commit()
-    db.refresh(sub)
-    return sub
-
-
 def handle_webhook(db: Session, raw_body: bytes, signature: str | None) -> dict:
     provider = get_payment_provider()
     if not provider.verify_webhook(raw_body, signature):
@@ -171,16 +148,3 @@ def handle_webhook(db: Session, raw_body: bytes, signature: str | None) -> dict:
     elif event.type == "subscription_cancelled":
         apply_cancelled(db, sub)
     return {"handled": True, "type": event.type, "status": sub.status}
-
-
-# ---- gating dependency ------------------------------------------------------
-
-def require_active_subscription(user: User = Depends(get_current_user),
-                                db: Session = Depends(get_db)) -> User:
-    # Subscription temporarily disabled — Sospana Sonke is free for now.
-    # Every signed-in user has full access to all features. To re-enable
-    # paid gating later, restore the has_active_access() check below:
-    #     sub = get_or_create_subscription(db, user.id)
-    #     if not has_active_access(sub):
-    #         raise HTTPException(status_code=http.HTTP_402_PAYMENT_REQUIRED, detail="...")
-    return user

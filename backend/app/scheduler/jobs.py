@@ -13,11 +13,9 @@ from datetime import datetime, timezone
 from sqlalchemy.orm import Session
 
 from app.models.company import Company
-from app.models.subscription import Subscription
 from app.models.user import User
 from app.services.scan_service import scan_company
 from app.services.match_service import run_match_for_user
-from app.services.subscription_service import get_or_create_subscription, has_active_access
 
 logger = logging.getLogger(__name__)
 
@@ -194,12 +192,12 @@ def check_link_changes(db: Session, limit: int = 25, job_run_id: str | None = No
 
 
 def match_all_candidates(db: Session) -> dict:
-    """Run matching for every candidate with active access; notifications fire inside."""
+    """Run matching for every candidate; notifications fire inside. Sospana
+    Sonke is free forever, so this no longer skips anyone by subscription
+    status -- every active candidate gets matched, full stop."""
     users = db.query(User).filter(User.role == "candidate", User.is_active.is_(True)).all()
     ran = matched = 0
     for user in users:
-        if not has_active_access(get_or_create_subscription(db, user.id)):
-            continue
         summary = run_match_for_user(db, user.id)
         ran += 1
         matched += summary.matched

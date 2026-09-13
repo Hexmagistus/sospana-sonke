@@ -107,8 +107,8 @@ function DashboardInner() {
 
           <Card className="flex flex-wrap items-center justify-between gap-2">
             <p className="text-sm text-gray-600">
-              Sospana Sonke is free for everyone right now — every feature above is unlocked, no
-              subscription needed.
+              Sospana Sonke is free forever — every feature above is unlocked, no subscription
+              needed, now or later.
             </p>
           </Card>
         </>

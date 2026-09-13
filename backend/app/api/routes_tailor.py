@@ -21,7 +21,6 @@ from app.schemas.job_analysis import (
     FactCheck, GenerateCvRequest, TrackerUpdateRequest, TemplateInfo,
 )
 from app.services import job_analysis_service as svc
-from app.services.subscription_service import require_active_subscription
 
 router = APIRouter(prefix="/tailor", tags=["tailor"])
 
@@ -33,7 +32,7 @@ def get_templates():
 
 @router.post("/analyze", response_model=AnalyzeJobResult, status_code=status.HTTP_201_CREATED)
 def analyze(body: AnalyzeJobRequest, db: Session = Depends(get_db),
-           user: User = Depends(require_active_subscription)):
+           user: User = Depends(get_current_user)):
     analysis, draft_cv, violations = svc.analyze_job(
         db, user, body.job_title, body.company_name, body.job_description,
     )
@@ -47,7 +46,7 @@ def analyze(body: AnalyzeJobRequest, db: Session = Depends(get_db),
 @router.post("/{job_analysis_id}/generate-cv", response_model=CVVersionResponse,
              status_code=status.HTTP_201_CREATED)
 def generate_cv(job_analysis_id: str, body: GenerateCvRequest, db: Session = Depends(get_db),
-                user: User = Depends(require_active_subscription)):
+                user: User = Depends(get_current_user)):
     version = svc.generate_cv(db, user, job_analysis_id, body.cv_data, body.template)
     return CVVersionResponse.model_validate(version)
 
@@ -55,7 +54,7 @@ def generate_cv(job_analysis_id: str, body: GenerateCvRequest, db: Session = Dep
 @router.post("/{job_analysis_id}/generate-cover-letter", response_model=CoverLetterResponse,
              status_code=status.HTTP_201_CREATED)
 def generate_cover_letter(job_analysis_id: str, db: Session = Depends(get_db),
-                          user: User = Depends(require_active_subscription)):
+                          user: User = Depends(get_current_user)):
     letter = svc.generate_cover_letter(db, user, job_analysis_id)
     return CoverLetterResponse.model_validate(letter)
 
@@ -63,7 +62,7 @@ def generate_cover_letter(job_analysis_id: str, db: Session = Depends(get_db),
 @router.post("/{job_analysis_id}/interview-prep", response_model=InterviewPrepResponse,
              status_code=status.HTTP_201_CREATED)
 def generate_interview_prep(job_analysis_id: str, db: Session = Depends(get_db),
-                            user: User = Depends(require_active_subscription)):
+                            user: User = Depends(get_current_user)):
     from app.services.interview_service import generate_interview_prep_for_job
     prep = generate_interview_prep_for_job(db, user, job_analysis_id)
     return InterviewPrepResponse.model_validate(prep)

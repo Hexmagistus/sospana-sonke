@@ -55,7 +55,9 @@ def test_candidate_dashboard(client, db_engine):
     assert body["vacancies_open"] == 1
     assert body["cvs_generated"] == 1
     assert body["applications_total"] == 1
-    assert body["subscription_status"] == "TRIAL" and body["plan_amount_zar"] == 100
+    # No subscription fields -- Sospana Sonke is free forever, so the
+    # candidate dashboard has nothing to report about billing.
+    assert "subscription_status" not in body and "plan_amount_zar" not in body
 
 
 def test_admin_dashboard_requires_admin(client, db_engine):
@@ -64,9 +66,24 @@ def test_admin_dashboard_requires_admin(client, db_engine):
 
 
 def test_admin_dashboard_mrr(client, db_engine):
-    # One candidate who pays -> ACTIVE -> counts toward MRR at R100.
+    # One candidate with a historical ACTIVE subscription -> counts toward MRR
+    # at R100. Subscriptions can no longer be purchased (Sospana Sonke is free
+    # forever -- see routes_subscription.py), so this reaches into the DB
+    # directly to set up the same state a legacy paid record would have,
+    # rather than going through the now-removed mock-pay endpoint.
     _, cand = register_and_login(client, email="payer@example.com")
-    client.post("/api/v1/subscription/mock-pay", headers=_auth(cand))
+    client.get("/api/v1/subscription", headers=_auth(cand))  # ensure the row exists
+    from datetime import timedelta
+    from sqlalchemy.orm import sessionmaker
+    from app.models.subscription import Subscription
+    S = sessionmaker(bind=db_engine); s = S()
+    try:
+        sub = s.query(Subscription).first()
+        sub.status = "ACTIVE"
+        sub.current_period_end = datetime.now(timezone.utc) + timedelta(days=30)
+        s.commit()
+    finally:
+        s.close()
 
     email, password = make_admin(db_engine)
     admin = client.post("/api/v1/auth/login", json={"email": email, "password": password}).json()

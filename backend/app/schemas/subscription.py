@@ -1,4 +1,6 @@
-"""Schemas for subscription status and checkout."""
+"""Schema for the (now purely historical) subscription status endpoint --
+checkout/cancel/mock-pay were removed along with subscriptions themselves;
+see app/api/routes_subscription.py."""
 from datetime import datetime
 from pydantic import BaseModel, ConfigDict
 
@@ -13,8 +15,3 @@ class SubscriptionResponse(BaseModel):
     trial_end: datetime | None
     current_period_end: datetime | None
     cancel_at_period_end: bool
-
-
-class CheckoutResponse(BaseModel):
-    authorization_url: str
-    reference: str

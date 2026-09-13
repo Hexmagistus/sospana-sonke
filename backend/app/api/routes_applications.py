@@ -14,7 +14,6 @@ from app.services.application_service import (
     get_or_create_settings, prepare_application, approve_application, mark_submitted,
     update_status, answer_question,
 )
-from app.services.subscription_service import require_active_subscription
 
 router = APIRouter(tags=["applications"])
 
@@ -38,7 +37,7 @@ def update_preferences(body: SettingsSchema, db: Session = Depends(get_db),
 @router.post("/matches/{match_id}/prepare-application", response_model=ApplicationDetailResponse,
              status_code=status.HTTP_201_CREATED)
 def prepare(match_id: str, db: Session = Depends(get_db),
-            user: User = Depends(require_active_subscription)):
+            user: User = Depends(get_current_user)):
     return ApplicationDetailResponse.model_validate(prepare_application(db, user, match_id))
 
 
@@ -66,7 +65,7 @@ def approve(app_id: str, db: Session = Depends(get_db), user: User = Depends(get
 
 @router.post("/applications/{app_id}/auto-submit", response_model=ApplicationDetailResponse)
 def auto_submit(app_id: str, db: Session = Depends(get_db),
-                user: User = Depends(require_active_subscription)):
+                user: User = Depends(get_current_user)):
     """Attempt automated submission (Phase 2). Safety-bound: never bypasses CAPTCHA/
     login/MFA, respects per-source policy, and falls back to action-required."""
     from fastapi import HTTPException

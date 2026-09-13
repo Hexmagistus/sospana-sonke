@@ -1,4 +1,13 @@
-"""Tests for subscription state machine, access gating, checkout, and webhooks."""
+"""Tests for the (now purely historical) subscription ledger and webhook.
+
+Sospana Sonke is free forever: subscriptions were permanently removed as a
+gate on every route, and checkout/cancel/mock-pay were removed outright (see
+app/api/routes_subscription.py and app/services/subscription_service.py).
+What's left to test: access is unconditional regardless of subscription
+status, the removed endpoints are gone for good, and the payment
+ledger/webhook -- which donations still route through -- still works
+correctly.
+"""
 import json
 from datetime import datetime, timedelta, timezone
 
@@ -27,25 +36,18 @@ def test_default_subscription_is_trial(client):
     assert body["status"] == "TRIAL" and body["has_access"] is True and body["amount_zar"] == 100
 
 
-def test_checkout_returns_url(client):
+def test_checkout_cancel_and_mock_pay_are_permanently_removed(client):
     _, tokens = register_and_login(client)
-    r = client.post("/api/v1/subscription/checkout", headers=_auth(tokens))
-    assert r.status_code == 200
-    assert r.json()["reference"] in r.json()["authorization_url"]
+    for path in ("/api/v1/subscription/checkout", "/api/v1/subscription/cancel",
+                "/api/v1/subscription/mock-pay"):
+        r = client.post(path, headers=_auth(tokens))
+        assert r.status_code == 410, path
 
 
-def test_mock_pay_activates(client):
+def test_access_always_granted_regardless_of_subscription_status(client, db_engine):
+    """The core "free forever" guarantee: even a fully expired/cancelled
+    subscription never blocks a feature that used to require an active one."""
     _, tokens = register_and_login(client)
-    r = client.post("/api/v1/subscription/mock-pay", headers=_auth(tokens))
-    assert r.status_code == 200
-    body = r.json()
-    assert body["status"] == "ACTIVE" and body["has_access"] is True
-    assert body["current_period_end"] is not None
-
-
-def test_gating_blocks_when_inactive(client, db_engine):
-    _, tokens = register_and_login(client)
-    # Force the subscription to EXPIRED.
     client.get("/api/v1/subscription", headers=_auth(tokens))  # ensure it exists
     from sqlalchemy.orm import sessionmaker
     S = sessionmaker(bind=db_engine); s = S()
@@ -54,30 +56,8 @@ def test_gating_blocks_when_inactive(client, db_engine):
         sub.status = "EXPIRED"; sub.trial_end = None; s.commit()
     finally:
         s.close()
-    r = client.post("/api/v1/matches/run", headers=_auth(tokens))
-    assert r.status_code == 402
-
-
-def test_gating_allows_after_payment(client, db_engine):
-    _, tokens = register_and_login(client)
-    client.get("/api/v1/subscription", headers=_auth(tokens))
-    from sqlalchemy.orm import sessionmaker
-    S = sessionmaker(bind=db_engine); s = S()
-    try:
-        sub = s.query(Subscription).first()
-        sub.status = "EXPIRED"; sub.trial_end = None; s.commit()
-    finally:
-        s.close()
-    assert client.post("/api/v1/matches/run", headers=_auth(tokens)).status_code == 402
-    client.post("/api/v1/subscription/mock-pay", headers=_auth(tokens))
+    # /matches/run used to 402 here; it no longer gates on subscription at all.
     assert client.post("/api/v1/matches/run", headers=_auth(tokens)).status_code == 200
-
-
-def test_cancel_sets_flag(client):
-    _, tokens = register_and_login(client)
-    client.post("/api/v1/subscription/mock-pay", headers=_auth(tokens))
-    r = client.post("/api/v1/subscription/cancel", headers=_auth(tokens))
-    assert r.status_code == 200 and r.json()["cancel_at_period_end"] is True
 
 
 # ---- service-level ----------------------------------------------------------
@@ -100,14 +80,16 @@ def test_payment_idempotency(db):
     assert sub.current_period_end == end1
 
 
-def test_access_helper():
+def test_access_helper_is_unconditionally_true():
+    """has_active_access() always returns True now, whatever the subscription
+    status -- Sospana Sonke is free forever for every account."""
     now = datetime.now(timezone.utc)
     active = Subscription(user_id="x", status="ACTIVE", current_period_end=now + timedelta(days=5))
-    assert has_active_access(active)
     expired = Subscription(user_id="x", status="ACTIVE", current_period_end=now - timedelta(days=1))
-    assert not has_active_access(expired)
     cancelled = Subscription(user_id="x", status="CANCELLED")
-    assert not has_active_access(cancelled)
+    never_paid = Subscription(user_id="x", status="EXPIRED")
+    for sub in (active, expired, cancelled, never_paid):
+        assert has_active_access(sub) is True
 
 
 def test_webhook_charge_success(db):

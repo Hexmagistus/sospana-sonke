@@ -17,7 +17,6 @@ from app.services.document_service import (
     generate_cv_for_target, generate_cover_letter_for_target,
 )
 from app.services.storage import get_storage
-from app.services.subscription_service import require_active_subscription
 
 router = APIRouter(tags=["documents"])
 
@@ -28,14 +27,14 @@ _DOCX = "application/vnd.openxmlformats-officedocument.wordprocessingml.document
 @router.post("/matches/{match_id}/generate-cv", response_model=CVVersionResponse,
              status_code=status.HTTP_201_CREATED)
 def generate_cv(match_id: str, db: Session = Depends(get_db),
-                user: User = Depends(require_active_subscription)):
+                user: User = Depends(get_current_user)):
     return CVVersionResponse.model_validate(generate_cv_for_match(db, user, match_id))
 
 
 @router.post("/matches/{match_id}/generate-cover-letter", response_model=CoverLetterResponse,
              status_code=status.HTTP_201_CREATED)
 def generate_cover_letter(match_id: str, db: Session = Depends(get_db),
-                          user: User = Depends(require_active_subscription)):
+                          user: User = Depends(get_current_user)):
     return CoverLetterResponse.model_validate(generate_cover_letter_for_match(db, user, match_id))
 
 
@@ -47,7 +46,7 @@ class TailorRequest(BaseModel):
 
 @router.post("/tailor", status_code=status.HTTP_201_CREATED)
 def tailor_for_any_job(body: TailorRequest, db: Session = Depends(get_db),
-                       user: User = Depends(require_active_subscription)):
+                       user: User = Depends(get_current_user)):
     """Generate a tailored CV + cover letter for any job the candidate provides
     (a pasted ad or a chosen employer) — no scraped vacancy required."""
     cv = generate_cv_for_target(db, user, body.job_title, body.company_name, body.job_description)

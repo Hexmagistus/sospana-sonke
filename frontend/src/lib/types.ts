@@ -18,9 +18,6 @@ export interface Tokens {
 }
 
 export interface Dashboard {
-  subscription_status: string;
-  has_access: boolean;
-  plan_amount_zar: number;
   vacancies_open: number;
   total_matches: number;
   strong_matches: number;
@@ -148,15 +145,9 @@ export interface Company {
   url_looks_like_careers: boolean | null;
   notes: string | null;
   content_changed_at?: string | null;
-  created_at?: string;
 }
 
 // ---- Notify-me subscriptions & coverage map ----
-
-export interface TrendingCompany {
-  company_id: string;
-  watch_count: number;
-}
 
 export interface Watch {
   id: string;

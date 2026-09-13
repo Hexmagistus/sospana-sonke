@@ -17,7 +17,6 @@ from app.schemas.match import (
     MatchResponse, MatchDetailResponse, MatchRunResponse, MatchConfigSchema,
 )
 from app.services.match_service import run_match_for_user, get_match_config, set_match_config
-from app.services.subscription_service import require_active_subscription
 
 router = APIRouter(tags=["matches"])
 
@@ -39,7 +38,7 @@ def _to_response(db: Session, m: CandidateMatch, detail: bool = False):
 
 
 @router.post("/matches/run", response_model=MatchRunResponse)
-def run_matches(db: Session = Depends(get_db), user: User = Depends(require_active_subscription)):
+def run_matches(db: Session = Depends(get_db), user: User = Depends(get_current_user)):
     """Run the matching engine for the current candidate over all open vacancies."""
     from app.services.application_service import get_or_create_settings
     s = get_or_create_settings(db, user.id)
@@ -98,7 +97,7 @@ def get_match(match_id: str, db: Session = Depends(get_db), user: User = Depends
 
 @router.post("/matches/{match_id}/interview-prep", status_code=status.HTTP_201_CREATED)
 def create_interview_prep(match_id: str, db: Session = Depends(get_db),
-                          user: User = Depends(require_active_subscription)):
+                          user: User = Depends(get_current_user)):
     from app.schemas.interview import InterviewPrepResponse
     from app.services.interview_service import generate_interview_prep
     return InterviewPrepResponse.model_validate(generate_interview_prep(db, user, match_id))
