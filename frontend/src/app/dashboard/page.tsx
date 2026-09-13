@@ -49,7 +49,7 @@ function DashboardInner() {
               Matches
             </h2>
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-              <Stat label="Open vacancies" value={data.vacancies_open} accent="sky" href="/jobs" />
+              <Stat label="Open vacancies" value={data.vacancies_open} accent="sky" href="/companies" />
               <Stat label="Total matches" value={data.total_matches} accent="teal" href="/matches" />
               <Stat
                 label="Strong matches"

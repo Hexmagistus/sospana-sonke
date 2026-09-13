@@ -125,11 +125,14 @@ function CompaniesDirectoryInner() {
     };
   }, []);
 
-  // Deep link from a "Share" button elsewhere (?company=<id>), or from the
-  // Coverage map (?country=<name>): jump straight to that view.
+  // Deep link from a "Share" button elsewhere (?company=<id>), the Coverage
+  // map (?country=<name>), or the homepage's "SOE vacancies (SA)" shortcut
+  // (?type=SOE&country=South%20Africa -- the same shortcut used to point at
+  // the now-removed /jobs page).
   useEffect(() => {
     const wantedCompany = searchParams.get("company");
     const wantedCountry = searchParams.get("country");
+    const wantedType = searchParams.get("type");
     if (wantedCompany && companies.length) {
       const found = companies.find((c) => c.id === wantedCompany);
       if (found) {
@@ -142,6 +145,9 @@ function CompaniesDirectoryInner() {
     if (wantedCountry) {
       setCountry(wantedCountry);
       setShortlistOnly(false);
+    }
+    if (wantedType && (FILTERS as readonly string[]).includes(wantedType)) {
+      setFilter(wantedType as (typeof FILTERS)[number]);
     }
   }, [searchParams, companies]);
 

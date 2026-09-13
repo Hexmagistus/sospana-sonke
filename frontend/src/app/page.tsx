@@ -611,13 +611,10 @@ export default function Home() {
                     <span className="relative z-10">Create your free account →</span>
                     <span className="pointer-events-none absolute inset-0 -translate-x-full skew-x-[-20deg] bg-white/40 opacity-0 transition-all duration-700 group-hover:translate-x-full group-hover:opacity-100" />
                   </Link>
-                  <Link href="/jobs" className="rounded-xl px-6 py-3.5 font-bold text-white shadow-lg transition hover:-translate-y-0.5 hover:brightness-110" style={{ background: C.teal }}>
-                    Find jobs →
+                  <Link href="/companies" className="rounded-xl px-6 py-3.5 font-bold text-white shadow-lg transition hover:-translate-y-0.5 hover:brightness-110" style={{ background: C.teal }}>
+                    Browse companies →
                   </Link>
-                  <Link href="/companies" className="rounded-xl border border-white/40 bg-white/5 px-6 py-3.5 font-semibold text-white backdrop-blur-sm transition hover:-translate-y-0.5 hover:bg-white/10">
-                    Browse companies
-                  </Link>
-                  <Link href="/jobs?type=SOE&region=South%20Africa" className="rounded-xl border border-white/40 bg-white/5 px-6 py-3.5 font-semibold text-white backdrop-blur-sm transition hover:-translate-y-0.5 hover:bg-white/10">
+                  <Link href="/companies?type=SOE&country=South%20Africa" className="rounded-xl border border-white/40 bg-white/5 px-6 py-3.5 font-semibold text-white backdrop-blur-sm transition hover:-translate-y-0.5 hover:bg-white/10">
                     🏛️ SOE vacancies (SA)
                   </Link>
                 </div>
