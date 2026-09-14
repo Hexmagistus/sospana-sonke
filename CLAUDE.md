@@ -48,6 +48,34 @@ commit it (and push, if you pushed the rest of your work). Newest entry on top.
   silently failing, and let Lungani run the `.bat` script if needed.
 
 ## Session Log
+### 2026-09-14 — Claude (Cowork) — NEW: Sospana Sonke Career Agent page (/agent)
+- Built a conversational **Career Agent** front door: `frontend/src/app/agent/page.tsx`
+  (new) + link added to `frontend/src/components/Nav.tsx` (after Dashboard). Everything
+  is wired to the **real existing endpoints — no fabricated data**:
+  - Quick actions + a natural-language box → a deterministic in-browser intent parser
+    (NOT an LLM; no hidden AI claim). Modes: **"Jobs I can apply for"** (`POST /matches/run`
+    → `GET /matches`; eligible = `hard_ok` AND decision APPLY/REVIEW), **"Almost qualified"**
+    (near-miss band / `hard_ok` false — shows the gaps), **keyword/smart search**
+    (`GET /vacancies?q=` with client-side location/qualification/work-mode/type filters +
+    synonym expansion via ROLE_FAMILIES), and **Career Discovery** (adjacent role families
+    from the candidate's profile).
+  - Result cards: score/band, **honest eligibility** ("Requirement not confirmed" whenever
+    `hard_ok` is false — never overclaims), a lazy "Why" that pulls reasons/gaps/sub_scores
+    from `GET /matches/{id}`, closing-date intelligence, source transparency, Save/Compare
+    trays + a compare table. Keyword (directory) results are shown **unscored and labelled
+    as such**. Empty states point to `/companies` and `/profile` rather than inventing jobs.
+- **Verified**: reconstructed the whole frontend in a sandbox, `npm ci` + `tsc --noEmit`
+  + `next build` all clean — the `/agent` route compiles and prerenders with no type/lint
+  errors. (Sandbox can't reach Google Fonts, so `layout.tsx`'s font fetch was stubbed
+  *locally only* for the test build; `layout.tsx` itself was NOT changed/deployed.)
+- **device_bash (the device Linux VM) was DOWN this session** — a Sept-8 Windows update
+  blocks it — so used `device_stage_files`/`device_commit_files`. The two files were
+  committed to the working tree and verified **byte-identical by sha256**. Nothing was
+  pushed from here: **push still needs Lungani to double-click `7-PUSH.bat`** (git add -A
+  / commit / push → Vercel + Render auto-deploy).
+- Next session: keep `/agent`'s ROLE_FAMILIES / vocab lists roughly in sync with
+  `backend/app/common/vocab.py`.
+
 ### 2026-09-09 — Claude (this account) — FULL 54/54 AFRICAN COVERAGE REACHED
 - User asked "how many countries left?" then "add all of them across all
   categories and update the get started page" — finished the remaining 12

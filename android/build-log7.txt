@@ -1,0 +1,62 @@
+==== Sospana Sonke : build AAB (v6) ====
+Working dir: C:\Users\Lungani Tshabalala\Downloads\sospana-sonke-fullstack\sospana-sonke\android
+---- creating tools junction (Bubblewrap expects SDK\tools\bin\sdkmanager) ----
+tools junction already present 
+---- accepting SDK licenses ----
+---- installing build-tools 36.1.0 + platform android-36 (current Play Console target API) ----
+Warning: This version only understands SDK XML versions up to 3 but an SDK XML file of version 4 was encountered. This can happen if you use versions of Android Studio and the command-line tools that were released at different times.
+Warning: Observed package id 'cmdline-tools;12.0' in inconsistent location 'C:\Android\Sdk\cmdline-tools\latest' (Expected 'C:\Android\Sdk\cmdline-tools\12.0')
+Warning: Observed package id 'cmdline-tools;12.0' in inconsistent location 'C:\Android\Sdk\tools' (Expected 'C:\Android\Sdk\cmdline-tools\12.0')
+Warning: Already observed package id 'cmdline-tools;12.0' in 'C:\Android\Sdk\cmdline-tools\latest'. Skipping duplicate at 'C:\Android\Sdk\tools'
+Loading package information...                                                  Loading local repository...                                                     Warning: Observed package id 'cmdline-tools;12.0' in inconsistent location 'C:\Android\Sdk\cmdline-tools\latest' (Expected 'C:\Android\Sdk\cmdline-tools\12.0')
+Warning: Observed package id 'cmdline-tools;12.0' in inconsistent location 'C:\Android\Sdk\tools' (Expected 'C:\Android\Sdk\cmdline-tools\12.0')
+Warning: Already observed package id 'cmdline-tools;12.0' in 'C:\Android\Sdk\cmdline-tools\latest'. Skipping duplicate at 'C:\Android\Sdk\tools'
+[                                       ] 3% Loading local repository...        [                                       ] 3% Fetch remote repository...         [=                                      ] 3% Fetch remote repository...         [=                                      ] 4% Fetch remote repository...         [=                                      ] 5% Fetch remote repository...         [==                                     ] 5% Fetch remote repository...         [==                                     ] 6% Fetch remote repository...         [==                                     ] 7% Fetch remote repository...         [==                                     ] 7% Computing updates...               [===                                    ] 8% Computing updates...               [===                                    ] 10% Computing updates...              [=======================================] 100% Computing updates...             
+
+---- bubblewrap config + doctor ----
+[35m,-----.        ,--.  ,--.  ,--.[39m
+[35m|  |) /_,--.,--|  |-.|  |-.|  |,---.,--.   ,--,--.--.,--,--.,---.[39m
+[35m|  .-.  |  ||  | .-. | .-. |  | .-. |  |.'.|  |  .--' ,-.  | .-. |[39m
+[35m|  '--' '  ''  | `-' | `-' |  \   --|   .'.   |  |  \ '-'  | '-' '[39m
+[35m`------' `----' `---' `---'`--'`----'--'   '--`--'   `--`--|  |-'[39m
+[35m                                                           `--'    [39m
+[35m,-----.        ,--.  ,--.  ,--.[39m
+[35m|  |) /_,--.,--|  |-.|  |-.|  |,---.,--.   ,--,--.--.,--,--.,---.[39m
+[35m|  .-.  |  ||  | .-. | .-. |  | .-. |  |.'.|  |  .--' ,-.  | .-. |[39m
+[35m|  '--' '  ''  | `-' | `-' |  \   --|   .'.   |  |  \ '-'  | '-' '[39m
+[35m`------' `----' `---' `---'`--'`----'--'   '--`--'   `--`--|  |-'[39m
+[35m                                                           `--'    [39m
+[7mdoctor[0m Your jdkpath and androidSdkPath are valid.
+---- regenerating project from twa-manifest.json ----
+[35m,-----.        ,--.  ,--.  ,--.[39m
+[35m|  |) /_,--.,--|  |-.|  |-.|  |,---.,--.   ,--,--.--.,--,--.,---.[39m
+[35m|  .-.  |  ||  | .-. | .-. |  | .-. |  |.'.|  |  .--' ,-.  | .-. |[39m
+[35m|  '--' '  ''  | `-' | `-' |  \   --|   .'.   |  |  \ '-'  | '-' '[39m
+[35m`------' `----' `---' `---'`--'`----'--'   '--`--'   `--`--|  |-'[39m
+[35m                                                           `--'    [39m
+Generating Android Project.
+
+Project updated successfully.
+Build it by running [36mbubblewrap build[39m
+---- building signed bundle (Gradle daemon disabled via gradle.properties - avoids the ----
+---- "Unable to establish loopback connection" socket error seen in earlier attempts)   ----
+[35m,-----.        ,--.  ,--.  ,--.[39m
+[35m|  |) /_,--.,--|  |-.|  |-.|  |,---.,--.   ,--,--.--.,--,--.,---.[39m
+[35m|  .-.  |  ||  | .-. | .-. |  | .-. |  |.'.|  |  .--' ,-.  | .-. |[39m
+[35m|  '--' '  ''  | `-' | `-' |  \   --|   .'.   |  |  \ '-'  | '-' '[39m
+[35m`------' `----' `---' `---'`--'`----'--'   '--`--'   `--`--|  |-'[39m
+[35m                                                           `--'    [39m
+Using passwords set in the BUBBLEWRAP_KEYSTORE_PASSWORD and BUBBLEWRAP_KEY_PASSWORD environmental variables.
+
+Building the Android App...
+(node:12780) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+
+
+[7mcli[0m [31mERROR Command failed: C:\Program Files\Eclipse Adoptium\jdk-17.0.19.10-hotspot\bin\java.exe -Xmx1024M -Xss1m -jar C:\Android\Sdk\build-tools\36.1.0\lib\apksigner.jar sign --ks "./android.keystore" --ks-key-alias sospana --ks-pass pass:"McwgAKM1c4QNRc3rrvVhKi5T" --key-pass pass:"McwgAKM1c4QNRc3rrvVhKi5T" --out ./app-release-signed.apk ./app-release-unsigned-aligned.apk
+'C:\Program' is not recognized as an internal or external command,
+operable program or batch file.
+[0m
+
+
+---- was unexpected at this time.
