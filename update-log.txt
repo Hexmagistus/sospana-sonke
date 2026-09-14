@@ -1,15 +1,20 @@
-On branch main
-Your branch is up to date with 'origin/main'.
-
-Changes not staged for commit:
-  (use "git add <file>..." to update what will be committed)
-  (use "git restore <file>..." to discard changes in working directory)
-	modified:   update-log.txt
-
-no changes added to commit (use "git add" and/or "git commit -a")
-Everything up-to-date
+[main 8d81d85] Add Sospana Sonke Career Agent page and nav link
+ 11 files changed, 1164 insertions(+)
+ create mode 100644 8-PUSH.bat
+ create mode 100644 android/app-release-signed.apk.idsig
+ create mode 100644 android/build-aab7.bat
+ create mode 100644 android/build-aab8-run.bat
+ create mode 100644 android/build-aab8.bat
+ create mode 100644 android/build-log7.txt
+ create mode 100644 android/local.properties
+ create mode 100644 frontend/src/app/agent/page.tsx
+ create mode 100644 play-assets/app-icon-512x512.png
+To https://github.com/Hexmagistus/sospana-sonke.git
+   8e35233..8d81d85  main -> main
  
 === recent commits === 
-4a56a1c Fix landing page employer counts: restore total-row convention
-25824c5 Update landing page live employer counts to match current database
-cad15c6 Add 2 new Comoros private companies (PRIVATE)
+8d81d85 Add Sospana Sonke Career Agent page and nav link
+8e35233 Admin: suggest a post/link to relevant candidates, alerted on their own page
+b600f36 Dashboard nudge: complete your profile, referencing what you told us
+84478ef Use registration answers as a matching signal before a profile exists
+445f226 Seed candidate profile from registration answers
