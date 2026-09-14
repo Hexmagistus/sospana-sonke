@@ -3,17 +3,25 @@
 /**
  * Sospana Sonke Career Agent (blueprint sections 1, 7, 8, 10, 16–21).
  *
- * A conversational front door over the platform's existing, deterministic
- * matching engine and live vacancy index. Everything shown here comes from real
- * endpoints — `/matches/run`, `/matches`, `/matches/{id}`, `/vacancies`,
- * `/profile`, `/companies`. The agent never invents a vacancy, employer, salary,
- * closing date or match score, and never tells a candidate they are eligible
- * when the engine flags a hard requirement as unmet. When the live index has
- * nothing to show, it says so plainly and points to the employer directory.
+ * A conversational front door over the platform's real data — nothing here is
+ * invented. It draws on two live sources:
+ *   1. The candidate's deterministic match results (`/matches/run`, `/matches`,
+ *      `/matches/{id}`) and any scraped vacancy listings (`/vacancies`).
+ *   2. The employer directory (`/companies`) — thousands of verified careers
+ *      pages across Africa. This is the platform's core: "we find the
+ *      opportunities, you apply direct."
  *
- * The "understanding" here is deterministic keyword/intent parsing done in the
- * browser (no hidden LLM claim) — it maps a plain-English request to the same
- * structured search + scoring the rest of the app already does.
+ * Because most employers here advertise on their own careers pages rather than a
+ * central feed, the vacancy index is often thin. So when there are no live
+ * listings for a search, the agent does NOT dead-end — it surfaces matching
+ * employers from the directory and links straight to their careers pages. It
+ * never claims a vacancy, employer, salary or closing date that isn't real, and
+ * never tells a candidate they're eligible when the engine flags a hard
+ * requirement as unmet.
+ *
+ * The "understanding" is deterministic keyword/intent parsing in the browser
+ * (no hidden LLM claim) — it maps plain English to the same structured search
+ * the rest of the app already does.
  */
 
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -35,8 +43,7 @@ const SA_PROVINCES = [
   "northern cape",
 ];
 
-// Common SA/African place hints so "jobs in Vereeniging" resolves a location
-// filter even when it isn't a province.
+// Common SA/African place hints so "jobs in Vereeniging" resolves a location.
 const PLACE_HINTS = [
   ...SA_PROVINCES,
   "johannesburg", "joburg", "pretoria", "tshwane", "vereeniging", "vanderbijlpark",
@@ -47,7 +54,6 @@ const PLACE_HINTS = [
   "kenya", "nigeria", "ghana", "eswatini", "lesotho",
 ];
 
-// Qualification level keywords (ordered low→high), aligned with EDUCATION_RANK.
 const QUALIFICATION_LEVELS: { label: string; keys: string[] }[] = [
   { label: "Matric / Grade 12", keys: ["matric", "grade 12"] },
   { label: "Certificate", keys: ["certificate", "national certificate"] },
@@ -66,9 +72,7 @@ const EMPLOYMENT_TYPES = [
   "learnership", "graduate programme", "graduate program", "graduate",
 ];
 
-// Adjacent job families for career discovery + synonym expansion. Each row is a
-// cluster of roles that tend to draw on overlapping qualifications/experience —
-// used to suggest related searches, NEVER to claim the candidate qualifies.
+// Adjacent job families for career discovery + synonym expansion.
 const ROLE_FAMILIES: string[][] = [
   ["operations manager", "operations management", "operations supervisor", "operations coordinator", "operations officer", "plant manager", "production manager"],
   ["process controller", "process operator", "plant operator", "process technician", "production operator", "control room operator"],
@@ -99,16 +103,100 @@ const STOPWORDS = new Set([
   "remote", "hybrid", "permanent", "contract", "temporary", "salary", "minimum",
   "maximum", "province", "gauteng", "limpopo", "mpumalanga", "cape", "north",
   "west", "free", "state", "eastern", "western", "northern", "kwazulu", "natal",
+  "employer", "employers", "hiring", "directly", "company", "companies",
 ]);
+
+// Map a recognised place to the directory's stored `country` value.
+const COUNTRY_BY_PLACE: Record<string, string> = {
+  "gauteng": "South Africa", "limpopo": "South Africa", "mpumalanga": "South Africa",
+  "north west": "South Africa", "free state": "South Africa", "kwazulu-natal": "South Africa",
+  "kwazulu natal": "South Africa", "kzn": "South Africa", "eastern cape": "South Africa",
+  "western cape": "South Africa", "northern cape": "South Africa", "johannesburg": "South Africa",
+  "joburg": "South Africa", "pretoria": "South Africa", "tshwane": "South Africa",
+  "vereeniging": "South Africa", "vanderbijlpark": "South Africa", "sebokeng": "South Africa",
+  "evaton": "South Africa", "sedibeng": "South Africa", "cape town": "South Africa",
+  "durban": "South Africa", "ethekwini": "South Africa", "port elizabeth": "South Africa",
+  "gqeberha": "South Africa", "bloemfontein": "South Africa", "polokwane": "South Africa",
+  "nelspruit": "South Africa", "mbombela": "South Africa", "kimberley": "South Africa",
+  "rustenburg": "South Africa", "east london": "South Africa", "sasolburg": "South Africa",
+  "secunda": "South Africa", "south africa": "South Africa",
+  "botswana": "Botswana", "namibia": "Namibia", "zambia": "Zambia", "zimbabwe": "Zimbabwe",
+  "mozambique": "Mozambique", "kenya": "Kenya", "nigeria": "Nigeria", "ghana": "Ghana",
+  "eswatini": "Eswatini", "lesotho": "Lesotho",
+};
+function resolveCountry(place?: string): string | undefined {
+  return place ? COUNTRY_BY_PLACE[place] : undefined;
+}
+
+// Employer categories → directory badge + deep-link filter value.
+interface Category { sourceType: string; filter: string; label: string; }
+const CATEGORY_RULES: { match: string[]; cat: Category }[] = [
+  { match: ["municipal", "municipality", "local government"], cat: { sourceType: "MUNI", filter: "Municipality", label: "municipalities" } },
+  { match: ["state-owned", "state owned", "parastatal", "public enterprise", " soe"], cat: { sourceType: "SOE", filter: "SOE", label: "state-owned enterprises" } },
+  { match: ["government", "department", "ministry", "public sector", "civil service", "public service"], cat: { sourceType: "DEPT", filter: "Department", label: "government departments" } },
+  { match: ["ngo", "non-profit", "nonprofit", "non profit", "humanitarian", "charity"], cat: { sourceType: "NGO", filter: "NGO", label: "NGOs" } },
+  { match: ["university", "college", "campus", "academic", "tvet"], cat: { sourceType: "UNI", filter: "University", label: "universities" } },
+  { match: ["private company", "private sector", "corporate"], cat: { sourceType: "PRIVATE", filter: "Private", label: "private companies" } },
+];
+function detectCategory(text: string): Category | undefined {
+  for (const r of CATEGORY_RULES) if (r.match.some((m) => text.includes(m))) return r.cat;
+  return undefined;
+}
+
+// Directory badge treatment per source_type (mirrors the Companies page).
+const TYPE_BADGE: Record<string, { label: string; cls: string }> = {
+  SOE: { label: "State-owned", cls: "bg-purple/10 text-purple" },
+  MUNI: { label: "Municipality", cls: "bg-brand/10 text-brand-dark" },
+  DEPT: { label: "Government", cls: "bg-navy/10 text-navy" },
+  PRIVATE: { label: "Private company", cls: "bg-gold/20 text-[#a9791a]" },
+  NGO: { label: "NGO", cls: "bg-coral/10 text-coral" },
+  UNI: { label: "University", cls: "bg-sky/10 text-sky" },
+};
+function typeBadge(st?: string | null): { label: string; cls: string } {
+  const k = (st || "").toUpperCase();
+  return TYPE_BADGE[k] || { label: st ? `${k}-listed` : "Listed", cls: "bg-brand/10 text-brand-dark" };
+}
+
+function directoryHref(country?: string, filter?: string): string {
+  const p = new URLSearchParams();
+  if (country) p.set("country", country);
+  if (filter) p.set("type", filter);
+  const s = p.toString();
+  return s ? `/companies?${s}` : "/companies";
+}
+
+// Filter the employer directory by keyword (name/notes), country and category.
+function filterEmployers(
+  all: Company[],
+  opts: { keyword?: string; country?: string; sourceType?: string },
+  limitN: number,
+): Company[] {
+  const kw = (opts.keyword || "")
+    .toLowerCase().split(/\s+/).filter((w) => w.length > 2 && !STOPWORDS.has(w));
+  let list = all.filter((c) => c.active !== false);
+  if (opts.country) list = list.filter((c) => (c.country || "").toLowerCase() === opts.country!.toLowerCase());
+  if (opts.sourceType) list = list.filter((c) => (c.source_type || "").toUpperCase() === opts.sourceType);
+  if (kw.length) {
+    list = list.filter((c) => {
+      const hay = `${c.company_name} ${c.notes || ""}`.toLowerCase();
+      return kw.some((t) => hay.includes(t));
+    });
+  }
+  return [...list]
+    .sort((a, b) => (Number(!!b.careers_url) - Number(!!a.careers_url)) || a.company_name.localeCompare(b.company_name))
+    .slice(0, limitN);
+}
 
 /* ------------------------------------------------------------------ */
 /* Intent parsing                                                      */
 /* ------------------------------------------------------------------ */
 
-type Mode = "apply" | "almost" | "discovery" | "search";
+type Mode = "apply" | "almost" | "discovery" | "employers" | "search";
 
 interface ParsedFilters {
   location?: string;
+  country?: string;
+  category?: Category;
   qualification?: string;
   minYears?: number;
   workMode?: string;
@@ -146,13 +234,13 @@ function classifyIntent(raw: string): ParsedQuery {
   const filters: ParsedFilters = {};
 
   const place = firstMatch(text, PLACE_HINTS);
-  if (place) filters.location = place;
+  if (place) { filters.location = place; filters.country = resolveCountry(place); }
+
+  const category = detectCategory(text);
+  if (category) filters.category = category;
 
   for (const q of QUALIFICATION_LEVELS) {
-    if (q.keys.some((k) => text.includes(k))) {
-      filters.qualification = q.label;
-      break;
-    }
+    if (q.keys.some((k) => text.includes(k))) { filters.qualification = q.label; break; }
   }
 
   const yearsM = text.match(/(\d+)\s*\+?\s*(?:years?|yrs?)/);
@@ -170,17 +258,17 @@ function classifyIntent(raw: string): ParsedQuery {
     if (!Number.isNaN(n) && n >= 100) filters.minSalary = n;
   }
 
-  // Intent
   let mode: Mode = "search";
   if (/\balmost\b|\bnearly\b|close to qualif|stretch|develop into|grow into/.test(text)) {
     mode = "almost";
   } else if (/can i apply|jobs i can apply|apply for|eligible|i qualify|qualify for/.test(text)) {
     mode = "apply";
+  } else if (/companies hiring|apply direct|careers page|who is hiring|who'?s hiring|employers (i|near|in|for|hiring)/.test(text)) {
+    mode = "employers";
   } else if (/\bdiscover\b|what (jobs|roles|careers)|related roles|adjacent|career (path|options|ideas)|suitable for (me|someone)/.test(text)) {
     mode = "discovery";
   }
 
-  // Keyword: strip stopwords + filter tokens, keep meaningful role words.
   const tokens = text
     .replace(/[^a-z0-9\s+/-]/g, " ")
     .split(/\s+/)
@@ -234,9 +322,10 @@ interface AgentTurn {
   id: string;
   role: "user" | "agent";
   text: string;
-  matches?: Match[];        // personalized, scored
+  matches?: Match[];
   vacancies?: VacancyCardData[];
-  roleChips?: string[];     // clickable adjacent-role suggestions
+  employers?: Company[];
+  roleChips?: string[];
   cta?: { label: string; href: string }[];
 }
 
@@ -260,6 +349,7 @@ function AgentInner() {
 
   // Caches
   const companyMap = useRef<Map<string, Company> | null>(null);
+  const companyList = useRef<Company[] | null>(null);
   const matchDetailCache = useRef<Map<string, MatchDetail>>(new Map());
   const profile = useRef<ProfileLite | null>(null);
   const ranAllMatches = useRef(false);
@@ -274,7 +364,6 @@ function AgentInner() {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [turns, busy]);
 
-  // Restore saved jobs (real app origin — localStorage is fine here).
   useEffect(() => {
     try {
       const raw = window.localStorage.getItem("sospana_agent_saved");
@@ -289,13 +378,14 @@ function AgentInner() {
     setTurns((prev) => [...prev, { id: nextId(), role: "agent", ...t }]);
   }, []);
 
-  async function ensureCompanies(): Promise<Map<string, Company>> {
-    if (companyMap.current) return companyMap.current;
+  async function ensureCompanies(): Promise<Company[]> {
+    if (companyList.current) return companyList.current;
     const rows = await api.get<Company[]>("/companies?limit=5000");
     const m = new Map<string, Company>();
     rows.forEach((c) => m.set(c.id, c));
     companyMap.current = m;
-    return m;
+    companyList.current = rows;
+    return rows;
   }
 
   async function ensureProfile(): Promise<ProfileLite> {
@@ -305,14 +395,23 @@ function AgentInner() {
     return p;
   }
 
-  // Run the deterministic matching engine over the whole open index for this
-  // user, once per session (idempotent server-side), then read the scored list.
   async function runAndGetMatches(): Promise<Match[]> {
     if (!ranAllMatches.current) {
       try { await api.post("/matches/run"); } catch { /* non-fatal: read whatever exists */ }
       ranAllMatches.current = true;
     }
     return api.get<Match[]>("/matches?limit=200");
+  }
+
+  // Employers relevant to the candidate's own profile (field + location).
+  async function employersFromProfile(limitN: number): Promise<{ employers: Company[]; country: string; seed: string }> {
+    const p = await ensureProfile();
+    const all = await ensureCompanies();
+    const country = (p.preferred_locations || []).map((l) => resolveCountry(l.toLowerCase())).find(Boolean) || "South Africa";
+    const seed = (p.desired_occupations?.[0] || p.current_occupation || user?.preferred_position || "").toLowerCase();
+    let employers = filterEmployers(all, { keyword: seed, country }, limitN);
+    if (employers.length < 3) employers = filterEmployers(all, { country }, limitN); // widen: whole country
+    return { employers, country, seed };
   }
 
   /* ---- handlers ---- */
@@ -322,22 +421,22 @@ function AgentInner() {
     const eligible = matches
       .filter((m) => m.hard_ok && (m.decision === "APPLY" || m.decision === "REVIEW"))
       .sort((a, b) => b.score - a.score);
-    if (eligible.length === 0) {
+    if (eligible.length > 0) {
       pushAgent({
-        text:
-          matches.length === 0
-            ? "I ran your profile against the live vacancy index and didn't find scored vacancies yet. The index is still filling up for many employers — the fastest route right now is to browse employers' own careers pages directly and apply there. Completing your Profile also sharpens future matches."
-            : "I couldn't find vacancies you clearly meet the requirements for yet. Have a look at 'Jobs I'm almost qualified for' to see roles you're close on, or browse employers directly.",
-        cta: [
-          { label: "Browse employers →", href: "/companies" },
-          { label: "Complete my profile →", href: "/profile" },
-        ],
+        text: `I scored the open vacancy index against your profile and found ${eligible.length} you appear to meet the key requirements for. Ranked strongest first:`,
+        matches: eligible.slice(0, 20),
       });
       return;
     }
+    // No scored listings yet — pivot to employers the candidate can approach directly.
+    const { employers, country } = await employersFromProfile(6);
     pushAgent({
-      text: `I scored the open vacancy index against your profile and found ${eligible.length} you appear to meet the key requirements for. Ranked strongest first:`,
-      matches: eligible.slice(0, 20),
+      text: `There are no scored vacancy listings for your profile in the index yet — most employers here advertise on their own careers pages rather than a shared feed. Based on your profile, here are employers in ${country} whose careers pages are worth checking directly:`,
+      employers: employers.length ? employers : undefined,
+      cta: [
+        { label: `Browse all employers in ${country} →`, href: directoryHref(country) },
+        { label: "Sharpen my profile →", href: "/profile" },
+      ],
     });
   }
 
@@ -346,16 +445,34 @@ function AgentInner() {
     const almost = matches
       .filter((m) => (!m.hard_ok || m.band === "Possible" || m.band === "Weak") && m.score >= 45 && m.decision !== "DO_NOT_APPLY")
       .sort((a, b) => b.score - a.score);
-    if (almost.length === 0) {
+    if (almost.length > 0) {
       pushAgent({
-        text: "Nothing in the current index falls into the 'almost qualified' band for you right now. As more vacancies are indexed this will populate. In the meantime, browsing employers directly is the surest route.",
-        cta: [{ label: "Browse employers →", href: "/companies" }],
+        text: `These ${almost.length} roles are close matches where you're missing only one or two things — useful for career development. Expand 'Why' on any card to see what's needed:`,
+        matches: almost.slice(0, 15),
       });
       return;
     }
     pushAgent({
-      text: `These ${almost.length} roles are close matches where you're missing only one or two things — useful for career development. Expand 'Why' on any card to see exactly what's needed:`,
-      matches: almost.slice(0, 15),
+      text: "There aren't scored 'almost qualified' listings in the index yet. As vacancies get indexed this will fill in — for now, browsing employers directly is the surest route.",
+      cta: [{ label: "Browse employers →", href: "/companies" }],
+    });
+  }
+
+  async function handleEmployers() {
+    const { employers, country, seed } = await employersFromProfile(8);
+    if (employers.length === 0) {
+      pushAgent({
+        text: `I couldn't pin employers to your profile automatically, but you can browse the full directory of verified careers pages by country and category.`,
+        cta: [{ label: "Browse the employer directory →", href: "/companies" }],
+      });
+      return;
+    }
+    pushAgent({
+      text: seed
+        ? `Here are employers in ${country} related to your profile (${seed}). Each links straight to their own careers page — apply directly there:`
+        : `Here are employers in ${country} from the directory. Each links straight to their own careers page:`,
+      employers,
+      cta: [{ label: `Browse all employers in ${country} →`, href: directoryHref(country) }],
     });
   }
 
@@ -368,14 +485,13 @@ function AgentInner() {
 
     const related = new Set<string>();
     seeds.forEach((s) => synonymsFor(s.toLowerCase()).forEach((r) => related.add(titleCase(r))));
-    // If we still have nothing (empty profile), offer a broad starter set.
     if (related.size === 0) {
       ["Process Controller", "Operations Officer", "Production Supervisor", "Quality Officer", "Laboratory Technician", "Administrator"].forEach((r) => related.add(r));
     }
     const chips = Array.from(related).slice(0, 12);
     pushAgent({
       text: seeds.length
-        ? `Based on your profile (${seeds.slice(0, 3).join(", ")}), here are related job families you may be able to move into. Tap any one to search the live index for it — I'll be honest about what each role actually requires.`
+        ? `Based on your profile (${seeds.slice(0, 3).join(", ")}), here are related job families you may be able to move into. Tap any one to search employers for it — I'll be honest about what each role actually involves.`
         : "Your profile is light on preferred roles, so here are common starting points. Tap one to search — or add preferred roles on your Profile for sharper suggestions.",
       roleChips: chips,
       cta: seeds.length ? undefined : [{ label: "Add preferred roles →", href: "/profile" }],
@@ -383,13 +499,16 @@ function AgentInner() {
   }
 
   async function handleSearch(parsed: ParsedQuery) {
-    if (!parsed.keyword) {
+    const f = parsed.filters;
+    if (!parsed.keyword && !f.country && !f.category) {
       pushAgent({
-        text: "Tell me a job title or skill to search for — e.g. \"process controller\", \"water treatment diploma jobs in Gauteng\", or \"operations management, 5 years experience\".",
+        text: "Tell me a job title, field or place to search — e.g. \"process controller\", \"water treatment jobs in Gauteng\", or \"government jobs in Kenya\".",
       });
       return;
     }
-    const terms = [parsed.keyword, ...parsed.synonyms];
+
+    // 1) Live scraped listings (often empty — employers advertise on their own pages).
+    const terms = parsed.keyword ? [parsed.keyword, ...parsed.synonyms] : [];
     const seen = new Set<string>();
     let vacs: Vacancy[] = [];
     for (const term of terms) {
@@ -398,43 +517,49 @@ function AgentInner() {
       try {
         batch = await api.get<Vacancy[]>(`/vacancies?q=${encodeURIComponent(term)}&is_open=true&limit=50`);
       } catch { batch = []; }
-      for (const v of batch) {
-        if (!seen.has(v.id)) { seen.add(v.id); vacs.push(v); }
-      }
+      for (const v of batch) if (!seen.has(v.id)) { seen.add(v.id); vacs.push(v); }
     }
-
-    // Apply client-side filters the /vacancies endpoint doesn't cover.
-    const f = parsed.filters;
     vacs = vacs.filter((v) => {
       if (f.location && v.location && !v.location.toLowerCase().includes(f.location)) return false;
-      if (f.workMode && v.work_mode && !v.work_mode.toLowerCase().includes(f.workMode.replace("-", ""))) {
-        // work_mode stored as remote|hybrid|onsite
-        if (!(f.workMode.includes(v.work_mode.toLowerCase()))) return false;
-      }
       if (f.employmentType && v.employment_type && !v.employment_type.toLowerCase().includes(f.employmentType.replace("intern", "intern"))) return false;
       return true;
     });
 
-    if (vacs.length === 0) {
-      const chips = parsed.synonyms.map(titleCase).slice(0, 6);
-      pushAgent({
-        text: `I searched the live index for "${parsed.keyword}"${describeFilters(f)} and found no open, indexed vacancies matching right now. That usually means no employer's page has been indexed with that title yet — not that nothing exists. You can browse employers directly, or try a related role.`,
-        roleChips: chips.length ? chips : undefined,
-        cta: [{ label: "Browse employers →", href: "/companies" }],
-      });
-      return;
-    }
+    // 2) Employers from the directory (the real, populated data).
+    const all = await ensureCompanies();
+    const employers = filterEmployers(all, { keyword: parsed.keyword, country: f.country, sourceType: f.category?.sourceType }, 8);
 
-    const cmap = await ensureCompanies();
-    const cards: VacancyCardData[] = vacs.slice(0, 25).map((v) => {
-      const c = cmap.get(v.company_id) || null;
+    const vacCards: VacancyCardData[] = vacs.slice(0, 12).map((v) => {
+      const c = companyMap.current?.get(v.company_id) || null;
       return { vacancy: v, employer: c?.company_name ?? null, employerCareers: c?.careers_url ?? null };
     });
-    pushAgent({
-      text: `Found ${vacs.length} open vacanc${vacs.length === 1 ? "y" : "ies"} for "${parsed.keyword}"${describeFilters(f)}. These are live directory results, not yet scored against your profile — tap "Score these against my profile" to rank them.`,
-      vacancies: cards,
-      cta: [{ label: "Score against my profile", href: "#score" }],
-    });
+
+    const label = parsed.keyword || f.category?.label || "that";
+    const where = f.country ? ` in ${f.country}` : "";
+    const cta = [{ label: `Browse all employers${where} →`, href: directoryHref(f.country, f.category?.filter) }];
+
+    if (vacs.length > 0 && employers.length > 0) {
+      pushAgent({
+        text: `Found ${vacs.length} live listing${vacs.length === 1 ? "" : "s"} for "${label}"${where}, plus employers whose careers pages you can check directly:`,
+        vacancies: vacCards, employers, cta,
+      });
+    } else if (vacs.length > 0) {
+      pushAgent({
+        text: `Found ${vacs.length} live listing${vacs.length === 1 ? "" : "s"} for "${label}"${where}. These are directory listings, not yet scored against your profile:`,
+        vacancies: vacCards, cta,
+      });
+    } else if (employers.length > 0) {
+      pushAgent({
+        text: `I don't have live vacancy listings indexed for "${label}"${where} yet — most employers here advertise on their own careers pages rather than a shared feed. Here are employers you can check directly:`,
+        employers, cta,
+      });
+    } else {
+      pushAgent({
+        text: `I couldn't match "${label}"${where} to employers by name — the directory tags employers by country and type (government, state-owned, private, NGO, university) rather than by job field. Browse by those, or try a related role:`,
+        roleChips: parsed.synonyms.map(titleCase).slice(0, 6),
+        cta,
+      });
+    }
   }
 
   async function submit(raw: string) {
@@ -448,12 +573,13 @@ function AgentInner() {
       const parsed = classifyIntent(text);
       if (parsed.mode === "apply") await handleApply();
       else if (parsed.mode === "almost") await handleAlmost();
+      else if (parsed.mode === "employers") await handleEmployers();
       else if (parsed.mode === "discovery") await handleDiscovery();
       else await handleSearch(parsed);
     } catch (e) {
       const msg = e instanceof ApiError ? e.message : e instanceof Error ? e.message : "Something went wrong.";
       setErr(msg);
-      pushAgent({ text: `Sorry — I hit an error reaching the vacancy service (${msg}). Please try again in a moment.` });
+      pushAgent({ text: `Sorry — I hit an error reaching the service (${msg}). Please try again in a moment.` });
     } finally {
       setBusy(false);
     }
@@ -472,7 +598,6 @@ function AgentInner() {
     );
   }
 
-  /* ---- match detail (lazy "Why") ---- */
   async function loadDetail(id: string): Promise<MatchDetail> {
     const cached = matchDetailCache.current.get(id);
     if (cached) return cached;
@@ -499,31 +624,29 @@ function AgentInner() {
       <header>
         <h1 className="text-2xl font-bold">Sospana Sonke Career Agent</h1>
         <p className="mt-1 text-sm text-gray-500">
-          Ask in plain English. I read your profile and the live vacancy index, rank real opportunities,
-          and explain every match honestly — no invented jobs, no false promises.
+          Ask in plain English. I search the live employer directory and any indexed vacancies, rank real
+          opportunities, and link you straight to employers&rsquo; own careers pages — no invented jobs, no false promises.
         </p>
       </header>
 
       {err && <Alert kind="error">{err}</Alert>}
 
-      {/* Quick actions */}
       <div className="flex flex-wrap gap-2">
         {quick("💼 Jobs I can apply for", "Find jobs I can apply for")}
-        {quick("📈 Jobs I'm almost qualified for", "Show jobs I'm almost qualified for")}
+        {quick("🏢 Employers in my field", "Show employers in my field I can apply to directly")}
+        {quick("📈 Almost qualified", "Show jobs I'm almost qualified for")}
         {quick("🧭 Discover careers for me", "Discover related careers for me")}
-        {quick("💧 Water treatment jobs", "water treatment jobs")}
-        {quick("⚙️ Operations management", "operations management jobs")}
+        {quick("💧 Water treatment", "water treatment jobs")}
       </div>
 
-      {/* Transcript */}
       <Card className="!p-0 overflow-hidden">
         <div ref={scrollRef} className="max-h-[62vh] min-h-[280px] overflow-y-auto px-4 py-5 sm:px-6">
           {turns.length === 0 && (
             <div className="mx-auto max-w-lg py-8 text-center">
               <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-brand to-navy text-xl text-white shadow">✦</div>
               <p className="text-sm text-gray-600">
-                Try: <span className="font-medium text-gray-800">&ldquo;water treatment jobs in Gauteng needing a diploma&rdquo;</span>,
-                {" "}or tap a quick action above.
+                Try: <span className="font-medium text-gray-800">&ldquo;water treatment jobs in Gauteng&rdquo;</span>,
+                {" "}<span className="font-medium text-gray-800">&ldquo;government jobs in Kenya&rdquo;</span>, or tap a quick action above.
               </p>
             </div>
           )}
@@ -550,18 +673,14 @@ function AgentInner() {
             )}
             {busy && (
               <div className="flex items-center gap-2 text-sm text-gray-400">
-                <Spinner label="Searching the live index…" />
+                <Spinner label="Searching the directory…" />
               </div>
             )}
           </div>
         </div>
 
-        {/* Composer */}
         <div className="border-t border-gray-200/80 bg-gray-50/60 p-3">
-          <form
-            onSubmit={(e) => { e.preventDefault(); submit(input); }}
-            className="flex items-center gap-2"
-          >
+          <form onSubmit={(e) => { e.preventDefault(); submit(input); }} className="flex items-center gap-2">
             <Input
               value={input}
               onChange={(e) => setInput(e.target.value)}
@@ -575,7 +694,6 @@ function AgentInner() {
         </div>
       </Card>
 
-      {/* Trays */}
       {(compare.length > 0 || Object.keys(saved).length > 0) && (
         <div className="flex flex-wrap items-center gap-3 rounded-xl border border-gray-200/80 bg-white px-4 py-3 text-sm shadow-sm">
           {Object.keys(saved).length > 0 && (
@@ -662,15 +780,19 @@ function AgentBubble({
         </div>
       )}
 
+      {turn.employers && turn.employers.length > 0 && (
+        <div className="ml-0 grid gap-3 sm:ml-9">
+          {turn.employers.map((c) => <EmployerCard key={c.id} c={c} />)}
+        </div>
+      )}
+
       {turn.cta && turn.cta.length > 0 && (
         <div className="ml-9 flex flex-wrap gap-2">
-          {turn.cta.map((c) =>
-            c.href.startsWith("#") ? null : (
-              <Link key={c.label} href={c.href}>
-                <Button variant="ghost" size="sm">{c.label}</Button>
-              </Link>
-            )
-          )}
+          {turn.cta.map((c) => (
+            <Link key={c.label} href={c.href}>
+              <Button variant="ghost" size="sm">{c.label}</Button>
+            </Link>
+          ))}
         </div>
       )}
     </div>
@@ -761,7 +883,7 @@ function MatchCard({
           {open ? "Hide details" : "Why? / breakdown"}
         </button>
         <span className="text-gray-300">·</span>
-        <Link href={`/matches/${m.id}`} className="text-xs font-medium text-brand hover:underline">View & apply →</Link>
+        <Link href={`/matches/${m.id}`} className="text-xs font-medium text-brand hover:underline">View &amp; apply →</Link>
         <span className="text-gray-300">·</span>
         <Link href={`/matches/${m.id}`} className="text-xs font-medium text-brand hover:underline">Tailor my CV</Link>
         <div className="ml-auto flex items-center gap-2">
@@ -792,7 +914,7 @@ function VacancyCard({ data }: { data: VacancyCardData }) {
   const close = closingStatus(v.closing_date);
   const applyUrl = v.application_url || v.source_url || employerCareers || null;
   return (
-    <Card className="!p-4" accent="navy">
+    <Card className="!p-4" accent="sky">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="truncate font-semibold text-gray-900">{v.title}</div>
@@ -813,6 +935,37 @@ function VacancyCard({ data }: { data: VacancyCardData }) {
           </a>
         ) : (
           <span className="text-xs text-gray-400">No application link provided</span>
+        )}
+        <span className="ml-auto text-[11px] text-gray-400">Source: Sospana Sonke directory</span>
+      </div>
+    </Card>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Employer (directory) card — links straight to the careers page      */
+/* ------------------------------------------------------------------ */
+
+function EmployerCard({ c }: { c: Company }) {
+  const badge = typeBadge(c.source_type);
+  return (
+    <Card className="!p-4" accent="navy">
+      <div className="min-w-0">
+        <div className="truncate font-semibold text-gray-900">{c.company_name}</div>
+        <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-gray-500">
+          {c.country && <span>{c.country}</span>}
+          <span className={`rounded-full px-2 py-0.5 font-semibold ${badge.cls}`}>{badge.label}</span>
+        </div>
+      </div>
+      <div className="mt-3 flex flex-wrap items-center gap-3">
+        {c.careers_url ? (
+          <a href={c.careers_url} target="_blank" rel="noopener noreferrer">
+            <Button variant="ghost" size="sm">Open careers page →</Button>
+          </a>
+        ) : (
+          <Link href={directoryHref(c.country || undefined)} className="text-xs text-gray-400 hover:text-gray-600">
+            No direct link yet — view in directory
+          </Link>
         )}
         <span className="ml-auto text-[11px] text-gray-400">Source: Sospana Sonke directory</span>
       </div>
@@ -924,17 +1077,6 @@ interface ProfileLite {
 
 function titleCase(s: string): string {
   return s.replace(/\w\S*/g, (w) => w.charAt(0).toUpperCase() + w.slice(1));
-}
-
-function describeFilters(f: ParsedFilters): string {
-  const parts: string[] = [];
-  if (f.location) parts.push(`in ${titleCase(f.location)}`);
-  if (f.qualification) parts.push(`(${f.qualification})`);
-  if (f.minYears) parts.push(`${f.minYears}+ yrs`);
-  if (f.workMode) parts.push(f.workMode);
-  if (f.employmentType) parts.push(f.employmentType);
-  if (f.minSalary) parts.push(`min R${f.minSalary.toLocaleString()}`);
-  return parts.length ? ` ${parts.join(", ")}` : "";
 }
 
 export default function AgentPage() {
