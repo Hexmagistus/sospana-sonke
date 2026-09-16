@@ -515,7 +515,9 @@ function AgentInner() {
       if (vacs.length >= 30) break;
       let batch: Vacancy[] = [];
       try {
-        batch = await api.get<Vacancy[]>(`/vacancies?q=${encodeURIComponent(term)}&is_open=true&limit=50`);
+        // max_age_days drops stale listings AND anything past its closing date,
+        // so the agent never surfaces outdated posts.
+        batch = await api.get<Vacancy[]>(`/vacancies?q=${encodeURIComponent(term)}&is_open=true&max_age_days=30&limit=50`);
       } catch { batch = []; }
       for (const v of batch) if (!seen.has(v.id)) { seen.add(v.id); vacs.push(v); }
     }

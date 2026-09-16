@@ -73,8 +73,19 @@ commit it (and push, if you pushed the rest of your work). Newest entry on top.
   committed to the working tree and verified **byte-identical by sha256**. Nothing was
   pushed from here: **push still needs Lungani to double-click `7-PUSH.bat`** (git add -A
   / commit / push → Vercel + Render auto-deploy).
+- **Same-day fix (v2):** first deploy worked but every search came back empty —
+  the production **vacancy index is essentially empty** (employers advertise on their
+  own careers pages; the scraper isn't populating `vacancies`). So the agent now falls
+  back to the **employer directory** (`/companies`): when there are no scored/indexed
+  listings it surfaces matching employers (keyword on name/notes + country + category),
+  each linking straight to its careers page, plus a "Browse all employers in <country> →"
+  deep-link into `/companies?country=&type=`. Added an "🏢 Employers in my field" quick
+  action + an `employers` intent. Still no fabricated data. Re-verified `tsc` + `next
+  build` (clean; /agent 10.2 kB).
 - Next session: keep `/agent`'s ROLE_FAMILIES / vocab lists roughly in sync with
-  `backend/app/common/vocab.py`.
+  `backend/app/common/vocab.py`. The real unlock for live *vacancy* listings is running
+  the scraper (`app/scraper`, `scan_service`) over the directory's careers pages to
+  populate the `vacancies` table — currently empty in prod.
 
 ### 2026-09-09 — Claude (this account) — FULL 54/54 AFRICAN COVERAGE REACHED
 - User asked "how many countries left?" then "add all of them across all
