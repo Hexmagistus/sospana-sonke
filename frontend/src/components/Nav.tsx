@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { api } from "@/lib/api";
+import { useTheme } from "@/lib/theme";
 
 const LINKS = [
   { href: "/dashboard", label: "Dashboard" },
@@ -17,6 +18,33 @@ const LINKS = [
   { href: "/security", label: "Security" },
   { href: "/donate", label: "Donate" },
 ];
+
+/** Sun/moon toggle -- a real, functional light/dark switch (brief section 26),
+ * not decoration. Lives in the nav on both desktop and the mobile dropdown so
+ * it's reachable everywhere the rest of the app shell is. */
+function ThemeToggle({ className = "" }: { className?: string }) {
+  const { theme, toggleTheme } = useTheme();
+  return (
+    <button
+      type="button"
+      onClick={toggleTheme}
+      aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+      title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+      className={`flex h-8 w-8 items-center justify-center rounded-full text-blue-100 transition hover:bg-white/10 hover:text-white ${className}`}
+    >
+      {theme === "dark" ? (
+        <svg viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+          <circle cx="12" cy="12" r="4.5" />
+          <path strokeLinecap="round" d="M12 2.5v2M12 19.5v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M2.5 12h2M19.5 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4" />
+        </svg>
+      ) : (
+        <svg viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M20.5 14.5A8.5 8.5 0 019.5 3.5a8.5 8.5 0 1011 11z" />
+        </svg>
+      )}
+    </button>
+  );
+}
 
 export default function Nav() {
   const { user, logout } = useAuth();
@@ -95,6 +123,7 @@ export default function Nav() {
             </Link>
           )}
           <div className="ml-auto flex items-center gap-3 whitespace-nowrap">
+            <ThemeToggle />
             <span className="text-xs text-blue-200">{user.email}</span>
             <button
               onClick={() => {
@@ -108,24 +137,27 @@ export default function Nav() {
           </div>
         </div>
 
-        {/* Mobile: hamburger toggle, pushed to the right */}
-        <button
-          type="button"
-          aria-label={menuOpen ? "Close menu" : "Open menu"}
-          aria-expanded={menuOpen}
-          onClick={() => setMenuOpen((v) => !v)}
-          className="ml-auto flex h-9 w-9 items-center justify-center rounded-md text-white hover:bg-white/10 md:hidden"
-        >
-          {menuOpen ? (
-            <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="2">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 6l12 12M18 6L6 18" />
-            </svg>
-          ) : (
-            <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="2">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M4 7h16M4 12h16M4 17h16" />
-            </svg>
-          )}
-        </button>
+        {/* Mobile: theme toggle + hamburger, pushed to the right */}
+        <div className="ml-auto flex items-center gap-1 md:hidden">
+          <ThemeToggle />
+          <button
+            type="button"
+            aria-label={menuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={menuOpen}
+            onClick={() => setMenuOpen((v) => !v)}
+            className="flex h-9 w-9 items-center justify-center rounded-md text-white hover:bg-white/10"
+          >
+            {menuOpen ? (
+              <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 6l12 12M18 6L6 18" />
+              </svg>
+            ) : (
+              <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 7h16M4 12h16M4 17h16" />
+              </svg>
+            )}
+          </button>
+        </div>
       </div>
 
       {/* Mobile: stacked dropdown panel */}

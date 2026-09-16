@@ -2,15 +2,71 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ------------------------------------------------------------------ */
+/* SOSPANA SONKE // FUTURE OF WORK -- design tokens                    */
+/* ------------------------------------------------------------------ */
+/* Light is the default and matches the app's existing look exactly, so
+   nothing shifts for anyone until they opt into dark mode. Dark is a
+   deliberately-designed "Deep Space" theme, not an inverted palette --
+   see lib/theme.tsx for the toggle that flips [data-theme] on <html>. */
+:root {
+  --ss-bg: #fbf8f1;
+  --ss-surface: #ffffff;
+  --ss-surface-elevated: #ffffff;
+  --ss-glass: rgba(255, 255, 255, 0.72);
+  --ss-border: rgba(11, 36, 71, 0.10);
+  --ss-text: #111827;
+  --ss-text-muted: #6b7280;
+  --ss-primary: #f5b301;
+  --ss-primary-glow: rgba(245, 179, 1, 0.35);
+  --ss-tech: #0f766e;
+  --ss-tech-glow: rgba(15, 118, 110, 0.30);
+  --ss-success: #16a34a;
+  --ss-warning: #b45309;
+  --ss-danger: #dc2626;
+  /* Pre-mixed translucent variants -- Tailwind's opacity-modifier syntax
+     (e.g. bg-ss-primary/10) can't reliably apply to a color defined as a
+     bare var(...) reference, so these tints are baked in per-theme instead
+     of relying on that modifier at the call site. */
+  --ss-primary-soft: rgba(245, 179, 1, 0.10);
+  --ss-primary-soft-strong: rgba(245, 179, 1, 0.18);
+  --ss-primary-border-soft: rgba(245, 179, 1, 0.35);
+  --ss-danger-soft: rgba(220, 38, 38, 0.06);
+  --ss-danger-soft-border: rgba(220, 38, 38, 0.28);
+}
+
+:root[data-theme="dark"] {
+  --ss-bg: #060b16;
+  --ss-surface: #0f1b30;
+  --ss-surface-elevated: #16233d;
+  --ss-glass: rgba(10, 18, 32, 0.72);
+  --ss-border: rgba(255, 255, 255, 0.10);
+  --ss-text: #eef2f8;
+  --ss-text-muted: #94a3b8;
+  --ss-primary: #f5b301;
+  --ss-primary-glow: rgba(245, 179, 1, 0.45);
+  --ss-tech: #22d3ee;
+  --ss-tech-glow: rgba(34, 211, 238, 0.35);
+  --ss-success: #22c55e;
+  --ss-warning: #fbbf24;
+  --ss-danger: #f87171;
+  --ss-primary-soft: rgba(245, 179, 1, 0.16);
+  --ss-primary-soft-strong: rgba(245, 179, 1, 0.26);
+  --ss-primary-border-soft: rgba(245, 179, 1, 0.45);
+  --ss-danger-soft: rgba(248, 113, 113, 0.10);
+  --ss-danger-soft-border: rgba(248, 113, 113, 0.35);
+}
+
 body {
-  @apply text-gray-900;
   min-height: 100vh;
+  color: var(--ss-text);
   background:
     radial-gradient(900px 520px at 100% -8%, rgba(245, 179, 1, 0.12), transparent 60%),
     radial-gradient(760px 520px at -12% 6%, rgba(15, 118, 110, 0.12), transparent 60%),
     radial-gradient(820px 620px at 50% 118%, rgba(124, 92, 255, 0.10), transparent 62%),
-    #fbf8f1;
+    var(--ss-bg);
   background-attachment: fixed;
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 /* ------------------------------------------------------------------ */

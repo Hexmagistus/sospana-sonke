@@ -27,13 +27,53 @@ export function Card({
   interactive?: boolean;
 }) {
   const accentCls = accent ? `border-l-4 ${ACCENT_LEFT[accent]}` : "";
-  const interactiveCls = interactive ? "hover:-translate-y-0.5 hover:shadow-[0_8px_24px_-8px_rgba(11,36,71,0.18)] hover:border-gray-300" : "";
+  const interactiveCls = interactive ? "hover:-translate-y-0.5 hover:shadow-[0_8px_24px_-8px_rgba(11,36,71,0.18)] hover:border-ss-primary-border-soft" : "";
   return (
     <div
-      className={`rounded-2xl border border-gray-200/80 bg-white p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_1px_3px_rgba(16,24,40,0.06)] transition-all duration-200 ${accentCls} ${interactiveCls} ${className}`}
+      className={`rounded-2xl border border-ss-border bg-ss-surface p-5 text-ss-text shadow-[0_1px_2px_rgba(16,24,40,0.04),0_1px_3px_rgba(16,24,40,0.06)] transition-all duration-200 ${accentCls} ${interactiveCls} ${className}`}
     >
       {children}
     </div>
+  );
+}
+
+/** Small technical-vocabulary indicator -- "● LIVE", "● VERIFIED",
+ * "UPDATED 12 MIN AGO" -- for surfacing real, already-computed freshness/
+ * status facts (never a decorative label) in a consistent, restrained way.
+ * A dot (colour-coded by tone) plus uppercase small-caps text; tone also
+ * carries the meaning so this never relies on colour alone. */
+type StatusTone = "live" | "verified" | "new" | "closing" | "matched" | "saved" | "neutral";
+
+const STATUS_TONE: Record<StatusTone, { dot: string; text: string }> = {
+  live: { dot: "bg-ss-success", text: "text-ss-success" },
+  verified: { dot: "bg-ss-tech", text: "text-ss-tech" },
+  new: { dot: "bg-ss-primary", text: "text-ss-primary" },
+  closing: { dot: "bg-ss-danger", text: "text-ss-danger" },
+  matched: { dot: "bg-ss-tech", text: "text-ss-tech" },
+  saved: { dot: "bg-ss-primary", text: "text-ss-primary" },
+  neutral: { dot: "bg-ss-muted", text: "text-ss-muted" },
+};
+
+export function StatusBadge({
+  tone = "neutral",
+  pulse = false,
+  children,
+}: {
+  tone?: StatusTone;
+  /** A soft ping animation for a genuinely "live"/real-time fact -- off by
+   * default, and respects prefers-reduced-motion globally. */
+  pulse?: boolean;
+  children: ReactNode;
+}) {
+  const t = STATUS_TONE[tone];
+  return (
+    <span className={`inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide ${t.text}`}>
+      <span className="relative flex h-1.5 w-1.5">
+        {pulse && <span className={`absolute inline-flex h-full w-full animate-ping rounded-full opacity-75 ${t.dot}`} />}
+        <span className={`relative inline-flex h-1.5 w-1.5 rounded-full ${t.dot}`} />
+      </span>
+      {children}
+    </span>
   );
 }
 
@@ -64,16 +104,16 @@ export function Stat({
     <>
       <div className={`h-1.5 bg-gradient-to-r ${a.bar}`} />
       <div className="p-5">
-        <div className="flex items-center justify-between text-sm text-gray-500">
+        <div className="flex items-center justify-between text-sm text-ss-muted">
           <span>{label}</span>
           {href && <span className={`text-xs font-semibold ${a.val} transition group-hover:translate-x-0.5`}>View →</span>}
         </div>
         <div className={`mt-1 text-3xl font-bold tracking-tight ${a.val}`}>{value}</div>
-        {hint && <div className="mt-1 text-xs text-gray-400">{hint}</div>}
+        {hint && <div className="mt-1 text-xs text-ss-muted">{hint}</div>}
       </div>
     </>
   );
-  const cls = "group block overflow-hidden rounded-2xl border border-gray-200/80 bg-white shadow-[0_1px_2px_rgba(16,24,40,0.04),0_1px_3px_rgba(16,24,40,0.06)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_-8px_rgba(11,36,71,0.18)]";
+  const cls = "group block overflow-hidden rounded-2xl border border-ss-border bg-ss-surface shadow-[0_1px_2px_rgba(16,24,40,0.04),0_1px_3px_rgba(16,24,40,0.06)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_-8px_rgba(11,36,71,0.18)]";
   return href ? (
     <Link href={href} className={cls}>{inner}</Link>
   ) : (
@@ -99,9 +139,9 @@ export function Button({
 } & ButtonHTMLAttributes<HTMLButtonElement>) {
   const styles = {
     primary: "bg-gradient-to-r from-brand to-brand-dark text-white shadow-sm hover:shadow-md hover:brightness-110 focus-visible:ring-brand/40",
-    secondary: "bg-navy/5 text-navy hover:bg-navy/10 focus-visible:ring-navy/30",
-    ghost: "border border-gray-300 text-gray-700 hover:border-brand hover:bg-brand/5 hover:text-brand-dark focus-visible:ring-brand/30",
-    danger: "bg-coral text-white hover:brightness-110 focus-visible:ring-coral/40",
+    secondary: "bg-ss-primary-soft text-ss-text hover:bg-ss-primary-soft-strong focus-visible:ring-ss-primary",
+    ghost: "border border-ss-border text-ss-text hover:border-brand hover:bg-brand/5 hover:text-brand-dark focus-visible:ring-brand/30",
+    danger: "bg-ss-danger text-white hover:brightness-110 focus-visible:ring-ss-danger",
   }[variant];
   const sizes = {
     sm: "px-3 py-1.5 text-xs",
@@ -153,8 +193,8 @@ export function Field({ label, hint, children }: { label: string; hint?: string;
   return (
     <label className="block">
       <span className="mb-1.5 flex items-baseline justify-between">
-        <span className="text-sm font-medium text-gray-700">{label}</span>
-        {hint && <span className="text-xs text-gray-400">{hint}</span>}
+        <span className="text-sm font-medium text-ss-text">{label}</span>
+        {hint && <span className="text-xs text-ss-muted">{hint}</span>}
       </span>
       {children}
     </label>
@@ -162,7 +202,7 @@ export function Field({ label, hint, children }: { label: string; hint?: string;
 }
 
 const FIELD_BASE =
-  "w-full rounded-lg border border-gray-300 bg-white px-3.5 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 shadow-sm transition-all duration-150 focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-400";
+  "w-full rounded-lg border border-ss-border bg-ss-surface px-3.5 py-2.5 text-sm text-ss-text placeholder:text-ss-muted shadow-sm transition-all duration-150 focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20 disabled:cursor-not-allowed disabled:opacity-60";
 
 export function Input(props: InputHTMLAttributes<HTMLInputElement>) {
   return <input {...props} className={`${FIELD_BASE} ${props.className || ""}`} />;
@@ -215,7 +255,7 @@ export function Alert({ kind = "info", children }: { kind?: "info" | "error" | "
 
 export function Spinner({ label = "Loading…" }: { label?: string }) {
   return (
-    <div className="flex items-center justify-center gap-2.5 py-10 text-sm text-gray-400">
+    <div className="flex items-center justify-center gap-2.5 py-10 text-sm text-ss-muted">
       <svg className="h-4 w-4 animate-spin text-brand" viewBox="0 0 24 24" fill="none" aria-hidden="true">
         <circle className="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
         <path className="opacity-90" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
@@ -225,7 +265,63 @@ export function Spinner({ label = "Loading…" }: { label?: string }) {
   );
 }
 
-/** Skeleton block for content that is loading — pairs nicely with card-shaped placeholders. */
+/** Skeleton block for content that is loading — pairs nicely with card-shaped
+ * placeholders. A gentle left-to-right shimmer (not a flat pulse) reads as
+ * "content is arriving" rather than "something is broken"; respects
+ * prefers-reduced-motion via the existing .animate-shimmer rule. */
 export function Skeleton({ className = "" }: { className?: string }) {
-  return <div className={`animate-pulse rounded-lg bg-gray-200/70 ${className}`} />;
+  return (
+    <div
+      className={`animate-shimmer rounded-lg bg-ss-border ${className}`}
+      style={{ backgroundImage: "linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent)" }}
+    />
+  );
+}
+
+/** A meaningful, on-brand empty state (brief section 21) -- never a generic
+ * sad illustration. Pass an icon (an emoji or small inline SVG is fine). */
+export function EmptyState({
+  icon,
+  title,
+  message,
+  action,
+}: {
+  icon?: ReactNode;
+  title: string;
+  message?: string;
+  action?: ReactNode;
+}) {
+  return (
+    <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-ss-border bg-ss-glass px-6 py-12 text-center">
+      {icon && <div className="text-3xl">{icon}</div>}
+      <div className="text-sm font-bold uppercase tracking-wide text-ss-text">{title}</div>
+      {message && <p className="max-w-sm text-sm text-ss-muted">{message}</p>}
+      {action && <div className="mt-2">{action}</div>}
+    </div>
+  );
+}
+
+/** A calm, non-technical error state (brief section 22) -- no stack traces
+ * or raw messages for normal users; pass the real error via `detail` only
+ * if the caller wants it shown in small print underneath. */
+export function ErrorState({
+  title = "Something interrupted the connection",
+  message = "We couldn't retrieve this right now.",
+  detail,
+  action,
+}: {
+  title?: string;
+  message?: string;
+  detail?: string;
+  action?: ReactNode;
+}) {
+  return (
+    <div className="flex flex-col items-center gap-2 rounded-2xl border border-ss-danger-soft-border bg-ss-danger-soft px-6 py-10 text-center">
+      <div className="text-2xl" aria-hidden="true">⚠</div>
+      <div className="text-sm font-bold uppercase tracking-wide text-ss-danger">{title}</div>
+      <p className="max-w-sm text-sm text-ss-muted">{message}</p>
+      {detail && <p className="max-w-sm text-xs text-ss-muted">{detail}</p>}
+      {action && <div className="mt-2">{action}</div>}
+    </div>
+  );
 }

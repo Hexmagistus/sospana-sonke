@@ -14,6 +14,7 @@ import { CompanyActionsRow, TrendingBadge, ShortlistStar } from "@/components/Co
 import { CompanyPreviewModal } from "@/components/CompanyPreviewModal";
 import { AnimatedNumber } from "@/components/AnimatedNumber";
 import { FunSpinner } from "@/components/FunSpinner";
+import PendingSearchBanner from "@/components/PendingSearchBanner";
 import { COUNTRY_FLAGS } from "@/lib/countryFlags";
 import { getShortlist, SHORTLIST_EVENT } from "@/lib/shortlist";
 import type { Company, Vacancy, TrendingCompany } from "@/lib/types";
@@ -244,6 +245,7 @@ function CompaniesDirectoryInner() {
       </div>
 
       <div className="relative z-10 space-y-6">
+        <PendingSearchBanner />
         <div className="overflow-hidden rounded-2xl shadow-sm">
           <NdebeleStrip id="companies-hero-top" palette="vivid" glow />
           <Banner

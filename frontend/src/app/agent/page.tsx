@@ -29,7 +29,8 @@ import Link from "next/link";
 import Guard from "@/components/Guard";
 import { api, ApiError } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
-import { Card, Button, Badge, Alert, Spinner, Input } from "@/components/ui";
+import { Card, Button, Badge, Alert, Spinner, Input, StatusBadge } from "@/components/ui";
+import { consumeAgentCommand } from "@/lib/agentHandoff";
 import type { Match, MatchDetail, Vacancy, Company, GapAnalysis, CareerExplorerResult } from "@/lib/types";
 
 /* ------------------------------------------------------------------ */
@@ -309,18 +310,27 @@ function classifyIntent(raw: string): ParsedQuery {
 /* Closing-date intelligence (blueprint section 14)                    */
 /* ------------------------------------------------------------------ */
 
-function closingStatus(closing: string | null): { label: string; cls: string } {
-  if (!closing) return { label: "Closing date not provided", cls: "bg-gray-100 text-gray-500" };
+function closingStatus(closing: string | null): { label: string; tone: "live" | "closing" | "neutral" } {
+  if (!closing) return { label: "Closing date not provided", tone: "neutral" };
   const d = new Date(closing + "T00:00:00");
-  if (Number.isNaN(d.getTime())) return { label: "Closing date not provided", cls: "bg-gray-100 text-gray-500" };
+  if (Number.isNaN(d.getTime())) return { label: "Closing date not provided", tone: "neutral" };
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const days = Math.round((d.getTime() - today.getTime()) / 86400000);
-  if (days < 0) return { label: "Closed", cls: "bg-gray-200 text-gray-600" };
-  if (days === 0) return { label: "Closing today", cls: "bg-coral/15 text-coral" };
-  if (days <= 2) return { label: `Closes in ${days} day${days === 1 ? "" : "s"}`, cls: "bg-coral/15 text-coral" };
-  if (days <= 7) return { label: `Closes in ${days} days`, cls: "bg-gold/20 text-[#8a6d00]" };
-  return { label: `Open · closes ${closing}`, cls: "bg-green-100 text-green-700" };
+  if (days < 0) return { label: "Closed", tone: "neutral" };
+  if (days === 0) return { label: "Closing today", tone: "closing" };
+  if (days <= 2) return { label: `Closes in ${days} day${days === 1 ? "" : "s"}`, tone: "closing" };
+  if (days <= 7) return { label: `Closes in ${days} days`, tone: "closing" };
+  return { label: `Open · closes ${closing}`, tone: "live" };
+}
+
+/** Real, already-tracked freshness signal (brief's NEW vocabulary term) --
+ * `first_seen_at` is the scraper's own first-sighting timestamp, never a
+ * guess, so a listing only reads "NEW" when it genuinely was added recently. */
+function isNewListing(firstSeenAt: string): boolean {
+  const seen = new Date(firstSeenAt).getTime();
+  if (Number.isNaN(seen)) return false;
+  return Date.now() - seen <= 5 * 24 * 3600 * 1000;
 }
 
 /* ------------------------------------------------------------------ */
@@ -335,10 +345,51 @@ function eligibility(m: Match): { label: string; cls: string } {
 }
 
 function scoreColor(score: number): string {
-  if (score >= 85) return "text-green-700";
-  if (score >= 75) return "text-teal-700";
-  if (score >= 65) return "text-[#8a6d00]";
-  return "text-gray-500";
+  if (score >= 85) return "text-ss-success";
+  if (score >= 75) return "text-ss-tech";
+  if (score >= 65) return "text-ss-warning";
+  return "text-ss-muted";
+}
+
+/** Compact SVG ring visualization of the real, already-computed match score --
+ * the "sophisticated match visualization" the brief asks for (section 6),
+ * replacing a bare percentage. Nothing here is invented: `score` is the same
+ * number the plain-text version showed, just drawn instead of only printed. */
+function MatchRing({ score, colorCls }: { score: number; colorCls: string }) {
+  const r = 21;
+  const c = 2 * Math.PI * r;
+  const pct = Math.max(0, Math.min(100, score));
+  const dash = (pct / 100) * c;
+  return (
+    <div className={`relative flex h-16 w-16 flex-none items-center justify-center ${colorCls}`}>
+      <svg viewBox="0 0 52 52" className="h-16 w-16 -rotate-90" aria-hidden="true">
+        <circle cx="26" cy="26" r={r} fill="none" stroke="currentColor" strokeWidth="4" opacity="0.15" />
+        <circle
+          cx="26" cy="26" r={r} fill="none" stroke="currentColor" strokeWidth="4"
+          strokeDasharray={`${dash} ${c - dash}`} strokeLinecap="round"
+          className="transition-[stroke-dasharray] duration-700 ease-out"
+        />
+      </svg>
+      <span className="absolute text-sm font-bold leading-none text-ss-text">{Math.round(pct)}%</span>
+    </div>
+  );
+}
+
+/** One row of the "WHY THIS MATCH?" breakdown -- a labelled bar per real
+ * sub-score returned by the matching engine (brief section 6). */
+function SubScoreBar({ label, value }: { label: string; value: number }) {
+  const pct = Math.max(0, Math.min(100, value));
+  return (
+    <div>
+      <div className="flex items-center justify-between text-[11px]">
+        <span className="capitalize text-ss-muted">{label.replace(/_/g, " ")}</span>
+        <span className="font-semibold text-ss-text">{Math.round(pct)}%</span>
+      </div>
+      <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-ss-border">
+        <div className="h-full rounded-full bg-gradient-to-r from-ss-tech to-ss-primary transition-[width] duration-700 ease-out" style={{ width: `${pct}%` }} />
+      </div>
+    </div>
+  );
 }
 
 /* ------------------------------------------------------------------ */
@@ -401,6 +452,15 @@ function AgentInner() {
   useEffect(() => {
     try { window.localStorage.setItem("sospana_agent_saved", JSON.stringify(saved)); } catch { /* ignore */ }
   }, [saved]);
+
+  // Handoff from the public homepage's search console (via PendingSearchBanner,
+  // after login) or the Ctrl+K command palette -- runs the queued search once,
+  // as if the visitor had typed it here themselves.
+  useEffect(() => {
+    const command = consumeAgentCommand();
+    if (command) submit(command);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const pushAgent = useCallback((t: Omit<AgentTurn, "id" | "role">) => {
     setTurns((prev) => [...prev, { id: nextId(), role: "agent", ...t }]);
@@ -925,77 +985,75 @@ function MatchCard({
   }
 
   return (
-    <Card className="!p-4" accent={m.band === "Strong" ? "teal" : m.band === "Good" ? "sky" : "gold"}>
+    <Card className="!p-4" accent={m.band === "Strong" ? "teal" : m.band === "Good" ? "sky" : "gold"} interactive>
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <div className="truncate font-semibold text-gray-900">{m.vacancy_title || "Vacancy"}</div>
-          <div className="truncate text-sm text-gray-500">{m.company_name || "Employer"}</div>
+          <div className="truncate font-semibold text-ss-text">{m.vacancy_title || "Vacancy"}</div>
+          <div className="truncate text-sm text-ss-muted">{m.company_name || "Employer"}</div>
           <div className={`mt-1 text-xs font-medium ${elig.cls}`}>
             {!m.hard_ok && "⚠ "}{elig.label}
           </div>
+          <div className="mt-1.5"><Badge>{m.band}</Badge></div>
         </div>
-        <div className="flex flex-none flex-col items-end">
-          <span className={`text-2xl font-bold leading-none ${scoreColor(m.score)}`}>{Math.round(m.score)}%</span>
-          <div className="mt-1"><Badge>{m.band}</Badge></div>
-        </div>
+        <MatchRing score={m.score} colorCls={scoreColor(m.score)} />
       </div>
 
       {open && (
-        <div className="mt-3 border-t border-gray-100 pt-3">
-          {loadingD && <div className="text-xs text-gray-400">Loading breakdown…</div>}
+        <div className="mt-3 border-t border-ss-border pt-3">
+          {loadingD && <div className="text-xs text-ss-muted">Loading breakdown…</div>}
           {detail && (
             <div className="space-y-3">
+              {Object.keys(detail.sub_scores).length > 0 && (
+                <div>
+                  <div className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-ss-muted">Why this match?</div>
+                  <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+                    {Object.entries(detail.sub_scores).map(([k, v]) => (
+                      <SubScoreBar key={k} label={k} value={v} />
+                    ))}
+                  </div>
+                </div>
+              )}
               {detail.reasons.length > 0 && (
                 <div>
-                  <div className="mb-1 text-xs font-semibold uppercase tracking-wide text-green-700">Why this matches you</div>
-                  <ul className="space-y-1 text-sm text-gray-700">
+                  <div className="mb-1 text-xs font-semibold uppercase tracking-wide text-ss-success">Why this matches you</div>
+                  <ul className="space-y-1 text-sm text-ss-text">
                     {detail.reasons.map((r, i) => <li key={i}>✓ {r}</li>)}
                   </ul>
                 </div>
               )}
               {detail.gaps.length > 0 && (
                 <div>
-                  <div className="mb-1 text-xs font-semibold uppercase tracking-wide text-coral">Gaps to be aware of</div>
-                  <ul className="space-y-1 text-sm text-gray-700">
+                  <div className="mb-1 text-xs font-semibold uppercase tracking-wide text-ss-danger">Gaps to be aware of</div>
+                  <ul className="space-y-1 text-sm text-ss-text">
                     {detail.gaps.map((g, i) => <li key={i}>⚠ {g}</li>)}
                   </ul>
                 </div>
               )}
-              {Object.keys(detail.sub_scores).length > 0 && (
-                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                  {Object.entries(detail.sub_scores).map(([k, v]) => (
-                    <div key={k} className="rounded-lg bg-gray-50 px-2.5 py-1.5">
-                      <div className="text-[11px] capitalize text-gray-500">{k.replace(/_/g, " ")}</div>
-                      <div className="text-sm font-semibold text-gray-800">{Math.round(v)}%</div>
-                    </div>
-                  ))}
-                </div>
-              )}
             </div>
           )}
-          {loadingGap && <div className="mt-2 text-xs text-gray-400">Loading gap analysis…</div>}
+          {loadingGap && <div className="mt-2 text-xs text-ss-muted">Loading gap analysis…</div>}
           {gap && (gap.have.length > 0 || gap.missing.length > 0 || gap.pathway.length > 0) && (
-            <div className="mt-3 space-y-3 border-t border-gray-100 pt-3">
+            <div className="mt-3 space-y-3 border-t border-ss-border pt-3">
               <div className="flex items-center justify-between">
-                <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">Why am I not matching?</div>
+                <div className="text-xs font-semibold uppercase tracking-wide text-ss-muted">Your next move</div>
                 {gap.percent_requirements_met != null && (
-                  <span className="rounded-full bg-brand/10 px-2 py-0.5 text-[11px] font-semibold text-brand-dark">
+                  <span className="rounded-full bg-ss-primary-soft px-2 py-0.5 text-[11px] font-semibold text-ss-text">
                     Meets {gap.percent_requirements_met}% of checkable requirements
                   </span>
                 )}
               </div>
               {gap.have.length > 0 && (
                 <div>
-                  <div className="mb-1 text-xs font-semibold text-green-700">You already have</div>
-                  <ul className="space-y-1 text-sm text-gray-700">
+                  <div className="mb-1 text-xs font-semibold text-ss-success">You already have</div>
+                  <ul className="space-y-1 text-sm text-ss-text">
                     {gap.have.map((h, i) => <li key={i}>✓ {h.text}</li>)}
                   </ul>
                 </div>
               )}
               {gap.missing.length > 0 && (
                 <div>
-                  <div className="mb-1 text-xs font-semibold text-coral">You are missing</div>
-                  <ul className="space-y-1 text-sm text-gray-700">
+                  <div className="mb-1 text-xs font-semibold text-ss-danger">You are missing</div>
+                  <ul className="space-y-1 text-sm text-ss-text">
                     {gap.missing.map((g2, i) => <li key={i}>✗ {g2.text}</li>)}
                   </ul>
                 </div>
@@ -1003,13 +1061,13 @@ function MatchCard({
               {gap.pathway.length > 0 && (
                 <div>
                   <div className="mb-1 text-xs font-semibold text-sky">Suggested pathway</div>
-                  <ol className="list-decimal space-y-1 pl-4 text-sm text-gray-700">
+                  <ol className="list-decimal space-y-1 pl-4 text-sm text-ss-text">
                     {gap.pathway.map((p, i) => <li key={i}>{p.step}</li>)}
                   </ol>
                 </div>
               )}
               {gap.unclear.length > 0 && (
-                <div className="text-xs text-gray-400">
+                <div className="text-xs text-ss-muted">
                   {gap.unclear.length} requirement{gap.unclear.length === 1 ? "" : "s"} couldn&apos;t be checked from
                   your profile — add more detail on your <Link href="/profile" className="underline">Profile</Link> for
                   a more precise reading.
@@ -1022,22 +1080,22 @@ function MatchCard({
 
       <div className="mt-3 flex flex-wrap items-center gap-2">
         <button onClick={toggleWhy} className="text-xs font-medium text-brand hover:underline">
-          {open ? "Hide details" : "Why? / breakdown"}
+          {open ? "Hide breakdown" : "Why this match? →"}
         </button>
-        <span className="text-gray-300">·</span>
+        <span className="text-ss-border">·</span>
         <Link href={`/matches/${m.id}`} className="text-xs font-medium text-brand hover:underline">View &amp; apply →</Link>
-        <span className="text-gray-300">·</span>
+        <span className="text-ss-border">·</span>
         <Link href={`/matches/${m.id}`} className="text-xs font-medium text-brand hover:underline">Tailor my CV</Link>
         <div className="ml-auto flex items-center gap-2">
           <button
             onClick={() => onSave(m)}
-            className={`rounded-md px-2 py-1 text-xs font-medium transition ${inSaved ? "bg-gold/20 text-[#8a6d00]" : "text-gray-500 hover:bg-gray-100"}`}
+            className={`rounded-md px-2 py-1 text-xs font-medium transition ${inSaved ? "bg-ss-primary-soft text-ss-text" : "text-ss-muted hover:bg-ss-primary-soft"}`}
           >
             {inSaved ? "★ Saved" : "☆ Save"}
           </button>
           <button
             onClick={() => onCompare(m)}
-            className={`rounded-md px-2 py-1 text-xs font-medium transition ${inCompare ? "bg-brand/10 text-brand-dark" : "text-gray-500 hover:bg-gray-100"}`}
+            className={`rounded-md px-2 py-1 text-xs font-medium transition ${inCompare ? "bg-brand/10 text-brand-dark" : "text-ss-muted hover:bg-ss-primary-soft"}`}
           >
             {inCompare ? "In compare" : "Compare"}
           </button>
@@ -1080,16 +1138,21 @@ function VacancyCard({ data }: { data: VacancyCardData }) {
     finally { setReportBusy(false); }
   }
 
+  const isNew = isNewListing(v.first_seen_at);
+
   return (
-    <Card className="!p-4" accent="sky">
+    <Card className="!p-4" accent="sky" interactive>
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <div className="truncate font-semibold text-gray-900">{v.title}</div>
-          <div className="truncate text-sm text-gray-500">{employer || "Employer (see source)"}</div>
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="truncate font-semibold text-ss-text">{v.title}</div>
+            {isNew && <StatusBadge tone="new">New</StatusBadge>}
+          </div>
+          <div className="truncate text-sm text-ss-muted">{employer || "Employer (see source)"}</div>
         </div>
-        <span className={`flex-none rounded-full px-2.5 py-1 text-[11px] font-semibold ${close.cls}`}>{close.label}</span>
+        <div className="flex-none"><StatusBadge tone={close.tone} pulse={close.tone === "closing"}>{close.label}</StatusBadge></div>
       </div>
-      <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500">
+      <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-ss-muted">
         {v.location && <span>📍 {v.location}{v.province && v.province !== v.location ? ` (${v.province})` : ""}</span>}
         {v.employment_type && <span>🗂️ {v.employment_type}</span>}
         {v.work_mode && <span>🏢 {v.work_mode}</span>}
@@ -1097,7 +1160,7 @@ function VacancyCard({ data }: { data: VacancyCardData }) {
         {v.nqf_level != null && <span title="Estimated from the listing's own text, not an official SAQA rating">🎓 Est. NQF {v.nqf_level}</span>}
       </div>
       {v.trust_flags && v.trust_flags.length > 0 && (
-        <div className="mt-2 rounded-lg bg-coral/10 px-2.5 py-1.5 text-xs font-medium text-coral"
+        <div className="mt-2 rounded-lg border border-ss-danger-soft-border bg-ss-danger-soft px-2.5 py-1.5 text-xs font-medium text-ss-danger"
              title={v.trust_flags.join(", ")}>
           ⚠ Automatically flagged for review — check details carefully before applying.
         </div>
@@ -1108,23 +1171,23 @@ function VacancyCard({ data }: { data: VacancyCardData }) {
             <Button variant="ghost" size="sm">View / apply on source →</Button>
           </a>
         ) : (
-          <span className="text-xs text-gray-400">No application link provided</span>
+          <span className="text-xs text-ss-muted">No application link provided</span>
         )}
         {!reportSent ? (
-          <button onClick={() => setReporting((r) => !r)} className="text-xs font-medium text-gray-400 hover:text-coral">
+          <button onClick={() => setReporting((r) => !r)} className="text-xs font-medium text-ss-muted hover:text-ss-danger">
             ⚠ Report
           </button>
         ) : (
-          <span className="text-xs font-medium text-green-700">✓ Reported — thank you</span>
+          <span className="text-xs font-medium text-ss-success">✓ Reported — thank you</span>
         )}
-        <span className="ml-auto text-[11px] text-gray-400">Source: Sospana Sonke directory</span>
+        <span className="ml-auto text-[11px] text-ss-muted">Source: Sospana Sonke directory</span>
       </div>
       {reporting && (
-        <div className="mt-3 space-y-2 rounded-lg border border-gray-200 p-3">
+        <div className="mt-3 space-y-2 rounded-lg border border-ss-border p-3">
           <select
             value={reportCategory}
             onChange={(e) => setReportCategory(e.target.value)}
-            className="w-full rounded-md border border-gray-300 px-2 py-1.5 text-sm"
+            className="w-full rounded-md border border-ss-border bg-ss-surface px-2 py-1.5 text-sm text-ss-text"
           >
             {REPORT_CATEGORIES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
           </select>
@@ -1133,10 +1196,10 @@ function VacancyCard({ data }: { data: VacancyCardData }) {
             onChange={(e) => setReportDetails(e.target.value)}
             placeholder="Optional details (e.g. what happened)"
             rows={2}
-            className="w-full rounded-md border border-gray-300 px-2 py-1.5 text-sm"
+            className="w-full rounded-md border border-ss-border bg-ss-surface px-2 py-1.5 text-sm text-ss-text"
           />
           <div className="flex justify-end gap-2">
-            <button onClick={() => setReporting(false)} className="text-xs text-gray-500">Cancel</button>
+            <button onClick={() => setReporting(false)} className="text-xs text-ss-muted">Cancel</button>
             <Button size="sm" onClick={submitReport} disabled={reportBusy}>
               {reportBusy ? "Sending…" : "Submit report"}
             </Button>

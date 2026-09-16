@@ -1,9 +1,12 @@
 import type { Metadata, Viewport } from "next";
 import { Space_Grotesk } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import { AuthProvider } from "@/lib/auth";
+import { ThemeProvider, THEME_BOOTSTRAP_SCRIPT } from "@/lib/theme";
 import Nav from "@/components/Nav";
 import MobileBottomNav from "@/components/MobileBottomNav";
+import CommandPalette from "@/components/CommandPalette";
 import PwaRegister from "@/components/PwaRegister";
 import CopyGuard from "@/components/CopyGuard";
 import { SITE_URL, SITE_NAME, SITE_TAGLINE, SITE_DESCRIPTION, SITE_KEYWORDS } from "@/lib/seo";
@@ -107,6 +110,11 @@ const jsonLd = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={spaceGrotesk.variable}>
+      <head>
+        <Script id="ss-theme-bootstrap" strategy="beforeInteractive">
+          {THEME_BOOTSTRAP_SCRIPT}
+        </Script>
+      </head>
       <body>
         <script
           type="application/ld+json"
@@ -120,13 +128,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         >
           Skip to main content
         </a>
-        <AuthProvider>
-          <Nav />
-          <main id="main-content" className="mx-auto max-w-6xl px-4 py-6 pb-24 md:pb-6">
-            {children}
-          </main>
-          <MobileBottomNav />
-        </AuthProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            <Nav />
+            <main id="main-content" className="mx-auto max-w-6xl px-4 py-6 pb-24 md:pb-6">
+              {children}
+            </main>
+            <MobileBottomNav />
+            <CommandPalette />
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Guard from "@/components/Guard";
 import { Banner } from "@/components/Banner";
-import { Alert, Card, Skeleton, Stat } from "@/components/ui";
+import { Alert, Card, Skeleton, Stat, StatusBadge } from "@/components/ui";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import type { Dashboard } from "@/lib/types";
@@ -24,14 +24,21 @@ function DashboardInner() {
     <div className="space-y-6">
       <Banner
         variant="dashboard"
-        eyebrow="Your dashboard"
+        eyebrow="My Opportunity Centre"
         title={`Welcome back, ${firstName} 👋`}
         subtitle={
           data
             ? `${data.vacancies_open.toLocaleString()} open vacancies are being matched against your profile right now.`
             : "Here's where things stand across your matches, CVs and applications."
         }
-      />
+      >
+        {data && (
+          <div className="flex flex-wrap items-center gap-4">
+            <StatusBadge tone="live" pulse>Live matching</StatusBadge>
+            <StatusBadge tone="verified">Direct-to-employer sources</StatusBadge>
+          </div>
+        )}
+      </Banner>
 
       {err && <Alert kind="error">{err}</Alert>}
 
@@ -55,8 +62,8 @@ function DashboardInner() {
       {data && (
         <>
           <div>
-            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">
-              Matches
+            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-ss-muted">
+              Your matches
             </h2>
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
               <Stat label="Open vacancies" value={data.vacancies_open} accent="sky" href="/companies" />
@@ -79,8 +86,8 @@ function DashboardInner() {
           </div>
 
           <div>
-            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">
-              CVs &amp; cover letters
+            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-ss-muted">
+              CV studio
             </h2>
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
               <Stat label="CVs generated" value={data.cvs_generated} accent="purple" href="/master-cv" />
@@ -94,8 +101,8 @@ function DashboardInner() {
           </div>
 
           <div>
-            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">
-              Applications
+            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-ss-muted">
+              Application pipeline
             </h2>
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
               <Stat
@@ -116,7 +123,7 @@ function DashboardInner() {
           </div>
 
           <Card className="flex flex-wrap items-center justify-between gap-2">
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-ss-muted">
               Sospana Sonke is free forever — every feature above is unlocked, no subscription
               needed, now or later.
             </p>

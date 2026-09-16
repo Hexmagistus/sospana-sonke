@@ -95,7 +95,7 @@ export default function MobileBottomNav() {
   return (
     <nav
       aria-label="Primary"
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-navy/10 bg-white/95 backdrop-blur md:hidden"
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-ss-border bg-ss-glass backdrop-blur-md md:hidden"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
       <div className="mx-auto flex max-w-6xl items-stretch justify-between px-1">
@@ -108,7 +108,7 @@ export default function MobileBottomNav() {
               aria-label={item.label}
               aria-current={active ? "page" : undefined}
               className={`relative flex flex-1 flex-col items-center justify-center gap-0.5 py-2 text-[11px] font-medium transition ${
-                active ? "text-navy" : "text-gray-500 hover:text-navy"
+                active ? "text-ss-primary" : "text-ss-muted hover:text-ss-text"
               }`}
             >
               {item.icon(active)}

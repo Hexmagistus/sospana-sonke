@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth";
+import { setPendingSearch } from "@/lib/agentHandoff";
 
 const C = {
   navy: "#0b1f3a", ink: "#071528", gold: "#f5b301", amber: "#ff9e2c",
@@ -470,6 +471,103 @@ function SavannaSilhouette() {
   );
 }
 
+/* SOSPANA COMMAND -- the hero's futuristic search console (brief section 4/10):
+   a genuine entry point into the real Career Agent search, not decoration.
+   Visitors here are always anonymous (Home redirects signed-in users to
+   /companies before this ever renders), so a search is queued via
+   lib/agentHandoff and picked up by PendingSearchBanner once they've
+   registered -- the same natural-language phrases the Career Agent's own
+   quick-action buttons use, so classifyIntent parses them identically. */
+function HeroSearchConsole() {
+  const router = useRouter();
+  const [what, setWhat] = useState("");
+  const [where, setWhere] = useState("");
+  const [type, setType] = useState("");
+
+  function runSearch(e: FormEvent) {
+    e.preventDefault();
+    const parts: string[] = [what.trim() ? `Find jobs for ${what.trim()}` : "Find jobs I can apply for"];
+    if (where.trim()) parts.push(`in ${where.trim()}`);
+    if (type) parts.push(type);
+    setPendingSearch(parts.join(" "));
+    router.push("/register");
+  }
+
+  function runQuickCommand(phrase: string) {
+    setPendingSearch(phrase);
+    router.push("/register");
+  }
+
+  return (
+    <div className="relative mt-8 max-w-xl rounded-2xl border border-white/15 bg-white/[0.06] p-4 shadow-2xl backdrop-blur-md sm:p-5">
+      <div className="flex items-center justify-between">
+        <span className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-blue-200">
+          <span className="relative flex h-1.5 w-1.5">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-75" style={{ background: C.mint }} />
+            <span className="relative inline-flex h-1.5 w-1.5 rounded-full" style={{ background: C.mint }} />
+          </span>
+          Sospana Command
+        </span>
+        <span className="font-mono text-[10px] tracking-wider text-blue-300">SEARCH · LIVE</span>
+      </div>
+
+      <form onSubmit={runSearch} className="mt-3 grid gap-2 sm:grid-cols-[1.2fr_1fr_0.9fr_auto]">
+        <input
+          value={what}
+          onChange={(e) => setWhat(e.target.value)}
+          placeholder="What role? e.g. warehouse assistant"
+          aria-label="What role are you looking for?"
+          className="w-full rounded-xl border border-white/15 bg-white/10 px-3.5 py-2.5 text-sm text-white placeholder:text-blue-200/60 focus:border-white/40 focus:outline-none"
+        />
+        <input
+          value={where}
+          onChange={(e) => setWhere(e.target.value)}
+          placeholder="Where? e.g. Gauteng"
+          aria-label="Where are you looking?"
+          className="w-full rounded-xl border border-white/15 bg-white/10 px-3.5 py-2.5 text-sm text-white placeholder:text-blue-200/60 focus:border-white/40 focus:outline-none"
+        />
+        <select
+          value={type}
+          onChange={(e) => setType(e.target.value)}
+          aria-label="Employment type"
+          className="w-full rounded-xl border border-white/15 bg-white/10 px-3 py-2.5 text-sm text-white focus:border-white/40 focus:outline-none [&>option]:text-black"
+        >
+          <option value="">Any type</option>
+          <option value="permanent">Permanent</option>
+          <option value="contract">Contract</option>
+          <option value="internship">Internship</option>
+          <option value="learnership">Learnership</option>
+          <option value="remote">Remote</option>
+        </select>
+        <button
+          type="submit"
+          className="group relative overflow-hidden rounded-xl px-5 py-2.5 text-sm font-extrabold shadow-lg transition hover:brightness-105 hover:-translate-y-0.5"
+          style={{ background: `linear-gradient(120deg,${C.gold},${C.amber})`, color: "#3a2b00" }}
+        >
+          Search →
+        </button>
+      </form>
+
+      <div className="mt-3 flex flex-wrap gap-2">
+        {[
+          ["Jobs I can apply for", "Find jobs I can apply for"],
+          ["Almost qualified for", "Show jobs I'm almost qualified for"],
+          ["Employers in my field", "Show employers in my field I can apply to directly"],
+        ].map(([label, phrase]) => (
+          <button
+            key={label}
+            type="button"
+            onClick={() => runQuickCommand(phrase)}
+            className="rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-xs font-medium text-blue-100 transition hover:border-white/30 hover:bg-white/10"
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function Home() {
   const { user, loading } = useAuth();
   const router = useRouter();
@@ -587,6 +685,10 @@ export default function Home() {
                 <p className="mt-6 max-w-xl text-lg leading-relaxed text-blue-100">
                   A professional job-search platform that connects ambitious young people directly to real employers — with every open vacancy across the region, including state-owned employers, in one place.
                 </p>
+              </Reveal>
+
+              <Reveal delay={280}>
+                <HeroSearchConsole />
               </Reveal>
 
               {/* Words to grow by */}
