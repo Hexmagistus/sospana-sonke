@@ -23,6 +23,12 @@ class VacancyResponse(BaseModel):
     work_mode: str | None
     employment_type: str | None
     salary: str | None
+    province: str | None
+    salary_min: int | None
+    salary_max: int | None
+    nqf_level: int | None
+    trust_flags: list[str] | None
+    duplicate_of_id: str | None
     posting_date: date | None
     closing_date: date | None
     application_url: str | None
@@ -50,6 +56,35 @@ class VacancySourceResponse(BaseModel):
     consecutive_failures: int
     last_error: str | None
     last_vacancy_count: int | None
+
+
+class VacancyReportCreate(BaseModel):
+    category: str  # one of app.models.vacancy_report.VACANCY_REPORT_CATEGORIES
+    details: str | None = None
+
+
+class VacancyReportResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: str
+    vacancy_id: str
+    category: str
+    details: str | None
+    status: str
+    created_at: datetime
+
+
+class DuplicateGroupResponse(BaseModel):
+    keep: VacancyResponse
+    duplicates: list[VacancyResponse]
+
+
+class MergeDuplicatesRequest(BaseModel):
+    keep_id: str
+    duplicate_ids: list[str]
+
+
+class MergeDuplicatesResponse(BaseModel):
+    merged: int
 
 
 class ScanReportResponse(BaseModel):

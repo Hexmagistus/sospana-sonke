@@ -57,6 +57,27 @@ class Vacancy(UUIDMixin, TimestampMixin, Base):
     posting_date: Mapped[date | None] = mapped_column(Date, nullable=True)
     closing_date: Mapped[date | None] = mapped_column(Date, nullable=True)
 
+    # Structured, best-effort filter fields derived from the free-text fields above
+    # at scan time (see app.scraper.extract). Additive only — location/salary above
+    # remain the source of truth shown to a candidate; these three just let the API
+    # facet/filter without needing a candidate to parse prose. All nullable: a None
+    # means "couldn't be inferred", never a fabricated value.
+    province: Mapped[str | None] = mapped_column(String(40), nullable=True)
+    salary_min: Mapped[int | None] = mapped_column(Integer, nullable=True)  # monthly ZAR
+    salary_max: Mapped[int | None] = mapped_column(Integer, nullable=True)  # monthly ZAR
+    nqf_level: Mapped[int | None] = mapped_column(Integer, nullable=True)   # estimated, 1-10
+
+    # Trust & safety (blueprint section 18): heuristic scam/quality signals computed
+    # at scan time (app.services.trust_service), e.g. ["payment_request"]. Never
+    # hidden from admins/candidates -- shown as flags to be aware of, not a verdict.
+    trust_flags: Mapped[list | None] = mapped_column(JSON, default=list, nullable=True)
+    # Duplicate detection (blueprint section 16): set when an admin merges this
+    # vacancy into another (the canonical one keeps this null). The merged row is
+    # also soft-deleted (deleted_at) and closed (is_open=False), never hard-deleted.
+    duplicate_of_id: Mapped[str | None] = mapped_column(
+        String(36), ForeignKey("vacancies.id", ondelete="SET NULL"), nullable=True
+    )
+
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     application_url: Mapped[str | None] = mapped_column(Text, nullable=True)
     source_url: Mapped[str | None] = mapped_column(Text, nullable=True)

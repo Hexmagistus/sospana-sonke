@@ -2,7 +2,10 @@
 from datetime import date
 
 from app.scraper.base import RawVacancy
-from app.scraper.extract import normalize_date, content_hash, classify_requirements, infer_work_mode
+from app.scraper.extract import (
+    normalize_date, content_hash, classify_requirements, infer_work_mode,
+    infer_province, parse_salary_range, infer_nqf_level,
+)
 
 
 def test_normalize_date():
@@ -25,6 +28,33 @@ def test_infer_work_mode():
     assert infer_work_mode(RawVacancy(title="x", description="This is a remote role")) == "remote"
     assert infer_work_mode(RawVacancy(title="x", location="Hybrid - JHB")) == "hybrid"
     assert infer_work_mode(RawVacancy(title="x", description="office based")) is None or True
+
+
+def test_infer_province():
+    assert infer_province("Vereeniging, Gauteng") == "Gauteng"
+    assert infer_province("Sandton") == "Gauteng"  # city-only, no province named
+    assert infer_province("Durban, KZN") == "KwaZulu-Natal"  # recognised city
+    assert infer_province("Some town, XYZ") is None  # unrecognised, no guess
+    assert infer_province(None) is None
+    assert infer_province("Remote") is None
+
+
+def test_parse_salary_range():
+    assert parse_salary_range("R15,000 - R20,000 per month") == (15000, 20000)
+    assert parse_salary_range("R15k - R20k") == (15000, 20000)
+    assert parse_salary_range("R18,000") == (18000, 18000)
+    assert parse_salary_range("Market related") == (None, None)
+    assert parse_salary_range(None) == (None, None)
+    # reversed order still comes back sorted low-to-high
+    assert parse_salary_range("R20,000 - R15,000") == (15000, 20000)
+
+
+def test_infer_nqf_level():
+    assert infer_nqf_level("Process Controller", "Matric required") == 4
+    assert infer_nqf_level("Ops Manager", "National Diploma in Operations") == 6
+    assert infer_nqf_level("Lab Technician", "Bachelor's degree in Chemistry") == 7
+    assert infer_nqf_level("Research Lead", "PhD in a relevant field required") == 10
+    assert infer_nqf_level("General worker", "No formal qualification needed") is None
 
 
 def test_classify_requirements_hard_soft_category():

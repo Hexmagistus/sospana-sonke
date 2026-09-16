@@ -17,7 +17,11 @@ from app.core.config import settings
 from app.models.company import Company
 from app.models.vacancy import VacancySource, Vacancy, VacancyRequirement
 from app.scraper.base import detect_ats, get_strategy
-from app.scraper.extract import normalize_date, infer_work_mode, content_hash, classify_requirements
+from app.scraper.extract import (
+    normalize_date, infer_work_mode, content_hash, classify_requirements,
+    infer_province, parse_salary_range, infer_nqf_level,
+)
+from app.services.trust_service import scan_for_trust_flags
 from app.scraper.politeness import RobotsChecker
 
 
@@ -102,6 +106,14 @@ def scan_source(db: Session, source: VacancySource, client: httpx.Client | None 
                 seen_ids.add(existing.id)
                 report.updated += 1
             else:
+                salary_min, salary_max = parse_salary_range(raw.salary)
+                app_url = raw.application_url
+                src_url = raw.source_url or source.url
+                trust_flags = scan_for_trust_flags(
+                    title=raw.title, description=raw.description,
+                    salary_min=salary_min, salary_max=salary_max,
+                    application_url=app_url, source_url=src_url,
+                )
                 vac = Vacancy(
                     company_id=source.company_id, source_id=source.id,
                     external_id=raw.external_id, title=raw.title[:300],
@@ -109,9 +121,13 @@ def scan_source(db: Session, source: VacancySource, client: httpx.Client | None 
                     work_mode=infer_work_mode(raw), employment_type=raw.employment_type,
                     salary=raw.salary, posting_date=normalize_date(raw.posting_date),
                     closing_date=normalize_date(raw.closing_date),
-                    description=raw.description, application_url=raw.application_url,
-                    source_url=raw.source_url or source.url,
+                    description=raw.description, application_url=app_url,
+                    source_url=src_url,
                     raw_content=str(raw.raw)[:100000], content_hash=chash,
+                    province=infer_province(raw.location),
+                    salary_min=salary_min, salary_max=salary_max,
+                    nqf_level=infer_nqf_level(raw.title, raw.description),
+                    trust_flags=trust_flags,
                     is_open=True, first_seen_at=now, last_seen_at=now,
                 )
                 db.add(vac)

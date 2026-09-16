@@ -15,10 +15,15 @@ from app.db.session import get_db
 from app.models.company import Company
 from app.models.user import User
 from app.models.vacancy import Vacancy, VacancySource
+from app.models.vacancy_report import VacancyReport, VACANCY_REPORT_CATEGORIES
 from app.schemas.vacancy import (
     VacancyResponse, VacancyDetailResponse, VacancySourceResponse, ScanReportResponse,
+    VacancyReportCreate, VacancyReportResponse, DuplicateGroupResponse,
+    MergeDuplicatesRequest, MergeDuplicatesResponse,
 )
 from app.services.scan_service import scan_company
+from app.services.duplicate_service import find_duplicate_groups, merge_duplicates
+from app.services.vacancy_report_service import create_vacancy_report
 
 router = APIRouter(tags=["vacancies"])
 
@@ -59,6 +64,17 @@ def list_company_vacancies(company_id: str, db: Session = Depends(get_db),
 def list_vacancies(db: Session = Depends(get_db), _: User = Depends(get_current_user),
                    q: str | None = Query(default=None, description="Search in title"),
                    is_open: bool | None = Query(default=True),
+                   province: str | None = Query(
+                       default=None, description="South African province, e.g. 'Gauteng' (best-effort field)."),
+                   employment_type: str | None = Query(default=None, description="Substring match, e.g. 'Internship'."),
+                   min_salary: int | None = Query(
+                       default=None, ge=0, description="Monthly ZAR. Matches listings whose parsed salary_max is at least this."),
+                   max_salary: int | None = Query(
+                       default=None, ge=0, description="Monthly ZAR. Matches listings whose parsed salary_min is at most this."),
+                   nqf_level: int | None = Query(
+                       default=None, ge=1, le=10, description="Estimated NQF level (1-10) required by the listing."),
+                   flagged: bool | None = Query(
+                       default=None, description="True: only listings with a trust/safety flag. False: only listings with none."),
                    max_age_days: int | None = Query(
                        default=None, ge=1,
                        description="Only vacancies last seen within this many days (drops stale/old listings)."),
@@ -68,6 +84,16 @@ def list_vacancies(db: Session = Depends(get_db), _: User = Depends(get_current_
         query = query.filter(Vacancy.is_open == is_open)
     if q:
         query = query.filter(Vacancy.title.ilike(f"%{q}%"))
+    if province:
+        query = query.filter(Vacancy.province == province)
+    if employment_type:
+        query = query.filter(Vacancy.employment_type.ilike(f"%{employment_type}%"))
+    if min_salary is not None:
+        query = query.filter(Vacancy.salary_max.is_not(None), Vacancy.salary_max >= min_salary)
+    if max_salary is not None:
+        query = query.filter(Vacancy.salary_min.is_not(None), Vacancy.salary_min <= max_salary)
+    if nqf_level is not None:
+        query = query.filter(Vacancy.nqf_level == nqf_level)
     if max_age_days is not None:
         # Drop listings we haven't seen on the employer's careers page recently...
         cutoff = datetime.now(timezone.utc) - timedelta(days=max_age_days)
@@ -77,6 +103,14 @@ def list_vacancies(db: Session = Depends(get_db), _: User = Depends(get_current_
         query = query.filter(
             (Vacancy.closing_date.is_(None)) | (Vacancy.closing_date >= today)
         )
+    if flagged is not None:
+        # trust_flags is a JSON column -- filtering on "is the array non-empty"
+        # portably across SQLite (tests) and Postgres (production) is awkward in
+        # pure SQL, so this filters in Python over a bounded, already-ordered
+        # window rather than adding a dialect-specific JSON expression.
+        query = query.order_by(Vacancy.last_seen_at.desc()).limit(2000)
+        candidates = [v for v in query.all() if bool(v.trust_flags) == flagged]
+        return [VacancyResponse.model_validate(v) for v in candidates[offset:offset + limit]]
     query = query.order_by(Vacancy.last_seen_at.desc()).offset(offset).limit(limit)
     return [VacancyResponse.model_validate(v) for v in query.all()]
 
@@ -87,3 +121,46 @@ def get_vacancy(vacancy_id: str, db: Session = Depends(get_db), _: User = Depend
     if vac is None or vac.deleted_at is not None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Vacancy not found.")
     return VacancyDetailResponse.model_validate(vac)
+
+
+@router.post("/vacancies/{vacancy_id}/report", response_model=VacancyReportResponse,
+             status_code=status.HTTP_201_CREATED)
+def report_vacancy(vacancy_id: str, body: VacancyReportCreate, db: Session = Depends(get_db),
+                   user: User = Depends(get_current_user)):
+    """Candidate-facing "Report this opportunity" (scam / expired / incorrect /
+    duplicate / misleading / other) -- queued for admin triage, never auto-acted on."""
+    report = create_vacancy_report(db, user_id=user.id, vacancy_id=vacancy_id,
+                                   category=body.category, details=body.details)
+    return VacancyReportResponse.model_validate(report)
+
+
+@router.get("/admin/vacancy-reports", response_model=list[VacancyReportResponse],
+            dependencies=[Depends(require_admin)])
+def list_vacancy_reports(db: Session = Depends(get_db),
+                         status_filter: str | None = Query(default=None, alias="status")):
+    q = db.query(VacancyReport)
+    if status_filter:
+        q = q.filter(VacancyReport.status == status_filter)
+    return [VacancyReportResponse.model_validate(r)
+            for r in q.order_by(VacancyReport.created_at.desc()).all()]
+
+
+@router.get("/admin/vacancies/duplicates", response_model=list[DuplicateGroupResponse],
+            dependencies=[Depends(require_admin)])
+def list_duplicate_vacancies(db: Session = Depends(get_db),
+                             company_id: str | None = Query(default=None)):
+    groups = find_duplicate_groups(db, company_id=company_id)
+    return [
+        DuplicateGroupResponse(
+            keep=VacancyResponse.model_validate(g.keep),
+            duplicates=[VacancyResponse.model_validate(d) for d in g.duplicates],
+        )
+        for g in groups
+    ]
+
+
+@router.post("/admin/vacancies/merge", response_model=MergeDuplicatesResponse,
+             dependencies=[Depends(require_admin)])
+def merge_duplicate_vacancies(body: MergeDuplicatesRequest, db: Session = Depends(get_db)):
+    merged = merge_duplicates(db, keep_id=body.keep_id, duplicate_ids=body.duplicate_ids)
+    return MergeDuplicatesResponse(merged=merged)
