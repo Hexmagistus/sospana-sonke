@@ -15,8 +15,13 @@ from app.models.vacancy import Vacancy
 from app.matching.config import MatchConfig
 from app.schemas.match import (
     MatchResponse, MatchDetailResponse, MatchRunResponse, MatchConfigSchema,
+    GapAnalysisResponse,
 )
-from app.services.match_service import run_match_for_user, get_match_config, set_match_config
+from app.services.match_service import (
+    run_match_for_user, get_match_config, set_match_config,
+    build_candidate_data, build_vacancy_data,
+)
+from app.services.gap_analysis_service import build_gap_analysis
 
 router = APIRouter(tags=["matches"])
 
@@ -93,6 +98,32 @@ def get_match(match_id: str, db: Session = Depends(get_db), user: User = Depends
     if m is None or m.user_id != user.id:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Match not found.")
     return _to_response(db, m, detail=True)
+
+
+@router.get("/matches/{match_id}/gap-analysis", response_model=GapAnalysisResponse)
+def get_gap_analysis(match_id: str, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    """"Why am I not matching?" — have / missing / suggested next steps for one match.
+
+    Recomputes from the exact same deterministic requirement checks the matching
+    engine itself used, so it can never disagree with the match's own score.
+    """
+    m = db.get(CandidateMatch, match_id)
+    if m is None or m.user_id != user.id:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Match not found.")
+    vac = db.get(Vacancy, m.vacancy_id)
+    if vac is None or vac.deleted_at is not None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Vacancy not found.")
+    company = db.get(Company, vac.company_id)
+    cand, _ = build_candidate_data(db, user.id)
+    vdata = build_vacancy_data(db, vac, company.sector if company else None)
+    analysis = build_gap_analysis(cand, vdata)
+    return GapAnalysisResponse(
+        percent_requirements_met=analysis.percent_requirements_met,
+        have=[{"text": i.text, "category": i.category} for i in analysis.have],
+        missing=[{"text": i.text, "category": i.category} for i in analysis.missing],
+        unclear=[{"text": i.text, "category": i.category} for i in analysis.unclear],
+        pathway=[{"step": p.step, "category": p.category} for p in analysis.pathway],
+    )
 
 
 @router.post("/matches/{match_id}/interview-prep", status_code=status.HTTP_201_CREATED)

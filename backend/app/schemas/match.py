@@ -24,6 +24,24 @@ class MatchDetailResponse(MatchResponse):
     engine_version: str
 
 
+class GapItemResponse(BaseModel):
+    text: str
+    category: str
+
+
+class PathwayStepResponse(BaseModel):
+    step: str
+    category: str
+
+
+class GapAnalysisResponse(BaseModel):
+    percent_requirements_met: float | None
+    have: list[GapItemResponse]
+    missing: list[GapItemResponse]
+    unclear: list[GapItemResponse]
+    pathway: list[PathwayStepResponse]
+
+
 class MatchRunResponse(BaseModel):
     considered: int
     prefiltered_out: int

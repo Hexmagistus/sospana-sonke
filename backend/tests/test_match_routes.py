@@ -33,6 +33,35 @@ def _seed_vacancy(db_engine):
         s.close()
 
 
+def _seed_vacancy_with_gaps(db_engine):
+    from sqlalchemy.orm import sessionmaker
+    S = sessionmaker(bind=db_engine)
+    s = S()
+    try:
+        c = Company(company_name="Beta Corp", sector="Logistics",
+                    careers_url="https://boards.greenhouse.io/beta")
+        s.add(c); s.commit(); s.refresh(c)
+        now = datetime.now(timezone.utc)
+        v = Vacancy(company_id=c.id, source_id="s2", title="Operations Manager",
+                    location="Johannesburg", description="", content_hash="h2",
+                    is_open=True, first_seen_at=now, last_seen_at=now)
+        s.add(v); s.commit(); s.refresh(v)
+        s.add_all([
+            VacancyRequirement(vacancy_id=v.id, text="Minimum of 5 years experience required",
+                               kind="hard", category="experience"),
+            VacancyRequirement(vacancy_id=v.id, text="Valid driver's licence required",
+                               kind="hard", category="licence"),
+            VacancyRequirement(vacancy_id=v.id, text="Postgraduate qualification required",
+                               kind="hard", category="qualification"),
+            VacancyRequirement(vacancy_id=v.id, text="Willingness to work shifts",
+                               kind="hard", category="other"),
+        ])
+        s.commit()
+        return v.id
+    finally:
+        s.close()
+
+
 def _enrich_profile(client, tokens):
     h = _auth(tokens)
     client.put("/api/v1/profile", headers=h, json={
@@ -73,6 +102,51 @@ def test_match_ownership(client, db_engine):
     # B sees no matches and cannot open A's match.
     assert client.get("/api/v1/matches", headers=_auth(tokens_b)).json() == []
     assert client.get(f"/api/v1/matches/{a_match['id']}", headers=_auth(tokens_b)).status_code == 404
+
+
+def test_gap_analysis(client, db_engine):
+    _, tokens = register_and_login(client)
+    _enrich_profile(client, tokens)  # 6 yrs experience, SQL skill, BCom Degree (no licence)
+    _seed_vacancy_with_gaps(db_engine)
+
+    client.post("/api/v1/matches/run", headers=_auth(tokens))
+    matches = client.get("/api/v1/matches", headers=_auth(tokens)).json()
+    match_id = matches[0]["id"]
+
+    r = client.get(f"/api/v1/matches/{match_id}/gap-analysis", headers=_auth(tokens))
+    assert r.status_code == 200, r.text
+    body = r.json()
+
+    have_texts = {i["text"] for i in body["have"]}
+    missing_texts = {i["text"] for i in body["missing"]}
+    unclear_texts = {i["text"] for i in body["unclear"]}
+
+    assert "Minimum of 5 years experience required" in have_texts  # 6 >= 5
+    assert "Valid driver's licence required" in missing_texts      # profile has none
+    assert "Postgraduate qualification required" in missing_texts             # profile tops out at Degree
+    assert "Willingness to work shifts" in unclear_texts            # category "other" -> unassessable
+
+    # percent = 1 have / (1 have + 2 missing) assessable requirements
+    assert body["percent_requirements_met"] == 33
+
+    # The pathway offers a concrete next step for every missing item, phrased
+    # from the requirement's own text (never a fabricated qualification).
+    pathway_steps = " ".join(p["step"] for p in body["pathway"])
+    assert "Valid driver's licence required" in pathway_steps
+    assert "Postgraduate qualification required" in pathway_steps
+    assert len(body["pathway"]) == len(body["missing"])
+
+
+def test_gap_analysis_ownership_and_404(client, db_engine):
+    _, tokens_a = register_and_login(client, email="a2@example.com")
+    _, tokens_b = register_and_login(client, email="b2@example.com")
+    _enrich_profile(client, tokens_a)
+    _seed_vacancy_with_gaps(db_engine)
+    client.post("/api/v1/matches/run", headers=_auth(tokens_a))
+    match_id = client.get("/api/v1/matches", headers=_auth(tokens_a)).json()[0]["id"]
+
+    assert client.get(f"/api/v1/matches/{match_id}/gap-analysis", headers=_auth(tokens_b)).status_code == 404
+    assert client.get("/api/v1/matches/does-not-exist/gap-analysis", headers=_auth(tokens_a)).status_code == 404
 
 
 def test_match_config_admin_only(client, db_engine):

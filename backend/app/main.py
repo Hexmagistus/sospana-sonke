@@ -15,7 +15,7 @@ from app.db.session import init_db
 from app.api import (
     routes_auth, routes_companies, routes_profile, routes_cv, routes_vacancies, routes_matches,
     routes_documents, routes_applications, routes_subscription, routes_donation, routes_dashboard,
-    routes_notifications, routes_cron, routes_tailor, routes_watches,
+    routes_notifications, routes_cron, routes_tailor, routes_watches, routes_career,
 )
 
 # Set up logging (and Sentry, if SENTRY_DSN is configured) before anything else
@@ -149,6 +149,7 @@ def create_app() -> FastAPI:
     app.include_router(routes_cron.router, prefix=settings.API_V1_PREFIX)
     app.include_router(routes_tailor.router, prefix=settings.API_V1_PREFIX)
     app.include_router(routes_watches.router, prefix=settings.API_V1_PREFIX)
+    app.include_router(routes_career.router, prefix=settings.API_V1_PREFIX)
     return app
 
 
