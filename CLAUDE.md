@@ -48,6 +48,71 @@ commit it (and push, if you pushed the rest of your work). Newest entry on top.
   silently failing, and let Lungani run the `.bat` script if needed.
 
 ## Session Log
+### 2026-09-16 — Claude (Cowork) — Structured filters, gap analysis, career explorer, trust/duplicate flagging, SEO/mobile/a11y pass
+Lungani sent a large 40-section brief to transform the platform into "South Africa's
+intelligent opportunity engine." Audited first (most of the brief -- SEO metadata,
+JSON-LD, PWA, matching engine, CV builder, etc. -- was already built; see the feature-
+gap matrix from this session for the full picture) then built all 4 gaps Lungani chose
+("all") when asked which to prioritize. Commits `4b16e3a`, `3344157`, `6336aec`,
+`5285980`, `a62f116` (backend + frontend, in that order).
+
+1. **Structured filters** (`4b16e3a`): scraper now infers `province`, `salary_min`/
+   `salary_max`, and `nqf_level` from listing text at scan time (additive, never
+   overrides free-text fields) and `GET /vacancies` gained real query params for all of
+   them plus `employment_type`. Fixed a real bug while testing: the salary-range regex
+   was missing `re.IGNORECASE` so "R15,000 - R20,000" silently parsed as a single value.
+2. **Gap analysis + Career Explorer** (`3344157`): `GET /matches/{id}/gap-analysis`
+   reuses the matching engine's own `requirement_met()` (so it can never disagree with
+   the match's own score) to show have/missing/unclear requirements + a suggested
+   pathway. `GET /career-explorer` suggests adjacent career families (18-family curated
+   taxonomy) with real open-vacancy counts.
+3. **Duplicate detection + trust/scam flagging** (`6336aec`): `trust_service.py` scans
+   new listings for named, explainable red flags (payment requests, unrealistic salary,
+   missing application link) -- never auto-hides anything, just flags + a warning
+   banner. `duplicate_service.py` groups same-company listings by normalized title+
+   location, keeps the oldest as canonical, soft-closes (never hard-deletes) the rest,
+   and refuses cross-company merges. Candidates can report a listing
+   (`POST /vacancies/{id}/report`); admins get a triage queue and merge endpoint.
+4. **SEO + mobile nav + accessibility** (`5285980`, `a62f116`): frontend wiring for
+   1-3 above, all in `/agent`. Separately, found and fixed a real SEO bug my own audit
+   initially missed: `robots.ts`/`seo.ts`'s `PUBLIC_ROUTES`/`sitemap.ts` all treated
+   `/companies` (and several other `<Guard>`-gated pages) as public/indexable, and the
+   JSON-LD `WebSite`'s `SearchAction` pointed at that same gated URL -- fixed all of it.
+   Added `MobileBottomNav.tsx` (Home/Search/Saved/Applications/Profile tab bar for
+   small screens). Accessibility: global `:focus-visible` ring, a skip-to-content link,
+   `role="dialog"`/`aria-modal` on the two overlay modals, `aria-hidden` on decorative
+   status icons. `prefers-reduced-motion` support already existed.
+- **Verified**: full backend pytest suite run (`/tmp/venv` in the sandbox) -- all new/
+  changed test files (34 tests across `test_scraper_extract`, `test_vacancy_routes`,
+  `test_match_routes`, `test_career_explorer`, `test_trust_and_duplicates`) pass. 4
+  pre-existing failures elsewhere (`test_watch_service.py`, `test_link_check_service.py`
+  -- a stale `reg["id"]` helper that doesn't match the current nested `RegisterResponse`
+  shape) are unrelated to this session's changes (confirmed via `git log` -- last touched
+  in an earlier commit, not this session) and were left alone, same as the standing
+  `test_dashboard.py` dead-test note from 2026-09-06. Frontend `tsc --noEmit` clean.
+  `next build` not attempted (sandbox has no egress to Google Fonts -- known, documented
+  limitation; real gate is checking the Vercel deploy after push).
+- **device_bash (device Linux VM) was down again this session** -- used
+  `device_stage_files`/`device_commit_files` (32 files, zero rejections) into
+  `sospana-sonke-fullstack/sospana-sonke/` (the real repo -- confirmed via `.git`
+  presence; the sibling `sospana-sonke-fullstack/{frontend,backend}` and
+  `sospana-sonke_OLD_backup/` are the known stray/backup copies, untouched) +
+  GitKraken plugin tools for add/commit. **Committed locally, NOT pushed** -- same
+  interactive-GitHub-login limitation as every prior session; Lungani needs to push
+  (via a `.bat` script or `git push`) to get this onto GitHub/deployed.
+- **Honesty notes for whoever reads this next:**
+  1. The production **vacancy index is essentially empty** (documented 2026-09-14) --
+     structured filters, gap analysis, and duplicate/trust detection are all real and
+     tested, but their real-world impact is capped until the scraper actually populates
+     `vacancies` at scale.
+  2. No dedicated admin **frontend** page was built for the new vacancy-reports triage
+     queue or duplicate-groups list -- only the backend endpoints
+     (`GET /admin/vacancy-reports`, `GET /admin/vacancies/duplicates`,
+     `POST /admin/vacancies/merge`) exist. An admin UI for these is the natural next
+     step if Lungani wants to actually use them day-to-day rather than via API calls.
+  3. The career-family taxonomy (18 families) and gap-analysis pathway templates are
+     hand-curated, not exhaustive -- expect to extend both as real usage surfaces gaps.
+
 ### 2026-09-14 — Claude (Cowork) — NEW: Sospana Sonke Career Agent page (/agent)
 - Built a conversational **Career Agent** front door: `frontend/src/app/agent/page.tsx`
   (new) + link added to `frontend/src/components/Nav.tsx` (after Dashboard). Everything
