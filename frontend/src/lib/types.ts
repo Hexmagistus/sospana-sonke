@@ -56,6 +56,41 @@ export interface MatchDetail extends Match {
   engine_version: string;
 }
 
+export interface GapItem {
+  text: string;
+  category: string;
+}
+
+export interface PathwayStep {
+  step: string;
+  category: string;
+}
+
+export interface GapAnalysis {
+  percent_requirements_met: number | null;
+  have: GapItem[];
+  missing: GapItem[];
+  unclear: GapItem[];
+  pathway: PathwayStep[];
+}
+
+export interface CareerOption {
+  title: string;
+  open_vacancies: number;
+}
+
+export interface CareerFamily {
+  label: string;
+  matched_on: string;
+  related_careers: CareerOption[];
+  note: string;
+}
+
+export interface CareerExplorerResult {
+  based_on: string | null;
+  families: CareerFamily[];
+}
+
 export interface CVVersion {
   id: string;
   match_id: string | null;
@@ -339,6 +374,14 @@ export interface Vacancy {
   work_mode: string | null;
   employment_type: string | null;
   salary: string | null;
+  /** Best-effort fields parsed from `location`/`salary`/title at scan time — a
+   * missing value just means it couldn't be inferred, never a wrong one. */
+  province: string | null;
+  salary_min: number | null;
+  salary_max: number | null;
+  nqf_level: number | null;
+  trust_flags: string[] | null;
+  duplicate_of_id: string | null;
   posting_date: string | null;
   closing_date: string | null;
   application_url: string | null;

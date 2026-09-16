@@ -30,7 +30,7 @@ import Guard from "@/components/Guard";
 import { api, ApiError } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { Card, Button, Badge, Alert, Spinner, Input } from "@/components/ui";
-import type { Match, MatchDetail, Vacancy, Company } from "@/lib/types";
+import type { Match, MatchDetail, Vacancy, Company, GapAnalysis, CareerExplorerResult } from "@/lib/types";
 
 /* ------------------------------------------------------------------ */
 /* Domain vocab (mirrors backend app/common/vocab.py, kept in sync by  */
@@ -54,16 +54,35 @@ const PLACE_HINTS = [
   "kenya", "nigeria", "ghana", "eswatini", "lesotho",
 ];
 
-const QUALIFICATION_LEVELS: { label: string; keys: string[] }[] = [
-  { label: "Matric / Grade 12", keys: ["matric", "grade 12"] },
-  { label: "Certificate", keys: ["certificate", "national certificate"] },
-  { label: "Diploma", keys: ["diploma", "national diploma"] },
-  { label: "Degree", keys: ["degree", "bachelor", "bcom", "bsc", "b.com", "b.sc"] },
-  { label: "Honours", keys: ["honours", "honors"] },
-  { label: "Postgraduate Diploma", keys: ["postgraduate diploma", "pgdip", "postgraduate"] },
-  { label: "Master's", keys: ["master", "mba", "msc", "meng"] },
-  { label: "Doctorate", keys: ["phd", "doctorate", "doctoral"] },
+// nqf mirrors the backend's own estimate (app.scraper.extract.infer_nqf_level) —
+// kept in sync by hand since there's no shared package between the two apps.
+const QUALIFICATION_LEVELS: { label: string; keys: string[]; nqf: number }[] = [
+  { label: "Matric / Grade 12", keys: ["matric", "grade 12"], nqf: 4 },
+  { label: "Certificate", keys: ["certificate", "national certificate"], nqf: 5 },
+  { label: "Diploma", keys: ["diploma", "national diploma"], nqf: 6 },
+  { label: "Degree", keys: ["degree", "bachelor", "bcom", "bsc", "b.com", "b.sc"], nqf: 7 },
+  { label: "Honours", keys: ["honours", "honors"], nqf: 8 },
+  { label: "Postgraduate Diploma", keys: ["postgraduate diploma", "pgdip", "postgraduate"], nqf: 8 },
+  { label: "Master's", keys: ["master", "mba", "msc", "meng"], nqf: 9 },
+  { label: "Doctorate", keys: ["phd", "doctorate", "doctoral"], nqf: 10 },
 ];
+
+// Proper-cased South African province names, matching the backend's own
+// `SA_PROVINCES` (app.scraper.extract) so the `province` query param lines up.
+const PROVINCE_BY_PLACE: Record<string, string> = {
+  "gauteng": "Gauteng", "limpopo": "Limpopo", "mpumalanga": "Mpumalanga",
+  "north west": "North West", "free state": "Free State",
+  "kwazulu-natal": "KwaZulu-Natal", "kwazulu natal": "KwaZulu-Natal", "kzn": "KwaZulu-Natal",
+  "eastern cape": "Eastern Cape", "western cape": "Western Cape", "northern cape": "Northern Cape",
+  "johannesburg": "Gauteng", "joburg": "Gauteng", "pretoria": "Gauteng", "tshwane": "Gauteng",
+  "vereeniging": "Gauteng", "vanderbijlpark": "Gauteng", "sebokeng": "Gauteng",
+  "evaton": "Gauteng", "sedibeng": "Gauteng",
+  "cape town": "Western Cape", "durban": "KwaZulu-Natal", "ethekwini": "KwaZulu-Natal",
+  "port elizabeth": "Eastern Cape", "gqeberha": "Eastern Cape", "bloemfontein": "Free State",
+  "polokwane": "Limpopo", "nelspruit": "Mpumalanga", "mbombela": "Mpumalanga",
+  "kimberley": "Northern Cape", "rustenburg": "North West", "east london": "Eastern Cape",
+  "sasolburg": "Free State", "secunda": "Mpumalanga",
+};
 
 const WORK_MODES = ["remote", "hybrid", "on-site", "on site", "onsite"];
 
@@ -191,13 +210,15 @@ function filterEmployers(
 /* Intent parsing                                                      */
 /* ------------------------------------------------------------------ */
 
-type Mode = "apply" | "almost" | "discovery" | "employers" | "search";
+type Mode = "apply" | "almost" | "discovery" | "employers" | "explorer" | "search";
 
 interface ParsedFilters {
   location?: string;
+  province?: string;
   country?: string;
   category?: Category;
   qualification?: string;
+  nqfLevel?: number;
   minYears?: number;
   workMode?: string;
   employmentType?: string;
@@ -234,13 +255,17 @@ function classifyIntent(raw: string): ParsedQuery {
   const filters: ParsedFilters = {};
 
   const place = firstMatch(text, PLACE_HINTS);
-  if (place) { filters.location = place; filters.country = resolveCountry(place); }
+  if (place) {
+    filters.location = place;
+    filters.country = resolveCountry(place);
+    filters.province = PROVINCE_BY_PLACE[place];
+  }
 
   const category = detectCategory(text);
   if (category) filters.category = category;
 
   for (const q of QUALIFICATION_LEVELS) {
-    if (q.keys.some((k) => text.includes(k))) { filters.qualification = q.label; break; }
+    if (q.keys.some((k) => text.includes(k))) { filters.qualification = q.label; filters.nqfLevel = q.nqf; break; }
   }
 
   const yearsM = text.match(/(\d+)\s*\+?\s*(?:years?|yrs?)/);
@@ -265,6 +290,8 @@ function classifyIntent(raw: string): ParsedQuery {
     mode = "apply";
   } else if (/companies hiring|apply direct|careers page|who is hiring|who'?s hiring|employers (i|near|in|for|hiring)/.test(text)) {
     mode = "employers";
+  } else if (/career explorer|explore my (qualification|career|diploma|degree)|what can i (do|become) with|careers? (for|with) my qualification/.test(text)) {
+    mode = "explorer";
   } else if (/\bdiscover\b|what (jobs|roles|careers)|related roles|adjacent|career (path|options|ideas)|suitable for (me|someone)/.test(text)) {
     mode = "discovery";
   }
@@ -327,6 +354,7 @@ interface AgentTurn {
   employers?: Company[];
   roleChips?: string[];
   cta?: { label: string; href: string }[];
+  careerFamilies?: CareerExplorerResult["families"];
 }
 
 interface VacancyCardData {
@@ -476,6 +504,29 @@ function AgentInner() {
     });
   }
 
+  async function handleExplorer() {
+    let result: CareerExplorerResult;
+    try {
+      result = await api.get<CareerExplorerResult>("/career-explorer");
+    } catch {
+      pushAgent({ text: "Couldn't reach the Career Explorer right now — try again in a moment." });
+      return;
+    }
+    if (!result.based_on || result.families.length === 0) {
+      pushAgent({
+        text: result.based_on
+          ? `I couldn't match "${result.based_on}" to a career family yet — this list grows over time.`
+          : "Add a qualification on your Profile (or the \"Name of qualification\" you gave at sign-up) and I can suggest career paths it commonly leads to.",
+        cta: [{ label: "Update your Profile →", href: "/profile" }],
+      });
+      return;
+    }
+    pushAgent({
+      text: `Based on "${result.based_on}", here's where that qualification commonly leads — with a live count of open roles for each, where there are any:`,
+      careerFamilies: result.families,
+    });
+  }
+
   async function handleDiscovery() {
     const p = await ensureProfile();
     const seeds: string[] = [];
@@ -511,19 +562,33 @@ function AgentInner() {
     const terms = parsed.keyword ? [parsed.keyword, ...parsed.synonyms] : [];
     const seen = new Set<string>();
     let vacs: Vacancy[] = [];
+    // Structured filters go to the backend as real query params (province/salary/
+    // NQF/employment type — see app/api/routes_vacancies.py) rather than relying
+    // only on client-side string matching, so results are honest against the
+    // parsed fields even once the vacancy index has real volume.
+    const structured = new URLSearchParams();
+    structured.set("is_open", "true");
+    structured.set("max_age_days", "30");
+    structured.set("limit", "50");
+    if (f.province) structured.set("province", f.province);
+    if (f.employmentType) structured.set("employment_type", f.employmentType);
+    if (f.nqfLevel) structured.set("nqf_level", String(f.nqfLevel));
+    if (f.minSalary) structured.set("min_salary", String(f.minSalary));
     for (const term of terms) {
       if (vacs.length >= 30) break;
       let batch: Vacancy[] = [];
       try {
         // max_age_days drops stale listings AND anything past its closing date,
         // so the agent never surfaces outdated posts.
-        batch = await api.get<Vacancy[]>(`/vacancies?q=${encodeURIComponent(term)}&is_open=true&max_age_days=30&limit=50`);
+        batch = await api.get<Vacancy[]>(`/vacancies?q=${encodeURIComponent(term)}&${structured.toString()}`);
       } catch { batch = []; }
       for (const v of batch) if (!seen.has(v.id)) { seen.add(v.id); vacs.push(v); }
     }
     vacs = vacs.filter((v) => {
-      if (f.location && v.location && !v.location.toLowerCase().includes(f.location)) return false;
-      if (f.employmentType && v.employment_type && !v.employment_type.toLowerCase().includes(f.employmentType.replace("intern", "intern"))) return false;
+      // Belt-and-braces client-side check for any listing whose location text
+      // mentions the place but wasn't caught by the server-side province filter
+      // (e.g. the scraper couldn't infer a province for it).
+      if (f.location && v.location && !f.province && !v.location.toLowerCase().includes(f.location)) return false;
       return true;
     });
 
@@ -576,6 +641,7 @@ function AgentInner() {
       if (parsed.mode === "apply") await handleApply();
       else if (parsed.mode === "almost") await handleAlmost();
       else if (parsed.mode === "employers") await handleEmployers();
+      else if (parsed.mode === "explorer") await handleExplorer();
       else if (parsed.mode === "discovery") await handleDiscovery();
       else await handleSearch(parsed);
     } catch (e) {
@@ -638,6 +704,7 @@ function AgentInner() {
         {quick("🏢 Employers in my field", "Show employers in my field I can apply to directly")}
         {quick("📈 Almost qualified", "Show jobs I'm almost qualified for")}
         {quick("🧭 Discover careers for me", "Discover related careers for me")}
+        {quick("🎓 Explore my qualification", "career explorer")}
         {quick("💧 Water treatment", "water treatment jobs")}
       </div>
 
@@ -788,6 +855,27 @@ function AgentBubble({
         </div>
       )}
 
+      {turn.careerFamilies && turn.careerFamilies.length > 0 && (
+        <div className="ml-0 grid gap-3 sm:ml-9">
+          {turn.careerFamilies.map((fam) => (
+            <Card key={fam.label} className="!p-4" accent="teal">
+              <div className="font-semibold text-gray-900">{fam.label}</div>
+              <p className="mt-1 text-sm text-gray-600">{fam.note}</p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {fam.related_careers.map((opt) => (
+                  <span key={opt.title} className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700">
+                    {opt.title}
+                    {opt.open_vacancies > 0 && (
+                      <span className="ml-1 rounded-full bg-brand/10 px-1.5 text-brand-dark">{opt.open_vacancies}</span>
+                    )}
+                  </span>
+                ))}
+              </div>
+            </Card>
+          ))}
+        </div>
+      )}
+
       {turn.cta && turn.cta.length > 0 && (
         <div className="ml-9 flex flex-wrap gap-2">
           {turn.cta.map((c) => (
@@ -818,6 +906,8 @@ function MatchCard({
   const [detail, setDetail] = useState<MatchDetail | null>(null);
   const [open, setOpen] = useState(false);
   const [loadingD, setLoadingD] = useState(false);
+  const [gap, setGap] = useState<GapAnalysis | null>(null);
+  const [loadingGap, setLoadingGap] = useState(false);
   const elig = eligibility(m);
 
   async function toggleWhy() {
@@ -825,6 +915,12 @@ function MatchCard({
     if (!detail && !loadingD) {
       setLoadingD(true);
       try { setDetail(await loadDetail(m.id)); } catch { /* ignore */ } finally { setLoadingD(false); }
+    }
+    if (!gap && !loadingGap) {
+      setLoadingGap(true);
+      try { setGap(await api.get<GapAnalysis>(`/matches/${m.id}/gap-analysis`)); }
+      catch { /* ignore -- the reasons/gaps above still show without it */ }
+      finally { setLoadingGap(false); }
     }
   }
 
@@ -877,6 +973,50 @@ function MatchCard({
               )}
             </div>
           )}
+          {loadingGap && <div className="mt-2 text-xs text-gray-400">Loading gap analysis…</div>}
+          {gap && (gap.have.length > 0 || gap.missing.length > 0 || gap.pathway.length > 0) && (
+            <div className="mt-3 space-y-3 border-t border-gray-100 pt-3">
+              <div className="flex items-center justify-between">
+                <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">Why am I not matching?</div>
+                {gap.percent_requirements_met != null && (
+                  <span className="rounded-full bg-brand/10 px-2 py-0.5 text-[11px] font-semibold text-brand-dark">
+                    Meets {gap.percent_requirements_met}% of checkable requirements
+                  </span>
+                )}
+              </div>
+              {gap.have.length > 0 && (
+                <div>
+                  <div className="mb-1 text-xs font-semibold text-green-700">You already have</div>
+                  <ul className="space-y-1 text-sm text-gray-700">
+                    {gap.have.map((h, i) => <li key={i}>✓ {h.text}</li>)}
+                  </ul>
+                </div>
+              )}
+              {gap.missing.length > 0 && (
+                <div>
+                  <div className="mb-1 text-xs font-semibold text-coral">You are missing</div>
+                  <ul className="space-y-1 text-sm text-gray-700">
+                    {gap.missing.map((g2, i) => <li key={i}>✗ {g2.text}</li>)}
+                  </ul>
+                </div>
+              )}
+              {gap.pathway.length > 0 && (
+                <div>
+                  <div className="mb-1 text-xs font-semibold text-sky">Suggested pathway</div>
+                  <ol className="list-decimal space-y-1 pl-4 text-sm text-gray-700">
+                    {gap.pathway.map((p, i) => <li key={i}>{p.step}</li>)}
+                  </ol>
+                </div>
+              )}
+              {gap.unclear.length > 0 && (
+                <div className="text-xs text-gray-400">
+                  {gap.unclear.length} requirement{gap.unclear.length === 1 ? "" : "s"} couldn&apos;t be checked from
+                  your profile — add more detail on your <Link href="/profile" className="underline">Profile</Link> for
+                  a more precise reading.
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
 
@@ -911,10 +1051,35 @@ function MatchCard({
 /* Directory (keyword) vacancy card — honest, unscored                 */
 /* ------------------------------------------------------------------ */
 
+const REPORT_CATEGORIES: { value: string; label: string }[] = [
+  { value: "scam", label: "Scam" },
+  { value: "expired", label: "Expired" },
+  { value: "incorrect", label: "Incorrect information" },
+  { value: "duplicate", label: "Duplicate" },
+  { value: "misleading", label: "Misleading" },
+  { value: "other", label: "Other" },
+];
+
 function VacancyCard({ data }: { data: VacancyCardData }) {
   const { vacancy: v, employer, employerCareers } = data;
   const close = closingStatus(v.closing_date);
   const applyUrl = v.application_url || v.source_url || employerCareers || null;
+  const [reporting, setReporting] = useState(false);
+  const [reportCategory, setReportCategory] = useState("scam");
+  const [reportDetails, setReportDetails] = useState("");
+  const [reportSent, setReportSent] = useState(false);
+  const [reportBusy, setReportBusy] = useState(false);
+
+  async function submitReport() {
+    setReportBusy(true);
+    try {
+      await api.post(`/vacancies/${v.id}/report`, { category: reportCategory, details: reportDetails || undefined });
+      setReportSent(true);
+      setReporting(false);
+    } catch { /* silently keep the form open so they can retry */ }
+    finally { setReportBusy(false); }
+  }
+
   return (
     <Card className="!p-4" accent="sky">
       <div className="flex items-start justify-between gap-3">
@@ -925,11 +1090,18 @@ function VacancyCard({ data }: { data: VacancyCardData }) {
         <span className={`flex-none rounded-full px-2.5 py-1 text-[11px] font-semibold ${close.cls}`}>{close.label}</span>
       </div>
       <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500">
-        {v.location && <span>📍 {v.location}</span>}
+        {v.location && <span>📍 {v.location}{v.province && v.province !== v.location ? ` (${v.province})` : ""}</span>}
         {v.employment_type && <span>🗂️ {v.employment_type}</span>}
         {v.work_mode && <span>🏢 {v.work_mode}</span>}
         <span>💰 {v.salary || "Not disclosed"}</span>
+        {v.nqf_level != null && <span title="Estimated from the listing's own text, not an official SAQA rating">🎓 Est. NQF {v.nqf_level}</span>}
       </div>
+      {v.trust_flags && v.trust_flags.length > 0 && (
+        <div className="mt-2 rounded-lg bg-coral/10 px-2.5 py-1.5 text-xs font-medium text-coral"
+             title={v.trust_flags.join(", ")}>
+          ⚠ Automatically flagged for review — check details carefully before applying.
+        </div>
+      )}
       <div className="mt-3 flex flex-wrap items-center gap-3">
         {applyUrl ? (
           <a href={applyUrl} target="_blank" rel="noopener noreferrer">
@@ -938,8 +1110,39 @@ function VacancyCard({ data }: { data: VacancyCardData }) {
         ) : (
           <span className="text-xs text-gray-400">No application link provided</span>
         )}
+        {!reportSent ? (
+          <button onClick={() => setReporting((r) => !r)} className="text-xs font-medium text-gray-400 hover:text-coral">
+            ⚠ Report
+          </button>
+        ) : (
+          <span className="text-xs font-medium text-green-700">✓ Reported — thank you</span>
+        )}
         <span className="ml-auto text-[11px] text-gray-400">Source: Sospana Sonke directory</span>
       </div>
+      {reporting && (
+        <div className="mt-3 space-y-2 rounded-lg border border-gray-200 p-3">
+          <select
+            value={reportCategory}
+            onChange={(e) => setReportCategory(e.target.value)}
+            className="w-full rounded-md border border-gray-300 px-2 py-1.5 text-sm"
+          >
+            {REPORT_CATEGORIES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
+          </select>
+          <textarea
+            value={reportDetails}
+            onChange={(e) => setReportDetails(e.target.value)}
+            placeholder="Optional details (e.g. what happened)"
+            rows={2}
+            className="w-full rounded-md border border-gray-300 px-2 py-1.5 text-sm"
+          />
+          <div className="flex justify-end gap-2">
+            <button onClick={() => setReporting(false)} className="text-xs text-gray-500">Cancel</button>
+            <Button size="sm" onClick={submitReport} disabled={reportBusy}>
+              {reportBusy ? "Sending…" : "Submit report"}
+            </Button>
+          </div>
+        </div>
+      )}
     </Card>
   );
 }
@@ -1006,11 +1209,14 @@ function CompareModal({
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 p-0 sm:items-center sm:p-4" onClick={onClose}>
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="compare-vacancies-heading"
         className="max-h-[85vh] w-full max-w-3xl overflow-auto rounded-t-2xl bg-white p-5 shadow-xl sm:rounded-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-bold">Compare vacancies</h2>
+          <h2 id="compare-vacancies-heading" className="text-lg font-bold">Compare vacancies</h2>
           <button onClick={onClose} className="rounded-md px-2 py-1 text-sm text-gray-500 hover:bg-gray-100">Close ✕</button>
         </div>
         <div className="overflow-x-auto">
