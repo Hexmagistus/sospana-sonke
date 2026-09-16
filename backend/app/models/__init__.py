@@ -19,3 +19,4 @@ from app.models.interview import InterviewPrep  # noqa: F401
 from app.models.job_analysis import JobAnalysis  # noqa: F401
 from app.models.watch import CompanyWatch  # noqa: F401
 from app.models.link_report import LinkReport  # noqa: F401
+from app.models.vacancy_report import VacancyReport  # noqa: F401
