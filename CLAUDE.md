@@ -48,6 +48,99 @@ commit it (and push, if you pushed the rest of your work). Newest entry on top.
   silently failing, and let Lungani run the `.bat` script if needed.
 
 ## Session Log
+### 2026-09-16 (later) — Claude (Cowork) — Design-system foundation + Command Palette (futuristic UI/UX brief, phase 1)
+Lungani sent a second, separate 41-section brief ("SOSPANA SONKE — FUTURISTIC
+UI/UX TRANSFORMATION"): transform the visual experience into a "calmly
+futuristic," premium employment-tech aesthetic — explicitly not a video-game/
+crypto/cyberpunk look — while preserving every existing feature and not
+touching the backend/database unless unavoidable. Given the genuine size (a
+full multi-page redesign + bespoke component library + dark/light theming +
+3 custom visualizations), asked which of two scoping questions to prioritize;
+Lungani picked **"Foundation first"** (design-system tokens/components, then
+apply to homepage hero+search, opportunity cards, navigation, dashboard) and
+**"Command Palette"** as the one signature feature to build this pass
+(deferring Opportunity Radar / Opportunity Constellation). Commit `5f23614`
+(cloud) / `f0d6695` (device — identical diff, see push note below).
+
+1. **Design tokens** (`frontend/src/app/globals.css` + `tailwind.config.ts`):
+   `--ss-*` CSS variables (bg/surface/text/muted/primary/tech/success/warning/
+   danger + pre-mixed soft/border tint variants) for a light "Warm Paper" and
+   dark "Deep Space" palette, mapped into Tailwind as `ss-*` utilities via the
+   `darkMode: ["selector", ...]` strategy (Tailwind 3.4.1+). **Real bug caught
+   before shipping**: Tailwind's opacity-modifier syntax (`bg-ss-primary/10`)
+   silently generates no CSS at all for a color defined as a bare
+   `var(...)` reference — verified via an actual `tailwindcss` CLI build
+   against a scratch test file, not assumed. Fixed by adding pre-mixed
+   `rgba()` tokens instead of relying on the modifier anywhere.
+2. **Dark/light toggle** (`frontend/src/lib/theme.tsx`): persists to
+   `localStorage`, respects OS preference on first visit, flash-free via a
+   `beforeInteractive` bootstrap script in `layout.tsx`. Toggle button in
+   `Nav.tsx` (desktop + mobile row).
+3. **Core component restyle** (`frontend/src/components/ui.tsx`): Card, Stat,
+   Button, Badge, Field, Input/Textarea/Select, Alert, Spinner, Skeleton, all
+   on the new tokens with every existing prop API preserved (no call-site
+   changes needed elsewhere). Added `StatusBadge` (the brief's LIVE/VERIFIED/
+   NEW/CLOSING SOON/MATCHED/SAVED vocabulary, dot + label, tone carries
+   meaning so it's never color-alone) and `EmptyState`/`ErrorState`.
+4. **Functional Ctrl+K "Sospana Command" palette**
+   (`frontend/src/components/CommandPalette.tsx`, new): real navigation +
+   search, not a decorative overlay — reuses the Career Agent's own
+   natural-language phrases verbatim so its existing deterministic
+   `classifyIntent` parser understands them identically. Trigger button
+   visible at every breakpoint including mobile (positioned above
+   `MobileBottomNav`) — the brief's own explicit requirement; this was
+   initially shipped with a `hidden ... sm:flex` mistake that hid it on
+   phones, caught and fixed before this session ended.
+5. **Homepage hero search console** (`frontend/src/app/page.tsx`): a
+   "what/where/type" command-centre search bar + 3 quick-command chips.
+   Anonymous visitors' searches are queued via a new
+   `frontend/src/lib/agentHandoff.ts` (localStorage for the redirect-through-
+   registration case, sessionStorage for the Command Palette's same-tab
+   case) and offered back via a new `PendingSearchBanner.tsx` once they've
+   registered (login/register redirect to `/companies`, not `/agent`) —
+   picked up by a `consumeAgentCommand()` effect added to `app/agent/page.tsx`.
+6. **Opportunity/vacancy cards redesigned** (`app/agent/page.tsx`):
+   `MatchCard` now shows an SVG ring visualization of the real match score
+   plus a per-criterion `SubScoreBar` breakdown ("Why this match?") instead
+   of a bare percentage; `VacancyCard` gained `StatusBadge`-driven
+   closing-soon/new-listing indicators off real `closing_date`/
+   `first_seen_at` fields (never invented), plus a themed trust-flag banner.
+7. **Dashboard reframed as "My Opportunity Centre"** — same real Stat data,
+   restyled section headings/eyebrow, live-status badges.
+8. **MobileBottomNav** restyled onto `ss-*` tokens so it now responds to the
+   toggle instead of being hardcoded white/navy.
+
+**Deliberate scope limits (disclosed, not oversights):** dark/light theming
+only reaches the app shell + the pages above — the marketing hero and top
+`Nav` intentionally keep their existing fixed dark-navy/gold brand look
+(common marketing-page convention), and most other pages (companies,
+matches, profile, tailor, admin, etc.) still use the old hardcoded gray/
+white classes and won't shift on toggle yet. The two deferred signature
+features (Opportunity Radar / Opportunity Constellation) and the rest of the
+41-section brief (search page, CV builder studio, application tracker
+pipeline, interactive map, career pathway visualization) are follow-up work.
+
+**Verified**: `tsc --noEmit` clean after every incremental change this pass
+(re-run ~6 times as work progressed, not just once at the end). No backend
+changes, so no pytest re-run needed.
+
+**Transfer/push**: `device_bash` (the on-device Linux VM) was unavailable
+again this session ("Workspace unavailable... failed to start"). Used
+`device_stage_files`/`device_commit_files` (14 files, zero rejections) into
+`sospana-sonke-fullstack/sospana-sonke/` (confirmed via `.git` — the real
+repo, matching every prior session's note), then the GitKraken device-plugin
+tools for add/commit/push. **Push succeeded** (confirmed both `main..
+origin/main` and `origin/main..main` empty afterward) — this is now the
+second session in a row where push worked from the device plugin, so it may
+no longer be the standing blocker earlier entries describe; worth trying
+again before assuming a device session can't push.
+
+**Not yet done**: verify the Vercel deployment actually built clean (this
+doc's own standing lesson from 2026-09-13 — a clean `tsc --noEmit` isn't the
+same guarantee as a successful Vercel build); extend `ss-*` tokens to the
+remaining pages; build the two deferred signature features; propagate the
+redesign through search/CV builder/application tracker/map per the brief.
+
 ### 2026-09-16 — Claude (Cowork) — Structured filters, gap analysis, career explorer, trust/duplicate flagging, SEO/mobile/a11y pass
 Lungani sent a large 40-section brief to transform the platform into "South Africa's
 intelligent opportunity engine." Audited first (most of the brief -- SEO metadata,
