@@ -13,6 +13,24 @@ body {
   background-attachment: fixed;
 }
 
+/* ------------------------------------------------------------------ */
+/* Accessibility: visible keyboard-focus ring everywhere.              */
+/* Mouse/touch clicks stay clean (`:focus-visible` only fires for      */
+/* keyboard/AT focus in modern browsers), so this doesn't add a ring   */
+/* around every button after a click -- just for tab/keyboard nav.     */
+/* ------------------------------------------------------------------ */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible,
+summary:focus-visible {
+  outline: 2px solid #f5b301;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
 /* Colourful gradient accent under every internal page title.
    Excluded on the public landing page (.landing) which has its own hero. */
 main h1 {

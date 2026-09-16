@@ -180,7 +180,7 @@ const ALERT_STYLE: Record<"info" | "error" | "success", { cls: string; icon: Rea
   info: {
     cls: "bg-sky/5 text-navy border-sky/25",
     icon: (
-      <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 flex-none text-sky">
+      <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 flex-none text-sky" aria-hidden="true">
         <path fillRule="evenodd" d="M18 10A8 8 0 11 2 10a8 8 0 0116 0zM9 9a1 1 0 012 0v4a1 1 0 11-2 0V9zm1-4a1.25 1.25 0 100 2.5A1.25 1.25 0 0010 5z" clipRule="evenodd" />
       </svg>
     ),
@@ -188,7 +188,7 @@ const ALERT_STYLE: Record<"info" | "error" | "success", { cls: string; icon: Rea
   error: {
     cls: "bg-coral/5 text-[#8a2c22] border-coral/25",
     icon: (
-      <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 flex-none text-coral">
+      <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 flex-none text-coral" aria-hidden="true">
         <path fillRule="evenodd" d="M18 10A8 8 0 11 2 10a8 8 0 0116 0zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clipRule="evenodd" />
       </svg>
     ),
@@ -196,7 +196,7 @@ const ALERT_STYLE: Record<"info" | "error" | "success", { cls: string; icon: Rea
   success: {
     cls: "bg-brand/5 text-brand-dark border-brand/25",
     icon: (
-      <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 flex-none text-brand">
+      <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 flex-none text-brand" aria-hidden="true">
         <path fillRule="evenodd" d="M18 10A8 8 0 11 2 10a8 8 0 0116 0zm-11.03-.53a.75.75 0 10-1.06 1.06l2 2a.75.75 0 001.137-.089l4-5.5a.75.75 0 10-1.214-.882l-3.483 4.79-1.374-1.375z" clipRule="evenodd" />
       </svg>
     ),

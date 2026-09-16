@@ -16,7 +16,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   return [
     entry("/", 1.0, "weekly"),
-    entry("/companies", 0.9, "daily"),
+    // /companies requires login (<Guard>) -- not listed here since a crawler
+    // would just hit a login redirect; see robots.ts's disallow list.
     entry("/donate", 0.5, "monthly"),
     entry("/login", 0.6, "monthly"),
     entry("/register", 0.6, "monthly"),

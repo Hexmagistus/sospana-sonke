@@ -3,6 +3,7 @@ import { Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/lib/auth";
 import Nav from "@/components/Nav";
+import MobileBottomNav from "@/components/MobileBottomNav";
 import PwaRegister from "@/components/PwaRegister";
 import CopyGuard from "@/components/CopyGuard";
 import { SITE_URL, SITE_NAME, SITE_TAGLINE, SITE_DESCRIPTION, SITE_KEYWORDS } from "@/lib/seo";
@@ -88,6 +89,10 @@ const jsonLd = {
       areaServed: "Africa",
     },
     {
+      // No SearchAction here: the one place a keyword search actually lives
+      // (`/companies`) requires login, and schema.org's own guidance is that a
+      // SearchAction target must be usable without authentication -- pointing
+      // it at a gated page would just send crawlers into a login redirect.
       "@type": "WebSite",
       "@id": `${SITE_URL}/#website`,
       name: SITE_NAME,
@@ -95,14 +100,6 @@ const jsonLd = {
       description: SITE_DESCRIPTION,
       publisher: { "@id": `${SITE_URL}/#organization` },
       inLanguage: "en",
-      potentialAction: {
-        "@type": "SearchAction",
-        target: {
-          "@type": "EntryPoint",
-          urlTemplate: `${SITE_URL}/companies?q={search_term_string}`,
-        },
-        "query-input": "required name=search_term_string",
-      },
     },
   ],
 };
@@ -117,9 +114,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
         <PwaRegister />
         <CopyGuard />
+        <a
+          href="#main-content"
+          className="sr-only focus-visible:not-sr-only focus-visible:fixed focus-visible:left-4 focus-visible:top-4 focus-visible:z-50 focus-visible:rounded-md focus-visible:bg-navy focus-visible:px-4 focus-visible:py-2 focus-visible:text-white"
+        >
+          Skip to main content
+        </a>
         <AuthProvider>
           <Nav />
-          <main className="mx-auto max-w-6xl px-4 py-6">{children}</main>
+          <main id="main-content" className="mx-auto max-w-6xl px-4 py-6 pb-24 md:pb-6">
+            {children}
+          </main>
+          <MobileBottomNav />
         </AuthProvider>
       </body>
     </html>

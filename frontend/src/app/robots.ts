@@ -8,6 +8,10 @@ export default function robots(): MetadataRoute.Robots {
         userAgent: "*",
         allow: "/",
         // Keep private / authenticated / user-specific areas out of the index.
+        // This list should mirror every page.tsx that wraps itself in <Guard> --
+        // a page that requires login has nothing indexable behind it (a crawler
+        // just gets a login redirect), so leaving it crawlable wastes crawl
+        // budget and risks a bot indexing an empty/misleading shell page.
         disallow: [
           "/admin",
           "/dashboard",
@@ -17,6 +21,12 @@ export default function robots(): MetadataRoute.Robots {
           "/subscription",
           "/tailor",
           "/security",
+          "/companies",
+          "/coverage",
+          "/agent",
+          "/master-cv",
+          "/universities",
+          "/applications",
           "/api/",
         ],
       },

@@ -17,10 +17,10 @@ export const SITE_KEYWORDS = [
   "verified employers",
   "Sospana Sonke",
 ];
-// Public, indexable routes.
+// Public, indexable routes. Must NOT include anything wrapped in <Guard> --
+// see the disallow list in robots.ts, which this should stay consistent with.
 export const PUBLIC_ROUTES = [
   "/",
-  "/companies",
   "/donate",
   "/login",
   "/register",
