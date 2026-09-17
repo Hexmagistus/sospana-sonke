@@ -48,6 +48,77 @@ commit it (and push, if you pushed the rest of your work). Newest entry on top.
   silently failing, and let Lungani run the `.bat` script if needed.
 
 ## Session Log
+
+### 2026-09-17 — Claude (Cowork, this account) — Rheinmetall check + SA COLLEGE category; fixed a wrong-working-directory bug
+Lungani asked to check whether "Rheinmetall" was in the company database and, if not, add it
+under private companies; separately asked what other legal (registered) SA companies/college
+categories were missing. Then asked for a brand-new COLLEGE category covering all legally
+registered (DHET-verified) South African colleges, with the explicit rule that `careers_url`
+must be a genuine direct link to the institution's own careers page (never a job-board profile
+or bare homepage fallback) — left blank, matching the existing `grey_none_verified`/`active=false`
+convention, wherever no such direct link could be verified. Also asked to extend COLLEGE to all
+other countries, then "not only SADC ... the entire continent" — that continent-wide expansion
+has **not been started yet** (see Not yet done below).
+
+**Bug caught and fixed this session, worth reading if something looks off:** all of this
+session's early work (Rheinmetall + DEPT/MUNI/NGO/PRIVATE additions + the 108-row COLLEGE
+research) was done against files in the **stray sibling folder**
+`sospana-sonke-fullstack/company_database_updated.csv` and
+`sospana-sonke-fullstack/backend/seed/company_database_import.csv` — i.e. **outside this repo
+entirely**, one level up from `sospana-sonke/`. Lungani caught it ("I cannot see rheinmetal did
+you push?") because nothing had actually reached git. Diagnosed by comparing directory
+listings and finding `.git` only exists under `sospana-sonke/`. Fixed by diffing my working
+file's 511 SA rows against this repo's real `backend/seed/company_database_import.csv`
+(2088 rows before this change) on company name (case-insensitive): 384 were already present
+(the base JSE/SOE/DEPT/MUNI/NGO/PRIVATE data here is already far more complete than the
+scratch file I'd built from nothing), leaving **127 genuinely new rows** — Rheinmetall Denel
+Munition (PRIVATE), 9 DEPT, 5 MUNI, 3 NGO, 2 PRIVATE (Deloitte SA, EY SA), and 107 COLLEGE
+(public TVET colleges + DHET-registered private higher-ed institutions; the pre-existing 26
+SA `UNI` rows are traditional public universities and don't overlap with COLLEGE). Appended
+those 127 to the real `backend/seed/company_database_import.csv` in its actual 10-column
+format (`...,source_type,official_website` — my scratch file only had 9 columns, no
+`official_website`; set it equal to `careers_url` on append, matching the convention seen in
+`backend/seed/countries/*.csv`). Commit `70f495e`.
+
+**Push:** `git add`/`git commit` via device_bash initially failed with a stale
+`.git/index.lock` ("Operation not permitted" unlinking it — the connected-folder delete
+restriction, not a real git problem). Got delete permission for the
+`sospana-sonke-fullstack` folder from Lungani via the approval prompt, removed the stale
+lock, then committed + pushed via the **GitKraken device-plugin tools** (same tools that
+worked in the two sessions before this one) — confirmed on `origin/main` via a fresh
+`git fetch` + `git show origin/main:...csv | grep rheinmetal` (present) and
+`git rev-list --left-right --count origin/main...HEAD` (`0  0`, fully in sync).
+
+**Still true, unchanged by this session (see recurring items in older entries below):**
+this CSV is the seed file, not the live DB's source of truth — **these 127 rows, like every
+country batch before them, still need Lungani's admin login to actually POST to
+`/api/v1/companies/import`** before they show up on the live site's employer directory.
+Told Lungani this plainly rather than implying the push alone makes them visible.
+
+**Not yet done:**
+1. **Continent-wide COLLEGE expansion** — Lungani's latest ask ("not only sadc region but
+   the entire africa") has not been started. No research agents dispatched yet for any of
+   the 53 non-SA African countries' colleges. When resuming: research into
+   `backend/seed/countries/<Country>.csv` format (10-column, no header, `source_type=COLLEGE`)
+   is probably cleaner than the SA-style single big CSV, since that's this repo's own
+   established per-country pattern for everything added since the original SA/BW/SZ/LS
+   bootstrap — check with Lungani if unsure, but default to that pattern for consistency.
+2. Still owed from an earlier session (unrelated to COLLEGE, mentioned as a to-do in
+   `/areas/sospana-sonke.md` memory): the same DEPT/MUNI/NGO/PRIVATE build-out done for SA
+   should eventually be checked against Botswana/Eswatini/Lesotho too — though given how much
+   more complete this repo's real seed file turned out to be than assumed, **check actual
+   row counts per country in `backend/seed/company_database_import.csv` before assuming
+   anything is thin** (Botswana=129, Eswatini=75, Lesotho=75 rows already, before this
+   session — better than expected, may not need much).
+3. A large funding-strategy/grant-research deliverable (30-org ranked funder database, 10
+   outreach emails, 90-day plan, published HTML strategy artifact) was produced earlier this
+   same conversation but is **unrelated to this repo** — lives in Claude's own scratchpad and
+   was sent to Lungani directly as files, not committed anywhere.
+4. Hosting reliability question (Render free tier sleeping/slow) was answered in
+   conversation with concrete free/cheap alternatives (Oracle Cloud Always Free tier
+   recommended) — no code/infra change made, Lungani hasn't said whether he wants to migrate.
+
+
 ### 2026-09-16 (later) — Claude (Cowork) — Design-system foundation + Command Palette (futuristic UI/UX brief, phase 1)
 Lungani sent a second, separate 41-section brief ("SOSPANA SONKE — FUTURISTIC
 UI/UX TRANSFORMATION"): transform the visual experience into a "calmly
