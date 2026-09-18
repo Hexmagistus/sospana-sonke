@@ -49,6 +49,135 @@ commit it (and push, if you pushed the rest of your work). Newest entry on top.
 
 ## Session Log
 
+### 2026-09-17 (later) — Claude (Cowork, Opus 4.8) — Continent-wide COLLEGE expansion STARTED (batch 1: Kenya, Ghana, Uganda)
+Picked up the outstanding continent-wide COLLEGE task, following this repo's own per-country
+convention: appended `source_type=COLLEGE` rows to `backend/seed/countries/<Country>.csv`
+(10-column, no-header, col10=source_url=careers_url). Enforced the strict rule — `careers_url`
+is a GENUINE direct link to the institution's OWN careers/vacancies/e-recruitment page on its
+own domain only; never a job board / LinkedIn / bare homepage; left blank with
+`grey_none_verified`/`active=false` where no such page could be verified. Research done by three
+general-purpose subagents (WebSearch+WebFetch), one per country.
+- **Kenya.csv**: +56 colleges (29 green / 22 amber / 5 grey). Public + private chartered
+  universities, national polytechnics, KSTVET/KEWI.
+- **Ghana.csv**: +40 colleges (17 green / 12 amber / 11 grey). Public + technical + private
+  universities; colleges of education mostly grey (recruit via GES / press).
+- **Uganda.csv**: +37 colleges (15 green / 6 amber / 16 grey). Public + private chartered
+  universities, UICT, UNITE, UTC (`*.tvet.go.ug`) technical colleges.
+All three validated: every row is exactly 10 columns, csv-quoted. Files written directly into
+the repo working tree via the device bridge (mounted folder) — NOT yet committed. **Lungani to
+commit + push via GitHub Desktop / the `.bat` scripts** (this device-linked session can't do an
+interactive GitHub sign-in).
+
+**Pipeline caveat re-confirmed this session (important):** `backend/app/services/bootstrap.py`
+loads ONLY `backend/seed/company_database_import.csv`. The whole `backend/seed/countries/`
+tree (1,479 rows before this batch, +133 now) is staging data that is NOT auto-loaded and is
+NOT merged into the main seed — e.g. Kenya appears once in the main CSV vs 112 rows in
+Kenya.csv. So these colleges (like every countries/ row) still need to be imported via the
+admin `POST /api/v1/companies/import` (or merged into the main CSV) before they show live.
+
+**Not yet done — remaining COLLEGE countries (~50):** every African country except South Africa
+(107 done) and this batch (Kenya/Ghana/Uganda). Suggested next batches by ease of verification:
+Nigeria (huge — 200+ unis, do alone), Tanzania, Rwanda, Zambia, Zimbabwe, Namibia, Botswana,
+Malawi (English); then Francophone (Senegal, Côte d'Ivoire, Cameroon, DRC, Morocco, Tunisia,
+Algeria…) and Lusophone (Mozambique, Angola, Cabo Verde). Keep to the per-country convention and
+the strict own-domain-careers rule; commit after each batch.
+
+### 2026-09-17 (later still) — Claude (Cowork, Opus 4.8) — COLLEGE expansion batch 2: Nigeria
+Continued the continent-wide COLLEGE task (same convention + strict own-domain-careers rule as
+batch 1). One general-purpose subagent researched Nigerian tertiary institutions (federal/state/
+private universities, federal & state polytechnics, colleges of education, teaching hospitals).
+- **Nigeria.csv**: +70 COLLEGE rows (18 green / 17 amber / 35 grey). Now 138 rows total, all
+  10-column validated. Greens are live/functional own-domain recruitment portals (e.g. Ahmadu
+  Bello `careers.abu.edu.ng/vacancies`, Landmark `v4.lmu.edu.ng/vacancies`, Covenant, UNILAG
+  `recruitment.unilag.edu.ng`, UI `vacancies.ui.edu.ng`, Yaba College of Tech). Ambers are
+  official own-domain careers/recruitment pages with the live list unconfirmed (OAU, UNN, BUK,
+  Babcock, etc.). Greys (many federal/state unis + polytechnics that advertise only via job
+  boards / CMS-PDF notices) left blank + active=false — honest, not guessed.
+Written to the repo working tree via the device bridge — NOT committed. Same pipeline caveat:
+`countries/*.csv` is staging, imported live via admin `POST /api/v1/companies/import`.
+**Lungani to commit + push (GitHub Desktop / .bat).** Next batches: Tanzania, Rwanda, Zambia,
+Zimbabwe, Namibia, Botswana, Malawi (note: SADC-16 live in the MAIN CSV, not countries/ —
+confirm destination before those); then Francophone/Lusophone.
+
+### 2026-09-17 (later still) — Claude (Cowork, Opus 4.8) — COLLEGE batch 3: Rwanda, Senegal, Cameroon
+Continued the continent-wide COLLEGE task. NOTE: parallel research subagents hit the account's
+session rate limit, so this batch was researched directly in the main thread (lighter, more
+controllable) via WebSearch/WebFetch — same strict own-domain-careers rule.
+- **Rwanda.csv**: +13 COLLEGE (1 green / 2 amber / 10 grey). Green: University of Rwanda
+  (`ur.ac.rw/?Job-Opportunities-announcement=`, 90+ live posts). Amber: University of Kigali
+  (`uok.ac.rw/vacancies/`), CMU-Africa careers. Most Rwandan public bodies recruit via the
+  central MIFOTRA e-recruitment portal (not own-domain) → honestly grey.
+- **Senegal.csv**: +11 COLLEGE (5 green / 0 amber / 6 grey). Strong own-domain recruitment:
+  UCAD (`recrutement.ucad.sn`), UGB (`ugb.sn/fr/recrutement`), UAM (`uam.sn/recrutement/`),
+  Assane Seck Ziguinchor (`uasz.sn/category/recrutement/`), Alioune Diop Bambey (`uadb.edu.sn`).
+- **Cameroon.csv**: +15 COLLEGE (0 green / 1 amber / 14 grey). Amber: University of Buea
+  own-domain job-opportunities page (Cloudflare-blocked to fetch, but confirmed via search).
+  Cameroon largely recruits via government concours + press (kamerpower) → honestly grey.
+All validated at 10 columns. Written to the working tree via the device bridge — NOT committed.
+Same staging caveat (countries/*.csv imported live via admin `POST /api/v1/companies/import`).
+**Lungani to commit + push.** This session's COLLEGE total: Nigeria 70 + Rwanda 13 + Senegal 11
++ Cameroon 15 = 109 rows across 4 files. Remaining non-SADC to do: Egypt, Morocco, Tunisia,
+Algeria, Ethiopia, Ghana(done b1)/Kenya(done b1)/Uganda(done b1), Cote dIvoire, Nigeria(done),
+etc. SADC-16 colleges (Tanzania/Zambia/Zimbabwe/Namibia/Botswana/Malawi/…) live in the MAIN
+`company_database_import.csv`, NOT countries/ — confirm destination with Lungani before those.
+
+### 2026-09-17 (later still) — Claude (Cowork, Opus 4.8) — COLLEGE batch 4: Egypt, Morocco
+Main-thread WebSearch research (rate-limit-safe), same strict own-domain-careers rule.
+- **Egypt.csv**: +12 COLLEGE (2 green / 0 amber / 10 grey). Green: AUC
+  (`aucegypt.edu/about/careers`), German University in Cairo (`guc.edu.eg/en/jobs/`). Egyptian
+  public universities (Cairo, Ain Shams, Alexandria, …) recruit via government/press → grey.
+- **Morocco.csv**: +10 COLLEGE (2 green / 0 amber / 8 grey). Green: Al Akhawayn (`aui.ma/jobs`),
+  UIC Casablanca (`uic.ac.ma/luic-recrute/`). Moroccan publics recruit via concours/dreamjob.ma
+  job board → grey.
+Both validated 10 columns. Written to working tree — NOT committed. Session COLLEGE total now:
+Nigeria 70 + Rwanda 13 + Senegal 11 + Cameroon 15 + Egypt 12 + Morocco 10 = 131 rows / 6 files
+(plus batch-1 Kenya/Ghana/Uganda = 133). **Lungani to commit + push + admin-import.**
+
+### 2026-09-17 (later still) — Claude (Cowork, Opus 4.8) — COLLEGE batch 5: Tunisia, Ethiopia
+Main-thread WebSearch research, same strict own-domain-careers rule.
+- **Tunisia.csv**: +11 COLLEGE (3 green / 1 amber / 7 grey). Green: Universite Centrale
+  (`universitecentrale.net/recrutement`), UTC (`utctunisie.com/utc/recrutement/`), Mahmoud el
+  Materi (`umm-tunisie.com/universite/recrutement/`). Amber: ESPRIT career centre. Tunisian
+  publics recruit via government concours → grey.
+- **Ethiopia.csv**: +10 COLLEGE (0 green / 1 amber / 9 grey). Amber: Addis Ababa University
+  (`aau.edu.et/blog/vacancy-announcement-7/`, own-domain vacancy posts). Other Ethiopian unis
+  advertise via ethiojobs/hahu job boards → grey.
+Both validated 10 columns. NOT committed. Session COLLEGE total: Nigeria 70 + Rwanda 13 +
+Senegal 11 + Cameroon 15 + Egypt 12 + Morocco 10 + Tunisia 11 + Ethiopia 10 = 152 rows / 8 files
+(batches 2-5). With batch-1 (Kenya/Ghana/Uganda 133) = 285 COLLEGE rows added across sessions.
+**Lungani to commit + push + admin-import** all 11 modified countries/ files.
+Remaining non-SADC to do: Algeria, Cote dIvoire, Gabon, Guinea, Benin, Togo, Burkina Faso,
+Mali, Niger, Chad, Sudan, Libya, DRC/Congo, Angola(SADC-main-CSV), Liberia, Sierra Leone,
+Gambia, Somalia, etc. SADC-16 colleges still go in the MAIN CSV, not countries/.
+
+### 2026-09-18 — Claude (Cowork, Opus 4.8) — COLLEGE expansion: ALL NON-SADC AFRICA COMPLETE
+Finished the continent-wide COLLEGE task for every non-SADC country (batches 6-7, main-thread
+WebSearch, strict own-domain-careers rule). Added: Algeria (10), Cote dIvoire (10), Gabon (4),
+Benin (4), Togo (2), Burkina Faso (3), Mali (3), Niger (3), Sierra Leone (3), Liberia (2),
+Gambia (1), Guinea (3), Congo/Brazzaville (2), Mauritania (1), Chad (2), Sudan (3), Libya (2),
+Burundi (1), CAR (1), Cabo Verde (1), Djibouti (1), Equatorial Guinea (1), Eritrea (1),
+Guinea-Bissau (1), Sao Tome (1), Somalia (2), South Sudan (2). New greens/ambers found this
+run: Burkina Faso Universite Joseph Ki-Zerbo (`ujkz.bf/recrutement/`, amber), Sierra Leone
+Njala University (`njala.edu.sl/.../job-vacancies-various-positions`, green), Algeria USTHB &
+USTO recruitment notices (amber), Cote dIvoire INP-HB career center (amber). Everything else
+grey — those countries recruit only via government concours / national job boards, so URL left
+blank + active=false (honest, not guessed).
+
+**FINAL STATE — every non-SADC African country now has COLLEGE rows.** 38 countries/ files carry
+355 COLLEGE rows total: 93 green_verified (live own-domain recruitment portals), 66
+amber_company_route (official own-domain careers pages, live list unconfirmed), 196
+grey_none_verified (blank URL). All rows validated at exactly 10 columns.
+
+STILL NOT DONE: SADC-16 colleges (Tanzania, Zambia, Zimbabwe, Namibia, Botswana, Malawi,
+Angola, Mozambique, Madagascar, Mauritius, Lesotho, Eswatini, DRC, Seychelles, Comoros — SA
+already has 107 in main CSV). These belong in the MAIN `company_database_import.csv`, not
+countries/. Awaiting Lungani's decision on destination before adding them.
+
+**Lungani's actions:** (1) commit + push ALL modified countries/*.csv + CLAUDE.md via GitHub
+Desktop; (2) admin-import each countries/ file at `/admin/companies` (auto-loader still only
+reads the main CSV) so the colleges go live.
+
+
 ### 2026-09-17 — Claude (Cowork, this account) — Rheinmetall check + SA COLLEGE category; fixed a wrong-working-directory bug
 Lungani asked to check whether "Rheinmetall" was in the company database and, if not, add it
 under private companies; separately asked what other legal (registered) SA companies/college

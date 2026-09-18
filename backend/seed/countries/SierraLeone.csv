@@ -45,3 +45,6 @@ Rokel Commercial Bank,,https://rcb.rokelbank.sl/,amber_company_route,State-owned
 Sierra Leone Ports Authority,,https://www.ncpsl.gov.sl/slpa/,grey_none_verified,State-owned ports and maritime authority,false,no_url,Sierra Leone,SOE,https://www.ncpsl.gov.sl/slpa/
 Electricity Distribution and Supply Authority (EDSA),,https://www.edsa.sl/,grey_none_verified,State-owned electricity distribution utility,false,no_url,Sierra Leone,SOE,https://www.edsa.sl/
 Sierratel,,https://www.sierratel.sl/,grey_none_verified,State-owned national telecommunications operator,false,no_url,Sierra Leone,SOE,https://www.sierratel.sl/
+Njala University,,https://www.njala.edu.sl/news-and-events/news/job-vacancies-various-positions,green_verified,"Public university, own-domain job vacancies page",true,pending,Sierra Leone,COLLEGE,https://www.njala.edu.sl/news-and-events/news/job-vacancies-various-positions
+University of Sierra Leone,,,grey_none_verified,Public university (Freetown),false,pending,Sierra Leone,COLLEGE,
+Ernest Bai Koroma University of Science and Technology,,,grey_none_verified,Public university,false,pending,Sierra Leone,COLLEGE,
