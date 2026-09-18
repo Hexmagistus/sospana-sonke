@@ -1084,3 +1084,22 @@ Set up the real Google OAuth in the owner's Google Cloud + Vercel via browser co
   `sospana-sonke-import-ready.zip` (28 header-ready CSVs) was delivered to the user
   for manual upload via `/admin/companies`; only 26/54 countries are actually in the
   production DB as of this session.
+
+### 2026-09-18 — Claude (Cowork, Opus 4.8) — SADC COLLEGE additions into the MAIN CSV
+Lungani approved adding SADC-16 colleges into `backend/seed/company_database_import.csv` (the
+live/auto-loaded seed), NOT countries/. Deduped against the flagship UNI rows already present
+(the main CSV already had 3-9 UNI rows per SADC country). Added 79 COLLEGE rows across 15
+countries (SA already had 107): Botswana 6, Mauritius 6, Zambia 11, Tanzania 9, Zimbabwe 11,
+Malawi 8, Namibia 3, Eswatini 5, Lesotho 4, Angola 4, Mozambique 4, Madagascar 2, DR Congo 3,
+Comoros 1, Seychelles 2. Same strict own-domain-careers rule.
+New greens (own-domain careers pages verified): BA ISAGO (`baisago.ac.bw/vacancies/`), Botswana
+Accountancy College (`bac.ac.bw/vacancies.php`), Botho Botswana, Univ des Mascareignes
+(`udm.ac.mu/vacancies/`), Charles Telfair (`cte.ac.mu/vacancies`), Middlesex Mauritius,
+University of Lusaka (`unilus.ac.zm/Jobs.aspx`), Manicaland State Univ (`msuas.ac.zw/vacancies/`),
+NAMCOL (`namcol.edu.na/.../vacancies/`), Uniluanda (`uniluanda.ao/category/recrutamento/`).
+Rest grey (recruit via national job boards). Flagship unis with own-domain careers (UZ, UNZA,
+NUST-NA, UNAM, MUBAS, ZCAS, UB) were ALREADY in the CSV as UNI rows — deduped, not re-added.
+MAIN CSV now: 2295 rows, 186 COLLEGE rows (69 green + 117 grey/amber). All 10-column validated.
+Because these are IN the main CSV, the bootstrap auto-loader WILL load them on next deploy — no
+separate admin import needed for the SADC set (unlike the countries/ files).
+**Continent-wide COLLEGE task now COMPLETE: all 54 African countries have college data.**
