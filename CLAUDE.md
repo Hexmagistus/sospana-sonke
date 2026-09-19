@@ -49,6 +49,23 @@ commit it (and push, if you pushed the rest of your work). Newest entry on top.
 
 ## Session Log
 
+### 2026-09-19 (even later) — Claude (Cowork, this account) — Design rollout: core candidate journey done
+Migrated `companies`, `matches`, `profile`, `tailor`, `applications` page.tsx files to the `ss-*`
+design tokens (5 parallel subagents, one page each, visual-only — no data/state/logic changes,
+confirmed by diff review). Commit `2de530c`, pushed, `tsc --noEmit` clean. Homepage, dashboard,
+and agent pages were already done by a prior session; these 5 were picked as the highest-traffic
+remaining pages (the actual candidate journey: browse companies -> see matches -> tailor a CV ->
+track applications -> edit profile).
+
+**Remaining unmigrated pages (14):** admin, colleges, coverage, donate, hospitals, login,
+master-cv, notifications, privacy, register, security, subscription, terms, universities.
+Same process works for all of them: read globals.css + tailwind.config.ts + ui.tsx + the
+now-6 migrated pages as reference, swap bg-white/bg-gray-*/text-gray-*/border-gray-*/text-navy
+for ss-* tokens, swap in ui.tsx components where a hand-rolled equivalent exists and fits,
+verify with tsc --noEmit, don't touch logic. Auth pages (login/register) and legal pages
+(privacy/terms) are probably fastest/lowest-risk; admin is probably the largest/most complex.
+
+
 ### 2026-09-19 (later) — Claude (Cowork, this account) — SADC COLLEGE batch 1 done (134 rows); starting design-system rollout to remaining pages
 Lungani said "yes please fix everything and enhance the platform to look excellent." Two threads:
 
