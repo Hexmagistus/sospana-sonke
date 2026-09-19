@@ -68,6 +68,7 @@ const TYPE_BADGE: Record<string, { label: string; cls: string }> = {
   PRIVATE: { label: "Private company", cls: "bg-gold/20 text-[#a9791a]" },
   NGO: { label: "🤝 NGO", cls: "bg-coral/10 text-coral" },
   UNI: { label: "🎓 University", cls: "bg-sky/10 text-sky" },
+  COLLEGE: { label: "🏫 College", cls: "bg-teal/10 text-teal" },
 };
 
 function typeBadge(sourceType: string | null | undefined) {
@@ -94,7 +95,7 @@ function CompaniesDirectoryInner() {
   const [trending, setTrending] = useState<Set<string>>(new Set());
   const [err, setErr] = useState("");
   const [q, setQ] = useState("");
-  const [filter, setFilter] = useState<"all" | "listed" | "SOE" | "Municipality" | "Department" | "Private" | "NGO" | "University">("all");
+  const [filter, setFilter] = useState<"all" | "listed" | "SOE" | "Municipality" | "Department" | "Private" | "NGO" | "University" | "College">("all");
   const [country, setCountry] = useState("South Africa");
   const [sortBy, setSortBy] = useState<SortKey>("name");
   const [shortlistOnly, setShortlistOnly] = useState(false);
@@ -189,7 +190,8 @@ function CompaniesDirectoryInner() {
         if (filter === "Private") return st === "PRIVATE";
         if (filter === "NGO") return st === "NGO";
         if (filter === "University") return st === "UNI";
-        return st !== "SOE" && st !== "MUNI" && st !== "PRIVATE" && st !== "NGO" && st !== "UNI";
+        if (filter === "College") return st === "COLLEGE";
+        return st !== "SOE" && st !== "MUNI" && st !== "PRIVATE" && st !== "NGO" && st !== "UNI" && st !== "COLLEGE";
       })
       .filter((c) => !needle
         || c.company_name.toLowerCase().includes(needle)
@@ -228,10 +230,11 @@ function CompaniesDirectoryInner() {
   if (err) return <Alert kind="error">{err}</Alert>;
   if (!companies.length) return <FunSpinner label="Loading the directory…" />;
 
-  const FILTERS = ["all", "listed", "SOE", "Municipality", "Department", "Private", "NGO", "University"] as const;
+  const FILTERS = ["all", "listed", "SOE", "Municipality", "Department", "Private", "NGO", "University", "College"] as const;
   const filterLabel: Record<(typeof FILTERS)[number], string> = {
     all: "All", listed: "Listed", SOE: "State-owned", Municipality: "Municipalities",
     Department: "🏛️ Gov depts", Private: "Private", NGO: "🤝 NGOs", University: "🎓 Universities",
+    College: "🏫 Colleges",
   };
 
   return (
