@@ -1167,3 +1167,25 @@ Shipped `b8e59e8` on `main`:
   malformed rows) in a fresh clone before pushing. No dedicated `/hospitals` page built yet —
   only the badge/filter chip, matching how College started before Lungani asked for a page too.
 - **Not yet extended beyond South Africa** — next step if Lungani wants it continued.
+
+### 2026-09-19 — Claude (Sonnet 5) — Hospitals directory page + SADC expansion
+Follow-up to the new HOSPITAL category above. Lungani said "yes" to both offered next
+steps (build a dedicated page, and extend beyond South Africa).
+- `b15e596` — new `frontend/src/app/hospitals/page.tsx`, mirroring `/colleges/page.tsx`
+  exactly but filtered to `source_type=HOSPITAL` (country tabs, search, sort, shortlist,
+  notify/share/report, coverage link). Linked from `Nav.tsx` after Colleges; added
+  `/hospitals` to `robots.ts`'s disallow list. No backend changes needed.
+- `8c5b8f6` — 7 more HOSPITAL rows across 6 SADC countries (Botswana ×2, Mauritius,
+  Namibia, Eswatini, Zimbabwe, Mozambique), same fetch-and-read-before-including
+  discipline as the SA batch. Excluded Sidilega Private Hospital (Botswana — its own
+  page states no jobs currently), Corporate 24 (Zimbabwe — only listings found were
+  expired/filled since 2023), and Coptic Hospital (Zambia — "careers" page is just an
+  email address, not a listing or portal). Found nothing verifiable at all for Lesotho,
+  Malawi, Angola, DR Congo, Tanzania, Madagascar, Seychelles, or Comoros — hospital
+  vacancies in those countries only surface on third-party job boards/social media, not
+  the institution's own domain.
+- Total HOSPITAL rows now 13 across 6 countries. `tsc --noEmit` clean and CSV
+  Python-`csv`-module validated (10-column shape, no malformed rows) in a fresh clone
+  before both pushes.
+- **Not yet extended beyond South Africa + SADC** — the rest of Africa is the natural
+  next batch if Lungani wants it continued.
