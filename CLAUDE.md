@@ -49,6 +49,41 @@ commit it (and push, if you pushed the rest of your work). Newest entry on top.
 
 ## Session Log
 
+### 2026-09-19 — Claude (Cowork, this account) — Fixed drifted homepage employer counts; SADC COLLEGE batch failed to a rate limit (not started)
+Two separate things this session:
+
+1. **Lungani said "fix the numbers to reflect the truth about our database."** Recomputed every
+   country's `count` in `frontend/src/app/page.tsx`'s `LIVE` array from
+   `backend/seed/company_database_import.csv` (active=true rows only, matching the file's own
+   documented "recomputed" methodology from 2026-09-12 — the numbers had drifted again since
+   then, most visibly South Africa: 587 shown vs 672 actual active rows, after this session's
+   earlier 127-row addition on 2026-09-17 plus whatever the intervening sessions added). Re-sorted
+   the array descending by the corrected counts. Verified (didn't assume) that the 34 "pending"
+   countries' `count: 1` and the SOON array's "no rows at all yet" claim are both still literally
+   true of `company_database_import.csv` itself — so those were left alone rather than "corrected"
+   using `backend/seed/countries/<Country>.csv` numbers, which are real but NOT yet merged into
+   the actual database file (per `bootstrap.py`, still staging-only — same standing caveat as
+   every earlier entry). Added an explicit code comment saying so, to stop a future session from
+   "fixing" those to the bigger countries/ numbers and re-introducing the overclaim in the other
+   direction. Commit `3b2e077`, pushed, `tsc --noEmit` clean.
+
+2. **Picked up the outstanding continent-wide COLLEGE task** (SADC batch 1: Botswana, Eswatini,
+   Lesotho, Namibia, Mozambique, Zimbabwe, Zambia, Tanzania) but **all 8 parallel research agents
+   failed immediately** — "You've hit your session limit" (rate_limit, HTTP 429) before any of
+   them did any research. **No data was produced, nothing was written anywhere.** This is a clean
+   restart point, not a half-finished batch to reconcile. Also worth knowing: per an earlier
+   session's log entry (2026-09-17 later/later still, Opus 4.8), COLLEGE research for Kenya (+56),
+   Ghana (+40), Uganda (+37), and Nigeria (+70) was already done and written to
+   `backend/seed/countries/{Kenya,Ghana,Uganda,Nigeria}.csv` — check the Session Log entries above
+   this one for the exact state before redoing any of those four.
+
+**Not yet done:** the SADC batch 1 COLLEGE research (Botswana/Eswatini/Lesotho/Namibia/
+Mozambique/Zimbabwe/Zambia/Tanzania) — retry when quota allows, same per-country agent approach,
+same strict own-domain-careers-link rule as the South Africa and Kenya/Ghana/Uganda/Nigeria
+batches. After that: SADC batch 2 (Angola, Mauritius, Malawi, Madagascar, DR Congo, Seychelles,
+Comoros), then the remaining ~34 non-SADC African countries not yet touched by the COLLEGE task.
+
+
 ### 2026-09-17 (later) — Claude (Cowork, Opus 4.8) — Continent-wide COLLEGE expansion STARTED (batch 1: Kenya, Ghana, Uganda)
 Picked up the outstanding continent-wide COLLEGE task, following this repo's own per-country
 convention: appended `source_type=COLLEGE` rows to `backend/seed/countries/<Country>.csv`
