@@ -2214,19 +2214,19 @@ Greenside Design Center College of Design,,,grey_none_verified,Private higher ed
 Inscape Education Group,,,grey_none_verified,Private higher education institution (DHET-registered),false,no_url,South Africa,COLLEGE,
 Open Window,,https://openwindow.co.za/careers,green_verified,Private higher education institution (DHET-registered),true,pending,South Africa,COLLEGE,https://openwindow.co.za/careers
 IQ Academy,,,grey_none_verified,Private higher education institution (DHET-registered),false,no_url,South Africa,COLLEGE,
-BA ISAGO University,,https://baisago.ac.bw/vacancies/,green_verified,"Private university, own-domain vacancies page",true,pending,Botswana,COLLEGE,https://baisago.ac.bw
-Botswana Accountancy College,,https://www.bac.ac.bw/vacancies.php,green_verified,"Tertiary college, own-domain vacancies page",true,pending,Botswana,COLLEGE,https://www.bac.ac.bw
-Botho University Botswana,,https://botswana.bothouniversity.com/careers/,green_verified,"Private university, own-domain careers page",true,pending,Botswana,COLLEGE,https://botswana.bothouniversity.com
+BA ISAGO University,,,grey_none_verified,"Private university, own-domain vacancies page",false,pending,Botswana,COLLEGE,https://baisago.ac.bw
+Botswana Accountancy College,,https://www.bac.ac.bw/vacancies.php,amber_company_route,"Tertiary college, own-domain vacancies page",true,pending,Botswana,COLLEGE,https://www.bac.ac.bw
+Botho University Botswana,,https://botswana.bothouniversity.com/careers/,amber_company_route,"Private university, own-domain careers page",true,pending,Botswana,COLLEGE,https://botswana.bothouniversity.com
 New Era College of Arts Science and Technology,,,grey_none_verified,Private college (Gaborone),false,pending,Botswana,COLLEGE,
 Gaborone University College of Law and Professional Studies,,,grey_none_verified,Private college,false,pending,Botswana,COLLEGE,
 Boitekanelo College,,,grey_none_verified,Private health-sciences college,false,pending,Botswana,COLLEGE,
 Universite des Mascareignes,,https://udm.ac.mu/vacancies/,green_verified,"Public university, own-domain vacancies page",true,pending,Mauritius,COLLEGE,https://udm.ac.mu
-Charles Telfair Education,,https://cte.ac.mu/vacancies,green_verified,"Private tertiary (Curtin Mauritius), own-domain vacancies",true,pending,Mauritius,COLLEGE,https://cte.ac.mu
-Middlesex University Mauritius,,https://www.middlesex.mu/about-mdx-mauritius/work-with-us/,green_verified,"Private university branch, own-domain careers",true,pending,Mauritius,COLLEGE,https://www.middlesex.mu
+Charles Telfair Education,,https://cte.ac.mu/vacancies,amber_company_route,"Private tertiary (Curtin Mauritius), own-domain vacancies",true,pending,Mauritius,COLLEGE,https://cte.ac.mu
+Middlesex University Mauritius,,https://www.middlesex.mu/about-mdx-mauritius/work-with-us/,amber_company_route,"Private university branch, own-domain careers",true,pending,Mauritius,COLLEGE,https://www.middlesex.mu
 Mauritius Institute of Education MIE,,,grey_none_verified,Public teacher-education institute,false,pending,Mauritius,COLLEGE,
 Mahatma Gandhi Institute,,,grey_none_verified,Public tertiary institute,false,pending,Mauritius,COLLEGE,
 Rushmore Business School,,,grey_none_verified,Private business school,false,pending,Mauritius,COLLEGE,
-University of Lusaka UNILUS,,https://www.unilus.ac.zm/Jobs.aspx,green_verified,"Private university, own-domain jobs page",true,pending,Zambia,COLLEGE,https://www.unilus.ac.zm
+University of Lusaka UNILUS,,,grey_none_verified,"Private university, own-domain jobs page",false,pending,Zambia,COLLEGE,https://www.unilus.ac.zm
 Cavendish University Zambia,,,grey_none_verified,Private university,false,pending,Zambia,COLLEGE,
 Rockview University,,,grey_none_verified,Private university (Lusaka),false,pending,Zambia,COLLEGE,
 Lusaka Apex Medical University,,,grey_none_verified,Private medical university,false,pending,Zambia,COLLEGE,
@@ -2277,7 +2277,7 @@ Lesotho College of Education,,,grey_none_verified,Public teacher-education colle
 National Health Training College,,,grey_none_verified,Public health college,false,pending,Lesotho,COLLEGE,
 Centre for Accounting Studies,,,grey_none_verified,Public accountancy college,false,pending,Lesotho,COLLEGE,
 Lesotho Agricultural College,,,grey_none_verified,Public agricultural college,false,pending,Lesotho,COLLEGE,
-Universidade de Luanda Uniluanda,,https://uniluanda.ao/category/recrutamento/,green_verified,"University, own-domain recrutamento page",true,pending,Angola,COLLEGE,https://uniluanda.ao
+Universidade de Luanda Uniluanda,,https://uniluanda.ao/category/recrutamento/,amber_company_route,"University, own-domain recrutamento page",true,pending,Angola,COLLEGE,https://uniluanda.ao
 Universidade Lusiada de Angola,,,grey_none_verified,Private university,false,pending,Angola,COLLEGE,
 Universidade Catolica de Angola,,,grey_none_verified,Private university,false,pending,Angola,COLLEGE,
 Universidade Jean Piaget de Angola,,,grey_none_verified,Private university,false,pending,Angola,COLLEGE,
