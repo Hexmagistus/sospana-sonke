@@ -26,6 +26,7 @@ export default function robots(): MetadataRoute.Robots {
           "/agent",
           "/master-cv",
           "/universities",
+          "/colleges",
           "/applications",
           "/api/",
         ],

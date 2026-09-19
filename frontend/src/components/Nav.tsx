@@ -12,6 +12,7 @@ const LINKS = [
   { href: "/agent", label: "Career Agent" },
   { href: "/companies", label: "Companies" },
   { href: "/universities", label: "Universities" },
+  { href: "/colleges", label: "Colleges" },
   { href: "/tailor", label: "CV Builder" },
   { href: "/profile", label: "Profile" },
   { href: "/notifications", label: "Notifications" },
