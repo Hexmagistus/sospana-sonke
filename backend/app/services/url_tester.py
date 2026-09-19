@@ -69,3 +69,43 @@ def status_from_result(result: UrlTestResult) -> str:
     if result.ok and not result.looks_like_careers:
         return "needs_review"
     return "needs_real_url"
+
+
+def test_url_sync(url: str | None, client: "httpx.Client | None" = None) -> UrlTestResult:
+    """Synchronous twin of :func:`test_url`, for the batch scheduler job.
+
+    The recurring jobs (app/scheduler/jobs.py) run in a plain synchronous worker
+    like every other job, so they need a blocking fetch. This shares
+    ``looks_like_careers`` and is consumed by the same ``status_from_result`` as
+    the async path, so a URL checked in bulk is classified identically to one
+    checked from the admin per-company button.
+    """
+    if not url:
+        return UrlTestResult(url="", ok=False, status_code=None, final_url=None,
+                             looks_like_careers=False, error="no_url")
+
+    owns_client = client is None
+    if owns_client:
+        client = httpx.Client(
+            timeout=settings.URL_TEST_TIMEOUT_SECONDS,
+            follow_redirects=True,
+            headers={"User-Agent": settings.URL_TEST_USER_AGENT},
+        )
+    try:
+        resp = client.get(url)
+        html = resp.text if resp.status_code < 400 else ""
+        final_url = str(resp.url)
+        return UrlTestResult(
+            url=url,
+            ok=200 <= resp.status_code < 400,
+            status_code=resp.status_code,
+            final_url=final_url,
+            looks_like_careers=looks_like_careers(final_url, html),
+        )
+    except Exception as exc:  # network error, DNS, SSL, timeout, etc.
+        return UrlTestResult(url=url, ok=False, status_code=None, final_url=None,
+                             looks_like_careers=looks_like_careers(url),
+                             error=f"{type(exc).__name__}: {exc}")
+    finally:
+        if owns_client:
+            client.close()

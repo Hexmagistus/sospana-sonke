@@ -10,7 +10,11 @@ import logging
 import time
 from datetime import datetime, timezone
 
+import httpx
+
 from sqlalchemy.orm import Session
+
+from app.core.config import settings
 
 from app.models.company import Company
 from app.models.user import User
@@ -202,3 +206,85 @@ def match_all_candidates(db: Session) -> dict:
         ran += 1
         matched += summary.matched
     return {"candidates_matched": ran, "total_matches": matched}
+
+
+def test_all_urls(db: Session, limit: int = 200, job_run_id: str | None = None,
+                  max_seconds: float = 240.0, client: "httpx.Client | None" = None) -> dict:
+    """Bulk careers-URL health check (blueprint sections 13 & 21).
+
+    Fetches the careers URL of the active companies checked longest ago and
+    updates each one's ``scraping_status`` / ``last_http_status`` /
+    ``last_final_url`` / ``url_looks_like_careers`` exactly as the admin
+    per-company ``/{id}/test-url`` endpoint does -- reusing ``test_url_sync``
+    and ``status_from_result`` so a dead link found here is downgraded
+    identically (200 + careers-looking -> ``ok``; a live page that doesn't look
+    like careers -> ``needs_review``; a 404/timeout/DNS/SSL failure ->
+    ``needs_real_url``; an empty URL -> ``no_url``).
+
+    Time-bounded and rotating like :func:`scan_due_companies`: it stamps
+    ``last_checked`` so successive runs advance through the database and each
+    run returns inside a free scheduler's timeout instead of trying to fetch
+    every URL in one request. ``limit`` is an upper cap for a lucky all-fast
+    batch; ``max_seconds`` is the real throttle.
+
+    Unlike the scan jobs this does NOT extract vacancies or email candidates --
+    it only verifies that a stored link still resolves and looks right, so it is
+    cheap enough to run across the whole database on a schedule and is the
+    on-demand "verify every careers URL now and flag the dead ones" pass.
+    """
+    from app.services.url_tester import test_url_sync, status_from_result
+
+    companies = (db.query(Company)
+                 .filter(Company.active.is_(True), Company.deleted_at.is_(None),
+                         Company.careers_url.isnot(None))
+                 # NULL last_checked (never checked) first, then oldest -- DB-portable.
+                 .order_by(Company.last_checked.is_(None).desc(), Company.last_checked.asc())
+                 .limit(limit)
+                 .all())
+
+    tested = ok = needs_review = dead = no_url = 0
+    now = datetime.now(timezone.utc)
+    started = time.monotonic()
+    timed_out = False
+    owns_client = client is None
+    if owns_client:
+        client = httpx.Client(
+            timeout=settings.URL_TEST_TIMEOUT_SECONDS,
+            follow_redirects=True,
+            headers={"User-Agent": settings.URL_TEST_USER_AGENT},
+        )
+    try:
+        for company in companies:
+            if time.monotonic() - started > max_seconds:
+                timed_out = True
+                break
+            try:
+                result = test_url_sync(company.careers_url, client=client)
+            except Exception:
+                logger.warning("test_all_urls: failed to test %s (%s)",
+                               company.company_name, company.id, exc_info=True)
+                continue
+            company.last_checked = now
+            company.last_http_status = result.status_code
+            company.last_final_url = result.final_url
+            company.url_looks_like_careers = result.looks_like_careers
+            company.scraping_status = status_from_result(result)
+            db.add(company)
+            db.commit()
+            tested += 1
+            status_str = company.scraping_status
+            if status_str == "ok":
+                ok += 1
+            elif status_str == "needs_review":
+                needs_review += 1
+            elif status_str == "no_url":
+                no_url += 1
+            else:
+                dead += 1
+    finally:
+        if owns_client:
+            client.close()
+
+    return {"batch_limit": limit, "urls_tested": tested, "ok": ok,
+            "needs_review": needs_review, "dead": dead, "no_url": no_url,
+            "stopped_early_on_time_budget": timed_out}
