@@ -49,6 +49,52 @@ commit it (and push, if you pushed the rest of your work). Newest entry on top.
 
 ## Session Log
 
+### 2026-09-19 (final) — Claude (Cowork, this account) — Design rollout complete: all 22 pages on ss-* tokens
+Finished what the earlier entries this same day started. All three remaining batches landed:
+- Batch 2 (7 pages, commit `f04ffef`): login, register, notifications, security, subscription,
+  privacy, terms.
+- Batch 3 (7 pages, commit `f7f1c39`): admin, colleges, coverage, donate, hospitals, master-cv,
+  universities.
+
+Combined with the core-journey batch (`2de530c`) and the homepage/dashboard/agent pages a prior
+session already did, **every page.tsx in the app now themes correctly in both light and dark
+mode** via the `ss-*` design tokens. `tsc --noEmit` clean after every batch, each verified
+independently before merging. All work was visual-only (colors + swapping hand-rolled markup for
+existing `ui.tsx` components where it genuinely fit) — no data-fetching, state, routing, or
+business logic changed anywhere across the ~19 pages touched today; every subagent confirmed this
+via `git diff` review before handing back.
+
+**Two real, useful patterns established for anyone continuing this:**
+1. The four directory-listing pages (companies, colleges, hospitals, universities) now share an
+   identical token pattern for filter pills, cards, and empty states — `companies/page.tsx` is
+   the canonical reference for that shape.
+2. Data **tables** (admin's users table, coverage's rollup table) needed their header/row/border
+   colors retokenized separately — a components-only migration pass would miss raw `<table>`
+   markup, worth remembering for any future page with a table.
+
+**Not fully done / known gaps, honestly:**
+- `FunSpinner.tsx` (shared loading component used across many pages) still has one raw
+  `text-gray-400` internally — flagged by the coverage-page agent, out of scope for a
+  single-page task, worth a quick dedicated fix.
+- The two deferred "signature features" from the original 41-section UI brief (Opportunity
+  Radar, Opportunity Constellation) were NOT built this session — Lungani explicitly chose
+  "finish the rollout" over those when asked.
+- Visual-only migration doesn't mean pixel-perfect — nobody has actually opened these pages in a
+  browser (light or dark mode) to eyeball them since these commits landed; `tsc` proves the code
+  compiles, not that everything looks right. Worth a manual pass, or at least Vercel's preview
+  deploy, before calling this fully done.
+- Push worked via the GitKraken device-plugin tools all day (4th+ session in a row it's worked —
+  the earlier "device-linked sessions can't push non-interactively" caveat elsewhere in this file
+  may be stale at this point; a stale `.git/index.lock` from an earlier interrupted process did
+  need clearing twice via `device_request_delete_permission` + `rm`, unrelated to the push method).
+
+Also this session (see entries above): SADC COLLEGE batch 1 (South Africa + Botswana/Eswatini/
+Lesotho/Namibia/Mozambique/Tanzania/Zambia/Zimbabwe) finished, homepage employer counts fixed
+twice to track it. **Still outstanding for the data side:** SADC batch 2 (Angola, Mauritius,
+Malawi, Madagascar, DR Congo, Seychelles, Comoros) and the ~34 remaining non-SADC African
+countries' COLLEGE research.
+
+
 ### 2026-09-19 (even later) — Claude (Cowork, this account) — Design rollout: core candidate journey done
 Migrated `companies`, `matches`, `profile`, `tailor`, `applications` page.tsx files to the `ss-*`
 design tokens (5 parallel subagents, one page each, visual-only — no data/state/logic changes,
