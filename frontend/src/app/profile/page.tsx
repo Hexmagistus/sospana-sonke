@@ -75,8 +75,8 @@ function ProfileInner() {
 
   const header = (
     <div>
-      <h1 className="text-2xl font-bold text-navy">My profile</h1>
-      <p className="mt-1 text-sm text-gray-500">
+      <h1 className="text-2xl font-bold text-ss-text">My profile</h1>
+      <p className="mt-1 text-sm text-ss-muted">
         Kept up to date, this is what powers stronger job matches and tailored applications.{" "}
         <Link href="/master-cv" className="font-medium text-brand hover:underline">View my Master CV →</Link>
       </p>
@@ -114,7 +114,7 @@ function ProfileInner() {
       <CvUpload onApplied={() => loadAll().catch((e) => setErr(e.message))} />
 
       <Card accent="teal">
-        <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-navy">
+        <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-ss-text">
           <span aria-hidden="true">🧾</span> About you
         </h2>
         <form onSubmit={saveProfile} className="grid gap-4 md:grid-cols-2">
@@ -209,13 +209,13 @@ function ChildSection({
   const [busy, setBusy] = useState(false);
   return (
     <Card accent="gold">
-      <h2 className="mb-3 flex items-center gap-2 text-lg font-semibold text-navy">
+      <h2 className="mb-3 flex items-center gap-2 text-lg font-semibold text-ss-text">
         {icon && <span aria-hidden="true">{icon}</span>} {title}
       </h2>
       <ul className="mb-4 space-y-2">
-        {items.length === 0 && <li className="text-sm text-gray-400">Nothing yet — add your first one below.</li>}
+        {items.length === 0 && <li className="text-sm text-ss-muted">Nothing yet — add your first one below.</li>}
         {items.map((i) => (
-          <li key={i.id} className="flex items-center justify-between gap-2 rounded-lg border border-gray-100 bg-gray-50/60 px-3 py-2 text-sm transition hover:bg-gray-50">
+          <li key={i.id} className="flex items-center justify-between gap-2 rounded-lg border border-ss-border bg-ss-glass px-3 py-2 text-sm transition hover:bg-ss-primary-soft">
             <span className="flex flex-wrap items-center gap-1.5">
               {render(i)}
               {!i.confirmed_by_candidate && <Badge>from CV</Badge>}
@@ -226,7 +226,7 @@ function ChildSection({
           </li>
         ))}
       </ul>
-      <div className="flex flex-wrap items-end gap-2 border-t border-gray-100 pt-4">
+      <div className="flex flex-wrap items-end gap-2 border-t border-ss-border pt-4">
         {fields.map((f) => (
           <div key={f.key} className="min-w-[8rem] flex-1">
             <Field label={f.label}>

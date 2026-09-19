@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Guard from "@/components/Guard";
 import { api } from "@/lib/api";
-import { Card, Button, Alert, Spinner, Badge } from "@/components/ui";
+import { Card, Button, Alert, Spinner, Badge, EmptyState } from "@/components/ui";
 import type { Match } from "@/lib/types";
 
 function MatchesInner() {
@@ -43,7 +43,11 @@ function MatchesInner() {
       {loading ? (
         <Spinner />
       ) : matches.length === 0 ? (
-        <Card><p className="text-sm text-gray-500">No matches yet. Complete your profile, then click “Find new matches”.</p></Card>
+        <EmptyState
+          icon="🎯"
+          title="No matches yet"
+          message="Complete your profile, then click “Find new matches”."
+        />
       ) : (
         <div className="space-y-3">
           {matches.map((m) => (
@@ -51,7 +55,7 @@ function MatchesInner() {
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <div className="font-medium">{m.vacancy_title || "Vacancy"}</div>
-                  <div className="text-sm text-gray-500">{m.company_name}</div>
+                  <div className="text-sm text-ss-muted">{m.company_name}</div>
                 </div>
                 <div className="flex items-center gap-3">
                   <span className="text-2xl font-semibold">{Math.round(m.score)}%</span>

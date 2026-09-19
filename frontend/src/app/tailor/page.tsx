@@ -39,7 +39,7 @@ function ScoreDial({ value, label }: { value: number; label: string }) {
   return (
     <div className="flex flex-col items-center">
       <div className={`text-4xl font-extrabold ${scoreColor(value)}`}>{Math.round(value)}%</div>
-      <div className="mt-1 text-xs font-medium text-gray-500">{label}</div>
+      <div className="mt-1 text-xs font-medium text-ss-muted">{label}</div>
     </div>
   );
 }
@@ -51,13 +51,13 @@ function StepBar({ step }: { step: Step }) {
         <div key={label} className="flex items-center gap-2">
           <span
             className={`flex h-6 w-6 flex-none items-center justify-center rounded-full text-xs font-bold ${
-              i < step ? "bg-brand text-white" : i === step ? "bg-gold text-navy" : "bg-gray-200 text-gray-500"
+              i < step ? "bg-brand text-white" : i === step ? "bg-gold text-navy" : "bg-ss-border text-ss-muted"
             }`}
           >
             {i < step ? "✓" : i + 1}
           </span>
-          <span className={i === step ? "font-semibold text-navy" : "text-gray-500"}>{label}</span>
-          {i < STEPS.length - 1 && <span className="mx-1 text-gray-300">—</span>}
+          <span className={i === step ? "font-semibold text-ss-text" : "text-ss-muted"}>{label}</span>
+          {i < STEPS.length - 1 && <span className="mx-1 text-ss-muted">—</span>}
         </div>
       ))}
     </div>
@@ -80,13 +80,13 @@ function RequirementList({
     <div>
       <h3 className={`mb-2 text-sm font-semibold ${toneCls}`}>{title} ({items.length})</h3>
       {items.length === 0 ? (
-        <p className="text-sm text-gray-400">None.</p>
+        <p className="text-sm text-ss-muted">None.</p>
       ) : (
         <ul className="space-y-2">
           {items.map((it, i) => (
-            <li key={i} className="rounded-lg bg-gray-50 px-3 py-2 text-sm">
-              <div className="font-medium text-gray-800">{it.text}</div>
-              <div className="mt-0.5 text-xs text-gray-500">{it.note}</div>
+            <li key={i} className="rounded-lg bg-ss-elevated px-3 py-2 text-sm">
+              <div className="font-medium text-ss-text">{it.text}</div>
+              <div className="mt-0.5 text-xs text-ss-muted">{it.note}</div>
             </li>
           ))}
         </ul>
@@ -228,7 +228,7 @@ function TailorInner() {
       {step === 0 && (
         <Card>
           <h2 className="mb-4 text-lg font-semibold">1. Tell us about the job</h2>
-          <p className="mb-4 -mt-2 text-sm text-gray-500">
+          <p className="mb-4 -mt-2 text-sm text-ss-muted">
             First time here? <Link href="/profile" className="font-medium text-brand hover:underline">Upload your existing CV</Link> and
             we&apos;ll pick up your details automatically, so every tailored CV is built from real information.
           </p>
@@ -269,7 +269,7 @@ function TailorInner() {
                 <div className="mt-1 flex flex-wrap items-center gap-2">
                   <Badge>{analysis.band}</Badge>
                   <Badge>{analysis.decision}</Badge>
-                  <span className="text-xs text-gray-500">Confidence: {analysis.confidence}</span>
+                  <span className="text-xs text-ss-muted">Confidence: {analysis.confidence}</span>
                   {!analysis.hard_ok && <span className="text-xs font-medium text-coral">A mandatory requirement is unmet</span>}
                 </div>
               </div>
@@ -296,8 +296,8 @@ function TailorInner() {
             <h2 className="mb-3 font-semibold">Score breakdown</h2>
             <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
               {Object.entries(analysis.sub_scores).map(([k, v]) => (
-                <div key={k} className="rounded-lg bg-gray-50 px-3 py-2 text-sm">
-                  <div className="text-gray-500">{SUB_SCORE_LABELS[k] || k}</div>
+                <div key={k} className="rounded-lg bg-ss-elevated px-3 py-2 text-sm">
+                  <div className="text-ss-muted">{SUB_SCORE_LABELS[k] || k}</div>
                   <div className={`font-semibold ${scoreColor(v)}`}>{Math.round(v)}%</div>
                 </div>
               ))}
@@ -310,7 +310,7 @@ function TailorInner() {
               <RequirementList title="Partial matches" tone="yellow" items={analysis.partial_matches} />
               <RequirementList title="Missing requirements" tone="red" items={analysis.missing_requirements} />
             </div>
-            <p className="mt-4 text-xs text-gray-400">
+            <p className="mt-4 text-xs text-ss-muted">
               &ldquo;Not found in your CV&rdquo; means our records don&apos;t show it — not that you lack it. If you do
               have it, add it to your <Link href="/profile" className="underline">profile</Link> so future CVs reflect it truthfully.
             </p>
@@ -319,7 +319,7 @@ function TailorInner() {
           {analysis.quality_suggestions && analysis.quality_suggestions.length > 0 && (
             <Card>
               <h2 className="mb-2 font-semibold">CV quality suggestions</h2>
-              <ul className="list-disc space-y-1 pl-5 text-sm text-gray-700">
+              <ul className="list-disc space-y-1 pl-5 text-sm text-ss-text">
                 {analysis.quality_suggestions.map((s, i) => <li key={i}>{s}</li>)}
               </ul>
             </Card>
@@ -362,24 +362,24 @@ function TailorInner() {
             </div>
             {draftCv.experience.length > 0 && (
               <div className="mt-5">
-                <h3 className="mb-2 text-sm font-semibold text-gray-700">Work experience (from your profile)</h3>
+                <h3 className="mb-2 text-sm font-semibold text-ss-text">Work experience (from your profile)</h3>
                 <div className="space-y-3">
                   {draftCv.experience.map((exp, i) => (
-                    <div key={i} className="rounded-lg border border-gray-200 p-3 text-sm">
+                    <div key={i} className="rounded-lg border border-ss-border p-3 text-sm">
                       <div className="font-medium">{exp.position} — {exp.employer}</div>
-                      <div className="mt-1 text-xs text-gray-500">
+                      <div className="mt-1 text-xs text-ss-muted">
                         {exp.start_date || "?"} – {exp.is_current ? "Present" : exp.end_date || "?"}
                       </div>
                       {exp.responsibilities != null && (
-                        <p className="mt-2 text-gray-700">{String(exp.responsibilities)}</p>
+                        <p className="mt-2 text-ss-text">{String(exp.responsibilities)}</p>
                       )}
                       {exp.achievements != null && String(exp.achievements).trim() && (
-                        <p className="mt-1 text-gray-700"><span className="font-medium">Achievements:</span> {String(exp.achievements)}</p>
+                        <p className="mt-1 text-ss-text"><span className="font-medium">Achievements:</span> {String(exp.achievements)}</p>
                       )}
                     </div>
                   ))}
                 </div>
-                <p className="mt-2 text-xs text-gray-400">
+                <p className="mt-2 text-xs text-ss-muted">
                   To change these, update your <Link href="/profile" className="underline">profile</Link> — every tailored CV is
                   built from that record, so an edit there flows into every future CV too.
                 </p>
@@ -395,11 +395,11 @@ function TailorInner() {
                   key={t.id}
                   onClick={() => setTemplate(t.id)}
                   className={`rounded-xl border p-4 text-left transition ${
-                    template === t.id ? "border-brand bg-brand/5 ring-2 ring-brand/30" : "border-gray-200 hover:border-brand/40"
+                    template === t.id ? "border-brand bg-brand/5 ring-2 ring-brand/30" : "border-ss-border hover:border-brand/40"
                   }`}
                 >
-                  <div className="font-semibold text-navy">{t.label}</div>
-                  <div className="mt-1 text-xs text-gray-500">{t.description}</div>
+                  <div className="font-semibold text-ss-text">{t.label}</div>
+                  <div className="mt-1 text-xs text-ss-muted">{t.description}</div>
                 </button>
               ))}
             </div>
@@ -419,7 +419,7 @@ function TailorInner() {
           {cvVersion && (
             <Card accent="teal">
               <h2 className="mb-2 font-semibold">Your tailored CV is ready</h2>
-              <div className="text-sm text-gray-600">
+              <div className="text-sm text-ss-muted">
                 {cvVersion.label} — ATS score {cvVersion.ats_score != null ? `${Math.round(cvVersion.ats_score)}%` : "—"} · truthfulness{" "}
                 {cvVersion.truthfulness_ok ? "verified ✅" : "flagged ⚠️"}
               </div>
@@ -469,7 +469,7 @@ function TailorInner() {
           </Card>
 
           <Card>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-ss-muted">
               This job has been added to your <Link href="/tailor/applications" className="font-semibold text-brand hover:underline">application tracker</Link> —
               update its status once you&apos;ve applied.
             </p>
@@ -493,8 +493,8 @@ function PrepList({ title, items }: { title: string; items: string[] }) {
   if (!items?.length) return null;
   return (
     <div>
-      <div className="mb-1 font-medium text-gray-700">{title}</div>
-      <ul className="list-disc space-y-1 pl-5 text-gray-600">
+      <div className="mb-1 font-medium text-ss-text">{title}</div>
+      <ul className="list-disc space-y-1 pl-5 text-ss-muted">
         {items.map((x, i) => <li key={i}>{x}</li>)}
       </ul>
     </div>

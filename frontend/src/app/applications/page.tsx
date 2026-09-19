@@ -54,17 +54,17 @@ function Row({ app }: { app: Application }) {
     <Card>
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <Link href={`/applications/${app.id}`} className="font-semibold text-navy hover:underline">
+          <Link href={`/applications/${app.id}`} className="font-semibold text-ss-text hover:underline">
             {app.vacancy_title || "A role"}
           </Link>
-          <div className="text-sm text-gray-500">
+          <div className="text-sm text-ss-muted">
             {app.company_name || "Company not specified"}
             {app.vacancy_location && <> · {app.vacancy_location}</>}
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {app.match_score != null && (
-            <span className="text-sm text-gray-500">Match {Math.round(app.match_score)}%</span>
+            <span className="text-sm text-ss-muted">Match {Math.round(app.match_score)}%</span>
           )}
           <Badge>{STATUS_LABEL[app.status] || app.status}</Badge>
         </div>
@@ -72,7 +72,7 @@ function Row({ app }: { app: Application }) {
 
       {err && <div className="mt-3"><Alert kind="error">{err}</Alert></div>}
 
-      <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-gray-100 pt-4">
+      <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-ss-border pt-4">
         {needsYou && (
           <Link href={`/applications/${app.id}`}>
             <Button size="sm">Review &amp; act →</Button>
@@ -110,8 +110,8 @@ function ApplicationsInner() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-navy">My applications</h1>
-          <p className="text-gray-500">
+          <h1 className="text-2xl font-bold text-ss-text">My applications</h1>
+          <p className="text-ss-muted">
             Every application your Career Agent has prepared or you&apos;ve started — nothing is ever sent
             without you reviewing and approving it first.
           </p>
