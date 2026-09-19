@@ -13,6 +13,7 @@ const LINKS = [
   { href: "/companies", label: "Companies" },
   { href: "/universities", label: "Universities" },
   { href: "/colleges", label: "Colleges" },
+  { href: "/hospitals", label: "Hospitals" },
   { href: "/tailor", label: "CV Builder" },
   { href: "/profile", label: "Profile" },
   { href: "/notifications", label: "Notifications" },
