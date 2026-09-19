@@ -1103,3 +1103,23 @@ MAIN CSV now: 2295 rows, 186 COLLEGE rows (69 green + 117 grey/amber). All 10-co
 Because these are IN the main CSV, the bootstrap auto-loader WILL load them on next deploy — no
 separate admin import needed for the SADC set (unlike the countries/ files).
 **Continent-wide COLLEGE task now COMPLETE: all 54 African countries have college data.**
+
+### 2026-09-18/19 — Claude (Opus 4.8) — Bulk careers-URL health check (test_all_urls)
+Shipped `a87b4c4`: a rotating, time-bounded scheduler job (`test_all_urls`, daily
+04:00, `POST /api/v1/cron/run/test_all_urls`) that fetches every active company's
+`careers_url` — the *whole* directory over time, not just newly-scanned ones — and
+downgrades/promotes `scraping_status` using the exact same `looks_like_careers`
+taxonomy as the admin's per-company "test this URL" button (`url_tester.py`, new
+sync twin `test_url_sync()` for the sync scheduler worker). Mirrors
+`scan_due_companies`'s own rotation + `max_seconds=240.0` wall-clock budget
+pattern (see the 2026-09-13 "Find Jobs pipeline" entry above for why a time
+budget beats a bare row `limit`). Does NOT extract vacancies or email
+candidates — purely a link-health pass, so it's cheap enough to run across the
+whole ~2,300-row database on a schedule. 4 new tests in `test_url_tester.py`
+(sync ok/404, no-url, job updates status + respects inactive/deleted, job
+respects an already-spent time budget); full regression suite passes.
+**Not independently re-verified live this session** (this entry is being added
+retroactively — the commit that shipped it didn't leave a session-log note at
+the time). `/health` responds `{"status":"ok",...}` in production as of this
+check; no schema change, so this reaches Render on its normal auto-deploy from
+`main` with no extra step needed.
