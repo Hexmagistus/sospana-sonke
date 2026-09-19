@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session
 from app.models.match import SystemSetting
 from app.scheduler.jobs import (
     scan_all_companies, scan_south_africa, scan_due_companies, match_all_candidates, check_link_changes,
-    test_all_urls,
+    test_all_urls, close_expired_vacancies,
 )
 
 # name -> callable(db) -> summary dict
@@ -19,17 +19,19 @@ JOBS = {
     "scan_all_companies": scan_all_companies,   # full sweep, every country (slow; manual/admin use)
     "scan_south_africa": scan_south_africa,     # full sweep, South Africa only (current rollout phase)
     "scan_due_companies": scan_due_companies,   # fast rotating batch (external cron)
+    "close_expired_vacancies": close_expired_vacancies,  # DB-only sweep: is_open=False past closing_date
     "match_all_candidates": match_all_candidates,
     "check_link_changes": check_link_changes,   # fast rotating batch: page-hash "did it change" check
     "test_all_urls": test_all_urls,             # rotating, time-bounded careers-URL health check + status downgrade
 }
 
 DEFAULT_SCHEDULE = {
-    "scan_due_companies": "0 */3 * * *",     # every 3 hours — rotates through the list
-    "scan_all_companies": "0 */6 * * *",     # every 6 hours
-    "match_all_candidates": "0 2 * * *",     # nightly at 02:00
-    "check_link_changes": "0 */4 * * *",     # every 4 hours — rotates through the list
-    "test_all_urls": "0 4 * * *",            # daily 04:00 — rotating careers-URL health check
+    "scan_due_companies": "0 */3 * * *",         # every 3 hours — rotates through the list
+    "scan_all_companies": "0 */6 * * *",         # every 6 hours
+    "close_expired_vacancies": "0 1 * * *",      # nightly at 01:00, before matching — keeps is_open accurate
+    "match_all_candidates": "0 2 * * *",         # nightly at 02:00
+    "check_link_changes": "0 */4 * * *",         # every 4 hours — rotates through the list
+    "test_all_urls": "0 4 * * *",                # daily 04:00 — rotating careers-URL health check
 }
 
 SCHEDULE_KEY = "schedule_config"

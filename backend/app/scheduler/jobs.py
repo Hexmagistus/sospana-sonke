@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import logging
 import time
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 
 import httpx
 
@@ -18,6 +18,7 @@ from app.core.config import settings
 
 from app.models.company import Company
 from app.models.user import User
+from app.models.vacancy import Vacancy
 from app.services.scan_service import scan_company
 from app.services.match_service import run_match_for_user
 
@@ -193,6 +194,29 @@ def check_link_changes(db: Session, limit: int = 25, job_run_id: str | None = No
 
     return {"batch_limit": limit, "companies_checked": checked,
             "pages_changed": changed_count, "watchers_notified": notified, "errors": errors}
+
+
+def close_expired_vacancies(db: Session, job_run_id: str | None = None) -> dict:
+    """Close every open vacancy whose own advertised closing date has passed.
+
+    A scan only closes a role once it has positively re-checked the source and
+    no longer sees it (scan_service.scan_source deliberately never wipes
+    vacancies on an empty/failed fetch), so a role can otherwise sit "open"
+    for days past its own closing date just because the company's careers
+    page hasn't been re-scanned yet. This is a pure DB sweep -- no network
+    calls -- so it keeps is_open accurate everywhere that filters on it
+    (listings, matching) without waiting on the scan rotation, and always
+    finishes well within any scheduler's timeout.
+    """
+    today = date.today()
+    stale = (db.query(Vacancy)
+             .filter(Vacancy.is_open.is_(True), Vacancy.closing_date.isnot(None),
+                     Vacancy.closing_date < today)
+             .all())
+    for vac in stale:
+        vac.is_open = False
+    db.commit()
+    return {"vacancies_closed": len(stale)}
 
 
 def match_all_candidates(db: Session) -> dict:

@@ -16,6 +16,7 @@ from urllib.parse import urljoin
 import httpx
 
 from app.scraper.base import ScrapeStrategy, RawVacancy, html_to_text
+from app.scraper.politeness import request_with_backoff
 
 _LDJSON = re.compile(
     r'<script[^>]+type=["\']application/ld\+json["\'][^>]*>(.*?)</script>',
@@ -155,6 +156,6 @@ class StaticHTMLStrategy(ScrapeStrategy):
         return jobs
 
     def fetch(self, source, client: httpx.Client) -> list[RawVacancy]:
-        resp = client.get(source.url)
+        resp = request_with_backoff(client, source.url)
         resp.raise_for_status()
         return self.parse_html(resp.text, source_url=str(resp.url))

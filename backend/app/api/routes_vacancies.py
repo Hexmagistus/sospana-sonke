@@ -57,6 +57,11 @@ def list_company_vacancies(company_id: str, db: Session = Depends(get_db),
     q = db.query(Vacancy).filter(Vacancy.company_id == company_id)
     if is_open is not None:
         q = q.filter(Vacancy.is_open == is_open)
+    if is_open:
+        # Even a role a scan hasn't re-checked yet drops off once its own
+        # advertised closing date has passed -- see list_vacancies below.
+        today = date.today()
+        q = q.filter((Vacancy.closing_date.is_(None)) | (Vacancy.closing_date >= today))
     return [VacancyResponse.model_validate(v) for v in q.order_by(Vacancy.last_seen_at.desc()).all()]
 
 
@@ -82,6 +87,16 @@ def list_vacancies(db: Session = Depends(get_db), _: User = Depends(get_current_
     query = db.query(Vacancy)
     if is_open is not None:
         query = query.filter(Vacancy.is_open == is_open)
+    if is_open:
+        # Exclude outdated ads by default: a listing whose own advertised
+        # closing date has passed drops out of results even if a re-scan
+        # hasn't yet confirmed the role is gone (is_open only flips to False
+        # once a fresh scan of the source no longer sees it -- see
+        # scan_service.scan_source). Applied unconditionally, not just under
+        # max_age_days, so callers get outdated-ad exclusion without having
+        # to opt in.
+        today = date.today()
+        query = query.filter((Vacancy.closing_date.is_(None)) | (Vacancy.closing_date >= today))
     if q:
         query = query.filter(Vacancy.title.ilike(f"%{q}%"))
     if province:
@@ -95,14 +110,12 @@ def list_vacancies(db: Session = Depends(get_db), _: User = Depends(get_current_
     if nqf_level is not None:
         query = query.filter(Vacancy.nqf_level == nqf_level)
     if max_age_days is not None:
-        # Drop listings we haven't seen on the employer's careers page recently...
+        # Drop listings we haven't seen on the employer's careers page
+        # recently. (The closing-date exclusion above already handles
+        # outdated ads; this additionally drops listings that are merely
+        # stale from the scanner's point of view.)
         cutoff = datetime.now(timezone.utc) - timedelta(days=max_age_days)
         query = query.filter(Vacancy.last_seen_at >= cutoff)
-        # ...and anything whose advertised closing date has already passed.
-        today = date.today()
-        query = query.filter(
-            (Vacancy.closing_date.is_(None)) | (Vacancy.closing_date >= today)
-        )
     if flagged is not None:
         # trust_flags is a JSON column -- filtering on "is the array non-empty"
         # portably across SQLite (tests) and Postgres (production) is awkward in

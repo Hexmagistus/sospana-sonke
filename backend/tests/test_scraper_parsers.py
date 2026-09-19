@@ -4,6 +4,8 @@ import httpx
 from app.scraper.base import detect_ats, html_to_text
 from app.scraper.greenhouse import GreenhouseStrategy
 from app.scraper.lever import LeverStrategy
+from app.scraper.recruitee import RecruiteeStrategy
+from app.scraper.workable import WorkableStrategy
 from app.scraper.static_html import StaticHTMLStrategy
 
 
@@ -21,6 +23,10 @@ def test_detect_ats():
     assert detect_ats("https://boards.greenhouse.io/acme")[1]["token"] == "acme"
     assert detect_ats("https://jobs.lever.co/acme")[0] == "lever"
     assert detect_ats("https://careers.smartrecruiters.com/AcmeCo")[0] == "smartrecruiters"
+    assert detect_ats("https://acme.recruitee.com/careers")[0] == "recruitee"
+    assert detect_ats("https://acme.recruitee.com/careers")[1]["token"] == "acme"
+    assert detect_ats("https://apply.workable.com/acme-inc/")[0] == "workable"
+    assert detect_ats("https://apply.workable.com/acme-inc/")[1]["token"] == "acme-inc"
     assert detect_ats("https://www.goldfields.com/careers/")[0] == "static"
 
 
@@ -68,6 +74,52 @@ def test_lever_parser():
     assert vacs[0].title == "Data Analyst"
     assert vacs[0].location == "Cape Town"
     assert vacs[0].employment_type == "Full-time"
+
+
+def test_recruitee_parser():
+    def handler(request):
+        return httpx.Response(200, json={"offers": [
+            {"id": 555, "title": "Finance Manager", "department": "Finance",
+             "location": "Cape Town, South Africa", "employment_type_code": "fulltime_permanent",
+             "remote": False, "hybrid": True, "published_at": "2026-08-01 09:00:00 UTC",
+             "close_at": "2026-09-30 23:59:59 UTC",
+             "description": "<p>Own the books.</p>",
+             "careers_url": "https://acme.com/careers/finance-manager"},
+        ]})
+    src = _Src("https://acme.recruitee.com/careers", "recruitee", {"token": "acme"})
+    with _client(handler) as c:
+        vacs = RecruiteeStrategy().fetch(src, c)
+    assert len(vacs) == 1
+    v = vacs[0]
+    assert v.title == "Finance Manager"
+    assert v.external_id == "555"
+    assert v.location == "Cape Town, South Africa"
+    assert v.work_mode == "hybrid"
+    assert v.closing_date == "2026-09-30 23:59:59 UTC"
+    assert v.application_url == "https://acme.com/careers/finance-manager"
+
+
+def test_workable_parser():
+    def handler(request):
+        return httpx.Response(200, json={"jobs": [
+            {"shortcode": "ABC123", "title": "Backend Engineer", "department": "Engineering",
+             "employment_type": "full_time",
+             "location": {"city": "Johannesburg", "region": "Gauteng", "country": "South Africa",
+                          "telecommuting": False},
+             "published_on": "2026-07-15",
+             "full_description": "<p>Build APIs.</p>",
+             "url": "https://apply.workable.com/acme-inc/j/ABC123/",
+             "shortlink": "https://acme.workable.com/j/ABC123"},
+        ]})
+    src = _Src("https://apply.workable.com/acme-inc/", "workable", {"token": "acme-inc"})
+    with _client(handler) as c:
+        vacs = WorkableStrategy().fetch(src, c)
+    assert len(vacs) == 1
+    v = vacs[0]
+    assert v.title == "Backend Engineer"
+    assert v.external_id == "ABC123"
+    assert v.location == "Johannesburg, Gauteng, South Africa"
+    assert v.application_url == "https://apply.workable.com/acme-inc/j/ABC123/"
 
 
 def test_static_jsonld_parser():

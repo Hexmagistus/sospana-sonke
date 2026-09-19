@@ -7,6 +7,7 @@ CandidateMatch per vacancy. Idempotent: re-running updates existing matches.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from datetime import date
 
 from sqlalchemy.orm import Session
 
@@ -162,7 +163,14 @@ def run_match_for_user(db: Session, user_id: str, vacancy_ids: list[str] | None 
     excluded_roles = excluded_roles or set()
     summary = MatchRunSummary()
 
-    q = db.query(Vacancy).filter(Vacancy.is_open.is_(True), Vacancy.deleted_at.is_(None))
+    today = date.today()
+    q = (db.query(Vacancy)
+         .filter(Vacancy.is_open.is_(True), Vacancy.deleted_at.is_(None))
+         # Exclude outdated ads: never surface a match for a role whose own
+         # advertised closing date has already passed, even if a re-scan
+         # hasn't yet confirmed it's gone (defense in depth alongside the
+         # close_expired_vacancies scheduler job, which flips is_open itself).
+         .filter((Vacancy.closing_date.is_(None)) | (Vacancy.closing_date >= today)))
     if vacancy_ids:
         q = q.filter(Vacancy.id.in_(vacancy_ids))
     vacancies = q.limit(limit).all()

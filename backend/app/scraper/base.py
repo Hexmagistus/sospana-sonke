@@ -61,6 +61,17 @@ def detect_ats(url: str) -> tuple[str, dict]:
         if host.endswith("smartrecruiters.com") and host not in ("careers.smartrecruiters.com", "www.smartrecruiters.com", "api.smartrecruiters.com"):
             token = host.split(".")[0]
         return "smartrecruiters", {"token": token}
+    if "recruitee.com" in host:
+        # {subdomain}.recruitee.com -- the subdomain is also the API token.
+        token = host.split(".")[0] if host not in ("recruitee.com", "www.recruitee.com") else None
+        return "recruitee", {"token": token}
+    if "workable.com" in host:
+        # apply.workable.com/{account}/... or, less commonly, {account}.workable.com
+        token = _token_from_path(url)
+        if host.endswith("workable.com") and host not in (
+                "apply.workable.com", "www.workable.com", "workable.com"):
+            token = host.split(".")[0]
+        return "workable", {"token": token}
     # JavaScript-rendered ATSs (need a headless browser to read).
     if any(h in host for h in ("myworkdayjobs.com", "workday", "successfactors",
                                "oraclecloud.com", "taleo.net", "jobs.jobvite.com")):
@@ -72,12 +83,16 @@ def get_strategy(ats_type: str) -> ScrapeStrategy:
     from app.scraper.greenhouse import GreenhouseStrategy
     from app.scraper.lever import LeverStrategy
     from app.scraper.smartrecruiters import SmartRecruitersStrategy
+    from app.scraper.recruitee import RecruiteeStrategy
+    from app.scraper.workable import WorkableStrategy
     from app.scraper.static_html import StaticHTMLStrategy
     from app.scraper.rendered_html import RenderedHTMLStrategy
     return {
         "greenhouse": GreenhouseStrategy(),
         "lever": LeverStrategy(),
         "smartrecruiters": SmartRecruitersStrategy(),
+        "recruitee": RecruiteeStrategy(),
+        "workable": WorkableStrategy(),
         "static": StaticHTMLStrategy(),
         "js": RenderedHTMLStrategy(),
     }.get(ats_type, StaticHTMLStrategy())

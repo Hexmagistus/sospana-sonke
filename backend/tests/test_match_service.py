@@ -1,5 +1,5 @@
 """Service-level tests for match orchestration and config persistence."""
-from datetime import datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 
 from app.models.user import User
 from app.models.company import Company
@@ -28,13 +28,14 @@ def _make_candidate(db):
     return user
 
 
-def _make_vacancy(db, title="Operations Manager", exp="5", location="Johannesburg", sector="Logistics"):
+def _make_vacancy(db, title="Operations Manager", exp="5", location="Johannesburg", sector="Logistics",
+                  closing_date=None):
     company = Company(company_name="Acme", sector=sector, careers_url="https://boards.greenhouse.io/acme")
     db.add(company); db.commit(); db.refresh(company)
     now = datetime.now(timezone.utc)
     vac = Vacancy(company_id=company.id, source_id="s1", title=title, location=location,
                   description="Lead operations. SQL and Excel needed.", content_hash="h-" + title,
-                  is_open=True, first_seen_at=now, last_seen_at=now)
+                  is_open=True, closing_date=closing_date, first_seen_at=now, last_seen_at=now)
     db.add(vac); db.commit(); db.refresh(vac)
     db.add(VacancyRequirement(vacancy_id=vac.id, text=f"Minimum of {exp} years experience required",
                               kind="hard", category="experience"))
@@ -124,6 +125,27 @@ def test_run_match_rejects_when_underqualified(db):
     run_match_for_user(db, user.id)
     m = db.query(CandidateMatch).filter(CandidateMatch.user_id == user.id).one()
     assert m.decision == "DO_NOT_APPLY" and m.status == "REJECTED" and m.hard_ok is False
+
+
+def test_run_match_excludes_outdated_ad(db):
+    # A vacancy whose own closing date has passed must never be matched,
+    # even though is_open hasn't been flipped False by a re-scan yet (that
+    # only happens once a scan positively confirms the role is gone, or the
+    # close_expired_vacancies scheduler job catches up).
+    user = _make_candidate(db)
+    _make_vacancy(db, closing_date=date.today() - timedelta(days=1))
+    summary = run_match_for_user(db, user.id)
+    assert summary.considered == 0
+    assert summary.matched == 0
+    assert db.query(CandidateMatch).filter(CandidateMatch.user_id == user.id).count() == 0
+
+
+def test_run_match_still_matches_ad_closing_in_future(db):
+    user = _make_candidate(db)
+    _make_vacancy(db, closing_date=date.today() + timedelta(days=7))
+    summary = run_match_for_user(db, user.id)
+    assert summary.considered == 1
+    assert summary.matched == 1
 
 
 def test_prefilter_excludes_role(db):

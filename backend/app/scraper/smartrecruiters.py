@@ -4,6 +4,7 @@ from __future__ import annotations
 import httpx
 
 from app.scraper.base import ScrapeStrategy, RawVacancy, html_to_text
+from app.scraper.politeness import request_with_backoff
 
 
 class SmartRecruitersStrategy(ScrapeStrategy):
@@ -13,7 +14,8 @@ class SmartRecruitersStrategy(ScrapeStrategy):
         token = (source.config or {}).get("token")
         if not token:
             raise ValueError("SmartRecruiters source is missing a company identifier.")
-        resp = client.get(f"https://api.smartrecruiters.com/v1/companies/{token}/postings?limit=100")
+        resp = request_with_backoff(
+            client, f"https://api.smartrecruiters.com/v1/companies/{token}/postings?limit=100")
         resp.raise_for_status()
         out: list[RawVacancy] = []
         for p in resp.json().get("content", []):

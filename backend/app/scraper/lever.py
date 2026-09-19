@@ -4,6 +4,7 @@ from __future__ import annotations
 import httpx
 
 from app.scraper.base import ScrapeStrategy, RawVacancy, html_to_text
+from app.scraper.politeness import request_with_backoff
 
 
 class LeverStrategy(ScrapeStrategy):
@@ -13,7 +14,7 @@ class LeverStrategy(ScrapeStrategy):
         token = (source.config or {}).get("token")
         if not token:
             raise ValueError("Lever source is missing a company token.")
-        resp = client.get(f"https://api.lever.co/v0/postings/{token}?mode=json")
+        resp = request_with_backoff(client, f"https://api.lever.co/v0/postings/{token}?mode=json")
         resp.raise_for_status()
         out: list[RawVacancy] = []
         for p in resp.json():

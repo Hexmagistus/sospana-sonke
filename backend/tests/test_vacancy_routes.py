@@ -2,7 +2,7 @@
 from tests.conftest import register_and_login, make_admin
 from app.models.company import Company
 from app.models.vacancy import Vacancy
-from datetime import datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 
 
 def _auth(tokens):
@@ -102,3 +102,29 @@ def test_list_vacancies_structured_filters(client, db_engine):
     _, unpriced_id = _seed_vacancy(db_engine, company_name="Acme Unpriced", content_hash="hash-np")
     unpriced_check = client.get("/api/v1/vacancies", params={"min_salary": 0}, headers=_auth(tokens)).json()
     assert unpriced_id not in {v["id"] for v in unpriced_check}
+
+
+def test_list_vacancies_excludes_outdated_ads_by_default(client, db_engine):
+    _, tokens = register_and_login(client)
+    yesterday = date.today() - timedelta(days=1)
+    tomorrow = date.today() + timedelta(days=1)
+    company_id, expired_id = _seed_vacancy(
+        db_engine, company_name="Acme Expired", content_hash="hash-expired", closing_date=yesterday)
+    _, live_id = _seed_vacancy(
+        db_engine, company_name="Acme Live", content_hash="hash-live", closing_date=tomorrow)
+    _, no_date_id = _seed_vacancy(
+        db_engine, company_name="Acme NoDate", content_hash="hash-nodate")
+
+    listed = client.get("/api/v1/vacancies", headers=_auth(tokens)).json()
+    ids = {v["id"] for v in listed}
+    assert expired_id not in ids
+    assert live_id in ids and no_date_id in ids
+
+    # A caller explicitly asking for closed listings (is_open=False) should
+    # not have the closing-date filter applied -- it isn't relevant to them.
+    by_company = client.get(f"/api/v1/companies/{company_id}/vacancies",
+                            params={"is_open": False}, headers=_auth(tokens)).json()
+    assert by_company == []  # this seeded vacancy is still is_open=True, just past its closing date
+
+    by_company_open = client.get(f"/api/v1/companies/{company_id}/vacancies", headers=_auth(tokens)).json()
+    assert expired_id not in {v["id"] for v in by_company_open}
