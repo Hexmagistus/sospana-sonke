@@ -49,6 +49,45 @@ commit it (and push, if you pushed the rest of your work). Newest entry on top.
 
 ## Session Log
 
+### 2026-09-19 (later) — Claude (Cowork, this account) — SADC COLLEGE batch 1 done (134 rows); starting design-system rollout to remaining pages
+Lungani said "yes please fix everything and enhance the platform to look excellent." Two threads:
+
+1. **Retried the SADC COLLEGE batch that failed to a rate limit earlier this session** — this time
+   all 8 agents completed (Botswana, Eswatini, Lesotho, Namibia, Mozambique, Tanzania, Zambia,
+   Zimbabwe). Same process as the South Africa batch: researched against each country's own
+   accreditation body (BQA/ESHEC/CHE/NQA+NCHE/MCTESTP+CNAQ+ANEP/NACTE+TCU/TEVETA+HEA/Zimbabwe's
+   Ministry of Higher and Tertiary Education), strict direct-careers-link rule, deduped against
+   each country's existing rows in `backend/seed/company_database_import.csv` before appending
+   (23 of 157 researched were already present) — **134 genuinely new rows**, commit `551fb00`,
+   pushed. Then recomputed and fixed the homepage's `LIVE` array counts for these 8 countries too
+   (same active=true methodology as the earlier count-fix pass), commit `5c88193`, pushed,
+   `tsc --noEmit` clean both times.
+   - Main CSV is now 2441 rows total.
+   - **Still not done: SADC batch 2** (Angola, Mauritius, Malawi, Madagascar, DR Congo, Seychelles,
+     Comoros — 7 countries) and the ~34 remaining non-SADC African countries not yet touched by
+     COLLEGE research (see the 2026-09-17 entries above for what Kenya/Ghana/Uganda/Nigeria
+     already have in `backend/seed/countries/`).
+
+2. **Asked Lungani where to focus the "look excellent" ask** since a prior session (2026-09-16,
+   see entry above) had already started a `ss-*` design-token system + dark/light theming +
+   component library (`frontend/src/components/ui.tsx`) + a Command Palette, but only reached the
+   homepage hero, opportunity cards, nav, and dashboard — most other pages still use old hardcoded
+   `bg-white`/`text-gray-*` classes. He picked **"finish the rollout"** over new signature
+   features. Audited which of the 22 page.tsx files are unmigrated (grep for `ss-`/`C.` token
+   usage vs `bg-gray-`/`text-gray-` hardcoded classes):
+   - Already migrated: `page.tsx` (homepage), `agent/page.tsx`, `dashboard/page.tsx`.
+   - **Not yet migrated (19 pages):** admin, applications, colleges, companies, coverage, donate,
+     hospitals, login, master-cv, matches, notifications, privacy, profile, register, security,
+     subscription, tailor, terms, universities.
+   - Starting with the core candidate-facing journey (companies, matches, profile, tailor,
+     applications) as the highest-impact first batch — **in progress as this entry is written,
+     not yet committed.** If this session ends before that lands, the next session should check
+     `git status`/`git log` on `frontend/src/` before assuming nothing happened here.
+
+**Not yet done:** the 19-page design rollout (started, core-journey batch in flight), SADC
+COLLEGE batch 2, the ~34 remaining African countries' COLLEGE research.
+
+
 ### 2026-09-19 — Claude (Cowork, this account) — Fixed drifted homepage employer counts; SADC COLLEGE batch failed to a rate limit (not started)
 Two separate things this session:
 
