@@ -44,25 +44,25 @@ function SecurityInner() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Security</h1>
+      <h1 className="text-2xl font-bold text-ss-text">Security</h1>
       {msg && <Alert kind="success">{msg}</Alert>}
       {err && <Alert kind="error">{err}</Alert>}
 
       <Card>
-        <h2 className="mb-2 text-lg font-semibold">Two-factor authentication (TOTP)</h2>
-        <p className="mb-4 text-sm text-gray-500">
-          Status: {user?.mfa_enabled ? <b className="text-green-700">Enabled</b> : <b>Disabled</b>}
+        <h2 className="mb-2 text-lg font-semibold text-ss-text">Two-factor authentication (TOTP)</h2>
+        <p className="mb-4 text-sm text-ss-muted">
+          Status: {user?.mfa_enabled ? <b className="text-ss-success">Enabled</b> : <b className="text-ss-text">Disabled</b>}
         </p>
 
         {!user?.mfa_enabled && !setup && <Button onClick={begin}>Set up MFA</Button>}
 
         {!user?.mfa_enabled && setup && (
           <div className="space-y-3">
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-ss-muted">
               Add this secret to your authenticator app, then enter the current 6-digit code.
             </p>
-            <code className="block break-all rounded bg-gray-100 px-3 py-2 text-sm">{setup.secret}</code>
-            <p className="break-all text-xs text-gray-400">{setup.otpauth_uri}</p>
+            <code className="block break-all rounded-lg border border-ss-border bg-ss-glass px-3 py-2 text-sm text-ss-text">{setup.secret}</code>
+            <p className="break-all text-xs text-ss-muted">{setup.otpauth_uri}</p>
             <div className="flex items-end gap-2">
               <Field label="Authenticator code">
                 <Input value={code} onChange={(e) => setCode(e.target.value)} inputMode="numeric" placeholder="6-digit" />

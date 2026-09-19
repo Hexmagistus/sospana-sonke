@@ -90,7 +90,7 @@ export default function RegisterPage() {
               {busy ? "Creating…" : "Create account"}
             </Button>
           </form>
-          <p className="mt-4 text-center text-sm text-gray-500">
+          <p className="mt-4 text-center text-sm text-ss-muted">
             Already registered?{" "}
             <Link href="/login" className="text-brand hover:underline">
               Sign in

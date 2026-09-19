@@ -8,35 +8,35 @@ export default function TermsPage() {
     <div className="mx-auto mt-8 max-w-3xl">
       <Card>
         <h1 className="mb-1 text-2xl font-bold text-brand">Terms of Service</h1>
-        <p className="mb-6 text-sm text-gray-500">Last updated: 6 September 2026</p>
-        <div className="space-y-4 text-sm leading-relaxed text-gray-700">
+        <p className="mb-6 text-sm text-ss-muted">Last updated: 6 September 2026</p>
+        <div className="space-y-4 text-sm leading-relaxed text-ss-text">
           <p>
             These terms govern your use of Sospana Sonke (the &quot;Service&quot;). By creating an
             account or using the Service, you agree to them.
           </p>
 
-          <h2 className="pt-2 text-lg font-semibold text-navy">What the Service does</h2>
+          <h2 className="pt-2 text-lg font-semibold text-ss-text">What the Service does</h2>
           <p>
             Sospana Sonke helps you discover job vacancies across Southern Africa and apply directly
             to employers. We are a discovery and application tool — we are not an employer, agency,
             or recruiter, and we do not guarantee any job, interview, or outcome.
           </p>
 
-          <h2 className="pt-2 text-lg font-semibold text-navy">Your account</h2>
+          <h2 className="pt-2 text-lg font-semibold text-ss-text">Your account</h2>
           <p>
             You are responsible for the accuracy of the information you provide and for keeping your
             login secure. You may sign in with email and password or with your Google account. You
             must be legally allowed to work where you apply.
           </p>
 
-          <h2 className="pt-2 text-lg font-semibold text-navy">Acceptable use</h2>
+          <h2 className="pt-2 text-lg font-semibold text-ss-text">Acceptable use</h2>
           <p>
             Use the Service lawfully and honestly. Do not submit false information, misuse other
             people&apos;s data, attempt to disrupt or gain unauthorised access to the Service, or use
             it to send spam or unlawful content.
           </p>
 
-          <h2 className="pt-2 text-lg font-semibold text-navy">Employer links and content</h2>
+          <h2 className="pt-2 text-lg font-semibold text-ss-text">Employer links and content</h2>
           <p>
             Vacancy details and links to employer careers pages are provided for convenience. We do
             our best to keep them accurate but cannot guarantee that every listing is current or that
@@ -44,7 +44,7 @@ export default function TermsPage() {
             the employer.
           </p>
 
-          <h2 className="pt-2 text-lg font-semibold text-navy">Availability and changes</h2>
+          <h2 className="pt-2 text-lg font-semibold text-ss-text">Availability and changes</h2>
           <p>
             The Service is provided &quot;as is&quot;, and may change or be interrupted from time to
             time. To the extent permitted by law, we are not liable for indirect or consequential loss
@@ -52,7 +52,7 @@ export default function TermsPage() {
             accept the current version.
           </p>
 
-          <h2 className="pt-2 text-lg font-semibold text-navy">Contact</h2>
+          <h2 className="pt-2 text-lg font-semibold text-ss-text">Contact</h2>
           <p>
             Questions about these terms? Email{" "}
             <a className="text-brand hover:underline" href="mailto:gastricl@gmail.com">gastricl@gmail.com</a>.

@@ -29,16 +29,15 @@ function AuthLoader() {
     return () => clearInterval(id);
   }, []);
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center px-6 backdrop-blur-sm"
-         style={{ background: "rgba(250,246,238,0.92)" }}>
-      <div className="w-full max-w-sm rounded-2xl bg-white p-8 text-center shadow-xl">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-ss-glass px-6 backdrop-blur-sm">
+      <div className="w-full max-w-sm rounded-2xl border border-ss-border bg-ss-surface p-8 text-center shadow-xl">
         <svg viewBox="0 0 50 50" className="mx-auto mb-5 h-14 w-14 animate-spin" style={{ animationDuration: "1.1s" }}>
-          <circle cx="25" cy="25" r="20" fill="none" stroke="#e5e7eb" strokeWidth="5" />
+          <circle cx="25" cy="25" r="20" fill="none" stroke="var(--ss-border)" strokeWidth="5" />
           <circle cx="25" cy="25" r="20" fill="none" stroke="#0f766e" strokeWidth="5" strokeLinecap="round" strokeDasharray="90 160" />
         </svg>
-        <p className="mb-1 font-semibold" style={{ color: "#0b2a4a" }}>{messages[mi]}</p>
-        <p className="mb-5 text-xs text-gray-400">This can take up to a minute the first time — hang tight.</p>
-        <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100">
+        <p className="mb-1 font-semibold text-ss-text">{messages[mi]}</p>
+        <p className="mb-5 text-xs text-ss-muted">This can take up to a minute the first time — hang tight.</p>
+        <div className="h-2 w-full overflow-hidden rounded-full bg-ss-border">
           <div className="h-full rounded-full transition-all duration-200 ease-out"
                style={{ width: pct + "%", background: "#0f766e" }} />
         </div>
@@ -122,7 +121,7 @@ export default function LoginPage() {
         <img src="/logo-mark.png" alt="Sospana Sonke" className="h-16 w-16 rounded-2xl object-cover shadow-md" />
       </LogoGlow>
       <h1 className="mb-1 text-center text-2xl font-bold text-brand">Sospana Sonke</h1>
-      <p className="mb-4 text-center text-sm text-gray-500">
+      <p className="mb-4 text-center text-sm text-ss-muted">
         We find the opportunities. You apply direct.
       </p>
       <div className="mb-6">
@@ -155,9 +154,9 @@ export default function LoginPage() {
           {GOOGLE_CLIENT_ID && (
             <div className="mt-5">
               <div className="mb-4 flex items-center gap-3">
-                <span className="h-px flex-1 bg-gray-200" />
-                <span className="text-xs font-medium uppercase tracking-wider text-gray-400">or</span>
-                <span className="h-px flex-1 bg-gray-200" />
+                <span className="h-px flex-1 bg-ss-border" />
+                <span className="text-xs font-medium uppercase tracking-wider text-ss-muted">or</span>
+                <span className="h-px flex-1 bg-ss-border" />
               </div>
               <div className="flex justify-center">
                 <div id="google-signin-btn" />
@@ -165,7 +164,7 @@ export default function LoginPage() {
             </div>
           )}
 
-          <p className="mt-4 text-center text-sm text-gray-500">
+          <p className="mt-4 text-center text-sm text-ss-muted">
             No account?{" "}
             <Link href="/register" className="text-brand hover:underline">
               Create one

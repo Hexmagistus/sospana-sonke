@@ -10,10 +10,10 @@ import { Card, Button } from "@/components/ui";
 function SubscriptionInner() {
   return (
     <div className="mx-auto max-w-xl space-y-4">
-      <h1 className="text-2xl font-bold text-navy">Sospana Sonke is free forever 🎉</h1>
+      <h1 className="text-2xl font-bold text-ss-text">Sospana Sonke is free forever 🎉</h1>
       <Card>
         <h2 className="mb-2 font-semibold">No subscription — not now, not ever</h2>
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-ss-muted">
           Every feature is free, for good — browsing employers, direct careers links, CV
           tailoring, and application tracking are all included at no charge.
           There&apos;s nothing to pay and nothing to set up.

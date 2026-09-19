@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Guard from "@/components/Guard";
 import { api } from "@/lib/api";
-import { Card, Alert, Spinner, Button, Badge } from "@/components/ui";
+import { Card, Alert, Spinner, Button, Badge, EmptyState } from "@/components/ui";
 import type { Notification } from "@/lib/types";
 
 function NotificationsInner() {
@@ -34,12 +34,16 @@ function NotificationsInner() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Notifications</h1>
+        <h1 className="text-2xl font-bold text-ss-text">Notifications</h1>
         <Button variant="ghost" onClick={markAll}>Mark all read</Button>
       </div>
       {err && <Alert kind="error">{err}</Alert>}
       {notes.length === 0 ? (
-        <Card><p className="text-sm text-gray-500">No notifications yet.</p></Card>
+        <EmptyState
+          icon="🔔"
+          title="No notifications yet"
+          message="You'll see updates here as your Career Agent finds matches, prepares applications and hears back from employers."
+        />
       ) : (
         <div className="space-y-2">
           {notes.map((n) => (
@@ -47,10 +51,10 @@ function NotificationsInner() {
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="font-medium">{n.title}</span>
+                    <span className="font-medium text-ss-text">{n.title}</span>
                     <Badge>{n.type}</Badge>
                   </div>
-                  <p className="mt-1 text-sm text-gray-600">{n.body}</p>
+                  <p className="mt-1 text-sm text-ss-muted">{n.body}</p>
                   {n.link_url && (
                     <a
                       href={n.link_url}
@@ -61,7 +65,7 @@ function NotificationsInner() {
                       Open →
                     </a>
                   )}
-                  <p className="mt-1 text-xs text-gray-400">{new Date(n.created_at).toLocaleString()}</p>
+                  <p className="mt-1 text-xs text-ss-muted">{new Date(n.created_at).toLocaleString()}</p>
                 </div>
                 {!n.is_read && (
                   <button onClick={() => markRead(n.id)} className="text-xs text-brand hover:underline">
