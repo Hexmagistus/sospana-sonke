@@ -1189,3 +1189,89 @@ steps (build a dedicated page, and extend beyond South Africa).
   before both pushes.
 - **Not yet extended beyond South Africa + SADC** — the rest of Africa is the natural
   next batch if Lungani wants it continued.
+
+## Career Agent: exclude outdated ads, harden scraper reliability, add 2 ATS parsers — 2026-09-18/19
+
+Lungani asked to "improve career agent to exclude outdated ads, and improve the
+scrapping capabilities, use technology that bypass blockages, we want a strong
+search result." The third clause ("bypass blockages") was flagged before any code
+was written — building CAPTCHA/Cloudflare-style bot-detection circumvention is a
+standing refusal regardless of stated reason. Used `AskUserQuestion` to confirm
+scope before touching anything expensive to redo: (1) scope boundary — legitimate
+scraping robustness (retries/backoff/JS-rendering/more ATS parsers) yes, bot-detection
+bypass no — confirmed; (2) staleness definition — closing date has passed — confirmed;
+(3) whether to flip the existing (off) `JS_RENDER_ENABLED` flag on — Lungani said yes,
+**but this was given before a real infra conflict was found** (see below), so it was
+deliberately not acted on. Shipped as commit `1762787` on `main`, 17 files
+(backend only), all changes verified against the full pytest suite before pushing.
+
+**1. Exclude outdated ads.**
+- `GET /vacancies` and `GET /companies/{id}/vacancies`
+  (`app/api/routes_vacancies.py`) now drop any listing whose own `closing_date` has
+  passed **by default** — previously this only happened when the caller explicitly
+  passed the opt-in `max_age_days` query param, so a stale ad stayed visible until a
+  re-scan happened to notice the source no longer listed it.
+- `app/services/match_service.py::run_match_for_user` applies the same closing_date
+  filter to its own query, so the matching engine can never surface or email a
+  candidate about an ad that's already closed — defense in depth alongside the point
+  below, since a scan only flips `is_open=False` once it positively re-confirms a role
+  is gone (deliberate, to avoid wiping vacancies on one flaky empty fetch — see the
+  2026-09-13 `32807ce` fix already in this file).
+- New scheduler job `close_expired_vacancies` (`app/scheduler/jobs.py`, registered in
+  `app/scheduler/registry.py`, nightly at 01:00 — one hour before the existing 02:00
+  `match_all_candidates` run): a pure DB sweep, no network calls, that sets
+  `is_open=False` for every vacancy whose `closing_date` has passed. Keeps `is_open`
+  itself accurate everywhere it's filtered on, not just at query time, without waiting
+  on the scan rotation to happen to revisit that company.
+
+**2. Scraper reliability ("strong search result").**
+- `app/scraper/politeness.py::request_with_backoff` existed since an earlier session
+  but was **dead code** — never actually called by any strategy. Now wired into all
+  four strategies that fetch over HTTP (`greenhouse.py`, `lever.py`,
+  `smartrecruiters.py`, `static_html.py`), so every scrape gets real exponential
+  backoff on 5xx/transport errors instead of failing on the first blip.
+- Extended `request_with_backoff` to also retry HTTP 429 (a server explicitly asking
+  to slow down, not a permanent failure) and to honour a numeric `Retry-After` header
+  when present, instead of guessing a delay — a real server-told wait is trusted over
+  the exponential default.
+- Added two new structured ATS parsers, same pattern as the existing Greenhouse/
+  Lever/SmartRecruiters strategies (public, no-key JSON endpoints — reading the same
+  feed a candidate's own browser would call, not a bypass of anything):
+  `app/scraper/recruitee.py` (`https://{subdomain}.recruitee.com/api/offers/`) and
+  `app/scraper/workable.py` (`https://www.workable.com/api/accounts/{account}?details=true`).
+  Both registered in `app/scraper/base.py`'s `detect_ats`/`get_strategy`. This widens
+  the set of careers pages the scanner can read as clean structured data instead of
+  falling back to the best-effort HTML heuristic parser.
+
+**3. JS-rendering flag — deliberately NOT enabled, infra conflict surfaced instead.**
+Investigated what turning `JS_RENDER_ENABLED` on (Lungani's "yes, enable it" answer)
+would actually do in production, before touching it: `render.yaml`'s own comment says
+"headless-browser scraping off — Render's free tier can't run Chromium. Turn on only
+on a paid instance," and — separately — the Render service is declared
+`runtime: python` / `buildCommand: pip install -r requirements.txt`, meaning the
+actual deployment doesn't even use `backend/Dockerfile` (which itself doesn't install
+Playwright's browser binaries either). Flipping the flag as-is would make every
+JS-type scan fail outright (no Chromium binary, likely no memory headroom on free
+tier even if it were installed) rather than improve anything. Left the flag off and
+the code fully ready (`PlaywrightRenderer`/`RenderedHTMLStrategy` were already
+correctly implemented from an earlier session) — this needs a decision from Lungani:
+upgrade the Render plan (and add browser-binary installation to whichever path
+actually deploys), or leave this deferred. **Not resolved — flagged for him, see the
+project doc's "Open threads" list.**
+
+**Tests**: 2 new files (`test_politeness.py` — robots/rate-limiter/backoff incl. 429 +
+Retry-After; `test_scheduler_jobs.py` — `close_expired_vacancies`), extended
+`test_scraper_parsers.py` (Recruitee/Workable detect_ats + fetch), `test_match_service.py`
+(closing_date exclusion, both directions), `test_vacancy_routes.py` (closing_date
+default exclusion, both list endpoints). Full backend suite run in a fresh
+`/tmp/venv` + fresh clone: passes except the same 4 pre-existing, unrelated failures
+documented repeatedly above (`test_watch_service.py` × 2, `test_link_check_service.py`
+× 2 — the standing `register_and_login()` `"id"`-key gap) — confirmed present on an
+unmodified clean checkout too, so nothing this pass touched or introduced them.
+
+**Transfer, commit, push**: `device_bash` was available this session. Verified
+`git status` clean / `git log` HEAD matched a fresh GitHub clone before staging;
+copied all 17 files via `device_stage_files`/`device_commit_files` (mtime-guarded
+against each file's current device mtime, omitted for the 4 brand-new files),
+committed and pushed via the GitKraken device-plugin tools, and confirmed the push
+landed with a separate fresh `git clone` fetch afterward (`1762787` at `HEAD`).
