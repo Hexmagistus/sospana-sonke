@@ -55,8 +55,8 @@ export default function DonatePage() {
       <CircuitOverlay className="-z-10 opacity-70" opacity={0.1} stroke="#0b1f3a" dotColor="#f5b301" />
       <NdebeleStrip id="ndebele-donate-top" glow className="overflow-hidden rounded-xl shadow-sm" />
       <div>
-        <h1 className="text-2xl font-bold text-navy">Help keep Sospana Sonke free</h1>
-        <p className="mt-1.5 text-sm text-gray-600">
+        <h1 className="text-2xl font-bold text-ss-text">Help keep Sospana Sonke free</h1>
+        <p className="mt-1.5 text-sm text-ss-muted">
           Sospana Sonke doesn&apos;t charge jobseekers anything — every feature is free for everyone
           across Southern Africa. If it&apos;s helped you, a small voluntary donation helps cover the
           hosting and running costs so it can stay that way for the next person.
@@ -79,7 +79,7 @@ export default function DonatePage() {
                   className={`rounded-lg border px-2 py-2.5 text-sm font-semibold transition ${
                     !usingCustom && amount === a
                       ? "border-brand bg-brand/10 text-brand-dark"
-                      : "border-gray-300 text-gray-700 hover:border-brand"
+                      : "border-ss-border text-ss-text hover:border-brand"
                   }`}
                 >
                   R{a}
@@ -91,7 +91,7 @@ export default function DonatePage() {
                 className={`rounded-lg border px-2 py-2.5 text-sm font-semibold transition ${
                   usingCustom
                     ? "border-brand bg-brand/10 text-brand-dark"
-                    : "border-gray-300 text-gray-700 hover:border-brand"
+                    : "border-ss-border text-ss-text hover:border-brand"
                 }`}
               >
                 Other
@@ -144,7 +144,7 @@ export default function DonatePage() {
           <Button type="submit" size="lg" loading={loading} disabled={!canSubmit} glow className="w-full">
             Donate R{Number.isFinite(effectiveAmount) && effectiveAmount > 0 ? Math.round(effectiveAmount) : "…"} →
           </Button>
-          <p className="text-center text-xs text-gray-400">
+          <p className="text-center text-xs text-ss-muted">
             Secure card checkout via Paystack. Donations are voluntary and non-refundable, and don&apos;t
             unlock any extra features — the app is free either way.
           </p>
@@ -153,19 +153,19 @@ export default function DonatePage() {
       </GlowFrame>
 
       <Card>
-        <h2 className="mb-2 font-semibold text-navy">Prefer a direct bank transfer?</h2>
-        <p className="text-sm text-gray-600">
+        <h2 className="mb-2 font-semibold text-ss-text">Prefer a direct bank transfer?</h2>
+        <p className="text-sm text-ss-muted">
           You&apos;re welcome to send a donation straight to the project&apos;s bank account instead:
         </p>
-        <dl className="mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-sm text-gray-700">
-          <dt className="font-medium text-gray-500">Bank</dt>
+        <dl className="mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-sm text-ss-text">
+          <dt className="font-medium text-ss-muted">Bank</dt>
           <dd>Capitec Bank</dd>
-          <dt className="font-medium text-gray-500">Account number</dt>
+          <dt className="font-medium text-ss-muted">Account number</dt>
           <dd>2581657193</dd>
-          <dt className="font-medium text-gray-500">SWIFT/BIC</dt>
+          <dt className="font-medium text-ss-muted">SWIFT/BIC</dt>
           <dd>CABLZAJJ</dd>
         </dl>
-        <p className="mt-2 text-xs text-gray-400">
+        <p className="mt-2 text-xs text-ss-muted">
           Please use &quot;Sospana Sonke donation&quot; as your payment reference.
         </p>
       </Card>

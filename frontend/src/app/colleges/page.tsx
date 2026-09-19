@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Guard from "@/components/Guard";
 import { api } from "@/lib/api";
-import { Card, Input, Button, Alert, Spinner } from "@/components/ui";
+import { Card, Input, Button, Alert, Spinner, Select, EmptyState } from "@/components/ui";
 import { Banner } from "@/components/Banner";
 import { NdebeleStrip } from "@/components/NdebeleStrip";
 import { CompanyLogo, isAtsPortal } from "@/components/CompanyLogo";
@@ -188,20 +188,20 @@ function CollegesDirectoryInner() {
           <NdebeleStrip id="colleges-hero-bottom" palette="vivid" flip />
         </div>
 
-        <div className="flex items-center gap-4 rounded-2xl border border-black/5 bg-white/70 px-5 py-4 shadow-sm backdrop-blur-sm">
+        <div className="flex items-center gap-4 rounded-2xl border border-ss-border bg-ss-glass px-5 py-4 shadow-sm backdrop-blur-sm">
           <span className="text-5xl leading-none drop-shadow-sm">{flag}</span>
           <div>
-            <div className="text-xl font-extrabold text-navy">{country}</div>
-            <div className="text-sm text-gray-500">
-              <strong className="text-navy"><AnimatedNumber value={countryTotal} /></strong> colleges ·{" "}
-              <strong className="text-navy"><AnimatedNumber value={countryWithLinks} /></strong> with direct careers links
+            <div className="text-xl font-extrabold text-ss-text">{country}</div>
+            <div className="text-sm text-ss-muted">
+              <strong className="text-ss-text"><AnimatedNumber value={countryTotal} /></strong> colleges ·{" "}
+              <strong className="text-ss-text"><AnimatedNumber value={countryWithLinks} /></strong> with direct careers links
             </div>
           </div>
         </div>
 
         <Card>
           {countries.length > 1 && (
-            <div className="mb-3 flex flex-wrap gap-1.5 border-b border-gray-100 pb-3">
+            <div className="mb-3 flex flex-wrap gap-1.5 border-b border-ss-border pb-3">
               {countries.map((cn) => {
                 const active = !shortlistOnly && country === cn;
                 return (
@@ -209,12 +209,12 @@ function CollegesDirectoryInner() {
                     key={cn}
                     onClick={() => { setShortlistOnly(false); setCountry(cn); }}
                     className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-semibold transition ${
-                      active ? "bg-navy text-white shadow-sm" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                      active ? "bg-navy text-white shadow-sm" : "bg-ss-border text-ss-muted hover:bg-ss-primary-soft hover:text-ss-text"
                     }`}
                   >
                     <span>{COUNTRY_FLAGS[cn] || "🌍"} {cn}</span>
                     <span className={`rounded-full px-1.5 py-0.5 text-[11px] font-bold tabular-nums ${
-                      active ? "bg-white/20 text-white" : "bg-white text-gray-500"
+                      active ? "bg-white/20 text-white" : "bg-ss-surface text-ss-muted"
                     }`}>{countryCounts[cn] ?? 0}</span>
                   </button>
                 );
@@ -222,12 +222,12 @@ function CollegesDirectoryInner() {
               <button
                 onClick={() => setShortlistOnly((v) => !v)}
                 className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-semibold transition ${
-                  shortlistOnly ? "bg-gold text-white shadow-sm" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  shortlistOnly ? "bg-gold text-white shadow-sm" : "bg-ss-border text-ss-muted hover:bg-ss-primary-soft hover:text-ss-text"
                 }`}
               >
                 ⭐ My shortlist
                 <span className={`rounded-full px-1.5 py-0.5 text-[11px] font-bold tabular-nums ${
-                  shortlistOnly ? "bg-white/20 text-white" : "bg-white text-gray-500"
+                  shortlistOnly ? "bg-white/20 text-white" : "bg-ss-surface text-ss-muted"
                 }`}>{shortlistIds.size}</span>
               </button>
             </div>
@@ -241,23 +241,23 @@ function CollegesDirectoryInner() {
                 onChange={(e) => setQ(e.target.value)}
               />
             </div>
-            <label className="flex w-full items-center justify-between gap-2 text-xs text-gray-500 sm:ml-auto sm:w-auto sm:justify-start">
+            <label className="flex w-full items-center justify-between gap-2 text-xs text-ss-muted sm:ml-auto sm:w-auto sm:justify-start">
               Sort by
-              <select
+              <Select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as SortKey)}
-                className="flex-1 rounded-md border border-gray-300 bg-white px-2.5 py-1.5 text-sm text-gray-700 focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20 sm:flex-none"
+                className="flex-1 sm:flex-none"
               >
                 <option value="name">Name (A–Z)</option>
                 <option value="jobs">Most jobs available</option>
                 <option value="updated">Recently updated</option>
-              </select>
+              </Select>
             </label>
           </div>
         </Card>
 
-        <p className="text-sm text-gray-500">
-          Showing <strong className="text-navy">{shownColleges.length}</strong> of{" "}
+        <p className="text-sm text-ss-muted">
+          Showing <strong className="text-ss-text">{shownColleges.length}</strong> of{" "}
           {shortlistOnly ? shortlistIds.size : countryTotal} {shortlistOnly ? "shortlisted colleges" : `colleges in ${country}`}.
         </p>
 
@@ -270,7 +270,7 @@ function CollegesDirectoryInner() {
                 key={c.id}
                 onClick={() => setPreviewCompany(c)}
                 style={{ borderLeftColor: accent }}
-                className="relative cursor-pointer rounded-2xl border border-gray-200/80 border-l-4 bg-white p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_1px_3px_rgba(16,24,40,0.06)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+                className="relative cursor-pointer rounded-2xl border border-ss-border border-l-4 bg-ss-surface p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_1px_3px_rgba(16,24,40,0.06)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
               >
                 <div className="absolute right-3 top-3" onClick={(e) => e.stopPropagation()}>
                   <ShortlistStar companyId={c.id} />
@@ -286,29 +286,29 @@ function CollegesDirectoryInner() {
                       gradient={AVATAR_GRADIENTS[Math.abs(hashCode(c.id)) % AVATAR_GRADIENTS.length]}
                     />
                     <div>
-                      <div className="font-semibold text-navy">{c.company_name}</div>
+                      <div className="font-semibold text-ss-text">{c.company_name}</div>
                       <div className="mt-1 flex flex-wrap items-center gap-1">
                         <span className="rounded-full bg-teal/10 px-2 py-0.5 text-xs font-semibold text-teal">🏫 College</span>
                         {isAtsPortal(c.careers_url) && (
                           <span className="rounded-full bg-navy/10 px-2 py-0.5 text-xs font-semibold text-navy">Apply on their portal</span>
                         )}
                         {trending.has(c.id) && <TrendingBadge />}
-                        {c.country && <span className="text-xs text-gray-400">{c.country}</span>}
+                        {c.country && <span className="text-xs text-ss-muted">{c.country}</span>}
                       </div>
                     </div>
                   </div>
                 </div>
 
-                <div className="mt-3 flex flex-wrap items-center gap-3 border-t border-gray-100 pt-3 text-xs">
+                <div className="mt-3 flex flex-wrap items-center gap-3 border-t border-ss-border pt-3 text-xs">
                   {openJobs > 0 && (
                     <>
                       <span className="font-semibold text-brand-dark">
                         {`${openJobs} open position${openJobs === 1 ? "" : "s"}`}
                       </span>
-                      <span className="text-gray-300">·</span>
+                      <span className="text-ss-border">·</span>
                     </>
                   )}
-                  <span className={c.careers_url ? "font-semibold text-brand-dark" : "text-gray-400"}>
+                  <span className={c.careers_url ? "font-semibold text-brand-dark" : "text-ss-muted"}>
                     {c.careers_url ? "Direct careers link active ✓" : "No careers page yet"}
                   </span>
                 </div>
@@ -319,7 +319,7 @@ function CollegesDirectoryInner() {
                       <Button>View vacancies →</Button>
                     </a>
                   ) : (
-                    <span className="whitespace-nowrap text-xs text-gray-400">No careers page yet</span>
+                    <span className="whitespace-nowrap text-xs text-ss-muted">No careers page yet</span>
                   )}
                 </div>
 
@@ -330,13 +330,17 @@ function CollegesDirectoryInner() {
             );
           })}
           {shownColleges.length === 0 && (
-            <p className="text-sm text-gray-400">
-              {shortlistOnly ? "Your shortlist is empty — tap the ☆ on any card to add one." : "No colleges match your search."}
-            </p>
+            <div className="md:col-span-2">
+              <EmptyState
+                icon={shortlistOnly ? "⭐" : "🔍"}
+                title={shortlistOnly ? "Your shortlist is empty" : "No colleges found"}
+                message={shortlistOnly ? "Tap the ☆ on any card to add one." : "No colleges match your search."}
+              />
+            </div>
           )}
         </div>
 
-        <p className="text-center text-xs text-gray-400">
+        <p className="text-center text-xs text-ss-muted">
           Wondering how complete this list really is?{" "}
           <Link href="/coverage" className="font-semibold text-brand-dark hover:underline">
             See the coverage map →

@@ -112,7 +112,7 @@ function AdminInner() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Admin dashboard</h1>
+        <h1 className="text-2xl font-bold text-ss-text">Admin dashboard</h1>
         <Link href="/admin/companies"><Button variant="ghost">Manage companies</Button></Link>
       </div>
       {err && <Alert kind="error">{err}</Alert>}
@@ -127,9 +127,9 @@ function AdminInner() {
         <h2 className="mb-3 font-semibold">Applications by status</h2>
         <div className="flex flex-wrap gap-2">
           {Object.entries(d.applications_by_status).map(([k, v]) => (
-            <span key={k} className="rounded-lg bg-gray-100 px-3 py-1 text-sm">{k}: <b>{v}</b></span>
+            <span key={k} className="rounded-lg bg-ss-border px-3 py-1 text-sm text-ss-text">{k}: <b>{v}</b></span>
           ))}
-          {Object.keys(d.applications_by_status).length === 0 && <span className="text-sm text-gray-400">None yet.</span>}
+          {Object.keys(d.applications_by_status).length === 0 && <span className="text-sm text-ss-muted">None yet.</span>}
         </div>
       </Card>
 
@@ -150,7 +150,7 @@ function AdminInner() {
 
       <Card>
         <h2 className="mb-1 font-semibold">Suggest a post or link</h2>
-        <p className="mb-3 text-sm text-gray-500">
+        <p className="mb-3 text-sm text-ss-muted">
           Curate something relevant -- an article, a resource, a company post -- and alert specific
           candidates (or everyone) with it. It shows up as a notification on their own dashboard/notifications page.
         </p>
@@ -195,7 +195,7 @@ function AdminInner() {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="text-left text-gray-500">
+              <tr className="text-left text-ss-muted">
                 <th className="py-2 pr-4">
                   <span className="sr-only">Select</span>
                 </th>
@@ -210,26 +210,26 @@ function AdminInner() {
             </thead>
             <tbody>
               {users.map((u) => (
-                <tr key={u.id} className="border-t border-gray-100">
+                <tr key={u.id} className="border-t border-ss-border hover:bg-ss-primary-soft">
                   <td className="py-2 pr-4">
                     <input type="checkbox" checked={selected.has(u.id)} onChange={() => toggleUser(u.id)}
                           aria-label={`Select ${u.email}`} />
                   </td>
-                  <td className="py-2 pr-4 font-medium text-navy">{u.email}</td>
+                  <td className="py-2 pr-4 font-medium text-ss-tech">{u.email}</td>
                   <td className="py-2 pr-4">{u.name}</td>
                   <td className="py-2 pr-4">{u.mobile_number || "—"}</td>
                   <td className="py-2 pr-4">{u.preferred_position || "—"}</td>
                   <td className="py-2 pr-4">{u.qualification_name || "—"}</td>
                   <td className="py-2 pr-4">
-                    <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${u.has_profile ? "bg-brand/10 text-brand-dark" : "bg-gray-100 text-gray-500"}`}>
+                    <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${u.has_profile ? "bg-brand/10 text-brand-dark" : "bg-ss-border text-ss-muted"}`}>
                       {u.has_profile ? "Yes" : "No"}
                     </span>
                   </td>
-                  <td className="py-2 pr-4 text-gray-500">{u.created_at ? u.created_at.slice(0, 10) : "—"}</td>
+                  <td className="py-2 pr-4 text-ss-muted">{u.created_at ? u.created_at.slice(0, 10) : "—"}</td>
                 </tr>
               ))}
               {users.length === 0 && (
-                <tr><td colSpan={8} className="py-3 text-gray-400">No users yet.</td></tr>
+                <tr><td colSpan={8} className="py-3 text-ss-muted">No users yet.</td></tr>
               )}
             </tbody>
           </table>

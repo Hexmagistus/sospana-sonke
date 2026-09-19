@@ -77,7 +77,7 @@ function CoverageInner() {
       </Alert>
 
       <Card>
-        <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">
+        <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-ss-muted">
           Tap a country to jump straight to its listings
         </h2>
         <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-6">
@@ -89,13 +89,13 @@ function CoverageInner() {
               <Link
                 key={country}
                 href={`/companies?country=${encodeURIComponent(country)}`}
-                className="flex flex-col items-center gap-1 rounded-xl border border-gray-100 p-2.5 text-center transition hover:-translate-y-0.5 hover:border-brand/40 hover:shadow-md"
-                style={{ backgroundColor: `rgba(26,158,95,${0.05 + ratio * 0.25})` }}
+                className="flex flex-col items-center gap-1 rounded-xl border border-ss-border p-2.5 text-center transition hover:-translate-y-0.5 hover:border-brand/40 hover:shadow-md"
+                style={{ backgroundColor: `color-mix(in srgb, var(--ss-success) ${Math.round((0.05 + ratio * 0.25) * 100)}%, transparent)` }}
                 title={`${verified} of ${total} verified working`}
               >
                 <span className="text-2xl leading-none">{COUNTRY_FLAGS[country] || "🌍"}</span>
-                <span className="text-[11px] font-semibold leading-tight text-navy">{country}</span>
-                <span className="text-[10px] tabular-nums text-gray-500">{total}</span>
+                <span className="text-[11px] font-semibold leading-tight text-ss-text">{country}</span>
+                <span className="text-[10px] tabular-nums text-ss-muted">{total}</span>
               </Link>
             );
           })}
@@ -106,12 +106,12 @@ function CoverageInner() {
         <Card key={country}>
           <div className="mb-3 flex items-center gap-2">
             <span className="text-2xl leading-none">{COUNTRY_FLAGS[country] || "🌍"}</span>
-            <h2 className="text-lg font-bold text-navy">{country}</h2>
+            <h2 className="text-lg font-bold text-ss-text">{country}</h2>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full min-w-[36rem] text-left text-sm">
               <thead>
-                <tr className="border-b border-gray-100 text-xs uppercase tracking-wide text-gray-400">
+                <tr className="border-b border-ss-border text-xs uppercase tracking-wide text-ss-muted">
                   <th className="py-1.5 pr-3">Category</th>
                   <th className="py-1.5 pr-3">Total</th>
                   <th className="py-1.5 pr-3">Has link</th>
@@ -124,12 +124,12 @@ function CoverageInner() {
                 {[...list]
                   .sort((a, b) => a.source_type.localeCompare(b.source_type))
                   .map((r) => (
-                    <tr key={r.source_type} className="border-b border-gray-50 last:border-0">
-                      <td className="py-1.5 pr-3 font-medium text-gray-700">{r.source_type}</td>
+                    <tr key={r.source_type} className="border-b border-ss-border last:border-0">
+                      <td className="py-1.5 pr-3 font-medium text-ss-text">{r.source_type}</td>
                       <td className="py-1.5 pr-3 tabular-nums">{r.total}</td>
-                      <td className="py-1.5 pr-3 tabular-nums text-gray-500">{r.with_careers_url}</td>
+                      <td className="py-1.5 pr-3 tabular-nums text-ss-muted">{r.with_careers_url}</td>
                       <td className="py-1.5 pr-3 tabular-nums text-brand-dark">{r.verified_ok}</td>
-                      <td className="py-1.5 pr-3 tabular-nums text-gray-500">{r.pending_verification}</td>
+                      <td className="py-1.5 pr-3 tabular-nums text-ss-muted">{r.pending_verification}</td>
                       <td className="py-1.5 pr-3 tabular-nums text-coral">{r.needs_attention}</td>
                     </tr>
                   ))}
