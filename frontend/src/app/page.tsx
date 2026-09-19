@@ -334,26 +334,32 @@ const GREETINGS = [
 const VALUES = ["Ambition", "Opportunity", "Dignity", "Ubuntu", "Hustle", "Growth", "Pride", "Your future"];
 
 // Employer counts are the real, current active-row counts from the company
-// database (backend/seed/company_database_import.csv), recomputed 2026-09-12
-// -- the previous numbers here were stale placeholders that had drifted far
-// from the actual data (some listed countries had zero real rows at all).
-// pending = this country's directory is still just a single flagship
-// university entry, with no company/SOE/private-sector data added yet.
+// database (backend/seed/company_database_import.csv), recomputed 2026-09-19
+// -- the previous numbers here had drifted from the actual data again since
+// the last recompute (2026-09-12) as more rows were added. pending = this
+// country's directory is still just a single flagship university entry, with
+// no company/SOE/private-sector data added yet in the actual company
+// database file -- note that backend/seed/countries/<Country>.csv holds much
+// larger, real research for most of these "pending" countries already (e.g.
+// Nigeria 138 rows, Kenya 112, Ghana 89), but per backend/app/services/
+// bootstrap.py that file tree is staging data, not yet merged into
+// company_database_import.csv or imported into the live database -- so it's
+// deliberately NOT counted here until it actually is, to avoid overstating.
 const LIVE = [
-  { name: "South Africa", flag: "🇿🇦", count: 587, pending: false },
-  { name: "Zimbabwe", flag: "🇿🇼", count: 123, pending: false },
-  { name: "Botswana", flag: "🇧🇼", count: 106, pending: false },
+  { name: "South Africa", flag: "🇿🇦", count: 672, pending: false },
+  { name: "Zimbabwe", flag: "🇿🇼", count: 125, pending: false },
+  { name: "Botswana", flag: "🇧🇼", count: 110, pending: false },
+  { name: "Namibia", flag: "🇳🇦", count: 87, pending: false },
   { name: "DR Congo", flag: "🇨🇩", count: 85, pending: false },
-  { name: "Namibia", flag: "🇳🇦", count: 85, pending: false },
   { name: "Zambia", flag: "🇿🇲", count: 71, pending: false },
+  { name: "Mauritius", flag: "🇲🇺", count: 70, pending: false },
   { name: "Madagascar", flag: "🇲🇬", count: 68, pending: false },
-  { name: "Mauritius", flag: "🇲🇺", count: 66, pending: false },
   { name: "Malawi", flag: "🇲🇼", count: 62, pending: false },
   { name: "Tanzania", flag: "🇹🇿", count: 60, pending: false },
-  { name: "Eswatini", flag: "🇸🇿", count: 59, pending: false },
+  { name: "Eswatini", flag: "🇸🇿", count: 60, pending: false },
   { name: "Lesotho", flag: "🇱🇸", count: 56, pending: false },
-  { name: "Angola", flag: "🇦🇴", count: 55, pending: false },
-  { name: "Mozambique", flag: "🇲🇿", count: 55, pending: false },
+  { name: "Angola", flag: "🇦🇴", count: 56, pending: false },
+  { name: "Mozambique", flag: "🇲🇿", count: 56, pending: false },
   { name: "Seychelles", flag: "🇸🇨", count: 32, pending: false },
   { name: "Comoros", flag: "🇰🇲", count: 25, pending: false },
   { name: "Egypt", flag: "🇪🇬", count: 2, pending: true },
