@@ -1,0 +1,64 @@
+# Daily Career Agent for Sospana Sonke.
+#
+# The backend can already refresh a candidate's matches and draft a tailored
+# CV + cover letter, but until now that only happened when a candidate
+# visited the app. This workflow is what makes it "daily": every night it
+# wakes the API and asks it to (1) close vacancies past their own closing
+# date, so matching never runs against stale listings, then (2) run the
+# Daily Agent -- refresh matches for every active candidate and, for the
+# strongest new ones, draft a CV + cover letter and queue a ready-to-review
+# application. Nothing is ever submitted to an employer automatically: every
+# application it prepares still needs the candidate to approve and submit it
+# themselves.
+#
+# ONE-TIME SETUP (same CRON_SECRET as scan.yml / scrape.yml):
+#   Render dashboard -> sospana-sonke-api -> Environment -> CRON_SECRET
+#   GitHub repo -> Settings -> Secrets and variables -> Actions -> CRON_SECRET
+# Until CRON_SECRET is set in both places the endpoint stays disabled (404).
+
+name: Daily career agent
+
+on:
+  schedule:
+    - cron: "0 3 * * *"    # 03:00 UTC nightly, after the scan/scrape rotations
+  workflow_dispatch: {}      # allow manual "Run workflow" from the Actions tab
+
+concurrency:
+  group: daily-agent
+  cancel-in-progress: false
+
+jobs:
+  run-agent:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wake the API (Render free tier sleeps when idle)
+        run: curl -s -m 90 https://sospana-sonke-api.onrender.com/health || true
+
+      - name: Close vacancies past their closing date
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          if [ -z "$CRON_SECRET" ]; then
+            echo "CRON_SECRET repo secret is not set — add it in Settings > Secrets and variables > Actions."
+            exit 1
+          fi
+          curl -sS -m 120 -X POST \
+            -H "X-Cron-Secret: $CRON_SECRET" \
+            "https://sospana-sonke-api.onrender.com/api/v1/cron/run/close_expired_vacancies"
+
+      - name: Run the daily agent (match, draft, queue for review)
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          code=$(curl -sS -o response.json -w "%{http_code}" \
+            --max-time 600 --retry 2 --retry-delay 30 \
+            -X POST "https://sospana-sonke-api.onrender.com/api/v1/cron/run/run_daily_agent" \
+            -H "X-Cron-Secret: $CRON_SECRET")
+          echo "HTTP $code"
+          echo "Response:"; cat response.json || true
+          echo
+          if [ "$code" != "200" ]; then
+            echo "Daily agent run failed (HTTP $code)."
+            exit 1
+          fi
+          echo "Daily agent run completed."

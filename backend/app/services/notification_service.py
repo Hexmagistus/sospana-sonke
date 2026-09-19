@@ -90,6 +90,53 @@ def notify_action_required(db, *, user, application, vacancy_title, company_name
     )
 
 
+def notify_daily_agent_briefing(db, *, user, application_ids: list[str],
+                                job_run_id: str | None = None) -> Notification | None:
+    """Tell a candidate the Daily Agent drafted new ready-to-review applications
+    for them — CV + cover letter generated, application queued in an
+    awaiting-your-review state. Never implies anything was sent: the candidate
+    still has to open each one and approve/submit it themselves.
+
+    Idempotent per (user, job_run_id) when called from the scheduled job, same
+    pattern as notify_new_jobs_broadcast — a re-run of the same job never
+    re-notifies. Called with no job_run_id (e.g. an ad-hoc/manual run), it
+    always sends, since there's no run to key idempotency on.
+    """
+    if not application_ids:
+        return None
+    from app.models.application import Application
+    from app.models.company import Company
+    from app.models.vacancy import Vacancy
+
+    apps = db.query(Application).filter(Application.id.in_(application_ids)).all()
+    if not apps:
+        return None
+    vacancies = {v.id: v for v in
+                db.query(Vacancy).filter(Vacancy.id.in_({a.vacancy_id for a in apps})).all()}
+    companies = {
+        c.id: c.company_name
+        for c in db.query(Company).filter(Company.id.in_({v.company_id for v in vacancies.values()})).all()
+    }
+
+    count = len(apps)
+    named = [a for a in apps if a.vacancy_id in vacancies]
+    highlights = ", ".join(
+        f"{vacancies[a.vacancy_id].title} at {companies.get(vacancies[a.vacancy_id].company_id, 'a company')}"
+        for a in named[:3]
+    )
+    if count > 3:
+        highlights += f", and {count - 3} more"
+    title = f"Your daily agent found {count} new application{'s' if count != 1 else ''} to review"
+    body = (f"{highlights}. A tailored CV and cover letter were drafted for each one, and they're "
+            f"queued ready to review — nothing is ever sent without you.")
+
+    return create_notification(
+        db, user_id=user.id, to_email=user.email, type="daily_agent_briefing",
+        title=title, body=body, related_type="job_run", related_id=job_run_id,
+        to_phone=getattr(user, "mobile_number", None),
+    )
+
+
 def notify_new_jobs_broadcast(db, *, vacancy_ids: list[str], job_run_id: str) -> int:
     """Alert every active candidate that new vacancies were found in this scan run.
 

@@ -49,6 +49,14 @@ class ApplicationResponse(BaseModel):
     submitted_at: datetime | None
     authorised_at: datetime | None
     created_at: datetime
+    # Enrichment (not on the ORM model — filled in by routes_applications.py so
+    # the frontend can show a job title/company/match score without a second
+    # round-trip per row). Always present in the response, defaulting to None.
+    vacancy_title: str | None = None
+    company_name: str | None = None
+    vacancy_location: str | None = None
+    match_score: float | None = None
+    match_band: str | None = None
 
 
 class ApplicationDetailResponse(ApplicationResponse):

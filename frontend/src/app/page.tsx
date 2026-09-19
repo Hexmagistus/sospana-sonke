@@ -780,10 +780,11 @@ export default function Home() {
       </section>
 
       {/* Pillars */}
-      <section className="mx-auto grid max-w-6xl gap-5 px-4 py-12 sm:grid-cols-3">
+      <section className="mx-auto grid max-w-6xl gap-5 px-4 py-12 sm:grid-cols-2 lg:grid-cols-4">
         {[
           ["🎯", "Straight to employers", `Direct links to ${TOTAL_EMPLOYERS.toLocaleString()}+ companies' official careers pages across the region — no middle-man boards, no games.`, C.red],
           ["🏛️", "Don't miss the SOEs", "Browse open roles at state-owned enterprises across South Africa and the region — filtered and ready to explore.", C.gold],
+          ["🤖", "Your agent works while you sleep", "Every night your Career Agent finds new matches and drafts a tailored CV + cover letter for the strongest ones — a ready-to-review queue waiting for you. Nothing is ever sent without your say-so.", C.sky],
           ["📈", "Track & rise", "Every application in one place. Stay organised, stay ready, and keep moving forward.", C.teal],
         ].map(([ic, t, d, col], i) => (
           <Reveal key={t as string} delay={i * 120}>
@@ -950,8 +951,8 @@ export default function Home() {
         <div className="mt-8 grid gap-5 sm:grid-cols-4">
           {[
             ["1", "Create your profile", "Add your details and upload your CV — once.", C.red],
-            ["2", "Search jobs", "Find roles by title across every employer we track.", C.sun],
-            ["3", "Apply direct", "Apply straight on the employer's official page — no middle-man.", C.green],
+            ["2", "Your agent gets to work", "Every day it finds new matches and drafts a tailored CV + cover letter for the strongest ones.", C.sun],
+            ["3", "Review & approve", "Nothing is ever sent without you — review what your agent prepared, then apply on the employer's official page.", C.green],
             ["4", "Track & win", "Follow every application in one place.", C.sky],
           ].map(([n, t, d, col], i) => (
             <Reveal key={n as string} delay={i * 100}>

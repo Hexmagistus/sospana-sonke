@@ -109,16 +109,16 @@ function DashboardInner() {
                 label="Total applications"
                 value={data.applications_total}
                 accent="teal"
-                href="/tailor/applications"
+                href="/applications"
               />
               <Stat
                 label="Awaiting action"
                 value={data.applications_awaiting_action}
                 accent="gold"
-                href="/tailor/applications"
+                href="/applications"
               />
-              <Stat label="Interviews" value={data.interviews} accent="coral" href="/tailor/applications" />
-              <Stat label="Offers" value={data.offers} accent="purple" href="/tailor/applications" />
+              <Stat label="Interviews" value={data.interviews} accent="coral" href="/applications" />
+              <Stat label="Offers" value={data.offers} accent="purple" href="/applications" />
             </div>
           </div>
 

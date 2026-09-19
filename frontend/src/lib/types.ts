@@ -124,12 +124,24 @@ export interface Application {
   id: string;
   vacancy_id: string;
   match_id: string | null;
+  cv_version_id: string | null;
+  cover_letter_id: string | null;
   mode: string;
   status: string;
+  submission_method: string | null;
   application_url: string | null;
   action_required_note: string | null;
   submitted_at: string | null;
+  authorised_at: string | null;
   created_at: string;
+  // Enrichment -- filled in by the backend (routes_applications.py) so the
+  // list/detail pages can show a job title/company/match score without a
+  // second round-trip per row. Always present, may be null.
+  vacancy_title: string | null;
+  company_name: string | null;
+  vacancy_location: string | null;
+  match_score: number | null;
+  match_band: string | null;
   answers?: AppAnswer[];
   events?: AppEvent[];
 }

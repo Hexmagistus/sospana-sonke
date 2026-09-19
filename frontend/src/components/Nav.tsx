@@ -10,6 +10,7 @@ import { useTheme } from "@/lib/theme";
 const LINKS = [
   { href: "/dashboard", label: "Dashboard" },
   { href: "/agent", label: "Career Agent" },
+  { href: "/applications", label: "My Applications" },
   { href: "/companies", label: "Companies" },
   { href: "/universities", label: "Universities" },
   { href: "/colleges", label: "Colleges" },

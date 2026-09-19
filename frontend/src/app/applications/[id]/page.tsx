@@ -44,9 +44,19 @@ function ApplicationDetailInner() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <h1 className="text-2xl font-bold">Application</h1>
-        <Badge>{app.status}</Badge>
+      <div>
+        <div className="flex flex-wrap items-center gap-3">
+          <h1 className="text-2xl font-bold">{app.vacancy_title || "Application"}</h1>
+          <Badge>{app.status}</Badge>
+        </div>
+        {(app.company_name || app.vacancy_location || app.match_score != null) && (
+          <p className="mt-1 text-sm text-gray-500">
+            {app.company_name}
+            {app.company_name && app.vacancy_location && " · "}
+            {app.vacancy_location}
+            {app.match_score != null && <> · Match {Math.round(app.match_score)}%</>}
+          </p>
+        )}
       </div>
       {msg && <Alert kind="success">{msg}</Alert>}
       {err && <Alert kind="error">{err}</Alert>}

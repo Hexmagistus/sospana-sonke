@@ -232,6 +232,18 @@ def match_all_candidates(db: Session) -> dict:
     return {"candidates_matched": ran, "total_matches": matched}
 
 
+def run_daily_agent(db: Session, job_run_id: str | None = None) -> dict:
+    """Proactive Daily Agent -- always human-approved.
+
+    For every active candidate: refreshes matches, then for the strongest new
+    ones auto-drafts a tailored CV + cover letter and prepares a ready-to-review
+    Application. Never submits anything -- the candidate always approves and
+    submits each application themselves. See app/services/agent_service.py.
+    """
+    from app.services.agent_service import run_daily_agent as _run_daily_agent
+    return _run_daily_agent(db, job_run_id=job_run_id)
+
+
 def test_all_urls(db: Session, limit: int = 200, job_run_id: str | None = None,
                   max_seconds: float = 240.0, client: "httpx.Client | None" = None) -> dict:
     """Bulk careers-URL health check (blueprint sections 13 & 21).
