@@ -2293,3 +2293,9 @@ Institut Superieur de Commerce ISC Kinshasa,,,grey_none_verified,Public institut
 Institut Universitaire de Technologie des Comores,,,grey_none_verified,Public institute of technology,false,pending,Comoros,COLLEGE,
 Seychelles Institute of Technology,,,grey_none_verified,Public technical institute,false,pending,Seychelles,COLLEGE,
 Guy Morel Institute,,,grey_none_verified,Public tertiary institute,false,pending,Seychelles,COLLEGE,
+Cure Day Hospitals,,https://cure.co.za/vacancies/,green_verified,Private day-hospital group (HQ Cape Town),true,pending,South Africa,HOSPITAL,https://cure.co.za
+Africa Health Care (RH Bophelo Group),,https://www.africahealthcare.co.za/careers/,green_verified,Private hospital group (RH Bophelo) multi-province SA,true,pending,South Africa,HOSPITAL,https://www.africahealthcare.co.za
+Lenmed Health,,https://people.lenmed.co.za/vacancy/,green_verified,Private hospital group (HQ Sandton Johannesburg),true,pending,South Africa,HOSPITAL,https://www.lenmed.co.za
+Busamed,,https://busamed.co.za/careers/,amber_company_route,Private hospital group (HQ Durban),true,pending,South Africa,HOSPITAL,https://busamed.co.za
+Life Healthcare Group,,https://www.lifehealthcare.co.za/careers/vacancies/,amber_company_route,Private hospital group (HQ Illovo Johannesburg),true,pending,South Africa,HOSPITAL,https://www.lifehealthcare.co.za
+Zuid-Afrikaans Hospital,,https://www.zah.co.za/careers,amber_company_route,Independent private hospital (Pretoria),true,pending,South Africa,HOSPITAL,https://www.zah.co.za
