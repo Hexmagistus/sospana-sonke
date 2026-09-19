@@ -1123,3 +1123,47 @@ retroactively — the commit that shipped it didn't leave a session-log note at
 the time). `/health` responds `{"status":"ok",...}` in production as of this
 check; no schema change, so this reaches Render on its normal auto-deploy from
 `main` with no extra step needed.
+
+### 2026-09-19 — Claude (Sonnet 5) — COLLEGE category made visible on the site
+Lungani reported "The College category does not appear on the site." Root cause: `COLLEGE`
+had been a real, populated `source_type` since the SADC/continent-wide passes above (186 rows
+in the main CSV), but no frontend code had ever been taught about it — it fell into the
+Companies page's generic "Listed" catch-all with a fallback `"COLLEGE-listed"` badge, the same
+gap Universities had before it got its own chip.
+- `26c8aff` — added `COLLEGE` to `companies/page.tsx`'s `TYPE_BADGE` map ("🏫 College"),
+  widened the filter-state type, added a filtering branch + catch-all exclusion, and added a
+  "🏫 Colleges" filter chip.
+- `2a706dd` — Lungani asked for a dedicated page too ("Add one"): new `frontend/src/app/
+  colleges/page.tsx`, mirroring `/universities/page.tsx` exactly but filtered to
+  `source_type=COLLEGE` (country tabs, search, sort, shortlist, notify/share/report, coverage
+  link). Linked from `Nav.tsx` right after Universities; added `/colleges` to `robots.ts`'s
+  disallow list alongside every other `<Guard>`-gated page. No backend changes needed.
+Both type-checked clean (`tsc --noEmit`) in a fresh clone before pushing. **Confirmed live** —
+Lungani checked Vercel directly ("vercel is done").
+
+### 2026-09-19 — Claude (Sonnet 5) — New HOSPITAL category, South Africa first
+Lungani asked whether hospitals were already a category — they weren't (no `HOSPITAL`
+`source_type` anywhere; a few health-related orgs existed but filed under `DEPT`/`PRIVATE`).
+Asked to start with South Africa, with the standing "direct links only" rule enforced strictly.
+Shipped `b8e59e8` on `main`:
+- Added 6 South African hospital/hospital-group rows to `backend/seed/company_database_import.csv`
+  with `source_type=HOSPITAL`, each fetched and verified before inclusion: Cure Day Hospitals,
+  Africa Health Care (RH Bophelo Group), Lenmed Health (all `green_verified` — live job titles
+  confirmed on the page itself), Busamed, Life Healthcare Group, Zuid-Afrikaans Hospital (all
+  `amber_company_route` — legitimate own-domain recruitment portals, but no live listing visible
+  on the fetched page itself).
+- Deliberately excluded (no genuine own-domain careers link could be verified): Netcare (funnels
+  to a Workday subdomain, not its own domain), Joint Medical Holdings, Clinix Health Group,
+  National Hospital Network (page states no current vacancies), Matlosana Medical Health
+  Services, Icon Oncology (stale listing), and every major public/academic hospital checked
+  (Chris Hani Baragwanath, Groote Schuur, Charlotte Maxeke, Steve Biko, IALCH, Tygerberg,
+  Universitas) — these route only through the provincial Dept of Health e-recruitment circulars
+  already covered under `DEPT`.
+- Frontend: added `HOSPITAL` to `companies/page.tsx`'s `TYPE_BADGE` map ("🏥 Hospital"), widened
+  the filter-state type, added a filtering branch + catch-all exclusion, and added a "🏥
+  Hospitals" filter chip — same pattern as College. Mediclinic/Melomed were already present
+  under `PRIVATE` and left as-is rather than duplicated.
+- Type-checked clean (`tsc --noEmit`) and CSV-parse-validated (correct column count, no
+  malformed rows) in a fresh clone before pushing. No dedicated `/hospitals` page built yet —
+  only the badge/filter chip, matching how College started before Lungani asked for a page too.
+- **Not yet extended beyond South Africa** — next step if Lungani wants it continued.
