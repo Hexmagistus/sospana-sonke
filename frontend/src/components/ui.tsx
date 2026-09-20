@@ -27,10 +27,10 @@ export function Card({
   interactive?: boolean;
 }) {
   const accentCls = accent ? `border-l-4 ${ACCENT_LEFT[accent]}` : "";
-  const interactiveCls = interactive ? "hover:-translate-y-0.5 hover:shadow-[0_8px_24px_-8px_rgba(11,36,71,0.18)] hover:border-ss-primary-border-soft" : "";
+  const interactiveCls = interactive ? "hover:-translate-y-0.5 hover:border-ss-tech hover:shadow-[0_0_0_1px_var(--ss-tech-glow),0_22px_60px_-22px_var(--ss-tech-glow)]" : "";
   return (
     <div
-      className={`rounded-2xl border border-ss-border bg-ss-surface p-5 text-ss-text shadow-[0_1px_2px_rgba(16,24,40,0.04),0_1px_3px_rgba(16,24,40,0.06)] transition-all duration-200 ${accentCls} ${interactiveCls} ${className}`}
+      className={`ss-card-neon rounded-2xl border border-ss-border bg-ss-surface p-5 text-ss-text shadow-[0_1px_2px_rgba(16,24,40,0.04),0_1px_3px_rgba(16,24,40,0.06)] transition-all duration-300 ${accentCls} ${interactiveCls} ${className}`}
     >
       {children}
     </div>
@@ -108,12 +108,12 @@ export function Stat({
           <span>{label}</span>
           {href && <span className={`text-xs font-semibold ${a.val} transition group-hover:translate-x-0.5`}>View →</span>}
         </div>
-        <div className={`mt-1 text-3xl font-bold tracking-tight ${a.val}`}>{value}</div>
+        <div className={`mt-1 text-3xl font-bold tracking-tight ${a.val} [text-shadow:0_0_22px_var(--ss-primary-glow)]`}>{value}</div>
         {hint && <div className="mt-1 text-xs text-ss-muted">{hint}</div>}
       </div>
     </>
   );
-  const cls = "group block overflow-hidden rounded-2xl border border-ss-border bg-ss-surface shadow-[0_1px_2px_rgba(16,24,40,0.04),0_1px_3px_rgba(16,24,40,0.06)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_-8px_rgba(11,36,71,0.18)]";
+  const cls = "ss-card-neon group block overflow-hidden rounded-2xl border border-ss-border bg-ss-surface shadow-[0_1px_2px_rgba(16,24,40,0.04),0_1px_3px_rgba(16,24,40,0.06)] transition-all duration-300 hover:-translate-y-0.5 hover:border-ss-tech hover:shadow-[0_0_0_1px_var(--ss-tech-glow),0_22px_60px_-22px_var(--ss-tech-glow)]";
   return href ? (
     <Link href={href} className={cls}>{inner}</Link>
   ) : (

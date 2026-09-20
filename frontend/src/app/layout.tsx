@@ -134,6 +134,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <main id="main-content" className="mx-auto max-w-6xl px-4 py-6 pb-24 md:pb-6">
               {children}
             </main>
+            <footer className="mx-auto max-w-6xl px-4 pb-28 pt-4 md:pb-8">
+              <p className="mx-auto max-w-2xl text-center text-[11px] leading-relaxed text-ss-muted">
+                🐢💨 Heads-up: our server rides the free tier, so it can be a little slow to wake up — we&apos;re actively speeding things up. We keep Sospana Sonke{" "}
+                <span className="font-semibold text-ss-tech">free for everyone</span>, always. Thanks for your patience!
+              </p>
+            </footer>
             <MobileBottomNav />
             <CommandPalette />
           </AuthProvider>

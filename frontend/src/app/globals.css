@@ -91,15 +91,20 @@ summary:focus-visible {
    Excluded on the public landing page (.landing) which has its own hero. */
 main h1 {
   position: relative;
+  letter-spacing: -0.02em;
+  text-shadow: 0 0 26px var(--ss-primary-glow);
 }
 main h1::after {
   content: "";
   display: block;
-  width: 58px;
+  width: 66px;
   height: 5px;
   margin-top: 10px;
   border-radius: 6px;
   background: linear-gradient(90deg, #ff6b5b, #f5b301, #0f766e, #2f9bf6);
+  background-size: 220% auto;
+  animation: gradient-shift 6s ease-in-out infinite;
+  box-shadow: 0 0 16px var(--ss-primary-glow);
 }
 .landing h1::after,
 .banner h1::after {
@@ -195,4 +200,48 @@ main h1::after {
   .animate-node-pulse {
     animation: none !important;
   }
+}
+
+
+/* ------------------------------------------------------------------ */
+/* Futuristic HUD ambient grid — a faint scan-grid behind every page,   */
+/* fading out toward the edges so it reads as a heads-up display, not   */
+/* graph paper. Uses the theme's own border tint so it's subtle in      */
+/* light mode and glows a little more in Deep Space dark.               */
+/* ------------------------------------------------------------------ */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    linear-gradient(var(--ss-border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--ss-border) 1px, transparent 1px);
+  background-size: 46px 46px;
+  -webkit-mask-image: radial-gradient(ellipse 92% 72% at 50% 0%, #000 18%, transparent 80%);
+  mask-image: radial-gradient(ellipse 92% 72% at 50% 0%, #000 18%, transparent 80%);
+  opacity: 0.55;
+}
+:root[data-theme="dark"] body::before { opacity: 0.75; }
+
+/* Neon "glass card" treatment — a thin luminous top hairline + a soft
+   glow on hover. Layered onto the shared <Card> so every internal page
+   gets the upgrade at once. */
+.ss-card-neon {
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: saturate(1.15);
+}
+.ss-card-neon::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--ss-tech), transparent);
+  opacity: 0.45;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  main h1::after { animation: none !important; }
 }
