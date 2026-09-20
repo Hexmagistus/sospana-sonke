@@ -23,7 +23,7 @@ Oromia Regional State Government,,https://oromia.gov.et,grey_none_verified,Regio
 Amhara Regional State Government,,https://amhara.gov.et,grey_none_verified,Regional state government,false,pending,Ethiopia,MUNI,https://amhara.gov.et
 Tigray Regional State Government,,,grey_none_verified,Regional state government,false,pending,Ethiopia,MUNI,
 Sidama Regional State Government,,,grey_none_verified,Regional state government,false,pending,Ethiopia,MUNI,
-Ethiopian Airlines Group,,https://corporate.ethiopianairlines.com/AboutEthiopian/careers/vacancies,green_verified,"National carrier (wholly state-owned); search result confirms a live vacancies page",true,pending,Ethiopia,SOE,https://corporate.ethiopianairlines.com
+Ethiopian Airlines Group,,https://corporate.ethiopianairlines.com/AboutEthiopian/careers/vacancies,green_verified,National carrier (wholly state-owned); search result confirms a live vacancies page,true,pending,Ethiopia,SOE,https://corporate.ethiopianairlines.com
 Ethio Telecom,,https://www.ethiotelecom.et/career/,amber_company_route,State-owned telecom operator (partially privatized 2021),true,pending,Ethiopia,SOE,https://www.ethiotelecom.et
 Commercial Bank of Ethiopia,,https://www.combanketh.et/en/careers,amber_company_route,State-owned commercial bank (largest in Ethiopia),true,pending,Ethiopia,SOE,https://www.combanketh.et
 National Bank of Ethiopia,,https://nbe.gov.et/careers,grey_none_verified,National central bank,false,pending,Ethiopia,SOE,https://nbe.gov.et
@@ -39,7 +39,7 @@ MIDROC Ethiopia,,https://midroc-ethiopia.com/careers,grey_none_verified,"Major p
 Dashen Bank,,https://dashenbanksc.com/careers,grey_none_verified,Major private commercial bank,false,pending,Ethiopia,PRIVATE,https://dashenbanksc.com
 Awash Bank,,https://www.awashbank.com/careers,grey_none_verified,Largest private commercial bank,false,pending,Ethiopia,PRIVATE,https://www.awashbank.com
 Zemen Bank,,https://zemenbank.com/careers,grey_none_verified,Private commercial bank,false,pending,Ethiopia,PRIVATE,https://zemenbank.com
-BGI Ethiopia,,,grey_none_verified,"Brewer (St. George/Castel Group-affiliated)",false,pending,Ethiopia,PRIVATE,
+BGI Ethiopia,,,grey_none_verified,Brewer (St. George/Castel Group-affiliated),false,pending,Ethiopia,PRIVATE,
 East Africa Bottling Share Company,,,grey_none_verified,Coca-Cola bottler for Ethiopia,false,pending,Ethiopia,PRIVATE,
 Safaricom Telecommunications Ethiopia,,https://www.safaricom.et/careers,grey_none_verified,New telecom entrant (Safaricom-led consortium),false,pending,Ethiopia,PRIVATE,https://www.safaricom.et
 UNICEF Ethiopia,,https://www.unicef.org/ethiopia/careers,amber_company_route,"UN agency; major child health, nutrition and education programs",true,pending,Ethiopia,NGO,https://www.unicef.org/ethiopia
@@ -50,13 +50,18 @@ Ethiopian Red Cross Society,,https://www.ercs.org/careers,grey_none_verified,Nat
 African Union Commission,,https://au.int/en/careers,amber_company_route,Continental body headquartered in Addis Ababa,true,pending,Ethiopia,NGO,https://au.int
 Save the Children Ethiopia,,https://ethiopia.savethechildren.net/jobs,grey_none_verified,Child-focused humanitarian NGO,false,pending,Ethiopia,NGO,https://ethiopia.savethechildren.net
 World Vision Ethiopia,,https://careers.wvi.org/job-opportunities-in-ethiopia,amber_company_route,Christian relief and development NGO,true,pending,Ethiopia,NGO,https://www.wvi.org/ethiopia
-Addis Ababa University,,https://www.aau.edu.et/blog/vacancy-announcement-7/,amber_company_route,"Public university, own-domain vacancy announcements",true,pending,Ethiopia,COLLEGE,https://www.aau.edu.et/blog/vacancy-announcement-7/
-Addis Ababa Science and Technology University,,,grey_none_verified,Public university,false,pending,Ethiopia,COLLEGE,
-Jimma University,,,grey_none_verified,Public university,false,pending,Ethiopia,COLLEGE,
-Bahir Dar University,,,grey_none_verified,Public university,false,pending,Ethiopia,COLLEGE,
-Mekelle University,,,grey_none_verified,Public university,false,pending,Ethiopia,COLLEGE,
-Hawassa University,,,grey_none_verified,Public university,false,pending,Ethiopia,COLLEGE,
-University of Gondar,,,grey_none_verified,Public university,false,pending,Ethiopia,COLLEGE,
-Arba Minch University,,,grey_none_verified,Public university,false,pending,Ethiopia,COLLEGE,
-Haramaya University,,,grey_none_verified,Public university,false,pending,Ethiopia,COLLEGE,
-Adama Science and Technology University,,,grey_none_verified,Public university,false,pending,Ethiopia,COLLEGE,
+Addis Ababa University,,https://www.aau.edu.et/blog/vacancy-announcement-7/,amber_company_route,"Public university, own-domain vacancy announcements",true,pending,Ethiopia,UNI,https://www.aau.edu.et/blog/vacancy-announcement-7/
+Addis Ababa Science and Technology University,,,grey_none_verified,Public university,false,pending,Ethiopia,UNI,
+Jimma University,,,grey_none_verified,Public university,false,pending,Ethiopia,UNI,
+Bahir Dar University,,,grey_none_verified,Public university,false,pending,Ethiopia,UNI,
+Mekelle University,,,grey_none_verified,Public university,false,pending,Ethiopia,UNI,
+Hawassa University,,,grey_none_verified,Public university,false,pending,Ethiopia,UNI,
+University of Gondar,,,grey_none_verified,Public university,false,pending,Ethiopia,UNI,
+Arba Minch University,,,grey_none_verified,Public university,false,pending,Ethiopia,UNI,
+Haramaya University,,,grey_none_verified,Public university,false,pending,Ethiopia,UNI,
+Adama Science and Technology University,,,grey_none_verified,Public university,false,pending,Ethiopia,UNI,
+Black Lion Hospital (Tikur Anbessa),,https://www.aau.edu.et,amber_company_route,BRICS partner: official website only (no confirmed vacancies page); not yet live-verified,true,pending,Ethiopia,HOSPITAL,https://www.aau.edu.et
+St. Paul's Hospital Millennium Medical College,,https://www.sphmmc.edu.et,amber_company_route,BRICS partner: official website only (no confirmed vacancies page); not yet live-verified,true,pending,Ethiopia,HOSPITAL,https://www.sphmmc.edu.et
+Jimma University Medical Center,,https://www.ju.edu.et,amber_company_route,BRICS partner: official website only (no confirmed vacancies page); not yet live-verified,true,pending,Ethiopia,HOSPITAL,https://www.ju.edu.et
+Hawassa University Comprehensive Specialized Hospital,,https://www.hu.edu.et,amber_company_route,BRICS partner: official website only (no confirmed vacancies page); not yet live-verified,true,pending,Ethiopia,HOSPITAL,https://www.hu.edu.et
+Ethiopian TVET Agency (Federal TVET),,https://www.moe.gov.et,amber_company_route,BRICS partner: official website only (no confirmed vacancies page); not yet live-verified,true,pending,Ethiopia,COLLEGE,https://www.moe.gov.et

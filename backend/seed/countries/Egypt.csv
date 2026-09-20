@@ -25,7 +25,7 @@ Alexandria Governorate,,https://www.alexandria.gov.eg,grey_none_verified,Governo
 Giza Governorate,,https://giza.gov.eg,grey_none_verified,Governorate (provincial government),false,pending,Egypt,MUNI,https://giza.gov.eg
 Luxor Governorate,,https://luxor.gov.eg,grey_none_verified,Governorate (provincial government),false,pending,Egypt,MUNI,https://luxor.gov.eg
 Aswan Governorate,,https://aswan.gov.eg,grey_none_verified,Governorate (provincial government),false,pending,Egypt,MUNI,https://aswan.gov.eg
-Suez Canal Authority,,https://www.suezcanal.gov.eg/English/Career/Pages/default.aspx,amber_company_route,"State authority operating the Suez Canal; search result confirms an active careers listing on Indeed",true,pending,Egypt,SOE,https://www.suezcanal.gov.eg
+Suez Canal Authority,,https://www.suezcanal.gov.eg/English/Career/Pages/default.aspx,amber_company_route,State authority operating the Suez Canal; search result confirms an active careers listing on Indeed,true,pending,Egypt,SOE,https://www.suezcanal.gov.eg
 Egyptian General Petroleum Corporation,,http://www.egpc.com.eg/Careers.aspx,amber_company_route,State oil company,true,pending,Egypt,SOE,http://www.egpc.com.eg
 Egyptian Natural Gas Holding Company (EGAS),,https://www.egas.com.eg/careers,grey_none_verified,State natural gas holding company,false,pending,Egypt,SOE,https://www.egas.com.eg
 EgyptAir,,https://www.egyptair.com/en/about-egyptair/careers,amber_company_route,National carrier (state-owned),true,pending,Egypt,SOE,https://www.egyptair.com
@@ -52,20 +52,28 @@ Egyptian Red Crescent Society,,https://www.egyptianrc.org/careers,grey_none_veri
 World Food Programme Egypt,,https://www.wfp.org/careers,amber_company_route,Humanitarian food assistance operations,true,pending,Egypt,NGO,https://www.wfp.org/countries/egypt
 CARE Egypt,,https://www.care.org/careers,grey_none_verified,Humanitarian and development NGO,false,pending,Egypt,NGO,https://www.care.org
 Caritas Egypt,,https://caritas.org/careers,grey_none_verified,Catholic charity and social-services network,false,pending,Egypt,NGO,https://caritas.org
-American University in Cairo AUC,,https://www.aucegypt.edu/about/careers,green_verified,"Private university, own-domain careers",true,pending,Egypt,COLLEGE,https://www.aucegypt.edu/about/careers
-German University in Cairo GUC,,https://www.guc.edu.eg/en/jobs/,green_verified,"Private university, own-domain jobs page",true,pending,Egypt,COLLEGE,https://www.guc.edu.eg/en/jobs/
-Cairo University,,,grey_none_verified,Public university,false,pending,Egypt,COLLEGE,
-Ain Shams University,,,grey_none_verified,Public university,false,pending,Egypt,COLLEGE,
-Alexandria University,,,grey_none_verified,Public university,false,pending,Egypt,COLLEGE,
-Mansoura University,,,grey_none_verified,Public university,false,pending,Egypt,COLLEGE,
-Assiut University,,,grey_none_verified,Public university,false,pending,Egypt,COLLEGE,
-Helwan University,,,grey_none_verified,Public university,false,pending,Egypt,COLLEGE,
-Zagazig University,,,grey_none_verified,Public university,false,pending,Egypt,COLLEGE,
-British University in Egypt BUE,,,grey_none_verified,Private university,false,pending,Egypt,COLLEGE,
-Nile University,,,grey_none_verified,Private university,false,pending,Egypt,COLLEGE,
-Future University in Egypt,,,grey_none_verified,Private university,false,pending,Egypt,COLLEGE,
+American University in Cairo AUC,,https://www.aucegypt.edu/about/careers,green_verified,"Private university, own-domain careers",true,pending,Egypt,UNI,https://www.aucegypt.edu/about/careers
+German University in Cairo GUC,,https://www.guc.edu.eg/en/jobs/,green_verified,"Private university, own-domain jobs page",true,pending,Egypt,UNI,https://www.guc.edu.eg/en/jobs/
+Cairo University,,,grey_none_verified,Public university,false,pending,Egypt,UNI,
+Ain Shams University,,,grey_none_verified,Public university,false,pending,Egypt,UNI,
+Alexandria University,,,grey_none_verified,Public university,false,pending,Egypt,UNI,
+Mansoura University,,,grey_none_verified,Public university,false,pending,Egypt,UNI,
+Assiut University,,,grey_none_verified,Public university,false,pending,Egypt,UNI,
+Helwan University,,,grey_none_verified,Public university,false,pending,Egypt,UNI,
+Zagazig University,,,grey_none_verified,Public university,false,pending,Egypt,UNI,
+British University in Egypt BUE,,,grey_none_verified,Private university,false,pending,Egypt,UNI,
+Nile University,,,grey_none_verified,Private university,false,pending,Egypt,UNI,
+Future University in Egypt,,,grey_none_verified,Private university,false,pending,Egypt,UNI,
 Ezz Steel,,https://www.ezzsteel.com,amber_company_route,BRICS partner: official website only (no confirmed vacancies page); not yet live-verified,true,pending,Egypt,EGX,https://www.ezzsteel.com
 Fawry,,https://fawry.com/careers,pending verification,BRICS partner: careers page from public sources; not yet live-verified,true,pending,Egypt,EGX,https://fawry.com
 Abu Qir Fertilizers,,https://www.abuqir.com,amber_company_route,BRICS partner: official website only (no confirmed vacancies page); not yet live-verified,true,pending,Egypt,EGX,https://www.abuqir.com
 Emaar Misr,,https://www.emaarmisr.com/careers,pending verification,BRICS partner: careers page from public sources; not yet live-verified,true,pending,Egypt,EGX,https://www.emaarmisr.com
 Eastern Egypt Tobacco Holding,,https://www.easterncompany.com,amber_company_route,BRICS partner: official website only (no confirmed vacancies page); not yet live-verified,true,pending,Egypt,EGX,https://www.easterncompany.com
+Technical and Vocational Education and Training (TVET) Egypt,,https://www.tvet.gov.eg,amber_company_route,BRICS partner: official website only (no confirmed vacancies page); not yet live-verified,true,pending,Egypt,SETA,https://www.tvet.gov.eg
+Social Fund for Development Egypt,,https://sfdegypt.org,amber_company_route,BRICS partner: official website only (no confirmed vacancies page); not yet live-verified,true,pending,Egypt,SETA,https://sfdegypt.org
+Federation of Egyptian Industries,,https://www.fei.org.eg,amber_company_route,BRICS partner: official website only (no confirmed vacancies page); not yet live-verified,true,pending,Egypt,SETA,https://www.fei.org.eg
+Kasr Al Ainy Hospital,,https://kasralainy.edu.eg,amber_company_route,BRICS partner: official website only (no confirmed vacancies page); not yet live-verified,true,pending,Egypt,HOSPITAL,https://kasralainy.edu.eg
+Ain Shams University Hospitals,,https://www.asu.edu.eg,amber_company_route,BRICS partner: official website only (no confirmed vacancies page); not yet live-verified,true,pending,Egypt,HOSPITAL,https://www.asu.edu.eg
+Dar Al Fouad Hospital,,https://www.daralfouad.com,amber_company_route,BRICS partner: official website only (no confirmed vacancies page); not yet live-verified,true,pending,Egypt,HOSPITAL,https://www.daralfouad.com
+As-Salam International Hospital,,https://www.assih.com,amber_company_route,BRICS partner: official website only (no confirmed vacancies page); not yet live-verified,true,pending,Egypt,HOSPITAL,https://www.assih.com
+Cleopatra Hospitals Group,,https://www.cleopatrahospitals.com,amber_company_route,BRICS partner: official website only (no confirmed vacancies page); not yet live-verified,true,pending,Egypt,HOSPITAL,https://www.cleopatrahospitals.com
