@@ -55,6 +55,8 @@ def init_db() -> None:
 _NEW_COLUMNS: list[tuple[str, str, str]] = [
     ("users", "preferred_position", "VARCHAR(150)"),
     ("users", "qualification_name", "VARCHAR(200)"),
+    ("users", "policy_accepted_at", "TIMESTAMP WITH TIME ZONE" if not DATABASE_URL.startswith("sqlite") else "TIMESTAMP"),
+    ("users", "policy_version", "VARCHAR(20)"),
     ("companies", "favicon_url", "TEXT"),
     ("companies", "favicon_checked_at", "TIMESTAMP WITH TIME ZONE" if not DATABASE_URL.startswith("sqlite") else "TIMESTAMP"),
     ("companies", "content_hash", "VARCHAR(64)"),

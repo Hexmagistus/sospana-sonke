@@ -33,7 +33,7 @@ export default function RegisterPage() {
     }
     setBusy(true);
     try {
-      await register(form);
+      await register({ ...form, accepted_policy: true });
       router.push("/companies");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Registration failed");

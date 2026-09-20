@@ -1,4 +1,5 @@
 """Request/response schemas for authentication."""
+from datetime import datetime
 from pydantic import BaseModel, EmailStr, Field, ConfigDict
 
 
@@ -12,6 +13,8 @@ class RegisterRequest(BaseModel):
     # since neither is a structured taxonomy yet at registration time.
     preferred_position: str | None = Field(default=None, max_length=150)
     qualification_name: str | None = Field(default=None, max_length=200)
+    # True when the user ticked the POPIA consent box (Privacy Policy + Terms).
+    accepted_policy: bool = False
 
 
 class LoginRequest(BaseModel):
@@ -46,6 +49,8 @@ class UserResponse(BaseModel):
     email_verified: bool
     mfa_enabled: bool
     role: str
+    policy_accepted_at: datetime | None = None
+    policy_version: str | None = None
 
 
 class MFASetupResponse(BaseModel):

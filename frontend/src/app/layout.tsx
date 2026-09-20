@@ -8,6 +8,7 @@ import Nav from "@/components/Nav";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import CommandPalette from "@/components/CommandPalette";
 import PwaRegister from "@/components/PwaRegister";
+import PolicyConsent from "@/components/PolicyConsent";
 import CopyGuard from "@/components/CopyGuard";
 import { SITE_URL, SITE_NAME, SITE_TAGLINE, SITE_DESCRIPTION, SITE_KEYWORDS } from "@/lib/seo";
 
@@ -157,6 +158,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               </p>
             </footer>
             <MobileBottomNav />
+            <PolicyConsent />
             <CommandPalette />
           </AuthProvider>
         </ThemeProvider>

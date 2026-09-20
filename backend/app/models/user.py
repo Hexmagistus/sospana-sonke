@@ -1,5 +1,6 @@
 """User account model (blueprint sections 9 & 15)."""
-from sqlalchemy import String, Boolean
+from sqlalchemy import String, Boolean, DateTime
+from datetime import datetime
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base import Base, UUIDMixin, TimestampMixin
@@ -25,3 +26,7 @@ class User(UUIDMixin, TimestampMixin, Base):
     # 'candidate' or 'admin' (role-based access control, blueprint section 15)
     role: Mapped[str] = mapped_column(String(20), default="candidate", nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    # POPIA consent record: which privacy-policy version the user accepted, and when.
+    # NULL = never accepted (accounts created before the consent flow, or Google sign-ups).
+    policy_accepted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    policy_version: Mapped[str | None] = mapped_column(String(20), nullable=True)

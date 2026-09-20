@@ -22,6 +22,7 @@ interface RegisterData {
   mobile_number?: string;
   preferred_position?: string;
   qualification_name?: string;
+  accepted_policy?: boolean;
 }
 
 const AuthContext = createContext<AuthState | null>(null);

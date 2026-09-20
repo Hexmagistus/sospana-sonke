@@ -9,6 +9,8 @@ export interface User {
   email_verified: boolean;
   mfa_enabled: boolean;
   role: string;
+  policy_accepted_at?: string | null;
+  policy_version?: string | null;
 }
 
 export interface Tokens {

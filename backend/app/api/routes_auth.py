@@ -1,5 +1,6 @@
 """Authentication routes (blueprint Step 1)."""
 import logging
+from datetime import datetime, timezone
 import secrets
 
 import httpx
@@ -21,6 +22,10 @@ from app.schemas.auth import (
 
 logger = logging.getLogger(__name__)
 
+# Bump when the Privacy Policy / Terms change materially; every user is then asked to
+# accept again. Keep in sync with frontend/src/lib/policy.ts.
+CURRENT_POLICY_VERSION = "2026-09-20"
+
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
@@ -39,6 +44,9 @@ def register(request: Request, body: RegisterRequest, db: Session = Depends(get_
         preferred_position=body.preferred_position,
         qualification_name=body.qualification_name,
     )
+    if body.accepted_policy:
+        user.policy_accepted_at = datetime.now(timezone.utc)
+        user.policy_version = CURRENT_POLICY_VERSION
     db.add(user)
     db.commit()
     db.refresh(user)
@@ -169,6 +177,16 @@ def refresh(request: Request, body: RefreshRequest, db: Session = Depends(get_db
 
 @router.get("/me", response_model=UserResponse)
 def me(user: User = Depends(get_current_user)):
+    return UserResponse.model_validate(user)
+
+
+@router.post("/accept-policy", response_model=UserResponse)
+def accept_policy(db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    """Record that the signed-in user accepted the current Privacy Policy and Terms (POPIA consent)."""
+    user.policy_accepted_at = datetime.now(timezone.utc)
+    user.policy_version = CURRENT_POLICY_VERSION
+    db.commit()
+    db.refresh(user)
     return UserResponse.model_validate(user)
 
 
