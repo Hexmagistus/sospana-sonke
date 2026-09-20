@@ -188,7 +188,7 @@ function CompaniesDirectoryInner() {
   const shownCompanies = useMemo(() => {
     const needle = q.trim().toLowerCase();
     const filtered = companies
-      .filter((c) => shortlistOnly || (c.country || "") === country)
+      .filter((c) => shortlistOnly || filter === "Federations" || (c.country || "") === country)
       .filter((c) => !shortlistOnly || shortlistIds.has(c.id))
       .filter((c) => {
         if (filter === "all") return true;
@@ -237,7 +237,8 @@ function CompaniesDirectoryInner() {
 
   const withLinks = companies.filter((c) => c.careers_url).length;
   const flag = COUNTRY_FLAGS[country] || "🌍";
-  const countryTotal = countryCounts[country] ?? 0;
+  const fedTotal = companies.filter((c) => (c.source_type || "").toUpperCase() === "FED").length;
+  const countryTotal = filter === "Federations" ? fedTotal : (countryCounts[country] ?? 0);
   const countryWithLinks = companies.filter((c) => (c.country || "") === country && c.careers_url).length;
 
   if (err) return <Alert kind="error">{err}</Alert>;
@@ -379,7 +380,7 @@ function CompaniesDirectoryInner() {
 
         <p className="text-sm text-ss-muted">
           Showing <strong className="text-ss-text">{shownCompanies.length}</strong> of{" "}
-          {shortlistOnly ? shortlistIds.size : countryTotal} {shortlistOnly ? "shortlisted companies" : `companies in ${country}`}.
+          {shortlistOnly ? shortlistIds.size : countryTotal} {shortlistOnly ? "shortlisted companies" : filter === "Federations" ? "continental & world federations (all regions)" : `companies in ${country}`}.
         </p>
 
         <div className="grid gap-3 md:grid-cols-2">
