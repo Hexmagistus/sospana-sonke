@@ -70,9 +70,12 @@ function Row({ app, onChange }: { app: JobAnalysisSummary; onChange: (a: JobAnal
         <div className="mt-4 space-y-3 border-t border-gray-100 pt-4">
           {err && <Alert kind="error">{err}</Alert>}
           <div className="grid gap-3 sm:grid-cols-2">
+<div>
             <Select value={status} onChange={(e) => setStatus(e.target.value)}>
               {STATUSES.map((s) => <option key={s} value={s}>{STATUS_LABEL[s]}</option>)}
             </Select>
+            <p className="ss-hud-tag mt-1 text-[10px] text-ss-muted">📌 Pick where this application stands</p>
+            </div>
           </div>
           <Textarea rows={2} placeholder="Notes (optional)" value={notes} onChange={(e) => setNotes(e.target.value)} />
           <Button size="sm" onClick={save} loading={saving}>{saving ? "Saving…" : "Save"}</Button>

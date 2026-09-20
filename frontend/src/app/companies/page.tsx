@@ -352,18 +352,13 @@ function CompaniesDirectoryInner() {
                 onChange={(e) => setQ(e.target.value)}
               />
             </div>
-            <div className="flex flex-wrap gap-1">
-              {FILTERS.map((f) => (
-                <button
-                  key={f}
-                  onClick={() => setFilter(f)}
-                  className={`rounded-md px-3 py-1.5 text-sm whitespace-nowrap transition ${
-                    filter === f ? "bg-gradient-to-r from-brand to-brand-dark text-white shadow-sm" : "bg-ss-border text-ss-muted hover:bg-ss-primary-soft hover:text-ss-text"
-                  }`}
-                >
-                  {filterLabel[f]}
-                </button>
-              ))}
+            <div className="min-w-[12rem] sm:max-w-xs">
+              <Select value={filter} onChange={(e) => setFilter(e.target.value as typeof filter)} aria-label="Category">
+                {FILTERS.map((f) => (
+                  <option key={f} value={f}>{filterLabel[f]}</option>
+                ))}
+              </Select>
+              <p className="ss-hud-tag mt-1 text-[10px] text-ss-muted">🗂️ Pick a category: state-owned, universities, hospitals and more</p>
             </div>
             <div className="w-full sm:ml-auto sm:w-auto">
             <label className="flex w-full items-center justify-between gap-2 text-xs text-ss-muted sm:w-auto sm:justify-start">

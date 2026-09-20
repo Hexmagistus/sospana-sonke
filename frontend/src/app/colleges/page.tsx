@@ -241,7 +241,8 @@ function CollegesDirectoryInner() {
                 onChange={(e) => setQ(e.target.value)}
               />
             </div>
-            <label className="flex w-full items-center justify-between gap-2 text-xs text-ss-muted sm:ml-auto sm:w-auto sm:justify-start">
+<div className="w-full sm:ml-auto sm:w-auto">
+            <label className="flex w-full items-center justify-between gap-2 text-xs text-ss-muted sm:w-auto sm:justify-start">
               Sort by
               <Select
                 value={sortBy}
@@ -253,6 +254,8 @@ function CollegesDirectoryInner() {
                 <option value="updated">Recently updated</option>
               </Select>
             </label>
+            <p className="ss-hud-tag mt-1 text-[10px] text-ss-muted">🎛️ Choose how the cards are ordered</p>
+            </div>
           </div>
         </Card>
 
