@@ -57,6 +57,10 @@
   --ss-danger-soft-border: rgba(248, 113, 113, 0.35);
 }
 
+/* Base type scale bump — everything a notch larger & airier so nothing
+   reads small or timid. Tailwind's rem-based sizes/spacing scale with this. */
+html { font-size: 17.5px; }
+
 body {
   min-height: 100vh;
   color: var(--ss-text);

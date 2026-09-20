@@ -44,7 +44,8 @@ export default function RegisterPage() {
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/logo-mark.png" alt="Sospana Sonke" className="h-16 w-16 rounded-2xl object-cover shadow-md" />
       </LogoGlow>
-      <h1 className="mb-4 text-center text-2xl font-bold text-brand">Create your account</h1>
+      <h1 className="animate-gradient-text mb-1 bg-gradient-to-r from-[#22d3ee] via-[#f5b301] to-[#a78bfa] bg-clip-text text-center text-4xl font-extrabold text-transparent [filter:drop-shadow(0_0_16px_rgba(245,179,1,0.45))]">Create your account</h1>
+      <p className="mb-5 text-center text-base font-medium text-ss-text">Free forever. Takes about 60 seconds. Your future self says thanks. 🚀</p>
       <div className="mb-6">
         <Alert kind="info">
           First sign-in taking a while? That&apos;s just our server being woken up (or occasionally updated)

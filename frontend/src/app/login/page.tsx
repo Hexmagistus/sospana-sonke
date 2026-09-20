@@ -120,9 +120,9 @@ export default function LoginPage() {
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/logo-mark.png" alt="Sospana Sonke" className="h-16 w-16 rounded-2xl object-cover shadow-md" />
       </LogoGlow>
-      <h1 className="mb-1 text-center text-2xl font-bold text-brand">Sospana Sonke</h1>
-      <p className="mb-4 text-center text-sm text-ss-muted">
-        We find the opportunities. You apply direct.
+      <h1 className="animate-gradient-text mb-1 bg-gradient-to-r from-[#22d3ee] via-[#f5b301] to-[#a78bfa] bg-clip-text text-center text-4xl font-extrabold text-transparent [filter:drop-shadow(0_0_16px_rgba(245,179,1,0.45))]">Sospana Sonke</h1>
+      <p className="mb-4 text-center text-base font-medium text-ss-text">
+        We find the opportunities. You apply direct. <span className="font-bold text-ss-tech">No middle-man, no fees, no nonsense.</span> 😎
       </p>
       <div className="mb-6">
         <Alert kind="info">
@@ -132,7 +132,8 @@ export default function LoginPage() {
       </div>
       <GlowFrame>
         <Card>
-          <h2 className="mb-4 text-lg font-semibold">Sign in</h2>
+          <h2 className="text-2xl font-extrabold">Sign in</h2>
+          <p className="mb-4 mt-1 text-sm text-ss-muted">Welcome back — your opportunities missed you. 👋</p>
           <form onSubmit={submit} className="space-y-4">
             {error && <Alert kind="error">{error}</Alert>}
             <Field label="Email">
