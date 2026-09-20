@@ -311,6 +311,7 @@ function CompaniesDirectoryInner() {
                     </option>
                   ))}
                 </Select>
+                <p className="ss-hud-tag mt-1 text-[10px] text-ss-muted">🌍 Pick a country to see its employers</p>
               </div>
               {BRICS_PARTNERS.some((cn) => (countryCounts[cn] ?? 0) > 0) && (
                 <div className="min-w-[12rem] flex-1 sm:max-w-xs">
@@ -326,6 +327,7 @@ function CompaniesDirectoryInner() {
                       </option>
                     ))}
                   </Select>
+                  <p className="ss-hud-tag mt-1 text-[10px] text-ss-muted">🌐 Pick a BRICS partner country to browse its employers</p>
                 </div>
               )}
               <button
@@ -363,7 +365,8 @@ function CompaniesDirectoryInner() {
                 </button>
               ))}
             </div>
-            <label className="flex w-full items-center justify-between gap-2 text-xs text-ss-muted sm:ml-auto sm:w-auto sm:justify-start">
+            <div className="w-full sm:ml-auto sm:w-auto">
+            <label className="flex w-full items-center justify-between gap-2 text-xs text-ss-muted sm:w-auto sm:justify-start">
               Sort it by 🎛️
               <Select
                 value={sortBy}
@@ -375,6 +378,8 @@ function CompaniesDirectoryInner() {
                 <option value="updated">Recently updated</option>
               </Select>
             </label>
+            <p className="ss-hud-tag mt-1 text-[10px] text-ss-muted">🎛️ Choose how the cards are ordered</p>
+            </div>
           </div>
         </Card>
         </GlowFrame>
