@@ -22,6 +22,60 @@ from app.services.csv_import import import_companies_from_csv
 
 _SEED = Path(__file__).resolve().parent.parent.parent / "seed" / "company_database_import.csv"
 
+# Sports clubs (as opposed to national sports associations) were seeded briefly and then
+# withdrawn. The seed importer only adds/updates rows, so retire the leftovers here.
+# Idempotent: only touches these exact names in the SPORT category.
+_RETIRED_SPORT_CLUBS = [
+    "Mamelodi Sundowns FC",
+    "Kaizer Chiefs FC",
+    "Orlando Pirates FC",
+    "SuperSport United FC",
+    "Cape Town City FC",
+    "Stellenbosch FC",
+    "AmaZulu FC",
+    "TS Galaxy FC",
+    "Golden Arrows FC",
+    "Chippa United FC",
+    "Richards Bay FC",
+    "Polokwane City FC",
+    "Vodacom Bulls",
+    "DHL Stormers",
+    "Hollywoodbets Sharks",
+    "Emirates Lions",
+    "Toyota Cheetahs",
+    "Griquas Rugby",
+    "SA20 League",
+    "Titans Cricket",
+    "Dolphins Cricket",
+    "Warriors Cricket",
+    "Lions Cricket",
+    "Cape Cobras Cricket",
+    "Knights Cricket",
+    "Comrades Marathon Association",
+    "Sunshine Tour (golf)",
+    "Basketball National League (BNL)",
+    "Cycling South Africa"
+]
+
+
+def _retire_withdrawn_rows(db: Session) -> None:
+    from datetime import datetime, timezone
+    try:
+        rows = (
+            db.query(Company)
+            .filter(Company.source_type == "SPORT", Company.company_name.in_(_RETIRED_SPORT_CLUBS), Company.deleted_at.is_(None))
+            .all()
+        )
+        for c in rows:
+            c.deleted_at = datetime.now(timezone.utc)
+            c.active = False
+        if rows:
+            db.commit()
+            logger.info("Retired %d withdrawn sports club rows", len(rows))
+    except Exception:
+        logger.exception("Retiring withdrawn rows failed; rolled back")
+        db.rollback()
+
 
 def bootstrap(db: Session) -> None:
     if settings.AUTO_SEED and _SEED.exists():
@@ -35,6 +89,8 @@ def bootstrap(db: Session) -> None:
         except Exception:
             logger.exception("Bootstrap CSV import failed; rolled back")
             db.rollback()
+
+    _retire_withdrawn_rows(db)
 
     if settings.ADMIN_EMAIL and settings.ADMIN_PASSWORD:
         email = settings.ADMIN_EMAIL.lower()
