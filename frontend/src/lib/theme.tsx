@@ -26,7 +26,7 @@ interface ThemeContextValue {
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setTheme] = useState<Theme>("light");
+  const [theme, setTheme] = useState<Theme>("dark");
 
   useEffect(() => {
     const current = document.documentElement.getAttribute("data-theme");
@@ -62,9 +62,9 @@ export const THEME_BOOTSTRAP_SCRIPT = `
 (function () {
   try {
     var stored = localStorage.getItem('${STORAGE_KEY}');
-    var theme = stored === 'dark' || stored === 'light'
-      ? stored
-      : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    // Default everyone into the exciting Deep Space (neon) look; only an
+    // explicit user toggle (stored) opts back to light.
+    var theme = stored === 'dark' || stored === 'light' ? stored : 'dark';
     document.documentElement.setAttribute('data-theme', theme);
   } catch (e) {}
 })();

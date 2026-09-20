@@ -30,8 +30,8 @@ export function FunSpinner({ label }: { label?: string }) {
   return (
     <div className="p-8 text-center">
       <Spinner label={label} />
-      <p className="mx-auto mt-3 max-w-sm text-xs leading-relaxed text-ss-muted">{LOADING_JOKES[joke]}</p>
-      <p className="mx-auto mt-2 max-w-xs text-[11px] font-semibold uppercase tracking-wider text-ss-tech">
+      <p className="mx-auto mt-4 max-w-md text-sm leading-relaxed text-ss-text">{LOADING_JOKES[joke]}</p>
+      <p className="mx-auto mt-3 inline-block rounded-full border border-ss-tech/40 bg-ss-tech/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-ss-tech" style={{ boxShadow: "0 0 20px var(--ss-tech-glow)" }}>
         ● Slow server, big heart · always free
       </p>
     </div>

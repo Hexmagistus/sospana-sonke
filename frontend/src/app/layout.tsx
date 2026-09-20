@@ -134,11 +134,20 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <main id="main-content" className="mx-auto max-w-6xl px-4 py-6 pb-24 md:pb-6">
               {children}
             </main>
-            <footer className="mx-auto max-w-6xl px-4 pb-28 pt-4 md:pb-8">
-              <p className="mx-auto max-w-2xl text-center text-[11px] leading-relaxed text-ss-muted">
-                🐢💨 Heads-up: our server rides the free tier, so it can be a little slow to wake up — we&apos;re actively speeding things up. We keep Sospana Sonke{" "}
-                <span className="font-semibold text-ss-tech">free for everyone</span>, always. Thanks for your patience!
-              </p>
+            <footer className="mx-auto max-w-6xl px-4 pb-28 pt-8 md:pb-12">
+              <div
+                className="mx-auto max-w-2xl rounded-2xl border border-ss-tech/30 bg-ss-surface/60 px-5 py-4 text-center backdrop-blur-sm"
+                style={{ boxShadow: "0 0 34px var(--ss-tech-glow)" }}
+              >
+                <p className="text-sm font-semibold leading-relaxed sm:text-base">
+                  <span className="text-xl align-middle">🐢💨</span>{" "}
+                  <span className="animate-gradient-text bg-gradient-to-r from-[#22d3ee] via-[#f5b301] to-[#a78bfa] bg-clip-text font-extrabold text-transparent">
+                    Our server rides the free tier
+                  </span>{" "}
+                  — so it can be a little slow to wake up, and we&apos;re actively speeding it up. We keep Sospana Sonke{" "}
+                  <span className="font-extrabold text-ss-primary" style={{ textShadow: "0 0 18px var(--ss-primary-glow)" }}>free for everyone</span>, always. 💛
+                </p>
+              </div>
             </footer>
             <MobileBottomNav />
             <CommandPalette />
