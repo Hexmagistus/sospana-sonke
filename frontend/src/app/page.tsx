@@ -814,6 +814,72 @@ export default function Home() {
         ))}
       </section>
 
+      {/* Explore by category — futuristic directory launcher */}
+      <section className="mx-auto max-w-6xl px-4 py-12">
+        <Reveal className="text-center">
+          <span
+            className="inline-flex items-center gap-2 rounded-full border border-teal/20 bg-teal/5 px-4 py-1.5 text-xs font-bold uppercase tracking-widest"
+            style={{ color: C.teal, boxShadow: `0 0 22px ${C.mint}33` }}
+          >
+            ◈ Explore by category
+          </span>
+          <h2 className="mt-4 font-display text-2xl font-extrabold sm:text-4xl" style={{ color: C.navy }}>
+            Every door to work,{" "}
+            <span style={{ background: `linear-gradient(90deg,${C.teal},${C.sky},${C.plum})`, WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>
+              in one place
+            </span>
+          </h2>
+          <p className="mx-auto mt-3 max-w-2xl text-gray-600">
+            Tap a sector to open a live directory of employers with direct links to their official careers pages — no job boards, no dead ends.
+          </p>
+        </Reveal>
+
+        <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-3">
+          {[
+            { icon: "🏢", label: "Companies", desc: "JSE-listed & private employers", href: "/companies", col: C.teal },
+            { icon: "🏛️", label: "State-owned", desc: "SOEs & parastatals hiring now", href: "/companies?type=SOE", col: C.plum },
+            { icon: "🎓", label: "Universities", desc: "Academic & research posts", href: "/universities", col: C.sky },
+            { icon: "🏫", label: "Colleges", desc: "TVET & tertiary colleges", href: "/colleges", col: C.green, badge: "Featured" },
+            { icon: "🏥", label: "Hospitals", desc: "Healthcare & clinical roles", href: "/hospitals", col: C.red },
+            { icon: "🛠️", label: "SETAs", desc: "All 21 SA skills authorities", href: "/companies?type=SETA", col: C.gold, badge: "New" },
+          ].map((cat, i) => (
+            <Reveal key={cat.label} delay={i * 80}>
+              <TiltCard>
+                <Link
+                  href={cat.href}
+                  className="group relative block overflow-hidden rounded-2xl border border-white/10 p-5 text-white shadow-xl transition-all duration-300 hover:-translate-y-1"
+                  style={{ background: `linear-gradient(150deg,${C.ink},${C.navy})`, boxShadow: `0 12px 40px -18px ${cat.col}cc` }}
+                >
+                  <CircuitOverlay className="opacity-30" opacity={0.1} />
+                  <span aria-hidden="true" className="pointer-events-none absolute -right-8 -top-8 h-28 w-28 rounded-full opacity-40 blur-2xl transition-opacity duration-300 group-hover:opacity-90" style={{ background: `radial-gradient(circle,${cat.col},transparent 70%)` }} />
+                  <span aria-hidden="true" className="absolute inset-x-0 top-0 h-[2px]" style={{ background: `linear-gradient(90deg,transparent,${cat.col},transparent)` }} />
+                  <div className="relative flex items-start justify-between">
+                    <div
+                      className="flex h-14 w-14 items-center justify-center rounded-xl text-3xl transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-110"
+                      style={{ background: `${cat.col}22`, boxShadow: `inset 0 0 0 1px ${cat.col}55, 0 0 18px ${cat.col}55` }}
+                    >
+                      {cat.icon}
+                    </div>
+                    {cat.badge && (
+                      <span className="rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider" style={{ background: `${cat.col}22`, color: cat.col, boxShadow: `0 0 12px ${cat.col}55` }}>
+                        {cat.badge}
+                      </span>
+                    )}
+                  </div>
+                  <h3 className="relative mt-4 font-display text-lg font-extrabold tracking-tight" style={{ textShadow: `0 0 18px ${cat.col}66` }}>
+                    {cat.label}
+                  </h3>
+                  <p className="relative mt-1 text-xs text-blue-100/80">{cat.desc}</p>
+                  <div className="relative mt-4 inline-flex items-center gap-1 text-xs font-bold" style={{ color: cat.col }}>
+                    Explore <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
+                  </div>
+                </Link>
+              </TiltCard>
+            </Reveal>
+          ))}
+        </div>
+      </section>
+
       {/* Wonders of Africa */}
       <section className="mx-auto max-w-6xl px-4">
         <NdebeleDiamonds id="nd-wonders-top" />
