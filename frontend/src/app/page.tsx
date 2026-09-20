@@ -841,7 +841,7 @@ export default function Home() {
             { icon: "🎓", label: "Universities", desc: "Academic & research posts", href: "/universities", col: C.sky },
             { icon: "🏫", label: "Colleges", desc: "TVET & tertiary colleges", href: "/colleges", col: C.green, badge: "Featured" },
             { icon: "🏥", label: "Hospitals", desc: "Healthcare & clinical roles", href: "/hospitals", col: C.red },
-            { icon: "🛠️", label: "SETAs", desc: "All 21 SA skills authorities", href: "/companies?type=SETA", col: C.gold, badge: "New" },
+            { icon: "🛠️", label: "SETAs & training", desc: "Skills authorities across Africa", href: "/companies?type=SETA", col: C.gold, badge: "New" },
           ].map((cat, i) => (
             <Reveal key={cat.label} delay={i * 80}>
               <TiltCard>
