@@ -282,11 +282,12 @@ function CompaniesDirectoryInner() {
           <NdebeleStrip id="companies-hero-bottom" palette="vivid" flip glow />
         </div>
 
-        <div className="flex items-center gap-4 rounded-2xl border border-ss-border bg-ss-glass px-5 py-4 shadow-sm backdrop-blur-sm">
+        <div className="ss-hud-card flex items-center gap-4 rounded-2xl border border-ss-border bg-ss-glass px-5 py-4 shadow-sm backdrop-blur-sm">
+          <span aria-hidden className="ss-hud-scan !opacity-60 animate-scan-sweep" />
           <span className="text-5xl leading-none drop-shadow-sm">{flag}</span>
           <div>
             <div className="text-xl font-extrabold text-ss-text">{country}</div>
-            <div className="text-sm text-ss-muted">
+            <div className="ss-hud-tag text-xs text-ss-muted">
               <strong className="text-ss-text"><AnimatedNumber value={countryTotal} /></strong> companies ·{" "}
               <strong className="text-ss-text"><AnimatedNumber value={countryWithLinks} /></strong> with direct careers links
             </div>
@@ -395,8 +396,9 @@ function CompaniesDirectoryInner() {
                 key={c.id}
                 onClick={() => setPreviewCompany(c)}
                 style={{ borderLeftColor: accent }}
-                className="relative cursor-pointer rounded-2xl border border-ss-border border-l-4 bg-ss-surface p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_1px_3px_rgba(16,24,40,0.06)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+                className="ss-hud-card cursor-pointer rounded-2xl border border-ss-border border-l-4 bg-ss-surface p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_1px_3px_rgba(16,24,40,0.06)] hover:-translate-y-0.5"
               >
+                <span aria-hidden className="ss-hud-scan" />
                 <div className="absolute right-3 top-3" onClick={(e) => e.stopPropagation()}>
                   <ShortlistStar companyId={c.id} />
                 </div>
@@ -437,8 +439,8 @@ function CompaniesDirectoryInner() {
                       <span className="text-ss-border">·</span>
                     </>
                   )}
-                  <span className={c.careers_url ? "font-semibold text-brand-dark" : "text-ss-muted"}>
-                    {c.careers_url ? "Direct careers link active ✓" : "No careers page yet"}
+                  <span className={`ss-hud-tag ${c.careers_url ? "font-semibold text-brand-dark" : "text-ss-muted"}`}>
+                    {c.careers_url ? <><span className="ss-hud-status mr-1.5 align-middle" />LINK ACTIVE</> : "NO CAREERS PAGE YET"}
                   </span>
                 </div>
 

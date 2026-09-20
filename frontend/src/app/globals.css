@@ -249,3 +249,55 @@ body::before {
 @media (prefers-reduced-motion: reduce) {
   main h1::after { animation: none !important; }
 }
+
+/* Companies page HUD treatment: corner brackets, neon edge and a scan  */
+/* line that sweeps a card on hover.                                     */
+.ss-hud-card {
+  position: relative;
+  overflow: hidden;
+  transition: transform .2s ease, box-shadow .25s ease, border-color .25s ease;
+}
+.ss-hud-card::before,
+.ss-hud-card::after {
+  content: "";
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  pointer-events: none;
+  border: 0 solid var(--ss-tech);
+  opacity: .55;
+  transition: opacity .25s ease, width .25s ease, height .25s ease;
+}
+.ss-hud-card::before { left: 6px; bottom: 6px; border-left-width: 2px; border-bottom-width: 2px; border-bottom-left-radius: 4px; }
+.ss-hud-card::after { right: 6px; bottom: 6px; border-right-width: 2px; border-bottom-width: 2px; border-bottom-right-radius: 4px; }
+.ss-hud-card:hover {
+  border-color: var(--ss-tech);
+  box-shadow: 0 0 0 1px var(--ss-tech), 0 8px 28px -8px var(--ss-tech);
+}
+.ss-hud-card:hover::before,
+.ss-hud-card:hover::after { opacity: 1; width: 22px; height: 22px; }
+.ss-hud-scan {
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 2px;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, var(--ss-tech), transparent);
+  opacity: 0;
+}
+.ss-hud-card:hover .ss-hud-scan { animation: scan-sweep 2.2s ease-in-out infinite; }
+.ss-hud-tag {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.ss-hud-status {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 9999px;
+  background: #22c55e;
+  animation: node-pulse 2.2s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ss-hud-card:hover .ss-hud-scan { animation: none !important; }
+}
