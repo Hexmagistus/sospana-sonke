@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth";
 import { Card, Field, Input, Button, Alert } from "@/components/ui";
+import { WhatsAppChannelButton } from "@/components/WhatsAppChannel";
 import { NdebeleStrip } from "@/components/NdebeleStrip";
 import { CircuitOverlay, GlowFrame, LogoGlow } from "@/components/HighTech";
 
@@ -40,9 +41,9 @@ export default function RegisterPage() {
     <div className="relative mx-auto mt-10 max-w-md">
       <CircuitOverlay className="-z-10 opacity-70" opacity={0.1} stroke="#0b1f3a" dotColor="#f5b301" />
       <NdebeleStrip id="ndebele-register-top" glow className="mb-6 overflow-hidden rounded-t-xl shadow-sm" />
-      <LogoGlow className="mx-auto mb-3 block w-fit">
+      <LogoGlow className="mx-auto mb-4 block w-fit">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/logo-mark.png" alt="Sospana Sonke" className="h-16 w-16 rounded-2xl object-cover shadow-md" />
+        <img src="/logo-mark.png" alt="Sospana Sonke" className="h-24 w-24 rounded-2xl object-cover shadow-[0_0_44px_-4px_var(--ss-primary-glow)] ring-1 ring-ss-primary/30" />
       </LogoGlow>
       <h1 className="animate-gradient-text mb-1 bg-gradient-to-r from-[#22d3ee] via-[#f5b301] to-[#a78bfa] bg-clip-text text-center text-4xl font-extrabold text-transparent [filter:drop-shadow(0_0_16px_rgba(245,179,1,0.45))]">Create your account</h1>
       <p className="mb-5 text-center text-base font-medium text-ss-text">Free forever. Takes about 60 seconds. Your future self says thanks. 🚀</p>
@@ -91,6 +92,12 @@ export default function RegisterPage() {
               {busy ? "Creating…" : "Create account"}
             </Button>
           </form>
+          <div className="mt-5 border-t border-ss-border pt-4 text-center">
+            <p className="mb-2 text-sm text-ss-muted">
+              Want vacancy alerts on WhatsApp? Optional — no number needed, and it never touches your account.
+            </p>
+            <WhatsAppChannelButton source="register" className="w-full" />
+          </div>
           <p className="mt-4 text-center text-sm text-ss-muted">
             Already registered?{" "}
             <Link href="/login" className="text-brand hover:underline">

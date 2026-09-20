@@ -1,4 +1,4 @@
-// Flag emoji for every African country Sospana Sonke operates in.
+// Flag emoji for every country Sospana Sonke operates in (African countries plus the BRICS partners).
 // Keep this in sync with the LIVE array in app/page.tsx whenever a new country is added —
 // this is the single shared source other pages (companies, jobs) pull flags from.
 export const COUNTRY_FLAGS: Record<string, string> = {
@@ -56,4 +56,11 @@ export const COUNTRY_FLAGS: Record<string, string> = {
   "Central African Republic": "🇨🇫",
   "Equatorial Guinea": "🇬🇶",
   "Eritrea": "🇪🇷",
+  "Brazil": "🇧🇷",
+  "Russia": "🇷🇺",
+  "India": "🇮🇳",
+  "China": "🇨🇳",
+  "Iran": "🇮🇷",
+  "United Arab Emirates": "🇦🇪",
+  "Indonesia": "🇮🇩",
 };

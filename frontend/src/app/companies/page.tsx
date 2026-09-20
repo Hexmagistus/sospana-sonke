@@ -16,6 +16,11 @@ import { AnimatedNumber } from "@/components/AnimatedNumber";
 import { FunSpinner } from "@/components/FunSpinner";
 import PendingSearchBanner from "@/components/PendingSearchBanner";
 import { COUNTRY_FLAGS } from "@/lib/countryFlags";
+
+// South Africa's BRICS partners get their own dropdown beside the main country picker.
+// Egypt and Ethiopia are African BRICS members, so they stay in the main list too.
+const BRICS_PARTNERS = ["Brazil", "Russia", "India", "China", "Iran", "United Arab Emirates", "Indonesia", "Egypt", "Ethiopia"];
+const BRICS_ONLY = new Set(BRICS_PARTNERS.slice(0, 7));
 import { getShortlist, SHORTLIST_EVENT } from "@/lib/shortlist";
 import type { Company, Vacancy, TrendingCompany } from "@/lib/types";
 
@@ -289,17 +294,34 @@ function CompaniesDirectoryInner() {
             <div className="mb-3 flex flex-wrap items-center gap-2 border-b border-ss-border pb-3">
               <div className="min-w-[12rem] flex-1 sm:max-w-xs">
                 <Select
-                  value={country}
-                  onChange={(e) => { setShortlistOnly(false); setCountry(e.target.value); }}
+                  value={BRICS_ONLY.has(country) ? "" : country}
+                  onChange={(e) => { if (e.target.value) { setShortlistOnly(false); setCountry(e.target.value); } }}
                   aria-label="Country"
                 >
-                  {countries.map((cn) => (
+                  {BRICS_ONLY.has(country) && <option value="">Choose a country…</option>}
+                  {countries.filter((cn) => !BRICS_ONLY.has(cn)).map((cn) => (
                     <option key={cn} value={cn}>
                       {COUNTRY_FLAGS[cn] || "🌍"} {cn} — {countryCounts[cn] ?? 0}
                     </option>
                   ))}
                 </Select>
               </div>
+              {BRICS_PARTNERS.some((cn) => (countryCounts[cn] ?? 0) > 0) && (
+                <div className="min-w-[12rem] flex-1 sm:max-w-xs">
+                  <Select
+                    value={BRICS_PARTNERS.includes(country) ? country : ""}
+                    onChange={(e) => { if (e.target.value) { setShortlistOnly(false); setCountry(e.target.value); } }}
+                    aria-label="BRICS partners"
+                  >
+                    <option value="">🌐 BRICS partners…</option>
+                    {BRICS_PARTNERS.filter((cn) => (countryCounts[cn] ?? 0) > 0).map((cn) => (
+                      <option key={cn} value={cn}>
+                        {COUNTRY_FLAGS[cn] || "🌍"} {cn} — {countryCounts[cn] ?? 0}
+                      </option>
+                    ))}
+                  </Select>
+                </div>
+              )}
               <button
                 onClick={() => setShortlistOnly((v) => !v)}
                 className={`flex shrink-0 flex-col items-center rounded-xl px-3.5 py-1.5 leading-tight transition ${

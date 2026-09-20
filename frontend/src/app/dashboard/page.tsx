@@ -7,6 +7,7 @@ import { Banner } from "@/components/Banner";
 import { Alert, Card, Skeleton, Stat, StatusBadge } from "@/components/ui";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
+import { WhatsAppChannelCard } from "@/components/WhatsAppChannel";
 import type { Dashboard } from "@/lib/types";
 
 function DashboardInner() {
@@ -121,6 +122,8 @@ function DashboardInner() {
               <Stat label="Offers" value={data.offers} accent="purple" href="/applications" />
             </div>
           </div>
+
+          <WhatsAppChannelCard />
 
           <Card className="flex flex-wrap items-center justify-between gap-2">
             <p className="text-sm text-ss-muted">
