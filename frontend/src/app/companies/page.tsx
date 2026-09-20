@@ -77,6 +77,7 @@ const TYPE_BADGE: Record<string, { label: string; cls: string }> = {
   HOSPITAL: { label: "🏥 Hospital", cls: "bg-coral/10 text-coral" },
   SETA: { label: "🛠️ SETA", cls: "bg-[#1a9e5f]/10 text-[#137a48]" },
   SPORT: { label: "🏅 Sports association", cls: "bg-gold/20 text-[#a9791a]" },
+  FED: { label: "🌐 Federation", cls: "bg-gold/20 text-[#a9791a]" },
 };
 
 function typeBadge(sourceType: string | null | undefined) {
@@ -103,7 +104,7 @@ function CompaniesDirectoryInner() {
   const [trending, setTrending] = useState<Set<string>>(new Set());
   const [err, setErr] = useState("");
   const [q, setQ] = useState("");
-  const [filter, setFilter] = useState<"all" | "listed" | "SOE" | "Municipality" | "Department" | "Private" | "NGO" | "University" | "College" | "Hospital" | "SETA" | "Sports">("all");
+  const [filter, setFilter] = useState<"all" | "listed" | "SOE" | "Municipality" | "Department" | "Private" | "NGO" | "University" | "College" | "Hospital" | "SETA" | "Sports" | "Federations">("all");
   const [country, setCountry] = useState("South Africa");
   const [sortBy, setSortBy] = useState<SortKey>("name");
   const [shortlistOnly, setShortlistOnly] = useState(false);
@@ -202,7 +203,8 @@ function CompaniesDirectoryInner() {
         if (filter === "Hospital") return st === "HOSPITAL";
         if (filter === "SETA") return st === "SETA";
         if (filter === "Sports") return st === "SPORT";
-        return st !== "SOE" && st !== "MUNI" && st !== "PRIVATE" && st !== "NGO" && st !== "UNI" && st !== "COLLEGE" && st !== "HOSPITAL" && st !== "SETA" && st !== "SPORT";
+        if (filter === "Federations") return st === "FED";
+        return st !== "SOE" && st !== "MUNI" && st !== "PRIVATE" && st !== "NGO" && st !== "UNI" && st !== "COLLEGE" && st !== "HOSPITAL" && st !== "SETA" && st !== "SPORT" && st !== "FED";
       })
       .filter((c) => !needle
         || c.company_name.toLowerCase().includes(needle)
@@ -241,11 +243,11 @@ function CompaniesDirectoryInner() {
   if (err) return <Alert kind="error">{err}</Alert>;
   if (!companies.length) return <FunSpinner label="Loading the directory…" />;
 
-  const FILTERS = ["all", "listed", "SOE", "Municipality", "Department", "Private", "NGO", "University", "College", "Hospital", "SETA", "Sports"] as const;
+  const FILTERS = ["all", "listed", "SOE", "Municipality", "Department", "Private", "NGO", "University", "College", "Hospital", "SETA", "Sports", "Federations"] as const;
   const filterLabel: Record<(typeof FILTERS)[number], string> = {
     all: "All", listed: "Listed", SOE: "State-owned", Municipality: "Municipalities",
     Department: "🏛️ Gov depts", Private: "Private", NGO: "🤝 NGOs", University: "🎓 Universities",
-    College: "🏫 Colleges", Hospital: "🏥 Hospitals", SETA: "🛠️ SETAs", Sports: "🏅 Sports associations",
+    College: "🏫 Colleges", Hospital: "🏥 Hospitals", SETA: "🛠️ SETAs", Sports: "🏅 Sports associations", Federations: "🌐 Continental & world federations",
   };
 
   return (

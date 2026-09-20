@@ -42,6 +42,8 @@ export const COUNTRY_FLAGS: Record<string, string> = {
   "Liberia": "🇱🇷",
   "Congo": "🇨🇬",
   "Seychelles": "🇸🇨",
+  "Africa": "🌍",
+  "International": "🌐",
   "Cabo Verde": "🇨🇻",
   "Chad": "🇹🇩",
   "Guinea-Bissau": "🇬🇼",
