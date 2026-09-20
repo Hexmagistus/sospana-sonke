@@ -288,8 +288,8 @@ function CompaniesDirectoryInner() {
           <div>
             <div className="text-xl font-extrabold text-ss-text">{country}</div>
             <div className="ss-hud-tag text-xs text-ss-muted">
-              <strong className="text-ss-text"><AnimatedNumber value={countryTotal} /></strong> companies ·{" "}
-              <strong className="text-ss-text"><AnimatedNumber value={countryWithLinks} /></strong> with direct careers links
+              <strong className="text-ss-text"><AnimatedNumber value={countryTotal} /></strong> employers mapped 📡 ·{" "}
+              <strong className="text-ss-text"><AnimatedNumber value={countryWithLinks} /></strong> with a straight-to-jobs link 🚀
             </div>
           </div>
         </div>
@@ -364,7 +364,7 @@ function CompaniesDirectoryInner() {
               ))}
             </div>
             <label className="flex w-full items-center justify-between gap-2 text-xs text-ss-muted sm:ml-auto sm:w-auto sm:justify-start">
-              Sort by
+              Sort it by 🎛️
               <Select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as SortKey)}
@@ -381,7 +381,7 @@ function CompaniesDirectoryInner() {
 
         <p className="text-sm text-ss-muted">
           Showing <strong className="text-ss-text">{shownCompanies.length}</strong> of{" "}
-          {shortlistOnly ? shortlistIds.size : countryTotal} {shortlistOnly ? "shortlisted companies" : filter === "Federations" ? "continental & world federations (all regions)" : `companies in ${country}`}.
+          {shortlistOnly ? shortlistIds.size : countryTotal} {shortlistOnly ? "shortlisted companies" : filter === "Federations" ? "continental & world federations (all regions)" : `companies in ${country}`}. Pick a card, any card. 🃏
         </p>
 
         <div className="grid gap-3 md:grid-cols-2">
@@ -434,13 +434,13 @@ function CompaniesDirectoryInner() {
                   {openJobs > 0 && (
                     <>
                       <span className="font-semibold text-brand-dark">
-                        {`${openJobs} open position${openJobs === 1 ? "" : "s"}`}
+                        {`🔥 ${openJobs} open position${openJobs === 1 ? "" : "s"} right now`}
                       </span>
                       <span className="text-ss-border">·</span>
                     </>
                   )}
                   <span className={`ss-hud-tag ${c.careers_url ? "font-semibold text-brand-dark" : "text-ss-muted"}`}>
-                    {c.careers_url ? <><span className="ss-hud-status mr-1.5 align-middle" />LINK ACTIVE</> : "NO CAREERS PAGE YET"}
+                    {c.careers_url ? <><span className="ss-hud-status mr-1.5 align-middle" />DIRECT LINK LIVE ⚡</> : "NO JOBS PAGE… YET 👀"}
                   </span>
                 </div>
 
@@ -450,7 +450,7 @@ function CompaniesDirectoryInner() {
                       <Button>{isDept ? "Visit department →" : "View jobs →"}</Button>
                     </a>
                   ) : (
-                    <span className="whitespace-nowrap text-xs text-ss-muted">No careers page yet</span>
+                    <span className="whitespace-nowrap text-xs text-ss-muted">Still hunting for their careers page 🕵️</span>
                   )}
                 </div>
 
@@ -464,17 +464,17 @@ function CompaniesDirectoryInner() {
             <div className="md:col-span-2">
               <EmptyState
                 icon={shortlistOnly ? "⭐" : "🔍"}
-                title={shortlistOnly ? "Your shortlist is empty" : "No companies found"}
-                message={shortlistOnly ? "Tap the ☆ on any card to add one." : "No companies match your search."}
+                title={shortlistOnly ? "Nothing starred yet ✨" : "Hmm, the radar found nothing 🛰️"}
+                message={shortlistOnly ? "Tap the ☆ on any card and it lands here, ready when you are." : "Try a different spelling, or clear a filter and go again."}
               />
             </div>
           )}
         </div>
 
         <p className="text-center text-xs text-ss-muted">
-          Wondering how complete this directory really is?{" "}
+          Curious how much of the map we've covered? 🗺️{" "}
           <Link href="/coverage" className="font-semibold text-brand-dark hover:underline">
-            See the coverage map →
+            Explore the coverage map →
           </Link>
         </p>
       </div>
