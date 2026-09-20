@@ -148,6 +148,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   <span className="font-extrabold text-ss-primary" style={{ textShadow: "0 0 18px var(--ss-primary-glow)" }}>free for everyone</span>, always. 💛
                 </p>
               </div>
+              <p className="mx-auto mt-4 max-w-2xl text-center text-xs leading-relaxed text-ss-muted">
+                Organisation names and logos belong to their owners; listing them does not imply
+                partnership or endorsement.{" "}
+                <a href="/privacy" className="underline hover:text-ss-text">Privacy</a>
+                {" · "}
+                <a href="/terms" className="underline hover:text-ss-text">Terms</a>
+              </p>
             </footer>
             <MobileBottomNav />
             <CommandPalette />

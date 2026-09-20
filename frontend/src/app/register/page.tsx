@@ -18,6 +18,7 @@ export default function RegisterPage() {
   });
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [consent, setConsent] = useState(false);
 
   function set(k: string, v: string) {
     setForm((f) => ({ ...f, [k]: v }));
@@ -26,6 +27,10 @@ export default function RegisterPage() {
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
+    if (!consent) {
+      setError("Please accept the Privacy Policy and Terms to create your account.");
+      return;
+    }
     setBusy(true);
     try {
       await register(form);
@@ -88,7 +93,23 @@ export default function RegisterPage() {
             <Field label="Password (min 8 characters)">
               <Input type="password" value={form.password} onChange={(e) => set("password", e.target.value)} required minLength={8} />
             </Field>
-            <Button type="submit" loading={busy} disabled={busy} glow className="w-full">
+            <label className="flex items-start gap-2 text-sm text-ss-muted">
+              <input
+                type="checkbox"
+                checked={consent}
+                onChange={(e) => setConsent(e.target.checked)}
+                className="mt-1 h-4 w-4 shrink-0 accent-[#f5b301]"
+                required
+              />
+              <span>
+                I have read the{" "}
+                <Link href="/privacy" target="_blank" className="text-brand hover:underline">Privacy Policy</Link>{" "}
+                and{" "}
+                <Link href="/terms" target="_blank" className="text-brand hover:underline">Terms</Link>, and I agree
+                that Sospana Sonke may process my personal information to match me to vacancies, as described there (POPIA).
+              </span>
+            </label>
+            <Button type="submit" loading={busy} disabled={busy || !consent} glow className="w-full">
               {busy ? "Creating…" : "Create account"}
             </Button>
           </form>

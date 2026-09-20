@@ -8,7 +8,7 @@ export default function TermsPage() {
     <div className="mx-auto mt-8 max-w-3xl">
       <Card>
         <h1 className="mb-1 text-2xl font-bold text-brand">Terms of Service</h1>
-        <p className="mb-6 text-sm text-ss-muted">Last updated: 6 September 2026</p>
+        <p className="mb-6 text-sm text-ss-muted">Last updated: 20 September 2026</p>
         <div className="space-y-4 text-sm leading-relaxed text-ss-text">
           <p>
             These terms govern your use of Sospana Sonke (the &quot;Service&quot;). By creating an
@@ -42,6 +42,13 @@ export default function TermsPage() {
             our best to keep them accurate but cannot guarantee that every listing is current or that
             an external site is available. Your application and any hiring decision are between you and
             the employer.
+          </p>
+          <p>
+            Employer, university, college, hospital and public-body names, logos and trade marks belong
+            to their owners and are used only to identify them. Sospana Sonke is independent and is not
+            affiliated with, sponsored by or endorsed by any listed organisation, including those grouped
+            under &quot;BRICS partners&quot;. We link to vacancy pages rather than copying job adverts, and
+            we do not permit bulk copying (scraping) of our curated directory.
           </p>
 
           <h2 className="pt-2 text-lg font-semibold text-ss-text">Availability and changes</h2>
