@@ -95,7 +95,6 @@ function hashCode(s: string): number {
   return h;
 }
 
-type SortKey = "name" | "jobs" | "updated";
 
 function CompaniesDirectoryInner() {
   const searchParams = useSearchParams();
@@ -106,7 +105,6 @@ function CompaniesDirectoryInner() {
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState<"all" | "listed" | "SOE" | "Municipality" | "Department" | "Private" | "NGO" | "University" | "College" | "Hospital" | "SETA" | "Sports" | "Federations">("all");
   const [country, setCountry] = useState("South Africa");
-  const [sortBy, setSortBy] = useState<SortKey>("name");
   const [shortlistOnly, setShortlistOnly] = useState(false);
   const [shortlistIds, setShortlistIds] = useState<Set<string>>(new Set());
   const [previewCompany, setPreviewCompany] = useState<Company | null>(null);
@@ -209,19 +207,8 @@ function CompaniesDirectoryInner() {
       .filter((c) => !needle
         || c.company_name.toLowerCase().includes(needle)
         || (c.jse_code || "").toLowerCase().includes(needle));
-    if (sortBy === "jobs") {
-      return [...filtered].sort((a, b) => (jobsByCompany[b.id] || 0) - (jobsByCompany[a.id] || 0)
-        || a.company_name.localeCompare(b.company_name));
-    }
-    if (sortBy === "updated") {
-      return [...filtered].sort((a, b) => {
-        const at = a.content_changed_at ? new Date(a.content_changed_at).getTime() : 0;
-        const bt = b.content_changed_at ? new Date(b.content_changed_at).getTime() : 0;
-        return bt - at || a.company_name.localeCompare(b.company_name);
-      });
-    }
     return [...filtered].sort((a, b) => a.company_name.localeCompare(b.company_name));
-  }, [companies, q, filter, country, sortBy, jobsByCompany, shortlistOnly, shortlistIds]);
+  }, [companies, q, filter, country, jobsByCompany, shortlistOnly, shortlistIds]);
 
   function surpriseMe() {
     if (!companies.length) return;
@@ -359,21 +346,6 @@ function CompaniesDirectoryInner() {
                 ))}
               </Select>
               <p className="ss-hud-tag mt-1 text-[10px] text-ss-muted">🗂️ Pick a category: state-owned, universities, hospitals and more</p>
-            </div>
-            <div className="w-full sm:ml-auto sm:w-auto">
-            <label className="flex w-full items-center justify-between gap-2 text-xs text-ss-muted sm:w-auto sm:justify-start">
-              Sort it by 🎛️
-              <Select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as SortKey)}
-                className="flex-1 sm:flex-none"
-              >
-                <option value="name">Name (A–Z)</option>
-                <option value="jobs">Most jobs available</option>
-                <option value="updated">Recently updated</option>
-              </Select>
-            </label>
-            <p className="ss-hud-tag mt-1 text-[10px] text-ss-muted">🎛️ Choose how the cards are ordered</p>
             </div>
           </div>
         </Card>

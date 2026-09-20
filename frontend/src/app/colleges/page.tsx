@@ -36,7 +36,6 @@ function hashCode(s: string): number {
   return h;
 }
 
-type SortKey = "name" | "jobs" | "updated";
 
 function CollegesDirectoryInner() {
   const searchParams = useSearchParams();
@@ -46,7 +45,6 @@ function CollegesDirectoryInner() {
   const [err, setErr] = useState("");
   const [q, setQ] = useState("");
   const [country, setCountry] = useState("South Africa");
-  const [sortBy, setSortBy] = useState<SortKey>("name");
   const [shortlistOnly, setShortlistOnly] = useState(false);
   const [shortlistIds, setShortlistIds] = useState<Set<string>>(new Set());
   const [previewCompany, setPreviewCompany] = useState<Company | null>(null);
@@ -126,19 +124,8 @@ function CollegesDirectoryInner() {
       .filter((c) => shortlistOnly || (c.country || "") === country)
       .filter((c) => !shortlistOnly || shortlistIds.has(c.id))
       .filter((c) => !needle || c.company_name.toLowerCase().includes(needle));
-    if (sortBy === "jobs") {
-      return [...filtered].sort((a, b) => (jobsByCollege[b.id] || 0) - (jobsByCollege[a.id] || 0)
-        || a.company_name.localeCompare(b.company_name));
-    }
-    if (sortBy === "updated") {
-      return [...filtered].sort((a, b) => {
-        const at = a.content_changed_at ? new Date(a.content_changed_at).getTime() : 0;
-        const bt = b.content_changed_at ? new Date(b.content_changed_at).getTime() : 0;
-        return bt - at || a.company_name.localeCompare(b.company_name);
-      });
-    }
     return [...filtered].sort((a, b) => a.company_name.localeCompare(b.company_name));
-  }, [colleges, q, country, sortBy, jobsByCollege, shortlistOnly, shortlistIds]);
+  }, [colleges, q, country, jobsByCollege, shortlistOnly, shortlistIds]);
 
   function surpriseMe() {
     if (!colleges.length) return;
@@ -240,21 +227,6 @@ function CollegesDirectoryInner() {
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
               />
-            </div>
-<div className="w-full sm:ml-auto sm:w-auto">
-            <label className="flex w-full items-center justify-between gap-2 text-xs text-ss-muted sm:w-auto sm:justify-start">
-              Sort by
-              <Select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as SortKey)}
-                className="flex-1 sm:flex-none"
-              >
-                <option value="name">Name (A–Z)</option>
-                <option value="jobs">Most jobs available</option>
-                <option value="updated">Recently updated</option>
-              </Select>
-            </label>
-            <p className="ss-hud-tag mt-1 text-[10px] text-ss-muted">🎛️ Choose how the cards are ordered</p>
             </div>
           </div>
         </Card>
