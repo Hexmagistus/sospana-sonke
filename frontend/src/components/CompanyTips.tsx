@@ -30,9 +30,8 @@ export function CompanyTips({ companyId }: { companyId: string }) {
   }, [companyId]);
 
   useEffect(() => {
-    const t = !!getToken();
-    setAuthed(t);
-    if (t) load();
+    setAuthed(!!getToken());
+    load();
   }, [load]);
 
   async function post() {
@@ -53,14 +52,9 @@ export function CompanyTips({ companyId }: { companyId: string }) {
     <div className="mt-5 border-t border-gray-100 pt-4">
       <div className="text-sm font-bold text-navy">💬 Community tips</div>
       <p className="mt-0.5 text-xs text-gray-500">
-        Quick notes from other members to help you decide faster. Tips expire after 60 days.
+        Quick notes from other members to help you decide faster. Visible to everyone; tips disappear after 5 days.
       </p>
-      {!authed ? (
-        <p className="mt-2 text-xs text-gray-600">
-          <Link href="/login" className="font-semibold text-brand-dark underline">Sign in</Link> to read and add tips.
-        </p>
-      ) : (
-        <>
+      {(<>
           {data && data.comments.length > 0 && (
             <div className="mt-2 flex flex-wrap gap-1.5 text-[11px] text-gray-600">
               {TAGS.filter((t) => t.k !== "tip" && (data.counts[t.k] || 0) > 0).map((t) => (
@@ -78,7 +72,7 @@ export function CompanyTips({ companyId }: { companyId: string }) {
                 </div>
                 {c.body && <p className="mt-1 break-words">{c.body}</p>}
                 <div className="mt-1 text-right text-[10px]">
-                  {c.mine ? (
+                  {!authed ? null : c.mine ? (
                     <button className="text-gray-400 hover:text-red-600" onClick={() => api.del(`/comments/${c.id}`).then(load)}>Delete</button>
                   ) : (
                     <button className="text-gray-400 hover:text-red-600" onClick={() => api.post(`/comments/${c.id}/flag`).then(load)}>Report</button>
@@ -87,6 +81,11 @@ export function CompanyTips({ companyId }: { companyId: string }) {
               </li>
             ))}
           </ul>
+          {!authed ? (
+            <p className="mt-3 text-xs text-gray-600">
+              <Link href="/login" className="font-semibold text-brand-dark underline">Sign in</Link> to add a tip.
+            </p>
+          ) : (<>
           <div className="mt-3 flex flex-wrap gap-1.5">
             {TAGS.map((t) => (
               <button key={t.k} onClick={() => setKind(t.k)}
@@ -103,6 +102,7 @@ export function CompanyTips({ companyId }: { companyId: string }) {
             className="mt-2 rounded-lg bg-navy px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-40">
             {busy ? "Posting…" : "Post tip"}
           </button>
+          </>)}
         </>
       )}
     </div>

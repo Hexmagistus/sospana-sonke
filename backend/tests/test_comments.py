@@ -26,7 +26,8 @@ def test_tip_flow_filter_flag_and_delete(client):
     a = register_and_login(client, email="a@example.com")[1]
     b = register_and_login(client, email="b@example.com")[1]
     cid = _mk(client)
-    assert client.get(f"{API}/companies/{cid}/comments").status_code in (401, 403)
+    assert client.get(f"{API}/companies/{cid}/comments").status_code == 200  # public
+    assert client.post(f"{API}/companies/{cid}/comments", json={"kind": "works"}).status_code in (401, 403)
     r = client.post(f"{API}/companies/{cid}/comments", headers=_h(a), json={"kind": "works"})
     assert r.status_code == 201
     r = client.post(f"{API}/companies/{cid}/comments", headers=_h(a), json={"kind": "tip", "body": "Apply before Friday"})

@@ -1,4 +1,6 @@
-"""Community tips under employer links: quick status tags + short tips, so others decide faster."""
+"""Community tips under employer links: quick status tags + short tips, so others decide faster.
+
+Tips are public to every visitor and expire 5 days after posting; only signed-in members can post."""
 from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
@@ -6,7 +8,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
-from app.core.deps import get_current_user, require_admin
+from app.core.deps import get_current_user, get_current_user_optional, require_admin
 from app.core.rate_limit import limiter
 from app.db.session import get_db
 from app.models.comment import CompanyComment, CommentFlag, COMMENT_KINDS, COMMENT_TTL_DAYS
@@ -65,7 +67,7 @@ def _visible(db: Session, company_id: str):
 
 
 @router.get("/comments/summary")
-def summary(db: Session = Depends(get_db), _: User = Depends(get_current_user)):
+def summary(db: Session = Depends(get_db)):
     """{company_id: {"total": n, "works": n}} for card badges."""
     rows = (db.query(CompanyComment.company_id, CompanyComment.kind, func.count())
             .filter(CompanyComment.hidden.is_(False), CompanyComment.expires_at > _now())
@@ -80,7 +82,7 @@ def summary(db: Session = Depends(get_db), _: User = Depends(get_current_user)):
 
 
 @router.get("/companies/{company_id}/comments", response_model=CommentsResponse)
-def list_comments(company_id: str, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+def list_comments(company_id: str, db: Session = Depends(get_db), user: User | None = Depends(get_current_user_optional)):
     purge_expired_comments(db)
     rows = _visible(db, company_id).order_by(CompanyComment.created_at.desc()).limit(50).all()
     users = {u.id: u for u in db.query(User).filter(User.id.in_({r.user_id for r in rows})).all()} if rows else {}
@@ -89,7 +91,7 @@ def list_comments(company_id: str, db: Session = Depends(get_db), user: User = D
         counts[r.kind] = counts.get(r.kind, 0) + 1
     return CommentsResponse(counts=counts, comments=[
         CommentOut(id=r.id, kind=r.kind, body=r.body, author=_name(users.get(r.user_id)),
-                   mine=r.user_id == user.id, created_at=r.created_at) for r in rows
+                   mine=bool(user and r.user_id == user.id), created_at=r.created_at) for r in rows
     ])
 
 

@@ -37,3 +37,23 @@ def require_admin(user: User = Depends(get_current_user)) -> User:
     if user.role != "admin":
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Administrator access required")
     return user
+
+
+_bearer_optional = HTTPBearer(auto_error=False)
+
+
+def get_current_user_optional(
+    creds: HTTPAuthorizationCredentials | None = Depends(_bearer_optional),
+    db: Session = Depends(get_db),
+) -> User | None:
+    """The signed-in user, or None for anonymous visitors (never raises)."""
+    if creds is None:
+        return None
+    try:
+        payload = decode_token(creds.credentials, expected_type="access")
+    except jwt.PyJWTError:
+        return None
+    user = db.get(User, payload.get("sub")) if payload.get("sub") else None
+    if user is None or not user.is_active or user.deleted_at is not None:
+        return None
+    return user
