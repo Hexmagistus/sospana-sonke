@@ -90,7 +90,7 @@ export default function Nav() {
   if (!user) return null;
 
   const linkClass = (active: boolean) =>
-    `rounded-md px-3 py-1.5 text-sm whitespace-nowrap transition ${
+    `rounded-md px-2 py-1.5 text-sm whitespace-nowrap transition xl:px-3 ${
       active ? "bg-gold font-semibold text-navy shadow-sm" : "text-blue-100 hover:bg-white/10 hover:text-white"
     }`;
 
@@ -111,7 +111,7 @@ export default function Nav() {
 
   return (
     <nav className="bg-gradient-to-r from-navy via-navy-light to-brand-dark shadow-lg">
-      <div className="mx-auto flex max-w-6xl items-center gap-1 px-4 py-2.5">
+      <div className="mx-auto flex w-full max-w-6xl items-center gap-1 px-4 py-2.5">
         <Link href="/companies" className="mr-3 flex items-center gap-2 whitespace-nowrap">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logo-mark.png" alt="Sospana Sonke" className="h-8 w-8 rounded-lg object-cover shadow" />
@@ -119,16 +119,16 @@ export default function Nav() {
         </Link>
 
         {/* Desktop / tablet: full link row */}
-        <div className="hidden flex-1 items-center gap-1 md:flex">
+        <div className="hidden min-w-0 flex-1 flex-wrap items-center gap-x-0.5 gap-y-1 lg:flex xl:gap-x-1">
           {LINKS.map((l) => renderLink(l))}
           {user.role === "admin" && (
             <Link href="/admin" className={linkClass(pathname.startsWith("/admin"))}>
               Admin
             </Link>
           )}
-          <div className="ml-auto flex items-center gap-3 whitespace-nowrap">
+          <div className="ml-auto flex shrink-0 items-center gap-3 whitespace-nowrap pl-2">
             <ThemeToggle />
-            <span className="text-xs text-blue-200">{user.email}</span>
+            <span className="hidden max-w-[9rem] truncate text-xs text-blue-200 xl:inline" title={user.email}>{user.email}</span>
             <button
               onClick={() => {
                 logout();
@@ -142,7 +142,7 @@ export default function Nav() {
         </div>
 
         {/* Mobile: theme toggle + hamburger, pushed to the right */}
-        <div className="ml-auto flex items-center gap-1 md:hidden">
+        <div className="ml-auto flex items-center gap-1 lg:hidden">
           <ThemeToggle />
           <button
             type="button"
@@ -166,7 +166,7 @@ export default function Nav() {
 
       {/* Mobile: stacked dropdown panel */}
       {menuOpen && (
-        <div className="border-t border-white/10 px-4 pb-3 pt-2 md:hidden">
+        <div className="border-t border-white/10 px-4 pb-3 pt-2 lg:hidden">
           <div className="flex flex-col gap-1">
             {LINKS.map((l) => renderLink(l, () => setMenuOpen(false)))}
             {user.role === "admin" && (
