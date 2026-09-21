@@ -11,6 +11,7 @@ from app.core.deps import get_current_user
 from app.core.rate_limit import limiter
 from app.core.security import hash_password, verify_password
 from app.db.session import get_db
+from app.models.comment import CompanyComment
 from app.models.message import Message, UserBlock, MessageReport
 from app.models.notification import Notification, PushToken
 from app.models.user import User
@@ -48,6 +49,11 @@ def export_my_data(request: Request, db: Session = Depends(get_db), user: User =
              "expires_at": m.expires_at.isoformat() if m.expires_at else None}
             for m in msgs
         ],
+        "community_tips": [
+            {"company_id": c.company_id, "kind": c.kind, "body": c.body,
+             "posted_at": c.created_at.isoformat() if c.created_at else None}
+            for c in db.query(CompanyComment).filter(CompanyComment.user_id == user.id)
+        ],
         "blocked_user_ids": [b.blocked_id for b in db.query(UserBlock).filter(UserBlock.blocker_id == user.id)],
         "note": "Temporary messages are deleted automatically 24 hours after they are sent. "
                 "Your CV, profile, applications and other records can be requested from the Information Officer.",
@@ -68,6 +74,7 @@ def delete_my_account(request: Request, body: DeleteRequest, db: Session = Depen
     db.query(UserBlock).filter(or_(UserBlock.blocker_id == user.id, UserBlock.blocked_id == user.id)).delete(
         synchronize_session=False)
     db.query(MessageReport).filter(MessageReport.reporter_id == user.id).delete(synchronize_session=False)
+    db.query(CompanyComment).filter(CompanyComment.user_id == user.id).delete(synchronize_session=False)
     db.query(Notification).filter(Notification.user_id == user.id).delete(synchronize_session=False)
     db.query(PushToken).filter(PushToken.user_id == user.id).delete(synchronize_session=False)
     user.email = f"deleted-{user.id}@deleted.invalid"

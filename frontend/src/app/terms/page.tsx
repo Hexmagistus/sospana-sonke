@@ -46,6 +46,14 @@ export default function TermsPage() {
             Report anything suspicious using the Report button on the message.
           </p>
 
+          <h2 className="pt-2 text-lg font-semibold text-ss-text">Community tips</h2>
+          <p>
+            Tips under employer links must be truthful, short and useful to other job-seekers. Do not
+            post insults, personal information, links, contact details, adverts, or requests for money.
+            Tips are opinions of members, not verified by us. We may hide or remove tips and suspend members
+            who break these rules.
+          </p>
+
           <h2 className="pt-2 text-lg font-semibold text-ss-text">Employer links and content</h2>
           <p>
             Vacancy details and links to employer careers pages are provided for convenience. We do

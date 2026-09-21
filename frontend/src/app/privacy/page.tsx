@@ -82,6 +82,17 @@ export default function PrivacyPage() {
             or rent your information.
           </p>
 
+          <h2 className="pt-2 text-lg font-semibold text-ss-text">Community tips on employer links</h2>
+          <p>
+            Signed-in members can add a short tag or tip (up to 300 characters) under an employer&apos;s
+            careers link, for example whether the link works. Tips show your first name and last initial
+            only, are checked automatically (no links, contact details or requests for money), expire after
+            60 days, and are deleted when you delete your account. Other members can report a tip; tips with
+            several reports are hidden until an administrator reviews them. Do not post other people&apos;s
+            personal information. You can delete your own tips at any time, and they are included in your
+            data download.
+          </p>
+
           <h2 className="pt-2 text-lg font-semibold text-ss-text">Temporary messages between members</h2>
           <p>
             Members can switch on messaging and send short text messages to one another. Messaging is off
