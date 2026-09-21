@@ -22,6 +22,23 @@ def _mk(client):
     return c.id
 
 
+def test_tagging_notifies_only_opted_in_members(client):
+    a = register_and_login(client, email="a@example.com")[1]
+    b = register_and_login(client, email="b@example.com")[1]
+    c = register_and_login(client, email="c@example.com")[1]
+    cid = _mk(client)
+    bid = client.get(f"{API}/auth/me", headers=_h(b)).json()["id"]
+    cid_user = client.get(f"{API}/auth/me", headers=_h(c)).json()["id"]
+    client.put(f"{API}/messages/settings", headers=_h(b), json={"allow_messages": True})
+    r = client.post(f"{API}/companies/{cid}/comments", headers=_h(a),
+                    json={"kind": "tip", "body": "@Th check this", "mentions": [bid, cid_user]})
+    assert r.status_code == 201
+    nb = client.get(f"{API}/notifications", headers=_h(b)).json()
+    nc = client.get(f"{API}/notifications", headers=_h(c)).json()
+    assert any(n["type"] == "mention" for n in (nb if isinstance(nb, list) else nb.get("items", [])))
+    assert not any(n["type"] == "mention" for n in (nc if isinstance(nc, list) else nc.get("items", [])))
+
+
 def test_tip_flow_filter_flag_and_delete(client):
     a = register_and_login(client, email="a@example.com")[1]
     b = register_and_login(client, email="b@example.com")[1]

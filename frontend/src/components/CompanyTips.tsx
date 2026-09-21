@@ -24,6 +24,26 @@ export function CompanyTips({ companyId }: { companyId: string }) {
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
+  const [tagQ, setTagQ] = useState("");
+  const [found, setFound] = useState<{ id: string; name: string }[]>([]);
+  const [tagged, setTagged] = useState<{ id: string; name: string }[]>([]);
+
+  useEffect(() => {
+    if (tagQ.trim().length < 2) { setFound([]); return; }
+    const h = window.setTimeout(() => {
+      api.get<{ id: string; name: string }[]>(`/messages/directory?q=${encodeURIComponent(tagQ.trim())}`)
+        .then(setFound).catch(() => setFound([]));
+    }, 300);
+    return () => window.clearTimeout(h);
+  }, [tagQ]);
+
+  function tag(m: { id: string; name: string }) {
+    if (tagged.length >= 3 || tagged.some((t) => t.id === m.id)) return;
+    setTagged([...tagged, m]);
+    setText((t) => `${t}${t && !t.endsWith(" ") ? " " : ""}@${m.name} `.slice(0, 300));
+    setTagQ("");
+    setFound([]);
+  }
 
   const load = useCallback(() => {
     api.get<Resp>(`/companies/${companyId}/comments`).then(setData).catch(() => {});
@@ -38,8 +58,9 @@ export function CompanyTips({ companyId }: { companyId: string }) {
     setBusy(true);
     setErr("");
     try {
-      await api.post(`/companies/${companyId}/comments`, { kind, body: text.trim() || null });
+      await api.post(`/companies/${companyId}/comments`, { kind, body: text.trim() || null, mentions: tagged.map((t) => t.id) });
       setText("");
+      setTagged([]);
       load();
     } catch (e) {
       setErr(e instanceof Error ? e.message : "Could not post.");
@@ -97,6 +118,27 @@ export function CompanyTips({ companyId }: { companyId: string }) {
           <textarea value={text} onChange={(e) => setText(e.target.value)} maxLength={300} rows={2}
             placeholder={kind === "tip" ? "Your tip (no links, emails or phone numbers)" : "Optional short note"}
             className="mt-2 w-full rounded-lg border border-gray-200 p-2 text-xs" />
+          <div className="mt-2">
+            <input value={tagQ} onChange={(e) => setTagQ(e.target.value)} placeholder="@ Tag a member (type a name)"
+              className="w-full rounded-lg border border-gray-200 p-2 text-xs" />
+            {found.length > 0 && (
+              <ul className="mt-1 rounded-lg border border-gray-200 bg-white text-xs shadow-sm">
+                {found.map((m) => (
+                  <li key={m.id}><button type="button" onClick={() => tag(m)} className="block w-full px-2 py-1.5 text-left hover:bg-gray-50">@{m.name}</button></li>
+                ))}
+              </ul>
+            )}
+            {tagged.length > 0 && (
+              <div className="mt-1 flex flex-wrap gap-1">
+                {tagged.map((t) => (
+                  <span key={t.id} className="rounded-full bg-brand/10 px-2 py-0.5 text-[11px] text-brand-dark">
+                    @{t.name} <button type="button" aria-label="Remove tag" onClick={() => setTagged(tagged.filter((x) => x.id !== t.id))}>✕</button>
+                  </span>
+                ))}
+              </div>
+            )}
+            <p className="mt-1 text-[10px] text-gray-400">Only members who allow messages can be tagged. They get a notification.</p>
+          </div>
           {err && <p className="mt-1 text-xs text-red-600">{err}</p>}
           <button disabled={busy || (kind === "tip" && !text.trim())} onClick={post}
             className="mt-2 rounded-lg bg-navy px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-40">

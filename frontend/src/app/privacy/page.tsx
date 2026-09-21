@@ -89,8 +89,9 @@ export default function PrivacyPage() {
             only, are checked automatically (no links, contact details or requests for money), disappear
             automatically 5 days after they are posted, and are deleted when you delete your account. Other members can report a tip; tips with
             several reports are hidden until an administrator reviews them. Do not post other people&apos;s
-            personal information. You can delete your own tips at any time, and they are included in your
-            data download.
+            personal information. You can tag members who have switched messaging on; they receive an in-app
+            notification and pop-up and nothing else is shared with them. You can delete your own tips at
+            any time, and they are included in your data download.
           </p>
 
           <h2 className="pt-2 text-lg font-semibold text-ss-text">Temporary messages between members</h2>

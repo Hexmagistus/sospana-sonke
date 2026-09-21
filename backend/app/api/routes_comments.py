@@ -13,6 +13,8 @@ from app.core.rate_limit import limiter
 from app.db.session import get_db
 from app.models.comment import CompanyComment, CommentFlag, COMMENT_KINDS, COMMENT_TTL_DAYS
 from app.models.company import Company
+from app.models.message import UserBlock
+from app.services.notification_service import create_notification
 from app.models.user import User
 from app.services.message_filter import check_message
 
@@ -57,6 +59,7 @@ class CommentsResponse(BaseModel):
 class CommentIn(BaseModel):
     kind: str
     body: str | None = Field(default=None, max_length=300)
+    mentions: list[str] = Field(default_factory=list, max_length=3)  # tagged member ids (opt-in members only)
 
 
 def _visible(db: Session, company_id: str):
@@ -64,6 +67,28 @@ def _visible(db: Session, company_id: str):
         CompanyComment.company_id == company_id, CompanyComment.hidden.is_(False),
         CompanyComment.expires_at > _now(),
     )
+
+
+def _notify_mentions(db: Session, c: CompanyComment, author: User, company: Company, ids: list[str]) -> None:
+    """In-app notice to tagged members. Only opted-in (allow_messages), active, non-blocking members can be tagged."""
+    for uid in dict.fromkeys(ids):
+        if uid == author.id:
+            continue
+        target = db.get(User, uid)
+        if not target or not target.is_active or target.deleted_at is not None or not target.allow_messages:
+            continue
+        if db.query(UserBlock.id).filter(
+                ((UserBlock.blocker_id == uid) & (UserBlock.blocked_id == author.id)) |
+                ((UserBlock.blocker_id == author.id) & (UserBlock.blocked_id == uid))).first():
+            continue
+        create_notification(
+            db, user_id=uid, to_email=None, type="mention",
+            title=f"{_name(author)} tagged you on {company.company_name}",
+            body=(c.body or "See the tip on this employer's link.")[:200],
+            related_type="comment", related_id=c.id, send_email=False,
+            link_url=f"/companies?company={company.id}",
+        )
+    db.commit()
 
 
 @router.get("/comments/summary")
@@ -103,7 +128,8 @@ def add_comment(request: Request, company_id: str, body: CommentIn, db: Session 
         raise HTTPException(403, "Your posting privileges are suspended.")
     if body.kind not in COMMENT_KINDS:
         raise HTTPException(422, "Unknown tag.")
-    if not db.get(Company, company_id):
+    company = db.get(Company, company_id)
+    if not company:
         raise HTTPException(404, "Company not found.")
     text = (body.body or "").strip() or None
     if body.kind == "tip" and not text:
@@ -122,6 +148,7 @@ def add_comment(request: Request, company_id: str, body: CommentIn, db: Session 
     db.add(c)
     db.commit()
     db.refresh(c)
+    _notify_mentions(db, c, user, company, body.mentions)
     return CommentOut(id=c.id, kind=c.kind, body=c.body, author=_name(user), mine=True, created_at=c.created_at)
 
 
