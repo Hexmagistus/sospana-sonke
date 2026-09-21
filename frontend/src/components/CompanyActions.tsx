@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { api, ApiError } from "@/lib/api";
 import { Button, Textarea } from "@/components/ui";
 import { isShortlisted, toggleShortlist } from "@/lib/shortlist";
+import { CompanyTips } from "@/components/CompanyTips";
 import type { Company } from "@/lib/types";
 
 function timeAgo(iso: string | null | undefined): string | null {
@@ -98,13 +99,13 @@ export function ShortlistStar({ companyId }: { companyId: string }) {
  * Universities directories so every listed employer gets the same feedback
  * loop, whatever page it's browsed from. */
 export function CompanyActionsRow({ company, shareBasePath }: { company: Company; shareBasePath: string }) {
-  const [open, setOpen] = useState<"notify" | "report" | null>(null);
+  const [open, setOpen] = useState<"notify" | "report" | "tips" | null>(null);
   const [reason, setReason] = useState("");
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
   const [celebrate, setCelebrate] = useState(false);
 
-  function toggle(which: "notify" | "report") {
+  function toggle(which: "notify" | "report" | "tips") {
     setOpen((cur) => (cur === which ? null : which));
     setMsg("");
   }
@@ -196,6 +197,14 @@ export function CompanyActionsRow({ company, shareBasePath }: { company: Company
           >
             🔔 Notify me
           </button>
+          {company.careers_url && (
+            <button
+              onClick={() => toggle("tips")}
+              className={`rounded-md px-2.5 py-1 text-xs font-medium transition ${open === "tips" ? "bg-brand-dark text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}
+            >
+              💬 Tips
+            </button>
+          )}
           <button
             onClick={share}
             className="rounded-md bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600 transition hover:bg-gray-200"
@@ -217,6 +226,8 @@ export function CompanyActionsRow({ company, shareBasePath }: { company: Company
           <Button size="sm" loading={busy} onClick={subscribe}>Notify me</Button>
         </div>
       )}
+
+      {open === "tips" && <CompanyTips companyId={company.id} />}
 
       {open === "report" && (
         <div className="mt-2 space-y-2">

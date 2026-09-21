@@ -3,7 +3,6 @@
 import { useEffect } from "react";
 import { Button } from "@/components/ui";
 import { CompanyActionsRow } from "@/components/CompanyActions";
-import { CompanyTips } from "@/components/CompanyTips";
 import { COUNTRY_FLAGS } from "@/lib/countryFlags";
 import type { Company } from "@/lib/types";
 
@@ -77,8 +76,6 @@ export function CompanyPreviewModal({
         </div>
 
         <CompanyActionsRow company={company} shareBasePath={shareBasePath} />
-
-        {company.careers_url && <CompanyTips companyId={company.id} />}
       </div>
     </div>
   );
