@@ -49,6 +49,27 @@ commit it (and push, if you pushed the rest of your work). Newest entry on top.
 
 ## Session Log
 
+### 2026-09-21 — Claude (Cowork) — SADC batch 2 COLLEGE research retried + merged (40 new rows); starting grants/awards + valuation research
+The SADC batch-2 COLLEGE research (Angola, Mauritius, Malawi, Madagascar, DR Congo,
+Seychelles, Comoros) had failed twice before to session rate limits with zero output.
+Retried today as 7 parallel subagents — all 7 succeeded this time. Verified against each
+country's real accreditation body where one exists (Angola MESCTI, DRC ESU ministry, etc.),
+strict direct-careers-link-only rule applied throughout (grey_none_verified + blank URL
+where no genuine institution-run careers page could be confirmed, rather than guessing).
+49 rows researched, 40 were genuinely new (9 already existed in the DB from earlier work)
+and were appended to `backend/seed/company_database_import.csv`
+(2950 rows -> 2990 rows). Committed and pushed.
+
+Still outstanding: the ~34 non-SADC African countries for the COLLEGE category have not
+been started at all yet. None of the accumulated COLLEGE/company data (this batch or any
+earlier one) has been imported into the live production DB yet — still requires Lungani's
+admin login for `POST /api/v1/companies/import`.
+
+Also this session: researched grants/awards the platform can apply for, and gave an honest
+USD valuation estimate, in response to a direct chat request (not written to this repo —
+see the conversation/chat history for that output, it's advisory content, not code/data).
+
+
 ### 2026-09-19 (final) — Claude (Cowork, this account) — Design rollout complete: all 22 pages on ss-* tokens
 Finished what the earlier entries this same day started. All three remaining batches landed:
 - Batch 2 (7 pages, commit `f04ffef`): login, register, notifications, security, subscription,
