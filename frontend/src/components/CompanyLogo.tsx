@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { API_BASE } from "@/lib/api";
+import { DATA_SAVER_EVENT, isDataSaver } from "@/lib/dataSaver";
 
 // Careers links that sit on a third-party ATS / job board — their favicon is the
 // platform's logo, not the employer's, so we never take the logo from these.
@@ -138,7 +139,14 @@ export function CompanyLogo({
   }, [name, website, careersUrl, country, logoUrl, id]);
 
   const [idx, setIdx] = useState(0);
-  const useLogo = sources.length > 0 && idx < sources.length;
+  const [saver, setSaver] = useState(false);
+  useEffect(() => {
+    const sync = () => setSaver(isDataSaver());
+    sync();
+    window.addEventListener(DATA_SAVER_EVENT, sync);
+    return () => window.removeEventListener(DATA_SAVER_EVENT, sync);
+  }, []);
+  const useLogo = !saver && sources.length > 0 && idx < sources.length;
 
   if (!useLogo) {
     return (

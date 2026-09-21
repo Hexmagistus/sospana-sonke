@@ -10,6 +10,7 @@ import CommandPalette from "@/components/CommandPalette";
 import PwaRegister from "@/components/PwaRegister";
 import PolicyConsent from "@/components/PolicyConsent";
 import MentionPopup from "@/components/MentionPopup";
+import PwaExtras from "@/components/PwaExtras";
 import CopyGuard from "@/components/CopyGuard";
 import { SITE_URL, SITE_NAME, SITE_TAGLINE, SITE_DESCRIPTION, SITE_KEYWORDS } from "@/lib/seo";
 
@@ -158,6 +159,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <a href="/terms" className="underline hover:text-ss-text">Terms</a>
               </p>
             </footer>
+            <PwaExtras />
             <MobileBottomNav />
             <PolicyConsent />
             <MentionPopup />
