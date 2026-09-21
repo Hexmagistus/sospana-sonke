@@ -92,17 +92,19 @@ def _notify_mentions(db: Session, c: CompanyComment, author: User, company: Comp
 
 
 @router.get("/comments/summary")
-def summary(db: Session = Depends(get_db)):
+def summary(db: Session = Depends(get_db)):  # public
     """{company_id: {"total": n, "works": n}} for card badges."""
-    rows = (db.query(CompanyComment.company_id, CompanyComment.kind, func.count())
+    rows = (db.query(CompanyComment)
             .filter(CompanyComment.hidden.is_(False), CompanyComment.expires_at > _now())
-            .group_by(CompanyComment.company_id, CompanyComment.kind).all())
-    out: dict[str, dict[str, int]] = {}
-    for cid, kind, n in rows:
-        d = out.setdefault(cid, {"total": 0, "works": 0, "broken": 0})
-        d["total"] += n
-        if kind in ("works", "broken"):
-            d[kind] += n
+            .order_by(CompanyComment.created_at.desc()).limit(2000).all())
+    users = {u.id: u for u in db.query(User).filter(User.id.in_({r.user_id for r in rows})).all()} if rows else {}
+    out: dict[str, dict] = {}
+    for r in rows:  # newest first, so the first row per company is its latest tip
+        d = out.setdefault(r.company_id, {"total": 0, "works": 0, "broken": 0, "latest": {
+            "kind": r.kind, "body": r.body, "author": _name(users.get(r.user_id))}})
+        d["total"] += 1
+        if r.kind in ("works", "broken"):
+            d[r.kind] += 1
     return out
 
 

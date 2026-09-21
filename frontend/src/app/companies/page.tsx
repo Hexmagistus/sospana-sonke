@@ -11,6 +11,7 @@ import { NdebeleStrip } from "@/components/NdebeleStrip";
 import { CircuitOverlay, GlowFrame } from "@/components/HighTech";
 import { CompanyLogo, isAtsPortal } from "@/components/CompanyLogo";
 import { CompanyActionsRow, TrendingBadge, ShortlistStar } from "@/components/CompanyActions";
+import { TipPreview } from "@/components/TipPreview";
 import { CompanyPreviewModal } from "@/components/CompanyPreviewModal";
 import { AnimatedNumber } from "@/components/AnimatedNumber";
 import { FunSpinner } from "@/components/FunSpinner";
@@ -435,11 +436,14 @@ function CompaniesDirectoryInner() {
                   </span>
                 </div>
 
-                <div className="mt-3" onClick={(e) => e.stopPropagation()}>
+                <div className="mt-3 flex flex-wrap items-stretch gap-3" onClick={(e) => e.stopPropagation()}>
                   {c.careers_url ? (
-                    <a href={c.careers_url} target="_blank" rel="noopener noreferrer">
-                      <Button>{isDept ? "Visit department →" : "View jobs →"}</Button>
-                    </a>
+                    <>
+                      <a href={c.careers_url} target="_blank" rel="noopener noreferrer" className="self-center">
+                        <Button>{isDept ? "Visit department →" : "View jobs →"}</Button>
+                      </a>
+                      <TipPreview companyId={c.id} />
+                    </>
                   ) : (
                     <span className="whitespace-nowrap text-xs text-ss-muted">Still hunting for their careers page 🕵️</span>
                   )}

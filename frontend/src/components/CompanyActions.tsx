@@ -5,6 +5,7 @@ import { api, ApiError } from "@/lib/api";
 import { Button, Textarea } from "@/components/ui";
 import { isShortlisted, toggleShortlist } from "@/lib/shortlist";
 import { CompanyTips } from "@/components/CompanyTips";
+import { OPEN_TIPS_EVENT } from "@/components/TipPreview";
 import type { Company } from "@/lib/types";
 
 function timeAgo(iso: string | null | undefined): string | null {
@@ -104,6 +105,14 @@ export function CompanyActionsRow({ company, shareBasePath }: { company: Company
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
   const [celebrate, setCelebrate] = useState(false);
+
+  useEffect(() => {
+    const h = (e: Event) => {
+      if ((e as CustomEvent).detail === company.id && company.careers_url) { setOpen("tips"); setMsg(""); }
+    };
+    window.addEventListener(OPEN_TIPS_EVENT, h);
+    return () => window.removeEventListener(OPEN_TIPS_EVENT, h);
+  }, [company.id, company.careers_url]);
 
   function toggle(which: "notify" | "report" | "tips") {
     setOpen((cur) => (cur === which ? null : which));

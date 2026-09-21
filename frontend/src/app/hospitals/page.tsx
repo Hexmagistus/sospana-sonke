@@ -10,6 +10,7 @@ import { Banner } from "@/components/Banner";
 import { NdebeleStrip } from "@/components/NdebeleStrip";
 import { CompanyLogo, isAtsPortal } from "@/components/CompanyLogo";
 import { CompanyActionsRow, TrendingBadge, ShortlistStar } from "@/components/CompanyActions";
+import { TipPreview } from "@/components/TipPreview";
 import { CompanyPreviewModal } from "@/components/CompanyPreviewModal";
 import { AnimatedNumber } from "@/components/AnimatedNumber";
 import { FunSpinner } from "@/components/FunSpinner";
@@ -288,11 +289,14 @@ function HospitalsDirectoryInner() {
                   </span>
                 </div>
 
-                <div className="mt-3" onClick={(e) => e.stopPropagation()}>
+                <div className="mt-3 flex flex-wrap items-stretch gap-3" onClick={(e) => e.stopPropagation()}>
                   {c.careers_url ? (
-                    <a href={c.careers_url} target="_blank" rel="noopener noreferrer">
-                      <Button>View vacancies →</Button>
-                    </a>
+                    <>
+                      <a href={c.careers_url} target="_blank" rel="noopener noreferrer" className="self-center">
+                        <Button>View vacancies →</Button>
+                      </a>
+                      <TipPreview companyId={c.id} />
+                    </>
                   ) : (
                     <span className="whitespace-nowrap text-xs text-ss-muted">No careers page yet</span>
                   )}
