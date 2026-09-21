@@ -113,7 +113,7 @@ function CompaniesDirectoryInner() {
   const [shortlistOnly, setShortlistOnly] = useState(false);
   const [shortlistIds, setShortlistIds] = useState<Set<string>>(new Set());
   const [previewCompany, setPreviewCompany] = useState<Company | null>(null);
-  const [showMore, setShowMore] = useState(false);
+  const [showMore, setShowMore] = useState(true);
 
   useEffect(() => {
     Promise.all([
