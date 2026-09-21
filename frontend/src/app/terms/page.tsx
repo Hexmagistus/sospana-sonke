@@ -50,7 +50,7 @@ export default function TermsPage() {
           <p>
             Tips under employer links must be truthful, short and useful to other job-seekers. Do not
             post insults, personal information, links, contact details, adverts, or requests for money.
-            Tips are visible to everyone for up to 5 days and are opinions of members, not verified by us. We may hide or remove tips and suspend members
+            Tips are visible to everyone for up to 30 days and are opinions of members, not verified by us. We may hide or remove tips and suspend members
             who break these rules.
           </p>
 

@@ -1,6 +1,6 @@
 """Community tips under an employer's careers link.
 
-POPIA: short, filtered, first-name + last-initial only, auto-expire after 5 days,
+POPIA: short, filtered, first-name + last-initial only, auto-expire after 30 days,
 erased with the account. Community-hidden after 3 flags; admins can restore/remove.
 """
 from datetime import datetime
@@ -10,7 +10,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base import Base, UUIDMixin, TimestampMixin
 
-COMMENT_TTL_DAYS = 5
+COMMENT_TTL_DAYS = 30
 COMMENT_KINDS = {"works", "broken", "open", "closed", "tip"}
 
 

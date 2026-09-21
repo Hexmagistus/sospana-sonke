@@ -87,7 +87,7 @@ export default function PrivacyPage() {
             Signed-in members can add a short tag or tip (up to 300 characters) under an employer&apos;s
             careers link, for example whether the link works. Tips are visible to every visitor of the site, including people who are not signed in, and show your first name and last initial
             only, are checked automatically (no links, contact details or requests for money), disappear
-            automatically 5 days after they are posted, and are deleted when you delete your account. Other members can report a tip; tips with
+            automatically 30 days after they are posted, and are deleted when you delete your account. Other members can report a tip; tips with
             several reports are hidden until an administrator reviews them. Do not post other people&apos;s
             personal information. You can tag members who have switched messaging on; they receive an in-app
             notification and pop-up and nothing else is shared with them. You can delete your own tips at

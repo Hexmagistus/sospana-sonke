@@ -1,6 +1,6 @@
 """Community tips under employer links: quick status tags + short tips, so others decide faster.
 
-Tips are public to every visitor and expire 5 days after posting; only signed-in members can post."""
+Tips are public to every visitor and expire 30 days after posting; only signed-in members can post."""
 from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
@@ -29,8 +29,13 @@ def _now() -> datetime:
     return datetime.now(timezone.utc)
 
 
+def _cutoff() -> datetime:
+    # Retention is measured from created_at, so changing COMMENT_TTL_DAYS also applies to existing tips.
+    return _now() - timedelta(days=COMMENT_TTL_DAYS)
+
+
 def purge_expired_comments(db: Session) -> int:
-    n = db.query(CompanyComment).filter(CompanyComment.expires_at <= _now()).delete(synchronize_session=False)
+    n = db.query(CompanyComment).filter(CompanyComment.created_at <= _cutoff()).delete(synchronize_session=False)
     db.commit()
     return n
 
@@ -65,7 +70,7 @@ class CommentIn(BaseModel):
 def _visible(db: Session, company_id: str):
     return db.query(CompanyComment).filter(
         CompanyComment.company_id == company_id, CompanyComment.hidden.is_(False),
-        CompanyComment.expires_at > _now(),
+        CompanyComment.created_at > _cutoff(),
     )
 
 
@@ -95,7 +100,7 @@ def _notify_mentions(db: Session, c: CompanyComment, author: User, company: Comp
 def summary(db: Session = Depends(get_db)):  # public
     """{company_id: {"total": n, "works": n}} for card badges."""
     rows = (db.query(CompanyComment)
-            .filter(CompanyComment.hidden.is_(False), CompanyComment.expires_at > _now())
+            .filter(CompanyComment.hidden.is_(False), CompanyComment.created_at > _cutoff())
             .order_by(CompanyComment.created_at.desc()).limit(2000).all())
     users = {u.id: u for u in db.query(User).filter(User.id.in_({r.user_id for r in rows})).all()} if rows else {}
     out: dict[str, dict] = {}

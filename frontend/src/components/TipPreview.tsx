@@ -14,10 +14,19 @@ const WORDS: Record<string, string> = {
 // One shared fetch for every card on the page.
 let cache: Promise<Summary> | null = null;
 let cachedAt = 0;
+async function fetchWithRetry(): Promise<Summary> {
+  // The API host can be cold-starting; retry rather than showing "no tips yet".
+  for (let i = 0; i < 4; i++) {
+    try { return await api.get<Summary>("/comments/summary"); } catch { await new Promise((r) => setTimeout(r, 2500 * (i + 1))); }
+  }
+  throw new Error("unavailable");
+}
 function loadSummary(): Promise<Summary> {
   if (!cache || Date.now() - cachedAt > 60_000) {
     cachedAt = Date.now();
-    cache = api.get<Summary>("/comments/summary").catch(() => ({} as Summary));
+    const p = fetchWithRetry();
+    cache = p;
+    p.catch(() => { if (cache === p) cache = null; });
   }
   return cache;
 }
@@ -27,9 +36,10 @@ export const OPEN_TIPS_EVENT = "ss-open-tips";
 /** Latest community tip on a card, next to the View jobs button, so people see it at a glance. */
 export function TipPreview({ companyId, onOpen }: { companyId: string; onOpen?: () => void }) {
   const [s, setS] = useState<Summary[string] | null>(null);
+  const [failed, setFailed] = useState(false);
   useEffect(() => {
     let live = true;
-    loadSummary().then((all) => { if (live) setS(all[companyId] || null); });
+    loadSummary().then((all) => { if (live) { setS(all[companyId] || null); setFailed(false); } }).catch(() => { if (live) setFailed(true); });
     return () => { live = false; };
   }, [companyId]);
 
@@ -52,7 +62,7 @@ export function TipPreview({ companyId, onOpen }: { companyId: string; onOpen?: 
           </div>
         </>
       ) : (
-        <div className="text-xs text-ss-muted">💬 No tips yet. Been here? Tap to help others decide.</div>
+        <div className="text-xs text-ss-muted">{failed ? "💬 Tips are loading… tap to open" : "💬 No tips yet. Been here? Tap to help others decide."}</div>
       )}
     </button>
   );

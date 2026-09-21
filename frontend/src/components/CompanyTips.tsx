@@ -23,6 +23,7 @@ export function CompanyTips({ companyId }: { companyId: string }) {
   const [kind, setKind] = useState("works");
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
+  const [loadErr, setLoadErr] = useState(false);
   const [err, setErr] = useState("");
   const [members, setMembers] = useState<{ id: string; name: string; position: string | null }[]>([]);
   const [tagged, setTagged] = useState<{ id: string; name: string }[]>([]);
@@ -40,7 +41,11 @@ export function CompanyTips({ companyId }: { companyId: string }) {
   }
 
   const load = useCallback(() => {
-    api.get<Resp>(`/companies/${companyId}/comments`).then(setData).catch(() => {});
+    setLoadErr(false);
+    api.get<Resp>(`/companies/${companyId}/comments`).then(setData).catch(() => {
+      setLoadErr(true);
+      window.setTimeout(() => api.get<Resp>(`/companies/${companyId}/comments`).then((d) => { setData(d); setLoadErr(false); }).catch(() => {}), 4000);
+    });
   }, [companyId]);
 
   useEffect(() => {
@@ -67,7 +72,7 @@ export function CompanyTips({ companyId }: { companyId: string }) {
     <div className="mt-5 border-t border-gray-100 pt-4">
       <div className="text-sm font-bold text-navy">💬 Community tips</div>
       <p className="mt-0.5 text-xs text-gray-500">
-        Quick notes from other members to help you decide faster. Visible to everyone; tips disappear after 5 days.
+        Quick notes from other members to help you decide faster. Visible to everyone; tips are kept for 30 days.
       </p>
       {(<>
           {data && data.comments.length > 0 && (
@@ -77,6 +82,7 @@ export function CompanyTips({ companyId }: { companyId: string }) {
               ))}
             </div>
           )}
+          {loadErr && !data && <p className="mt-2 text-xs text-amber-600">Loading tips… the server may be waking up, retrying.</p>}
           <ul className="mt-2 space-y-2">
             {data?.comments.length === 0 && <li className="text-xs text-gray-400">No tips yet. Be the first to help others.</li>}
             {data?.comments.map((c) => (
