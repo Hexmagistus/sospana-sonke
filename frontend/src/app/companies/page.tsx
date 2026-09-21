@@ -78,6 +78,7 @@ const TYPE_BADGE: Record<string, { label: string; cls: string }> = {
   SETA: { label: "🛠️ SETA", cls: "bg-[#1a9e5f]/10 text-[#137a48]" },
   SPORT: { label: "🏅 Sports association", cls: "bg-gold/20 text-[#a9791a]" },
   FED: { label: "🌐 Federation", cls: "bg-gold/20 text-[#a9791a]" },
+  MUSIC: { label: "🎵 Music industry", cls: "bg-gold/20 text-[#a9791a]" },
 };
 
 function typeBadge(sourceType: string | null | undefined) {
@@ -103,7 +104,7 @@ function CompaniesDirectoryInner() {
   const [trending, setTrending] = useState<Set<string>>(new Set());
   const [err, setErr] = useState("");
   const [q, setQ] = useState("");
-  const [filter, setFilter] = useState<"all" | "listed" | "SOE" | "Municipality" | "Department" | "Private" | "NGO" | "University" | "College" | "Hospital" | "SETA" | "Sports" | "Federations">("all");
+  const [filter, setFilter] = useState<"all" | "listed" | "SOE" | "Municipality" | "Department" | "Private" | "NGO" | "University" | "College" | "Hospital" | "SETA" | "Sports" | "Federations" | "Music">("all");
   const [country, setCountry] = useState("South Africa");
   const [shortlistOnly, setShortlistOnly] = useState(false);
   const [shortlistIds, setShortlistIds] = useState<Set<string>>(new Set());
@@ -202,7 +203,8 @@ function CompaniesDirectoryInner() {
         if (filter === "SETA") return st === "SETA";
         if (filter === "Sports") return st === "SPORT";
         if (filter === "Federations") return st === "FED";
-        return st !== "SOE" && st !== "MUNI" && st !== "PRIVATE" && st !== "NGO" && st !== "UNI" && st !== "COLLEGE" && st !== "HOSPITAL" && st !== "SETA" && st !== "SPORT" && st !== "FED";
+        if (filter === "Music") return st === "MUSIC";
+        return st !== "SOE" && st !== "MUNI" && st !== "PRIVATE" && st !== "NGO" && st !== "UNI" && st !== "COLLEGE" && st !== "HOSPITAL" && st !== "SETA" && st !== "SPORT" && st !== "FED" && st !== "MUSIC";
       })
       .filter((c) => !needle
         || c.company_name.toLowerCase().includes(needle)
@@ -231,11 +233,11 @@ function CompaniesDirectoryInner() {
   if (err) return <Alert kind="error">{err}</Alert>;
   if (!companies.length) return <FunSpinner label="Loading the directory…" />;
 
-  const FILTERS = ["all", "listed", "SOE", "Municipality", "Department", "Private", "NGO", "University", "College", "Hospital", "SETA", "Sports", "Federations"] as const;
+  const FILTERS = ["all", "listed", "SOE", "Municipality", "Department", "Private", "NGO", "University", "College", "Hospital", "SETA", "Sports", "Federations", "Music"] as const;
   const filterLabel: Record<(typeof FILTERS)[number], string> = {
     all: "All", listed: "Listed", SOE: "State-owned", Municipality: "Municipalities",
     Department: "🏛️ Gov depts", Private: "Private", NGO: "🤝 NGOs", University: "🎓 Universities",
-    College: "🏫 Colleges", Hospital: "🏥 Hospitals", SETA: "🛠️ SETAs", Sports: "🏅 Sports associations", Federations: "🌐 Continental & world federations",
+    College: "🏫 Colleges", Hospital: "🏥 Hospitals", SETA: "🛠️ SETAs", Sports: "🏅 Sports associations", Federations: "🌐 Continental & world federations", Music: "🎵 Music industry (rights societies & labels)",
   };
 
   return (
