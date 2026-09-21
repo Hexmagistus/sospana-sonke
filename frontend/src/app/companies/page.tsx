@@ -353,10 +353,27 @@ function CompaniesDirectoryInner() {
         </Card>
         </GlowFrame>
 
-        <p className="text-sm text-ss-muted">
-          Showing <strong className="text-ss-text">{shownCompanies.length}</strong> of{" "}
-          {shortlistOnly ? shortlistIds.size : countryTotal} {shortlistOnly ? "shortlisted companies" : filter === "Federations" ? "continental & world federations (all regions)" : `companies in ${country}`}. Pick a card, any card. 🃏
-        </p>
+        <div className="ss-hud-card flex flex-wrap items-center gap-x-4 gap-y-2 rounded-2xl border border-ss-border bg-ss-glass px-4 py-3 backdrop-blur-sm">
+          <span aria-hidden className="ss-hud-scan !opacity-40 animate-scan-sweep" />
+          <span className="ss-hud-tag flex items-center gap-2 text-[11px] font-bold text-brand-dark">
+            <span className="ss-hud-status" /> Live scan
+          </span>
+          <span className="flex items-baseline gap-1.5">
+            <span className="bg-gradient-to-r from-brand to-gold bg-clip-text text-3xl font-black tabular-nums leading-none text-transparent">
+              <AnimatedNumber value={shownCompanies.length} />
+            </span>
+            <span className="ss-hud-tag text-xs text-ss-muted">
+              / {shortlistOnly ? shortlistIds.size : countryTotal} {shortlistOnly ? "shortlisted" : "in range"}
+            </span>
+          </span>
+          <span className="ss-hud-tag rounded-md border border-ss-border bg-ss-surface px-2 py-1 text-[11px] font-semibold text-ss-text">
+            Category · {filterLabel[filter]}
+          </span>
+          <span className="ss-hud-tag rounded-md border border-ss-border bg-ss-surface px-2 py-1 text-[11px] font-semibold text-ss-text">
+            Zone · {filter === "Federations" ? "🌐 All regions" : shortlistOnly ? "⭐ My shortlist" : `${flag} ${country}`}
+          </span>
+          <span className="ss-hud-tag text-[11px] text-ss-muted sm:ml-auto">Pick a card, any card 🃏</span>
+        </div>
 
         <div className="grid gap-3 md:grid-cols-2">
           {shownCompanies.map((c) => {
