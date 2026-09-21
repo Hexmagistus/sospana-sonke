@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { Button } from "@/components/ui";
 import { CompanyActionsRow } from "@/components/CompanyActions";
+import { TipPreview } from "@/components/TipPreview";
 import { COUNTRY_FLAGS } from "@/lib/countryFlags";
 import type { Company } from "@/lib/types";
 
@@ -74,6 +75,8 @@ export function CompanyPreviewModal({
             <span className="text-xs text-gray-400">No careers page yet</span>
           )}
         </div>
+
+        {company.careers_url && <div className="mt-3 flex"><TipPreview companyId={company.id} /></div>}
 
         <CompanyActionsRow company={company} shareBasePath={shareBasePath} />
       </div>

@@ -25,7 +25,7 @@ function loadSummary(): Promise<Summary> {
 export const OPEN_TIPS_EVENT = "ss-open-tips";
 
 /** Latest community tip on a card, next to the View jobs button, so people see it at a glance. */
-export function TipPreview({ companyId }: { companyId: string }) {
+export function TipPreview({ companyId, onOpen }: { companyId: string; onOpen?: () => void }) {
   const [s, setS] = useState<Summary[string] | null>(null);
   useEffect(() => {
     let live = true;
@@ -36,7 +36,7 @@ export function TipPreview({ companyId }: { companyId: string }) {
   return (
     <button
       type="button"
-      onClick={() => window.dispatchEvent(new CustomEvent(OPEN_TIPS_EVENT, { detail: companyId }))}
+      onClick={() => { onOpen?.(); window.dispatchEvent(new CustomEvent(OPEN_TIPS_EVENT, { detail: companyId })); }}
       className="min-w-0 flex-1 rounded-xl border border-dashed border-ss-border px-3 py-2 text-left transition hover:border-brand hover:bg-brand/5"
     >
       {s ? (

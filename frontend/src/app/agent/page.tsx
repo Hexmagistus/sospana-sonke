@@ -30,6 +30,8 @@ import Guard from "@/components/Guard";
 import { api, ApiError } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { Card, Button, Badge, Alert, Spinner, Input, StatusBadge } from "@/components/ui";
+import { CompanyTips } from "@/components/CompanyTips";
+import { TipPreview } from "@/components/TipPreview";
 import { consumeAgentCommand } from "@/lib/agentHandoff";
 import type { Match, MatchDetail, Vacancy, Company, GapAnalysis, CareerExplorerResult } from "@/lib/types";
 
@@ -1216,6 +1218,7 @@ function VacancyCard({ data }: { data: VacancyCardData }) {
 
 function EmployerCard({ c }: { c: Company }) {
   const badge = typeBadge(c.source_type);
+  const [showTips, setShowTips] = useState(false);
   return (
     <Card className="!p-4" accent="navy">
       <div className="min-w-0">
@@ -1225,18 +1228,22 @@ function EmployerCard({ c }: { c: Company }) {
           <span className={`rounded-full px-2 py-0.5 font-semibold ${badge.cls}`}>{badge.label}</span>
         </div>
       </div>
-      <div className="mt-3 flex flex-wrap items-center gap-3">
+      <div className="mt-3 flex flex-wrap items-stretch gap-3">
         {c.careers_url ? (
-          <a href={c.careers_url} target="_blank" rel="noopener noreferrer">
-            <Button variant="ghost" size="sm">Open careers page →</Button>
-          </a>
+          <>
+            <a href={c.careers_url} target="_blank" rel="noopener noreferrer" className="self-center">
+              <Button variant="ghost" size="sm">Open careers page →</Button>
+            </a>
+            <TipPreview companyId={c.id} onOpen={() => setShowTips(true)} />
+          </>
         ) : (
           <Link href={directoryHref(c.country || undefined)} className="text-xs text-gray-400 hover:text-gray-600">
             No direct link yet — view in directory
           </Link>
         )}
-        <span className="ml-auto text-[11px] text-gray-400">Source: Sospana Sonke directory</span>
+        <span className="ml-auto self-center text-[11px] text-gray-400">Source: Sospana Sonke directory</span>
       </div>
+      {showTips && c.careers_url && <CompanyTips companyId={c.id} />}
     </Card>
   );
 }
