@@ -124,7 +124,7 @@ function HospitalsDirectoryInner() {
       .filter((c) => shortlistOnly || (c.country || "") === country)
       .filter((c) => !shortlistOnly || shortlistIds.has(c.id))
       .filter((c) => !needle || c.company_name.toLowerCase().includes(needle));
-    return [...filtered].sort((a, b) => a.company_name.localeCompare(b.company_name));
+    return [...filtered].sort((a, b) => Number(!a.careers_url) - Number(!b.careers_url) || a.company_name.localeCompare(b.company_name));
   }, [hospitals, q, country, jobsByHospital, shortlistOnly, shortlistIds]);
 
   function surpriseMe() {

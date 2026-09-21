@@ -209,7 +209,7 @@ function CompaniesDirectoryInner() {
       .filter((c) => !needle
         || c.company_name.toLowerCase().includes(needle)
         || (c.jse_code || "").toLowerCase().includes(needle));
-    return [...filtered].sort((a, b) => a.company_name.localeCompare(b.company_name));
+    return [...filtered].sort((a, b) => Number(!a.careers_url) - Number(!b.careers_url) || a.company_name.localeCompare(b.company_name));
   }, [companies, q, filter, country, jobsByCompany, shortlistOnly, shortlistIds]);
 
   function surpriseMe() {
