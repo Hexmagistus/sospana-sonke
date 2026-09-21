@@ -57,6 +57,8 @@ _NEW_COLUMNS: list[tuple[str, str, str]] = [
     ("users", "qualification_name", "VARCHAR(200)"),
     ("users", "policy_accepted_at", "TIMESTAMP WITH TIME ZONE" if not DATABASE_URL.startswith("sqlite") else "TIMESTAMP"),
     ("users", "policy_version", "VARCHAR(20)"),
+    ("users", "allow_messages", "BOOLEAN DEFAULT FALSE"),
+    ("users", "messaging_banned", "BOOLEAN DEFAULT FALSE"),
     ("companies", "favicon_url", "TEXT"),
     ("companies", "favicon_checked_at", "TIMESTAMP WITH TIME ZONE" if not DATABASE_URL.startswith("sqlite") else "TIMESTAMP"),
     ("companies", "content_hash", "VARCHAR(64)"),

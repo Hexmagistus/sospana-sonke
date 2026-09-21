@@ -30,3 +30,7 @@ class User(UUIDMixin, TimestampMixin, Base):
     # NULL = never accepted (accounts created before the consent flow, or Google sign-ups).
     policy_accepted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     policy_version: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    # Temporary messaging. Opt-in: nobody can be messaged until they switch this on.
+    allow_messages: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    # Set by an admin after a confirmed abuse report; the user can no longer send messages.
+    messaging_banned: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)

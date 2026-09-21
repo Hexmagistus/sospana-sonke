@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 
 # Bump when the Privacy Policy / Terms change materially; every user is then asked to
 # accept again. Keep in sync with frontend/src/lib/policy.ts.
-CURRENT_POLICY_VERSION = "2026-09-20"
+CURRENT_POLICY_VERSION = "2026-09-21"
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 

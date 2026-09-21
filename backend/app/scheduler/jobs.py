@@ -324,3 +324,9 @@ def test_all_urls(db: Session, limit: int = 200, job_run_id: str | None = None,
     return {"batch_limit": limit, "urls_tested": tested, "ok": ok,
             "needs_review": needs_review, "dead": dead, "no_url": no_url,
             "stopped_early_on_time_budget": timed_out}
+
+
+def purge_expired_messages(db: Session, job_run_id: str | None = None) -> dict:
+    """Storage limitation (POPIA s14): hard-delete expired temporary messages and stale abuse-report snapshots."""
+    from app.api.routes_messages import purge_expired
+    return {"deleted_messages": purge_expired(db)}

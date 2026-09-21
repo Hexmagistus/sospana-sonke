@@ -23,6 +23,48 @@ interface AdminUser {
   current_occupation: string | null;
 }
 
+interface MsgReport {
+  id: string; sender_id: string; sender_name: string; sender_banned: boolean; reason: string;
+  note: string | null; body_snapshot: string; status: string; created_at: string; purge_after: string;
+}
+
+function MessageReports() {
+  const [rows, setRows] = useState<MsgReport[]>([]);
+  const [err, setErr] = useState("");
+  const load = () => api.get<MsgReport[]>("/admin/message-reports").then(setRows).catch((e) => setErr(e.message));
+  useEffect(() => { load(); }, []);
+  async function resolve(id: string, action: "dismiss" | "suspend_sender") {
+    try { await api.post(`/admin/message-reports/${id}/resolve`, { action }); await load(); }
+    catch (e) { setErr(e instanceof Error ? e.message : "Failed"); }
+  }
+  return (
+    <Card>
+      <h2 className="mb-1 text-lg font-semibold text-ss-text">Reported messages</h2>
+      <p className="mb-3 text-sm text-ss-muted">Copies are kept for 30 days for review and then deleted automatically.</p>
+      {err && <Alert kind="error">{err}</Alert>}
+      {rows.length === 0 && <p className="text-sm text-ss-muted">No reports.</p>}
+      <div className="space-y-3">
+        {rows.map((r) => (
+          <div key={r.id} className="rounded-xl border border-ss-border p-3 text-sm">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <span className="font-semibold text-ss-text">{r.sender_name} · {r.reason}</span>
+              <span className="text-xs text-ss-muted">{r.status}{r.sender_banned ? " · sender suspended" : ""} · purges {r.purge_after.slice(0, 10)}</span>
+            </div>
+            <p className="mt-2 whitespace-pre-wrap break-words text-ss-text">{r.body_snapshot}</p>
+            {r.note && <p className="mt-1 text-xs text-ss-muted">Reporter note: {r.note}</p>}
+            {r.status === "open" && (
+              <div className="mt-2 flex gap-2">
+                <Button variant="danger" onClick={() => resolve(r.id, "suspend_sender")}>Suspend sender&apos;s messaging</Button>
+                <Button variant="ghost" onClick={() => resolve(r.id, "dismiss")}>Dismiss</Button>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </Card>
+  );
+}
+
 function AdminInner() {
   const [d, setD] = useState<AdminDashboard | null>(null);
   const [users, setUsers] = useState<AdminUser[]>([]);
@@ -235,6 +277,8 @@ function AdminInner() {
           </table>
         </div>
       </Card>
+
+      <MessageReports />
     </div>
   );
 }

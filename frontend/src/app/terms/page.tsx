@@ -36,6 +36,16 @@ export default function TermsPage() {
             it to send spam or unlawful content.
           </p>
 
+          <h2 className="pt-2 text-lg font-semibold text-ss-text">Messaging between members</h2>
+          <p>
+            Messaging is optional and temporary: messages are deleted after 24 hours. You must not use it
+            to harass, threaten or deceive anyone, to ask for money or payment for a job, to collect
+            personal information, to advertise, or to send spam. Do not share other people&apos;s personal
+            information. We may block messages automatically, keep a reported message for review, and
+            suspend messaging or accounts that break these rules. Never pay anyone to obtain a job.
+            Report anything suspicious using the Report button on the message.
+          </p>
+
           <h2 className="pt-2 text-lg font-semibold text-ss-text">Employer links and content</h2>
           <p>
             Vacancy details and links to employer careers pages are provided for convenience. We do

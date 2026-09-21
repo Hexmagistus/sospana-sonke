@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session
 from app.models.match import SystemSetting
 from app.scheduler.jobs import (
     scan_all_companies, scan_south_africa, scan_due_companies, match_all_candidates, check_link_changes,
-    test_all_urls, close_expired_vacancies, run_daily_agent,
+    test_all_urls, close_expired_vacancies, run_daily_agent, purge_expired_messages,
 )
 
 # name -> callable(db) -> summary dict
@@ -23,6 +23,7 @@ JOBS = {
     "match_all_candidates": match_all_candidates,
     "check_link_changes": check_link_changes,   # fast rotating batch: page-hash "did it change" check
     "test_all_urls": test_all_urls,             # rotating, time-bounded careers-URL health check + status downgrade
+    "purge_expired_messages": purge_expired_messages,  # hourly: delete expired temporary messages (POPIA storage limitation)
     "run_daily_agent": run_daily_agent,         # proactive daily agent: match -> draft CV/cover letter -> queue
 }
 
@@ -33,6 +34,7 @@ DEFAULT_SCHEDULE = {
     "match_all_candidates": "0 2 * * *",         # nightly at 02:00
     "check_link_changes": "0 */4 * * *",         # every 4 hours — rotates through the list
     "test_all_urls": "0 4 * * *",                # daily 04:00 — rotating careers-URL health check
+    "purge_expired_messages": "15 * * * *",      # hourly at :15
     "run_daily_agent": "0 3 * * *",              # nightly at 03:00 — after expiry cleanup, before URL health check
 }
 

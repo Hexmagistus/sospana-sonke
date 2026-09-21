@@ -18,6 +18,7 @@ const LINKS = [
   { href: "/companies?type=SETA", label: "SETAs" },
   { href: "/tailor", label: "CV Builder" },
   { href: "/profile", label: "Profile" },
+  { href: "/messages", label: "Messages" },
   { href: "/notifications", label: "Notifications" },
   { href: "/security", label: "Security" },
   { href: "/donate", label: "Donate" },
@@ -55,6 +56,7 @@ export default function Nav() {
   const pathname = usePathname();
   const router = useRouter();
   const [unread, setUnread] = useState(0);
+  const [unreadMsgs, setUnreadMsgs] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
 
   // Keep the Notifications link's badge current: poll while logged in, and
@@ -71,13 +73,24 @@ export default function Nav() {
         // a missed poll shouldn't disrupt navigation
       }
     }
+    async function refreshMsgs() {
+      try {
+        const res = await api.get<{ unread: number }>("/messages/unread-count");
+        if (!cancelled) setUnreadMsgs(res.unread);
+      } catch {
+        // a missed poll shouldn't disrupt navigation
+      }
+    }
     refresh();
-    const id = setInterval(refresh, 30000);
+    refreshMsgs();
+    const id = setInterval(() => { refresh(); refreshMsgs(); }, 30000);
     window.addEventListener("notifications:changed", refresh);
+    window.addEventListener("messages:changed", refreshMsgs);
     return () => {
       cancelled = true;
       clearInterval(id);
       window.removeEventListener("notifications:changed", refresh);
+      window.removeEventListener("messages:changed", refreshMsgs);
     };
   }, [user, pathname]);
 
@@ -96,11 +109,11 @@ export default function Nav() {
 
   const renderLink = (l: (typeof LINKS)[number], onClick?: () => void) => (
     <Link key={l.href} href={l.href} onClick={onClick} className={linkClass(pathname === l.href)}>
-      {l.href === "/notifications" && unread > 0 ? (
+      {(l.href === "/notifications" && unread > 0) || (l.href === "/messages" && unreadMsgs > 0) ? (
         <span className="inline-flex items-center gap-1.5">
           {l.label}
           <span className="inline-flex h-4 min-w-[1rem] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold leading-none text-white">
-            {unread > 9 ? "9+" : unread}
+            {(() => { const n = l.href === "/messages" ? unreadMsgs : unread; return n > 9 ? "9+" : n; })()}
           </span>
         </span>
       ) : (

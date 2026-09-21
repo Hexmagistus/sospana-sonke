@@ -51,6 +51,7 @@ class UserResponse(BaseModel):
     role: str
     policy_accepted_at: datetime | None = None
     policy_version: str | None = None
+    allow_messages: bool = False
 
 
 class MFASetupResponse(BaseModel):

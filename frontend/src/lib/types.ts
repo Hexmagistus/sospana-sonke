@@ -11,6 +11,7 @@ export interface User {
   role: string;
   policy_accepted_at?: string | null;
   policy_version?: string | null;
+  allow_messages?: boolean;
 }
 
 export interface Tokens {
