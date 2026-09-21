@@ -97,7 +97,7 @@ export default function PrivacyPage() {
           <h2 className="pt-2 text-lg font-semibold text-ss-text">Temporary messages between members</h2>
           <p>
             Members can switch on messaging and send short text messages to one another. Messaging is off
-            by default. When it is on, other members can find you by first name and last initial only; your
+            by default. When it is on, other members can find and tag you by first name, last initial and the desired position on your profile; your
             email address and phone number are never shown. Every message is deleted automatically 24 hours
             after it is sent. Links, contact details and requests for money are blocked to protect members
             from scams, and messages are checked automatically for abuse. If a recipient reports a message,

@@ -24,25 +24,19 @@ export function CompanyTips({ companyId }: { companyId: string }) {
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
-  const [tagQ, setTagQ] = useState("");
-  const [found, setFound] = useState<{ id: string; name: string }[]>([]);
+  const [members, setMembers] = useState<{ id: string; name: string; position: string | null }[]>([]);
   const [tagged, setTagged] = useState<{ id: string; name: string }[]>([]);
 
   useEffect(() => {
-    if (tagQ.trim().length < 2) { setFound([]); return; }
-    const h = window.setTimeout(() => {
-      api.get<{ id: string; name: string }[]>(`/messages/directory?q=${encodeURIComponent(tagQ.trim())}`)
-        .then(setFound).catch(() => setFound([]));
-    }, 300);
-    return () => window.clearTimeout(h);
-  }, [tagQ]);
+    if (!getToken()) return;
+    api.get<{ id: string; name: string; position: string | null }[]>("/messages/members")
+      .then(setMembers).catch(() => setMembers([]));
+  }, []);
 
   function tag(m: { id: string; name: string }) {
     if (tagged.length >= 3 || tagged.some((t) => t.id === m.id)) return;
     setTagged([...tagged, m]);
     setText((t) => `${t}${t && !t.endsWith(" ") ? " " : ""}@${m.name} `.slice(0, 300));
-    setTagQ("");
-    setFound([]);
   }
 
   const load = useCallback(() => {
@@ -117,17 +111,15 @@ export function CompanyTips({ companyId }: { companyId: string }) {
           </div>
           <textarea value={text} onChange={(e) => setText(e.target.value)} maxLength={300} rows={2}
             placeholder={kind === "tip" ? "Your tip (no links, emails or phone numbers)" : "Optional short note"}
-            className="mt-2 w-full rounded-lg border border-gray-200 p-2 text-xs" />
+            className="mt-2 w-full rounded-lg border border-gray-300 bg-white p-2 text-xs text-black placeholder:text-gray-500" />
           <div className="mt-2">
-            <input value={tagQ} onChange={(e) => setTagQ(e.target.value)} placeholder="@ Tag a member (type a name)"
-              className="w-full rounded-lg border border-gray-200 p-2 text-xs" />
-            {found.length > 0 && (
-              <ul className="mt-1 rounded-lg border border-gray-200 bg-white text-xs shadow-sm">
-                {found.map((m) => (
-                  <li key={m.id}><button type="button" onClick={() => tag(m)} className="block w-full px-2 py-1.5 text-left hover:bg-gray-50">@{m.name}</button></li>
-                ))}
-              </ul>
-            )}
+            <select value="" onChange={(e) => { const m = members.find((x) => x.id === e.target.value); if (m) tag(m); }}
+              className="w-full rounded-lg border border-gray-300 bg-white p-2 text-xs text-black">
+              <option value="">{members.length ? "@ Tag a member…" : "No members available to tag yet"}</option>
+              {members.filter((m) => !tagged.some((t) => t.id === m.id)).map((m) => (
+                <option key={m.id} value={m.id}>{m.name} — {m.position || "no position set"}</option>
+              ))}
+            </select>
             {tagged.length > 0 && (
               <div className="mt-1 flex flex-wrap gap-1">
                 {tagged.map((t) => (
@@ -137,7 +129,7 @@ export function CompanyTips({ companyId }: { companyId: string }) {
                 ))}
               </div>
             )}
-            <p className="mt-1 text-[10px] text-gray-400">Only members who allow messages can be tagged. They get a notification.</p>
+            <p className="mt-1 text-[10px] text-gray-400">Only members who allow messages can be tagged (their name and desired position show here). They get a notification.</p>
           </div>
           {err && <p className="mt-1 text-xs text-red-600">{err}</p>}
           <button disabled={busy || (kind === "tip" && !text.trim())} onClick={post}

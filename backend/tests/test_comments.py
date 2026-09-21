@@ -30,6 +30,8 @@ def test_tagging_notifies_only_opted_in_members(client):
     bid = client.get(f"{API}/auth/me", headers=_h(b)).json()["id"]
     cid_user = client.get(f"{API}/auth/me", headers=_h(c)).json()["id"]
     client.put(f"{API}/messages/settings", headers=_h(b), json={"allow_messages": True})
+    ms = client.get(f"{API}/messages/members", headers=_h(a)).json()
+    assert [m["id"] for m in ms] == [bid] and "position" in ms[0]
     r = client.post(f"{API}/companies/{cid}/comments", headers=_h(a),
                     json={"kind": "tip", "body": "@Th check this", "mentions": [bid, cid_user]})
     assert r.status_code == 201

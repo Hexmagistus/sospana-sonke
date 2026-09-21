@@ -68,6 +68,12 @@ class DirectoryEntry(BaseModel):
     name: str
 
 
+class MemberEntry(BaseModel):
+    id: str
+    name: str
+    position: str | None = None
+
+
 class SendRequest(BaseModel):
     recipient_id: str
     body: str = Field(min_length=1, max_length=500)
@@ -128,6 +134,22 @@ def directory(request: Request, q: str = Query(min_length=2, max_length=50),
         .all()
     )
     return [DirectoryEntry(id=u.id, name=_display_name(u)) for u in rows]
+
+
+@router.get("/messages/members", response_model=list[MemberEntry])
+@limiter.limit("30/minute")
+def members(request: Request, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    """Opted-in members (name + desired position) for the tag dropdown."""
+    blocked = select(UserBlock.blocked_id).where(UserBlock.blocker_id == user.id)
+    blockers = select(UserBlock.blocker_id).where(UserBlock.blocked_id == user.id)
+    rows = (
+        db.query(User)
+        .filter(User.allow_messages.is_(True), User.is_active.is_(True), User.deleted_at.is_(None),
+                User.id != user.id, ~User.id.in_(blocked), ~User.id.in_(blockers))
+        .order_by(User.first_name, User.last_name).limit(300).all()
+    )
+    return [MemberEntry(id=u.id, name=_display_name(u),
+                        position=((u.preferred_position or "").strip() or None)) for u in rows]
 
 
 # ---- send / read / delete ----

@@ -124,7 +124,7 @@ function MessagesInner() {
           <div>
             <div className="font-semibold text-ss-text">Let others message me</div>
             <p className="text-sm text-ss-muted">
-              Off by default. When on, other members can find you by first name and last initial only. Your email and phone are never shown.
+              Off by default. When on, other members can find and tag you by first name, last initial and your desired position. Your email and phone are never shown.
             </p>
           </div>
           <label className="flex cursor-pointer items-center gap-2 text-sm font-semibold text-ss-text">
