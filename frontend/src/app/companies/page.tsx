@@ -97,6 +97,10 @@ function hashCode(s: string): number {
 }
 
 
+// A "live" link is one the URL tester (or a researcher's confirmation at import time)
+// has verified lands on the employer's own careers page. Only these are shown up top and linked.
+const isLive = (c: Company) => !!c.careers_url && c.scraping_status === "ok";
+
 function CompaniesDirectoryInner() {
   const searchParams = useSearchParams();
   const [companies, setCompanies] = useState<Company[]>([]);
@@ -109,6 +113,7 @@ function CompaniesDirectoryInner() {
   const [shortlistOnly, setShortlistOnly] = useState(false);
   const [shortlistIds, setShortlistIds] = useState<Set<string>>(new Set());
   const [previewCompany, setPreviewCompany] = useState<Company | null>(null);
+  const [showMore, setShowMore] = useState(false);
 
   useEffect(() => {
     Promise.all([
@@ -214,7 +219,7 @@ function CompaniesDirectoryInner() {
 
   function surpriseMe() {
     if (!companies.length) return;
-    const withLinks = companies.filter((c) => c.careers_url);
+    const withLinks = companies.filter(isLive);
     const pool = withLinks.length ? withLinks : companies;
     const pick = pool[Math.floor(Math.random() * pool.length)];
     setShortlistOnly(false);
@@ -224,11 +229,13 @@ function CompaniesDirectoryInner() {
     setPreviewCompany(pick);
   }
 
-  const withLinks = companies.filter((c) => c.careers_url).length;
+  const withLinks = companies.filter(isLive).length;
+  const liveShown = shownCompanies.filter(isLive);
+  const moreShown = shownCompanies.filter((c) => !isLive(c));
   const flag = COUNTRY_FLAGS[country] || "🌍";
   const fedTotal = companies.filter((c) => (c.source_type || "").toUpperCase() === "FED").length;
   const countryTotal = filter === "Federations" ? fedTotal : (countryCounts[country] ?? 0);
-  const countryWithLinks = companies.filter((c) => (c.country || "") === country && c.careers_url).length;
+  const countryWithLinks = companies.filter((c) => (c.country || "") === country && isLive(c)).length;
 
   if (err) return <Alert kind="error">{err}</Alert>;
   if (!companies.length) return <FunSpinner label="Loading the directory…" />;
@@ -238,6 +245,84 @@ function CompaniesDirectoryInner() {
     all: "All", listed: "Listed", SOE: "State-owned", Municipality: "Municipalities",
     Department: "🏛️ Gov depts", Private: "Private", NGO: "🤝 NGOs", University: "🎓 Universities",
     College: "🏫 Colleges", Hospital: "🏥 Hospitals", SETA: "🛠️ SETAs", Sports: "🏅 Sports associations", Federations: "🌐 Continental & world federations", Music: "🎵 Music industry (rights societies & labels)",
+  };
+
+  const renderCard = (c: Company, live: boolean) => {
+            const st = (c.source_type || "").toUpperCase();
+            const isDept = st === "DEPT";
+            const badge = typeBadge(c.source_type);
+            const openJobs = jobsByCompany[c.id] || 0;
+            const accent = CARD_ACCENTS[Math.abs(hashCode(c.id)) % CARD_ACCENTS.length];
+            return (
+              <div
+                key={c.id}
+                onClick={() => setPreviewCompany(live ? c : { ...c, careers_url: null })}
+                style={{ borderLeftColor: accent }}
+                className="ss-hud-card cursor-pointer rounded-2xl border border-ss-border border-l-4 bg-ss-surface p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_1px_3px_rgba(16,24,40,0.06)] hover:-translate-y-0.5"
+              >
+                <span aria-hidden className="ss-hud-scan" />
+                <div className="absolute right-3 top-3" onClick={(e) => e.stopPropagation()}>
+                  <ShortlistStar companyId={c.id} />
+                </div>
+                <div className="flex items-start justify-between gap-3 pr-6">
+                  <div className="flex items-start gap-3">
+                    <CompanyLogo
+                      id={c.id}
+                      name={c.company_name}
+                      website={c.official_website}
+                      careersUrl={c.careers_url}
+                      country={c.country}
+                      gradient={AVATAR_GRADIENTS[Math.abs(hashCode(c.id)) % AVATAR_GRADIENTS.length]}
+                      logoUrl={DEPARTMENT_LOGOS[c.company_name]}
+                    />
+                    <div>
+                      <div className="font-semibold text-ss-text">{c.company_name}</div>
+                      <div className="mt-1 flex flex-wrap items-center gap-1">
+                        <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${badge.cls}`}>{badge.label}</span>
+                        {c.jse_code && (
+                          <span className="rounded-full bg-gold/20 px-2 py-0.5 text-xs font-semibold text-[#a9791a]">{c.jse_code}</span>
+                        )}
+                        {live && isAtsPortal(c.careers_url) && (
+                          <span className="rounded-full bg-navy/10 px-2 py-0.5 text-xs font-semibold text-navy">Apply on their portal</span>
+                        )}
+                        {trending.has(c.id) && <TrendingBadge />}
+                        {c.country && <span className="text-xs text-ss-muted">{c.country}</span>}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-3 flex flex-wrap items-center gap-3 border-t border-ss-border pt-3 text-xs">
+                  {openJobs > 0 && (
+                    <>
+                      <span className="font-semibold text-brand-dark">
+                        {`🔥 ${openJobs} open position${openJobs === 1 ? "" : "s"} right now`}
+                      </span>
+                      <span className="text-ss-border">·</span>
+                    </>
+                  )}
+                  <span className={`ss-hud-tag ${live ? "font-semibold text-brand-dark" : "text-ss-muted"}`}>
+                    {live ? <><span className="ss-hud-status mr-1.5 align-middle" />DIRECT LINK LIVE ⚡</> : "CAREERS PAGE COMING SOON ⏳"}
+                  </span>
+                </div>
+
+                <div className="mt-3" onClick={(e) => e.stopPropagation()}>
+                  {live && c.careers_url ? (
+                    <a href={c.careers_url} target="_blank" rel="noopener noreferrer">
+                      <Button>{isDept ? "Visit department →" : "View jobs →"}</Button>
+                    </a>
+                  ) : (
+                    <span className="whitespace-nowrap text-xs text-ss-muted">Careers page coming soon ⏳</span>
+                  )}
+                </div>
+
+                {live && (
+                  <div onClick={(e) => e.stopPropagation()}>
+                    <CompanyActionsRow company={c} shareBasePath="/companies" />
+                  </div>
+                )}
+              </div>
+            );
   };
 
   return (
@@ -360,10 +445,10 @@ function CompaniesDirectoryInner() {
           </span>
           <span className="flex items-baseline gap-1.5">
             <span className="bg-gradient-to-r from-brand to-gold bg-clip-text text-3xl font-black tabular-nums leading-none text-transparent">
-              <AnimatedNumber value={shownCompanies.length} />
+              <AnimatedNumber value={liveShown.length} />
             </span>
             <span className="ss-hud-tag text-xs text-ss-muted">
-              / {shortlistOnly ? shortlistIds.size : countryTotal} {shortlistOnly ? "shortlisted" : "in range"}
+              live careers links{moreShown.length > 0 ? ` · +${moreShown.length} coming soon` : ""}
             </span>
           </span>
           <span className="ss-hud-tag rounded-md border border-ss-border bg-ss-surface px-2 py-1 text-[11px] font-semibold text-ss-text">
@@ -376,82 +461,8 @@ function CompaniesDirectoryInner() {
         </div>
 
         <div className="grid gap-3 md:grid-cols-2">
-          {shownCompanies.map((c) => {
-            const st = (c.source_type || "").toUpperCase();
-            const isDept = st === "DEPT";
-            const badge = typeBadge(c.source_type);
-            const openJobs = jobsByCompany[c.id] || 0;
-            const accent = CARD_ACCENTS[Math.abs(hashCode(c.id)) % CARD_ACCENTS.length];
-            return (
-              <div
-                key={c.id}
-                onClick={() => setPreviewCompany(c)}
-                style={{ borderLeftColor: accent }}
-                className="ss-hud-card cursor-pointer rounded-2xl border border-ss-border border-l-4 bg-ss-surface p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_1px_3px_rgba(16,24,40,0.06)] hover:-translate-y-0.5"
-              >
-                <span aria-hidden className="ss-hud-scan" />
-                <div className="absolute right-3 top-3" onClick={(e) => e.stopPropagation()}>
-                  <ShortlistStar companyId={c.id} />
-                </div>
-                <div className="flex items-start justify-between gap-3 pr-6">
-                  <div className="flex items-start gap-3">
-                    <CompanyLogo
-                      id={c.id}
-                      name={c.company_name}
-                      website={c.official_website}
-                      careersUrl={c.careers_url}
-                      country={c.country}
-                      gradient={AVATAR_GRADIENTS[Math.abs(hashCode(c.id)) % AVATAR_GRADIENTS.length]}
-                      logoUrl={DEPARTMENT_LOGOS[c.company_name]}
-                    />
-                    <div>
-                      <div className="font-semibold text-ss-text">{c.company_name}</div>
-                      <div className="mt-1 flex flex-wrap items-center gap-1">
-                        <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${badge.cls}`}>{badge.label}</span>
-                        {c.jse_code && (
-                          <span className="rounded-full bg-gold/20 px-2 py-0.5 text-xs font-semibold text-[#a9791a]">{c.jse_code}</span>
-                        )}
-                        {isAtsPortal(c.careers_url) && (
-                          <span className="rounded-full bg-navy/10 px-2 py-0.5 text-xs font-semibold text-navy">Apply on their portal</span>
-                        )}
-                        {trending.has(c.id) && <TrendingBadge />}
-                        {c.country && <span className="text-xs text-ss-muted">{c.country}</span>}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-3 flex flex-wrap items-center gap-3 border-t border-ss-border pt-3 text-xs">
-                  {openJobs > 0 && (
-                    <>
-                      <span className="font-semibold text-brand-dark">
-                        {`🔥 ${openJobs} open position${openJobs === 1 ? "" : "s"} right now`}
-                      </span>
-                      <span className="text-ss-border">·</span>
-                    </>
-                  )}
-                  <span className={`ss-hud-tag ${c.careers_url ? "font-semibold text-brand-dark" : "text-ss-muted"}`}>
-                    {c.careers_url ? <><span className="ss-hud-status mr-1.5 align-middle" />DIRECT LINK LIVE ⚡</> : "NO JOBS PAGE… YET 👀"}
-                  </span>
-                </div>
-
-                <div className="mt-3" onClick={(e) => e.stopPropagation()}>
-                  {c.careers_url ? (
-                    <a href={c.careers_url} target="_blank" rel="noopener noreferrer">
-                      <Button>{isDept ? "Visit department →" : "View jobs →"}</Button>
-                    </a>
-                  ) : (
-                    <span className="whitespace-nowrap text-xs text-ss-muted">Still hunting for their careers page 🕵️</span>
-                  )}
-                </div>
-
-                <div onClick={(e) => e.stopPropagation()}>
-                  <CompanyActionsRow company={c} shareBasePath="/companies" />
-                </div>
-              </div>
-            );
-          })}
-          {shownCompanies.length === 0 && (
+          {liveShown.map((c) => renderCard(c, true))}
+          {liveShown.length === 0 && moreShown.length === 0 && (
             <div className="md:col-span-2">
               <EmptyState
                 icon={shortlistOnly ? "⭐" : "🔍"}
@@ -461,6 +472,23 @@ function CompaniesDirectoryInner() {
             </div>
           )}
         </div>
+
+        {moreShown.length > 0 && (
+          <div className="space-y-3">
+            <button
+              onClick={() => setShowMore((v) => !v)}
+              className="ss-hud-card flex w-full items-center justify-between gap-3 rounded-2xl border border-ss-border bg-ss-glass px-4 py-3 text-left backdrop-blur-sm"
+            >
+              <span className="ss-hud-tag text-[11px] font-semibold text-ss-muted">
+                ⏳ More employers on the radar · careers pages coming soon
+              </span>
+              <span className="ss-hud-tag text-[11px] font-bold text-ss-text">{moreShown.length} {showMore || q.trim() ? "▲" : "▼"}</span>
+            </button>
+            {(showMore || q.trim()) && (
+              <div className="grid gap-3 md:grid-cols-2">{moreShown.map((c) => renderCard(c, false))}</div>
+            )}
+          </div>
+        )}
 
         <p className="text-center text-xs text-ss-muted">
           Curious how much of the map we've covered? 🗺️{" "}

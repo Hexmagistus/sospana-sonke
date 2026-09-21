@@ -9,6 +9,7 @@ import { Card, Input, Button, Alert, Spinner, Select, EmptyState } from "@/compo
 import { Banner } from "@/components/Banner";
 import { NdebeleStrip } from "@/components/NdebeleStrip";
 import { CompanyLogo, isAtsPortal } from "@/components/CompanyLogo";
+import { isLive } from "@/lib/live";
 import { CompanyActionsRow, TrendingBadge, ShortlistStar } from "@/components/CompanyActions";
 import { CompanyPreviewModal } from "@/components/CompanyPreviewModal";
 import { AnimatedNumber } from "@/components/AnimatedNumber";
@@ -48,6 +49,7 @@ function UniversitiesDirectoryInner() {
   const [shortlistOnly, setShortlistOnly] = useState(false);
   const [shortlistIds, setShortlistIds] = useState<Set<string>>(new Set());
   const [previewCompany, setPreviewCompany] = useState<Company | null>(null);
+  const [showMore, setShowMore] = useState(false);
 
   useEffect(() => {
     Promise.all([
@@ -129,7 +131,7 @@ function UniversitiesDirectoryInner() {
 
   function surpriseMe() {
     if (!universities.length) return;
-    const withLinks = universities.filter((c) => c.careers_url);
+    const withLinks = universities.filter(isLive);
     const pool = withLinks.length ? withLinks : universities;
     const pick = pool[Math.floor(Math.random() * pool.length)];
     setShortlistOnly(false);
@@ -138,13 +140,85 @@ function UniversitiesDirectoryInner() {
     setPreviewCompany(pick);
   }
 
-  const withLinks = universities.filter((c) => c.careers_url).length;
+  const withLinks = universities.filter(isLive).length;
+  const liveShown = shownUniversities.filter(isLive);
+  const moreShown = shownUniversities.filter((c) => !isLive(c));
   const flag = COUNTRY_FLAGS[country] || "🌍";
   const countryTotal = countryCounts[country] ?? 0;
-  const countryWithLinks = universities.filter((c) => (c.country || "") === country && c.careers_url).length;
+  const countryWithLinks = universities.filter((c) => (c.country || "") === country && isLive(c)).length;
 
   if (err) return <Alert kind="error">{err}</Alert>;
   if (!universities.length) return <FunSpinner label="Loading universities…" />;
+
+  const renderCard = (c: Company, live: boolean) => {
+            const openJobs = jobsByUni[c.id] || 0;
+            const accent = CARD_ACCENTS[Math.abs(hashCode(c.id)) % CARD_ACCENTS.length];
+            return (
+              <div
+                key={c.id}
+                onClick={() => setPreviewCompany(live ? c : { ...c, careers_url: null })}
+                style={{ borderLeftColor: accent }}
+                className="relative cursor-pointer rounded-2xl border border-ss-border border-l-4 bg-ss-surface p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_1px_3px_rgba(16,24,40,0.06)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+              >
+                <div className="absolute right-3 top-3" onClick={(e) => e.stopPropagation()}>
+                  <ShortlistStar companyId={c.id} />
+                </div>
+                <div className="flex items-start justify-between gap-3 pr-6">
+                  <div className="flex items-start gap-3">
+                    <CompanyLogo
+                      id={c.id}
+                      name={c.company_name}
+                      website={c.official_website}
+                      careersUrl={c.careers_url}
+                      country={c.country}
+                      gradient={AVATAR_GRADIENTS[Math.abs(hashCode(c.id)) % AVATAR_GRADIENTS.length]}
+                    />
+                    <div>
+                      <div className="font-semibold text-ss-text">{c.company_name}</div>
+                      <div className="mt-1 flex flex-wrap items-center gap-1">
+                        <span className="rounded-full bg-sky/10 px-2 py-0.5 text-xs font-semibold text-sky">🎓 University</span>
+                        {live && isAtsPortal(c.careers_url) && (
+                          <span className="rounded-full bg-navy/10 px-2 py-0.5 text-xs font-semibold text-navy">Apply on their portal</span>
+                        )}
+                        {trending.has(c.id) && <TrendingBadge />}
+                        {c.country && <span className="text-xs text-ss-muted">{c.country}</span>}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-3 flex flex-wrap items-center gap-3 border-t border-ss-border pt-3 text-xs">
+                  {openJobs > 0 && (
+                    <>
+                      <span className="font-semibold text-brand-dark">
+                        {`${openJobs} open position${openJobs === 1 ? "" : "s"}`}
+                      </span>
+                      <span className="text-ss-border">·</span>
+                    </>
+                  )}
+                  <span className={live ? "font-semibold text-brand-dark" : "text-ss-muted"}>
+                    {live ? "Direct careers link active ✓" : "Careers page coming soon ⏳"}
+                  </span>
+                </div>
+
+                <div className="mt-3" onClick={(e) => e.stopPropagation()}>
+                  {live && c.careers_url ? (
+                    <a href={c.careers_url} target="_blank" rel="noopener noreferrer">
+                      <Button>View vacancies →</Button>
+                    </a>
+                  ) : (
+                    <span className="whitespace-nowrap text-xs text-ss-muted">Careers page coming soon ⏳</span>
+                  )}
+                </div>
+
+                {live && (
+                  <div onClick={(e) => e.stopPropagation()}>
+                    <CompanyActionsRow company={c} shareBasePath="/universities" />
+                  </div>
+                )}
+              </div>
+            );
+  };
 
   return (
     <div className="relative">
@@ -232,79 +306,12 @@ function UniversitiesDirectoryInner() {
         </Card>
 
         <p className="text-sm text-ss-muted">
-          Showing <strong className="text-ss-text">{shownUniversities.length}</strong> of{" "}
-          {shortlistOnly ? shortlistIds.size : countryTotal} {shortlistOnly ? "shortlisted universities" : `universities in ${country}`}.
+          Showing <strong className="text-ss-text">{liveShown.length}</strong> with live careers links{moreShown.length > 0 ? ` (+${moreShown.length} coming soon)` : ""} · {shortlistOnly ? "shortlisted universities" : `universities in ${country}`}.
         </p>
 
         <div className="grid gap-3 md:grid-cols-2">
-          {shownUniversities.map((c) => {
-            const openJobs = jobsByUni[c.id] || 0;
-            const accent = CARD_ACCENTS[Math.abs(hashCode(c.id)) % CARD_ACCENTS.length];
-            return (
-              <div
-                key={c.id}
-                onClick={() => setPreviewCompany(c)}
-                style={{ borderLeftColor: accent }}
-                className="relative cursor-pointer rounded-2xl border border-ss-border border-l-4 bg-ss-surface p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_1px_3px_rgba(16,24,40,0.06)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
-              >
-                <div className="absolute right-3 top-3" onClick={(e) => e.stopPropagation()}>
-                  <ShortlistStar companyId={c.id} />
-                </div>
-                <div className="flex items-start justify-between gap-3 pr-6">
-                  <div className="flex items-start gap-3">
-                    <CompanyLogo
-                      id={c.id}
-                      name={c.company_name}
-                      website={c.official_website}
-                      careersUrl={c.careers_url}
-                      country={c.country}
-                      gradient={AVATAR_GRADIENTS[Math.abs(hashCode(c.id)) % AVATAR_GRADIENTS.length]}
-                    />
-                    <div>
-                      <div className="font-semibold text-ss-text">{c.company_name}</div>
-                      <div className="mt-1 flex flex-wrap items-center gap-1">
-                        <span className="rounded-full bg-sky/10 px-2 py-0.5 text-xs font-semibold text-sky">🎓 University</span>
-                        {isAtsPortal(c.careers_url) && (
-                          <span className="rounded-full bg-navy/10 px-2 py-0.5 text-xs font-semibold text-navy">Apply on their portal</span>
-                        )}
-                        {trending.has(c.id) && <TrendingBadge />}
-                        {c.country && <span className="text-xs text-ss-muted">{c.country}</span>}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-3 flex flex-wrap items-center gap-3 border-t border-ss-border pt-3 text-xs">
-                  {openJobs > 0 && (
-                    <>
-                      <span className="font-semibold text-brand-dark">
-                        {`${openJobs} open position${openJobs === 1 ? "" : "s"}`}
-                      </span>
-                      <span className="text-ss-border">·</span>
-                    </>
-                  )}
-                  <span className={c.careers_url ? "font-semibold text-brand-dark" : "text-ss-muted"}>
-                    {c.careers_url ? "Direct careers link active ✓" : "No careers page yet"}
-                  </span>
-                </div>
-
-                <div className="mt-3" onClick={(e) => e.stopPropagation()}>
-                  {c.careers_url ? (
-                    <a href={c.careers_url} target="_blank" rel="noopener noreferrer">
-                      <Button>View vacancies →</Button>
-                    </a>
-                  ) : (
-                    <span className="whitespace-nowrap text-xs text-ss-muted">No careers page yet</span>
-                  )}
-                </div>
-
-                <div onClick={(e) => e.stopPropagation()}>
-                  <CompanyActionsRow company={c} shareBasePath="/universities" />
-                </div>
-              </div>
-            );
-          })}
-          {shownUniversities.length === 0 && (
+          {liveShown.map((c) => renderCard(c, true))}
+          {liveShown.length === 0 && moreShown.length === 0 && (
             <div className="md:col-span-2">
               <EmptyState
                 icon={shortlistOnly ? "⭐" : "🔍"}
@@ -314,6 +321,23 @@ function UniversitiesDirectoryInner() {
             </div>
           )}
         </div>
+
+        {moreShown.length > 0 && (
+          <div className="space-y-3">
+            <button
+              onClick={() => setShowMore((v) => !v)}
+              className="ss-hud-card flex w-full items-center justify-between gap-3 rounded-2xl border border-ss-border bg-ss-glass px-4 py-3 text-left backdrop-blur-sm"
+            >
+              <span className="ss-hud-tag text-[11px] font-semibold text-ss-muted">
+                ⏳ More on the radar · careers pages coming soon
+              </span>
+              <span className="ss-hud-tag text-[11px] font-bold text-ss-text">{moreShown.length} {showMore || q.trim() ? "▲" : "▼"}</span>
+            </button>
+            {(showMore || q.trim()) && (
+              <div className="grid gap-3 md:grid-cols-2">{moreShown.map((c) => renderCard(c, false))}</div>
+            )}
+          </div>
+        )}
 
         <p className="text-center text-xs text-ss-muted">
           Wondering how complete this list really is?{" "}

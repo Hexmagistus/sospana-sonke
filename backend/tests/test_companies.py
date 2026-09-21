@@ -117,3 +117,26 @@ def test_icon_result_cached_not_refetched(client, db_engine, monkeypatch):
     client.get(f"/api/v1/companies/{company_id}/icon", follow_redirects=False)
     # Second request is served from the cached favicon_url — discovery ran once.
     assert calls["n"] == 1
+
+
+def test_import_marks_researched_links_live_and_keeps_tester_verdict(db):
+    from app.models.company import Company
+    from app.services.csv_import import import_companies_from_csv
+
+    head = "company_name,jse_code,careers_url,careers_status,scraping_status,active,country,source_type\n"
+    first = head + (
+        "Verified Co,,https://verified.example/careers,green_verified,pending,true,South Africa,PRIVATE\n"
+        "Fallback Co,,https://fallback.example/,amber_company_route,pending,true,South Africa,PRIVATE\n"
+    )
+    import_companies_from_csv(db, first.encode())
+    status = {c.company_name: c.scraping_status for c in db.query(Company).all()}
+    assert status["Verified Co"] == "ok"
+    assert status["Fallback Co"] == "pending"
+
+    # The URL tester later marks Fallback Co ok; a boot-time re-import must not undo it.
+    fb = db.query(Company).filter(Company.company_name == "Fallback Co").one()
+    fb.scraping_status = "ok"
+    db.commit()
+    import_companies_from_csv(db, first.encode())
+    db.expire_all()
+    assert db.query(Company).filter(Company.company_name == "Fallback Co").one().scraping_status == "ok"

@@ -17,6 +17,20 @@ from app.schemas.company import CompanyImportResult
 _EXPECTED = {"company_name"}
 
 
+# careers_status values in the seed CSV that mean "a person confirmed this URL
+# lands on the employer's own live careers/vacancies page". Rows carrying one of
+# these are imported as scraping_status="ok" (the value the client-facing
+# "live links" section keys on) so they show as live from day one. The scheduled
+# URL tester still re-checks them and downgrades any link that later breaks.
+_LIVE_CAREERS_STATUSES = {
+    "green_verified", "green_confirmed", "direct vacancy list", "direct vacancies page",
+    "direct careers page", "direct vacancies listing", "direct jobs page", "direct careers portal",
+    "dedicated career opportunities page",
+}
+# Statuses only the URL tester writes; a re-import must not wipe them back to "pending".
+_TESTER_STATUSES = {"ok", "needs_review", "needs_real_url", "error"}
+
+
 def _norm(name: str) -> str:
     return " ".join(name.strip().lower().split())
 
@@ -49,6 +63,9 @@ def import_companies_from_csv(db: Session, content: bytes) -> CompanyImportResul
         careers_url = (row.get("careers_url") or "").strip() or None
         source_type = (row.get("source_type") or "JSE").strip().upper()[:10] or "JSE"
         scraping_status = (row.get("scraping_status") or ("pending" if careers_url else "no_url")).strip()
+        careers_status = (row.get("careers_status") or "").strip().lower()
+        if careers_url and scraping_status in ("", "pending") and careers_status in _LIVE_CAREERS_STATUSES:
+            scraping_status = "ok"
         active_raw = (row.get("active") or ("true" if careers_url else "false")).strip().lower()
         active = active_raw in ("true", "1", "yes", "y")
         notes = (row.get("relevance_note") or row.get("notes") or "").strip() or None
@@ -64,9 +81,16 @@ def import_companies_from_csv(db: Session, content: bytes) -> CompanyImportResul
         else:
             updated += 1
 
+        # Keep a URL tester verdict on re-import when the link itself is unchanged and the
+        # CSV has nothing more definite to say (otherwise every boot would reset it to "pending").
+        keep_tested = (
+            company.id is not None and company.careers_url == careers_url
+            and company.scraping_status in _TESTER_STATUSES and scraping_status == "pending"
+        )
         company.source_type = source_type
         company.careers_url = careers_url
-        company.scraping_status = scraping_status
+        if not keep_tested:
+            company.scraping_status = scraping_status
         company.active = active
         company.notes = notes
         company.country = country
