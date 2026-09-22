@@ -6,6 +6,7 @@ behind an interface so tests can inject a MockRenderer and run offline.
 """
 from __future__ import annotations
 
+import threading
 from abc import ABC, abstractmethod
 
 from app.core.config import settings
@@ -16,8 +17,17 @@ class PageRenderer(ABC):
     def render(self, url: str) -> str: ...
 
 
+# Chromium is heavy: even when the scanner runs many worker threads, only a couple
+# of browsers may be alive at once (also avoids Playwright sync-API thread quirks).
+_BROWSER_SLOTS = threading.Semaphore(2)
+
+
 class PlaywrightRenderer(PageRenderer):
     def render(self, url: str) -> str:
+        with _BROWSER_SLOTS:
+            return self._render(url)
+
+    def _render(self, url: str) -> str:
         from playwright.sync_api import sync_playwright  # lazy import
         with sync_playwright() as p:
             kwargs = {}

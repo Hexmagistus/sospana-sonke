@@ -1,37 +1,60 @@
 name: Scan careers pages
 
-# Free external scheduler for Sospana Sonke vacancy scanning (Path A).
-# Wakes the API and runs the scan_all_companies job on a cadence. Requires a
-# repository secret CRON_SECRET that matches the CRON_SECRET env var on Render.
+# Runs the parallel scanner directly on the GitHub runner against the production
+# database (no Render gateway timeout, headless Chromium available for
+# JS-rendered careers pages). Requires repository secret DATABASE_URL (the Neon
+# connection string, same value as on Render).
 
 on:
   schedule:
-    - cron: "0 */3 * * *"   # every 3 hours (UTC) - rotates through the company list
-  workflow_dispatch:          # allow manual "Run workflow" from the Actions tab
+    - cron: "0 * * * *"      # hourly (UTC); GitHub may delay or skip some runs
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: "Max companies to scan"
+        default: "400"
+      workers:
+        description: "Concurrent scans"
+        default: "8"
+
+# Never let two scans overlap and fight over the same rows.
+concurrency:
+  group: careers-scan
+  cancel-in-progress: false
 
 jobs:
   scan:
     runs-on: ubuntu-latest
+    timeout-minutes: 60
+    defaults:
+      run:
+        working-directory: backend
     steps:
-      - name: Trigger vacancy scan
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Install headless Chromium (for JS-rendered careers pages)
+        run: python -m playwright install --with-deps chromium
+
+      - name: Scan due companies
         env:
-          CRON_SECRET: ${{ secrets.CRON_SECRET }}
-          API_BASE: https://sospana-sonke-api.onrender.com
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          JS_RENDER_ENABLED: "true"
+          URL_TEST_TIMEOUT_SECONDS: "8"
         run: |
-          if [ -z "$CRON_SECRET" ]; then
-            echo "CRON_SECRET repo secret is not set — add it in Settings > Secrets and variables > Actions."
+          if [ -z "$DATABASE_URL" ]; then
+            echo "DATABASE_URL repo secret is not set - add it in Settings > Secrets and variables > Actions."
             exit 1
           fi
-          echo "Triggering scan_due_companies (the free Render instance may cold-start first)..."
-          code=$(curl -sS -o response.json -w "%{http_code}" \
-            --max-time 600 --retry 2 --retry-delay 30 \
-            -X POST "$API_BASE/api/v1/cron/run/scan_due_companies" \
-            -H "X-Cron-Secret: $CRON_SECRET")
-          echo "HTTP $code"
-          echo "Response:"; cat response.json || true
-          echo
-          if [ "$code" != "200" ]; then
-            echo "Scan trigger failed (HTTP $code)."
-            exit 1
-          fi
-          echo "Scan completed."
+          python scripts/run_scan.py \
+            --limit "${{ github.event.inputs.limit || '400' }}" \
+            --workers "${{ github.event.inputs.workers || '8' }}" \
+            --max-seconds 2400

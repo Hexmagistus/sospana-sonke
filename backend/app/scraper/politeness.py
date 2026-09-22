@@ -32,7 +32,7 @@ class RobotsChecker:
             return self._cache[base]
         rp = RobotFileParser()
         try:
-            resp = self._client.get(f"{base}/robots.txt", timeout=10.0)
+            resp = self._client.get(f"{base}/robots.txt", timeout=5.0)
             if resp.status_code >= 400:
                 rp = None  # no robots.txt -> allowed
             else:
