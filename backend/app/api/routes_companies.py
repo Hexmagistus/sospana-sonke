@@ -7,6 +7,7 @@ from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Request, UploadFile, File, Query, status
 from fastapi.responses import RedirectResponse
+from sqlalchemy import func, or_
 from sqlalchemy.orm import Session
 
 from app.core.deps import get_current_user, require_admin
@@ -35,24 +36,85 @@ _FAVICON_RECHECK = timedelta(days=30)
 router = APIRouter(prefix="/companies", tags=["companies"])
 
 
+# Anti-bulk-copy: a regular user can't pull the whole directory in one call any
+# more. Every non-admin request must be scoped (one country, one category, a
+# search, or an explicit id list such as a shortlist) and is capped per call.
+# The UI only ever shows one such slice at a time, so this costs it nothing.
+_USER_MAX_ROWS = 1500
+_UNSCOPED_USER_MAX_ROWS = 100
+
+
 @router.get("", response_model=list[CompanyResponse])
-@limiter.limit("60/hour", key_func=user_or_ip_key)
+@limiter.limit("200/hour", key_func=user_or_ip_key)
 def list_companies(
     request: Request,
     db: Session = Depends(get_db),
-    _: User = Depends(get_current_user),
-    source_type: str | None = Query(default=None, description="Filter by JSE or SOE"),
+    user: User = Depends(get_current_user),
+    source_type: str | None = Query(default=None, max_length=20, description="Category, e.g. SOE, UNI, COLLEGE"),
+    country: str | None = Query(default=None, max_length=80),
+    q: str | None = Query(default=None, max_length=100, description="Search in name / JSE code"),
+    ids: str | None = Query(default=None, max_length=8000, description="Comma-separated company ids"),
     active: bool | None = Query(default=None),
-    limit: int = Query(default=100, le=5000),
+    limit: int = Query(default=100, ge=1, le=5000),
     offset: int = Query(default=0, ge=0),
 ):
-    q = db.query(Company).filter(Company.deleted_at.is_(None))
+    query = db.query(Company).filter(Company.deleted_at.is_(None))
     if source_type:
-        q = q.filter(Company.source_type == source_type.upper())
+        query = query.filter(Company.source_type == source_type.upper())
+    if country:
+        query = query.filter(Company.country == country)
+    if q and q.strip():
+        # Escape LIKE wildcards so user input is matched literally.
+        raw = q.strip().lower().replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+        needle = f"%{raw}%"
+        query = query.filter(or_(func.lower(Company.company_name).like(needle, escape="\\"),
+                                 func.lower(func.coalesce(Company.jse_code, "")).like(needle, escape="\\")))
+    if ids:
+        id_list = [i.strip() for i in ids.split(",") if i.strip()][:200]
+        query = query.filter(Company.id.in_(id_list))
     if active is not None:
-        q = q.filter(Company.active == active)
-    q = q.order_by(Company.company_name).offset(offset).limit(limit)
-    return [CompanyResponse.model_validate(c) for c in q.all()]
+        query = query.filter(Company.active == active)
+    if user.role != "admin":
+        scoped = bool(source_type or country or (q and q.strip()) or ids)
+        limit = min(limit, _USER_MAX_ROWS if scoped else _UNSCOPED_USER_MAX_ROWS)
+    query = query.order_by(Company.company_name).offset(offset).limit(limit)
+    return [CompanyResponse.model_validate(c) for c in query.all()]
+
+
+@router.get("/facets")
+def company_facets(db: Session = Depends(get_db), _: User = Depends(get_current_user)):
+    """Counts for the directory's country tabs and headline stats -- numbers
+    only, no company rows -- so the page never needs the full list."""
+    rows = (db.query(Company.country, Company.source_type,
+                     func.count(Company.id), func.count(Company.careers_url))
+            .filter(Company.deleted_at.is_(None))
+            .group_by(Company.country, Company.source_type).all())
+    country_counts: dict[str, int] = {}
+    country_with_links: dict[str, int] = {}
+    type_counts: dict[str, int] = {}
+    total = with_links = 0
+    for country, st, n, n_links in rows:
+        if country:
+            country_counts[country] = country_counts.get(country, 0) + n
+            country_with_links[country] = country_with_links.get(country, 0) + n_links
+        key = (st or "").upper()
+        type_counts[key] = type_counts.get(key, 0) + n
+        total += n
+        with_links += n_links
+    return {"total": total, "with_links": with_links, "country_counts": country_counts,
+            "country_with_links": country_with_links, "type_counts": type_counts}
+
+
+@router.get("/surprise", response_model=CompanyResponse)
+@limiter.limit("60/hour", key_func=user_or_ip_key)
+def surprise_company(request: Request, db: Session = Depends(get_db), _: User = Depends(get_current_user)):
+    """One random employer with a careers link (the directory's "Surprise me")."""
+    c = (db.query(Company).filter(Company.deleted_at.is_(None), Company.careers_url.isnot(None),
+                                  Company.careers_url != "")
+         .order_by(func.random()).first())
+    if c is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No employers yet.")
+    return CompanyResponse.model_validate(c)
 
 
 @router.get("/coverage", response_model=list[CoverageRow])

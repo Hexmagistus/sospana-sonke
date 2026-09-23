@@ -49,6 +49,17 @@ commit it (and push, if you pushed the rest of your work). Newest entry on top.
 
 ## Session Log
 
+### 2026-09-24 (later) — Claude (Cowork, Opus 5.5) — Durable DB file storage, POPIA document erasure, server-side directory scoping
+Lungani: "I give you all rights ... try your best". Did the code-side items (see §5b of
+`docs/SECURITY-AUDIT-2026-09-24.md`): `STORAGE_BACKEND=auto` → `db` in production (new `stored_files`
+table, legacy-disk rescue, 410 for already-lost files); account deletion now erases CV files/text,
+generated docs and the profile; `/companies` requires scoping for non-admins (+ `/facets`,
+`/surprise`), and the Companies page + Career Agent fetch per slice. Verified e2e with Playwright
+against a prod-mode API + full seed. Also ran OWASP ZAP earlier (see §6).
+**Still needs Lungani (credentials/secrets, can't be done by Claude even with permission):**
+Render `SMTP_USER`/`SMTP_PASSWORD` (Gmail App Password), since the platform sends no email at all;
+GitHub Actions secret `DATABASE_URL`, since the hourly scan fails at its first step without it.
+
 ### 2026-09-24 — Claude (Cowork, Opus 5.5) — Senior security audit + hardening pass
 Lungani sent a "senior engineering, security & production master directive" (audit first, threat-model,
 fix safely, don't rewrite working systems). Full write-up: `docs/SECURITY-AUDIT-2026-09-24.md`.

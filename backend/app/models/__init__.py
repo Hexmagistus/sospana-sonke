@@ -22,3 +22,4 @@ from app.models.link_report import LinkReport  # noqa: F401
 from app.models.vacancy_report import VacancyReport  # noqa: F401
 from app.models.message import Message, UserBlock, MessageReport  # noqa: F401
 from app.models.comment import CompanyComment, CommentFlag  # noqa: F401
+from app.models.stored_file import StoredFile  # noqa: F401

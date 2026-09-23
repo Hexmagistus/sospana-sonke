@@ -66,7 +66,8 @@ class Settings(BaseSettings):
 
     # File storage (CV uploads and generated documents).
     # Default is local disk for development; production uses S3-compatible storage.
-    STORAGE_BACKEND: str = "local"          # local | s3
+    # auto = "db" in production (Render's disk is wiped on every restart), "local" elsewhere.
+    STORAGE_BACKEND: str = "auto"           # auto | local | db | s3
     STORAGE_DIR: str = "./storage"          # used when STORAGE_BACKEND=local
     S3_BUCKET: str | None = None
     S3_ENDPOINT_URL: str | None = None

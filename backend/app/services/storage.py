@@ -1,9 +1,15 @@
 """File storage abstraction (blueprint sections 8 & 15).
 
-Files (uploaded CVs, later generated documents) are stored in private object
-storage, never in the database. The interface below has a local-disk
-implementation for development and an S3-compatible implementation for
-production. Callers use `get_storage()` and never touch the backend directly.
+Files (uploaded CVs, generated CVs/cover letters, reports) sit behind one small
+interface with three implementations:
+
+- `local`: disk under STORAGE_DIR. Fine for development, but NOT durable on
+  Render, whose disk is wiped on every redeploy/restart.
+- `db`: bytes in the `stored_files` table of the app's own Postgres. Durable,
+  needs no extra account or credential; the production default (`auto`).
+- `s3`: any S3-compatible bucket, for when volume outgrows the database.
+
+Callers use `get_storage()` and never touch the backend directly.
 """
 from __future__ import annotations
 
@@ -75,14 +81,86 @@ class S3Storage(Storage):
         self._client.delete_object(Bucket=self._bucket, Key=key)
 
 
+class DatabaseStorage(Storage):
+    """Durable storage in the app's own database (see app/models/stored_file.py).
+
+    Each operation uses its own short session so file writes never tangle
+    with the caller's transaction. Reads fall back to the local disk for files
+    written there before this backend existed (still present until the next
+    restart) and copy them into the database on first access.
+    """
+
+    def __init__(self, legacy_dir: str | None = None) -> None:
+        self._legacy = LocalStorage(legacy_dir) if legacy_dir else None
+
+    @staticmethod
+    def _session():
+        from app.db.session import SessionLocal
+        return SessionLocal()
+
+    def put(self, key: str, data: bytes) -> str:
+        from app.models.stored_file import StoredFile
+        db = self._session()
+        try:
+            row = db.get(StoredFile, key)
+            if row is None:
+                db.add(StoredFile(key=key, data=data, size=len(data)))
+            else:
+                row.data, row.size = data, len(data)
+            db.commit()
+        finally:
+            db.close()
+        return key
+
+    def get(self, key: str) -> bytes:
+        from app.models.stored_file import StoredFile
+        db = self._session()
+        try:
+            row = db.get(StoredFile, key)
+            if row is not None:
+                return bytes(row.data)
+        finally:
+            db.close()
+        if self._legacy is not None:
+            try:
+                data = self._legacy.get(key)
+            except FileNotFoundError:
+                pass
+            else:
+                self.put(key, data)  # rescue it before the next restart wipes the disk
+                return data
+        raise FileNotFoundError(key)
+
+    def delete(self, key: str) -> None:
+        from app.models.stored_file import StoredFile
+        db = self._session()
+        try:
+            db.query(StoredFile).filter(StoredFile.key == key).delete(synchronize_session=False)
+            db.commit()
+        finally:
+            db.close()
+        if self._legacy is not None:
+            self._legacy.delete(key)
+
+
+def resolved_backend() -> str:
+    backend = settings.STORAGE_BACKEND
+    if backend == "auto":
+        return "db" if settings.ENV == "production" else "local"
+    return backend
+
+
 _storage: Storage | None = None
 
 
 def get_storage() -> Storage:
     global _storage
     if _storage is None:
-        if settings.STORAGE_BACKEND == "s3":
+        backend = resolved_backend()
+        if backend == "s3":
             _storage = S3Storage()
+        elif backend == "db":
+            _storage = DatabaseStorage(legacy_dir=settings.STORAGE_DIR)
         else:
             _storage = LocalStorage(settings.STORAGE_DIR)
     return _storage

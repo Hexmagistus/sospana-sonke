@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Guard from "@/components/Guard";
@@ -98,9 +98,22 @@ function hashCode(s: string): number {
 }
 
 
+type Facets = {
+  total: number;
+  with_links: number;
+  country_counts: Record<string, number>;
+  country_with_links: Record<string, number>;
+  type_counts: Record<string, number>;
+};
+
 function CompaniesDirectoryInner() {
   const searchParams = useSearchParams();
+  // Only the slice on screen (one country, federations, or the shortlist) is
+  // ever loaded -- the API no longer hands the whole directory to one request.
   const [companies, setCompanies] = useState<Company[]>([]);
+  const [facets, setFacets] = useState<Facets | null>(null);
+  const [sliceLoading, setSliceLoading] = useState(false);
+  const sliceCache = useRef<Record<string, Company[]>>({});
   const [vacancies, setVacancies] = useState<Vacancy[]>([]);
   const [trending, setTrending] = useState<Set<string>>(new Set());
   const [err, setErr] = useState("");
@@ -112,13 +125,8 @@ function CompaniesDirectoryInner() {
   const [previewCompany, setPreviewCompany] = useState<Company | null>(null);
 
   useEffect(() => {
-    Promise.all([
-      api.get<Company[]>("/companies?limit=5000"),
-      api.getAll<Vacancy>("/vacancies?is_open=true").catch(() => [] as Vacancy[]),
-    ]).then(([cos, vacs]) => {
-      setCompanies(cos);
-      setVacancies(vacs);
-    }).catch((e) => setErr(e.message));
+    api.get<Facets>("/companies/facets").then(setFacets).catch((e) => setErr(e.message));
+    api.getAll<Vacancy>("/vacancies?is_open=true").then(setVacancies).catch(() => {});
     // Best-effort: a quiet directory with no watches yet just shows no badges.
     api.get<TrendingCompany[]>("/companies/trending?days=7&limit=200")
       .then((rows) => setTrending(new Set(rows.map((r) => r.company_id))))
@@ -136,6 +144,36 @@ function CompaniesDirectoryInner() {
     };
   }, []);
 
+  const sliceKey = shortlistOnly
+    ? `ids:${Array.from(shortlistIds).sort().join(",")}`
+    : filter === "Federations" ? "type:FED" : `country:${country}`;
+
+  useEffect(() => {
+    if (!facets) return;
+    const cached = sliceCache.current[sliceKey];
+    if (cached) { setCompanies(cached); return; }
+    let path: string;
+    if (sliceKey.startsWith("ids:")) {
+      const ids = sliceKey.slice(4);
+      if (!ids) { setCompanies([]); return; }
+      path = `/companies?ids=${encodeURIComponent(ids)}&limit=200`;
+    } else if (sliceKey === "type:FED") {
+      path = "/companies?source_type=FED&limit=1500";
+    } else {
+      path = `/companies?country=${encodeURIComponent(country)}&limit=1500`;
+    }
+    let cancelled = false;
+    setSliceLoading(true);
+    api.get<Company[]>(path)
+      .then((rows) => {
+        sliceCache.current[sliceKey] = rows;
+        if (!cancelled) setCompanies(rows);
+      })
+      .catch((e) => { if (!cancelled) setErr(e.message); })
+      .finally(() => { if (!cancelled) setSliceLoading(false); });
+    return () => { cancelled = true; };
+  }, [facets, sliceKey, country]);
+
   // Deep link from a "Share" button elsewhere (?company=<id>), the Coverage
   // map (?country=<name>), or the homepage's "SOE vacancies (SA)" shortcut
   // (?type=SOE&country=South%20Africa -- the same shortcut used to point at
@@ -144,14 +182,16 @@ function CompaniesDirectoryInner() {
     const wantedCompany = searchParams.get("company");
     const wantedCountry = searchParams.get("country");
     const wantedType = searchParams.get("type");
-    if (wantedCompany && companies.length) {
-      const found = companies.find((c) => c.id === wantedCompany);
-      if (found) {
-        setCountry(found.country || "South Africa");
-        setQ(found.company_name);
-        setFilter("all");
-        return;
-      }
+    if (wantedCompany) {
+      api.get<Company[]>(`/companies?ids=${encodeURIComponent(wantedCompany)}`)
+        .then(([found]) => {
+          if (!found) return;
+          setCountry(found.country || "South Africa");
+          setQ(found.company_name);
+          setFilter("all");
+        })
+        .catch(() => {});
+      return;
     }
     if (wantedCountry) {
       setCountry(wantedCountry);
@@ -160,7 +200,7 @@ function CompaniesDirectoryInner() {
     if (wantedType && (FILTERS as readonly string[]).includes(wantedType)) {
       setFilter(wantedType as (typeof FILTERS)[number]);
     }
-  }, [searchParams, companies]);
+  }, [searchParams]);
 
   // Real open-position counts per company, from the same vacancy data the
   // Find Jobs page uses -- never fabricated.
@@ -170,20 +210,12 @@ function CompaniesDirectoryInner() {
     return m;
   }, [vacancies]);
 
+  const countryCounts: Record<string, number> = facets?.country_counts ?? {};
   const countries = useMemo(() => {
-    const set = Array.from(new Set(companies.map((c) => c.country).filter(Boolean) as string[]));
+    const set = Object.keys(facets?.country_counts ?? {});
     set.sort((a, b) => (a === "South Africa" ? -1 : b === "South Africa" ? 1 : a.localeCompare(b)));
     return set;
-  }, [companies]);
-
-  const countryCounts = useMemo(() => {
-    const m: Record<string, number> = {};
-    for (const c of companies) {
-      const k = c.country || "";
-      if (k) m[k] = (m[k] || 0) + 1;
-    }
-    return m;
-  }, [companies]);
+  }, [facets]);
 
   const shownCompanies = useMemo(() => {
     const needle = q.trim().toLowerCase();
@@ -214,25 +246,23 @@ function CompaniesDirectoryInner() {
   }, [companies, q, filter, country, jobsByCompany, shortlistOnly, shortlistIds]);
 
   function surpriseMe() {
-    if (!companies.length) return;
-    const withLinks = companies.filter((c) => c.careers_url);
-    const pool = withLinks.length ? withLinks : companies;
-    const pick = pool[Math.floor(Math.random() * pool.length)];
-    setShortlistOnly(false);
-    setFilter("all");
-    setQ("");
-    setCountry(pick.country || "South Africa");
-    setPreviewCompany(pick);
+    api.get<Company>("/companies/surprise").then((pick) => {
+      setShortlistOnly(false);
+      setFilter("all");
+      setQ("");
+      setCountry(pick.country || "South Africa");
+      setPreviewCompany(pick);
+    }).catch(() => {});
   }
 
-  const withLinks = companies.filter((c) => c.careers_url).length;
+  const withLinks = facets?.with_links ?? 0;
   const flag = COUNTRY_FLAGS[country] || "🌍";
-  const fedTotal = companies.filter((c) => (c.source_type || "").toUpperCase() === "FED").length;
+  const fedTotal = facets?.type_counts?.FED ?? 0;
   const countryTotal = filter === "Federations" ? fedTotal : (countryCounts[country] ?? 0);
-  const countryWithLinks = companies.filter((c) => (c.country || "") === country && c.careers_url).length;
+  const countryWithLinks = facets?.country_with_links?.[country] ?? 0;
 
   if (err) return <Alert kind="error">{err}</Alert>;
-  if (!companies.length) return <FunSpinner label="Loading the directory…" />;
+  if (!facets) return <FunSpinner label="Loading the directory…" />;
 
   const FILTERS = ["all", "listed", "SOE", "Municipality", "Department", "Private", "NGO", "University", "College", "Hospital", "SETA", "Sports", "Federations", "Music"] as const;
   const filterLabel: Record<(typeof FILTERS)[number], string> = {
@@ -262,7 +292,7 @@ function CompaniesDirectoryInner() {
             subtitle={
               <>
                 Browse the full directory and apply on each employer&apos;s official careers page.{" "}
-                <strong className="text-white"><AnimatedNumber value={companies.length} /></strong> companies across Africa ·{" "}
+                <strong className="text-white"><AnimatedNumber value={facets.total} /></strong> companies across Africa ·{" "}
                 <strong className="text-white"><AnimatedNumber value={withLinks} /></strong> with direct careers links.
               </>
             }
@@ -455,7 +485,12 @@ function CompaniesDirectoryInner() {
               </div>
             );
           })}
-          {shownCompanies.length === 0 && (
+          {sliceLoading && shownCompanies.length === 0 && (
+            <div className="md:col-span-2">
+              <FunSpinner label={`Rounding up employers in ${country}…`} />
+            </div>
+          )}
+          {!sliceLoading && shownCompanies.length === 0 && (
             <div className="md:col-span-2">
               <EmptyState
                 icon={shortlistOnly ? "⭐" : "🔍"}

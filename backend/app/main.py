@@ -130,6 +130,16 @@ def create_app() -> FastAPI:
             response.headers["Content-Security-Policy"] = "default-src 'none'; frame-ancestors 'none'"
         return response
 
+    # A stored file that no longer exists (e.g. uploaded before storage moved
+    # into the database, when Render's disk was wiped on every restart) used to
+    # surface as a bare 500. Tell the person what happened and what to do.
+    @app.exception_handler(FileNotFoundError)
+    async def missing_file(request, exc):
+        from fastapi.responses import JSONResponse
+        return JSONResponse(status_code=410, content={
+            "detail": "This file is no longer available: it was lost in a server restart before "
+                      "storage was made permanent. Please re-upload your CV or generate the document again."})
+
     @app.get("/health", tags=["system"])
     def health() -> dict:
         return {"status": "ok", "app": settings.APP_NAME, "env": settings.ENV}

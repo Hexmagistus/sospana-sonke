@@ -430,7 +430,6 @@ function AgentInner() {
 
   // Caches
   const companyMap = useRef<Map<string, Company> | null>(null);
-  const companyList = useRef<Company[] | null>(null);
   const matchDetailCache = useRef<Map<string, MatchDetail>>(new Map());
   const profile = useRef<ProfileLite | null>(null);
   const ranAllMatches = useRef(false);
@@ -468,14 +467,42 @@ function AgentInner() {
     setTurns((prev) => [...prev, { id: nextId(), role: "agent", ...t }]);
   }, []);
 
-  async function ensureCompanies(): Promise<Company[]> {
-    if (companyList.current) return companyList.current;
-    const rows = await api.get<Company[]>("/companies?limit=5000");
-    const m = new Map<string, Company>();
+  // The API only serves scoped slices of the directory (one country, one
+  // category, a name search, or explicit ids), never the whole thing, so the
+  // agent fetches just the slice a question needs and caches it.
+  const sliceCache = useRef<Map<string, Company[]>>(new Map());
+  function remember(rows: Company[]) {
+    const m = companyMap.current ?? new Map<string, Company>();
     rows.forEach((c) => m.set(c.id, c));
     companyMap.current = m;
-    companyList.current = rows;
+  }
+  async function companySlice(path: string): Promise<Company[]> {
+    const hit = sliceCache.current.get(path);
+    if (hit) return hit;
+    const rows = await api.get<Company[]>(path).catch(() => [] as Company[]);
+    sliceCache.current.set(path, rows);
+    remember(rows);
     return rows;
+  }
+  async function ensureCompanies(scope: { country?: string; sourceType?: string; keyword?: string } = {}): Promise<Company[]> {
+    if (scope.country) {
+      const qs = new URLSearchParams({ country: scope.country, limit: "1500" });
+      if (scope.sourceType) qs.set("source_type", scope.sourceType);
+      return companySlice(`/companies?${qs}`);
+    }
+    if (scope.sourceType) return companySlice(`/companies?source_type=${encodeURIComponent(scope.sourceType)}&limit=1500`);
+    const words = (scope.keyword || "").toLowerCase().split(/\s+/)
+      .filter((w) => w.length > 2 && !STOPWORDS.has(w)).slice(0, 3);
+    if (!words.length) return companySlice(`/companies?country=${encodeURIComponent("South Africa")}&limit=1500`);
+    const seen = new Map<string, Company>();
+    for (const w of words) {
+      for (const c of await companySlice(`/companies?q=${encodeURIComponent(w)}&limit=200`)) seen.set(c.id, c);
+    }
+    return Array.from(seen.values());
+  }
+  async function ensureEmployersFor(companyIds: string[]) {
+    const missing = Array.from(new Set(companyIds)).filter((id) => !companyMap.current?.has(id)).slice(0, 150);
+    if (missing.length) await companySlice(`/companies?ids=${encodeURIComponent(missing.join(","))}&limit=200`);
   }
 
   async function ensureProfile(): Promise<ProfileLite> {
@@ -496,9 +523,9 @@ function AgentInner() {
   // Employers relevant to the candidate's own profile (field + location).
   async function employersFromProfile(limitN: number): Promise<{ employers: Company[]; country: string; seed: string }> {
     const p = await ensureProfile();
-    const all = await ensureCompanies();
     const country = (p.preferred_locations || []).map((l) => resolveCountry(l.toLowerCase())).find(Boolean) || "South Africa";
     const seed = (p.desired_occupations?.[0] || p.current_occupation || user?.preferred_position || "").toLowerCase();
+    const all = await ensureCompanies({ country });
     let employers = filterEmployers(all, { keyword: seed, country }, limitN);
     if (employers.length < 3) employers = filterEmployers(all, { country }, limitN); // widen: whole country
     return { employers, country, seed };
@@ -655,8 +682,9 @@ function AgentInner() {
     });
 
     // 2) Employers from the directory (the real, populated data).
-    const all = await ensureCompanies();
+    const all = await ensureCompanies({ country: f.country, sourceType: f.category?.sourceType, keyword: parsed.keyword });
     const employers = filterEmployers(all, { keyword: parsed.keyword, country: f.country, sourceType: f.category?.sourceType }, 8);
+    await ensureEmployersFor(vacs.slice(0, 12).map((v) => v.company_id));
 
     const vacCards: VacancyCardData[] = vacs.slice(0, 12).map((v) => {
       const c = companyMap.current?.get(v.company_id) || null;

@@ -102,10 +102,7 @@ predates them, with existing rows backfilled to 0/NULL.
 
 ## 5. Not done: roadmap, in priority order
 
-1. **Server-side directory pagination/search.** The UI downloads the whole company directory to
-   filter in the browser, so any logged-in account can copy it in one request. Per-account limits
-   slow a scraper down but can't stop a single full copy. The real fix is moving filter/search to
-   the API and removing `limit=5000`.
+1. ~~Server-side directory pagination/search~~: **done (follow-up pass, below).**
 2. **Enforce the CSP** (it's still Report-Only), then consider **httpOnly cookie sessions** instead
    of localStorage tokens. That's a cross-site cookie + CSRF design across Vercel ↔ Render, so it's
    its own project.
@@ -118,14 +115,39 @@ predates them, with existing rows backfilled to 0/NULL.
 6. **Real migrations (Alembic)** instead of the boot-time column adder.
 7. **Backups:** confirm Neon point-in-time restore is enabled and actually test a restore.
 8. **CI security gate:** `pip-audit` + `npm audit` + the test suite on every push.
-9. **CV storage is on Render's temporary disk.** `STORAGE_DIR=./storage` on a free Render
-   instance is wiped on every redeploy and restart, and the instance restarts often. So uploaded
-   CVs and generated documents can silently vanish. Move to object storage (the code already
-   supports `STORAGE_BACKEND=s3`; Cloudflare R2 has a free tier). This is a reliability *and* a
-   data-handling issue. (This pass also added `backend/storage/` to `.gitignore`: it was missing,
-   and the push scripts run `git add -A` on a public repo. History checked: nothing was ever
-   committed.)
+9. ~~CV storage on Render's temporary disk~~: **done (follow-up pass, below).**
 10. ~~Cron secret in the query string~~: fixed in the DAST follow-up (header-only now).
+
+## 5b. Follow-up pass (same day): storage + directory scoping
+
+**Durable file storage.** New `db` storage backend (`stored_files` table in the existing Neon
+database; no new account or credential). `STORAGE_BACKEND=auto` (the new default) resolves to `db`
+in production, so it switches on at deploy with no dashboard change. Files still sitting on
+Render's disk are read from there once and copied into the database ("rescued") before the next
+restart can wipe them. A download whose file was already lost now returns a friendly `410` ("please
+re-upload") instead of a 500. Size note: Neon's free tier is 0.5 GB. Uploaded CVs are capped by
+`MAX_UPLOAD_MB` and generated documents are ~40 KB, so this is comfortable for thousands of users. Move
+to `s3` (e.g. Cloudflare R2) when that changes; the switch is one env var.
+
+**POPIA erasure now covers documents.** "Delete my account" previously left CV files, extracted
+CV text, generated CVs/cover letters and the candidate profile behind. It now deletes the stored
+bytes and wipes/soft-deletes those records (`_erase_documents_and_profile` in `routes_account.py`).
+
+**Directory scoping.** `GET /companies` gains `country`, `q` (LIKE-escaped), and `ids` filters.
+Non-admin requests must be scoped and are capped at 1,500 rows (unscoped: 100). The per-account
+budget is now 200 requests/hour. New `GET /companies/facets` (counts only, for tabs and headline
+stats) and `GET /companies/surprise`. The Companies page loads one country/federations/shortlist
+slice at a time (cached per slice). The Career Agent fetches only the slice a question needs, or
+does server-side name search per keyword. Admin tools keep full access.
+
+*Honest limit:* the directory's whole purpose is to be shown to signed-in users, so a determined
+account can still page through it country by country. The difference is that this now takes ~60
+rate-limited, logged requests instead of one silent one.
+
+Verified end-to-end: API in production mode with the full 2,985-row seed, the built Next.js app, and
+headless Chromium. Real form login → Companies (facets + South Africa slice only) → switch to
+Botswana (one scoped request) → Career Agent "bank jobs in Botswana" answered with Botswana
+employers; zero page errors; the UI never requested an unscoped list.
 
 ## 6. Verification
 
