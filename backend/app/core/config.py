@@ -4,6 +4,7 @@ All secrets and environment-specific values live here so that nothing sensitive
 is hard-coded in the codebase (Security Architecture, blueprint section 15).
 """
 from functools import lru_cache
+from pydantic import AliasChoices, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -117,7 +118,11 @@ class Settings(BaseSettings):
     TWILIO_FROM: str | None = None
     SMTP_HOST: str | None = "smtp.gmail.com"   # Gmail SMTP; only used when EMAIL_PROVIDER=smtp
     SMTP_PORT: int = 587
-    SMTP_USER: str | None = None
+    # Also read from "SMPT_USER": the production Render service was set up with
+    # that typo, which left SMTP_USER empty and silently stopped ALL email
+    # (verification, password reset, login alerts). Accepting both spellings
+    # fixes it without anyone re-entering settings; SMTP_USER wins if both exist.
+    SMTP_USER: str | None = Field(default=None, validation_alias=AliasChoices("SMTP_USER", "SMPT_USER"))
     SMTP_PASSWORD: str | None = None
     # Owner alert on every successful sign-in (password or Google). Recipient(s):
     # LOGIN_ALERT_EMAIL (comma-separated), falling back to SMTP_USER, then ADMIN_EMAIL. Needs

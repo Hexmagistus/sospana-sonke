@@ -154,3 +154,13 @@ def test_documents_survive_control_characters():
         {"job_title": nasty, "company": nasty, "responsibilities": nasty}]}
     assert render_cv_docx(cv)[:2] == b"PK"
     assert render_letter_docx("Dear hiring manager,\x00\x07\n\nI apply.")[:2] == b"PK"
+
+
+def test_smtp_user_also_read_from_production_typo(monkeypatch):
+    """Render had SMPT_USER (typo); email silently stopped. Both spellings must work."""
+    from app.core.config import Settings
+    monkeypatch.delenv("SMTP_USER", raising=False)
+    monkeypatch.setenv("SMPT_USER", "sender@gmail.com")
+    assert Settings().SMTP_USER == "sender@gmail.com"
+    monkeypatch.setenv("SMTP_USER", "correct@gmail.com")
+    assert Settings().SMTP_USER == "correct@gmail.com"
