@@ -23,3 +23,7 @@ node_modules/
 # Test DB artifacts
 *.db-journal
 backend/test_sospana.db
+
+# Uploaded CVs and generated documents (personal data) - never commit
+backend/storage/
+storage/

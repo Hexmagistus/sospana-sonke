@@ -88,6 +88,23 @@ TEMPLATES: dict[str, dict] = {
 TEMPLATES["ats_clean"] = TEMPLATES["ats_pro"]  # backward-compatible alias
 
 
+
+# XML 1.0 (which .docx is built on) forbids NUL and most C0 control characters.
+# They turn up in text extracted from real-world PDFs, pasted job ads, and
+# hostile input alike; python-docx raises on them and the whole CV download 500s.
+_XML_ILLEGAL = re.compile("[\x00-\x08\x0b\x0c\x0e-\x1f\ufffe\uffff]")
+
+
+def _xml_safe(value):
+    """Recursively strip XML-illegal characters from every string in a CV/letter."""
+    if isinstance(value, str):
+        return _XML_ILLEGAL.sub("", value)
+    if isinstance(value, dict):
+        return {k: _xml_safe(v) for k, v in value.items()}
+    if isinstance(value, (list, tuple)):
+        return type(value)(_xml_safe(v) for v in value)
+    return value
+
 def template_style(template: str | None) -> dict:
     return TEMPLATES.get((template or "professional").lower(), TEMPLATES["professional"])
 
@@ -141,6 +158,7 @@ def _bullets(text) -> list[str]:
 # ---- PDF (ReportLab) --------------------------------------------------------
 
 def render_cv_pdf(cv: dict, template: str | None = None) -> bytes:
+    cv = _xml_safe(cv)
     style = template_style(template)
     buf = io.BytesIO()
     doc = SimpleDocTemplate(buf, pagesize=A4, topMargin=1.5 * cm, bottomMargin=1.5 * cm,
@@ -278,6 +296,7 @@ def render_cv_pdf(cv: dict, template: str | None = None) -> bytes:
 # ---- DOCX (python-docx) -----------------------------------------------------
 
 def render_cv_docx(cv: dict, template: str | None = None) -> bytes:
+    cv = _xml_safe(cv)
     from docx import Document
     from docx.shared import Pt, RGBColor
     from docx.enum.text import WD_ALIGN_PARAGRAPH
@@ -425,6 +444,7 @@ def _bottom_border(paragraph, color=GOLD):
 # ---- Cover letter -----------------------------------------------------------
 
 def render_letter_pdf(text: str) -> bytes:
+    text = _xml_safe(text)
     buf = io.BytesIO()
     doc = SimpleDocTemplate(buf, pagesize=A4, topMargin=2 * cm, bottomMargin=2 * cm,
                             leftMargin=2.2 * cm, rightMargin=2.2 * cm, title="Cover Letter")
@@ -438,6 +458,7 @@ def render_letter_pdf(text: str) -> bytes:
 
 
 def render_letter_docx(text: str) -> bytes:
+    text = _xml_safe(text)
     from docx import Document
     from docx.shared import Pt
     d = Document()

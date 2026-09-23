@@ -137,3 +137,20 @@ def test_card_donations_disabled_in_production_without_real_provider(client, mon
     monkeypatch.setattr(settings, "PAYMENT_PROVIDER", "mock")
     r = client.post("/api/v1/donations/checkout", json={"amount_zar": 50, "email": "d@example.com"})
     assert r.status_code == 503
+
+
+# ---- DAST follow-ups (2026-09-24 ZAP scan) ------------------------------------
+
+def test_cron_secret_only_accepted_in_header(client, monkeypatch):
+    monkeypatch.setattr(settings, "CRON_SECRET", "s3cret-value")
+    assert client.post("/api/v1/cron/run/nope?token=s3cret-value").status_code == 401
+    assert client.post("/api/v1/cron/run/nope", headers={"X-Cron-Secret": "s3cret-value"}).status_code == 404
+
+
+def test_documents_survive_control_characters():
+    from app.documents.render import render_cv_docx, render_letter_docx
+    nasty = "Water\x00 treatment\x0b operator\x1f"
+    cv = {"full_name": nasty, "summary": nasty, "skills": [nasty], "experience": [
+        {"job_title": nasty, "company": nasty, "responsibilities": nasty}]}
+    assert render_cv_docx(cv)[:2] == b"PK"
+    assert render_letter_docx("Dear hiring manager,\x00\x07\n\nI apply.")[:2] == b"PK"

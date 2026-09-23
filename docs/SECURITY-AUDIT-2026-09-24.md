@@ -118,9 +118,14 @@ predates them, with existing rows backfilled to 0/NULL.
 6. **Real migrations (Alembic)** instead of the boot-time column adder.
 7. **Backups:** confirm Neon point-in-time restore is enabled and actually test a restore.
 8. **CI security gate:** `pip-audit` + `npm audit` + the test suite on every push.
-9. Minor: the cron endpoint also accepts its secret as a `?token=` query param, which ends up in
-   access logs. The workflows use the header, so drop the query form once nothing external relies
-   on it.
+9. **CV storage is on Render's temporary disk.** `STORAGE_DIR=./storage` on a free Render
+   instance is wiped on every redeploy and restart, and the instance restarts often. So uploaded
+   CVs and generated documents can silently vanish. Move to object storage (the code already
+   supports `STORAGE_BACKEND=s3`; Cloudflare R2 has a free tier). This is a reliability *and* a
+   data-handling issue. (This pass also added `backend/storage/` to `.gitignore`: it was missing,
+   and the push scripts run `git add -A` on a public repo. History checked: nothing was ever
+   committed.)
+10. ~~Cron secret in the query string~~: fixed in the DAST follow-up (header-only now).
 
 ## 6. Verification
 
@@ -131,4 +136,20 @@ predates them, with existing rows backfilled to 0/NULL.
   only, because this sandbox can't reach fonts.googleapis.com; the real `layout.tsx` is untouched);
   `next start` smoke test OK.
 - Dependencies: `pip-audit` 0 known vulns; `npm audit` 0 vulnerabilities.
-- HawkScan DAST: not run (no `HAWK_API_KEY` configured in this environment).
+- **DAST (dynamic attack scan):** HawkScan needs a StackHawk account + API key, so the same class
+  of scan was run with **OWASP ZAP 2.16.1** (free, no account) against a local copy of the API.
+  Authenticated as a test candidate, all 122 remaining OpenAPI paths were imported and attacked
+  (~70,000 requests: SQL/NoSQL/command injection, XSS, path traversal, SSRF probes, header
+  fuzzing). The session-ending endpoints were excluded after the scanner's first run pressed
+  "sign out everywhere" on itself, which confirmed that revocation works.
+  - **Result: 0 high, 0 medium.** 1 low: user-supplied text is echoed in JSON. That is
+    acceptable because JSON responses carry `nosniff` + `default-src 'none'` and React escapes on
+    render.
+  - **Found and fixed:** text containing control characters (NUL etc.) crashed CV/cover-letter
+    `.docx` generation with a 500. This also affects real PDFs with odd bytes, not only attackers.
+    All renderers now strip XML-illegal characters (`_xml_safe` in `documents/render.py`).
+  - **Found and fixed:** the cron secret was accepted as `?token=` in the URL, where it leaks into
+    logs. The endpoint is now header-only and rate-limited to 30/min.
+  - **Access-control matrix** (separate scripted check): all 23 admin routes return 403 to a
+    candidate; no private route answers without a login; a second candidate trying to read, edit,
+    delete or list the first candidate's tailored applications and watches gets 404 every time.
