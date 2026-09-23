@@ -5,7 +5,7 @@ import secrets
 
 import httpx
 import jwt
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
 
 from app.core import security
@@ -14,6 +14,7 @@ from app.core.rate_limit import limiter
 from app.db.session import get_db
 from app.models.user import User
 from app.core.config import settings
+from app.notifications.login_alert import queue_login_alert
 from app.schemas.auth import (
     RegisterRequest, RegisterResponse, LoginRequest, TokenResponse,
     RefreshRequest, UserResponse, MFASetupResponse, MFACodeRequest,
@@ -90,7 +91,8 @@ def verify_email(token: str, db: Session = Depends(get_db)):
 
 @router.post("/login", response_model=TokenResponse)
 @limiter.limit("10/minute")
-def login(request: Request, body: LoginRequest, db: Session = Depends(get_db)):
+def login(request: Request, body: LoginRequest, background_tasks: BackgroundTasks,
+          db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == body.email.lower()).first()
     # Constant-ish response regardless of which check fails, to avoid user enumeration.
     if user is None or not security.verify_password(body.password, user.password_hash):
@@ -101,6 +103,7 @@ def login(request: Request, body: LoginRequest, db: Session = Depends(get_db)):
         if not security.verify_totp(user.mfa_secret, body.otp_code):
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                                 detail="MFA code required or invalid.")
+    queue_login_alert(background_tasks, request, user, method="email & password")
     return TokenResponse(
         access_token=security.create_access_token(user.id, user.role),
         refresh_token=security.create_refresh_token(user.id),
@@ -109,7 +112,8 @@ def login(request: Request, body: LoginRequest, db: Session = Depends(get_db)):
 
 @router.post("/google", response_model=TokenResponse)
 @limiter.limit("20/minute")
-def google_login(request: Request, body: GoogleLoginRequest, db: Session = Depends(get_db)):
+def google_login(request: Request, body: GoogleLoginRequest, background_tasks: BackgroundTasks,
+                 db: Session = Depends(get_db)):
     """Sign in (or sign up) with a Google account.
 
     The frontend obtains a Google ID token via Google Identity Services and posts it
@@ -140,6 +144,7 @@ def google_login(request: Request, body: GoogleLoginRequest, db: Session = Depen
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                             detail="Google account email is not verified.")
     user = db.query(User).filter(User.email == email).first()
+    new_account = user is None
     if user is None:
         user = User(
             email=email,
@@ -153,6 +158,7 @@ def google_login(request: Request, body: GoogleLoginRequest, db: Session = Depen
         db.refresh(user)
     if not user.is_active or user.deleted_at is not None:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Account is disabled.")
+    queue_login_alert(background_tasks, request, user, method="Google", new_account=new_account)
     return TokenResponse(
         access_token=security.create_access_token(user.id, user.role),
         refresh_token=security.create_refresh_token(user.id),

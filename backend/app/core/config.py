@@ -111,6 +111,11 @@ class Settings(BaseSettings):
     SMTP_PORT: int = 587
     SMTP_USER: str | None = None
     SMTP_PASSWORD: str | None = None
+    # Owner alert on every successful sign-in (password or Google). Recipient(s):
+    # LOGIN_ALERT_EMAIL (comma-separated), falling back to SMTP_USER, then ADMIN_EMAIL. Needs
+    # EMAIL_PROVIDER=smtp to actually deliver. Independent of NOTIFY_EMAILS.
+    LOGIN_ALERTS_ENABLED: bool = True
+    LOGIN_ALERT_EMAIL: str | None = None
 
     # Application automation (blueprint sections 13, 14, 28 — Phase 2).
     # OFF by default: a global kill-switch so automated submission is opt-in and safe.
