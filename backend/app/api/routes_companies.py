@@ -5,11 +5,12 @@ administrator-only (role-based access control).
 """
 from datetime import datetime, timedelta, timezone
 
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Request, UploadFile, File, Query, status
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
 from app.core.deps import get_current_user, require_admin
+from app.core.rate_limit import limiter, user_or_ip_key
 from app.db.session import get_db
 from app.models.company import Company
 from app.models.link_report import LinkReport
@@ -35,7 +36,9 @@ router = APIRouter(prefix="/companies", tags=["companies"])
 
 
 @router.get("", response_model=list[CompanyResponse])
+@limiter.limit("60/hour", key_func=user_or_ip_key)
 def list_companies(
+    request: Request,
     db: Session = Depends(get_db),
     _: User = Depends(get_current_user),
     source_type: str | None = Query(default=None, description="Filter by JSE or SOE"),

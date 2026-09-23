@@ -29,6 +29,11 @@ class MockProvider(PaymentProvider):
         return hmac.new(_MOCK_SECRET, raw_body, hashlib.sha256).hexdigest()
 
     def verify_webhook(self, raw_body: bytes, signature: str | None) -> bool:
+        # The mock secret is public (it's in this repo), so in production any
+        # "signed" mock webhook is forgeable -- refuse them all outright.
+        from app.core.config import settings
+        if settings.ENV == "production":
+            return False
         return bool(signature) and hmac.compare_digest(self.sign(raw_body), signature)
 
     def parse_event(self, raw_body: bytes) -> PaymentEvent:

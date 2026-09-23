@@ -1,6 +1,6 @@
 """Authentication routes (blueprint Step 1)."""
 import logging
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 import secrets
 
 import httpx
@@ -15,6 +15,7 @@ from app.db.session import get_db
 from app.models.user import User
 from app.core.config import settings
 from app.notifications.login_alert import queue_login_alert
+from app.core.client_ip import client_ip
 from app.schemas.auth import (
     RegisterRequest, RegisterResponse, LoginRequest, TokenResponse,
     RefreshRequest, UserResponse, MFASetupResponse, MFACodeRequest,
@@ -28,6 +29,25 @@ logger = logging.getLogger(__name__)
 CURRENT_POLICY_VERSION = "2026-09-25"
 
 router = APIRouter(prefix="/auth", tags=["auth"])
+
+
+def _issue_tokens(user: User) -> TokenResponse:
+    tv = user.token_version or 0
+    return TokenResponse(
+        access_token=security.create_access_token(user.id, user.role, tv),
+        refresh_token=security.create_refresh_token(user.id, tv),
+    )
+
+
+def _as_aware(dt: datetime | None) -> datetime | None:
+    # SQLite hands back naive datetimes; Postgres returns aware ones.
+    if dt is not None and dt.tzinfo is None:
+        return dt.replace(tzinfo=timezone.utc)
+    return dt
+
+
+_LOCKED = ("Too many wrong passwords in a row, so we've locked this account for 15 minutes. "
+           "Happens to the best of us. Make a cup of rooibos and try again, or reset your password.")
 
 
 @router.post("/register", response_model=RegisterResponse, status_code=status.HTTP_201_CREATED)
@@ -93,21 +113,38 @@ def verify_email(token: str, db: Session = Depends(get_db)):
 @limiter.limit("10/minute")
 def login(request: Request, body: LoginRequest, background_tasks: BackgroundTasks,
           db: Session = Depends(get_db)):
+    bad = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect email or password.")
     user = db.query(User).filter(User.email == body.email.lower()).first()
-    # Constant-ish response regardless of which check fails, to avoid user enumeration.
-    if user is None or not security.verify_password(body.password, user.password_hash):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect email or password.")
+    if user is None:
+        # Spend the same Argon2 time as a real check so response timing can't
+        # be used to discover which emails have accounts.
+        security.burn_password_check(body.password)
+        raise bad
+    now = datetime.now(timezone.utc)
+    locked_until = _as_aware(user.locked_until)
+    if locked_until and locked_until > now:
+        raise HTTPException(status_code=status.HTTP_429_TOO_MANY_REQUESTS, detail=_LOCKED)
+    if not security.verify_password(body.password, user.password_hash):
+        user.failed_login_count = (user.failed_login_count or 0) + 1
+        if user.failed_login_count >= settings.LOGIN_MAX_FAILURES:
+            user.locked_until = now + timedelta(minutes=settings.LOGIN_LOCKOUT_MINUTES)
+            user.failed_login_count = 0
+            logger.warning("Account locked after repeated failed logins: user_id=%s ip=%s",
+                           user.id, client_ip(request))
+        db.commit()
+        raise bad
     if not user.is_active or user.deleted_at is not None:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Account is disabled.")
     if user.mfa_enabled:
         if not security.verify_totp(user.mfa_secret, body.otp_code):
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                                 detail="MFA code required or invalid.")
+    if user.failed_login_count or user.locked_until:
+        user.failed_login_count = 0
+        user.locked_until = None
+        db.commit()
     queue_login_alert(background_tasks, request, user, method="email & password")
-    return TokenResponse(
-        access_token=security.create_access_token(user.id, user.role),
-        refresh_token=security.create_refresh_token(user.id),
-    )
+    return _issue_tokens(user)
 
 
 @router.post("/google", response_model=TokenResponse)
@@ -159,10 +196,7 @@ def google_login(request: Request, body: GoogleLoginRequest, background_tasks: B
     if not user.is_active or user.deleted_at is not None:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Account is disabled.")
     queue_login_alert(background_tasks, request, user, method="Google", new_account=new_account)
-    return TokenResponse(
-        access_token=security.create_access_token(user.id, user.role),
-        refresh_token=security.create_refresh_token(user.id),
-    )
+    return _issue_tokens(user)
 
 
 @router.post("/refresh", response_model=TokenResponse)
@@ -173,12 +207,21 @@ def refresh(request: Request, body: RefreshRequest, db: Session = Depends(get_db
     except jwt.PyJWTError:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired refresh token.")
     user = db.get(User, payload.get("sub"))
-    if user is None or not user.is_active:
+    if (user is None or not user.is_active or user.deleted_at is not None
+            or not security.token_is_current(payload, user)):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token.")
-    return TokenResponse(
-        access_token=security.create_access_token(user.id, user.role),
-        refresh_token=security.create_refresh_token(user.id),
-    )
+    return _issue_tokens(user)
+
+
+@router.post("/logout-all", response_model=SimpleMessage)
+@limiter.limit("10/hour")
+def logout_all(request: Request, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    """Sign out everywhere: revokes every access/refresh token issued so far,
+    on every device (including this one). Use after a lost phone or a
+    suspected account compromise."""
+    user.token_version = (user.token_version or 0) + 1
+    db.commit()
+    return SimpleMessage(status="Signed out on all devices. Please sign in again.")
 
 
 @router.get("/me", response_model=UserResponse)
@@ -246,7 +289,7 @@ def password_reset_request(request: Request, body: PasswordResetRequest, db: Ses
     user = db.query(User).filter(User.email == body.email.lower()).first()
     token = None
     if user:
-        token = security.create_password_reset_token(user.id)
+        token = security.create_password_reset_token(user.id, user.token_version or 0)
         try:
             from app.notifications.email import get_email_provider
             get_email_provider().send(
@@ -269,8 +312,15 @@ def password_reset_confirm(request: Request, body: PasswordResetConfirm, db: Ses
     except jwt.PyJWTError:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid or expired reset token.")
     user = db.get(User, payload.get("sub"))
-    if user is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
+    # Same error for "no such user" and "link already used": a used or
+    # superseded link is simply invalid, and a 404 would confirm an account id.
+    if user is None or user.deleted_at is not None or not security.token_is_current(payload, user):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid or expired reset token.")
     user.password_hash = security.hash_password(body.new_password)
+    # Single-use link + sign out every existing session (whoever reset the
+    # password may be recovering from someone else having it).
+    user.token_version = (user.token_version or 0) + 1
+    user.failed_login_count = 0
+    user.locked_until = None
     db.commit()
     return SimpleMessage(status="Password updated. Please sign in with your new password.")

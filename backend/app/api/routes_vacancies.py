@@ -7,10 +7,11 @@ matching module will layer per-candidate scoring on top in the next step).
 from dataclasses import asdict
 from datetime import datetime, timedelta, timezone, date
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from sqlalchemy.orm import Session
 
 from app.core.deps import get_current_user, require_admin
+from app.core.rate_limit import limiter, user_or_ip_key
 from app.db.session import get_db
 from app.models.company import Company
 from app.models.user import User
@@ -66,7 +67,8 @@ def list_company_vacancies(company_id: str, db: Session = Depends(get_db),
 
 
 @router.get("/vacancies", response_model=list[VacancyResponse])
-def list_vacancies(db: Session = Depends(get_db), _: User = Depends(get_current_user),
+@limiter.limit("600/hour", key_func=user_or_ip_key)
+def list_vacancies(request: Request, db: Session = Depends(get_db), _: User = Depends(get_current_user),
                    q: str | None = Query(default=None, description="Search in title"),
                    is_open: bool | None = Query(default=True),
                    province: str | None = Query(

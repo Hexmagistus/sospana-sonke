@@ -1,0 +1,134 @@
+# Sospana Sonke: Architecture & Security Audit (24 September 2026)
+
+Scope: full backend (FastAPI), frontend (Next.js), deployment config, and dependencies.
+Method: read the code, inventory every route by its *actual* auth dependency (introspected from
+the running app, not grepped), threat-model against the brief, fix what's fixable now, and write
+down what isn't.
+
+> Standing rule, borrowed from the last report: this document is about **reducing risk**. Nothing
+> here makes the platform "unhackable". That word is reserved for sales decks and very brave people.
+
+---
+
+## 1. Architecture map
+
+```
+ Browser (Next.js 15 app on Vercel)          GitHub Actions
+   │  JWT in localStorage, Bearer header        │  hourly parallel scanner (direct DB)
+   ▼                                            │  cron → /cron/run/* (X-Cron-Secret)
+ Render edge proxy (TLS, appends XFF)           │
+   ▼                                            ▼
+ FastAPI (uvicorn, 1 free instance) ───────► Neon Postgres (SQLAlchemy ORM, no raw SQL)
+   ├─ auth: Argon2id, JWT HS256 (access 30m / refresh 14d), TOTP MFA, Google ID-token sign-in
+   ├─ RBAC: role re-read from DB on every request (never trusted from the token)
+   ├─ uploads: CV files, size-capped mid-read, magic-byte sniffed, extension allow-list
+   ├─ email: Gmail SMTP (verification, reset, notifications, owner login alerts)
+   ├─ payments: provider abstraction (mock | Paystack), HMAC-verified webhooks
+   ├─ scraper: Greenhouse/Lever/SmartRecruiters/Recruitee/Workable/HTML, robots.txt, back-off
+   └─ rate limiting: slowapi, in-memory (single instance)
+```
+
+Route inventory (introspected): **148 routes**. 107 require a signed-in user, 23 are admin-only
+(`require_admin`, DB-verified), 1 has optional auth, 17 are public by design: auth flows, `/health`,
+company icon redirect, tailor templates, comments summary, the HMAC-verified payment webhook, the
+secret-guarded cron trigger, and 3 subscription routes that only ever return `410 Gone`.
+
+## 2. Threat model: what I checked and where it landed
+
+| Threat | Status |
+|---|---|
+| Brute force / password spraying | Per-IP limits existed but were **broken** (§3.1). Fixed, plus a new per-account lockout. |
+| Credential stuffing (many IPs, one account) | **New:** 10 failures → 15-minute lock on that account. |
+| Account enumeration | Login timing leaked "no such email" (no Argon2 work done). **Fixed.** Register still returns 409 for existing emails (accepted trade-off, see §5). |
+| Session / token theft | Tokens couldn't be revoked at all. **Fixed:** token versioning + "Sign out everywhere". Tokens still live in localStorage (§5). |
+| Password reset abuse | Reset links were reusable for 2 hours. **Fixed:** single-use, and a reset signs out every device. |
+| IDOR / BOLA | Ownership checks are consistent across resource routes (re-verified in this pass). |
+| Privilege escalation / mass assignment | Role is never accepted from input. Pydantic schemas don't expose `role`, `is_active` or `token_version`. OK. |
+| SQL injection | ORM-only, no string-built SQL. OK. |
+| XSS | React escapes by default. The only `dangerouslySetInnerHTML` is static JSON-LD. The CSP is still Report-Only (§5). |
+| CSRF | Not applicable while auth is a Bearer header rather than a cookie (revisit if moving to cookies). |
+| SSRF | Outbound fetches (scraper, URL tester, favicon discovery) only hit admin/seed-controlled company URLs. Admin-only triggers. OK. |
+| Malicious uploads | Size-capped mid-stream, magic-byte check, extension allow-list, stored outside the web root. OK. |
+| Payment fraud | **Found:** production runs the *mock* provider, whose signing secret is in this public repo, so anyone could forge "paid" webhooks. **Fixed.** |
+| Bulk scraping of the directory | Any account can pull the whole directory in one call (the UI is built that way). **Mitigated** with per-account hourly limits. Real fix in §5. |
+| Oversized requests / resource exhaustion | 30 MB global body cap, per-upload caps, list caps. OK. |
+| Vulnerable dependencies | Backend: `pip-audit` clean. Frontend: **Next 14.2.15 had 2 critical + many high advisories** (incl. remote code execution in the image optimizer). **Fixed:** upgraded to Next 15.5.26 + React 19; `npm audit` now reports 0 vulnerabilities. |
+| Secrets exposure | No live secrets in the repo; production refuses to boot on the placeholder `SECRET_KEY`; API docs disabled in production. OK. |
+
+## 3. Fixed in this pass
+
+1. **Rate limiting was effectively global (critical).** uvicorn only trusts `X-Forwarded-For`
+   from 127.0.0.1, so behind Render every visitor appeared to share one IP, the proxy's. The
+   "10 logins per minute per IP" limit was really "10 logins per minute for the whole of Africa",
+   so one bored attacker could lock everyone out of sign-in. The limiter now keys on the
+   proxy-appended (unspoofable) end of the XFF chain (`app/core/client_ip.py`,
+   `TRUSTED_PROXY_HOPS=1`). Login-alert emails use the same trusted IP.
+2. **Forgeable payments (high).** The mock provider now rejects every webhook when
+   `ENV=production`, and card donations return a friendly 503 until Paystack is configured
+   (instead of handing donors a dead `mock-pay.local` link).
+3. **Session revocation (high).** `users.token_version` is embedded in every token as `tv`.
+   Bumping it kills all access, refresh and reset tokens at once. Used by password reset, account
+   deletion, and the new `POST /auth/logout-all` (a "Sign out everywhere" button on /security).
+   Tokens issued before this change count as version 0, so **deploying it logs nobody out**.
+4. **Single-use reset links.** They carry `tv`, so a completed reset invalidates the link and every
+   other outstanding one.
+5. **Per-account lockout + timing-safe login.** Unknown emails now burn a real Argon2 verification,
+   so response time no longer reveals who has an account.
+6. **Per-account bulk-read budgets.** `/companies` is capped at 60/hour and `/vacancies` at
+   600/hour per account (keyed on the verified token, not the IP, so rotating IPs doesn't help).
+7. **Next.js 14.2.15 → 15.5.26, React 18 → 19**, plus PostCSS pinned via `overrides`. Production
+   build verified, all 32 routes prerender, and a runtime smoke test returns 200 on key pages with
+   security headers intact.
+8. **Bug found along the way:** four directory pages asked for 5,000 vacancies, but the API caps
+   pages at 200, so the request 422'd, the page swallowed the error, and **vacancy counts never
+   showed**. The pages now page through at 200 at a time (`api.getAll`).
+9. The 4 long-failing tests (stale `reg["id"]` helper) are fixed. **The full backend suite is
+   green for the first time in weeks.**
+
+Schema: `users.token_version`, `users.failed_login_count` and `users.locked_until` are added through
+the existing idempotent `_add_new_columns()` boot step. This was verified against a database that
+predates them, with existing rows backfilled to 0/NULL.
+
+## 4. Action needed from Lungani
+
+- **Check the IP in the next login-alert email** against your real IP (search "what is my IP"). If
+  it shows a 10.x/100.x address instead, Render adds a second proxy hop: set `TRUSTED_PROXY_HOPS=2`
+  in Render and redeploy. That email is now a free diagnostic tool.
+- **Click around once it deploys:** this is a framework major upgrade. Log in, browse companies and
+  open a match. The build passed here, but eyeballs beat build logs. If anything looks off, Vercel →
+  Deployments → the previous deployment → "Promote to Production" is an instant rollback.
+- When Paystack goes live: set `PAYMENT_PROVIDER=paystack` + `PAYSTACK_SECRET_KEY` on Render, and
+  card donations switch on by themselves.
+
+## 5. Not done: roadmap, in priority order
+
+1. **Server-side directory pagination/search.** The UI downloads the whole company directory to
+   filter in the browser, so any logged-in account can copy it in one request. Per-account limits
+   slow a scraper down but can't stop a single full copy. The real fix is moving filter/search to
+   the API and removing `limit=5000`.
+2. **Enforce the CSP** (it's still Report-Only), then consider **httpOnly cookie sessions** instead
+   of localStorage tokens. That's a cross-site cookie + CSRF design across Vercel ↔ Render, so it's
+   its own project.
+3. **Edge protection:** a free Cloudflare proxy in front of the API (bot management, WAF, DDoS
+   absorption). The free Render instance is the easiest way to take the platform offline today:
+   it's one small instance, and it naps.
+4. **Shared rate-limit store (Redis)** before ever running more than one backend instance. The
+   in-memory counters are per-process.
+5. **Admin audit log** (who changed match config, imported CSVs, sent suggestions).
+6. **Real migrations (Alembic)** instead of the boot-time column adder.
+7. **Backups:** confirm Neon point-in-time restore is enabled and actually test a restore.
+8. **CI security gate:** `pip-audit` + `npm audit` + the test suite on every push.
+9. Minor: the cron endpoint also accepts its secret as a `?token=` query param, which ends up in
+   access logs. The workflows use the header, so drop the query form once nothing external relies
+   on it.
+
+## 6. Verification
+
+- Backend: full pytest suite green, including 11 new tests in `tests/test_security_controls.py`
+  (IP resolution & spoofing, lockout, enumeration parity, logout-all, legacy tokens, single-use
+  reset, production payment guards, per-user rate-limit keys).
+- Frontend: `tsc --noEmit` clean; `next build` succeeds (Google Fonts stubbed in a scratch copy
+  only, because this sandbox can't reach fonts.googleapis.com; the real `layout.tsx` is untouched);
+  `next start` smoke test OK.
+- Dependencies: `pip-audit` 0 known vulns; `npm audit` 0 vulnerabilities.
+- HawkScan DAST: not run (no `HAWK_API_KEY` configured in this environment).

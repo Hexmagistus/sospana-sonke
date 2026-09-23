@@ -77,6 +77,7 @@ def delete_my_account(request: Request, body: DeleteRequest, db: Session = Depen
     db.query(CompanyComment).filter(CompanyComment.user_id == user.id).delete(synchronize_session=False)
     db.query(Notification).filter(Notification.user_id == user.id).delete(synchronize_session=False)
     db.query(PushToken).filter(PushToken.user_id == user.id).delete(synchronize_session=False)
+    user.token_version = (user.token_version or 0) + 1  # kill every session now
     user.email = f"deleted-{user.id}@deleted.invalid"
     user.first_name = "Deleted"
     user.last_name = "User"

@@ -55,7 +55,7 @@ function HospitalsDirectoryInner() {
       // active=true: same fix as the Companies/Universities/Colleges directories --
       // exclude not-yet-vetted rows from the public listing and its counts.
       api.get<Company[]>("/companies?source_type=HOSPITAL&limit=5000&active=true"),
-      api.get<Vacancy[]>("/vacancies?is_open=true&limit=5000").catch(() => [] as Vacancy[]),
+      api.getAll<Vacancy>("/vacancies?is_open=true").catch(() => [] as Vacancy[]),
     ]).then(([hosps, vacs]) => {
       setHospitals(hosps);
       setVacancies(vacs);

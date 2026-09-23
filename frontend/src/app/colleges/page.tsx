@@ -55,7 +55,7 @@ function CollegesDirectoryInner() {
       // active=true: same fix as the Companies/Universities directories --
       // exclude not-yet-vetted rows from the public listing and its counts.
       api.get<Company[]>("/companies?source_type=COLLEGE&limit=5000&active=true"),
-      api.get<Vacancy[]>("/vacancies?is_open=true&limit=5000").catch(() => [] as Vacancy[]),
+      api.getAll<Vacancy>("/vacancies?is_open=true").catch(() => [] as Vacancy[]),
     ]).then(([colls, vacs]) => {
       setColleges(colls);
       setVacancies(vacs);

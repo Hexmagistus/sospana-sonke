@@ -1,5 +1,5 @@
 """User account model (blueprint sections 9 & 15)."""
-from sqlalchemy import String, Boolean, DateTime
+from sqlalchemy import String, Boolean, DateTime, Integer
 from datetime import datetime
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -26,6 +26,13 @@ class User(UUIDMixin, TimestampMixin, Base):
     # 'candidate' or 'admin' (role-based access control, blueprint section 15)
     role: Mapped[str] = mapped_column(String(20), default="candidate", nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    # Session revocation. Every token carries the value it was issued under
+    # ("tv"); bumping this invalidates all outstanding access/refresh/reset
+    # tokens at once (password reset, "sign out everywhere", account deletion).
+    token_version: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    # Per-account brute-force lockout.
+    failed_login_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    locked_until: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     # POPIA consent record: which privacy-policy version the user accepted, and when.
     # NULL = never accepted (accounts created before the consent flow, or Google sign-ups).
     policy_accepted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)

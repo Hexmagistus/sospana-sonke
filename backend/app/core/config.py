@@ -30,6 +30,13 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "sqlite:///./sospana.db"
 
     # Security
+    # How many reverse proxies sit in front of this app and append to
+    # X-Forwarded-For (Render: 1). 0 = trust nothing, use the socket address.
+    TRUSTED_PROXY_HOPS: int = 1
+    # Per-account brute-force lockout (complements the per-IP rate limit, which
+    # a credential-stuffing botnet spreads across thousands of IPs).
+    LOGIN_MAX_FAILURES: int = 10
+    LOGIN_LOCKOUT_MINUTES: int = 15
     SECRET_KEY: str = "CHANGE-ME-IN-PRODUCTION-use-a-long-random-string"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_DAYS: int = 14

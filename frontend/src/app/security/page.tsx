@@ -59,6 +59,16 @@ function SecurityInner() {
       setErr(e instanceof Error ? e.message : "Could not export your data");
     }
   }
+  async function signOutEverywhere() {
+    setErr(""); setMsg("");
+    try {
+      await api.post("/auth/logout-all");
+      logout();
+      router.push("/login");
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : "Could not sign out other devices");
+    }
+  }
   async function deleteAccount() {
     setErr(""); setMsg("");
     try {
@@ -108,6 +118,15 @@ function SecurityInner() {
             <Button variant="danger" onClick={disable} disabled={!code}>Disable MFA</Button>
           </div>
         )}
+      </Card>
+
+      <Card>
+        <h2 className="mb-2 text-lg font-semibold text-ss-text">Signed-in devices</h2>
+        <p className="mb-4 text-sm text-ss-muted">
+          Lost a phone, or think someone else knows your password? Sign out of Sospana Sonke on every
+          device at once, including this one. Resetting your password does this automatically too.
+        </p>
+        <Button variant="secondary" onClick={signOutEverywhere}>Sign out everywhere</Button>
       </Card>
 
       <Card>

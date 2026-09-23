@@ -49,6 +49,21 @@ commit it (and push, if you pushed the rest of your work). Newest entry on top.
 
 ## Session Log
 
+### 2026-09-24 — Claude (Cowork, Opus 5.5) — Senior security audit + hardening pass
+Lungani sent a "senior engineering, security & production master directive" (audit first, threat-model,
+fix safely, don't rewrite working systems). Full write-up: `docs/SECURITY-AUDIT-2026-09-24.md`.
+Fixed: per-IP rate limits were effectively GLOBAL behind Render's proxy (now keyed on the trusted XFF
+hop via `app/core/client_ip.py`, `TRUSTED_PROXY_HOPS`); forgeable mock-payment webhooks in production;
+no session revocation (new `users.token_version` + `POST /auth/logout-all` + "Sign out everywhere" on
+/security; legacy tokens count as v0 so nobody is logged out on deploy); reusable reset links;
+per-account lockout + timing-safe login; per-account budgets on /companies and /vacancies;
+Next 14.2.15 -> 15.5.26 + React 19 (npm audit 0 vulns, next build + smoke test OK); vacancy-count bug
+(pages asked limit=5000 vs API cap 200 -> silent 422); the 4 stale tests. Backend suite fully green.
+Humour kept: FunSpinner untouched; new lockout/donation messages written warm on purpose.
+**Next:** check the IP in the next login-alert email (if it's 10.x/100.x, set TRUSTED_PROXY_HOPS=2);
+verify the Vercel preview of the Next 15 upgrade; roadmap in §5 of the audit doc (server-side directory
+pagination is #1).
+
 ### 2026-09-21 — Claude (Cowork) — SADC batch 2 COLLEGE research retried + merged (40 new rows); starting grants/awards + valuation research
 The SADC batch-2 COLLEGE research (Angola, Mauritius, Malawi, Madagascar, DR Congo,
 Seychelles, Comoros) had failed twice before to session rate limits with zero output.

@@ -76,7 +76,7 @@ def test_notify_watchers_of_change_emails_matching_watchers(db, client):
     ConsoleEmailProvider.outbox.clear()
     reg, _ = register_and_login(client, email="watcher@example.com")
     company = _company(db)
-    db.add(CompanyWatch(user_id=reg["id"], company_id=company.id, active=True))
+    db.add(CompanyWatch(user_id=reg["user"]["id"], company_id=company.id, active=True))
     db.commit()
 
     company.content_hash = "abc123"
@@ -89,7 +89,7 @@ def test_notify_watchers_of_change_is_idempotent_per_hash(db, client):
     ConsoleEmailProvider.outbox.clear()
     reg, _ = register_and_login(client, email="watcher2@example.com")
     company = _company(db)
-    db.add(CompanyWatch(user_id=reg["id"], company_id=company.id, active=True))
+    db.add(CompanyWatch(user_id=reg["user"]["id"], company_id=company.id, active=True))
     db.commit()
 
     company.content_hash = "same-hash"

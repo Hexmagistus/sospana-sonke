@@ -10,6 +10,7 @@ from __future__ import annotations
 import logging
 from datetime import datetime, timedelta, timezone
 
+from app.core.client_ip import client_ip
 from app.core.config import settings
 
 logger = logging.getLogger(__name__)
@@ -24,12 +25,6 @@ def alert_recipients() -> list[str]:
     return [e.strip() for e in raw.split(",") if e.strip()]
 
 
-def client_ip(request) -> str:
-    # Render/Vercel sit behind a proxy: the real client is the first X-Forwarded-For hop.
-    fwd = request.headers.get("x-forwarded-for", "")
-    if fwd:
-        return fwd.split(",")[0].strip()
-    return request.client.host if request.client else "unknown"
 
 
 def build_login_alert(*, first_name: str, last_name: str, email: str, role: str,

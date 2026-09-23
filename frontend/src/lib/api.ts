@@ -51,7 +51,22 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
   return data as T;
 }
 
+/** Fetch every page of a list endpoint that caps `limit` server-side (the
+ *  vacancy list allows at most 200 per request). Stops at a short page or
+ *  after `maxPages`, so a huge table can never turn into a request storm. */
+async function getAllPages<T>(path: string, pageSize = 200, maxPages = 25): Promise<T[]> {
+  const sep = path.includes("?") ? "&" : "?";
+  const out: T[] = [];
+  for (let page = 0; page < maxPages; page++) {
+    const rows = await request<T[]>("GET", `${path}${sep}limit=${pageSize}&offset=${page * pageSize}`);
+    out.push(...rows);
+    if (rows.length < pageSize) break;
+  }
+  return out;
+}
+
 export const api = {
+  getAll: getAllPages,
   get: <T>(p: string) => request<T>("GET", p),
   post: <T>(p: string, b?: unknown) => request<T>("POST", p, b),
   put: <T>(p: string, b?: unknown) => request<T>("PUT", p, b),

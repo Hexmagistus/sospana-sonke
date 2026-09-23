@@ -114,7 +114,7 @@ function CompaniesDirectoryInner() {
   useEffect(() => {
     Promise.all([
       api.get<Company[]>("/companies?limit=5000"),
-      api.get<Vacancy[]>("/vacancies?is_open=true&limit=5000").catch(() => [] as Vacancy[]),
+      api.getAll<Vacancy>("/vacancies?is_open=true").catch(() => [] as Vacancy[]),
     ]).then(([cos, vacs]) => {
       setCompanies(cos);
       setVacancies(vacs);

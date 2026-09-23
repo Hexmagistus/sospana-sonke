@@ -21,7 +21,7 @@ def _company(db, **overrides):
 
 def _user_id(client):
     reg, _ = register_and_login(client)
-    return reg["id"]
+    return reg["user"]["id"]
 
 
 def test_create_watch_requires_a_scope(db):

@@ -4,7 +4,7 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 
-from app.core.security import decode_token
+from app.core.security import decode_token, token_is_current
 from app.db.session import get_db
 from app.models.user import User
 
@@ -29,6 +29,8 @@ def get_current_user(
         raise cred_exc
     user = db.get(User, user_id)
     if user is None or not user.is_active or user.deleted_at is not None:
+        raise cred_exc
+    if not token_is_current(payload, user):
         raise cred_exc
     return user
 
@@ -55,5 +57,7 @@ def get_current_user_optional(
         return None
     user = db.get(User, payload.get("sub")) if payload.get("sub") else None
     if user is None or not user.is_active or user.deleted_at is not None:
+        return None
+    if not token_is_current(payload, user):
         return None
     return user

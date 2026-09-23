@@ -20,12 +20,15 @@ def test_login_emails_owner(client, monkeypatch):
     _register(client)
     assert _alerts("owner@example.com") == []          # registering alone is not a login
     r = client.post("/api/v1/auth/login", json={"email": "thandi@example.com", "password": "StrongPass123!"},
-                    headers={"X-Forwarded-For": "41.13.2.9, 10.0.0.1", "User-Agent": "TestPhone/1.0"})
+                    headers={"X-Forwarded-For": "6.6.6.6, 41.13.2.9", "User-Agent": "TestPhone/1.0"})
     assert r.status_code == 200
     [msg] = _alerts("owner@example.com")
     assert "Thandi Mokoena" in msg["subject"]
     for part in ("thandi@example.com", "email & password", "41.13.2.9", "TestPhone/1.0", "SAST"):
         assert part in msg["body"]
+    # The left-most X-Forwarded-For entry is client-supplied (spoofable); only
+    # the one appended by Render's proxy may be trusted.
+    assert "6.6.6.6" not in msg["body"]
 
 
 def test_failed_login_sends_nothing(client, monkeypatch):

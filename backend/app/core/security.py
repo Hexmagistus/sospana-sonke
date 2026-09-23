@@ -40,24 +40,45 @@ def _create_token(subject: str, token_type: str, expires_delta: timedelta, extra
     return jwt.encode(payload, settings.SECRET_KEY, algorithm=_ALGORITHM)
 
 
-def create_access_token(user_id: str, role: str) -> str:
+def create_access_token(user_id: str, role: str, token_version: int = 0) -> str:
     return _create_token(
         user_id, "access",
         timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES),
-        {"role": role},
+        {"role": role, "tv": token_version},
     )
 
 
-def create_refresh_token(user_id: str) -> str:
-    return _create_token(user_id, "refresh", timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS))
+def create_refresh_token(user_id: str, token_version: int = 0) -> str:
+    return _create_token(user_id, "refresh", timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS),
+                         {"tv": token_version})
+
+
+def token_is_current(payload: dict, user) -> bool:
+    """False once the user's token_version has moved past the one this token
+    was issued under. Tokens minted before versioning existed carry no "tv"
+    and count as version 0, so deploying this logs nobody out."""
+    return int(payload.get("tv", 0)) == int(user.token_version or 0)
+
+
+# A real Argon2 hash of a random throwaway string, verified against on logins
+# for unknown emails so "no such account" takes as long as "wrong password"
+# (otherwise response time alone reveals which emails are registered).
+_DUMMY_HASH = _ph.hash("timing-equaliser-not-a-real-password")
+
+
+def burn_password_check(password: str) -> None:
+    verify_password(password, _DUMMY_HASH)
 
 
 def create_email_verification_token(user_id: str) -> str:
     return _create_token(user_id, "email_verify", timedelta(hours=settings.EMAIL_VERIFICATION_EXPIRE_HOURS))
 
 
-def create_password_reset_token(user_id: str) -> str:
-    return _create_token(user_id, "password_reset", timedelta(hours=settings.PASSWORD_RESET_EXPIRE_HOURS))
+def create_password_reset_token(user_id: str, token_version: int = 0) -> str:
+    # Carries tv: a successful reset bumps the version, so each reset link
+    # works exactly once (and any older unused link dies with it).
+    return _create_token(user_id, "password_reset", timedelta(hours=settings.PASSWORD_RESET_EXPIRE_HOURS),
+                         {"tv": token_version})
 
 
 # ---- TOTP multi-factor authentication ----
