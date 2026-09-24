@@ -334,17 +334,17 @@ const GREETINGS = [
 const VALUES = ["Ambition", "Opportunity", "Dignity", "Ubuntu", "Hustle", "Growth", "Pride", "Your future"];
 
 // Employer counts are the real, current active-row counts from the company
-// database (backend/seed/company_database_import.csv), recomputed 2026-09-19
-// -- the previous numbers here had drifted from the actual data again since
-// the last recompute (2026-09-12) as more rows were added. pending = this
-// country's directory is still just a single flagship university entry, with
-// no company/SOE/private-sector data added yet in the actual company
-// database file -- note that backend/seed/countries/<Country>.csv holds much
-// larger, real research for most of these "pending" countries already (e.g.
-// Nigeria 138 rows, Kenya 112, Ghana 89), but per backend/app/services/
-// bootstrap.py that file tree is staging data, not yet merged into
-// company_database_import.csv or imported into the live database -- so it's
-// deliberately NOT counted here until it actually is, to avoid overstating.
+// database (backend/seed/company_database_import.csv), recomputed 2026-09-24
+// after merging the researched COLLEGE rows out of backend/seed/countries/*.csv
+// into the main seed file (322 new rows; the rest of that staging tree --
+// DEPT/SOE/NGO/PRIVATE/MUNI/SETA/HOSPITAL/UNI rows -- is still unmerged, so
+// most of the countries below will grow further once that lands too). pending
+// = this country's directory is still just a single flagship entry, with no
+// other company/SOE/private-sector/college data added yet in the actual
+// company database file. Counts merge a couple of inconsistent country-name
+// spellings in the seed CSV (Cote dIvoire/Ivory Coast, Cabo Verde/Cape Verde,
+// Congo/Republic of Congo, Sao Tome and Principe/São Tomé and Príncipe) --
+// worth normalising those spellings in the CSV itself at some point.
 const LIVE = [
   { name: "South Africa", flag: "🇿🇦", count: 672, pending: false },
   { name: "Zimbabwe", flag: "🇿🇼", count: 128, pending: false },
@@ -369,51 +369,51 @@ const LIVE = [
   { name: "Indonesia", flag: "🇮🇩", count: 35, pending: false },
   { name: "Seychelles", flag: "🇸🇨", count: 32, pending: false },
   { name: "Comoros", flag: "🇰🇲", count: 25, pending: false },
-  { name: "Egypt", flag: "🇪🇬", count: 7, pending: true },
-  { name: "Algeria", flag: "🇩🇿", count: 1, pending: true },
-  { name: "Benin", flag: "🇧🇯", count: 1, pending: true },
-  { name: "Burkina Faso", flag: "🇧🇫", count: 1, pending: true },
-  { name: "Burundi", flag: "🇧🇮", count: 1, pending: true },
-  { name: "Cabo Verde", flag: "🇨🇻", count: 1, pending: true },
-  { name: "Cameroon", flag: "🇨🇲", count: 1, pending: true },
-  { name: "Central African Republic", flag: "🇨🇫", count: 1, pending: true },
-  { name: "Chad", flag: "🇹🇩", count: 1, pending: true },
-  { name: "Congo", flag: "🇨🇬", count: 1, pending: true },
-  { name: "Côte d'Ivoire", flag: "🇨🇮", count: 1, pending: true },
-  { name: "Djibouti", flag: "🇩🇯", count: 1, pending: true },
-  { name: "Ethiopia", flag: "🇪🇹", count: 1, pending: true },
-  { name: "Gabon", flag: "🇬🇦", count: 1, pending: true },
+  { name: "Egypt", flag: "🇪🇬", count: 18, pending: false },
+  { name: "Nigeria", flag: "🇳🇬", count: 73, pending: false },
+  { name: "Kenya", flag: "🇰🇪", count: 59, pending: false },
+  { name: "Uganda", flag: "🇺🇬", count: 39, pending: false },
+  { name: "Ghana", flag: "🇬🇭", count: 42, pending: false },
+  { name: "Rwanda", flag: "🇷🇼", count: 14, pending: false },
+  { name: "Senegal", flag: "🇸🇳", count: 13, pending: false },
+  { name: "Tunisia", flag: "🇹🇳", count: 13, pending: false },
+  { name: "Côte d'Ivoire", flag: "🇨🇮", count: 12, pending: false },
+  { name: "Algeria", flag: "🇩🇿", count: 12, pending: false },
+  { name: "Morocco", flag: "🇲🇦", count: 12, pending: false },
+  { name: "Ethiopia", flag: "🇪🇹", count: 10, pending: false },
+  { name: "Cameroon", flag: "🇨🇲", count: 17, pending: false },
+  { name: "Benin", flag: "🇧🇯", count: 5, pending: false },
+  { name: "Gabon", flag: "🇬🇦", count: 5, pending: false },
+  { name: "Guinea", flag: "🇬🇳", count: 4, pending: false },
+  { name: "Mali", flag: "🇲🇱", count: 4, pending: false },
+  { name: "Burkina Faso", flag: "🇧🇫", count: 4, pending: false },
+  { name: "Sierra Leone", flag: "🇸🇱", count: 3, pending: false },
+  { name: "Togo", flag: "🇹🇬", count: 3, pending: false },
+  { name: "Sudan", flag: "🇸🇩", count: 3, pending: false },
+  { name: "Chad", flag: "🇹🇩", count: 3, pending: false },
+  { name: "Niger", flag: "🇳🇪", count: 3, pending: false },
+  { name: "Congo", flag: "🇨🇬", count: 3, pending: false },
+  { name: "Djibouti", flag: "🇩🇯", count: 2, pending: false },
+  { name: "Liberia", flag: "🇱🇷", count: 2, pending: false },
+  { name: "Libya", flag: "🇱🇾", count: 2, pending: false },
+  { name: "Mauritania", flag: "🇲🇷", count: 2, pending: false },
+  { name: "Somalia", flag: "🇸🇴", count: 2, pending: false },
+  { name: "South Sudan", flag: "🇸🇸", count: 2, pending: false },
+  { name: "Burundi", flag: "🇧🇮", count: 2, pending: false },
+  { name: "Central African Republic", flag: "🇨🇫", count: 2, pending: false },
+  { name: "Cabo Verde", flag: "🇨🇻", count: 2, pending: false },
+  { name: "Sao Tome and Principe", flag: "🇸🇹", count: 2, pending: false },
   { name: "Gambia", flag: "🇬🇲", count: 1, pending: true },
-  { name: "Ghana", flag: "🇬🇭", count: 1, pending: true },
-  { name: "Guinea", flag: "🇬🇳", count: 1, pending: true },
-  { name: "Kenya", flag: "🇰🇪", count: 1, pending: true },
-  { name: "Liberia", flag: "🇱🇷", count: 1, pending: true },
-  { name: "Libya", flag: "🇱🇾", count: 1, pending: true },
-  { name: "Mali", flag: "🇲🇱", count: 1, pending: true },
-  { name: "Mauritania", flag: "🇲🇷", count: 1, pending: true },
-  { name: "Morocco", flag: "🇲🇦", count: 1, pending: true },
-  { name: "Nigeria", flag: "🇳🇬", count: 1, pending: true },
-  { name: "Rwanda", flag: "🇷🇼", count: 1, pending: true },
-  { name: "Sao Tome and Principe", flag: "🇸🇹", count: 1, pending: true },
-  { name: "Senegal", flag: "🇸🇳", count: 1, pending: true },
-  { name: "Sierra Leone", flag: "🇸🇱", count: 1, pending: true },
-  { name: "Somalia", flag: "🇸🇴", count: 1, pending: true },
-  { name: "South Sudan", flag: "🇸🇸", count: 1, pending: true },
-  { name: "Sudan", flag: "🇸🇩", count: 1, pending: true },
-  { name: "Togo", flag: "🇹🇬", count: 1, pending: true },
-  { name: "Tunisia", flag: "🇹🇳", count: 1, pending: true },
-  { name: "Uganda", flag: "🇺🇬", count: 1, pending: true },
+  { name: "Guinea-Bissau", flag: "🇬🇼", count: 1, pending: true },
+  { name: "Equatorial Guinea", flag: "🇬🇶", count: 1, pending: true },
+  { name: "Eritrea", flag: "🇪🇷", count: 1, pending: true },
 ];
-// These four have no rows in the company database at all yet (two rounds of
-// research turned up no official, checkable university site to seed even a
-// single starter entry) -- listed honestly as not-yet-started rather than
-// given a fabricated count.
-const SOON: { name: string; flag: string }[] = [
-  { name: "Niger", flag: "🇳🇪" },
-  { name: "Guinea-Bissau", flag: "🇬🇼" },
-  { name: "Equatorial Guinea", flag: "🇬🇶" },
-  { name: "Eritrea", flag: "🇪🇷" },
-];
+// All four countries that used to sit here (Niger, Guinea-Bissau, Equatorial
+// Guinea, Eritrea) got their first real seed rows in the 2026-09-24 COLLEGE
+// merge and moved up into LIVE above. Kept as an empty array (not deleted)
+// since CountryJumpSelect and the "other N countries" copy below still take
+// it as a prop -- if a country's data ever gets fully retired, it goes back here.
+const SOON: { name: string; flag: string }[] = [];
 // Derived from LIVE so this can never drift out of sync with the array above again.
 const TOTAL_EMPLOYERS = LIVE.reduce((sum, c) => sum + c.count, 0);
 

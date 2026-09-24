@@ -49,6 +49,44 @@ commit it (and push, if you pushed the rest of your work). Newest entry on top.
 
 ## Session Log
 
+### 2026-09-24 (even later) — Claude (Cowork, Sonnet 5) — Merged 322 staged COLLEGE rows into the live seed CSV (no admin login needed)
+Picked up after "continue where the other claude ended" with no more specific instruction. Read this
+whole file plus the three newly-appeared project docs to find the actual current state (design-token
+rollout, security audit, login alerts, parallel scanner were all already finished and pushed by other
+sessions since my last one — nothing left broken). Asked Lungani what to prioritise next since there
+was no single obvious unfinished code task; he chose "merge the staged college data live".
+
+Every session since 2026-09-17 that researched COLLEGE (university/college) rows for
+`backend/seed/countries/<Country>.csv` left the actual import as "Lungani to admin-import" —
+repeatedly, across ~10 entries — but `bootstrap.py` re-imports `company_database_import.csv` on
+every boot (`AUTO_SEED`), so merging straight into that file needs no admin login at all. Did that:
+- Scanned all 45 `countries/*.csv` files: 361 rows tagged `source_type=COLLEGE` in total (the
+  38-country African COLLEGE-expansion batches from 09-17/09-18 plus SADC stragglers, and a
+  previously-undocumented Brazil/China/India/Indonesia/Iran/Russia/UAE batch this file has no log
+  entry for). 39 were already present in the main CSV (someone had already merged the BRICS+UAE
+  ones, plus a handful of African ones) — left those alone.
+- Appended the remaining **322 genuinely new rows** to `backend/seed/company_database_import.csv`
+  (2,990 → 3,312 rows), 10-column format preserved, LF line endings kept consistent with the rest
+  of the file. Validated with `csv.DictReader` (0 ragged rows, 0 missing names) and by actually
+  dry-running `import_companies_from_csv` against an isolated sqlite DB: `created=3307 updated=5
+  skipped=0 errors=[]` (the 5 "updated" are 3 pre-existing duplicate keys unrelated to this batch —
+  `SASSETA`, `Human Resource Development Council (HRDC)`, `Namibia Training Authority (NTA)` each
+  appear 2-4× already — worth a small separate cleanup, not touched here).
+- Updated `frontend/src/app/page.tsx`'s `LIVE` array per the standing rule: recomputed every
+  affected country's real row count straight from the updated CSV (merging a few inconsistent
+  country-name spellings found in the `country` column — `Cote dIvoire`/`Ivory Coast`, `Cabo
+  Verde`/`Cape Verde`, `Congo`/`Republic of Congo`, `Sao Tome and Principe`/`São Tomé and
+  Príncipe` — worth normalising those spellings in the CSV itself at some point), and flipped
+  `pending` to `false` wherever a country now has more than a single flagship entry, matching the
+  existing definition of that flag in the code comment exactly. Niger, Guinea-Bissau, Equatorial
+  Guinea and Eritrea got their first-ever seed rows and were promoted out of `SOON` (now empty,
+  kept as an empty array rather than deleted since `CountryJumpSelect` still takes it as a prop)
+  into `LIVE`. `TOTAL_EMPLOYERS` (auto-derived from `LIVE`, not touched directly) moved from
+  2,004 → 2,362. `tsc --noEmit` clean.
+- Still outstanding: the other ~1,814 rows in `countries/*.csv` (DEPT/SOE/NGO/PRIVATE/MUNI/SETA/
+  HOSPITAL/UNI source types) are still unmerged staging data — the exact same opportunity exists
+  to unblock those the same way, country by country, whenever wanted.
+
 ### 2026-09-24 (later) — Claude (Cowork, Opus 5.5) — Durable DB file storage, POPIA document erasure, server-side directory scoping
 Lungani: "I give you all rights ... try your best". Did the code-side items (see §5b of
 `docs/SECURITY-AUDIT-2026-09-24.md`): `STORAGE_BACKEND=auto` → `db` in production (new `stored_files`

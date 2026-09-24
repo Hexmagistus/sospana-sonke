@@ -2989,3 +2989,325 @@ Seychelles Maritime Academy,,,grey_none_verified,"Maritime training college offe
 Seychelles Institute of Art and Design,,,grey_none_verified,"Government-associated creative/vocational college (Anse Royale) offering visual arts, graphic design, fashion/textile diplomas; no verifiable direct careers/vacancies URL found",false,no_url,Seychelles,COLLEGE,https://www.seyiad.com/
 Midocean University,,https://midocean.edu.km/en/jobs/,amber_company_route,"Private university licensed by Comoros Ministry of Education, verified via mineducomores.gouv.km; site's own /jobs/ page exists but shows no listings",true,Own-domain jobs page found but appears empty/placeholder,Comoros,COLLEGE,https://midocean.edu.km/en/
 École Nationale de Pêche et de Marine Marchande (ENPMM),,,grey_none_verified,"Government-run vocational/technical school for fisheries and maritime training in Mirontsy, Anjouan; existence confirmed via multiple independent Comorian news sources but no official institutional website could be found",false,no_url,Comoros,COLLEGE,
+Universite des Sciences et de la Technologie Houari Boumediene USTHB,,https://www.usthb.dz/ar/actu/93,amber_company_route,"Public university (Algiers), own-domain avis de recrutement",true,pending,Algeria,COLLEGE,https://www.usthb.dz/ar/actu/93
+Universite des Sciences et de la Technologie d Oran USTO,,https://www.univ-usto.dz/images/Recrutement/Annonce_recrut_ensFr.pdf,amber_company_route,"Public university, own-domain recruitment notice",true,pending,Algeria,COLLEGE,https://www.univ-usto.dz/images/Recrutement/Annonce_recrut_ensFr.pdf
+Universite d Alger 1 Benyoucef Benkhedda,,,grey_none_verified,Public university,false,pending,Algeria,COLLEGE,
+Universite Constantine 1,,,grey_none_verified,Public university,false,pending,Algeria,COLLEGE,
+Universite d Oran 1 Ahmed Ben Bella,,,grey_none_verified,Public university,false,pending,Algeria,COLLEGE,
+Universite de Tlemcen Aboubekr Belkaid,,,grey_none_verified,Public university,false,pending,Algeria,COLLEGE,
+Universite Ferhat Abbas Setif 1,,,grey_none_verified,Public university,false,pending,Algeria,COLLEGE,
+Universite Batna 1,,,grey_none_verified,Public university,false,pending,Algeria,COLLEGE,
+Universite Badji Mokhtar Annaba,,,grey_none_verified,Public university,false,pending,Algeria,COLLEGE,
+Universite de Bejaia Abderrahmane Mira,,,grey_none_verified,Public university,false,pending,Algeria,COLLEGE,
+Universite d Abomey-Calavi UAC,,,grey_none_verified,Public university (Cotonou),false,pending,Benin,COLLEGE,
+Universite de Parakou,,,grey_none_verified,Public university,false,pending,Benin,COLLEGE,
+Universite Nationale des Sciences Technologies Ingenierie et Mathematiques UNSTIM,,,grey_none_verified,Public university,false,pending,Benin,COLLEGE,
+Universite Nationale d Agriculture UNA,,,grey_none_verified,Public university,false,pending,Benin,COLLEGE,
+Universite Joseph Ki-Zerbo,,https://www.ujkz.bf/recrutement/,amber_company_route,"Public university (Ouagadougou), own-domain recruitment section",true,pending,Burkina Faso,COLLEGE,https://www.ujkz.bf/recrutement/
+Universite Nazi Boni Bobo-Dioulasso,,,grey_none_verified,Public university,false,pending,Burkina Faso,COLLEGE,
+Universite Thomas Sankara,,,grey_none_verified,Public university,false,pending,Burkina Faso,COLLEGE,
+Universite du Burundi,,,grey_none_verified,Public university,false,pending,Burundi,COLLEGE,
+Universite de Bangui,,,grey_none_verified,Public university,false,pending,Central African Republic,COLLEGE,
+Universidade de Cabo Verde Uni-CV,,,grey_none_verified,Public university,false,pending,Cabo Verde,COLLEGE,
+University of Buea,,https://www.ubuea.cm/index.php/about-us/job-opportunities/,amber_company_route,"State university (Anglophone), own-domain job opportunities page",true,pending,Cameroon,COLLEGE,https://www.ubuea.cm/index.php/about-us/job-opportunities/
+University of Yaounde I,,,grey_none_verified,State university,false,pending,Cameroon,COLLEGE,
+University of Yaounde II,,,grey_none_verified,State university,false,pending,Cameroon,COLLEGE,
+University of Douala,,,grey_none_verified,State university,false,pending,Cameroon,COLLEGE,
+University of Dschang,,,grey_none_verified,State university,false,pending,Cameroon,COLLEGE,
+University of Ngaoundere,,,grey_none_verified,State university,false,pending,Cameroon,COLLEGE,
+University of Maroua,,,grey_none_verified,State university,false,pending,Cameroon,COLLEGE,
+University of Bamenda,,,grey_none_verified,State university,false,pending,Cameroon,COLLEGE,
+University of Bertoua,,,grey_none_verified,State university,false,pending,Cameroon,COLLEGE,
+University of Ebolowa,,,grey_none_verified,State university,false,pending,Cameroon,COLLEGE,
+University of Garoua,,,grey_none_verified,State university,false,pending,Cameroon,COLLEGE,
+Catholic University of Central Africa UCAC,,,grey_none_verified,Private university,false,pending,Cameroon,COLLEGE,
+Catholic University of Cameroon Bamenda,,,grey_none_verified,Private university,false,pending,Cameroon,COLLEGE,
+Universite des Montagnes,,,grey_none_verified,Private university,false,pending,Cameroon,COLLEGE,
+ICT University,,,grey_none_verified,Private university,false,pending,Cameroon,COLLEGE,
+Universite de N Djamena,,,grey_none_verified,Public university,false,pending,Chad,COLLEGE,
+Universite Adam Barka d Abeche,,,grey_none_verified,Public university,false,pending,Chad,COLLEGE,
+Universite Marien Ngouabi,,,grey_none_verified,Public university (Brazzaville),false,pending,Congo,COLLEGE,
+Universite Denis Sassou Nguesso,,,grey_none_verified,Public university,false,pending,Congo,COLLEGE,
+Institut National Polytechnique Felix Houphouet-Boigny INP-HB,,https://www.careercenter.inphb.ci/,amber_company_route,"Public polytechnic (Yamoussoukro), own-domain career center",true,pending,Cote dIvoire,COLLEGE,https://www.careercenter.inphb.ci/
+Universite Felix Houphouet-Boigny,,,grey_none_verified,Public university (Abidjan-Cocody),false,pending,Cote dIvoire,COLLEGE,
+Universite Nangui Abrogoua,,,grey_none_verified,Public university,false,pending,Cote dIvoire,COLLEGE,
+Universite Alassane Ouattara Bouake,,,grey_none_verified,Public university,false,pending,Cote dIvoire,COLLEGE,
+Universite Jean Lorougnon Guede Daloa,,,grey_none_verified,Public university,false,pending,Cote dIvoire,COLLEGE,
+Universite Peleforo Gon Coulibaly Korhogo,,,grey_none_verified,Public university,false,pending,Cote dIvoire,COLLEGE,
+Universite Virtuelle de Cote d Ivoire UVCI,,,grey_none_verified,Public virtual university,false,pending,Cote dIvoire,COLLEGE,
+Universite Atlantique,,,grey_none_verified,Private university (Abidjan),false,pending,Cote dIvoire,COLLEGE,
+Universite Internationale de Grand-Bassam,,,grey_none_verified,Private university (American model),false,pending,Cote dIvoire,COLLEGE,
+Groupe CSI-Pole Polytechnique,,,grey_none_verified,Private higher institute,false,pending,Cote dIvoire,COLLEGE,
+Universite de Djibouti,,,grey_none_verified,Public university,false,pending,Djibouti,COLLEGE,
+Universidad Nacional de Guinea Ecuatorial UNGE,,,grey_none_verified,Public university,false,pending,Equatorial Guinea,COLLEGE,
+Eritrea Institute of Technology,,,grey_none_verified,Public higher institute,false,pending,Eritrea,COLLEGE,
+Universite Omar Bongo,,,grey_none_verified,Public university (Libreville),false,pending,Gabon,COLLEGE,
+Universite des Sciences et Techniques de Masuku USTM,,,grey_none_verified,Public university (Franceville),false,pending,Gabon,COLLEGE,
+Universite des Sciences de la Sante USS,,,grey_none_verified,Public health-sciences university,false,pending,Gabon,COLLEGE,
+Universite Internationale de Libreville,,,grey_none_verified,Private university,false,pending,Gabon,COLLEGE,
+Kwame Nkrumah University of Science and Technology (KNUST),,https://www.knust.edu.gh/staff/vacancies,green_verified,Public university | staff vacancies page,true,pending,Ghana,COLLEGE,https://www.knust.edu.gh/staff/vacancies
+University of Education Winneba (UEW),,https://uew.edu.gh/staff/announcements/staff-vacancies,green_verified,Public university | staff vacancies page,true,pending,Ghana,COLLEGE,https://uew.edu.gh/staff/announcements/staff-vacancies
+University for Development Studies (UDS),,https://jobs.uds.edu.gh/,green_verified,Public university | e-recruitment portal,true,pending,Ghana,COLLEGE,https://jobs.uds.edu.gh/
+University of Media Arts and Communication (UniMAC),,https://unimac.edu.gh/category/vacancy/,green_verified,Public university | vacancy page,true,pending,Ghana,COLLEGE,https://unimac.edu.gh/category/vacancy/
+Ghana Communication Technology University (GCTU),,https://jobs.gctu.edu.gh/,green_verified,Public university | careers portal,true,pending,Ghana,COLLEGE,https://jobs.gctu.edu.gh/
+SD Dombo University of Business and Integrated Development Studies,,https://ubids.edu.gh/announcements/vacancy/position-for-teaching-staff,green_verified,Public university | vacancy announcements,true,pending,Ghana,COLLEGE,https://ubids.edu.gh/announcements/vacancy/position-for-teaching-staff
+Accra Technical University (ATU),,https://atu.edu.gh/staff-vacancy/,green_verified,Technical university | staff vacancy page,true,pending,Ghana,COLLEGE,https://atu.edu.gh/staff-vacancy/
+Kumasi Technical University (KsTU),,https://kstu.edu.gh/media/announcements/staff-vacancies,green_verified,Technical university | staff vacancies,true,pending,Ghana,COLLEGE,https://kstu.edu.gh/media/announcements/staff-vacancies
+Ho Technical University (HTU),,https://htu.edu.gh/vacancies/,green_verified,Technical university | vacancies page,true,pending,Ghana,COLLEGE,https://htu.edu.gh/vacancies/
+Koforidua Technical University (KTU),,https://ktu.edu.gh/category/staff-vacancies/,green_verified,Technical university | staff vacancies category,true,pending,Ghana,COLLEGE,https://ktu.edu.gh/category/staff-vacancies/
+Sunyani Technical University (STU),,https://www.stu.edu.gh/news/announcements/staff-vacancy,green_verified,Technical university | staff vacancy page,true,pending,Ghana,COLLEGE,https://www.stu.edu.gh/news/announcements/staff-vacancy
+Tamale Technical University (TaTU),,https://tatu.edu.gh/job-vacancies/,green_verified,Technical university | job vacancies page,true,pending,Ghana,COLLEGE,https://tatu.edu.gh/job-vacancies/
+Dr. Hilla Limann Technical University,,https://www.dhltu.edu.gh/vacancies,green_verified,Technical university | vacancies page,true,pending,Ghana,COLLEGE,https://www.dhltu.edu.gh/vacancies
+Methodist University Ghana,,https://mug.edu.gh/vacancies/,green_verified,Private university | vacancies page,true,pending,Ghana,COLLEGE,https://mug.edu.gh/vacancies/
+Ghana Baptist University College,,https://gbuc.edu.gh/vacancies.php,green_verified,Private university college | job vacancies page,true,pending,Ghana,COLLEGE,https://gbuc.edu.gh/vacancies.php
+Academic City University,,https://acity.edu.gh/employment.php,green_verified,Private university | employment page,true,pending,Ghana,COLLEGE,https://acity.edu.gh/employment.php
+University of Mines and Technology (UMaT),,https://umat.edu.gh/staff/careers-umat/,amber_company_route,Public university | official careers section,true,pending,Ghana,COLLEGE,https://umat.edu.gh/staff/careers-umat/
+University of Energy and Natural Resources (UENR),,https://uenr.edu.gh/vacancy/,amber_company_route,Public university | staff vacancy landing,true,pending,Ghana,COLLEGE,https://uenr.edu.gh/vacancy/
+C. K. Tedam University of Technology and Applied Sciences (CKT-UTAS),,https://cktutas.edu.gh/job-vacancies/,amber_company_route,Public university | job vacancies page,true,pending,Ghana,COLLEGE,https://cktutas.edu.gh/job-vacancies/
+University of Environment and Sustainable Development (UESD),,https://www.uesd.edu.gh/vacancy/,amber_company_route,Public university | vacancy page and portal,true,pending,Ghana,COLLEGE,https://www.uesd.edu.gh/vacancy/
+Ghana Institute of Management and Public Administration (GIMPA),,https://gimpa.edu.gh/category/vacancies/,amber_company_route,Public institute | vacancies category,true,pending,Ghana,COLLEGE,https://gimpa.edu.gh/category/vacancies/
+Bolgatanga Technical University (BTU),,https://bolgatu.edu.gh/vacancies/,amber_company_route,Technical university | careers page and portal,true,pending,Ghana,COLLEGE,https://bolgatu.edu.gh/vacancies/
+Ashesi University,,https://ashesi.edu.gh/careers-at-ashesi/,amber_company_route,Private university | official careers gateway,true,pending,Ghana,COLLEGE,https://ashesi.edu.gh/careers-at-ashesi/
+Presbyterian University Ghana,,https://www.presbyuniversity.edu.gh/site/vacancies/,amber_company_route,Private university | vacancies page,true,pending,Ghana,COLLEGE,https://www.presbyuniversity.edu.gh/site/vacancies/
+Catholic University of Ghana (Fiapre),,https://www.cug.edu.gh/staff/careers,amber_company_route,Private university | staff careers landing,true,pending,Ghana,COLLEGE,https://www.cug.edu.gh/staff/careers
+Pentecost University,,https://pentvars.edu.gh/vacancies/,amber_company_route,Private university | vacancies page,true,pending,Ghana,COLLEGE,https://pentvars.edu.gh/vacancies/
+Regent University College of Science and Technology,,https://regent.edu.gh/index.php/about-regent/employment,amber_company_route,Private university college | employment page,true,pending,Ghana,COLLEGE,https://regent.edu.gh/index.php/about-regent/employment
+Christian Service University (CSUC),,https://www.csuc.edu.gh/job-vacancies/,amber_company_route,Private university | job vacancies page,true,pending,Ghana,COLLEGE,https://www.csuc.edu.gh/job-vacancies/
+University of Cape Coast (UCC),,,grey_none_verified,Public university | no dedicated careers page,false,pending,Ghana,COLLEGE,
+University of Professional Studies Accra (UPSA),,,grey_none_verified,Public university | no dedicated careers section,false,pending,Ghana,COLLEGE,
+University of Health and Allied Sciences (UHAS),,,grey_none_verified,Public university | no dedicated vacancies page,false,pending,Ghana,COLLEGE,
+Takoradi Technical University (TTU),,,grey_none_verified,Technical university | no genuine direct careers page,false,pending,Ghana,COLLEGE,
+Cape Coast Technical University (CCTU),,,grey_none_verified,Technical university | no stable careers listing,false,pending,Ghana,COLLEGE,
+Central University,,,grey_none_verified,Private university | no dedicated careers page,false,pending,Ghana,COLLEGE,
+Valley View University,,,grey_none_verified,Private university | careers link broken,false,pending,Ghana,COLLEGE,
+Wisconsin International University College,,,grey_none_verified,Private university college | no staff vacancies page,false,pending,Ghana,COLLEGE,
+Kings University College,,,grey_none_verified,Private university college | no dedicated careers page,false,pending,Ghana,COLLEGE,
+All Nations University,,,grey_none_verified,Private university | no careers page,false,pending,Ghana,COLLEGE,
+Gambaga College of Education,,,grey_none_verified,Public college of education | no stable careers section,false,pending,Ghana,COLLEGE,
+Universite Gamal Abdel Nasser de Conakry,,,grey_none_verified,Public university,false,pending,Guinea,COLLEGE,
+Universite Julius Nyerere de Kankan,,,grey_none_verified,Public university,false,pending,Guinea,COLLEGE,
+Universite de Sonfonia Conakry,,,grey_none_verified,Public university,false,pending,Guinea,COLLEGE,
+Universidade Amilcar Cabral,,,grey_none_verified,Public university,false,pending,Guinea-Bissau,COLLEGE,
+Kenyatta University,,https://www.ku.ac.ke/careers-ku/,green_verified,Public university | careers page live vacancies,true,pending,Kenya,COLLEGE,https://www.ku.ac.ke/careers-ku/
+Moi University,,https://mu.ac.ke/index.php/category/announcements/vacancy/,amber_company_route,Public university | official vacancy category,true,pending,Kenya,COLLEGE,https://mu.ac.ke/index.php/category/announcements/vacancy/
+Jomo Kenyatta University of Agriculture and Technology (JKUAT),,https://www.jkuat.ac.ke/vacancies/,amber_company_route,Public university | own-domain vacancies page,true,pending,Kenya,COLLEGE,https://www.jkuat.ac.ke/vacancies/
+Egerton University,,https://www.egerton.ac.ke/careers,amber_company_route,Public university | official careers page,true,pending,Kenya,COLLEGE,https://www.egerton.ac.ke/careers
+Maseno University,,https://maseno.ac.ke/maseno-vacancies,green_verified,Public university | careers page live listings,true,pending,Kenya,COLLEGE,https://maseno.ac.ke/maseno-vacancies
+Technical University of Kenya,,https://careers.tukenya.ac.ke/,green_verified,Public university | e-recruitment portal,true,pending,Kenya,COLLEGE,https://careers.tukenya.ac.ke/
+Technical University of Mombasa,,https://jobs.tum.ac.ke/Jobs/search.html,green_verified,Public university | jobs portal,true,pending,Kenya,COLLEGE,https://jobs.tum.ac.ke/Jobs/search.html
+Dedan Kimathi University of Technology,,https://recruitment.dkut.ac.ke/,green_verified,Public university | recruitment portal,true,pending,Kenya,COLLEGE,https://recruitment.dkut.ac.ke/
+Masinde Muliro University of Science and Technology (MMUST),,https://mmust.ac.ke/vacancies/,green_verified,Public university | live vacancies,true,pending,Kenya,COLLEGE,https://mmust.ac.ke/vacancies/
+Chuka University,,https://www.chuka.ac.ke/vacancies/,green_verified,Public university | live vacancies,true,pending,Kenya,COLLEGE,https://www.chuka.ac.ke/vacancies/
+Pwani University,,https://recruitment.pu.ac.ke/,green_verified,Public university | recruitment portal,true,pending,Kenya,COLLEGE,https://recruitment.pu.ac.ke/
+South Eastern Kenya University (SEKU),,https://www.seku.ac.ke/open-job-opportunities.html,green_verified,Public university | live vacancies,true,pending,Kenya,COLLEGE,https://www.seku.ac.ke/open-job-opportunities.html
+Meru University of Science and Technology,,https://recruitment.must.ac.ke/,green_verified,Public university | recruitment portal,true,pending,Kenya,COLLEGE,https://recruitment.must.ac.ke/
+Karatina University,,https://karu.ac.ke/careers/,green_verified,Public university | careers page and portal,true,pending,Kenya,COLLEGE,https://karu.ac.ke/careers/
+Laikipia University,,https://www.laikipia.ac.ke/careers,green_verified,Public university | careers listings,true,pending,Kenya,COLLEGE,https://www.laikipia.ac.ke/careers
+Kisii University,,https://digital.kisiiuniversity.ac.ke/job_portal/open_adverts,green_verified,Public university | e-recruitment portal,true,pending,Kenya,COLLEGE,https://digital.kisiiuniversity.ac.ke/job_portal/open_adverts
+Machakos University,,https://www.mksu.ac.ke/notices/vacancies/,amber_company_route,Public university | official vacancies page,true,pending,Kenya,COLLEGE,https://www.mksu.ac.ke/notices/vacancies/
+Kibabii University,,https://kibu.ac.ke/careers/,amber_company_route,Public university | official careers page,true,pending,Kenya,COLLEGE,https://kibu.ac.ke/careers/
+University of Embu,,https://embuni.ac.ke/job-opportunities/,green_verified,Public university | live listings and portal,true,pending,Kenya,COLLEGE,https://embuni.ac.ke/job-opportunities/
+University of Kabianga,,https://kabianga.ac.ke/vacancies,amber_company_route,Public university | own-domain vacancies page,true,pending,Kenya,COLLEGE,https://kabianga.ac.ke/vacancies
+Murang'a University of Technology,,https://www.mut.ac.ke/career-opportunities-2/,green_verified,Public university | live posting and application form,true,pending,Kenya,COLLEGE,https://www.mut.ac.ke/career-opportunities-2/
+The Cooperative University of Kenya,,https://cuk.ac.ke/cuk-careers/,green_verified,Public university | careers page and portal,true,pending,Kenya,COLLEGE,https://cuk.ac.ke/cuk-careers/
+Multimedia University of Kenya,,https://www.mmu.ac.ke/vacancies/,amber_company_route,Public university | official vacancies page,true,pending,Kenya,COLLEGE,https://www.mmu.ac.ke/vacancies/
+Jaramogi Oginga Odinga University (JOOUST),,https://www.jooust.ac.ke/index.php/all-university-downloads/category/84-vacancies,amber_company_route,Public university | official vacancies category,true,pending,Kenya,COLLEGE,https://www.jooust.ac.ke/index.php/all-university-downloads/category/84-vacancies
+Maasai Mara University,,,grey_none_verified,Public university | no stable careers index page,false,pending,Kenya,COLLEGE,
+Kirinyaga University,,,grey_none_verified,Public university | only dated advert PDFs,false,pending,Kenya,COLLEGE,
+Garissa University,,https://gau.ac.ke/latest-jobs/,amber_company_route,Public university | official jobs page,true,pending,Kenya,COLLEGE,https://gau.ac.ke/latest-jobs/
+Tom Mboya University,,https://www.tmu.ac.ke/vacancies,amber_company_route,Public university | official vacancies page,true,pending,Kenya,COLLEGE,https://www.tmu.ac.ke/vacancies
+Rongo University,,https://www.rongovarsity.ac.ke/vacancies/,amber_company_route,Public university | official vacancies page,true,pending,Kenya,COLLEGE,https://www.rongovarsity.ac.ke/vacancies/
+Taita Taveta University,,,grey_none_verified,Public university | no stable careers index,false,pending,Kenya,COLLEGE,
+Kaimosi Friends University,,https://kafu.ac.ke/jobs-vacancies/,amber_company_route,Public university | official jobs-vacancies page,true,pending,Kenya,COLLEGE,https://kafu.ac.ke/jobs-vacancies/
+Strathmore University,,https://strathmore.edu/vacancies/,green_verified,Private chartered university | live vacancies,true,pending,Kenya,COLLEGE,https://strathmore.edu/vacancies/
+United States International University Africa (USIU-Africa),,https://www.usiu.ac.ke/job-vacancies/,amber_company_route,Private chartered university | official job-vacancies page,true,pending,Kenya,COLLEGE,https://www.usiu.ac.ke/job-vacancies/
+Mount Kenya University,,https://careers.mku.ac.ke/,amber_company_route,Private chartered university | careers portal,true,pending,Kenya,COLLEGE,https://careers.mku.ac.ke/
+KCA University,,https://www.kcau.ac.ke/career/,green_verified,Private chartered university | live vacancy,true,pending,Kenya,COLLEGE,https://www.kcau.ac.ke/career/
+Daystar University,,https://recruitment.daystar.ac.ke/job/vacancies,green_verified,Private chartered university | employment portal,true,pending,Kenya,COLLEGE,https://recruitment.daystar.ac.ke/job/vacancies
+Catholic University of Eastern Africa (CUEA),,https://cuea.edu/we-are-hiring/,amber_company_route,Private chartered university | official hiring page,true,pending,Kenya,COLLEGE,https://cuea.edu/we-are-hiring/
+Kenya Methodist University (KeMU),,https://recruitment.kemu.ac.ke/,green_verified,Private chartered university | e-recruitment portal,true,pending,Kenya,COLLEGE,https://recruitment.kemu.ac.ke/
+Africa Nazarene University,,https://www.anu.ac.ke/vacancies/,green_verified,Private chartered university | live vacancies,true,pending,Kenya,COLLEGE,https://www.anu.ac.ke/vacancies/
+Kabarak University,,https://careers.kabarak.ac.ke/,green_verified,Private chartered university | e-recruitment portal,true,pending,Kenya,COLLEGE,https://careers.kabarak.ac.ke/
+Zetech University,,https://careers.zetech.ac.ke/,green_verified,Private chartered university | careers portal,true,pending,Kenya,COLLEGE,https://careers.zetech.ac.ke/
+Amref International University,,https://amref.ac.ke/careers/,green_verified,Private chartered university health | live vacancies,true,pending,Kenya,COLLEGE,https://amref.ac.ke/careers/
+St Paul's University,,https://www.spu.ac.ke/index.php/about-spu/careers,amber_company_route,Private chartered university | official careers page,true,pending,Kenya,COLLEGE,https://www.spu.ac.ke/index.php/about-spu/careers
+Riara University,,https://riarauniversity.ac.ke/ru-careers/,green_verified,Private chartered university | official careers page,true,pending,Kenya,COLLEGE,https://riarauniversity.ac.ke/ru-careers/
+Kenya Coast National Polytechnic,,https://kenyacoastpoly.ac.ke/careers/,green_verified,National polytechnic | careers page adverts,true,pending,Kenya,COLLEGE,https://kenyacoastpoly.ac.ke/careers/
+The Kisumu National Polytechnic,,https://kisumupoly.ac.ke/careers/,green_verified,National polytechnic | careers page adverts,true,pending,Kenya,COLLEGE,https://kisumupoly.ac.ke/careers/
+The Eldoret National Polytechnic,,https://www.tenp.ac.ke/Jobs,amber_company_route,National polytechnic | official Jobs page,true,pending,Kenya,COLLEGE,https://www.tenp.ac.ke/Jobs
+Nyandarua National Polytechnic,,https://nynp.ac.ke/vacancies/,amber_company_route,National polytechnic | official vacancies page,true,pending,Kenya,COLLEGE,https://nynp.ac.ke/vacancies/
+Kabete National Polytechnic,,https://www.kabetepoly.ac.ke/vacancies.php,amber_company_route,National polytechnic | official vacancies page,true,pending,Kenya,COLLEGE,https://www.kabetepoly.ac.ke/vacancies.php
+Sigalagala National Polytechnic,,https://sigalagalapoly.ac.ke/careers,amber_company_route,National polytechnic | official Jobs and Careers portal,true,pending,Kenya,COLLEGE,https://sigalagalapoly.ac.ke/careers
+The Meru National Polytechnic,,http://mnp.ac.ke/index.php/vacancies,amber_company_route,National polytechnic | official vacancies page,true,pending,Kenya,COLLEGE,http://mnp.ac.ke/index.php/vacancies
+Nyeri National Polytechnic,,,grey_none_verified,National polytechnic | no HR vacancies index found,false,pending,Kenya,COLLEGE,
+Kisii National Polytechnic,,,grey_none_verified,National polytechnic | only dated advert PDFs,false,pending,Kenya,COLLEGE,
+Kenya School of TVET,,https://www.kstvet.ac.ke/careers/,green_verified,TVET state college | careers page current adverts,true,pending,Kenya,COLLEGE,https://www.kstvet.ac.ke/careers/
+Kenya Water Institute (KEWI),,https://kewi.go.ke/careers,amber_company_route,Technical training institute | official careers page,true,pending,Kenya,COLLEGE,https://kewi.go.ke/careers
+Cuttington University,,,grey_none_verified,Private university,false,pending,Liberia,COLLEGE,
+University of Benghazi,,,grey_none_verified,Public university,false,pending,Libya,COLLEGE,
+Universite des Sciences des Techniques et des Technologies de Bamako USTTB,,,grey_none_verified,Public university,false,pending,Mali,COLLEGE,
+Universite des Lettres et des Sciences Humaines de Bamako ULSHB,,,grey_none_verified,Public university,false,pending,Mali,COLLEGE,
+Universite des Sciences Juridiques et Politiques de Bamako USJPB,,,grey_none_verified,Public university,false,pending,Mali,COLLEGE,
+Universite de Nouakchott Al Aasriya,,,grey_none_verified,Public university,false,pending,Mauritania,COLLEGE,
+Al Akhawayn University AUI,,https://aui.ma/jobs,green_verified,"Private university (Ifrane), own-domain jobs page",true,pending,Morocco,COLLEGE,https://aui.ma/jobs
+Universite Internationale de Casablanca UIC,,https://uic.ac.ma/luic-recrute/,green_verified,"Private university, offres d'emploi page",true,pending,Morocco,COLLEGE,https://uic.ac.ma/luic-recrute/
+Universite Mohammed V de Rabat,,,grey_none_verified,Public university,false,pending,Morocco,COLLEGE,
+Universite Hassan II de Casablanca,,,grey_none_verified,Public university,false,pending,Morocco,COLLEGE,
+Universite Cadi Ayyad Marrakech,,,grey_none_verified,Public university,false,pending,Morocco,COLLEGE,
+Universite Mohammed VI Polytechnique UM6P,,,grey_none_verified,Public-private university,false,pending,Morocco,COLLEGE,
+Universite Internationale de Rabat UIR,,,grey_none_verified,Private university,false,pending,Morocco,COLLEGE,
+Universite Sidi Mohamed Ben Abdellah Fes,,,grey_none_verified,Public university,false,pending,Morocco,COLLEGE,
+Universite Ibn Zohr Agadir,,,grey_none_verified,Public university,false,pending,Morocco,COLLEGE,
+Universite Abdelmalek Essaadi Tetouan,,,grey_none_verified,Public university,false,pending,Morocco,COLLEGE,
+Universite Abdou Moumouni,,,grey_none_verified,Public university (Niamey),false,pending,Niger,COLLEGE,
+Universite de Zinder,,,grey_none_verified,Public university,false,pending,Niger,COLLEGE,
+Universite Dan Dicko Dankoulodo de Maradi,,,grey_none_verified,Public university,false,pending,Niger,COLLEGE,
+University of Lagos,,https://recruitment.unilag.edu.ng/,green_verified,"Federal university (NUC), recruitment portal",true,pending,Nigeria,COLLEGE,https://recruitment.unilag.edu.ng/
+University of Ibadan,,https://vacancies.ui.edu.ng/,green_verified,"Federal university (NUC), recruitment portal",true,pending,Nigeria,COLLEGE,https://vacancies.ui.edu.ng/
+Ahmadu Bello University,,https://careers.abu.edu.ng/vacancies,green_verified,"Federal university (NUC), live vacancy portal",true,pending,Nigeria,COLLEGE,https://careers.abu.edu.ng/vacancies
+University of Benin,,https://jobportal.uniben.edu/,green_verified,"Federal university (NUC), job application portal",true,pending,Nigeria,COLLEGE,https://jobportal.uniben.edu/
+University of Ilorin,,https://vacancy.unilorin.edu.ng/,green_verified,"Federal university (NUC), HR recruitment portal",true,pending,Nigeria,COLLEGE,https://vacancy.unilorin.edu.ng/
+University of Port Harcourt,,https://careers.uniport.edu.ng/,green_verified,"Federal university (NUC), recruitment portal",true,pending,Nigeria,COLLEGE,https://careers.uniport.edu.ng/
+Federal University Oye-Ekiti,,https://careers.fuoye.edu.ng/,green_verified,"Federal university (NUC), recruitment portal",true,pending,Nigeria,COLLEGE,https://careers.fuoye.edu.ng/
+University of Jos,,https://recruitment.unijos.edu.ng/,green_verified,"Federal university (NUC), recruitment portal",true,pending,Nigeria,COLLEGE,https://recruitment.unijos.edu.ng/
+University of Uyo,,https://recruitment.uniuyo.edu.ng/,green_verified,"Federal university (NUC), recruitment portal",true,pending,Nigeria,COLLEGE,https://recruitment.uniuyo.edu.ng/
+Covenant University,,https://careers.covenantuniversity.edu.ng/applicants-jobs/,green_verified,"Private university, functional HR jobs portal",true,pending,Nigeria,COLLEGE,https://careers.covenantuniversity.edu.ng/applicants-jobs/
+Landmark University,,https://v4.lmu.edu.ng/vacancies,green_verified,"Private university, live academic vacancy listings",true,pending,Nigeria,COLLEGE,https://v4.lmu.edu.ng/vacancies
+Redeemers University,,https://recruitment.run.edu.ng/,green_verified,"Private university, recruitment portal",true,pending,Nigeria,COLLEGE,https://recruitment.run.edu.ng/
+Afe Babalola University,,https://www.abuad.edu.ng/category/vacancy/,green_verified,"Private university, vacancy listing section",true,pending,Nigeria,COLLEGE,https://www.abuad.edu.ng/category/vacancy/
+Yaba College of Technology,,https://appzone.yabatech.edu.ng/recruit/,green_verified,"Federal polytechnic, recruitment portal",true,pending,Nigeria,COLLEGE,https://appzone.yabatech.edu.ng/recruit/
+Federal Polytechnic Ado-Ekiti,,https://career.fedpolyado.edu.ng/,green_verified,"Federal polytechnic, career portal",true,pending,Nigeria,COLLEGE,https://career.fedpolyado.edu.ng/
+Nasarawa State University Keffi,,https://recruitment.nsuk.edu.ng/,green_verified,"State university, recruitment portal",true,pending,Nigeria,COLLEGE,https://recruitment.nsuk.edu.ng/
+Baze University,,https://portal.bazeuniversity.edu.ng/jobs/,green_verified,"Private university, jobs portal",true,pending,Nigeria,COLLEGE,https://portal.bazeuniversity.edu.ng/jobs/
+Rivers State University Teaching Hospital,,https://careers.rsuth.ng/,green_verified,"State teaching hospital, recruitment portal",true,pending,Nigeria,COLLEGE,https://careers.rsuth.ng/
+Obafemi Awolowo University,,https://oauife.edu.ng/careers/,amber_company_route,"Federal university, official careers hub",true,pending,Nigeria,COLLEGE,https://oauife.edu.ng/careers/
+University of Nigeria Nsukka,,https://www.unn.edu.ng/careers/,amber_company_route,"Federal university, official careers page",true,pending,Nigeria,COLLEGE,https://www.unn.edu.ng/careers/
+Bayero University Kano,,https://www.buk.edu.ng/careers,amber_company_route,"Federal university, careers hub",true,pending,Nigeria,COLLEGE,https://www.buk.edu.ng/careers
+Michael Okpara University of Agriculture Umudike,,https://career.mouau.edu.ng/,amber_company_route,"Federal university, recruitment portal gateway",true,pending,Nigeria,COLLEGE,https://career.mouau.edu.ng/
+Usmanu Danfodiyo University Sokoto,,https://pms.udusok.edu.ng/e-recruitment/,amber_company_route,"Federal university, e-recruitment platform",true,pending,Nigeria,COLLEGE,https://pms.udusok.edu.ng/e-recruitment/
+Ambrose Alli University Ekpoma,,https://aauekpoma.edu.ng/careers/recruitment/,amber_company_route,"State university, recruitment page",true,pending,Nigeria,COLLEGE,https://aauekpoma.edu.ng/careers/recruitment/
+Rivers State University,,https://www.rsu.edu.ng/careers/,amber_company_route,"State university, careers page",true,pending,Nigeria,COLLEGE,https://www.rsu.edu.ng/careers/
+Kwara State University of Education KWASUED,,https://kwasued.edu.ng/,amber_company_route,"State university, publishes vacancy notices on own domain",true,pending,Nigeria,COLLEGE,https://kwasued.edu.ng/
+Babcock University,,https://legacy.babcock.edu.ng/hr/opportunities,amber_company_route,"Private university, HR opportunities page",true,pending,Nigeria,COLLEGE,https://legacy.babcock.edu.ng/hr/opportunities
+Federal Polytechnic Ilaro,,https://federalpolyilaro.edu.ng/career/careers,amber_company_route,"Federal polytechnic, career page",true,pending,Nigeria,COLLEGE,https://federalpolyilaro.edu.ng/career/careers
+Federal Polytechnic Bida,,https://fedpolybida.edu.ng/careers/recruitment/,amber_company_route,"Federal polytechnic, recruitment page",true,pending,Nigeria,COLLEGE,https://fedpolybida.edu.ng/careers/recruitment/
+Federal College of Education Special Oyo,,https://fcesoyo.edu.ng/Page.aspx?PageId=145,amber_company_route,"Federal college of education, vacancies page",true,pending,Nigeria,COLLEGE,https://fcesoyo.edu.ng/Page.aspx?PageId=145
+Usmanu Danfodiyo University Teaching Hospital,,https://www.uduth.org.ng/index.php?p=careers,amber_company_route,"Federal teaching hospital, careers page",true,pending,Nigeria,COLLEGE,https://www.uduth.org.ng/index.php?p=careers
+Lead City University,,https://lcu.edu.ng/index.php/careers,amber_company_route,"Private university, careers page",true,pending,Nigeria,COLLEGE,https://lcu.edu.ng/index.php/careers
+Joseph Ayo Babalola University,,https://jabu.edu.ng/careers/,amber_company_route,"Private university, careers page",true,pending,Nigeria,COLLEGE,https://jabu.edu.ng/careers/
+Nile University of Nigeria,,https://nileuniversity.edu.ng/jobs-at-nile/,amber_company_route,"Private university, careers page on own domain",true,pending,Nigeria,COLLEGE,https://nileuniversity.edu.ng/jobs-at-nile/
+Elizade University,,https://www.elizadeuniversity.edu.ng/,amber_company_route,"Private university, posts vacancies via own-domain news",true,pending,Nigeria,COLLEGE,https://www.elizadeuniversity.edu.ng/
+Federal University of Technology Akure,,,grey_none_verified,Federal university,false,pending,Nigeria,COLLEGE,
+Federal University of Technology Minna,,,grey_none_verified,Federal university,false,pending,Nigeria,COLLEGE,
+University of Abuja,,,grey_none_verified,Federal university,false,pending,Nigeria,COLLEGE,
+Federal University of Agriculture Abeokuta,,,grey_none_verified,Federal university,false,pending,Nigeria,COLLEGE,
+Federal University Wukari,,,grey_none_verified,Federal university,false,pending,Nigeria,COLLEGE,
+Federal University Birnin Kebbi,,,grey_none_verified,Federal university,false,pending,Nigeria,COLLEGE,
+Federal University Gashua,,,grey_none_verified,Federal university,false,pending,Nigeria,COLLEGE,
+Federal University Otuoke,,,grey_none_verified,Federal university,false,pending,Nigeria,COLLEGE,
+Federal University Dutsin-Ma,,,grey_none_verified,Federal university,false,pending,Nigeria,COLLEGE,
+Federal University Kashere,,,grey_none_verified,Federal university,false,pending,Nigeria,COLLEGE,
+Federal University Dutse,,,grey_none_verified,Federal university,false,pending,Nigeria,COLLEGE,
+Lagos State University LASU,,,grey_none_verified,State university,false,pending,Nigeria,COLLEGE,
+Olabisi Onabanjo University,,,grey_none_verified,State university,false,pending,Nigeria,COLLEGE,
+Ekiti State University,,,grey_none_verified,State university,false,pending,Nigeria,COLLEGE,
+Delta State University Abraka,,,grey_none_verified,State university,false,pending,Nigeria,COLLEGE,
+Enugu State University of Science and Technology,,,grey_none_verified,State university,false,pending,Nigeria,COLLEGE,
+Abia State University,,,grey_none_verified,State university,false,pending,Nigeria,COLLEGE,
+Imo State University,,,grey_none_verified,State university,false,pending,Nigeria,COLLEGE,
+Ebonyi State University,,,grey_none_verified,State university,false,pending,Nigeria,COLLEGE,
+Benue State University,,,grey_none_verified,State university,false,pending,Nigeria,COLLEGE,
+Ladoke Akintola University of Technology,,,grey_none_verified,State university,false,pending,Nigeria,COLLEGE,
+Adekunle Ajasin University,,,grey_none_verified,State university,false,pending,Nigeria,COLLEGE,
+Tai Solarin University of Education,,,grey_none_verified,State university,false,pending,Nigeria,COLLEGE,
+Chukwuemeka Odumegwu Ojukwu University,,,grey_none_verified,State university,false,pending,Nigeria,COLLEGE,
+University of Medical Sciences Ondo,,,grey_none_verified,State university,false,pending,Nigeria,COLLEGE,
+Sokoto State University,,,grey_none_verified,State university,false,pending,Nigeria,COLLEGE,
+Kwara State University,,,grey_none_verified,State university,false,pending,Nigeria,COLLEGE,
+Federal Polytechnic Nekede,,,grey_none_verified,Federal polytechnic,false,pending,Nigeria,COLLEGE,
+Federal Polytechnic Offa,,,grey_none_verified,Federal polytechnic,false,pending,Nigeria,COLLEGE,
+Federal Polytechnic Oko,,,grey_none_verified,Federal polytechnic,false,pending,Nigeria,COLLEGE,
+Moshood Abiola Polytechnic,,,grey_none_verified,State polytechnic,false,pending,Nigeria,COLLEGE,
+Kaduna Polytechnic,,,grey_none_verified,Federal polytechnic,false,pending,Nigeria,COLLEGE,
+Auchi Polytechnic,,,grey_none_verified,Federal polytechnic,false,pending,Nigeria,COLLEGE,
+Lagos University Teaching Hospital,,,grey_none_verified,Federal teaching hospital,false,pending,Nigeria,COLLEGE,
+Federal College of Education Zaria,,,grey_none_verified,Federal college of education,false,pending,Nigeria,COLLEGE,
+University of Kigali,,https://uok.ac.rw/vacancies/,amber_company_route,"Private university, own-domain vacancies section",true,pending,Rwanda,COLLEGE,https://uok.ac.rw/vacancies/
+Carnegie Mellon University Africa,,https://www.africa.engineering.cmu.edu/about/careers.html,amber_company_route,"US university Rwanda campus, own-domain careers page",true,pending,Rwanda,COLLEGE,https://www.africa.engineering.cmu.edu/about/careers.html
+Rwanda Polytechnic,,,grey_none_verified,Public polytechnic (recruits via job boards/MIFOTRA),false,pending,Rwanda,COLLEGE,
+INES-Ruhengeri,,,grey_none_verified,Private institute of applied sciences,false,pending,Rwanda,COLLEGE,
+African Leadership University,,,grey_none_verified,Private university (Kigali),false,pending,Rwanda,COLLEGE,
+Adventist University of Central Africa AUCA,,,grey_none_verified,Private university,false,pending,Rwanda,COLLEGE,
+University of Tourism Technology and Business Studies UTB,,,grey_none_verified,Private university,false,pending,Rwanda,COLLEGE,
+Mount Kigali University,,,grey_none_verified,Private university,false,pending,Rwanda,COLLEGE,
+Kigali Independent University ULK,,,grey_none_verified,Private university,false,pending,Rwanda,COLLEGE,
+Kibogora Polytechnic,,,grey_none_verified,Private polytechnic,false,pending,Rwanda,COLLEGE,
+University of Gitwe,,,grey_none_verified,Private university,false,pending,Rwanda,COLLEGE,
+Rwanda Institute for Conservation Agriculture RICA,,,grey_none_verified,Private institute,false,pending,Rwanda,COLLEGE,
+Universidade de Sao Tome e Principe,,,grey_none_verified,Public university,false,pending,Sao Tome and Principe,COLLEGE,
+Universite Cheikh Anta Diop UCAD,,https://recrutement.ucad.sn/,green_verified,"Public university (Dakar), dedicated recruitment portal",true,pending,Senegal,COLLEGE,https://recrutement.ucad.sn/
+Universite Gaston Berger UGB,,https://www.ugb.sn/fr/recrutement,green_verified,"Public university (Saint-Louis), recruitment page",true,pending,Senegal,COLLEGE,https://www.ugb.sn/fr/recrutement
+Universite Amadou Mahtar Mbow UAM,,https://uam.sn/recrutement/,green_verified,"Public university (Dakar), recruitment page",true,pending,Senegal,COLLEGE,https://uam.sn/recrutement/
+Universite Assane Seck de Ziguinchor UASZ,,https://uasz.sn/category/recrutement/,green_verified,"Public university, recruitment section",true,pending,Senegal,COLLEGE,https://uasz.sn/category/recrutement/
+Universite Alioune Diop de Bambey UADB,,https://uadb.edu.sn/appels-a-candidatures-recrutements-et-communiques,green_verified,"Public university, appels a candidatures/recrutements page",true,pending,Senegal,COLLEGE,https://uadb.edu.sn/appels-a-candidatures-recrutements-et-communiques
+Universite Iba Der Thiam de Thies,,,grey_none_verified,Public university,false,pending,Senegal,COLLEGE,
+Universite virtuelle du Senegal UVS,,,grey_none_verified,Public virtual university,false,pending,Senegal,COLLEGE,
+Universite du Sine Saloum El-Hadj Ibrahima Niass USSEIN,,,grey_none_verified,Public university,false,pending,Senegal,COLLEGE,
+Ecole Superieure Polytechnique ESP Dakar,,,grey_none_verified,Public engineering school,false,pending,Senegal,COLLEGE,
+Ecole Superieure Multinationale des Telecommunications ESMT,,,grey_none_verified,Regional telecom school (Dakar),false,pending,Senegal,COLLEGE,
+Institut Superieur de Management ISM,,,grey_none_verified,Private business school,false,pending,Senegal,COLLEGE,
+Njala University,,https://www.njala.edu.sl/news-and-events/news/job-vacancies-various-positions,green_verified,"Public university, own-domain job vacancies page",true,pending,Sierra Leone,COLLEGE,https://www.njala.edu.sl/news-and-events/news/job-vacancies-various-positions
+Ernest Bai Koroma University of Science and Technology,,,grey_none_verified,Public university,false,pending,Sierra Leone,COLLEGE,
+Mogadishu University,,,grey_none_verified,Private university,false,pending,Somalia,COLLEGE,
+University of Bahr el Ghazal,,,grey_none_verified,Public university,false,pending,South Sudan,COLLEGE,
+Sudan University of Science and Technology,,,grey_none_verified,Public university,false,pending,Sudan,COLLEGE,
+Omdurman Islamic University,,,grey_none_verified,Public university,false,pending,Sudan,COLLEGE,
+Universite de Lome,,,grey_none_verified,Public university,false,pending,Togo,COLLEGE,
+Universite de Kara,,,grey_none_verified,Public university,false,pending,Togo,COLLEGE,
+Universite Centrale de Tunis,,https://www.universitecentrale.net/recrutement,green_verified,"Private university, recrutement page",true,pending,Tunisia,COLLEGE,https://www.universitecentrale.net/recrutement
+Universite Tunis Carthage UTC,,https://www.utctunisie.com/utc/recrutement/,green_verified,"Private university, recrutement page",true,pending,Tunisia,COLLEGE,https://www.utctunisie.com/utc/recrutement/
+Universite Mahmoud el Materi,,https://www.umm-tunisie.com/universite/recrutement/,green_verified,"Private university, recrutement page",true,pending,Tunisia,COLLEGE,https://www.umm-tunisie.com/universite/recrutement/
+ESPRIT Ecole Superieure Privee d Ingenierie et de Technologies,,https://www.esprit.tn/groupe-esprit/centre-de-carriere/,amber_company_route,"Private engineering school, own-domain career centre",true,pending,Tunisia,COLLEGE,https://www.esprit.tn/groupe-esprit/centre-de-carriere/
+Universite de Tunis El Manar,,,grey_none_verified,Public university,false,pending,Tunisia,COLLEGE,
+Universite de Carthage,,,grey_none_verified,Public university,false,pending,Tunisia,COLLEGE,
+Universite de Sfax,,,grey_none_verified,Public university,false,pending,Tunisia,COLLEGE,
+Universite de Sousse,,,grey_none_verified,Public university,false,pending,Tunisia,COLLEGE,
+Universite de Monastir,,,grey_none_verified,Public university,false,pending,Tunisia,COLLEGE,
+Universite de la Manouba,,,grey_none_verified,Public university,false,pending,Tunisia,COLLEGE,
+South Mediterranean University SMU MSB,,,grey_none_verified,Private university,false,pending,Tunisia,COLLEGE,
+Kyambogo University,,https://dhr.kyu.ac.ug/job-application/,green_verified,Public university | HR job application portal,true,pending,Uganda,COLLEGE,https://dhr.kyu.ac.ug/job-application/
+Mbarara University of Science and Technology (MUST),,https://www.must.ac.ug/jobs/,amber_company_route,Public university | official jobs page,true,pending,Uganda,COLLEGE,https://www.must.ac.ug/jobs/
+Gulu University,,https://gu.ac.ug/jobs-careers/,green_verified,Public university | jobs and careers page,true,pending,Uganda,COLLEGE,https://gu.ac.ug/jobs-careers/
+Busitema University,,https://busitema.ac.ug/human-resource/vacancies,green_verified,Public university | HR vacancies page,true,pending,Uganda,COLLEGE,https://busitema.ac.ug/human-resource/vacancies
+Kabale University,,https://www.kab.ac.ug/career-opportunities/,amber_company_route,Public university | careers hub,true,pending,Uganda,COLLEGE,https://www.kab.ac.ug/career-opportunities/
+Lira University,,https://lirauni.ac.ug/jobs-careers/,green_verified,Public university | careers page live vacancies,true,pending,Uganda,COLLEGE,https://lirauni.ac.ug/jobs-careers/
+Soroti University,,https://sun.ac.ug/job-adverts/,green_verified,Public university | job adverts page,true,pending,Uganda,COLLEGE,https://sun.ac.ug/job-adverts/
+Muni University,,,grey_none_verified,Public university | adverts only as PDFs,false,pending,Uganda,COLLEGE,
+Mountains of the Moon University,,,grey_none_verified,Public university | vacancies only as dated posts,false,pending,Uganda,COLLEGE,
+Uganda Christian University (UCU),,https://ucu.ac.ug/careers/,green_verified,Private chartered university | careers page,true,pending,Uganda,COLLEGE,https://ucu.ac.ug/careers/
+Kampala International University (KIU),,https://jobs.kiu.ac.ug/,green_verified,Private chartered university | e-recruitment portal,true,pending,Uganda,COLLEGE,https://jobs.kiu.ac.ug/
+Ndejje University,,https://ndejjeuniversity.ac.ug/careers/,amber_company_route,Private chartered university | official careers page,true,pending,Uganda,COLLEGE,https://ndejjeuniversity.ac.ug/careers/
+Nkumba University,,https://nkumbauniversity.ac.ug/jobs/,green_verified,Private chartered university | jobs page,true,pending,Uganda,COLLEGE,https://nkumbauniversity.ac.ug/jobs/
+Bugema University,,https://www.bugemauniv.ac.ug/employment-opportunities,green_verified,Private chartered university | employment page,true,pending,Uganda,COLLEGE,https://www.bugemauniv.ac.ug/employment-opportunities
+Cavendish University Uganda,,https://www.cavendish.ac.ug/notices/careers/,green_verified,Private chartered university | careers page,true,pending,Uganda,COLLEGE,https://www.cavendish.ac.ug/notices/careers/
+Clarke International University (CIU),,https://ciu.ac.ug/careers-at-ciu,amber_company_route,Private chartered university | official careers page,true,pending,Uganda,COLLEGE,https://ciu.ac.ug/careers-at-ciu
+ISBAT University,,https://www.isbatuniversity.ac.ug/career/,amber_company_route,Private chartered university | official careers page,true,pending,Uganda,COLLEGE,https://www.isbatuniversity.ac.ug/career/
+Uganda Martyrs University,,,grey_none_verified,Private chartered university | no direct careers page,false,pending,Uganda,COLLEGE,
+Islamic University in Uganda (IUIU),,,grey_none_verified,Private chartered university | no direct careers page,false,pending,Uganda,COLLEGE,
+Kampala University,,,grey_none_verified,Private chartered university | vacancies only as news posts,false,pending,Uganda,COLLEGE,
+Bishop Stuart University,,,grey_none_verified,Private chartered university | no stable careers index,false,pending,Uganda,COLLEGE,
+Victoria University,,,grey_none_verified,Private chartered university | adverts only as news posts,false,pending,Uganda,COLLEGE,
+Team University,,,grey_none_verified,Private chartered university | opportunities page under maintenance,false,pending,Uganda,COLLEGE,
+International University of East Africa (IUEA),,,grey_none_verified,Private chartered university | careers portal not load-verified,false,pending,Uganda,COLLEGE,
+Uganda Pentecostal University,,,grey_none_verified,Private chartered university | no direct careers page,false,pending,Uganda,COLLEGE,
+Makerere University Business School (MUBS),,,grey_none_verified,Public constituent college | no direct careers page,false,pending,Uganda,COLLEGE,
+Uganda Management Institute (UMI),,,grey_none_verified,Public management institute | adverts only as PDFs,false,pending,Uganda,COLLEGE,
+Uganda Institute of ICT (UICT),,https://recruitment.uict.ac.ug/,green_verified,Public ICT institute | e-recruitment portal,true,pending,Uganda,COLLEGE,https://recruitment.uict.ac.ug/
+Uganda National Institute for Teacher Education (UNITE),,https://unite.ac.ug/job-opportunities/,green_verified,National teacher-education institute | job opportunities page,true,pending,Uganda,COLLEGE,https://unite.ac.ug/job-opportunities/
+Uganda Technical College Elgon,,https://utce.tvet.go.ug/jobs-careers,green_verified,Government technical college | jobs and careers page,true,pending,Uganda,COLLEGE,https://utce.tvet.go.ug/jobs-careers
+Uganda Technical College Kyema,,https://utckyema.ac.ug/job-openings/,green_verified,Government technical college | job openings page,true,pending,Uganda,COLLEGE,https://utckyema.ac.ug/job-openings/
+Uganda Technical College Bushenyi,,https://utcb.tvet.go.ug/jobs-available,amber_company_route,Government technical college | official jobs page,true,pending,Uganda,COLLEGE,https://utcb.tvet.go.ug/jobs-available
+Uganda Technical College Kichwamba,,,grey_none_verified,Government technical college | no careers page verified,false,pending,Uganda,COLLEGE,
+Uganda Technical College Lira,,,grey_none_verified,Government technical college | no careers page,false,pending,Uganda,COLLEGE,
+Nsamizi Training Institute of Social Development,,,grey_none_verified,National social-development college | no direct careers page,false,pending,Uganda,COLLEGE,
+Management Training and Advisory Centre (MTAC),,,grey_none_verified,National management college | careers path robots-blocked,false,pending,Uganda,COLLEGE,
