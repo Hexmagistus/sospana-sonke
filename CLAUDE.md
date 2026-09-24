@@ -49,6 +49,43 @@ commit it (and push, if you pushed the rest of your work). Newest entry on top.
 
 ## Session Log
 
+### 2026-09-24 (even later still) — Claude (Cowork, Sonnet 5) — Merged the REST of countries/*.csv live (1,374 more rows) — the staging tree is now fully drained
+Lungani said "do it" in response to this session's own flagged follow-up (see the entry directly
+below): after the COLLEGE-only merge, ~1,814 rows across DEPT/SOE/NGO/PRIVATE/MUNI/SETA/HOSPITAL/UNI
+were still sitting unmerged in `backend/seed/countries/*.csv`. Same mechanism, same rigor:
+
+- Scanned all 45 `countries/*.csv` files again for every row NOT already merged (i.e. everything
+  except `COLLEGE`, done earlier the same day). Found 1,374 genuinely new rows after dedup against
+  the (by-then 3,312-row) main CSV — by type: DEPT 508, PRIVATE 290, SOE 255, NGO 213, MUNI 90,
+  UNI 18. `SETA` and `HOSPITAL` staged rows turned out to be **100% already-merged duplicates** —
+  those categories had already been researched straight into the main CSV in earlier sessions
+  (the SADC hospital batches, the SETA/training-authority rows), so nothing new there. The
+  Brazil/China/India/Indonesia/Iran/Russia/UAE files were, again, 100% already-merged duplicates
+  for these types too (confirms the earlier finding that an undocumented prior pass fully merged
+  that whole batch already).
+- Appended the 1,374 rows to `backend/seed/company_database_import.csv` (3,312 → **4,686 rows**).
+  Validated with `csv.DictReader` (0 ragged rows) and a dry-run of the real
+  `import_companies_from_csv` against an isolated sqlite DB: `created=4681 updated=5 skipped=0
+  errors=[]` (same 3 pre-existing unrelated duplicate keys as before — `SASSETA`/`HRDC`/`NTA` —
+  still not touched).
+- Recomputed `frontend/src/app/page.tsx`'s `LIVE` array a second time against the fully-merged
+  totals (same country-name-spelling-merging approach as the first pass, now also handling a
+  freshly-appeared properly-accented `"Côte d'Ivoire"` spelling alongside the existing `"Cote
+  dIvoire"`/`"Ivory Coast"` variants). **Every country now has more than a single flagship entry**
+  — the lowest is Eritrea at 5 — so `pending` is `false` across the board for the first time ever;
+  kept as a field rather than removed, in case a country's data is ever pulled back out.
+  `TOTAL_EMPLOYERS` (auto-derived) moved 2,362 → **4,672**. `tsc --noEmit` clean.
+- **The `backend/seed/countries/` staging tree's job is now done** — everything in it that could be
+  merged (passed dedup) has been. What's left in those files going forward is either already-live
+  duplicates (harmless to leave) or, for a handful of countries, genuinely `grey_none_verified`
+  rows with no URL that were already carried across as-is (a blank `careers_url` row is still a
+  real, honest "this institution exists, no verified link yet" entry, not something to filter out).
+- Found, but deliberately left untouched on the device repo, unrelated in-progress work: a modified
+  `frontend/src/app/login/page.tsx`, an untracked `_to_delete/` folder, and a
+  `company_database_import.pre_brics.bak.csv` backup file (evidence of whoever did the earlier,
+  undocumented BRICS+UAE merge). Only this session's 3 intended files were `git add`-ed and
+  committed — worth Lungani checking what state that other work is in.
+
 ### 2026-09-24 (even later) — Claude (Cowork, Sonnet 5) — Merged 322 staged COLLEGE rows into the live seed CSV (no admin login needed)
 Picked up after "continue where the other claude ended" with no more specific instruction. Read this
 whole file plus the three newly-appeared project docs to find the actual current state (design-token
