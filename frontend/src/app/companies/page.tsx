@@ -87,6 +87,17 @@ function typeBadge(sourceType: string | null | undefined) {
   return TYPE_BADGE[st] || { label: sourceType ? `${st}-listed` : "Listed", cls: "bg-brand/10 text-brand-dark" };
 }
 
+// Every named category button loads and shows ALL of its companies across
+// every country at once (not just the currently-picked country) -- the same
+// way the "Federations" button already worked before this was generalised.
+// "all" and "listed" have no single source_type of their own, so they stay
+// scoped to whichever country is picked above.
+const FILTER_TO_TYPE: Record<string, string> = {
+  SOE: "SOE", Municipality: "MUNI", Department: "DEPT", Private: "PRIVATE", NGO: "NGO",
+  University: "UNI", College: "COLLEGE", Hospital: "HOSPITAL", SETA: "SETA",
+  Sports: "SPORT", Federations: "FED", Music: "MUSIC",
+};
+
 // A restrained pull from the Ndebele strip's palette, used as a rotating
 // per-card left-edge accent so colour carries through the whole grid.
 const CARD_ACCENTS = ["#e4322b", "#f5b301", "#2f9bf6", "#1a9e5f", "#ff7a1a"];
@@ -144,9 +155,10 @@ function CompaniesDirectoryInner() {
     };
   }, []);
 
+  const globalType = FILTER_TO_TYPE[filter];
   const sliceKey = shortlistOnly
     ? `ids:${Array.from(shortlistIds).sort().join(",")}`
-    : filter === "Federations" ? "type:FED" : `country:${country}`;
+    : globalType ? `type:${globalType}` : `country:${country}`;
 
   useEffect(() => {
     if (!facets) return;
@@ -157,8 +169,8 @@ function CompaniesDirectoryInner() {
       const ids = sliceKey.slice(4);
       if (!ids) { setCompanies([]); return; }
       path = `/companies?ids=${encodeURIComponent(ids)}&limit=200`;
-    } else if (sliceKey === "type:FED") {
-      path = "/companies?source_type=FED&limit=1500";
+    } else if (sliceKey.startsWith("type:")) {
+      path = `/companies?source_type=${encodeURIComponent(sliceKey.slice(5))}&limit=1500`;
     } else {
       path = `/companies?country=${encodeURIComponent(country)}&limit=1500`;
     }
@@ -199,6 +211,9 @@ function CompaniesDirectoryInner() {
     }
     if (wantedType && (FILTERS as readonly string[]).includes(wantedType)) {
       setFilter(wantedType as (typeof FILTERS)[number]);
+      // A category link with no explicit ?country= means "every country" for
+      // that category, same as clicking its button directly.
+      if (!wantedCountry && FILTER_TO_TYPE[wantedType]) setCountry("");
     }
   }, [searchParams]);
 
@@ -220,7 +235,11 @@ function CompaniesDirectoryInner() {
   const shownCompanies = useMemo(() => {
     const needle = q.trim().toLowerCase();
     const filtered = companies
-      .filter((c) => shortlistOnly || filter === "Federations" || (c.country || "") === country)
+      // In a global category, an empty `country` means "every country" for
+      // that category; a chosen one narrows the already-loaded category-wide
+      // slice down to it (no extra fetch). Outside a category, `country`
+      // always names the one country whose slice was fetched.
+      .filter((c) => shortlistOnly || (globalType ? (!country || (c.country || "") === country) : (c.country || "") === country))
       .filter((c) => !shortlistOnly || shortlistIds.has(c.id))
       .filter((c) => {
         if (filter === "all") return true;
@@ -243,7 +262,7 @@ function CompaniesDirectoryInner() {
         || c.company_name.toLowerCase().includes(needle)
         || (c.jse_code || "").toLowerCase().includes(needle));
     return [...filtered].sort((a, b) => Number(!a.careers_url) - Number(!b.careers_url) || a.company_name.localeCompare(b.company_name));
-  }, [companies, q, filter, country, jobsByCompany, shortlistOnly, shortlistIds]);
+  }, [companies, q, filter, country, globalType, jobsByCompany, shortlistOnly, shortlistIds]);
 
   function surpriseMe() {
     api.get<Company>("/companies/surprise").then((pick) => {
@@ -255,11 +274,31 @@ function CompaniesDirectoryInner() {
     }).catch(() => {});
   }
 
+  // Clicking a category button loads (and shows) EVERY company in that
+  // category, across every country, by default -- clearing any country
+  // narrowing left over from a previous view. Switching back to "All" or
+  // "Listed" needs a real country again, since those two stay country-scoped.
+  function selectFilter(f: typeof filter) {
+    setFilter(f);
+    if (FILTER_TO_TYPE[f]) {
+      setCountry("");
+    } else if (!country) {
+      setCountry("South Africa");
+    }
+  }
+
   const withLinks = facets?.with_links ?? 0;
   const flag = COUNTRY_FLAGS[country] || "🌍";
-  const fedTotal = facets?.type_counts?.FED ?? 0;
-  const countryTotal = filter === "Federations" ? fedTotal : (countryCounts[country] ?? 0);
-  const countryWithLinks = facets?.country_with_links?.[country] ?? 0;
+  // In a global category, these two figures come straight from the already-
+  // loaded slice (optionally narrowed to one country, but never by the
+  // search box -- same "total in scope, before you search" meaning the
+  // country-mode numbers below have always had) rather than the per-country
+  // `facets` breakdown, which has no per-category numbers.
+  const inCategoryScope = globalType ? companies.filter((c) => !country || (c.country || "") === country) : companies;
+  const countryTotal = globalType ? inCategoryScope.length : (countryCounts[country] ?? 0);
+  const countryWithLinks = globalType
+    ? inCategoryScope.filter((c) => c.careers_url).length
+    : (facets?.country_with_links?.[country] ?? 0);
 
   if (err) return <Alert kind="error">{err}</Alert>;
   if (!facets) return <FunSpinner label="Loading the directory…" />;
@@ -268,7 +307,7 @@ function CompaniesDirectoryInner() {
   const filterLabel: Record<(typeof FILTERS)[number], string> = {
     all: "All", listed: "Listed", SOE: "State-owned", Municipality: "Municipalities",
     Department: "🏛️ Gov depts", Private: "Private", NGO: "🤝 NGOs", University: "🎓 Universities",
-    College: "🏫 Colleges", Hospital: "🏥 Hospitals", SETA: "🛠️ SETAs", Sports: "🏅 Sports associations", Federations: "🌐 Continental & world federations", Music: "🎵 Music industry (rights societies & labels)",
+    College: "🏫 Colleges", Hospital: "🏥 Hospitals", SETA: "🛠️ SETAs", Sports: "🏅 Sports associations", Federations: "🌐 Federations", Music: "🎵 Music industry",
   };
 
   return (
@@ -306,7 +345,9 @@ function CompaniesDirectoryInner() {
           <span aria-hidden className="ss-hud-scan !opacity-60 animate-scan-sweep" />
           <span className="text-5xl leading-none drop-shadow-sm">{flag}</span>
           <div>
-            <div className="text-xl font-extrabold text-ss-text">{country}</div>
+            <div className="text-xl font-extrabold text-ss-text">
+              {globalType ? (country ? `${filterLabel[filter]} · ${country}` : `${filterLabel[filter]} — every country`) : country}
+            </div>
             <div className="ss-hud-tag text-xs text-ss-muted">
               <strong className="text-ss-text"><AnimatedNumber value={countryTotal} /></strong> employers mapped 📡 ·{" "}
               <strong className="text-ss-text"><AnimatedNumber value={countryWithLinks} /></strong> with a straight-to-jobs link 🚀
@@ -321,17 +362,26 @@ function CompaniesDirectoryInner() {
               <div className="min-w-[12rem] flex-1 sm:max-w-xs">
                 <Select
                   value={BRICS_ONLY.has(country) ? "" : country}
-                  onChange={(e) => { if (e.target.value) { setShortlistOnly(false); setCountry(e.target.value); } }}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    if (!v && !globalType) return; // inert placeholder outside category mode
+                    setShortlistOnly(false);
+                    setCountry(v);
+                  }}
                   aria-label="Country"
                 >
-                  {BRICS_ONLY.has(country) && <option value="">Choose a country…</option>}
+                  {globalType
+                    ? <option value="">🌍 All countries</option>
+                    : (BRICS_ONLY.has(country) && <option value="">Choose a country…</option>)}
                   {countries.filter((cn) => !BRICS_ONLY.has(cn)).map((cn) => (
                     <option key={cn} value={cn}>
                       {COUNTRY_FLAGS[cn] || "🌍"} {cn} — {countryCounts[cn] ?? 0}
                     </option>
                   ))}
                 </Select>
-                <p className="ss-hud-tag mt-1 text-[10px] text-ss-muted">🌍 Pick a country to see its employers</p>
+                <p className="ss-hud-tag mt-1 text-[10px] text-ss-muted">
+                  {globalType ? "🌍 Optionally narrow this category to one country" : "🌍 Pick a country to see its employers"}
+                </p>
               </div>
               {BRICS_PARTNERS.some((cn) => (countryCounts[cn] ?? 0) > 0) && (
                 <div className="min-w-[12rem] flex-1 sm:max-w-xs">
@@ -364,23 +414,42 @@ function CompaniesDirectoryInner() {
             </div>
           )}
 
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="min-w-[14rem] flex-1">
-              <Input
-                placeholder="Search company or JSE code…"
-                value={q}
-                onChange={(e) => setQ(e.target.value)}
-              />
-            </div>
-            <div className="min-w-[12rem] sm:max-w-xs">
-              <Select value={filter} onChange={(e) => setFilter(e.target.value as typeof filter)} aria-label="Category">
-                {FILTERS.map((f) => (
-                  <option key={f} value={f}>{filterLabel[f]}</option>
-                ))}
-              </Select>
-              <p className="ss-hud-tag mt-1 text-[10px] text-ss-muted">🗂️ Pick a category: state-owned, universities, hospitals and more</p>
-            </div>
+          <div className="min-w-[14rem]">
+            <Input
+              placeholder="Search company or JSE code…"
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+            />
           </div>
+
+          <div className="mt-3 flex flex-wrap gap-1.5">
+            {FILTERS.map((f) => {
+              const active = filter === f;
+              const st = FILTER_TO_TYPE[f];
+              const count = st ? (facets.type_counts?.[st] ?? 0) : null;
+              return (
+                <button
+                  key={f}
+                  onClick={() => selectFilter(f)}
+                  className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-semibold transition ${
+                    active ? "bg-gradient-to-r from-brand to-brand-dark text-white shadow-sm" : "bg-ss-border text-ss-muted hover:bg-ss-primary-soft hover:text-ss-text"
+                  }`}
+                >
+                  <span>{filterLabel[f]}</span>
+                  {count !== null && (
+                    <span className={`rounded-full px-1.5 py-0.5 text-[11px] font-bold tabular-nums ${active ? "bg-white/20 text-white" : "bg-ss-surface text-ss-muted"}`}>
+                      {count}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+          <p className="ss-hud-tag mt-1.5 text-[10px] text-ss-muted">
+            {globalType
+              ? "🗂️ Showing this category across every country at once — narrow to one country above if you want."
+              : "🗂️ Pick a category — its button shows every company in that category, across every country, at once."}
+          </p>
         </Card>
         </GlowFrame>
 
@@ -401,7 +470,7 @@ function CompaniesDirectoryInner() {
             Category · {filterLabel[filter]}
           </span>
           <span className="ss-hud-tag rounded-md border border-ss-border bg-ss-surface px-2 py-1 text-[11px] font-semibold text-ss-text">
-            Zone · {filter === "Federations" ? "🌐 All regions" : shortlistOnly ? "⭐ My shortlist" : `${flag} ${country}`}
+            Zone · {globalType ? (country ? `${flag} ${country}` : "🌍 All countries") : shortlistOnly ? "⭐ My shortlist" : `${flag} ${country}`}
           </span>
           <span className="ss-hud-tag text-[11px] text-ss-muted sm:ml-auto">Pick a card, any card 🃏</span>
         </div>
