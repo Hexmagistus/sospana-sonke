@@ -114,10 +114,10 @@ export function CvUpload({ onApplied }: { onApplied?: () => void }) {
 
   return (
     <Card accent="purple">
-      <h2 className="mb-1 flex items-center gap-2 text-lg font-semibold text-navy">
+      <h2 className="mb-1 flex items-center gap-2 text-lg font-semibold text-ss-text">
         <span aria-hidden="true">📤</span> Import from an existing CV
       </h2>
-      <p className="mb-4 text-sm text-gray-500">
+      <p className="mb-4 text-sm text-ss-muted">
         Upload a CV you already have — we&apos;ll read it and automatically add your skills, education and experience
         below as unconfirmed suggestions. Nothing is treated as fact until you confirm it.
       </p>
@@ -136,7 +136,7 @@ export function CvUpload({ onApplied }: { onApplied?: () => void }) {
           if (file) handleFile(file);
         }}
         className={`mt-3 flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed px-6 py-8 text-center transition ${
-          dragOver ? "border-brand bg-brand/5" : "border-gray-300 hover:border-brand/50 hover:bg-gray-50"
+          dragOver ? "border-brand bg-brand/5" : "border-ss-border hover:border-brand/50 hover:bg-ss-surface"
         } ${busy ? "pointer-events-none opacity-60" : ""}`}
       >
         <input
@@ -151,8 +151,8 @@ export function CvUpload({ onApplied }: { onApplied?: () => void }) {
         ) : (
           <>
             <span className="text-2xl" aria-hidden="true">📄</span>
-            <span className="text-sm font-medium text-navy">Click to upload, or drag and drop</span>
-            <span className="text-xs text-gray-400">PDF, Word (.docx) or plain text — up to 10MB</span>
+            <span className="text-sm font-medium text-ss-text">Click to upload, or drag and drop</span>
+            <span className="text-xs text-ss-muted">PDF, Word (.docx) or plain text — up to 10MB</span>
           </>
         )}
       </div>
@@ -160,10 +160,10 @@ export function CvUpload({ onApplied }: { onApplied?: () => void }) {
       {cvs && cvs.length > 0 && (
         <div className="mt-4 space-y-2 border-t border-gray-100 pt-4">
           {cvs.map((cv) => (
-            <div key={cv.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-gray-50/60 px-3 py-2 text-sm">
+            <div key={cv.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-ss-glass px-3 py-2 text-sm">
               <div className="min-w-0">
-                <div className="truncate font-medium text-gray-800">{cv.original_filename}</div>
-                <div className="text-xs text-gray-500">
+                <div className="truncate font-medium text-ss-text">{cv.original_filename}</div>
+                <div className="text-xs text-ss-muted">
                   {formatSize(cv.size_bytes)} · {STATUS_LABEL[cv.parse_status]}
                   {cv.parse_status === "failed" && cv.parse_error ? ` — ${cv.parse_error}` : ""}
                 </div>

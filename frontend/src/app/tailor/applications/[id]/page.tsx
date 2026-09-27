@@ -27,12 +27,12 @@ function RequirementList({ title, items, tone }: { title: string; items: { text:
   return (
     <div>
       <h3 className={`mb-2 text-sm font-semibold ${toneCls}`}>{title} ({items.length})</h3>
-      {items.length === 0 ? <p className="text-sm text-gray-400">None.</p> : (
+      {items.length === 0 ? <p className="text-sm text-ss-muted">None.</p> : (
         <ul className="space-y-2">
           {items.map((it, i) => (
-            <li key={i} className="rounded-lg bg-gray-50 px-3 py-2 text-sm">
-              <div className="font-medium text-gray-800">{it.text}</div>
-              <div className="mt-0.5 text-xs text-gray-500">{it.note}</div>
+            <li key={i} className="rounded-lg bg-ss-surface px-3 py-2 text-sm">
+              <div className="font-medium text-ss-text">{it.text}</div>
+              <div className="mt-0.5 text-xs text-ss-muted">{it.note}</div>
             </li>
           ))}
         </ul>
@@ -59,14 +59,14 @@ function ApplicationDetailInner() {
     <div className="space-y-6">
       <div>
         <Link href="/tailor/applications" className="text-sm text-brand hover:underline">← Back to my applications</Link>
-        <h1 className="mt-2 text-2xl font-bold text-navy">{a.job_title}</h1>
-        <p className="text-gray-500">{a.company_name || "Company not specified"}</p>
+        <h1 className="mt-2 text-2xl font-bold text-ss-text">{a.job_title}</h1>
+        <p className="text-ss-muted">{a.company_name || "Company not specified"}</p>
         <div className="mt-2 flex flex-wrap items-center gap-2">
           <Badge>{a.status}</Badge>
           <Badge>{a.band}</Badge>
-          <span className="text-sm text-gray-500">Match {Math.round(a.match_score)}%</span>
-          {a.ats_score != null && <span className="text-sm text-gray-500">· ATS {Math.round(a.ats_score)}%</span>}
-          {a.quality_score != null && <span className="text-sm text-gray-500">· Quality {Math.round(a.quality_score)}%</span>}
+          <span className="text-sm text-ss-muted">Match {Math.round(a.match_score)}%</span>
+          {a.ats_score != null && <span className="text-sm text-ss-muted">· ATS {Math.round(a.ats_score)}%</span>}
+          {a.quality_score != null && <span className="text-sm text-ss-muted">· Quality {Math.round(a.quality_score)}%</span>}
         </div>
       </div>
 
@@ -80,8 +80,8 @@ function ApplicationDetailInner() {
         <h2 className="mb-3 font-semibold">Score breakdown</h2>
         <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
           {Object.entries(a.sub_scores).map(([k, v]) => (
-            <div key={k} className="rounded-lg bg-gray-50 px-3 py-2 text-sm">
-              <div className="text-gray-500">{SUB_SCORE_LABELS[k] || k}</div>
+            <div key={k} className="rounded-lg bg-ss-surface px-3 py-2 text-sm">
+              <div className="text-ss-muted">{SUB_SCORE_LABELS[k] || k}</div>
               <div className="font-semibold">{Math.round(v)}%</div>
             </div>
           ))}
@@ -132,8 +132,8 @@ function ApplicationDetailInner() {
               ["Watch-outs", prep.content.watch_outs], ["Tips", prep.content.tips]].map(([t, items]) => (
               (items as string[])?.length > 0 && (
                 <div key={t as string}>
-                  <div className="mb-1 font-medium text-gray-700">{t}</div>
-                  <ul className="list-disc space-y-1 pl-5 text-gray-600">
+                  <div className="mb-1 font-medium text-ss-text">{t}</div>
+                  <ul className="list-disc space-y-1 pl-5 text-ss-muted">
                     {(items as string[]).map((x, i) => <li key={i}>{x}</li>)}
                   </ul>
                 </div>
@@ -146,7 +146,7 @@ function ApplicationDetailInner() {
       {a.notes && (
         <Card>
           <h2 className="mb-2 font-semibold">Notes</h2>
-          <p className="text-sm text-gray-700 whitespace-pre-wrap">{a.notes}</p>
+          <p className="text-sm text-ss-text whitespace-pre-wrap">{a.notes}</p>
         </Card>
       )}
     </div>

@@ -50,7 +50,7 @@ function ApplicationDetailInner() {
           <Badge>{app.status}</Badge>
         </div>
         {(app.company_name || app.vacancy_location || app.match_score != null) && (
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-sm text-ss-muted">
             {app.company_name}
             {app.company_name && app.vacancy_location && " · "}
             {app.vacancy_location}
@@ -94,12 +94,12 @@ function ApplicationDetailInner() {
         <ul className="space-y-3">
           {(app.answers || []).map((a) => (
             <li key={a.id} className="text-sm">
-              <div className="font-medium text-gray-700">{a.question}</div>
+              <div className="font-medium text-ss-text">{a.question}</div>
               {a.is_unknown ? (
                 <UnknownAnswer onSave={(v) => fillAnswer(a.id, v)} />
               ) : (
-                <div className="text-gray-600">
-                  {a.answer} <span className="text-xs text-gray-400">({a.source})</span>
+                <div className="text-ss-muted">
+                  {a.answer} <span className="text-xs text-ss-muted">({a.source})</span>
                 </div>
               )}
             </li>
@@ -109,11 +109,11 @@ function ApplicationDetailInner() {
 
       <Card>
         <h2 className="mb-3 font-semibold">History (audit trail)</h2>
-        <ul className="space-y-1 text-sm text-gray-600">
+        <ul className="space-y-1 text-sm text-ss-muted">
           {(app.events || []).map((e) => (
             <li key={e.id}>
-              <span className="text-gray-400">{new Date(e.created_at).toLocaleString()}</span> — {e.event_type}
-              {e.status_to && <> → <Badge>{e.status_to}</Badge></>} {e.detail && <span className="text-gray-500">· {e.detail}</span>}
+              <span className="text-ss-muted">{new Date(e.created_at).toLocaleString()}</span> — {e.event_type}
+              {e.status_to && <> → <Badge>{e.status_to}</Badge></>} {e.detail && <span className="text-ss-muted">· {e.detail}</span>}
             </li>
           ))}
         </ul>

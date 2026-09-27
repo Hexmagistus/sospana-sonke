@@ -70,7 +70,7 @@ const DEPARTMENT_LOGOS: Record<string, string> = {
 const TYPE_BADGE: Record<string, { label: string; cls: string }> = {
   SOE: { label: "State-owned", cls: "bg-purple/10 text-purple" },
   MUNI: { label: "Municipality", cls: "bg-teal/10 text-teal" },
-  DEPT: { label: "🏛️ Government department", cls: "bg-navy/10 text-navy" },
+  DEPT: { label: "🏛️ Government department", cls: "bg-navy/10 text-ss-text" },
   PRIVATE: { label: "Private company", cls: "bg-gold/20 text-[#a9791a]" },
   NGO: { label: "🤝 NGO", cls: "bg-coral/10 text-coral" },
   UNI: { label: "🎓 University", cls: "bg-sky/10 text-sky" },
@@ -512,7 +512,7 @@ function CompaniesDirectoryInner() {
                           <span className="rounded-full bg-gold/20 px-2 py-0.5 text-xs font-semibold text-[#a9791a]">{c.jse_code}</span>
                         )}
                         {isAtsPortal(c.careers_url) && (
-                          <span className="rounded-full bg-navy/10 px-2 py-0.5 text-xs font-semibold text-navy">Apply on their portal</span>
+                          <span className="rounded-full bg-navy/10 px-2 py-0.5 text-xs font-semibold text-ss-text">Apply on their portal</span>
                         )}
                         {trending.has(c.id) && <TrendingBadge />}
                         {c.country && <span className="text-xs text-ss-muted">{c.country}</span>}

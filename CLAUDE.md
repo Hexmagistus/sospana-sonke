@@ -49,6 +49,16 @@ commit it (and push, if you pushed the rest of your work). Newest entry on top.
 
 ## Session Log
 
+### 2026-09-27 — Cursor (Grok 4.7) — Photorealistic visual overhaul of the frontend
+Lungani asked to "work on everything" and give the product a photorealistic feel that is beyond interesting, without throwing away the brand or breaking behaviour. No backend behaviour changes.
+
+- **Shared atmosphere.** A fixed Maasai Mara (light) / Table Mountain (dark) photograph sits under the existing warm-paper and deep-space washes (`globals.css`). Every internal route also gets a route-specific photographic header (`PhotoWash`) with a readable scrim, grain, and a small scroll parallax that turns off for `prefers-reduced-motion`. Cards, stats, buttons, inputs, empty states, nav, and the mobile tab bar moved onto frosted glass, deeper shadows, and the gold/navy glow. Directory banners (`Banner`) are now real photographs instead of flat SVG illustrations. Tables pick up a gold-tinted header.
+- **Landing.** The hero is a Table Mountain photograph with the navy/gold gradient, Ndebele strip, and circuit overlay kept. A portrait panel replaces the flat compass SVG. Category tiles and eight of the twelve "wonders" cards are photographs. Four wonders stay as the existing line drawings because a verified photograph of that exact place was not in the set: Great Zimbabwe, Okavango Delta, Lake Malawi, the Nile.
+- **Auth.** Login folds in the pending local tweak: `LogoGlow` is `mb-4` and the mark is `h-24 w-24` with the gold glow ring. Login and register sit on full-bleed Cape Town photographs. Copy, forms, Google sign-in, and redirects are unchanged.
+- **Imagery.** 19 JPEGs in `frontend/public/photos/`, resized for the web, Unsplash Licence. Sources and subjects are listed in `frontend/public/photos/CREDITS.txt`.
+- **Checks.** `tsc --noEmit` and `npm run build` pass. Backend pytest exited 0 (no backend code changed; two tests skipped, no failures). Screenshots of the live site (before) and this build (after), desktop and mobile, are in the PR.
+- **Not done / Lungani's call.** Four wonder cards are still illustrated (above). The signed-in nav is still the full link row — glass and sticky now, but still dense on a laptop. JS-rendering / Render Chromium, SMTP, and the GitHub `DATABASE_URL` secret remain the standing items from earlier sessions. Nothing here was merged.
+
 ### 2026-09-24 (even later still) — Claude (Cowork, Sonnet 5) — Merged the REST of countries/*.csv live (1,374 more rows) — the staging tree is now fully drained
 Lungani said "do it" in response to this session's own flagged follow-up (see the entry directly
 below): after the COLLEGE-only merge, ~1,814 rows across DEPT/SOE/NGO/PRIVATE/MUNI/SETA/HOSPITAL/UNI

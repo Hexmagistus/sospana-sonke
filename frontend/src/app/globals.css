@@ -301,3 +301,81 @@ body::before {
 @media (prefers-reduced-motion: reduce) {
   .ss-hud-card:hover .ss-hud-scan { animation: none !important; }
 }
+
+/* ------------------------------------------------------------------ */
+/* Photorealistic atmosphere                                          */
+/* A fixed landscape sits under the warm-paper (or deep-space) wash so */
+/* every route has depth before any page paints its own hero.          */
+/* ------------------------------------------------------------------ */
+body {
+  background-image:
+    radial-gradient(900px 520px at 100% -8%, rgba(245, 179, 1, 0.14), transparent 60%),
+    radial-gradient(760px 520px at -12% 6%, rgba(15, 118, 110, 0.12), transparent 60%),
+    radial-gradient(820px 620px at 50% 118%, rgba(124, 92, 255, 0.10), transparent 62%),
+    linear-gradient(180deg, rgba(251, 248, 241, 0.9), rgba(251, 248, 241, 0.94)),
+    url("/photos/mara-sunset.jpg");
+  background-size: auto, auto, auto, auto, cover;
+  background-attachment: fixed;
+  background-position: center;
+}
+:root[data-theme="dark"] body {
+  background-image:
+    radial-gradient(900px 520px at 100% -8%, rgba(245, 179, 1, 0.16), transparent 60%),
+    radial-gradient(760px 520px at -12% 6%, rgba(34, 211, 238, 0.12), transparent 60%),
+    radial-gradient(820px 620px at 50% 118%, rgba(124, 92, 255, 0.16), transparent 62%),
+    linear-gradient(180deg, rgba(6, 11, 22, 0.88), rgba(6, 11, 22, 0.94)),
+    url("/photos/cape-town-mountain.jpg");
+}
+
+/* Page-level photographic header. The scrim keeps headings readable. */
+main#main-content {
+  position: relative;
+  z-index: 0;
+}
+.photo-wash {
+  position: absolute;
+  z-index: -1;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 420px;
+  overflow: hidden;
+  border-bottom-left-radius: 2.25rem;
+  border-bottom-right-radius: 2.25rem;
+  pointer-events: none;
+}
+.photo-wash-scrim {
+  background: linear-gradient(
+    180deg,
+    rgba(251, 248, 241, 0.42) 0%,
+    rgba(251, 248, 241, 0.78) 42%,
+    var(--ss-bg) 100%
+  );
+}
+:root[data-theme="dark"] .photo-wash-scrim {
+  background: linear-gradient(
+    180deg,
+    rgba(6, 11, 22, 0.38) 0%,
+    rgba(6, 11, 22, 0.78) 46%,
+    var(--ss-bg) 100%
+  );
+}
+
+main table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+main thead tr {
+  background: color-mix(in srgb, var(--ss-primary) 14%, var(--ss-surface));
+}
+main tbody tr {
+  transition: background-color 0.15s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body { background-attachment: scroll; }
+}
+
+.auth-stage-scrim {
+  background: linear-gradient(180deg, rgba(7, 21, 40, 0.82) 0%, rgba(11, 31, 58, 0.62) 42%, var(--ss-bg) 100%);
+}

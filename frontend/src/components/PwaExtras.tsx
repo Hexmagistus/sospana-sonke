@@ -67,9 +67,9 @@ export default function PwaExtras() {
       )}
 
       {(installEv || iosHint) && (
-        <div className="fixed inset-x-3 bottom-20 z-[55] mx-auto max-w-sm rounded-2xl border border-gray-200 bg-white p-4 shadow-xl md:bottom-4 md:left-auto md:right-4 md:mx-0">
-          <div className="text-sm font-bold text-navy">📲 Add Sospana Sonke to your home screen</div>
-          <p className="mt-1 text-xs text-gray-600">
+        <div className="fixed inset-x-3 bottom-20 z-[55] mx-auto max-w-sm rounded-2xl border border-ss-border bg-ss-surface p-4 shadow-xl md:bottom-4 md:left-auto md:right-4 md:mx-0">
+          <div className="text-sm font-bold text-ss-text">📲 Add Sospana Sonke to your home screen</div>
+          <p className="mt-1 text-xs text-ss-muted">
             Opens like an app, loads faster, and keeps working when your signal drops.
             {iosHint && !installEv ? " Tap the Share icon, then “Add to Home Screen”." : ""}
           </p>
@@ -77,7 +77,7 @@ export default function PwaExtras() {
             {installEv && (
               <button onClick={install} className="rounded-lg bg-navy px-3 py-1.5 text-xs font-semibold text-white">Install</button>
             )}
-            <button onClick={dismiss} className="rounded-lg bg-gray-100 px-3 py-1.5 text-xs font-semibold text-gray-700">Not now</button>
+            <button onClick={dismiss} className="rounded-lg bg-ss-primary-soft px-3 py-1.5 text-xs font-semibold text-ss-text">Not now</button>
           </div>
         </div>
       )}

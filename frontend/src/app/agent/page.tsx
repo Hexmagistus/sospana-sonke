@@ -169,7 +169,7 @@ function detectCategory(text: string): Category | undefined {
 const TYPE_BADGE: Record<string, { label: string; cls: string }> = {
   SOE: { label: "State-owned", cls: "bg-purple/10 text-purple" },
   MUNI: { label: "Municipality", cls: "bg-brand/10 text-brand-dark" },
-  DEPT: { label: "Government", cls: "bg-navy/10 text-navy" },
+  DEPT: { label: "Government", cls: "bg-navy/10 text-ss-text" },
   PRIVATE: { label: "Private company", cls: "bg-gold/20 text-[#a9791a]" },
   NGO: { label: "NGO", cls: "bg-coral/10 text-coral" },
   UNI: { label: "University", cls: "bg-sky/10 text-sky" },
@@ -343,7 +343,7 @@ function eligibility(m: Match): { label: string; cls: string } {
   if (!m.hard_ok) return { label: "Requirement not confirmed", cls: "text-coral" };
   if (m.decision === "APPLY") return { label: "You appear to meet the key requirements", cls: "text-green-700" };
   if (m.decision === "REVIEW") return { label: "Likely match — worth reviewing", cls: "text-[#8a6d00]" };
-  return { label: "Does not appear to meet the requirements", cls: "text-gray-500" };
+  return { label: "Does not appear to meet the requirements", cls: "text-ss-muted" };
 }
 
 function scoreColor(score: number): string {
@@ -749,7 +749,7 @@ function AgentInner() {
         key={label}
         onClick={() => submit(text)}
         disabled={busy}
-        className="rounded-full border border-gray-300 bg-white px-3.5 py-1.5 text-xs font-medium text-gray-700 transition hover:border-brand hover:bg-brand/5 hover:text-brand-dark disabled:opacity-50"
+        className="rounded-full border border-ss-border bg-ss-surface px-3.5 py-1.5 text-xs font-medium text-ss-text transition hover:border-brand hover:bg-brand/5 hover:text-brand-dark disabled:opacity-50"
       >
         {label}
       </button>
@@ -781,7 +781,7 @@ function AgentInner() {
     <div className="space-y-5">
       <header>
         <h1 className="text-2xl font-bold">Sospana Sonke Career Agent</h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <p className="mt-1 text-sm text-ss-muted">
           Ask in plain English. I search the live employer directory and any indexed vacancies, rank real
           opportunities, and link you straight to employers&rsquo; own careers pages — no invented jobs, no false promises.
         </p>
@@ -803,9 +803,9 @@ function AgentInner() {
           {turns.length === 0 && (
             <div className="mx-auto max-w-lg py-8 text-center">
               <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-brand to-navy text-xl text-white shadow">✦</div>
-              <p className="text-sm text-gray-600">
-                Try: <span className="font-medium text-gray-800">&ldquo;water treatment jobs in Gauteng&rdquo;</span>,
-                {" "}<span className="font-medium text-gray-800">&ldquo;government jobs in Kenya&rdquo;</span>, or tap a quick action above.
+              <p className="text-sm text-ss-muted">
+                Try: <span className="font-medium text-ss-text">&ldquo;water treatment jobs in Gauteng&rdquo;</span>,
+                {" "}<span className="font-medium text-ss-text">&ldquo;government jobs in Kenya&rdquo;</span>, or tap a quick action above.
               </p>
             </div>
           )}
@@ -831,14 +831,14 @@ function AgentInner() {
               )
             )}
             {busy && (
-              <div className="flex items-center gap-2 text-sm text-gray-400">
+              <div className="flex items-center gap-2 text-sm text-ss-muted">
                 <Spinner label="Searching the directory…" />
               </div>
             )}
           </div>
         </div>
 
-        <div className="border-t border-gray-200/80 bg-gray-50/60 p-3">
+        <div className="border-t border-ss-border bg-ss-glass p-3">
           <form onSubmit={(e) => { e.preventDefault(); submit(input); }} className="flex items-center gap-2">
             <Input
               value={input}
@@ -854,15 +854,15 @@ function AgentInner() {
       </Card>
 
       {(compare.length > 0 || Object.keys(saved).length > 0) && (
-        <div className="flex flex-wrap items-center gap-3 rounded-xl border border-gray-200/80 bg-white px-4 py-3 text-sm shadow-sm">
+        <div className="flex flex-wrap items-center gap-3 rounded-xl border border-ss-border bg-ss-surface px-4 py-3 text-sm shadow-sm">
           {Object.keys(saved).length > 0 && (
-            <span className="text-gray-600">⭐ {Object.keys(saved).length} saved</span>
+            <span className="text-ss-muted">⭐ {Object.keys(saved).length} saved</span>
           )}
           {compare.length > 0 && (
             <>
-              <span className="text-gray-600">⚖️ {compare.length} to compare</span>
+              <span className="text-ss-muted">⚖️ {compare.length} to compare</span>
               <Button size="sm" onClick={() => setShowCompare(true)}>Compare now</Button>
-              <button onClick={() => setCompare([])} className="text-xs text-gray-400 hover:text-gray-600">clear</button>
+              <button onClick={() => setCompare([])} className="text-xs text-ss-muted hover:text-ss-muted">clear</button>
             </>
           )}
           <Link href="/matches" className="ml-auto text-xs font-medium text-brand hover:underline">See all matches →</Link>
@@ -871,7 +871,7 @@ function AgentInner() {
 
       {showCompare && <CompareModal items={compare} onClose={() => setShowCompare(false)} loadDetail={loadDetail} />}
 
-      <p className="text-center text-xs text-gray-400">
+      <p className="text-center text-xs text-ss-muted">
         Match scores are guidance to help you prioritise — they are not hiring decisions, and every requirement
         is the employer&rsquo;s own. Always confirm details on the original vacancy before applying.
       </p>
@@ -898,7 +898,7 @@ function AgentBubble({
     <div className="space-y-3">
       <div className="flex gap-2.5">
         <div className="mt-0.5 flex h-7 w-7 flex-none items-center justify-center rounded-lg bg-gradient-to-br from-brand to-navy text-xs text-white shadow">✦</div>
-        <div className="max-w-[92%] rounded-2xl rounded-tl-sm bg-gray-100 px-4 py-2.5 text-sm leading-relaxed text-gray-800">
+        <div className="max-w-[92%] rounded-2xl rounded-tl-sm bg-ss-primary-soft px-4 py-2.5 text-sm leading-relaxed text-ss-text">
           {turn.text}
         </div>
       </div>
@@ -949,11 +949,11 @@ function AgentBubble({
         <div className="ml-0 grid gap-3 sm:ml-9">
           {turn.careerFamilies.map((fam) => (
             <Card key={fam.label} className="!p-4" accent="teal">
-              <div className="font-semibold text-gray-900">{fam.label}</div>
-              <p className="mt-1 text-sm text-gray-600">{fam.note}</p>
+              <div className="font-semibold text-ss-text">{fam.label}</div>
+              <p className="mt-1 text-sm text-ss-muted">{fam.note}</p>
               <div className="mt-3 flex flex-wrap gap-2">
                 {fam.related_careers.map((opt) => (
-                  <span key={opt.title} className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700">
+                  <span key={opt.title} className="rounded-full bg-ss-primary-soft px-3 py-1 text-xs font-medium text-ss-text">
                     {opt.title}
                     {opt.open_vacancies > 0 && (
                       <span className="ml-1 rounded-full bg-brand/10 px-1.5 text-brand-dark">{opt.open_vacancies}</span>
@@ -1250,8 +1250,8 @@ function EmployerCard({ c }: { c: Company }) {
   return (
     <Card className="!p-4" accent="navy">
       <div className="min-w-0">
-        <div className="truncate font-semibold text-gray-900">{c.company_name}</div>
-        <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-gray-500">
+        <div className="truncate font-semibold text-ss-text">{c.company_name}</div>
+        <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-ss-muted">
           {c.country && <span>{c.country}</span>}
           <span className={`rounded-full px-2 py-0.5 font-semibold ${badge.cls}`}>{badge.label}</span>
         </div>
@@ -1265,11 +1265,11 @@ function EmployerCard({ c }: { c: Company }) {
             <TipPreview companyId={c.id} onOpen={() => setShowTips(true)} />
           </>
         ) : (
-          <Link href={directoryHref(c.country || undefined)} className="text-xs text-gray-400 hover:text-gray-600">
+          <Link href={directoryHref(c.country || undefined)} className="text-xs text-ss-muted hover:text-ss-muted">
             No direct link yet — view in directory
           </Link>
         )}
-        <span className="ml-auto self-center text-[11px] text-gray-400">Source: Sospana Sonke directory</span>
+        <span className="ml-auto self-center text-[11px] text-ss-muted">Source: Sospana Sonke directory</span>
       </div>
       {showTips && c.careers_url && <CompanyTips companyId={c.id} />}
     </Card>
@@ -1310,22 +1310,22 @@ function CompareModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby="compare-vacancies-heading"
-        className="max-h-[85vh] w-full max-w-3xl overflow-auto rounded-t-2xl bg-white p-5 shadow-xl sm:rounded-2xl"
+        className="max-h-[85vh] w-full max-w-3xl overflow-auto rounded-t-2xl bg-ss-surface p-5 shadow-xl sm:rounded-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mb-4 flex items-center justify-between">
           <h2 id="compare-vacancies-heading" className="text-lg font-bold">Compare vacancies</h2>
-          <button onClick={onClose} className="rounded-md px-2 py-1 text-sm text-gray-500 hover:bg-gray-100">Close ✕</button>
+          <button onClick={onClose} className="rounded-md px-2 py-1 text-sm text-ss-muted hover:bg-ss-primary-soft">Close ✕</button>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full border-collapse text-sm">
             <thead>
               <tr>
-                <th className="p-2 text-left font-medium text-gray-400"></th>
+                <th className="p-2 text-left font-medium text-ss-muted"></th>
                 {items.map((m) => (
                   <th key={m.id} className="min-w-[9rem] p-2 text-left align-top">
-                    <div className="font-semibold text-gray-900">{m.vacancy_title}</div>
-                    <div className="text-xs font-normal text-gray-500">{m.company_name}</div>
+                    <div className="font-semibold text-ss-text">{m.vacancy_title}</div>
+                    <div className="text-xs font-normal text-ss-muted">{m.company_name}</div>
                   </th>
                 ))}
               </tr>
@@ -1363,8 +1363,8 @@ function CompareModal({
 function Row({ label, cells }: { label: string; cells: string[] }) {
   return (
     <tr className="border-t border-gray-100">
-      <td className="p-2 align-top text-xs font-medium capitalize text-gray-500">{label}</td>
-      {cells.map((c, i) => <td key={i} className="p-2 align-top text-gray-800">{c}</td>)}
+      <td className="p-2 align-top text-xs font-medium capitalize text-ss-muted">{label}</td>
+      {cells.map((c, i) => <td key={i} className="p-2 align-top text-ss-text">{c}</td>)}
     </tr>
   );
 }

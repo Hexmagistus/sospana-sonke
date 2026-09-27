@@ -12,6 +12,7 @@ import PolicyConsent from "@/components/PolicyConsent";
 import MentionPopup from "@/components/MentionPopup";
 import PwaExtras from "@/components/PwaExtras";
 import CopyGuard from "@/components/CopyGuard";
+import PhotoWash from "@/components/PhotoWash";
 import { SITE_URL, SITE_NAME, SITE_TAGLINE, SITE_DESCRIPTION, SITE_KEYWORDS } from "@/lib/seo";
 
 const spaceGrotesk = Space_Grotesk({
@@ -134,7 +135,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ThemeProvider>
           <AuthProvider>
             <Nav />
-            <main id="main-content" className="mx-auto max-w-6xl px-4 py-6 pb-24 md:pb-6">
+            <main id="main-content" className="relative z-0 mx-auto max-w-6xl px-4 py-6 pb-24 md:pb-6">
+              <PhotoWash />
               {children}
             </main>
             <footer className="mx-auto max-w-6xl px-4 pb-28 pt-8 md:pb-12">

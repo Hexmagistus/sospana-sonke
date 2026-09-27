@@ -51,7 +51,7 @@ function MatchDetailInner() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold">{m.vacancy_title}</h1>
-        <p className="text-gray-500">{m.company_name}</p>
+        <p className="text-ss-muted">{m.company_name}</p>
       </div>
       {msg && <Alert kind="success">{msg}</Alert>}
       {err && <Alert kind="error">{err}</Alert>}
@@ -60,7 +60,7 @@ function MatchDetailInner() {
         <span className="text-4xl font-bold">{Math.round(m.score)}%</span>
         <Badge>{m.band}</Badge>
         <Badge>{m.decision}</Badge>
-        <span className="text-sm text-gray-500">Confidence: {m.confidence}</span>
+        <span className="text-sm text-ss-muted">Confidence: {m.confidence}</span>
         {!m.hard_ok && <Badge>Hard requirement unmet</Badge>}
       </div>
 
@@ -69,13 +69,13 @@ function MatchDetailInner() {
           <h2 className="mb-3 font-semibold text-green-700">Why you match</h2>
           {m.reasons.length ? (
             <ul className="list-disc space-y-1 pl-5 text-sm">{m.reasons.map((r, i) => <li key={i}>{r}</li>)}</ul>
-          ) : <p className="text-sm text-gray-400">—</p>}
+          ) : <p className="text-sm text-ss-muted">—</p>}
         </Card>
         <Card>
           <h2 className="mb-3 font-semibold text-orange-700">Gaps to be aware of</h2>
           {m.gaps.length ? (
             <ul className="list-disc space-y-1 pl-5 text-sm">{m.gaps.map((g, i) => <li key={i}>{g}</li>)}</ul>
-          ) : <p className="text-sm text-gray-400">None flagged.</p>}
+          ) : <p className="text-sm text-ss-muted">None flagged.</p>}
         </Card>
       </div>
 
@@ -83,8 +83,8 @@ function MatchDetailInner() {
         <h2 className="mb-3 font-semibold">Score breakdown</h2>
         <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
           {Object.entries(m.sub_scores).map(([k, v]) => (
-            <div key={k} className="rounded-lg bg-gray-50 px-3 py-2 text-sm">
-              <div className="capitalize text-gray-500">{k}</div>
+            <div key={k} className="rounded-lg bg-ss-surface px-3 py-2 text-sm">
+              <div className="capitalize text-ss-muted">{k}</div>
               <div className="font-semibold">{Math.round(v)}%</div>
             </div>
           ))}
@@ -134,8 +134,8 @@ function PrepList({ title, items }: { title: string; items: string[] }) {
   if (!items?.length) return null;
   return (
     <div>
-      <div className="mb-1 font-medium text-gray-700">{title}</div>
-      <ul className="list-disc space-y-1 pl-5 text-gray-600">
+      <div className="mb-1 font-medium text-ss-text">{title}</div>
+      <ul className="list-disc space-y-1 pl-5 text-ss-muted">
         {items.map((x, i) => <li key={i}>{x}</li>)}
       </ul>
     </div>

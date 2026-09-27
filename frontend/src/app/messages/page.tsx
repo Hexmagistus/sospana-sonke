@@ -166,7 +166,7 @@ function MessagesInner() {
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="font-semibold text-ss-text">
                     {m.direction === "in" ? "From" : "To"} {m.other_name}
-                    {m.direction === "in" && !m.read && <span className="ml-2 rounded-full bg-gold px-2 py-0.5 text-[10px] font-bold text-navy">NEW</span>}
+                    {m.direction === "in" && !m.read && <span className="ml-2 rounded-full bg-gold px-2 py-0.5 text-[10px] font-bold text-ss-text">NEW</span>}
                   </div>
                   <span className="ss-hud-tag text-[11px] text-ss-muted">⏳ {timeLeft(m.expires_at)}</span>
                 </div>

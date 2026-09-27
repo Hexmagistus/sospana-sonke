@@ -53,13 +53,13 @@ function Row({ app, onChange }: { app: JobAnalysisSummary; onChange: (a: JobAnal
     <Card>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <Link href={`/tailor/applications/${app.id}`} className="font-semibold text-navy hover:underline">
+          <Link href={`/tailor/applications/${app.id}`} className="font-semibold text-ss-text hover:underline">
             {app.job_title}
           </Link>
-          <div className="text-sm text-gray-500">{app.company_name || "Company not specified"}</div>
+          <div className="text-sm text-ss-muted">{app.company_name || "Company not specified"}</div>
         </div>
         <div className="flex items-center gap-3">
-          <span className="text-sm text-gray-500">Match {Math.round(app.match_score)}%</span>
+          <span className="text-sm text-ss-muted">Match {Math.round(app.match_score)}%</span>
           <Badge>{STATUS_LABEL[app.status] || app.status}</Badge>
           <Button size="sm" variant="ghost" onClick={() => setOpen((v) => !v)}>{open ? "Close" : "Update"}</Button>
           <Button size="sm" variant="danger" onClick={remove}>Remove</Button>
@@ -105,8 +105,8 @@ function ApplicationsInner() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-navy">My job applications</h1>
-          <p className="text-gray-500">Every job you&apos;ve analysed and tailored a CV for, in one place.</p>
+          <h1 className="text-2xl font-bold text-ss-text">My job applications</h1>
+          <p className="text-ss-muted">Every job you&apos;ve analysed and tailored a CV for, in one place.</p>
         </div>
         <Link href="/tailor"><Button variant="ghost">+ Tailor for a new job</Button></Link>
       </div>
@@ -116,7 +116,7 @@ function ApplicationsInner() {
         <Spinner />
       ) : apps.length === 0 ? (
         <Card>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-ss-muted">
             No jobs analysed yet. Head to <Link href="/tailor" className="text-brand hover:underline">Build my job-aligned CV</Link> to get started.
           </p>
         </Card>

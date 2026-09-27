@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth";
@@ -43,15 +44,26 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="relative mx-auto mt-10 max-w-md">
-      <CircuitOverlay className="-z-10 opacity-70" opacity={0.1} stroke="#0b1f3a" dotColor="#f5b301" />
+    <div className="relative -mx-4 -mt-6 overflow-hidden px-4 pb-16 pt-10 sm:pt-14">
+      <Image
+        src="/photos/cape-town-mountain.jpg"
+        alt=""
+        fill
+        priority
+        sizes="100vw"
+        className="object-cover object-[center_30%]"
+      />
+      <div className="auth-stage-scrim absolute inset-0" />
+      <div className="pointer-events-none absolute inset-0 bg-noise opacity-20 mix-blend-overlay" />
+      <div className="relative mx-auto max-w-md">
+      <CircuitOverlay className="-z-10 opacity-40" opacity={0.12} stroke="#f5b301" dotColor="#f5b301" />
       <NdebeleStrip id="ndebele-register-top" glow className="mb-6 overflow-hidden rounded-t-xl shadow-sm" />
       <LogoGlow className="mx-auto mb-4 block w-fit">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/logo-mark.png" alt="Sospana Sonke" className="h-24 w-24 rounded-2xl object-cover shadow-[0_0_44px_-4px_var(--ss-primary-glow)] ring-1 ring-ss-primary/30" />
       </LogoGlow>
       <h1 className="animate-gradient-text mb-1 bg-gradient-to-r from-[#22d3ee] via-[#f5b301] to-[#a78bfa] bg-clip-text text-center text-4xl font-extrabold text-transparent [filter:drop-shadow(0_0_16px_rgba(245,179,1,0.45))]">Create your account</h1>
-      <p className="mb-5 text-center text-base font-medium text-ss-text">Free forever. Takes about 60 seconds. Your future self says thanks. 🚀</p>
+      <p className="mb-5 text-center text-base font-medium text-blue-100">Free forever. Takes about 60 seconds. Your future self says thanks. 🚀</p>
       <div className="mb-6">
         <Alert kind="info">
           First sign-in taking a while? That&apos;s just our server being woken up (or occasionally updated)
@@ -128,6 +140,7 @@ export default function RegisterPage() {
         </Card>
       </GlowFrame>
       <NdebeleStrip id="ndebele-register-bottom" flip glow className="mt-6 overflow-hidden rounded-b-xl shadow-sm" />
+      </div>
     </div>
   );
 }

@@ -75,7 +75,7 @@ function CompaniesInner() {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="text-left text-gray-500">
+              <thead className="text-left text-ss-muted">
                 <tr>
                   <th className="py-2">Company</th>
                   <th>Type</th>
@@ -87,10 +87,10 @@ function CompaniesInner() {
               <tbody>
                 {filtered.slice(0, 200).map((c) => (
                   <tr key={c.id} className="border-t border-gray-100">
-                    <td className="py-2 font-medium">{c.company_name} {c.jse_code && <span className="text-gray-400">({c.jse_code})</span>}</td>
+                    <td className="py-2 font-medium">{c.company_name} {c.jse_code && <span className="text-ss-muted">({c.jse_code})</span>}</td>
                     <td><Badge>{c.source_type}</Badge></td>
-                    <td className="text-gray-600">{c.scraping_status}</td>
-                    <td className="max-w-[16rem] truncate text-gray-500">
+                    <td className="text-ss-muted">{c.scraping_status}</td>
+                    <td className="max-w-[16rem] truncate text-ss-muted">
                       {c.careers_url ? <a href={c.careers_url} target="_blank" rel="noreferrer" className="text-brand hover:underline">{c.careers_url}</a> : "—"}
                     </td>
                     <td className="text-right">
@@ -102,7 +102,7 @@ function CompaniesInner() {
                 ))}
               </tbody>
             </table>
-            {filtered.length > 200 && <p className="mt-2 text-xs text-gray-400">Showing first 200. Refine your search to see more.</p>}
+            {filtered.length > 200 && <p className="mt-2 text-xs text-ss-muted">Showing first 200. Refine your search to see more.</p>}
           </div>
         )}
       </Card>

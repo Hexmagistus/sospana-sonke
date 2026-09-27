@@ -38,14 +38,14 @@ export function CompanyPreviewModal({
         role="dialog"
         aria-modal="true"
         aria-label={`${company.company_name} preview`}
-        className="max-h-[85vh] w-full max-w-md overflow-y-auto rounded-2xl bg-white p-6 shadow-xl"
+        className="max-h-[85vh] w-full max-w-md overflow-y-auto rounded-2xl bg-ss-surface p-6 shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between gap-3">
           <div>
-            <div className="text-lg font-bold text-navy">{company.company_name}</div>
+            <div className="text-lg font-bold text-ss-text">{company.company_name}</div>
             {company.country && (
-              <div className="mt-0.5 text-sm text-gray-500">
+              <div className="mt-0.5 text-sm text-ss-muted">
                 {COUNTRY_FLAGS[company.country] || "🌍"} {company.country}
               </div>
             )}
@@ -53,7 +53,7 @@ export function CompanyPreviewModal({
           <button
             onClick={onClose}
             aria-label="Close"
-            className="rounded-full p-1.5 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600"
+            className="rounded-full p-1.5 text-ss-muted transition hover:bg-ss-primary-soft hover:text-ss-muted"
           >
             ✕
           </button>
@@ -64,7 +64,7 @@ export function CompanyPreviewModal({
             {openJobs} open position{openJobs === 1 ? "" : "s"}
           </p>
         )}
-        {company.notes && <p className="mt-2 text-sm text-gray-600">{company.notes}</p>}
+        {company.notes && <p className="mt-2 text-sm text-ss-muted">{company.notes}</p>}
 
         <div className="mt-4">
           {company.careers_url ? (
@@ -72,7 +72,7 @@ export function CompanyPreviewModal({
               <Button>View jobs →</Button>
             </a>
           ) : (
-            <span className="text-xs text-gray-400">No careers page yet</span>
+            <span className="text-xs text-ss-muted">No careers page yet</span>
           )}
         </div>
 

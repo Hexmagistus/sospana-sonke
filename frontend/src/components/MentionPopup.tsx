@@ -32,18 +32,18 @@ export default function MentionPopup() {
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-navy/40 p-4 backdrop-blur-sm">
       <div role="dialog" aria-modal="true" aria-label="You were tagged"
-        className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
+        className="w-full max-w-sm rounded-2xl bg-ss-surface p-6 shadow-xl">
         <div className="text-2xl" aria-hidden="true">🔔</div>
-        <h2 className="mt-1 text-lg font-bold text-navy">You were tagged!</h2>
-        <p className="mt-2 text-sm font-medium text-gray-800">{first.title}</p>
-        {first.body && <p className="mt-1 break-words text-sm text-gray-600">“{first.body}”</p>}
-        {notes.length > 1 && <p className="mt-2 text-xs text-gray-500">+{notes.length - 1} more tag{notes.length > 2 ? "s" : ""} in your notifications.</p>}
+        <h2 className="mt-1 text-lg font-bold text-ss-text">You were tagged!</h2>
+        <p className="mt-2 text-sm font-medium text-ss-text">{first.title}</p>
+        {first.body && <p className="mt-1 break-words text-sm text-ss-muted">“{first.body}”</p>}
+        {notes.length > 1 && <p className="mt-2 text-xs text-ss-muted">+{notes.length - 1} more tag{notes.length > 2 ? "s" : ""} in your notifications.</p>}
         <div className="mt-4 flex gap-2">
           {first.link_url && (
             <Link href={first.link_url} onClick={dismiss}
               className="rounded-lg bg-navy px-3 py-2 text-sm font-semibold text-white">View</Link>
           )}
-          <button onClick={dismiss} className="rounded-lg bg-gray-100 px-3 py-2 text-sm font-semibold text-gray-700">Got it</button>
+          <button onClick={dismiss} className="rounded-lg bg-ss-primary-soft px-3 py-2 text-sm font-semibold text-ss-text">Got it</button>
         </div>
       </div>
     </div>
