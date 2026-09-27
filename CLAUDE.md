@@ -49,6 +49,9 @@ commit it (and push, if you pushed the rest of your work). Newest entry on top.
 
 ## Session Log
 
+### 2026-09-27 (login contrast) — Cursor (Grok 4.7) — Readable sign-in note, centred logo
+The info note on `/login` used navy text (`#0b2447`) on a 5% sky wash, so on the dark photograph it failed contrast at 390px and on desktop. The logo sat on the left of that column because `LogoGlow` is `inline-block`, which cancelled `mx-auto`. Same pair of issues on `/register`. The note is now light text on a 92% navy-blue panel (measured above WCAG AA), and the logo is centred with the title. Other alerts are unchanged.
+
 ### 2026-09-27 (scrape audit) — Cursor (Grok 4.7) — Public job feeds, 15-minute scan, source health
 Lungani asked to fix scraping and keep vacancies as close to real time as free tools allow. Branch `cursor/realtime-scrape-audit-240c` off `main` at `308cd25` (PR #3). No Chromium, no paid tiers.
 
