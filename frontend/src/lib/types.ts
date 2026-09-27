@@ -32,6 +32,7 @@ export interface Dashboard {
   applications_awaiting_action: number;
   interviews: number;
   offers: number;
+  listings_updated_at?: string | null;
   // A one-line personalized nudge to complete the profile, referencing the
   // candidate's own "Preferred post"/"Name of qualification" registration
   // answers -- null once they've engaged with their profile.

@@ -10,7 +10,7 @@ from __future__ import annotations
 import re
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from urllib.parse import urlparse
+from urllib.parse import parse_qs, urlparse
 
 import httpx
 
@@ -53,14 +53,26 @@ def detect_ats(url: str) -> tuple[str, dict]:
     host = (urlparse(url).hostname or "").lower()
     if "greenhouse.io" in host:
         return "greenhouse", {"token": _token_from_path(url)}
-    if "lever.co" in host:
-        return "lever", {"token": _token_from_path(url)}
+    # Match the registrable host, not a substring. "unilever.com" contains
+    # the letters "lever.co" and must not be treated as a Lever board.
+    if host == "lever.co" or host.endswith(".lever.co"):
+        api_base = "https://api.eu.lever.co" if host.endswith(".eu.lever.co") else "https://api.lever.co"
+        return "lever", {"token": _token_from_path(url), "api_base": api_base}
     if "smartrecruiters.com" in host:
-        # careers.smartrecruiters.com/{Company} or {Company}.smartrecruiters.com
+        # careers.smartrecruiters.com/{Company} or {Company}.smartrecruiters.com.
+        # A later path segment such as /south-africa is a country filter the
+        # public API understands as country=za. Without it the global board
+        # (thousands of jobs) is what comes back.
         token = _token_from_path(url)
         if host.endswith("smartrecruiters.com") and host not in ("careers.smartrecruiters.com", "www.smartrecruiters.com", "api.smartrecruiters.com"):
             token = host.split(".")[0]
-        return "smartrecruiters", {"token": token}
+        config = {"token": token}
+        for part in urlparse(url).path.strip("/").split("/"):
+            iso = _SR_COUNTRY.get(part.lower())
+            if iso:
+                config["country"] = iso
+                break
+        return "smartrecruiters", config
     if "recruitee.com" in host:
         # {subdomain}.recruitee.com -- the subdomain is also the API token.
         token = host.split(".")[0] if host not in ("recruitee.com", "www.recruitee.com") else None
@@ -72,11 +84,68 @@ def detect_ats(url: str) -> tuple[str, dict]:
                 "apply.workable.com", "www.workable.com", "workable.com"):
             token = host.split(".")[0]
         return "workable", {"token": token}
-    # JavaScript-rendered ATSs (need a headless browser to read).
-    if any(h in host for h in ("myworkdayjobs.com", "workday", "successfactors",
-                               "oraclecloud.com", "taleo.net", "jobs.jobvite.com")):
+    workday = _detect_workday(host, url)
+    if workday is not None:
+        return workday
+    oracle = _detect_oracle(host, url)
+    if oracle is not None:
+        return oracle
+    if host.endswith(".breezy.hr"):
+        return "breezy", {"token": host.split(".")[0]}
+    if host.endswith(".pinpointhq.com"):
+        return "pinpoint", {"host": host}
+    # Still need a browser: SuccessFactors, Taleo, Jobvite, generic Workday
+    # hosts that aren't the public candidate site. Render's free plan cannot
+    # run Chromium, so these stay empty unless JS_RENDER_ENABLED is on.
+    if any(h in host for h in ("successfactors", "taleo.net", "jobs.jobvite.com", "myworkday")):
         return "js", {}
     return "static", {}
+
+
+# Path slugs on careers.smartrecruiters.com that the public API can filter.
+_SR_COUNTRY = {"south-africa": "za"}
+
+
+def _workday_facets(url: str) -> dict:
+    """Country facet the career site already put on the URL. Sending it keeps
+    a Malawi board from importing the employer's whole global list."""
+    values = parse_qs(urlparse(url).query).get("locationCountry") or []
+    return {"locationCountry": values} if values else {}
+
+
+def _detect_workday(host: str, url: str) -> tuple[str, dict] | None:
+    """Public Workday CXS boards: {tenant}.wdN.myworkdayjobs.com/{site}."""
+    path = [p for p in urlparse(url).path.split("/") if p and not re.fullmatch(r"[a-z]{2}-[A-Za-z]{2}", p)]
+    facets = _workday_facets(url)
+    if host.endswith(".myworkdayjobs.com"):
+        tenant = host.split(".")[0]
+        site = path[0] if path else None
+        if tenant and site:
+            config = {"tenant": tenant, "site": site, "host": host}
+            if facets:
+                config["facets"] = facets
+            return "workday", config
+    if "myworkdaysite.com" in host and len(path) >= 3 and path[0] == "recruiting":
+        config = {"tenant": path[1], "site": path[2], "host": host}
+        if facets:
+            config["facets"] = facets
+        return "workday", config
+    return None
+
+
+def _detect_oracle(host: str, url: str) -> tuple[str, dict] | None:
+    """Oracle Recruiting Cloud candidate sites. The public requisition API
+    is what the career site itself calls; siteNumber CX is the default board
+    on a dedicated host, CX_N when the path names one."""
+    if "oraclecloud.com" not in host or "CandidateExperience" not in url:
+        return None
+    match = re.search(r"/sites/([^/?#]+)", url)
+    site_name = match.group(1) if match else None
+    if site_name and re.fullmatch(r"CX_\d+", site_name):
+        site_number = site_name
+    else:
+        site_number = "CX"
+    return "oracle", {"host": host, "site_number": site_number, "site_name": site_name}
 
 
 def get_strategy(ats_type: str) -> ScrapeStrategy:
@@ -85,6 +154,10 @@ def get_strategy(ats_type: str) -> ScrapeStrategy:
     from app.scraper.smartrecruiters import SmartRecruitersStrategy
     from app.scraper.recruitee import RecruiteeStrategy
     from app.scraper.workable import WorkableStrategy
+    from app.scraper.workday import WorkdayStrategy
+    from app.scraper.oracle_ce import OracleCEStrategy
+    from app.scraper.breezy import BreezyStrategy
+    from app.scraper.pinpoint import PinpointStrategy
     from app.scraper.static_html import StaticHTMLStrategy
     from app.scraper.rendered_html import RenderedHTMLStrategy
     return {
@@ -93,6 +166,10 @@ def get_strategy(ats_type: str) -> ScrapeStrategy:
         "smartrecruiters": SmartRecruitersStrategy(),
         "recruitee": RecruiteeStrategy(),
         "workable": WorkableStrategy(),
+        "workday": WorkdayStrategy(),
+        "oracle": OracleCEStrategy(),
+        "breezy": BreezyStrategy(),
+        "pinpoint": PinpointStrategy(),
         "static": StaticHTMLStrategy(),
         "js": RenderedHTMLStrategy(),
     }.get(ats_type, StaticHTMLStrategy())

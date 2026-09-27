@@ -14,7 +14,8 @@ class LeverStrategy(ScrapeStrategy):
         token = (source.config or {}).get("token")
         if not token:
             raise ValueError("Lever source is missing a company token.")
-        resp = request_with_backoff(client, f"https://api.lever.co/v0/postings/{token}?mode=json")
+        api_base = (source.config or {}).get("api_base") or "https://api.lever.co"
+        resp = request_with_backoff(client, f"{api_base}/v0/postings/{token}?mode=json")
         resp.raise_for_status()
         out: list[RawVacancy] = []
         for p in resp.json():

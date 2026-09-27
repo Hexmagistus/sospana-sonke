@@ -16,7 +16,15 @@ function DashboardInner() {
   const [err, setErr] = useState("");
 
   useEffect(() => {
-    api.get<Dashboard>("/dashboard").then(setData).catch((e) => setErr(e.message));
+    let cancelled = false;
+    const load = () => {
+      api.get<Dashboard>("/dashboard")
+        .then((d) => { if (!cancelled) setData(d); })
+        .catch((e) => { if (!cancelled) setErr(e.message); });
+    };
+    load();
+    const timer = window.setInterval(load, 60_000);
+    return () => { cancelled = true; window.clearInterval(timer); };
   }, []);
 
   const firstName = user?.first_name || "there";
@@ -29,7 +37,7 @@ function DashboardInner() {
         title={`Welcome back, ${firstName} 👋`}
         subtitle={
           data
-            ? `${data.vacancies_open.toLocaleString()} open vacancies are being matched against your profile right now.`
+            ? `${data.vacancies_open.toLocaleString()} open vacancies are being matched against your profile right now.${data.listings_updated_at ? ` Listings last confirmed ${data.listings_updated_at.slice(0, 16).replace("T", " ")} UTC.` : ""}`
             : "Here's where things stand across your matches, CVs and applications."
         }
       >

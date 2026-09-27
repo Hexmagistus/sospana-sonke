@@ -75,8 +75,8 @@ def scan_south_africa(db: Session, job_run_id: str | None = None) -> dict:
     return scan_all_companies(db, job_run_id=job_run_id, country="South Africa")
 
 
-def scan_due_companies(db: Session, limit: int = 60, job_run_id: str | None = None,
-                       max_seconds: float = 240.0) -> dict:
+def scan_due_companies(db: Session, limit: int = 40, job_run_id: str | None = None,
+                       max_seconds: float = 70.0) -> dict:
     """Scan the N companies checked longest ago (never-checked first), then stamp
     them so the next run picks up the following batch.
 
@@ -112,16 +112,14 @@ def scan_due_companies(db: Session, limit: int = 60, job_run_id: str | None = No
     trigger for a mass email anyway; a full/manual sweep (scan_all_companies)
     is a more sensible place for that broadcast.
     """
-    companies = (db.query(Company)
-                 .filter(Company.active.is_(True), Company.deleted_at.is_(None),
-                         Company.careers_url.isnot(None))
-                 # NULL last_checked (never scanned) first, then oldest — DB-portable.
-                 .order_by(Company.last_checked.is_(None).desc(), Company.last_checked.asc())
-                 .limit(limit)
-                 .all())
+    # Same priority as the parallel runner: never-scanned and public JSON
+    # boards first, and failing URLs back off instead of being retried every tick.
+    from app.services.scan_runner import select_due_company_ids
+    now = datetime.now(timezone.utc)
+    ids = select_due_company_ids(db, limit, now)
+    companies = [c for cid in ids if (c := db.get(Company, cid)) is not None]
     scanned = created = failed = 0
     new_vacancy_ids: list[str] = []
-    now = datetime.now(timezone.utc)
     started = time.monotonic()
     timed_out = False
     for company in companies:

@@ -88,6 +88,8 @@ def candidate_dashboard(db: Session, user: User) -> dict:
         "applications_awaiting_action": app_count(*_AWAITING),
         "interviews": app_count("INTERVIEW"),
         "offers": app_count("OFFER"),
+        "listings_updated_at": (db.query(func.max(Vacancy.last_seen_at))
+                                .filter(Vacancy.is_open.is_(True)).scalar()),
         "profile_nudge": _profile_nudge(db, user),
     }
 

@@ -79,6 +79,12 @@ def scan_source(db: Session, source: VacancySource, client: httpx.Client | None 
                 db.commit()
                 return report
 
+        # Re-classify on every scan so a URL that moved onto a public JSON
+        # feed (Workday, Oracle, Breezy, …) is not stuck on an old "js" or
+        # "static" label from the day the source row was created.
+        ats_type, config = detect_ats(source.url)
+        source.ats_type = ats_type
+        source.config = config
         strategy = get_strategy(source.ats_type)
         try:
             raw_list = strategy.fetch(source, client)

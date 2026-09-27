@@ -1,23 +1,29 @@
 name: Scan careers pages
 
-# Runs the parallel scanner directly on the GitHub runner against the production
-# database (no Render gateway timeout, headless Chromium available for
-# JS-rendered careers pages). Requires repository secret DATABASE_URL (the Neon
-# connection string, same value as on Render).
+# Asks the Render API to scan the next batch of careers pages and to close
+# listings whose own closing date has passed. The runner never talks to the
+# database, so GitHub does not need DATABASE_URL and does not install Chromium.
+# Render's free plan cannot run a browser either; JS_RENDER_ENABLED stays off.
+#
+# GitHub's cron is best-effort. A */15 schedule can slip by minutes, and a
+# cold Render instance can take about a minute to wake. A public JSON board
+# is scanned again about an hour after its last success. Ordinary HTML pages
+# wait about six hours. The first pass of the directory is slower because
+# each call only has about 70 seconds of work.
+#
+# ONE-TIME SETUP — the same secret in both places:
+#   1. Render dashboard → sospana-sonke-api → Environment →
+#      CRON_SECRET = a long random string
+#   2. GitHub → Settings → Secrets and variables → Actions →
+#      New repository secret → name CRON_SECRET, the same value
+# This job fails on purpose until that secret exists. The API returns 404
+# when CRON_SECRET is unset on Render, and 401 when the two values differ.
 
 on:
   schedule:
-    - cron: "0 * * * *"      # hourly (UTC); GitHub may delay or skip some runs
-  workflow_dispatch:
-    inputs:
-      limit:
-        description: "Max companies to scan"
-        default: "400"
-      workers:
-        description: "Concurrent scans"
-        default: "8"
+    - cron: "*/15 * * * *"
+  workflow_dispatch: {}
 
-# Never let two scans overlap and fight over the same rows.
 concurrency:
   group: careers-scan
   cancel-in-progress: false
@@ -25,36 +31,44 @@ concurrency:
 jobs:
   scan:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
-    defaults:
-      run:
-        working-directory: backend
+    timeout-minutes: 8
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-          cache: pip
-          cache-dependency-path: backend/requirements.txt
-
-      - name: Install dependencies
-        run: pip install -r requirements.txt
-
-      - name: Install headless Chromium (for JS-rendered careers pages)
-        run: python -m playwright install --with-deps chromium
-
-      - name: Scan due companies
+      - name: Require CRON_SECRET
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          JS_RENDER_ENABLED: "true"
-          URL_TEST_TIMEOUT_SECONDS: "8"
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
         run: |
-          if [ -z "$DATABASE_URL" ]; then
-            echo "DATABASE_URL repo secret is not set - add it in Settings > Secrets and variables > Actions."
+          if [ -z "$CRON_SECRET" ]; then
+            echo "::error::CRON_SECRET is not set on this repository."
+            echo "Add it under GitHub → Settings → Secrets and variables → Actions."
+            echo "Use the same value as Render → sospana-sonke-api → Environment → CRON_SECRET."
+            echo "The scanner calls the API. It does not need a DATABASE_URL secret in GitHub."
             exit 1
           fi
-          python scripts/run_scan.py \
-            --limit "${{ github.event.inputs.limit || '400' }}" \
-            --workers "${{ github.event.inputs.workers || '8' }}" \
-            --max-seconds 2400
+
+      - name: Wake the API (Render free tier sleeps when idle)
+        run: |
+          curl -sS --max-time 90 -o /dev/null -w "wake status=%{http_code} time=%{time_total}s\n" \
+            https://sospana-sonke-api.onrender.com/health || echo "Wake timed out; the next step still tries."
+          sleep 5
+
+      - name: Scan the next batch and close expired listings
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          fail=0
+          for job in scan_due_companies close_expired_vacancies; do
+            code=$(curl -sS -o "resp-$job.json" -w "%{http_code}" --max-time 100 \
+              -X POST "https://sospana-sonke-api.onrender.com/api/v1/cron/run/$job" \
+              -H "X-Cron-Secret: $CRON_SECRET" || echo "000")
+            echo "$job HTTP $code"
+            cat "resp-$job.json" 2>/dev/null || true
+            echo
+            if [ "$code" != "200" ]; then
+              echo "::error::$job returned HTTP $code."
+              echo "404 means CRON_SECRET is unset on Render (sospana-sonke-api → Environment)."
+              echo "401 means the GitHub Actions secret does not match the Render value."
+              echo "000 means the request timed out while the free instance was waking; the next 15-minute run retries."
+              fail=1
+            fi
+          done
+          exit $fail

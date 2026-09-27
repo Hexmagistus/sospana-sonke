@@ -1,12 +1,26 @@
 """Parser tests against saved sample payloads (offline, via httpx.MockTransport)."""
+import json
+from pathlib import Path
+
 import httpx
 
 from app.scraper.base import detect_ats, html_to_text
+from app.scraper.breezy import BreezyStrategy
 from app.scraper.greenhouse import GreenhouseStrategy
 from app.scraper.lever import LeverStrategy
+from app.scraper.oracle_ce import OracleCEStrategy
+from app.scraper.pinpoint import PinpointStrategy
 from app.scraper.recruitee import RecruiteeStrategy
+from app.scraper.smartrecruiters import SmartRecruitersStrategy
 from app.scraper.workable import WorkableStrategy
+from app.scraper.workday import WorkdayStrategy
 from app.scraper.static_html import StaticHTMLStrategy
+
+_FIXTURES = Path(__file__).parent / "fixtures" / "scraper"
+
+
+def _fixture(name: str) -> str:
+    return (_FIXTURES / name).read_text(encoding="utf-8")
 
 
 class _Src:
@@ -28,6 +42,22 @@ def test_detect_ats():
     assert detect_ats("https://apply.workable.com/acme-inc/")[0] == "workable"
     assert detect_ats("https://apply.workable.com/acme-inc/")[1]["token"] == "acme-inc"
     assert detect_ats("https://www.goldfields.com/careers/")[0] == "static"
+    assert detect_ats("https://job-boards.greenhouse.io/takealotcom")[1]["token"] == "takealotcom"
+    eu = detect_ats("https://jobs.eu.lever.co/prosus")
+    assert eu[0] == "lever" and eu[1]["api_base"] == "https://api.eu.lever.co"
+    assert detect_ats("https://careers.unilever.com/en/south-africa")[0] == "static"
+    assert detect_ats("https://www.unilever.com.gh/careers")[0] == "static"
+    wd = detect_ats("https://absa.wd3.myworkdayjobs.com/ABSAcareersite")
+    assert wd[0] == "workday" and wd[1]["tenant"] == "absa" and wd[1]["site"] == "ABSAcareersite"
+    site = detect_ats("https://wd1.myworkdaysite.com/recruiting/abinbev/SAB")
+    assert site[0] == "workday" and site[1]["tenant"] == "abinbev" and site[1]["site"] == "SAB"
+    ora = detect_ats("https://fa-etyi-saasfaprod1.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/MrPriceGroupCareers/jobs")
+    assert ora[0] == "oracle" and ora[1]["site_number"] == "CX" and ora[1]["site_name"] == "MrPriceGroupCareers"
+    cx = detect_ats("https://iaccgs.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1/jobs")
+    assert cx[1]["site_number"] == "CX_1"
+    assert detect_ats("https://isuzu.breezy.hr/")[0] == "breezy"
+    assert detect_ats("https://kempinski.pinpointhq.com/postings")[0] == "pinpoint"
+    assert detect_ats("https://career5.successfactors.eu/careers")[0] == "js"
 
 
 def test_html_to_text_preserves_bullets():
@@ -146,3 +176,132 @@ def test_static_jsonld_parser():
 
 def test_static_parser_no_jsonld_returns_empty():
     assert StaticHTMLStrategy().parse_html("<html><body>No jobs here</body></html>") == []
+
+
+def test_workday_parser_posts_cxs():
+    payload = json.loads(_fixture("workday.json"))
+
+    def handler(request: httpx.Request):
+        assert request.method == "POST"
+        assert request.url.path == "/wday/cxs/absa/ABSAcareersite/jobs"
+        body = json.loads(request.content)
+        assert body["offset"] == 0 and body["limit"] == 20 and body["appliedFacets"] == {}
+        return httpx.Response(200, json=payload)
+
+    src = _Src("https://absa.wd3.myworkdayjobs.com/ABSAcareersite", "workday", {
+        "tenant": "absa", "site": "ABSAcareersite", "host": "absa.wd3.myworkdayjobs.com",
+    })
+    with _client(handler) as c:
+        vacs = WorkdayStrategy().fetch(src, c)
+    assert [v.title for v in vacs] == ["Account Manager", "Credit Analyst"]
+    assert vacs[0].location == "Johannesburg"
+    assert vacs[0].application_url.endswith("/ABSAcareersite/job/Johannesburg/Account-Manager_R1")
+
+
+def test_workday_sends_country_facet_from_the_url():
+    detected = detect_ats(
+        "https://worldvision.wd1.myworkdayjobs.com/WorldVisionInternational?locationCountry=db69cf96446c11de98360015c5e6daf6"
+    )
+    assert detected[1]["facets"]["locationCountry"] == ["db69cf96446c11de98360015c5e6daf6"]
+    payload = json.loads(_fixture("workday.json"))
+    payload["total"] = 1
+    payload["jobPostings"] = payload["jobPostings"][:1]
+
+    def handler(request: httpx.Request):
+        body = json.loads(request.content)
+        assert body["appliedFacets"]["locationCountry"] == ["db69cf96446c11de98360015c5e6daf6"]
+        return httpx.Response(200, json=payload)
+
+    src = _Src("https://worldvision.wd1.myworkdayjobs.com/WorldVisionInternational", "workday", detected[1])
+    with _client(handler) as c:
+        vacs = WorkdayStrategy().fetch(src, c)
+    assert vacs[0].title == "Account Manager"
+
+
+def test_oracle_parser_keeps_finder_commas():
+    payload = json.loads(_fixture("oracle.json"))
+    seen: list[str] = []
+
+    def handler(request: httpx.Request):
+        seen.append(str(request.url))
+        return httpx.Response(200, json=payload)
+
+    src = _Src(
+        "https://fa.example.oraclecloud.com/hcmUI/CandidateExperience/en/sites/MrPriceGroupCareers/jobs",
+        "oracle",
+        {"host": "fa.example.oraclecloud.com", "site_number": "CX", "site_name": "MrPriceGroupCareers"},
+    )
+    with _client(handler) as c:
+        vacs = OracleCEStrategy().fetch(src, c)
+    assert "siteNumber=CX,limit=25,offset=0" in seen[0]
+    assert "%2C" not in seen[0]
+    assert vacs[0].title == "Financial Manager"
+    assert vacs[0].location == "Durban, South Africa"
+    assert vacs[0].closing_date == "2026-10-01"
+    assert vacs[0].application_url.endswith("/sites/MrPriceGroupCareers/job/300000123")
+
+
+def test_breezy_parser():
+    payload = json.loads(_fixture("breezy.json"))
+
+    def handler(request: httpx.Request):
+        assert request.url.path == "/json"
+        return httpx.Response(200, json=payload)
+
+    src = _Src("https://isuzu.breezy.hr/", "breezy", {"token": "isuzu"})
+    with _client(handler) as c:
+        vacs = BreezyStrategy().fetch(src, c)
+    assert vacs[0].title == "Area Manager"
+    assert vacs[0].location == "Gqeberha"
+    assert vacs[0].employment_type == "Full-Time"
+    assert vacs[0].external_id == "a1b2"
+
+
+def test_pinpoint_parser_clips_description():
+    payload = json.loads(_fixture("pinpoint.json"))
+    payload["data"][0]["description"] = "<p>" + ("word " * 2000) + "</p>"
+
+    def handler(request: httpx.Request):
+        assert request.url.path == "/postings.json"
+        return httpx.Response(200, json=payload)
+
+    src = _Src("https://kempinski.pinpointhq.com/", "pinpoint", {"host": "kempinski.pinpointhq.com"})
+    with _client(handler) as c:
+        vacs = PinpointStrategy().fetch(src, c)
+    assert vacs[0].title == "Chef de Partie"
+    assert vacs[0].closing_date == "2026-12-01T00:00:00Z"
+    assert len(vacs[0].description) <= 4000
+    assert vacs[0].raw == {"id": 9, "title": "Chef de Partie"}
+
+
+def test_smartrecruiters_reads_saved_page():
+    payload = json.loads(_fixture("smartrecruiters-page.json"))
+
+    def handler(request: httpx.Request):
+        assert "offset=0" in str(request.url)
+        assert "country=" not in str(request.url)
+        return httpx.Response(200, json=payload)
+
+    src = _Src("https://careers.smartrecruiters.com/OUTsurance", "smartrecruiters", {"token": "OUTsurance"})
+    with _client(handler) as c:
+        vacs = SmartRecruitersStrategy().fetch(src, c)
+    assert vacs[0].title == "Life Sales Advisor"
+    assert vacs[0].location == "Pretoria, South Africa"
+    bosch = detect_ats("https://careers.smartrecruiters.com/BoschGroup/south-africa")
+    assert bosch[1]["token"] == "BoschGroup" and bosch[1]["country"] == "za"
+
+
+def test_static_html_follows_rss_when_the_page_has_no_jobs():
+    page = _fixture("careers-with-feed.html")
+    feed = _fixture("jobs-feed.xml")
+
+    def handler(request: httpx.Request):
+        if request.url.path.endswith("feed.xml"):
+            return httpx.Response(200, text=feed, headers={"content-type": "application/rss+xml"})
+        return httpx.Response(200, text=page)
+
+    src = _Src("https://example.co.za/careers", "static", {})
+    with _client(handler) as c:
+        vacs = StaticHTMLStrategy().fetch(src, c)
+    assert [v.title for v in vacs] == ["Workshop Technician", "Graduate Intern"]
+    assert vacs[0].application_url == "https://example.co.za/jobs/workshop-technician"
