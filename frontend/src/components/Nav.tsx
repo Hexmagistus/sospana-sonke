@@ -125,9 +125,9 @@ export default function Nav() {
   return (
     <nav className="sticky top-0 z-30 border-b border-white/10 bg-gradient-to-r from-[#071528]/95 via-navy/92 to-brand-dark/90 shadow-[0_16px_40px_-24px_rgba(0,0,0,0.8)] backdrop-blur-xl">
       <div className="mx-auto flex w-full max-w-6xl items-center gap-1 px-4 py-2.5">
-        <Link href="/companies" className="mr-3 flex items-center gap-2 whitespace-nowrap">
+        <Link href="/companies" className="mr-3 flex shrink-0 items-center gap-2 whitespace-nowrap">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo-mark.png" alt="Sospana Sonke" className="h-9 w-9 rounded-xl object-cover shadow-[0_0_22px_-2px_var(--ss-primary-glow)] ring-1 ring-gold/50" />
+          <img src="/logo-mark.png" alt="Sospana Sonke" className="block h-9 w-9 max-w-none shrink-0 aspect-square rounded-xl object-cover shadow-[0_0_22px_-2px_var(--ss-primary-glow)] ring-1 ring-gold/50" />
           <span className="font-bold text-white">Sospana&nbsp;Sonke</span>
         </Link>
 
