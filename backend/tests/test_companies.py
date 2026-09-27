@@ -140,3 +140,23 @@ def test_import_marks_researched_links_live_and_keeps_tester_verdict(db):
     import_companies_from_csv(db, first.encode())
     db.expire_all()
     assert db.query(Company).filter(Company.company_name == "Fallback Co").one().scraping_status == "ok"
+
+
+def test_import_keeps_same_name_in_different_countries(db):
+    """A blank later row in one country must not wipe the verified URL of the
+    same employer name in another country."""
+    from app.models.company import Company
+    from app.services.csv_import import import_companies_from_csv
+
+    head = "company_name,jse_code,careers_url,careers_status,scraping_status,active,country,source_type\n"
+    body = head + (
+        "Human Resource Development Council (HRDC),,https://www.hrdc.org.bw/vacancies,green_verified,pending,true,Botswana,SETA\n"
+        "Human Resource Development Council (HRDC),,,grey_none_verified,no_url,true,Mauritius,SETA\n"
+    )
+    result = import_companies_from_csv(db, body.encode())
+    assert result.created == 2
+    rows = db.query(Company).filter(Company.company_name.startswith("Human Resource")).all()
+    by_country = {c.country: c for c in rows}
+    assert set(by_country) == {"Botswana", "Mauritius"}
+    assert by_country["Botswana"].careers_url == "https://www.hrdc.org.bw/vacancies"
+    assert by_country["Mauritius"].careers_url is None

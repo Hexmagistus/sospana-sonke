@@ -7,7 +7,6 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth";
 import { Card, Field, Input, Button, Alert } from "@/components/ui";
 import { WhatsAppChannelButton } from "@/components/WhatsAppChannel";
-import { NdebeleStrip } from "@/components/NdebeleStrip";
 import { CircuitOverlay, GlowFrame, LogoGlow } from "@/components/HighTech";
 
 export default function RegisterPage() {
@@ -57,7 +56,6 @@ export default function RegisterPage() {
       <div className="pointer-events-none absolute inset-0 bg-noise opacity-20 mix-blend-overlay" />
       <div className="relative mx-auto max-w-md">
       <CircuitOverlay className="-z-10 opacity-40" opacity={0.12} stroke="#f5b301" dotColor="#f5b301" />
-      <NdebeleStrip id="ndebele-register-top" glow className="mb-6 overflow-hidden rounded-t-xl shadow-sm" />
       <LogoGlow className="mx-auto mb-4 block w-fit">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/logo-mark.png" alt="Sospana Sonke" className="block h-24 w-24 max-w-none shrink-0 aspect-square rounded-2xl object-cover shadow-[0_0_44px_-4px_var(--ss-primary-glow)] ring-1 ring-ss-primary/30" />
@@ -139,7 +137,6 @@ export default function RegisterPage() {
           </p>
         </Card>
       </GlowFrame>
-      <NdebeleStrip id="ndebele-register-bottom" flip glow className="mt-6 overflow-hidden rounded-b-xl shadow-sm" />
       </div>
     </div>
   );

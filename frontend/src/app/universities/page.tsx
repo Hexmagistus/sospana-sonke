@@ -7,7 +7,6 @@ import Guard from "@/components/Guard";
 import { api } from "@/lib/api";
 import { Card, Input, Button, Alert, Spinner, Select, EmptyState } from "@/components/ui";
 import { Banner } from "@/components/Banner";
-import { NdebeleStrip } from "@/components/NdebeleStrip";
 import { CompanyLogo, isAtsPortal } from "@/components/CompanyLogo";
 import { CompanyActionsRow, TrendingBadge, ShortlistStar } from "@/components/CompanyActions";
 import { TipPreview } from "@/components/TipPreview";
@@ -158,7 +157,6 @@ function UniversitiesDirectoryInner() {
 
       <div className="relative z-10 space-y-6">
         <div className="overflow-hidden rounded-2xl shadow-sm">
-          <NdebeleStrip id="universities-hero-top" palette="vivid" />
           <Banner
             variant="companies"
             eyebrow="Direct to institutions"
@@ -173,7 +171,6 @@ function UniversitiesDirectoryInner() {
           >
             <Button variant="secondary" onClick={surpriseMe}>🎲 Surprise me</Button>
           </Banner>
-          <NdebeleStrip id="universities-hero-bottom" palette="vivid" flip />
         </div>
 
         <div className="flex items-center gap-4 rounded-2xl border border-ss-border bg-ss-glass px-5 py-4 shadow-sm backdrop-blur-sm">

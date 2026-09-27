@@ -8,8 +8,11 @@ from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 
+from starlette.middleware.gzip import GZipMiddleware
+
 from app.core.config import settings
 from app.core.logging import configure_logging
+from app.core.origins import VERCEL_ORIGIN_REGEX
 from app.core.rate_limit import limiter
 from app.db.session import init_db
 from app.api import (
@@ -68,9 +71,10 @@ def create_app() -> FastAPI:
     app.add_middleware(
         CORSMiddleware,
         allow_origins=origins,
-        # Always allow this project's Vercel site and its preview deployments,
-        # so the frontend works even if CORS_ORIGINS is unset or mistyped.
-        allow_origin_regex=r"https://sospana-sonke[a-z0-9-]*\.vercel\.app",
+        # Production alias plus this team's Vercel previews. End-anchored on
+        # purpose: Starlette matches with re.match, which does not require the
+        # pattern to consume the whole origin. See app/core/origins.py.
+        allow_origin_regex=VERCEL_ORIGIN_REGEX,
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
@@ -163,6 +167,11 @@ def create_app() -> FastAPI:
     app.include_router(routes_messages.router, prefix=settings.API_V1_PREFIX)
     app.include_router(routes_account.router, prefix=settings.API_V1_PREFIX)
     app.include_router(routes_comments.router, prefix=settings.API_V1_PREFIX)
+
+    # Outermost user middleware (last add_middleware is wrapped latest). Compresses
+    # JSON directory payloads. /health and other tiny bodies stay plain: the
+    # default floor is 500 bytes, which the keep-warm ping wants uncompressed.
+    app.add_middleware(GZipMiddleware, minimum_size=500)
     return app
 
 

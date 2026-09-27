@@ -134,9 +134,8 @@ function CursorGlow({ color = "rgba(245,179,1,0.28)" }: { color?: string }) {
   );
 }
 
-/* Faint circuit-board / network-mesh overlay -- the hightech layer that sits
-   quietly behind the platform's existing Ndebele patterns and savanna art,
-   fusing "connecting talent to opportunity" with a sensor-grid aesthetic. */
+/* Faint circuit-board / network-mesh overlay. It sits behind the photographs
+   and the gold/navy brand, quiet enough that the picture still reads. */
 function CircuitOverlay({ className = "", opacity = 0.16 }: { className?: string; opacity?: number }) {
   const nodes: [number, number][] = [
     [30, 26], [130, 14], [220, 42], [66, 84], [182, 96], [274, 62],
@@ -288,45 +287,6 @@ function GreetingsMarquee() {
   );
 }
 
-function NdebeleStripe({ id }: { id: string }) {
-  return (
-    <svg className="block w-full" height={16} preserveAspectRatio="none" aria-hidden="true">
-      <defs>
-        <pattern id={id} width="88" height="16" patternUnits="userSpaceOnUse">
-          <rect width="88" height="16" fill="#0b0b0b" />
-          <rect x="1" y="1" width="20" height="14" fill={C.red} />
-          <rect x="23" y="1" width="20" height="14" fill={C.gold} />
-          <rect x="45" y="1" width="20" height="14" fill={C.green} />
-          <rect x="67" y="1" width="20" height="14" fill={C.sky} />
-          <path d="M1 1 L11 8 L21 1 Z" fill="#0b0b0b" />
-          <path d="M45 15 L55 8 L65 15 Z" fill="#0b0b0b" />
-          <path d="M23 15 L33 8 L43 15 Z" fill="#fff" opacity="0.85" />
-          <path d="M67 1 L77 8 L87 1 Z" fill="#fff" opacity="0.85" />
-        </pattern>
-      </defs>
-      <rect width="100%" height="16" fill={`url(#${id})`} />
-    </svg>
-  );
-}
-
-// Ndebele-inspired diamond band used as a section divider.
-function NdebeleDiamonds({ id }: { id: string }) {
-  return (
-    <svg className="block w-full" height={22} preserveAspectRatio="none" aria-hidden="true">
-      <defs>
-        <pattern id={id} width="60" height="22" patternUnits="userSpaceOnUse">
-          <rect width="60" height="22" fill={C.navy} />
-          <path d="M15 1 L29 11 L15 21 L1 11 Z" fill={C.gold} stroke="#0b0b0b" strokeWidth="1.5" />
-          <path d="M45 1 L59 11 L45 21 L31 11 Z" fill={C.red} stroke="#0b0b0b" strokeWidth="1.5" />
-          <path d="M15 6 L24 11 L15 16 L6 11 Z" fill={C.green} />
-          <path d="M45 6 L54 11 L45 16 L36 11 Z" fill={C.sky} />
-        </pattern>
-      </defs>
-      <rect width="100%" height="22" fill={`url(#${id})`} />
-    </svg>
-  );
-}
-
 const GREETINGS = [
   ["Sawubona", C.red], ["Molo", C.sky], ["Dumela", C.green],
   ["Lotjhani", C.gold], ["Avuxeni", C.plum], ["Ndaa", C.sun], ["Hello", C.teal],
@@ -334,29 +294,25 @@ const GREETINGS = [
 
 const VALUES = ["Ambition", "Opportunity", "Dignity", "Ubuntu", "Hustle", "Growth", "Pride", "Your future"];
 
-// Employer counts are the real, current active-row counts from the company
-// database (backend/seed/company_database_import.csv), recomputed 2026-09-24
-// after merging the REST of backend/seed/countries/*.csv (DEPT/SOE/NGO/
-// PRIVATE/MUNI/UNI -- 1,374 rows) into the main seed file, on top of the
-// COLLEGE-only merge done earlier the same day. Every country's directory is
-// now more than "just a single flagship entry", so `pending` is false across
-// the board -- kept as a field (not removed) in case a country's data is ever
-// pulled back out. Counts merge a few inconsistent country-name spellings in
-// the seed CSV (Cote dIvoire/Côte d'Ivoire/Ivory Coast, Cabo Verde/Cape Verde,
-// Congo/Republic of Congo, Sao Tome and Principe/São Tomé and Príncipe) --
-// worth normalising those spellings in the CSV itself at some point.
+// Employer counts are seed-row totals per country from
+// backend/seed/company_database_import.csv (every row, not only active=true),
+// recomputed 2026-09-27 after dropping four duplicate keys (SASSETA, NTA, and
+// the two HRDC rows that shared a name across countries) and normalising
+// country spellings in the CSV itself (Côte d'Ivoire, Cabo Verde, Congo,
+// Sao Tome and Principe). `pending` stays false — kept as a field in case a
+// country's data is ever pulled back out.
 const LIVE = [
-  { name: "South Africa", flag: "🇿🇦", count: 975, pending: false },
+  { name: "South Africa", flag: "🇿🇦", count: 974, pending: false },
   { name: "Zimbabwe", flag: "🇿🇼", count: 197, pending: false },
   { name: "Nigeria", flag: "🇳🇬", count: 141, pending: false },
-  { name: "Botswana", flag: "🇧🇼", count: 147, pending: false },
+  { name: "Botswana", flag: "🇧🇼", count: 146, pending: false },
   { name: "Eswatini", flag: "🇸🇿", count: 128, pending: false },
-  { name: "Namibia", flag: "🇳🇦", count: 134, pending: false },
+  { name: "Namibia", flag: "🇳🇦", count: 133, pending: false },
   { name: "Mozambique", flag: "🇲🇿", count: 119, pending: false },
   { name: "Kenya", flag: "🇰🇪", count: 112, pending: false },
   { name: "Zambia", flag: "🇿🇲", count: 111, pending: false },
   { name: "Tanzania", flag: "🇹🇿", count: 109, pending: false },
-  { name: "Mauritius", flag: "🇲🇺", count: 101, pending: false },
+  { name: "Mauritius", flag: "🇲🇺", count: 100, pending: false },
   { name: "DR Congo", flag: "🇨🇩", count: 100, pending: false },
   { name: "Angola", flag: "🇦🇴", count: 90, pending: false },
   { name: "Malawi", flag: "🇲🇼", count: 88, pending: false },
@@ -614,34 +570,32 @@ export default function Home() {
 
   return (
     <div className="landing -mx-4 -my-6" style={{ background: C.cream }}>
-      <NdebeleStripe id="nd-top" />
-
       {/* Header */}
       <header
         className={`sticky top-0 z-50 transition-all duration-300 ${scrolled ? "border-b border-black/5 bg-[#faf6ee]/85 shadow-sm backdrop-blur-md" : ""}`}
       >
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
-          <div className="flex min-w-0 items-center gap-3">
-            <div className="relative h-10 w-10 shrink-0">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-3 py-3 sm:px-4 sm:py-4">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="relative h-9 w-9 shrink-0 sm:h-10 sm:w-10">
               <div
                 className="absolute inset-0 -z-10 animate-pulse-glow rounded-xl blur-md"
                 style={{ background: C.gold, opacity: 0.45 }}
                 aria-hidden="true"
               />
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/logo-mark.png" alt="Sospana Sonke" className="block h-10 w-10 max-w-none shrink-0 aspect-square rounded-xl object-cover shadow-md" />
+              <img src="/logo-mark.png" alt="" className="block h-9 w-9 max-w-none shrink-0 aspect-square rounded-xl object-cover shadow-md sm:h-10 sm:w-10" />
             </div>
-            <span className="min-w-0 truncate font-display text-xl font-bold tracking-tight" style={{ color: C.navy }}>
+            <span className="whitespace-nowrap font-display text-[0.95rem] font-bold tracking-tight sm:text-xl" style={{ color: C.navy }}>
               Sospana&nbsp;<span style={{ color: C.gold }}>Sonke</span>
             </span>
           </div>
-          <div className="flex shrink-0 items-center gap-2">
-            <Link href="/login" className="rounded-xl px-4 py-2 text-sm font-semibold transition hover:bg-black/5" style={{ color: C.navy }}>
+          <div className="flex shrink-0 items-center gap-1 sm:gap-2">
+            <Link href="/login" className="rounded-xl px-2 py-2 text-[13px] font-semibold transition hover:bg-black/5 sm:px-4 sm:text-sm" style={{ color: C.navy }}>
               Log in
             </Link>
             <Link
               href="/register"
-              className="rounded-xl px-4 py-2 text-sm font-bold text-white shadow-sm transition hover:brightness-110"
+              className="whitespace-nowrap rounded-xl px-2.5 py-2 text-[13px] font-bold text-white shadow-sm transition hover:brightness-110 sm:px-4 sm:text-sm"
               style={{ background: C.navy }}
             >
               Get started
@@ -663,9 +617,9 @@ export default function Home() {
           />
           <div
             className="absolute inset-0"
-            style={{ background: `linear-gradient(105deg, ${C.ink}f0 0%, ${C.navy}d0 42%, rgba(11,31,58,0.45) 100%)` }}
+            style={{ background: "linear-gradient(105deg, rgba(7,21,40,0.72) 0%, rgba(11,31,58,0.38) 46%, rgba(11,31,58,0.12) 100%)" }}
           />
-          <CircuitOverlay className="opacity-50" opacity={0.12} />
+          <CircuitOverlay className="opacity-25" opacity={0.08} />
           <div
             className="pointer-events-none absolute inset-x-0 top-0 h-28 animate-scan-sweep"
             style={{ background: `linear-gradient(180deg, transparent, ${C.mint}2e, transparent)` }}
@@ -675,11 +629,11 @@ export default function Home() {
           {/* decorative orbs */}
           <div
             className="pointer-events-none absolute -right-16 -top-24 h-80 w-80 animate-float-slow rounded-full blur-3xl"
-            style={{ background: "radial-gradient(circle at 30% 30%,#ffcf5a,#ff7a1a)", opacity: 0.5 }}
+            style={{ background: "radial-gradient(circle at 30% 30%,#ffcf5a,#ff7a1a)", opacity: 0.22 }}
           />
           <div
             className="pointer-events-none absolute -bottom-24 -left-16 h-72 w-72 animate-float rounded-full blur-3xl"
-            style={{ background: `radial-gradient(circle at 40% 40%,${C.mint},${C.teal})`, opacity: 0.28 }}
+            style={{ background: `radial-gradient(circle at 40% 40%,${C.mint},${C.teal})`, opacity: 0.16 }}
           />
           <div className="pointer-events-none absolute inset-0 bg-noise opacity-[0.05]" />
           <div
@@ -703,7 +657,7 @@ export default function Home() {
               </Reveal>
 
               <Reveal delay={160}>
-                <h1 className="mt-6 font-display text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-6xl">
+                <h1 className="mt-6 font-display text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-6xl" style={{ textShadow: "0 2px 24px rgba(7,21,40,0.55)" }}>
                   Where talent meets
                   <br />
                   <span className="animate-gradient-text bg-clip-text text-transparent" style={{ backgroundImage: `linear-gradient(90deg,${C.gold},${C.sun},${C.amber},${C.gold})` }}>
@@ -903,8 +857,7 @@ export default function Home() {
 
       {/* Wonders of Africa */}
       <section className="mx-auto max-w-6xl px-4">
-        <NdebeleDiamonds id="nd-wonders-top" />
-        <div className="relative overflow-hidden px-6 py-12 text-white shadow-xl sm:px-12" style={{ background: `linear-gradient(135deg,${C.ink},#123a2b 60%,#1d5a3a)` }}>
+        <div className="relative overflow-hidden rounded-[2rem] px-6 py-12 text-white shadow-xl sm:px-12" style={{ background: `linear-gradient(135deg,${C.ink},#123a2b 60%,#1d5a3a)` }}>
           <div className="pointer-events-none absolute inset-0 bg-noise opacity-[0.05]" />
           <CircuitOverlay className="opacity-50" opacity={0.12} />
           <div
@@ -952,7 +905,6 @@ export default function Home() {
             ))}
           </div>
         </div>
-        <NdebeleDiamonds id="nd-wonders-bottom" />
       </section>
 
       {/* SADC region */}
@@ -1106,7 +1058,6 @@ export default function Home() {
         </Reveal>
       </section>
 
-      <NdebeleStripe id="nd-bottom" />
       <footer className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-4 py-8 text-sm text-gray-500">
         <span>© 2026 Sospana Sonke · Southern Africa</span>
         <div className="flex items-center gap-4">

@@ -6,7 +6,6 @@ import Guard from "@/components/Guard";
 import { api } from "@/lib/api";
 import { Card, Alert } from "@/components/ui";
 import { Banner } from "@/components/Banner";
-import { NdebeleStrip } from "@/components/NdebeleStrip";
 import { FunSpinner } from "@/components/FunSpinner";
 import { AnimatedNumber } from "@/components/AnimatedNumber";
 import { COUNTRY_FLAGS } from "@/lib/countryFlags";
@@ -52,7 +51,6 @@ function CoverageInner() {
   return (
     <div className="space-y-6">
       <div className="overflow-hidden rounded-2xl shadow-sm">
-        <NdebeleStrip id="coverage-hero-top" palette="vivid" />
         <Banner
           variant="companies"
           eyebrow="How complete is this, honestly"
@@ -66,7 +64,6 @@ function CoverageInner() {
             </>
           }
         />
-        <NdebeleStrip id="coverage-hero-bottom" palette="vivid" flip />
       </div>
 
       <Alert kind="info">

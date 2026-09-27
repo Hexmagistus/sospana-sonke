@@ -44,6 +44,7 @@ def init_db() -> None:
     from app import models  # noqa: F401  (ensures models are registered)
     Base.metadata.create_all(bind=engine)
     _add_new_columns()
+    _ensure_indexes()
 
 
 # Base.metadata.create_all() above only creates TABLES that don't exist yet — it
@@ -101,3 +102,26 @@ def _add_new_columns() -> None:
                 "sync with the models; writes touching this column may fail.",
                 table, column, ddl_type,
             )
+
+
+# create_all() does not add indexes to tables that already exist in production.
+# These are additive CREATE INDEX IF NOT EXISTS statements (sqlite and postgres
+# both support that), so a boot never rewrites or locks out existing rows.
+# They cover the directory filters (country + category, soft-delete) and the
+# vacancy list's open/closing-date sweep.
+_INDEXES: list[tuple[str, str, str]] = [
+    ("ix_companies_country_type", "companies", "country, source_type"),
+    ("ix_companies_deleted_at", "companies", "deleted_at"),
+    ("ix_vacancies_open_closing", "vacancies", "is_open, closing_date"),
+]
+
+
+def _ensure_indexes() -> None:
+    from sqlalchemy import text
+
+    for name, table, columns in _INDEXES:
+        try:
+            with engine.begin() as conn:
+                conn.execute(text(f"CREATE INDEX IF NOT EXISTS {name} ON {table} ({columns})"))
+        except Exception:
+            logger.exception("Failed to create index %s on %s; queries still run, just slower.", name, table)

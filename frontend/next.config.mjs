@@ -44,6 +44,13 @@ const nextConfig = {
         source: "/:path*",
         headers: securityHeaders,
       },
+      {
+        // Landmark photos are replaced rarely and are the heaviest bytes on
+        // the landing page. A week of shared caching avoids re-downloading
+        // them on every visit without pinning a swapped file for a year.
+        source: "/photos/:path*",
+        headers: [{ key: "Cache-Control", value: "public, max-age=604800, stale-while-revalidate=86400" }],
+      },
     ];
   },
 };

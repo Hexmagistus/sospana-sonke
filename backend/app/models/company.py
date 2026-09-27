@@ -6,7 +6,7 @@ the vacancy discovery engine. Careers URLs are validated by the URL tester
 """
 from datetime import datetime
 
-from sqlalchemy import String, Boolean, DateTime, Text
+from sqlalchemy import String, Boolean, DateTime, Text, Index
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base import Base, UUIDMixin, TimestampMixin
@@ -14,6 +14,10 @@ from app.db.base import Base, UUIDMixin, TimestampMixin
 
 class Company(UUIDMixin, TimestampMixin, Base):
     __tablename__ = "companies"
+    __table_args__ = (
+        Index("ix_companies_country_type", "country", "source_type"),
+        Index("ix_companies_deleted_at", "deleted_at"),
+    )
 
     company_name: Mapped[str] = mapped_column(String(255), index=True, nullable=False)
     jse_code: Mapped[str | None] = mapped_column(String(20), index=True, nullable=True)

@@ -4,7 +4,6 @@ import { useState } from "react";
 import Link from "next/link";
 import { Card, Button, Input, Textarea, Field, Alert } from "@/components/ui";
 import { api, ApiError } from "@/lib/api";
-import { NdebeleStrip } from "@/components/NdebeleStrip";
 import { CircuitOverlay, GlowFrame } from "@/components/HighTech";
 
 const PRESET_AMOUNTS = [20, 50, 100] as const;
@@ -53,7 +52,6 @@ export default function DonatePage() {
   return (
     <div className="relative mx-auto max-w-xl space-y-5">
       <CircuitOverlay className="-z-10 opacity-70" opacity={0.1} stroke="#0b1f3a" dotColor="#f5b301" />
-      <NdebeleStrip id="ndebele-donate-top" glow className="overflow-hidden rounded-xl shadow-sm" />
       <div>
         <h1 className="text-2xl font-bold text-ss-text">Help keep Sospana Sonke free</h1>
         <p className="mt-1.5 text-sm text-ss-muted">
@@ -169,8 +167,6 @@ export default function DonatePage() {
           Please use &quot;Sospana Sonke donation&quot; as your payment reference.
         </p>
       </Card>
-
-      <NdebeleStrip id="ndebele-donate-bottom" flip glow className="overflow-hidden rounded-xl shadow-sm" />
 
       <p className="text-center text-sm">
         <Link href="/companies" className="text-brand hover:underline">← Back to Sospana Sonke</Link>

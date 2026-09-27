@@ -7,7 +7,6 @@ import Guard from "@/components/Guard";
 import { api } from "@/lib/api";
 import { Card, Input, Button, Alert, Spinner, Select, EmptyState } from "@/components/ui";
 import { Banner } from "@/components/Banner";
-import { NdebeleStrip } from "@/components/NdebeleStrip";
 import { CircuitOverlay, GlowFrame } from "@/components/HighTech";
 import { CompanyLogo, isAtsPortal } from "@/components/CompanyLogo";
 import { CompanyActionsRow, TrendingBadge, ShortlistStar } from "@/components/CompanyActions";
@@ -323,7 +322,6 @@ function CompaniesDirectoryInner() {
       <div className="relative z-10 space-y-6">
         <PendingSearchBanner />
         <div className="overflow-hidden rounded-2xl shadow-sm">
-          <NdebeleStrip id="companies-hero-top" palette="vivid" glow />
           <Banner
             variant="companies"
             eyebrow="Direct to employers"
@@ -338,7 +336,6 @@ function CompaniesDirectoryInner() {
           >
             <Button variant="secondary" glow onClick={surpriseMe}>🎲 Surprise me</Button>
           </Banner>
-          <NdebeleStrip id="companies-hero-bottom" palette="vivid" flip glow />
         </div>
 
         <div className="ss-hud-card flex items-center gap-4 rounded-2xl border border-ss-border bg-ss-glass px-5 py-4 shadow-sm backdrop-blur-sm">
