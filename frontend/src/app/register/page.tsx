@@ -56,14 +56,16 @@ export default function RegisterPage() {
       <div className="pointer-events-none absolute inset-0 bg-noise opacity-20 mix-blend-overlay" />
       <div className="relative mx-auto max-w-md">
       <CircuitOverlay className="-z-10 opacity-40" opacity={0.12} stroke="#f5b301" dotColor="#f5b301" />
-      <LogoGlow className="mx-auto mb-4 block w-fit">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/logo-mark.png" alt="Sospana Sonke" className="block h-24 w-24 max-w-none shrink-0 aspect-square rounded-2xl object-cover shadow-[0_0_44px_-4px_var(--ss-primary-glow)] ring-1 ring-ss-primary/30" />
-      </LogoGlow>
+      <div className="mb-4 flex justify-center">
+        <LogoGlow>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo-mark.png" alt="Sospana Sonke" className="block h-24 w-24 max-w-none shrink-0 aspect-square rounded-2xl object-cover shadow-[0_0_44px_-4px_var(--ss-primary-glow)] ring-1 ring-ss-primary/30" />
+        </LogoGlow>
+      </div>
       <h1 className="animate-gradient-text mb-1 bg-gradient-to-r from-[#22d3ee] via-[#f5b301] to-[#a78bfa] bg-clip-text text-center text-4xl font-extrabold text-transparent [filter:drop-shadow(0_0_16px_rgba(245,179,1,0.45))]">Create your account</h1>
       <p className="mb-5 text-center text-base font-medium text-blue-100">Free forever. Takes about 60 seconds. Your future self says thanks. 🚀</p>
       <div className="mb-6">
-        <Alert kind="info">
+        <Alert kind="info" onPhoto>
           First sign-in taking a while? That&apos;s just our server being woken up (or occasionally updated)
           behind the scenes — it can take a minute or two, not a sign anything&apos;s wrong.
         </Alert>

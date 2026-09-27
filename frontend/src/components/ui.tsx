@@ -243,8 +243,30 @@ const ALERT_STYLE: Record<"info" | "error" | "success", { cls: string; icon: Rea
   },
 };
 
-export function Alert({ kind = "info", children }: { kind?: "info" | "error" | "success"; children: ReactNode }) {
-  const { cls, icon } = ALERT_STYLE[kind];
+const PHOTO_INFO = {
+  // Sits on the dark login photograph. The default info alert is 5% sky
+  // over navy text, which disappears on that photo. This fill is opaque
+  // enough that #f4f8ff stays above WCAG AA (4.5:1) even if the photo
+  // behind the panel is white.
+  cls: "border-[rgba(126,200,255,0.75)] bg-[rgba(7,26,51,0.92)] text-[#f4f8ff]",
+  icon: (
+    <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 flex-none text-[#9ad7ff]" aria-hidden="true">
+      <path fillRule="evenodd" d="M18 10A8 8 0 11 2 10a8 8 0 0116 0zM9 9a1 1 0 012 0v4a1 1 0 11-2 0V9zm1-4a1.25 1.25 0 100 2.5A1.25 1.25 0 0010 5z" clipRule="evenodd" />
+    </svg>
+  ),
+};
+
+export function Alert({
+  kind = "info",
+  onPhoto = false,
+  children,
+}: {
+  kind?: "info" | "error" | "success";
+  /** Light text on a blue glass panel, for alerts laid over a dark photograph. */
+  onPhoto?: boolean;
+  children: ReactNode;
+}) {
+  const { cls, icon } = onPhoto && kind === "info" ? PHOTO_INFO : ALERT_STYLE[kind];
   return (
     <div className={`flex items-start gap-2.5 rounded-xl border px-4 py-3 text-sm leading-relaxed ${cls}`}>
       {icon}
