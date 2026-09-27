@@ -47,9 +47,11 @@ export function CircuitOverlay({
   );
 }
 
-/** Slow-rotating tri-colour holo-frame -- wraps a panel in a thin conic-gradient
-    ring (gold -> green -> red -> sky, the platform's palette) for a hightech,
-    "powered on" edge-glow. The wrapped child supplies its own background. */
+/** Slow-rotating tri-colour holo-frame -- a thin conic-gradient ring
+    (gold -> green -> red -> sky). The spin is clipped to the frame so a
+    rotated corner cannot cover neighbouring text, and a solid surface sits
+    behind the child so a glass card cannot show the ring through inputs.
+    Reduced motion turns the spin off. */
 export function GlowFrame({
   children,
   className = "",
@@ -62,13 +64,13 @@ export function GlowFrame({
   ringClassName?: string;
 }) {
   return (
-    <div className={`relative p-[2px] ${ringClassName} ${className}`}>
+    <div className={`relative isolate overflow-hidden p-[2px] ${ringClassName} ${className}`}>
       <div
-        className={`absolute inset-0 animate-spin-slow ${ringClassName}`}
+        className={`pointer-events-none absolute inset-0 motion-reduce:animate-none animate-spin-slow ${ringClassName}`}
         style={{ background: `conic-gradient(from 0deg, ${colors.join(",")})`, opacity: 0.8 }}
         aria-hidden="true"
       />
-      <div className={`relative ${ringClassName}`}>{children}</div>
+      <div className={`relative z-10 bg-ss-surface ${ringClassName}`}>{children}</div>
     </div>
   );
 }

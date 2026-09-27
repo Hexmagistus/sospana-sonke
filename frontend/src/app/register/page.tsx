@@ -60,7 +60,7 @@ export default function RegisterPage() {
       <NdebeleStrip id="ndebele-register-top" glow className="mb-6 overflow-hidden rounded-t-xl shadow-sm" />
       <LogoGlow className="mx-auto mb-4 block w-fit">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/logo-mark.png" alt="Sospana Sonke" className="h-24 w-24 rounded-2xl object-cover shadow-[0_0_44px_-4px_var(--ss-primary-glow)] ring-1 ring-ss-primary/30" />
+        <img src="/logo-mark.png" alt="Sospana Sonke" className="block h-24 w-24 max-w-none shrink-0 aspect-square rounded-2xl object-cover shadow-[0_0_44px_-4px_var(--ss-primary-glow)] ring-1 ring-ss-primary/30" />
       </LogoGlow>
       <h1 className="animate-gradient-text mb-1 bg-gradient-to-r from-[#22d3ee] via-[#f5b301] to-[#a78bfa] bg-clip-text text-center text-4xl font-extrabold text-transparent [filter:drop-shadow(0_0_16px_rgba(245,179,1,0.45))]">Create your account</h1>
       <p className="mb-5 text-center text-base font-medium text-blue-100">Free forever. Takes about 60 seconds. Your future self says thanks. 🚀</p>

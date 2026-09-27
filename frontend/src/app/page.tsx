@@ -179,13 +179,13 @@ function GlowFrame({
   ringClassName?: string;
 }) {
   return (
-    <div className={`relative p-[2px] ${ringClassName} ${className}`}>
+    <div className={`relative isolate overflow-hidden p-[2px] ${ringClassName} ${className}`}>
       <div
-        className={`absolute inset-0 animate-spin-slow ${ringClassName}`}
+        className={`pointer-events-none absolute inset-0 motion-reduce:animate-none animate-spin-slow ${ringClassName}`}
         style={{ background: `conic-gradient(from 0deg, ${colors.join(",")})`, opacity: 0.8 }}
         aria-hidden="true"
       />
-      <div className={`relative ${ringClassName}`}>{children}</div>
+      <div className={`relative z-10 ${ringClassName}`}>{children}</div>
     </div>
   );
 }
@@ -421,12 +421,12 @@ const TOTAL_EMPLOYERS = LIVE.reduce((sum, c) => sum + c.count, 0);
 const WONDERS: { name: string; place: string; art: ReactNode; photo?: string; alt?: string }[] = [
   {
     name: "Table Mountain", place: "South Africa",
-    photo: "/photos/cape-town-mountain.jpg", alt: "Table Mountain above Cape Town at golden hour",
+    photo: "/photos/cape-town-mountain.jpg", alt: "Table Mountain above the Cape Town city bowl, seen from Signal Hill",
     art: (<><path d="M6 40 L14 24 L40 24 L46 30 L58 30 L66 40 Z" fill="none" stroke={C.gold} strokeWidth="2.5" strokeLinejoin="round" /><line x1="6" y1="40" x2="66" y2="40" stroke={C.gold} strokeWidth="2.5" /></>),
   },
   {
     name: "Victoria Falls", place: "Zim / Zambia",
-    photo: "/photos/victoria-falls.jpg", alt: "Victoria Falls",
+    photo: "/photos/victoria-falls.jpg", alt: "Victoria Falls, on the Zimbabwe–Zambia border",
     art: (<><path d="M8 16 L64 16 L64 22 L8 22 Z" fill="none" stroke={C.mint} strokeWidth="2.5" /><g stroke={C.mint} strokeWidth="2" strokeLinecap="round"><line x1="16" y1="24" x2="16" y2="42" /><line x1="26" y1="24" x2="26" y2="44" /><line x1="36" y1="24" x2="36" y2="41" /><line x1="46" y1="24" x2="46" y2="44" /><line x1="56" y1="24" x2="56" y2="42" /></g></>),
   },
   {
@@ -446,7 +446,7 @@ const WONDERS: { name: string; place: string; art: ReactNode; photo?: string; al
   },
   {
     name: "The Serengeti", place: "East Africa",
-    photo: "/photos/serengeti.jpg", alt: "An acacia tree on the East African savanna",
+    photo: "/photos/serengeti.jpg", alt: "An acacia tree on the Kenyan savanna",
     art: (<><circle cx="52" cy="18" r="8" fill={C.sun} /><path d="M12 40 C20 30 26 30 34 34 C38 36 40 30 40 26 M34 34 C34 40 34 40 34 42 M40 30 C44 30 48 32 50 40 M30 34 L30 42 M22 33 L22 42" fill="none" stroke={C.gold} strokeWidth="2.2" strokeLinecap="round" /><line x1="6" y1="42" x2="66" y2="42" stroke={C.gold} strokeWidth="2.5" /></>),
   },
   {
@@ -455,24 +455,27 @@ const WONDERS: { name: string; place: string; art: ReactNode; photo?: string; al
   },
   {
     name: "Okavango Delta", place: "Botswana",
+    photo: "/photos/okavango.jpg", alt: "Aerial view of the Okavango Delta in Botswana",
     art: (<><g stroke={C.sky} strokeWidth="2.2" fill="none" strokeLinecap="round"><path d="M8 40 C22 36 26 30 36 28 C46 26 52 20 64 14" /><path d="M36 28 C40 34 46 36 58 36" /><path d="M26 31 C28 37 30 40 30 44" /></g><path d="M14 22 C16 18 20 18 22 22 C20 24 16 24 14 22 Z" fill={C.green} /></>),
   },
   {
     name: "Namib Dunes", place: "Namibia",
-    photo: "/photos/namib.jpg", alt: "Red dunes in warm desert light",
+    photo: "/photos/namib.jpg", alt: "Deadvlei and the dunes of Sossusvlei, Namibia",
     art: (<><circle cx="20" cy="17" r="7" fill={C.sun} /><path d="M6 44 C20 30 34 40 44 32 C54 24 62 30 66 34 L66 44 Z" fill="none" stroke={C.gold} strokeWidth="2.5" strokeLinejoin="round" /></>),
   },
   {
     name: "Lake Malawi", place: "Malawi",
+    photo: "/photos/lake-malawi.jpg", alt: "Sunset over Lake Malawi",
     art: (<><g stroke={C.mint} strokeWidth="2.2" fill="none" strokeLinecap="round"><path d="M8 18 Q16 13 24 18 T40 18 T56 18 T64 18" /><path d="M8 28 Q16 23 24 28 T40 28 T56 28 T64 28" /></g><path d="M28 40 C32 36 42 36 46 40 C42 44 32 44 28 40 Z M46 40 L52 36 L52 44 Z" fill={C.sky} /></>),
   },
   {
     name: "The Nile", place: "North-East Africa",
+    photo: "/photos/nile.jpg", alt: "The Nile at Murchison Falls in Uganda",
     art: (<><path d="M22 6 C36 16 12 26 30 34 C44 40 30 46 40 48" fill="none" stroke={C.sky} strokeWidth="3" strokeLinecap="round" /><g stroke={C.green} strokeWidth="2" strokeLinecap="round"><line x1="52" y1="44" x2="52" y2="30" /><line x1="57" y1="44" x2="57" y2="34" /><line x1="47" y1="44" x2="47" y2="34" /></g></>),
   },
   {
     name: "Sahara Desert", place: "North Africa",
-    photo: "/photos/sahara.jpg", alt: "Wind-shaped desert dunes",
+    photo: "/photos/sahara.jpg", alt: "Sand dunes at Merzouga in the Sahara, Morocco",
     art: (<><circle cx="54" cy="14" r="6" fill={C.sun} /><path d="M40 44 L40 26" stroke={C.amber} strokeWidth="2.5" strokeLinecap="round" /><path d="M40 26 C32 22 26 22 20 26 M40 26 C48 22 54 22 60 26 M40 26 C36 20 34 16 32 12 M40 26 C44 20 46 16 48 12 M40 26 L40 13" fill="none" stroke={C.green} strokeWidth="2" strokeLinecap="round" /><path d="M6 44 C18 36 30 42 40 44 L6 44 Z" fill="none" stroke={C.gold} strokeWidth="2.2" /></>),
   },
 ];
@@ -618,21 +621,21 @@ export default function Home() {
         className={`sticky top-0 z-50 transition-all duration-300 ${scrolled ? "border-b border-black/5 bg-[#faf6ee]/85 shadow-sm backdrop-blur-md" : ""}`}
       >
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
-          <div className="flex items-center gap-3">
-            <div className="relative">
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="relative h-10 w-10 shrink-0">
               <div
                 className="absolute inset-0 -z-10 animate-pulse-glow rounded-xl blur-md"
                 style={{ background: C.gold, opacity: 0.45 }}
                 aria-hidden="true"
               />
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/logo-mark.png" alt="Sospana Sonke" className="h-10 w-10 rounded-xl object-cover shadow-md" />
+              <img src="/logo-mark.png" alt="Sospana Sonke" className="block h-10 w-10 max-w-none shrink-0 aspect-square rounded-xl object-cover shadow-md" />
             </div>
-            <span className="font-display text-xl font-bold tracking-tight" style={{ color: C.navy }}>
+            <span className="min-w-0 truncate font-display text-xl font-bold tracking-tight" style={{ color: C.navy }}>
               Sospana&nbsp;<span style={{ color: C.gold }}>Sonke</span>
             </span>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex shrink-0 items-center gap-2">
             <Link href="/login" className="rounded-xl px-4 py-2 text-sm font-semibold transition hover:bg-black/5" style={{ color: C.navy }}>
               Log in
             </Link>
@@ -652,7 +655,7 @@ export default function Home() {
         <div className="relative overflow-hidden rounded-[2rem] px-6 py-14 text-white shadow-[0_30px_80px_-36px_rgba(7,21,40,0.85)] ring-1 ring-white/10 sm:px-14 sm:py-20">
           <Image
             src="/photos/cape-town-mountain.jpg"
-            alt="Table Mountain above Cape Town at golden hour"
+            alt="Table Mountain above the Cape Town city bowl, seen from Signal Hill"
             fill
             priority
             sizes="(max-width: 1152px) 100vw, 1152px"

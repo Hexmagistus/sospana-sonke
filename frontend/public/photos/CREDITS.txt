@@ -3,24 +3,33 @@ Photographs in this folder are used under the Unsplash License
 use, without attribution. Files were downloaded from images.unsplash.com and
 resized to JPEG for the web. They are not Unsplash trademarks.
 
-Each line is: local file — subject as used in the product — source URL.
+Each line is: local file — what the photo actually shows — source photo page.
 
-cape-town-mountain.jpg — Table Mountain and Cape Town at golden hour — https://images.unsplash.com/photo-1555881400-74d7acaacd8b
-cape-town-waterfront.jpg — Cape Town waterfront and Signal Hill — https://images.unsplash.com/photo-1484318571209-661cf29a69c3
-cape-town-coast.jpg — Atlantic coast and Twelve Apostles, Cape Town — https://images.unsplash.com/photo-1580060839134-75a5edca2e99
-lagos.jpg — Lagos, Nigeria, cityscape — https://images.unsplash.com/photo-1611348524140-53c9a25263d6
-nairobi.jpg — Nairobi, Kenya, skyline — https://images.unsplash.com/photo-1577948000111-9c970dfe3743
-marrakech.jpg — Jemaa el-Fna, Marrakech, Morocco — https://images.unsplash.com/photo-1553913861-c0fddf2619ee
-mara-sunset.jpg — Maasai Mara sunset, Kenya — https://images.unsplash.com/photo-1516026672322-bc52d61a55d5
-victoria-falls.jpg — Victoria Falls — https://images.unsplash.com/photo-1523805009345-7448845a9e53
-kilimanjaro.jpg — Mount Kilimanjaro, Tanzania — https://images.unsplash.com/photo-1716404214250-8d34f6b0bc24
-baobab.jpg — Avenue of the Baobabs, Madagascar — https://images.unsplash.com/photo-1570742544137-3a469196c32b
-serengeti.jpg — Acacia on the East African savanna — https://images.unsplash.com/photo-1547471080-7cc2caa01a7e
-safari.jpg — Safari vehicle on the savanna — https://images.unsplash.com/photo-1516426122078-c23e76319801
-pyramids.jpg — Pyramids of Giza, Egypt — https://images.unsplash.com/photo-1539768942893-daf53e448371
-namib.jpg — Red dunes evocative of Sossusvlei, Namibia — https://images.unsplash.com/photo-1547234935-80c7145ec969
-sahara.jpg — Desert dunes — https://images.unsplash.com/photo-1509316785289-025f5b846b35
+Verified 2026-09-27 against the Unsplash photo page (title, description, and
+map pin). A file is only labelled with a place when that page names the place.
+
+cape-town-mountain.jpg — Table Mountain and the Cape Town city bowl, from Signal Hill — https://unsplash.com/photos/table-mountain-overlooks-a-city-under-cloudy-skies-jHgNgTtYykM (https://images.unsplash.com/photo-1755251418399-c56a9579858f)
+cape-town-waterfront.jpg — V&A Waterfront, Cape Town, at night — https://unsplash.com/photos/lTimBuBpsjE (https://images.unsplash.com/photo-1535724442043-265a1d19360a) Ashley Jurius
+cape-town-coast.jpg — Aerial view of Cape Town beside Table Mountain — https://unsplash.com/photos/aerial-view-of-city-near-mountain-during-daytime-1GgWbP74phY (https://images.unsplash.com/photo-1580060839134-75a5edca2e99) Tobias Reich, map pin Cape Town
+lagos.jpg — Downtown Lagos Island, Lagos, Nigeria — https://unsplash.com/photos/a-view-of-a-city-with-tall-buildings-t96rE_EZffE (https://images.unsplash.com/photo-1640475168872-4d8635675fc1)
+nairobi.jpg — Nairobi skyline, Kenya — https://unsplash.com/photos/city-skyline-under-white-sky-during-daytime-LTh5pGyvKAM (https://images.unsplash.com/photo-1611348524140-53c9a25263d6) Amani Nation, map pin Nairobi
+marrakech.jpg — Jemaa el-Fna, Marrakech, Morocco — https://unsplash.com/photos/a-large-clock-tower-towering-over-a-city-wXbgEYQTzxY (https://images.unsplash.com/photo-1677837488142-a85ffbffe408)
+mara-sunset.jpg — Sunset in the Masai Mara, Kenya — https://unsplash.com/photos/silhouette-of-an-acacia-tree-at-sunset-in-africa-O17rR0KwzfY (https://images.unsplash.com/photo-1599921777960-ac7c40d1bc60) map pin Masai Mara National Reserve
+victoria-falls.jpg — Victoria Falls, Zimbabwe — https://unsplash.com/photos/a-waterfall-with-a-rainbow-in-the-middle-of-it-QnJMYgi5VeE (https://images.unsplash.com/photo-1679713594549-ec393ce9c909) Teresa O., map pin Victoria Falls
+kilimanjaro.jpg — Mount Kilimanjaro — https://unsplash.com/photos/a-mountain-covered-in-clouds-at-sunset-xEvAbSjUrLw (https://images.unsplash.com/photo-1716404214250-8d34f6b0bc24) Paul Musyoka, titled "Mt. Kilimanjaro"
+baobab.jpg — Avenue of the Baobabs, Madagascar — https://unsplash.com/photos/avenue-of-the-baobabs-madagascar-during-day-G40jEUyEsEk (https://images.unsplash.com/photo-1570742544137-3a469196c32b) Yasmine Arfaoui
+serengeti.jpg — Acacia on the Kenyan savanna — https://unsplash.com/pt-br/fotografias/tree-between-green-land-during-golden-hour-T-LfvX-7IVg (https://images.unsplash.com/photo-1547471080-7cc2caa01a7e) Damian Patkowski, Kenya. The page does not name Serengeti National Park.
+safari.jpg — Safari vehicle on the savanna in Tanzania — https://unsplash.com/photos/man-riding-on-gray-car-during-sunset-0LwfbRtQ-ac (https://images.unsplash.com/photo-1516426122078-c23e76319801) Hu Chen, Tanzania (page tags include Serengeti)
+pyramids.jpg — Camel riders beside the Pyramids of Giza — https://unsplash.com/photos/five-persons-riding-camels-walking-on-sand-beside-pyramid-of-egypt-boyXZfqpwpU (https://images.unsplash.com/photo-1539768942893-daf53e448371) map pin Al Ahram, Giza
+namib.jpg — Deadvlei salt pan and dunes, Sossusvlei, Namibia — https://unsplash.com/photos/a-desert-with-sand-vKUxm7uqkKw (https://images.unsplash.com/photo-1667077770557-a4ebd886140d) map pin Deadvlei, Sossusvlei
+sahara.jpg — Sand dunes at Merzouga, Morocco (Sahara) — https://unsplash.com/photos/sandy-desert-dunes-with-dramatic-shadows-at-sunset-PDcABuRlJ2Y (https://images.unsplash.com/photo-1757307046224-4f91157d1578) Wietse Jongsma, map pin Merzouga
+okavango.jpg — Aerial view of the Okavango Delta, Botswana — https://unsplash.com/photos/an-aerial-view-of-a-river-running-through-a-lush-green-field-jk_2Ak2z3JY (https://images.unsplash.com/photo-1722645148077-a7f99c8bcef2) map pin Okavango Delta
+lake-malawi.jpg — Sunset over Lake Malawi — https://unsplash.com/photos/a-person-fishing-on-a-beach-LgenIJXh4JQ (https://images.unsplash.com/photo-1658221744192-00e3770b8625) Craig Manners, described as Lake Malawi
+nile.jpg — The Nile at Murchison Falls, Uganda — https://unsplash.com/photos/a-river-with-a-waterfall-8WZRp0H75ao (https://images.unsplash.com/photo-1663498798455-8ce6d44d4505) map pin Murchison Falls National Park
 professional.jpg — Portrait — https://images.unsplash.com/photo-1531123897727-8f129e1688ce
 workplace.jpg — Professional at a laptop — https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e
 team.jpg — People working together — https://images.unsplash.com/photo-1521737711867-e3b97375f902
 office.jpg — Daylit workplace interior — https://images.unsplash.com/photo-1497366216548-37526070297c
+
+No Unsplash Licence photo of the Great Zimbabwe stone ruins was found whose
+page names that monument, so that wonder card stays as line art.

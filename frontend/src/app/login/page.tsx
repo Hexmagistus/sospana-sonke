@@ -130,7 +130,7 @@ export default function LoginPage() {
       <NdebeleStrip id="ndebele-login-top" glow className="mb-6 overflow-hidden rounded-t-xl shadow-sm" />
       <LogoGlow className="mx-auto mb-4 block w-fit">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/logo-mark.png" alt="Sospana Sonke" className="h-24 w-24 rounded-2xl object-cover shadow-[0_0_44px_-4px_var(--ss-primary-glow)] ring-1 ring-ss-primary/30" />
+        <img src="/logo-mark.png" alt="Sospana Sonke" className="block h-24 w-24 max-w-none shrink-0 aspect-square rounded-2xl object-cover shadow-[0_0_44px_-4px_var(--ss-primary-glow)] ring-1 ring-ss-primary/30" />
       </LogoGlow>
       <h1 className="animate-gradient-text mb-1 bg-gradient-to-r from-[#22d3ee] via-[#f5b301] to-[#a78bfa] bg-clip-text text-center text-4xl font-extrabold text-transparent [filter:drop-shadow(0_0_16px_rgba(245,179,1,0.45))]">Sospana Sonke</h1>
       <p className="mb-4 text-center text-base font-medium text-blue-100">

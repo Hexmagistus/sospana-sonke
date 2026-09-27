@@ -49,6 +49,26 @@ commit it (and push, if you pushed the rest of your work). Newest entry on top.
 
 ## Session Log
 
+### 2026-09-27 (later) — Cursor (Grok 4.7) — Corrected mislabelled photos, login glow, mobile logo
+Checked the live site after the visual overhaul. The landing hero was Porto (Ribeira), not Table Mountain. Every file in `frontend/public/photos/` was checked against its Unsplash photo page (title, description, map pin) and by looking at the image.
+
+Replaced (old claim → what it actually was → new file):
+- `cape-town-mountain.jpg` — "Table Mountain" was Porto, Portugal (Nick Karvounis) → Table Mountain from Signal Hill, Cape Town.
+- `cape-town-waterfront.jpg` — "V&A / Signal Hill" was an untitled mountain range (Lina Loos, no Cape Town pin) → V&A Waterfront at night (Ashley Jurius).
+- `lagos.jpg` — "Lagos" was the Nairobi skyline (Amani Nation) → Lagos Island high-rises.
+- `nairobi.jpg` — "Nairobi" was Johannesburg → the Nairobi file that had been saved as lagos.jpg.
+- `marrakech.jpg` — "Jemaa el-Fna" was the Great Sphinx at Giza (Spencer Davis) → Jemaa el-Fna.
+- `victoria-falls.jpg` — "Victoria Falls" was a giraffe → Victoria Falls with a rainbow (Teresa O., map pin Victoria Falls).
+- `namib.jpg` — "Sossusvlei" was sandstone buttes (shows up in Unsplash's Jordan gallery, not Namibia) → Deadvlei, Sossusvlei.
+- `sahara.jpg` — "desert dunes" was Monument Valley, USA → Merzouga dunes, Morocco.
+- `mara-sunset.jpg` — "Maasai Mara" had no Mara pin on its page → acacia sunset pinned to Masai Mara National Reserve.
+
+Kept, with credits corrected: Cape Town aerial (`cape-town-coast.jpg`, Tobias Reich — not "Twelve Apostles"), Kilimanjaro, Avenue of the Baobabs, Giza, Kenyan savanna acacia, Tanzania safari jeep, and the four generic workplace/portrait shots.
+
+New wonder photos where a page actually names the place: Okavango Delta (aerial, Botswana), Lake Malawi sunset, the Nile at Murchison Falls. Great Zimbabwe stays line art — no Unsplash Licence photo whose page names those ruins.
+
+Login/register (and the shared `GlowFrame`) clip the spinning colour ring so it cannot cover the notice or the fields, paint a solid surface behind glass cards, and honour reduced motion. The landing logo mark is `shrink-0` / `aspect-square` / `max-w-none` so preflight `img { max-width: 100% }` cannot squash it into a sliver on a tight mobile header.
+
 ### 2026-09-27 — Cursor (Grok 4.7) — Photorealistic visual overhaul of the frontend
 Lungani asked to "work on everything" and give the product a photorealistic feel that is beyond interesting, without throwing away the brand or breaking behaviour. No backend behaviour changes.
 
