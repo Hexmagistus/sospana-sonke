@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth";
@@ -112,16 +113,27 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="relative mx-auto mt-10 max-w-md">
+    <div className="relative -mx-4 -mt-6 overflow-hidden px-4 pb-16 pt-10 sm:pt-14">
+      <Image
+        src="/photos/cape-town-coast.jpg"
+        alt=""
+        fill
+        priority
+        sizes="100vw"
+        className="object-cover object-center"
+      />
+      <div className="auth-stage-scrim absolute inset-0" />
+      <div className="pointer-events-none absolute inset-0 bg-noise opacity-20 mix-blend-overlay" />
+      <div className="relative mx-auto max-w-md">
       {authing && <AuthLoader />}
-      <CircuitOverlay className="-z-10 opacity-70" opacity={0.1} stroke="#0b1f3a" dotColor="#f5b301" />
+      <CircuitOverlay className="-z-10 opacity-40" opacity={0.12} stroke="#f5b301" dotColor="#f5b301" />
       <NdebeleStrip id="ndebele-login-top" glow className="mb-6 overflow-hidden rounded-t-xl shadow-sm" />
-      <LogoGlow className="mx-auto mb-3 block w-fit">
+      <LogoGlow className="mx-auto mb-4 block w-fit">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/logo-mark.png" alt="Sospana Sonke" className="h-16 w-16 rounded-2xl object-cover shadow-md" />
+        <img src="/logo-mark.png" alt="Sospana Sonke" className="h-24 w-24 rounded-2xl object-cover shadow-[0_0_44px_-4px_var(--ss-primary-glow)] ring-1 ring-ss-primary/30" />
       </LogoGlow>
       <h1 className="animate-gradient-text mb-1 bg-gradient-to-r from-[#22d3ee] via-[#f5b301] to-[#a78bfa] bg-clip-text text-center text-4xl font-extrabold text-transparent [filter:drop-shadow(0_0_16px_rgba(245,179,1,0.45))]">Sospana Sonke</h1>
-      <p className="mb-4 text-center text-base font-medium text-ss-text">
+      <p className="mb-4 text-center text-base font-medium text-blue-100">
         We find the opportunities. You apply direct. <span className="font-bold text-ss-tech">No middle-man, no fees, no nonsense.</span> 😎
       </p>
       <div className="mb-6">
@@ -174,6 +186,7 @@ export default function LoginPage() {
         </Card>
       </GlowFrame>
       <NdebeleStrip id="ndebele-login-bottom" flip glow className="mt-6 overflow-hidden rounded-b-xl shadow-sm" />
+      </div>
     </div>
   );
 }

@@ -266,7 +266,7 @@ function CollegesDirectoryInner() {
                       <div className="mt-1 flex flex-wrap items-center gap-1">
                         <span className="rounded-full bg-teal/10 px-2 py-0.5 text-xs font-semibold text-teal">🏫 College</span>
                         {isAtsPortal(c.careers_url) && (
-                          <span className="rounded-full bg-navy/10 px-2 py-0.5 text-xs font-semibold text-navy">Apply on their portal</span>
+                          <span className="rounded-full bg-navy/10 px-2 py-0.5 text-xs font-semibold text-ss-text">Apply on their portal</span>
                         )}
                         {trending.has(c.id) && <TrendingBadge />}
                         {c.country && <span className="text-xs text-ss-muted">{c.country}</span>}

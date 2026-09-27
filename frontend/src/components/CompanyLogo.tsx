@@ -161,7 +161,7 @@ export function CompanyLogo({
       src={sources[idx]}
       alt={`${name} logo`}
       onError={() => setIdx((i) => i + 1)}
-      className="h-11 w-11 shrink-0 rounded-xl bg-white object-contain p-1 shadow-sm ring-1 ring-gray-100"
+      className="h-11 w-11 shrink-0 rounded-xl bg-ss-surface object-contain p-1 shadow-sm ring-1 ring-gray-100"
     />
   );
 }

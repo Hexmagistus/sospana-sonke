@@ -30,7 +30,7 @@ export function Card({
   const interactiveCls = interactive ? "hover:-translate-y-0.5 hover:border-ss-tech hover:shadow-[0_0_0_1px_var(--ss-tech-glow),0_22px_60px_-22px_var(--ss-tech-glow)]" : "";
   return (
     <div
-      className={`ss-card-neon rounded-2xl border border-ss-border bg-ss-surface p-5 text-ss-text shadow-[0_1px_2px_rgba(16,24,40,0.04),0_1px_3px_rgba(16,24,40,0.06)] transition-all duration-300 ${accentCls} ${interactiveCls} ${className}`}
+      className={`ss-card-neon rounded-2xl border border-white/50 bg-ss-glass p-5 text-ss-text shadow-[0_18px_50px_-28px_rgba(11,31,58,0.55),0_2px_8px_rgba(11,31,58,0.06)] backdrop-blur-xl transition-all duration-300 dark:border-white/10 ${accentCls} ${interactiveCls} ${className}`}
     >
       {children}
     </div>
@@ -113,7 +113,7 @@ export function Stat({
       </div>
     </>
   );
-  const cls = "ss-card-neon group block overflow-hidden rounded-2xl border border-ss-border bg-ss-surface shadow-[0_1px_2px_rgba(16,24,40,0.04),0_1px_3px_rgba(16,24,40,0.06)] transition-all duration-300 hover:-translate-y-0.5 hover:border-ss-tech hover:shadow-[0_0_0_1px_var(--ss-tech-glow),0_22px_60px_-22px_var(--ss-tech-glow)]";
+  const cls = "ss-card-neon group block overflow-hidden rounded-2xl border border-white/50 bg-ss-glass shadow-[0_18px_50px_-28px_rgba(11,31,58,0.55)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:border-ss-tech hover:shadow-[0_0_0_1px_var(--ss-tech-glow),0_22px_60px_-22px_var(--ss-tech-glow)] dark:border-white/10";
   return href ? (
     <Link href={href} className={cls}>{inner}</Link>
   ) : (
@@ -138,9 +138,9 @@ export function Button({
   glow?: boolean;
 } & ButtonHTMLAttributes<HTMLButtonElement>) {
   const styles = {
-    primary: "bg-gradient-to-r from-brand to-brand-dark text-white shadow-sm hover:shadow-md hover:brightness-110 focus-visible:ring-brand/40",
-    secondary: "bg-ss-primary-soft text-ss-text hover:bg-ss-primary-soft-strong focus-visible:ring-ss-primary",
-    ghost: "border border-ss-border text-ss-text hover:border-brand hover:bg-brand/5 hover:text-brand-dark focus-visible:ring-brand/30",
+    primary: "bg-gradient-to-br from-[#163e73] to-[#0b1f3a] text-white shadow-[0_12px_28px_-14px_rgba(11,31,58,0.85)] ring-1 ring-[#f5b301]/45 hover:brightness-110 focus-visible:ring-gold",
+    secondary: "bg-ss-primary-soft text-ss-text shadow-sm ring-1 ring-ss-primary-border-soft hover:bg-ss-primary-soft-strong focus-visible:ring-ss-primary",
+    ghost: "border border-ss-border bg-ss-glass text-ss-text shadow-sm backdrop-blur-md hover:border-brand hover:bg-brand/5 hover:text-brand-dark focus-visible:ring-brand/30",
     danger: "bg-ss-danger text-white hover:brightness-110 focus-visible:ring-ss-danger",
   }[variant];
   const sizes = {
@@ -202,7 +202,7 @@ export function Field({ label, hint, children }: { label: string; hint?: string;
 }
 
 const FIELD_BASE =
-  "w-full rounded-lg border border-ss-border bg-ss-surface px-3.5 py-2.5 text-sm text-ss-text placeholder:text-ss-muted shadow-sm transition-all duration-150 focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20 disabled:cursor-not-allowed disabled:opacity-60";
+  "w-full rounded-xl border border-ss-border bg-ss-surface px-3.5 py-2.5 text-sm text-ss-text shadow-[inset_0_1px_2px_rgba(11,31,58,0.06)] transition-all duration-150 placeholder:text-ss-muted focus:border-gold focus:outline-none focus:ring-2 focus:ring-gold/30 disabled:cursor-not-allowed disabled:opacity-60";
 
 export function Input(props: InputHTMLAttributes<HTMLInputElement>) {
   return <input {...props} className={`${FIELD_BASE} ${props.className || ""}`} />;
@@ -292,7 +292,7 @@ export function EmptyState({
   action?: ReactNode;
 }) {
   return (
-    <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-ss-border bg-ss-glass px-6 py-12 text-center">
+    <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-ss-border bg-ss-glass px-6 py-12 text-center shadow-[0_18px_50px_-32px_rgba(11,31,58,0.45)] backdrop-blur-xl">
       {icon && <div className="text-3xl">{icon}</div>}
       <div className="text-sm font-bold uppercase tracking-wide text-ss-text">{title}</div>
       {message && <p className="max-w-sm text-sm text-ss-muted">{message}</p>}

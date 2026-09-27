@@ -1,0 +1,26 @@
+Photographs in this folder are used under the Unsplash License
+(https://unsplash.com/license). The licence allows use, including commercial
+use, without attribution. Files were downloaded from images.unsplash.com and
+resized to JPEG for the web. They are not Unsplash trademarks.
+
+Each line is: local file — subject as used in the product — source URL.
+
+cape-town-mountain.jpg — Table Mountain and Cape Town at golden hour — https://images.unsplash.com/photo-1555881400-74d7acaacd8b
+cape-town-waterfront.jpg — Cape Town waterfront and Signal Hill — https://images.unsplash.com/photo-1484318571209-661cf29a69c3
+cape-town-coast.jpg — Atlantic coast and Twelve Apostles, Cape Town — https://images.unsplash.com/photo-1580060839134-75a5edca2e99
+lagos.jpg — Lagos, Nigeria, cityscape — https://images.unsplash.com/photo-1611348524140-53c9a25263d6
+nairobi.jpg — Nairobi, Kenya, skyline — https://images.unsplash.com/photo-1577948000111-9c970dfe3743
+marrakech.jpg — Jemaa el-Fna, Marrakech, Morocco — https://images.unsplash.com/photo-1553913861-c0fddf2619ee
+mara-sunset.jpg — Maasai Mara sunset, Kenya — https://images.unsplash.com/photo-1516026672322-bc52d61a55d5
+victoria-falls.jpg — Victoria Falls — https://images.unsplash.com/photo-1523805009345-7448845a9e53
+kilimanjaro.jpg — Mount Kilimanjaro, Tanzania — https://images.unsplash.com/photo-1716404214250-8d34f6b0bc24
+baobab.jpg — Avenue of the Baobabs, Madagascar — https://images.unsplash.com/photo-1570742544137-3a469196c32b
+serengeti.jpg — Acacia on the East African savanna — https://images.unsplash.com/photo-1547471080-7cc2caa01a7e
+safari.jpg — Safari vehicle on the savanna — https://images.unsplash.com/photo-1516426122078-c23e76319801
+pyramids.jpg — Pyramids of Giza, Egypt — https://images.unsplash.com/photo-1539768942893-daf53e448371
+namib.jpg — Red dunes evocative of Sossusvlei, Namibia — https://images.unsplash.com/photo-1547234935-80c7145ec969
+sahara.jpg — Desert dunes — https://images.unsplash.com/photo-1509316785289-025f5b846b35
+professional.jpg — Portrait — https://images.unsplash.com/photo-1531123897727-8f129e1688ce
+workplace.jpg — Professional at a laptop — https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e
+team.jpg — People working together — https://images.unsplash.com/photo-1521737711867-e3b97375f902
+office.jpg — Daylit workplace interior — https://images.unsplash.com/photo-1497366216548-37526070297c

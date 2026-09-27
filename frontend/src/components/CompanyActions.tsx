@@ -49,7 +49,7 @@ export function VerifiedBadge({ company }: { company: Company }) {
           🔄 Updated {updated}
         </span>
       )}
-      <span className="text-[11px] text-gray-400">
+      <span className="text-[11px] text-ss-muted">
         {verified ? `Last verified ${verified}` : "Not yet verified"}
       </span>
     </span>
@@ -88,7 +88,7 @@ export function ShortlistStar({ companyId }: { companyId: string }) {
       aria-pressed={on}
       title={on ? "In your shortlist" : "Add to shortlist"}
       className={`rounded-full p-1 text-xl leading-none transition ${
-        on ? "text-gold drop-shadow-sm" : "text-gray-300 hover:text-gray-400"
+        on ? "text-gold drop-shadow-sm" : "text-gray-300 hover:text-ss-muted"
       }`}
     >
       {on ? "★" : "☆"}
@@ -202,27 +202,27 @@ export function CompanyActionsRow({ company, shareBasePath }: { company: Company
         <div className="flex flex-wrap gap-1.5">
           <button
             onClick={() => toggle("notify")}
-            className="rounded-md bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600 transition hover:bg-gray-200"
+            className="rounded-md bg-ss-primary-soft px-2.5 py-1 text-xs font-medium text-ss-muted transition hover:bg-gray-200"
           >
             🔔 Notify me
           </button>
           {company.careers_url && (
             <button
               onClick={() => toggle("tips")}
-              className={`rounded-md px-2.5 py-1 text-xs font-medium transition ${open === "tips" ? "bg-brand-dark text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}
+              className={`rounded-md px-2.5 py-1 text-xs font-medium transition ${open === "tips" ? "bg-brand-dark text-white" : "bg-ss-primary-soft text-ss-muted hover:bg-gray-200"}`}
             >
               💬 Tips
             </button>
           )}
           <button
             onClick={share}
-            className="rounded-md bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600 transition hover:bg-gray-200"
+            className="rounded-md bg-ss-primary-soft px-2.5 py-1 text-xs font-medium text-ss-muted transition hover:bg-gray-200"
           >
             🔗 Share
           </button>
           <button
             onClick={() => toggle("report")}
-            className="rounded-md bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600 transition hover:bg-gray-200"
+            className="rounded-md bg-ss-primary-soft px-2.5 py-1 text-xs font-medium text-ss-muted transition hover:bg-gray-200"
           >
             ⚠️ Report link
           </button>
@@ -231,7 +231,7 @@ export function CompanyActionsRow({ company, shareBasePath }: { company: Company
 
       {open === "notify" && (
         <div className="mt-2 flex flex-wrap items-center gap-2">
-          <p className="flex-1 text-xs text-gray-500">Email me when this careers page changes.</p>
+          <p className="flex-1 text-xs text-ss-muted">Email me when this careers page changes.</p>
           <Button size="sm" loading={busy} onClick={subscribe}>Notify me</Button>
         </div>
       )}

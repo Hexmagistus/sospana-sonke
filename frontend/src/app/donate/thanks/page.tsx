@@ -7,8 +7,8 @@ export default function DonateThanksPage() {
   return (
     <div className="mx-auto max-w-xl space-y-4">
       <Card>
-        <h1 className="text-2xl font-bold text-navy">Thank you 🙏</h1>
-        <p className="mt-2 text-sm text-gray-600">
+        <h1 className="text-2xl font-bold text-ss-text">Thank you 🙏</h1>
+        <p className="mt-2 text-sm text-ss-muted">
           Your support helps keep Sospana Sonke free for jobseekers across Southern Africa. A
           receipt has been sent to the email address you provided.
         </p>

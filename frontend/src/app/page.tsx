@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth";
@@ -417,29 +418,35 @@ const SOON: { name: string; flag: string }[] = [];
 const TOTAL_EMPLOYERS = LIVE.reduce((sum, c) => sum + c.count, 0);
 
 // Wonders of Africa — line-art icons drawn inline (viewBox 0 0 72 52).
-const WONDERS: { name: string; place: string; art: ReactNode }[] = [
+const WONDERS: { name: string; place: string; art: ReactNode; photo?: string; alt?: string }[] = [
   {
     name: "Table Mountain", place: "South Africa",
+    photo: "/photos/cape-town-mountain.jpg", alt: "Table Mountain above Cape Town at golden hour",
     art: (<><path d="M6 40 L14 24 L40 24 L46 30 L58 30 L66 40 Z" fill="none" stroke={C.gold} strokeWidth="2.5" strokeLinejoin="round" /><line x1="6" y1="40" x2="66" y2="40" stroke={C.gold} strokeWidth="2.5" /></>),
   },
   {
     name: "Victoria Falls", place: "Zim / Zambia",
+    photo: "/photos/victoria-falls.jpg", alt: "Victoria Falls",
     art: (<><path d="M8 16 L64 16 L64 22 L8 22 Z" fill="none" stroke={C.mint} strokeWidth="2.5" /><g stroke={C.mint} strokeWidth="2" strokeLinecap="round"><line x1="16" y1="24" x2="16" y2="42" /><line x1="26" y1="24" x2="26" y2="44" /><line x1="36" y1="24" x2="36" y2="41" /><line x1="46" y1="24" x2="46" y2="44" /><line x1="56" y1="24" x2="56" y2="42" /></g></>),
   },
   {
     name: "Mount Kilimanjaro", place: "Tanzania",
+    photo: "/photos/kilimanjaro.jpg", alt: "Mount Kilimanjaro above the clouds",
     art: (<><path d="M6 42 L30 14 L42 26 L52 18 L66 42 Z" fill="none" stroke={C.sky} strokeWidth="2.5" strokeLinejoin="round" /><path d="M24 20 L30 14 L36 20 L32 22 L28 19 Z" fill="#fff" /></>),
   },
   {
-    name: "Baobab Tree", place: "Savanna",
+    name: "Baobab Tree", place: "Madagascar",
+    photo: "/photos/baobab.jpg", alt: "Avenue of the Baobabs in Madagascar",
     art: (<><path d="M30 44 L30 26 M42 44 L42 26" stroke={C.amber} strokeWidth="3" strokeLinecap="round" /><path d="M36 26 C22 24 20 14 14 12 M36 26 C50 24 52 14 58 12 M36 26 L36 10 M36 14 C30 12 26 10 24 8 M36 14 C42 12 46 10 48 8" fill="none" stroke={C.amber} strokeWidth="2.2" strokeLinecap="round" /></>),
   },
   {
     name: "Pyramids of Giza", place: "Egypt",
+    photo: "/photos/pyramids.jpg", alt: "The Pyramids of Giza",
     art: (<><path d="M8 42 L26 14 L44 42 Z" fill="none" stroke={C.gold} strokeWidth="2.5" strokeLinejoin="round" /><path d="M36 42 L50 22 L64 42 Z" fill="none" stroke={C.gold} strokeWidth="2.5" strokeLinejoin="round" /></>),
   },
   {
     name: "The Serengeti", place: "East Africa",
+    photo: "/photos/serengeti.jpg", alt: "An acacia tree on the East African savanna",
     art: (<><circle cx="52" cy="18" r="8" fill={C.sun} /><path d="M12 40 C20 30 26 30 34 34 C38 36 40 30 40 26 M34 34 C34 40 34 40 34 42 M40 30 C44 30 48 32 50 40 M30 34 L30 42 M22 33 L22 42" fill="none" stroke={C.gold} strokeWidth="2.2" strokeLinecap="round" /><line x1="6" y1="42" x2="66" y2="42" stroke={C.gold} strokeWidth="2.5" /></>),
   },
   {
@@ -452,6 +459,7 @@ const WONDERS: { name: string; place: string; art: ReactNode }[] = [
   },
   {
     name: "Namib Dunes", place: "Namibia",
+    photo: "/photos/namib.jpg", alt: "Red dunes in warm desert light",
     art: (<><circle cx="20" cy="17" r="7" fill={C.sun} /><path d="M6 44 C20 30 34 40 44 32 C54 24 62 30 66 34 L66 44 Z" fill="none" stroke={C.gold} strokeWidth="2.5" strokeLinejoin="round" /></>),
   },
   {
@@ -464,6 +472,7 @@ const WONDERS: { name: string; place: string; art: ReactNode }[] = [
   },
   {
     name: "Sahara Desert", place: "North Africa",
+    photo: "/photos/sahara.jpg", alt: "Wind-shaped desert dunes",
     art: (<><circle cx="54" cy="14" r="6" fill={C.sun} /><path d="M40 44 L40 26" stroke={C.amber} strokeWidth="2.5" strokeLinecap="round" /><path d="M40 26 C32 22 26 22 20 26 M40 26 C48 22 54 22 60 26 M40 26 C36 20 34 16 32 12 M40 26 C44 20 46 16 48 12 M40 26 L40 13" fill="none" stroke={C.green} strokeWidth="2" strokeLinecap="round" /><path d="M6 44 C18 36 30 42 40 44 L6 44 Z" fill="none" stroke={C.gold} strokeWidth="2.2" /></>),
   },
 ];
@@ -640,12 +649,20 @@ export default function Home() {
 
       {/* Hero */}
       <section className="mx-auto max-w-6xl px-4 pt-2">
-        <div
-          className="relative overflow-hidden rounded-[2rem] px-6 py-14 text-white shadow-xl sm:px-14 sm:py-20"
-          style={{ background: `radial-gradient(120% 120% at 85% 8%, #1a4f7a 0%, ${C.navy} 45%, ${C.ink} 100%)` }}
-        >
-          <Starfield className="opacity-80" />
-          <CircuitOverlay className="opacity-60" opacity={0.14} />
+        <div className="relative overflow-hidden rounded-[2rem] px-6 py-14 text-white shadow-[0_30px_80px_-36px_rgba(7,21,40,0.85)] ring-1 ring-white/10 sm:px-14 sm:py-20">
+          <Image
+            src="/photos/cape-town-mountain.jpg"
+            alt="Table Mountain above Cape Town at golden hour"
+            fill
+            priority
+            sizes="(max-width: 1152px) 100vw, 1152px"
+            className="object-cover object-[center_40%]"
+          />
+          <div
+            className="absolute inset-0"
+            style={{ background: `linear-gradient(105deg, ${C.ink}f0 0%, ${C.navy}d0 42%, rgba(11,31,58,0.45) 100%)` }}
+          />
+          <CircuitOverlay className="opacity-50" opacity={0.12} />
           <div
             className="pointer-events-none absolute inset-x-0 top-0 h-28 animate-scan-sweep"
             style={{ background: `linear-gradient(180deg, transparent, ${C.mint}2e, transparent)` }}
@@ -666,8 +683,6 @@ export default function Home() {
             className="pointer-events-none absolute inset-0 opacity-[0.06]"
             style={{ backgroundImage: "radial-gradient(#fff 1px, transparent 1px)", backgroundSize: "22px 22px" }}
           />
-          <SavannaSilhouette />
-
           <div className="relative flex flex-wrap items-center gap-10">
             <div className="min-w-[16rem] flex-1">
               <Reveal>
@@ -738,26 +753,21 @@ export default function Home() {
               </Reveal>
             </div>
 
-            {/* Hero art: sunrise over township skyline */}
-            <Reveal delay={200} className="hidden shrink-0 sm:block">
-              <svg viewBox="0 0 320 320" width="300" height="300" aria-hidden="true" className="animate-float-slow">
-                <circle cx="160" cy="175" r="132" fill="rgba(255,255,255,.05)" />
-                <circle cx="160" cy="175" r="96" fill="rgba(255,255,255,.04)" />
-                <path d="M160 175 L160 44 L194 66 Z" fill={C.gold} />
-                <path d="M160 175 L226 74 L250 110 Z" fill={C.sun} />
-                <path d="M160 175 L262 138 L268 178 Z" fill={C.red} />
-                <path d="M160 175 L160 44 L126 66 Z" fill={C.green} />
-                <path d="M160 175 L94 74 L70 110 Z" fill={C.sky} />
-                <path d="M160 175 L58 138 L52 178 Z" fill={C.plum} />
-                <circle cx="160" cy="175" r="38" fill={C.gold} stroke="#0b0b0b" strokeWidth="3" />
-                <g fill="#071528">
-                  <rect x="44" y="220" width="36" height="60" /><rect x="86" y="202" width="44" height="78" />
-                  <rect x="136" y="228" width="32" height="52" /><rect x="174" y="196" width="48" height="84" />
-                  <rect x="228" y="220" width="36" height="60" />
-                </g>
-                <g fill={C.gold}><rect x="98" y="218" width="8" height="9" /><rect x="114" y="218" width="8" height="9" /><rect x="186" y="212" width="8" height="9" /><rect x="202" y="212" width="8" height="9" /></g>
-                <rect x="22" y="278" width="276" height="6" fill="#0b0b0b" />
-              </svg>
+            <Reveal delay={200} className="hidden w-full max-w-[280px] shrink-0 lg:block">
+              <div className="relative aspect-[3/4] overflow-hidden rounded-[1.5rem] shadow-2xl ring-1 ring-white/40">
+                <Image
+                  src="/photos/professional.jpg"
+                  alt="A professional looking toward the next opportunity"
+                  fill
+                  sizes="280px"
+                  className="object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#071528]/80 via-transparent to-transparent" />
+                <div className="absolute inset-x-0 bottom-0 p-4">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gold">54 nations, one platform</p>
+                  <p className="mt-1 font-display text-lg font-bold leading-snug">Your next role is already live.</p>
+                </div>
+              </div>
             </Reveal>
           </div>
         </div>
@@ -802,7 +812,7 @@ export default function Home() {
           <Reveal key={t as string} delay={i * 120}>
             <TiltCard>
               <div
-                className="group rounded-2xl bg-white p-7 shadow-sm ring-1 ring-black/5 transition-shadow duration-300 hover:shadow-xl"
+                className="group rounded-2xl bg-white/80 p-7 shadow-[0_18px_40px_-28px_rgba(11,31,58,0.45)] ring-1 ring-black/5 backdrop-blur-md transition-shadow duration-300 hover:shadow-xl"
                 style={{ borderTop: `5px solid ${col}`, boxShadow: `0 10px 34px -18px ${col}88` }}
               >
                 <div
@@ -842,12 +852,12 @@ export default function Home() {
 
         <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-3">
           {[
-            { icon: "🏢", label: "Companies", desc: "JSE-listed & private employers", href: "/companies", col: C.teal },
-            { icon: "🏛️", label: "State-owned", desc: "SOEs & parastatals hiring now", href: "/companies?type=SOE", col: C.plum },
-            { icon: "🎓", label: "Universities", desc: "Academic & research posts", href: "/universities", col: C.sky },
-            { icon: "🏫", label: "Colleges", desc: "TVET & tertiary colleges", href: "/colleges", col: C.green, badge: "Featured" },
-            { icon: "🏥", label: "Hospitals", desc: "Healthcare & clinical roles", href: "/hospitals", col: C.red },
-            { icon: "🛠️", label: "SETAs & training", desc: "Skills authorities across Africa", href: "/companies?type=SETA", col: C.gold, badge: "New" },
+            { icon: "🏢", label: "Companies", desc: "JSE-listed & private employers", href: "/companies", col: C.teal, photo: "/photos/cape-town-waterfront.jpg" },
+            { icon: "🏛️", label: "State-owned", desc: "SOEs & parastatals hiring now", href: "/companies?type=SOE", col: C.plum, photo: "/photos/lagos.jpg" },
+            { icon: "🎓", label: "Universities", desc: "Academic & research posts", href: "/universities", col: C.sky, photo: "/photos/marrakech.jpg" },
+            { icon: "🏫", label: "Colleges", desc: "TVET & tertiary colleges", href: "/colleges", col: C.green, badge: "Featured", photo: "/photos/nairobi.jpg" },
+            { icon: "🏥", label: "Hospitals", desc: "Healthcare & clinical roles", href: "/hospitals", col: C.red, photo: "/photos/cape-town-coast.jpg" },
+            { icon: "🛠️", label: "SETAs & training", desc: "Skills authorities across Africa", href: "/companies?type=SETA", col: C.gold, badge: "New", photo: "/photos/team.jpg" },
           ].map((cat, i) => (
             <Reveal key={cat.label} delay={i * 80}>
               <TiltCard>
@@ -856,6 +866,8 @@ export default function Home() {
                   className="group relative block overflow-hidden rounded-2xl border border-white/10 p-5 text-white shadow-xl transition-all duration-300 hover:-translate-y-1"
                   style={{ background: `linear-gradient(150deg,${C.ink},${C.navy})`, boxShadow: `0 12px 40px -18px ${cat.col}cc` }}
                 >
+                  <Image src={cat.photo} alt="" fill sizes="(max-width: 640px) 50vw, 30vw" className="object-cover transition duration-700 motion-safe:group-hover:scale-105" />
+                  <div className="absolute inset-0" style={{ background: `linear-gradient(180deg, rgba(7,21,40,0.2) 0%, ${C.ink}c4 72%)` }} />
                   <CircuitOverlay className="opacity-30" opacity={0.1} />
                   <span aria-hidden="true" className="pointer-events-none absolute -right-8 -top-8 h-28 w-28 rounded-full opacity-40 blur-2xl transition-opacity duration-300 group-hover:opacity-90" style={{ background: `radial-gradient(circle,${cat.col},transparent 70%)` }} />
                   <span aria-hidden="true" className="absolute inset-x-0 top-0 h-[2px]" style={{ background: `linear-gradient(90deg,transparent,${cat.col},transparent)` }} />
@@ -907,15 +919,30 @@ export default function Home() {
             {WONDERS.map((w, i) => (
               <Reveal key={w.name} delay={(i % 6) * 70}>
                 <TiltCard>
-                  <div className="group overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-4 text-center backdrop-blur-sm transition-colors hover:border-white/25 hover:bg-white/10">
+                  <div className="group relative h-44 overflow-hidden rounded-2xl border border-white/15 text-left shadow-lg sm:h-52">
+                    {w.photo ? (
+                      <Image
+                        src={w.photo}
+                        alt={w.alt || ""}
+                        fill
+                        sizes="(max-width: 640px) 50vw, 16vw"
+                        className="object-cover transition duration-700 motion-safe:group-hover:scale-105"
+                      />
+                    ) : (
+                      <div className="flex h-full flex-col items-center justify-center bg-white/5 px-3 pt-4 backdrop-blur-sm">
+                        <svg viewBox="0 0 72 52" className="h-14 w-full" aria-hidden="true">{w.art}</svg>
+                      </div>
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#071528]/90 via-[#071528]/15 to-transparent" />
                     <div
-                      className="-mx-4 -mt-4 mb-3 h-1 animate-shimmer opacity-70 transition-opacity group-hover:opacity-100"
+                      className="absolute inset-x-0 top-0 h-1 animate-shimmer opacity-80"
                       style={{ backgroundImage: `linear-gradient(90deg,${C.gold},${C.green},${C.red},${C.gold})` }}
                       aria-hidden="true"
                     />
-                    <svg viewBox="0 0 72 52" className="mx-auto h-14 w-full" aria-hidden="true">{w.art}</svg>
-                    <div className="mt-2 text-sm font-bold">{w.name}</div>
-                    <div className="text-[11px] text-blue-200">{w.place}</div>
+                    <div className="absolute inset-x-0 bottom-0 p-3">
+                      <div className="text-sm font-bold text-white">{w.name}</div>
+                      <div className="text-[11px] text-blue-100">{w.place}</div>
+                    </div>
                   </div>
                 </TiltCard>
               </Reveal>
