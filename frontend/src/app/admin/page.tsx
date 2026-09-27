@@ -65,6 +65,90 @@ function MessageReports() {
   );
 }
 
+interface SourceHealth {
+  sources: number;
+  open_vacancies: number;
+  last_success_at: string | null;
+  by_status: Record<string, number>;
+  by_ats: Record<string, number>;
+  recent: {
+    company_name: string;
+    country: string | null;
+    ats_type: string;
+    url: string;
+    last_status: string;
+    last_error: string | null;
+    last_checked: string | null;
+    last_vacancy_count: number | null;
+    consecutive_failures: number;
+  }[];
+}
+
+function SourceHealthCard() {
+  const [health, setHealth] = useState<SourceHealth | null>(null);
+  const [err, setErr] = useState("");
+  useEffect(() => {
+    api.get<SourceHealth>("/admin/source-health").then(setHealth).catch((e) => setErr(e.message));
+  }, []);
+  return (
+    <Card>
+      <h2 className="mb-1 font-semibold">Careers-source health</h2>
+      <p className="mb-3 text-sm text-ss-muted">
+        Each employer is scanned on its own. One failure does not stop the run.
+        GitHub Actions asks the API every 15 minutes; GitHub may delay that.
+        Public job feeds are revisited about hourly, ordinary web pages about every six hours.
+      </p>
+      {err && <Alert kind="error">{err}</Alert>}
+      {!health && !err && <Spinner />}
+      {health && (
+        <>
+          <p className="mb-3 text-sm text-ss-text">
+            {health.sources} sources · {health.open_vacancies} open vacancies · last successful read{" "}
+            <strong>{health.last_success_at ? health.last_success_at.slice(0, 16).replace("T", " ") + " UTC" : "not yet"}</strong>
+          </p>
+          <div className="mb-3 flex flex-wrap gap-2">
+            {Object.entries(health.by_status).map(([k, v]) => (
+              <span key={k} className="rounded-lg bg-ss-border px-3 py-1 text-sm text-ss-text">{k}: <b>{v}</b></span>
+            ))}
+            {Object.entries(health.by_ats).map(([k, v]) => (
+              <span key={k} className="rounded-lg border border-ss-border px-3 py-1 text-sm text-ss-muted">{k}: <b className="text-ss-text">{v}</b></span>
+            ))}
+            {health.sources === 0 && <span className="text-sm text-ss-muted">No sources scanned yet.</span>}
+          </div>
+          {health.recent.length > 0 && (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-left text-ss-muted">
+                    <th className="py-2 pr-3">Employer</th>
+                    <th className="py-2 pr-3">Feed</th>
+                    <th className="py-2 pr-3">Status</th>
+                    <th className="py-2 pr-3">Jobs</th>
+                    <th className="py-2 pr-3">Checked</th>
+                    <th className="py-2 pr-3">Last error</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {health.recent.map((row) => (
+                    <tr key={row.url} className="border-t border-ss-border">
+                      <td className="py-2 pr-3">{row.company_name}</td>
+                      <td className="py-2 pr-3">{row.ats_type}</td>
+                      <td className="py-2 pr-3">{row.last_status}{row.consecutive_failures ? ` · ${row.consecutive_failures} fails` : ""}</td>
+                      <td className="py-2 pr-3">{row.last_vacancy_count ?? "—"}</td>
+                      <td className="py-2 pr-3 text-ss-muted">{row.last_checked ? row.last_checked.slice(0, 16).replace("T", " ") : "—"}</td>
+                      <td className="max-w-xs truncate py-2 pr-3 text-ss-muted" title={row.last_error || ""}>{row.last_error || "—"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </>
+      )}
+    </Card>
+  );
+}
+
 function AdminInner() {
   const [d, setD] = useState<AdminDashboard | null>(null);
   const [users, setUsers] = useState<AdminUser[]>([]);
@@ -178,6 +262,9 @@ function AdminInner() {
       <Card>
         <h2 className="mb-3 font-semibold">Scheduled jobs</h2>
         <div className="flex flex-wrap gap-3">
+          <Button variant="ghost" disabled={!!job} loading={job === "scan_due_companies"} onClick={() => runJob("scan_due_companies")}>
+            {job === "scan_due_companies" ? "Scanning the next batch…" : "Scan the next batch"}
+          </Button>
           <Button variant="ghost" disabled={!!job} loading={job === "scan_south_africa"} onClick={() => runJob("scan_south_africa")}>
             {job === "scan_south_africa" ? "Scanning South Africa…" : "Scan South Africa now"}
           </Button>
@@ -189,6 +276,8 @@ function AdminInner() {
           </Button>
         </div>
       </Card>
+
+      <SourceHealthCard />
 
       <Card>
         <h2 className="mb-1 font-semibold">Suggest a post or link</h2>

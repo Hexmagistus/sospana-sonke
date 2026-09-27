@@ -1,0 +1,13 @@
+{
+  "totalFound": 1,
+  "content": [
+    {
+      "id": "sr-1",
+      "name": "Life Sales Advisor",
+      "location": {"city": "Pretoria", "country": "South Africa"},
+      "department": {"label": "Sales"},
+      "releasedDate": "2026-09-10T08:00:00.000Z",
+      "applyUrl": "https://jobs.smartrecruiters.com/OUTsurance/sr-1"
+    }
+  ]
+}

@@ -7,9 +7,12 @@ from app.core.deps import get_current_user, require_admin
 from app.db.session import get_db
 from app.models.notification import Notification, JobRun, PushToken
 from app.models.user import User
+from app.models.company import Company
+from app.models.vacancy import Vacancy, VacancySource
 from app.schemas.notification import (
     NotificationResponse, UnreadCountResponse, ScheduleResponse, ScheduleUpdateRequest, JobRunResponse,
     PushTokenRequest, PushTokenResponse, AdminSuggestionRequest, AdminSuggestionResponse,
+    SourceHealthResponse, SourceHealthItem,
 )
 from app.scheduler.registry import get_schedule, set_schedule, JOBS
 from app.scheduler.runner import run_job, UnknownJob
@@ -96,6 +99,34 @@ def send_admin_suggestion(body: AdminSuggestionRequest, db: Session = Depends(ge
 
 
 # ---- admin scheduler ----
+
+@router.get("/admin/source-health", response_model=SourceHealthResponse, dependencies=[Depends(require_admin)])
+def source_health(db: Session = Depends(get_db)):
+    """Last success, last error, and counts per careers source. Numbers only
+    plus the 20 most recently checked sources — not the whole directory."""
+    sources = db.query(func.count(VacancySource.id)).scalar() or 0
+    open_vacancies = (db.query(func.count(Vacancy.id)).filter(Vacancy.is_open.is_(True)).scalar() or 0)
+    last_success_at = (db.query(func.max(VacancySource.last_checked))
+                       .filter(VacancySource.last_status == "ok").scalar())
+    by_status = {row[0] or "unknown": row[1] for row in
+                 db.query(VacancySource.last_status, func.count(VacancySource.id))
+                 .group_by(VacancySource.last_status).all()}
+    by_ats = {row[0] or "unknown": row[1] for row in
+              db.query(VacancySource.ats_type, func.count(VacancySource.id))
+              .group_by(VacancySource.ats_type).all()}
+    recent_rows = (db.query(VacancySource, Company.company_name, Company.country)
+                   .join(Company, Company.id == VacancySource.company_id)
+                   .order_by(VacancySource.last_checked.is_(None), VacancySource.last_checked.desc())
+                   .limit(20).all())
+    recent = [SourceHealthItem(
+        company_name=name, country=country, ats_type=src.ats_type, url=src.url,
+        last_status=src.last_status, last_error=src.last_error, last_checked=src.last_checked,
+        last_vacancy_count=src.last_vacancy_count, consecutive_failures=src.consecutive_failures or 0,
+    ) for src, name, country in recent_rows]
+    return SourceHealthResponse(
+        sources=sources, open_vacancies=open_vacancies, last_success_at=last_success_at,
+        by_status=by_status, by_ats=by_ats, recent=recent,
+    )
 
 @router.get("/admin/schedule", response_model=ScheduleResponse, dependencies=[Depends(require_admin)])
 def read_schedule(db: Session = Depends(get_db)):

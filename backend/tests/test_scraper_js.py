@@ -27,7 +27,7 @@ class _Src:
 
 
 def test_detect_js_ats():
-    assert detect_ats("https://acme.wd3.myworkdayjobs.com/careers")[0] == "js"
+    assert detect_ats("https://acme.wd3.myworkdayjobs.com/careers")[0] == "workday"
     assert detect_ats("https://career5.successfactors.eu/careers")[0] == "js"
     assert detect_ats("https://acme.taleo.net/careersection")[0] == "js"
     assert isinstance(get_strategy("js"), RenderedHTMLStrategy)

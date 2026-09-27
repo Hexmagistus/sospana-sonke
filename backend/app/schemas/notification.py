@@ -68,6 +68,28 @@ class ScheduleUpdateRequest(BaseModel):
     schedule: dict
 
 
+class SourceHealthItem(BaseModel):
+    company_name: str
+    country: str | None = None
+    ats_type: str
+    url: str
+    last_status: str
+    last_error: str | None = None
+    last_checked: datetime | None = None
+    last_vacancy_count: int | None = None
+    consecutive_failures: int = 0
+
+
+class SourceHealthResponse(BaseModel):
+    """Per-source scan health for the admin dashboard."""
+    sources: int
+    open_vacancies: int
+    last_success_at: datetime | None = None
+    by_status: dict[str, int]
+    by_ats: dict[str, int]
+    recent: list[SourceHealthItem]
+
+
 class JobRunResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     id: str

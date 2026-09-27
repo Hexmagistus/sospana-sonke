@@ -83,8 +83,9 @@ def _retry_delay(exc: httpx.HTTPStatusError, base_delay: float, attempt: int) ->
 
 
 def request_with_backoff(client: httpx.Client, url: str, retries: int = 3,
-                         base_delay: float = 0.5, sleep=time.sleep) -> httpx.Response:
-    """GET with exponential backoff on transient (5xx / 429 / network) errors.
+                         base_delay: float = 0.5, sleep=time.sleep,
+                         method: str = "GET", json_body: dict | None = None) -> httpx.Response:
+    """GET (or POST) with exponential backoff on transient (5xx / 429 / network) errors.
 
     A 429 is a server explicitly asking us to slow down, not a permanent
     failure, so it is retried like a 5xx -- and its Retry-After header (when
@@ -93,7 +94,10 @@ def request_with_backoff(client: httpx.Client, url: str, retries: int = 3,
     last_exc: Exception | None = None
     for attempt in range(retries):
         try:
-            resp = client.get(url)
+            if method.upper() == "POST":
+                resp = client.post(url, json=json_body or {})
+            else:
+                resp = client.get(url)
             if resp.status_code == 429 or resp.status_code >= 500:
                 raise httpx.HTTPStatusError("retryable status", request=resp.request, response=resp)
             return resp

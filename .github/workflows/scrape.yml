@@ -1,46 +1,60 @@
-# Scheduled scraping for Sospana Sonke.
+# Content-change checks for careers pages that are not a structured job feed.
 #
-# Your backend already has a full, robots-respecting scraper (ATS APIs +
-# schema.org JobPosting + link heuristics). It runs only when something calls
-# the secret-protected cron endpoint. This free GitHub Action is that caller:
-# every few hours it wakes the API and asks it to scan the next batch of
-# employers' careers pages, so vacancy listings stay fresh instead of going
-# stale.
+# Vacancy scanning itself is .github/workflows/scan.yml (every 15 minutes,
+# via the Render cron endpoint). This workflow only asks the API whether
+# those unstructured pages have changed, on a slower cadence, so the two
+# jobs do not scan the same companies twice.
 #
-# ONE-TIME SETUP (both must use the SAME value):
-#   1. Render dashboard -> sospana-sonke-api -> Environment ->
-#      add  CRON_SECRET = <a long random string>
-#   2. GitHub repo -> Settings -> Secrets and variables -> Actions ->
-#      New repository secret -> name CRON_SECRET, same value as above.
-# Until CRON_SECRET is set in BOTH places the endpoint stays disabled (404) and
-# nothing is scraped — that is the safe default.
+# ONE-TIME SETUP (the same CRON_SECRET as scan.yml):
+#   1. Render dashboard → sospana-sonke-api → Environment → CRON_SECRET
+#   2. GitHub → Settings → Secrets and variables → Actions → CRON_SECRET
+# This job fails on purpose until that secret exists.
 
-name: Scrape careers pages
+name: Check careers page changes
 
 on:
   schedule:
-    - cron: "0 */3 * * *"     # every 3 hours (UTC) — rotates through the directory
-  workflow_dispatch: {}        # lets you run it on demand from the Actions tab
+    - cron: "30 */6 * * *"
+  workflow_dispatch: {}
 
 concurrency:
-  group: scrape
+  group: link-changes
   cancel-in-progress: false
 
 jobs:
-  scan:
+  check:
     runs-on: ubuntu-latest
+    timeout-minutes: 8
     steps:
-      - name: Wake the API (Render free tier sleeps when idle)
-        run: curl -s -m 90 https://sospana-sonke-api.onrender.com/health || true
-
-      - name: Scan the next batch of careers pages
+      - name: Require CRON_SECRET
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
         run: |
-          curl -sS -m 300 -X POST \
-            -H "X-Cron-Secret: ${{ secrets.CRON_SECRET }}" \
-            "https://sospana-sonke-api.onrender.com/api/v1/cron/run/scan_due_companies"
+          if [ -z "$CRON_SECRET" ]; then
+            echo "::error::CRON_SECRET is not set on this repository."
+            echo "Add it under GitHub → Settings → Secrets and variables → Actions."
+            echo "Use the same value as Render → sospana-sonke-api → Environment → CRON_SECRET."
+            exit 1
+          fi
+
+      - name: Wake the API (Render free tier sleeps when idle)
+        run: |
+          curl -sS --max-time 90 -o /dev/null -w "wake status=%{http_code}\n" \
+            https://sospana-sonke-api.onrender.com/health || true
+          sleep 5
 
       - name: Check unstructured pages for changes
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
         run: |
-          curl -sS -m 300 -X POST \
-            -H "X-Cron-Secret: ${{ secrets.CRON_SECRET }}" \
-            "https://sospana-sonke-api.onrender.com/api/v1/cron/run/check_link_changes"
+          code=$(curl -sS -o response.json -w "%{http_code}" --max-time 100 \
+            -X POST "https://sospana-sonke-api.onrender.com/api/v1/cron/run/check_link_changes" \
+            -H "X-Cron-Secret: $CRON_SECRET" || echo "000")
+          echo "HTTP $code"
+          cat response.json 2>/dev/null || true
+          echo
+          if [ "$code" != "200" ]; then
+            echo "::error::check_link_changes returned HTTP $code."
+            echo "404 means CRON_SECRET is unset on Render. 401 means the GitHub secret does not match."
+            exit 1
+          fi

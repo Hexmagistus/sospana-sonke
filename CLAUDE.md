@@ -49,6 +49,14 @@ commit it (and push, if you pushed the rest of your work). Newest entry on top.
 
 ## Session Log
 
+### 2026-09-27 (scrape audit) — Cursor (Grok 4.7) — Public job feeds, 15-minute scan, source health
+Lungani asked to fix scraping and keep vacancies as close to real time as free tools allow. Branch `cursor/realtime-scrape-audit-240c` off `main` at `308cd25` (PR #3). No Chromium, no paid tiers.
+
+- Ran every structured careers URL in the seed from this VM. Workday (public CXS JSON), Oracle Recruiting Cloud, Breezy `/json`, and Pinpoint `postings.json` are new strategies. Greenhouse, SmartRecruiters (now paginated, and `/south-africa` filters `country=za`), Workable (widget JSON, no redirect), and Lever (EU host, and `unilever.com` is no longer mistaken for Lever) were already there and were re-checked live. Static HTML now follows an RSS/Atom `<link>` when the page itself has no jobs. SuccessFactors, CSOD, and `*.ci.hr` still need a browser; `JS_RENDER_ENABLED` stays off.
+- Scan path is GitHub Actions every 15 minutes calling Render `POST /api/v1/cron/run/scan_due_companies` and `close_expired_vacancies` with `X-Cron-Secret`. It fails loudly if `CRON_SECRET` is missing. GitHub does not need `DATABASE_URL`. Each API batch is capped at about 70 seconds. Public JSON boards are due again after 1 hour; HTML after 6 hours. Honest latency is that cron interval plus a possible GitHub delay and a Render cold start, not sub-minute.
+- Admin page shows `GET /admin/source-health` (last success, errors, counts). The candidate dashboard polls every 60 seconds and shows when listings were last confirmed.
+- **Owner must set** the same `CRON_SECRET` on Render (`sospana-sonke-api` → Environment) and GitHub Actions secrets. Production already rejects a missing/wrong secret (401), so the value exists on Render; it still has to be copied into GitHub or the new workflow stays red. `DATABASE_URL` in GitHub is no longer required for scanning.
+
 ### 2026-09-27 (quality pass) — Cursor (Grok 4.7) — Security, zero-cost speed, seed cleanup, photographic polish
 Lungani asked to improve the product internally and externally, including security, and to speed the server up without paying for a bigger plan. Started from latest `main` (PR #2 already merged). One branch, `cursor/quality-security-speed-ux-240c`.
 

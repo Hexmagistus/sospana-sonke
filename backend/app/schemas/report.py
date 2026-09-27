@@ -15,6 +15,9 @@ class CandidateDashboardResponse(BaseModel):
     applications_awaiting_action: int
     interviews: int
     offers: int
+    # When the scraper last confirmed an open vacancy. None until the first
+    # successful scan. Shown as "listings last confirmed" on the dashboard.
+    listings_updated_at: datetime | None = None
     # A one-line personalized nudge to complete the profile, referencing the
     # candidate's own registration answers -- None once they've engaged with
     # their profile (see dashboard_service._profile_nudge).

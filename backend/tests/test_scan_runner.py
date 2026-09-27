@@ -49,6 +49,16 @@ def test_selection_priority_and_backoff(db):
     assert fresh.id not in ids and dead.id not in ids
 
 
+def test_fast_json_boards_are_due_again_after_an_hour(db):
+    from app.services.scan_runner import FAST_RESCAN_HOURS
+    recent = NOW - timedelta(hours=FAST_RESCAN_HOURS + 0.5)
+    html = _co(db, "HtmlRecent", last=recent)
+    board = _co(db, "GreenhouseRecent", url="https://boards.greenhouse.io/acme", last=recent)
+    ids = select_due_company_ids(db, limit=10, now=NOW)
+    assert board.id in ids
+    assert html.id not in ids
+
+
 def test_selection_respects_limit_and_skips_inactive(db):
     a = _co(db, "A"); b = _co(db, "B")
     b.active = False; db.commit()

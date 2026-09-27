@@ -1,0 +1,17 @@
+{
+  "total": 2,
+  "jobPostings": [
+    {
+      "title": "Account Manager",
+      "externalPath": "/job/Johannesburg/Account-Manager_R1",
+      "locationsText": "Johannesburg",
+      "postedOn": "Posted 2 Days Ago"
+    },
+    {
+      "title": "Credit Analyst",
+      "externalPath": "/job/Cape-Town/Credit-Analyst_R2",
+      "locationsText": "Cape Town",
+      "postedOn": "Posted Today"
+    }
+  ]
+}

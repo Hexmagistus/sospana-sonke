@@ -28,7 +28,7 @@ JOBS = {
 }
 
 DEFAULT_SCHEDULE = {
-    "scan_due_companies": "0 */3 * * *",         # every 3 hours — rotates through the list
+    "scan_due_companies": "*/15 * * * *",        # every 15 min via GitHub Actions (best-effort)
     "scan_all_companies": "0 */6 * * *",         # every 6 hours
     "close_expired_vacancies": "0 1 * * *",      # nightly at 01:00, before matching — keeps is_open accurate
     "match_all_candidates": "0 2 * * *",         # nightly at 02:00

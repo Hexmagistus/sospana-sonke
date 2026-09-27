@@ -1,0 +1,18 @@
+{
+  "items": [
+    {
+      "TotalJobsCount": 1,
+      "requisitionList": [
+        {
+          "Title": "Financial Manager",
+          "Id": "300000123",
+          "PostedDate": "2026-09-01",
+          "PostingEndDate": "2026-10-01",
+          "PrimaryLocation": "Durban",
+          "PrimaryLocationCountry": "South Africa",
+          "JobType": "Full Time"
+        }
+      ]
+    }
+  ]
+}

@@ -20,7 +20,8 @@ class WorkableStrategy(ScrapeStrategy):
         account = (source.config or {}).get("token")
         if not account:
             raise ValueError("Workable source is missing a company account name.")
-        url = f"https://www.workable.com/api/accounts/{account}?details=true"
+        # The www host 302s to this widget feed. Call it directly.
+        url = f"https://apply.workable.com/api/v1/widget/accounts/{account}?details=true"
         resp = request_with_backoff(client, url)
         resp.raise_for_status()
         jobs = resp.json().get("jobs", [])

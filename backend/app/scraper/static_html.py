@@ -40,6 +40,14 @@ _BLACKLIST = ("manual", "policy", "plan", "committee", "board of", "privacy", "n
 _STOP = {"open vacancies", "closed vacancies", "apply", "apply now", "apply online",
     "view more", "read more", "more", "home", "careers", "vacancies"}
 _A = re.compile(r'<a\b[^>]*href=["\']([^"\']+)["\'][^>]*>(.*?)</a>', re.I | re.S)
+_FEED_LINK = re.compile(
+    r'<link\b[^>]*type=["\']application/(?:rss|atom)\+xml["\'][^>]*>',
+    re.I,
+)
+_HREF = re.compile(r'href=["\']([^"\']+)["\']', re.I)
+_ITEM = re.compile(r'<(?:item|entry)\b[^>]*>(.*?)</(?:item|entry)>', re.I | re.S)
+_TITLE = re.compile(r'<title[^>]*>(?:<!\[CDATA\[)?(.*?)(?:\]\]>)?</title>', re.I | re.S)
+_LINK = re.compile(r'<link[^>]*>([^<]+)</link>|<link\b[^>]*href=["\']([^"\']+)["\']', re.I)
 _ADVERT = re.compile(r'^\s*(re[\s\-]*advert(isement)?\s*[-:]?\s*)+', re.I)
 
 
@@ -149,6 +157,33 @@ class StaticHTMLStrategy(ScrapeStrategy):
             ))
         return out
 
+    def feed_href(self, html: str, source_url: str | None = None) -> str | None:
+        for tag in _FEED_LINK.findall(html):
+            match = _HREF.search(tag)
+            if match:
+                return urljoin(source_url or "", match.group(1))
+        return None
+
+    def parse_feed(self, xml: str, source_url: str | None = None) -> list[RawVacancy]:
+        out: list[RawVacancy] = []
+        seen: set[str] = set()
+        for block in _ITEM.findall(xml):
+            title_match = _TITLE.search(block)
+            title = _clean_text(title_match.group(1)) if title_match else ""
+            if not title or title.lower() in seen:
+                continue
+            seen.add(title.lower())
+            link_match = _LINK.search(block)
+            href = ""
+            if link_match:
+                href = (link_match.group(1) or link_match.group(2) or "").strip()
+            out.append(RawVacancy(
+                title=title[:300],
+                application_url=urljoin(source_url or "", href) if href else source_url,
+                source_url=source_url,
+            ))
+        return out
+
     def parse_html(self, html: str, source_url: str | None = None) -> list[RawVacancy]:
         jobs = self.parse_jsonld(html, source_url)
         if not jobs:
@@ -158,4 +193,15 @@ class StaticHTMLStrategy(ScrapeStrategy):
     def fetch(self, source, client: httpx.Client) -> list[RawVacancy]:
         resp = request_with_backoff(client, source.url)
         resp.raise_for_status()
-        return self.parse_html(resp.text, source_url=str(resp.url))
+        html = resp.text
+        final = str(resp.url)
+        jobs = self.parse_html(html, source_url=final)
+        if jobs:
+            return jobs
+        feed = self.feed_href(html, final)
+        if not feed or feed == final:
+            return jobs
+        feed_resp = request_with_backoff(client, feed)
+        if feed_resp.status_code >= 400:
+            return jobs
+        return self.parse_feed(feed_resp.text, source_url=final) or jobs

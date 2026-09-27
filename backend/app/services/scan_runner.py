@@ -35,10 +35,27 @@ from app.services.scan_service import scan_company
 
 logger = logging.getLogger(__name__)
 
-MIN_RESCAN_HOURS = 6.0          # a healthy company is not re-scanned sooner than this
+MIN_RESCAN_HOURS = 6.0          # a healthy HTML page is not re-scanned sooner than this
+FAST_RESCAN_HOURS = 1.0         # public JSON boards (Workday, Greenhouse, …) refresh hourly
 BACKOFF_CAP_HOURS = 24.0 * 7    # a persistently failing source is retried weekly at worst
 _FAST_ATS_MARKERS = ("greenhouse.io", "lever.co", "smartrecruiters.com",
-                     "recruitee.com", "workable.com")
+                     "recruitee.com", "workable.com", "myworkdayjobs.com",
+                     "myworkdaysite.com", "oraclecloud.com", "breezy.hr",
+                     "pinpointhq.com")
+
+
+def due_after_hours(url: str | None, consecutive_failures: int) -> float:
+    """How long to wait before scanning this company again.
+
+    Failures back off. A healthy public JSON board is due after an hour;
+    a healthy HTML page waits six, because those fetches are slower and
+    usually return nothing.
+    """
+    if consecutive_failures > 0:
+        return backoff_hours(consecutive_failures)
+    if _is_fast_ats(url):
+        return FAST_RESCAN_HOURS
+    return MIN_RESCAN_HOURS
 
 
 def backoff_hours(consecutive_failures: int) -> float:
@@ -82,7 +99,8 @@ def select_due_company_ids(db: Session, limit: int, now: datetime | None = None)
     due: list[Company] = []
     for c in window:
         last = _aware(c.last_checked)
-        if last is None or now - last >= timedelta(hours=backoff_hours(fails.get(c.id, 0))):
+        gap = due_after_hours(c.careers_url, fails.get(c.id, 0))
+        if last is None or now - last >= timedelta(hours=gap):
             due.append(c)
 
     def key(c: Company):
