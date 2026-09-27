@@ -325,7 +325,6 @@ Road Accident Fund (RAF),,https://careers.raf.co.za/search/,js,direct SuccessFac
 Road Traffic Infringement Agency (RTIA),,https://www.rtia.co.za/vacancies.php,static,Official fallback,true,pending,South Africa,SOE,
 Road Traffic Management Corporation (RTMC),,https://www.rtmc.co.za/index.php/careers,static,Official fallback,true,pending,South Africa,SOE,
 Robben Island Museum,,https://www.robben-island.org.za/jobs/,static,Official fallback,true,pending,South Africa,SOE,
-SASSETA,,https://www.sasseta.org.za/browse-vacancies/,static,Official fallback,true,pending,South Africa,SOE,
 SENTECH,,https://www.sentech.co.za/careers,static,Official fallback,true,pending,South Africa,SOE,
 Small Enterprise Finance Agency (SEFA),,https://www.sefa.org.za/vacancies,static,Official fallback,true,pending,South Africa,SOE,
 SAASTA,,https://www.saasta.ac.za/vacancies/,static,Official fallback,true,pending,South Africa,SOE,
@@ -453,7 +452,7 @@ University of Botswana (UB),,https://www.ub.bw/connect/job-opportunities,green_v
 Botswana Qualifications Authority (BQA),,https://bqajobs.mcidirecthire.com/,green_verified,Education regulator | direct mcidirecthire list,true,pending,Botswana,SOE,
 Botswana Savings Bank (BSB),,https://bsb.mcidirecthire.com/External/CurrentOpportunities/,green_verified,Finance | direct mcidirecthire list,true,pending,Botswana,SOE,
 Botswana International University of Science and Technology (BIUST),,https://www.biust.ac.bw/jobs/,green_verified,Education | direct job openings list,true,pending,Botswana,UNI,
-Human Resource Development Council (HRDC),,https://www.hrdc.org.bw/vacancies,green_verified,Skills development | direct vacancies list,true,pending,Botswana,SOE,
+Human Resource Development Council (HRDC),,https://www.hrdc.org.bw/vacancies,green_verified,Skills development | direct vacancies list,true,pending,Botswana,SETA,
 Botswana Oil,,https://botswanaoiljobs.mcidirecthire.com/,amber_company_route,Energy | mcidirecthire ATS,true,pending,Botswana,SOE,
 Capricorn Group (Bank Windhoek),,https://careers.capricorn.com.na/applicant/index.php?controller=Page&name=jobsearch,green_verified,NSX-listed | Banking group ATS | Bank Windhoek Capricorn,true,pending,Namibia,NSX,
 FirstRand Namibia (FNB Namibia),,https://firstrand.wd3.myworkdayjobs.com/FRB,green_verified,NSX-listed | Banking | group Workday single access point,true,pending,Namibia,NSX,
@@ -488,7 +487,6 @@ Namibia Tourism Board,,https://visitnamibia.com.na/recruitment/,green_verified,S
 NamWater,,https://www.namwater.com.na/index.php/10-vacancies,amber_company_route,SOE | Water utility | official vacancies page,true,pending,Namibia,SOE,
 Bank of Namibia,,https://www.bon.com.na/Vacancies.aspx,amber_company_route,SOE | Central bank | careers landing to portal,true,pending,Namibia,SOE,
 NAMFISA,,https://www.namfisa.com.na/careers/,amber_company_route,SOE | Financial regulator | careers page,true,pending,Namibia,SOE,
-Namibia Training Authority (NTA),,https://www.nta.com.na/vacancies-portal/,amber_company_route,SOE | Skills training | vacancy portal,true,pending,Namibia,SOE,
 Electricity Control Board (ECB),,https://www.ecb.org.na/vacancies/,amber_company_route,SOE | Electricity regulator | careers to PE portal,true,pending,Namibia,SOE,
 Namibia Industrial Development Agency (NIDA),,https://www.nida.com.na/employment/,amber_company_route,SOE | Industrial development | employment page,true,pending,Namibia,SOE,
 Agricultural Bank of Namibia (Agribank),,https://agribank.com.na/page/vacancies/,amber_company_route,SOE | Development bank | vacancies gateway,true,pending,Namibia,SOE,
@@ -665,7 +663,6 @@ University of Technology Mauritius (UTM),,https://www.utm.ac.mu/vacancy/,green_v
 Economic Development Board (EDB),,https://edbmauritius.org/vacancy,green_verified,SOE | Investment promotion | vacancy page,true,pending,Mauritius,SOE,
 Mauritius Housing Company (MHC),,https://mhc.mu/career,green_verified,SOE | Housing finance | careers page,true,pending,Mauritius,SOE,
 Landscope Mauritius,,https://landscopemauritius.com/careers/,green_verified,SOE | Property | careers page,true,pending,Mauritius,SOE,
-Human Resource Development Council (HRDC),,https://www.hrdc.mu/index.php/vacancies,green_verified,SOE | Skills development | vacancies page,true,pending,Mauritius,SOE,
 Financial Services Commission (FSC),,https://www.fscmauritius.org/about-us/careers,green_verified,SOE | Financial regulator | careers page,true,pending,Mauritius,SOE,
 Mauritius Telecom,,https://careers.telecom.mu/,amber_company_route,SOE | Telecoms | careers portal,true,pending,Mauritius,SOE,
 Cargo Handling Corporation (CHCL),,https://www.chcl.mu/vacancies/,amber_company_route,SOE | Cargo handling | vacancies page,true,pending,Mauritius,SOE,
@@ -2067,7 +2064,7 @@ University of Tripoli,,https://uot.edu.ly/index.php?lang=en,pending verification
 Université Cheikh Anta Diop (UCAD),,https://www.ucad.sn/recrutement,pending verification,"Senegal's oldest and largest public university, Dakar. Dedicated Recrutement page on the university's own site.",true,pending,Senegal,UNI,https://www.ucad.sn
 University of Rwanda,,https://ur.ac.rw/?Job-Opportunities-announcement=,pending verification,Rwanda's main public university (merger of the country's former public higher-ed institutions). Dedicated Job Opportunities page on the university's own site.,true,pending,Rwanda,UNI,https://ur.ac.rw
 Université de Yaoundé I,,https://uy1.uninet.cm/en/,pending verification,"Major public university, Yaoundé, Cameroon. No dedicated careers page found; recruitment notices are announced via the university's own site.",true,pending,Cameroon,UNI,https://uy1.uninet.cm
-Université Félix Houphouët-Boigny,,https://w.univ-fhb.edu.ci/,pending verification,"Ivory Coast's largest public university, Abidjan-Cocody. No dedicated careers page found; recruitment notices are announced via the university's own site.",true,pending,Ivory Coast,UNI,https://w.univ-fhb.edu.ci
+Université Félix Houphouët-Boigny,,https://w.univ-fhb.edu.ci/,pending verification,"Ivory Coast's largest public university, Abidjan-Cocody. No dedicated careers page found; recruitment notices are announced via the university's own site.",true,pending,Côte d'Ivoire,UNI,https://w.univ-fhb.edu.ci
 Université d'Abomey-Calavi,,https://www.uac.bj/,pending verification,"Benin's largest public university, Abomey-Calavi/Cotonou. No dedicated careers page found; recruitment notices are announced via the university's own site.",true,pending,Benin,UNI,https://www.uac.bj
 Université Joseph Ki-Zerbo,,https://www.ujkz.bf/recrutement/,pending verification,"Burkina Faso's oldest public university, Ouagadougou. Dedicated Recrutement page on the university's own site.",true,pending,Burkina Faso,UNI,https://www.ujkz.bf
 "Université des Sciences, des Techniques et des Technologies de Bamako (USTTB)",,https://usttb-edu.org/,pending verification,"Major public university, Bamako, Mali. No dedicated careers page found; recruitment notices are announced via the university's own site.",true,pending,Mali,UNI,https://usttb-edu.org
@@ -2075,18 +2072,18 @@ Université Gamal Abdel Nasser de Conakry (UGANC),,https://uganc.edu.gn/,pending
 Université du Burundi,,https://www.ub.edu.bi/?page_id=16902,pending verification,"Burundi's main public university, Bujumbura. Recruitment notices (avis de recrutement) are posted directly on the university's own site.",true,pending,Burundi,UNI,https://www.ub.edu.bi
 Université de Lomé,,https://www.univ-lome.tg/index.php/accueil,pending verification,"Togo's largest public university, Lomé. No dedicated careers page found; recruitment notices are announced via the university's own site.",true,pending,Togo,UNI,https://www.univ-lome.tg
 Université Omar Bongo,,https://univuob.org/,pending verification,"Gabon's main public university, Libreville. No dedicated careers page found; recruitment notices are announced via the university's own site.",true,pending,Gabon,UNI,https://univuob.org
-Université Marien Ngouabi,,https://www.umng.cg/,pending verification,"Republic of Congo's main public university, Brazzaville. No dedicated careers page found; recruitment notices are announced via the university's own site.",true,pending,Republic of Congo,UNI,https://www.umng.cg
+Université Marien Ngouabi,,https://www.umng.cg/,pending verification,"Republic of Congo's main public university, Brazzaville. No dedicated careers page found; recruitment notices are announced via the university's own site.",true,pending,Congo,UNI,https://www.umng.cg
 Université de Bangui,,https://univ-bangui.cf/,pending verification,"Central African Republic's main public university, Bangui. No dedicated careers page found; recruitment notices are announced via the university's own site.",true,pending,Central African Republic,UNI,https://univ-bangui.cf
 University of Sierra Leone,,https://usl.edu.sl/usl-vacancies/,pending verification,"Sierra Leone's main public university (incl. Fourah Bay College), Freetown. Dedicated Vacancies page on the university's own site.",true,pending,Sierra Leone,UNI,https://usl.edu.sl
 University of Liberia,,https://ul.edu.lr/new/vacancies/,pending verification,"Liberia's main public university, Monrovia. Dedicated Vacancies page on the university's own site.",true,pending,Liberia,UNI,https://ul.edu.lr
 University of The Gambia,,https://www.utg.edu.gm/category/jobs/,pending verification,"The Gambia's main public university, Banjul/Serekunda. Dedicated Jobs category on the university's own site.",true,pending,Gambia,UNI,https://www.utg.edu.gm
-Universidade de Cabo Verde (Uni-CV),,https://www.unicv.edu.cv/,pending verification,Cape Verde's main public university. No dedicated careers page found; recruitment notices are announced via the university's own site.,true,pending,Cape Verde,UNI,https://www.unicv.edu.cv
+Universidade de Cabo Verde (Uni-CV),,https://www.unicv.edu.cv/,pending verification,Cape Verde's main public university. No dedicated careers page found; recruitment notices are announced via the university's own site.,true,pending,Cabo Verde,UNI,https://www.unicv.edu.cv
 University of Juba,,https://uoj.edu.ss/work-at-juba-university/,pending verification,"South Sudan's main public university, Juba. Dedicated Work at Juba University page on the university's own site.",true,pending,South Sudan,UNI,https://uoj.edu.ss
 Université de N'Djaména,,https://www.universite-ndjamena.td/,pending verification,"Chad's main public university, N'Djaména. No dedicated careers page found; recruitment notices are announced via the university's own site.",true,pending,Chad,UNI,https://www.universite-ndjamena.td
 Université de Djibouti,,https://www.univ.edu.dj/,pending verification,Djibouti's sole public university. No dedicated careers page found; recruitment notices are announced via the university's own site.,true,pending,Djibouti,UNI,https://www.univ.edu.dj
 Université de Nouakchott Al Aasriya,,http://www.ustm.mr/,pending verification,"Mauritania's main public university, Nouakchott. No dedicated careers page found; recruitment notices are announced via the university's own site.",true,pending,Mauritania,UNI,http://www.ustm.mr
 Somali National University,,https://snu.edu.so/career-list/,pending verification,"Somalia's main public university, Mogadishu. Dedicated Career listings page on the university's own site.",true,pending,Somalia,UNI,https://snu.edu.so
-Universidade de São Tomé e Príncipe (USTP),,https://ustp.gov.st/,pending verification,São Tomé and Príncipe's sole public university. No dedicated careers page found; recruitment notices are announced via the university's own site.,true,pending,São Tomé and Príncipe,UNI,https://ustp.gov.st
+Universidade de São Tomé e Príncipe (USTP),,https://ustp.gov.st/,pending verification,São Tomé and Príncipe's sole public university. No dedicated careers page found; recruitment notices are announced via the university's own site.,true,pending,Sao Tome and Principe,UNI,https://ustp.gov.st
 Rheinmetall Denel Munition,,https://www.rheinmetall.com/en/career/careers-worldwide/south-africa/rheinmetall-denel-munition,green_verified,Private JV (Rheinmetall AG majority + Denel minority stake); munitions/defence manufacturing; live vacancies confirmed 2026-09-17,true,pending,South Africa,PRIVATE,https://www.rheinmetall.com/en/career/careers-worldwide/south-africa/rheinmetall-denel-munition
 National Department of Health,,https://www.health.gov.za/vacancies/,green_verified,"Own vacancies page, active postings",true,pending,South Africa,DEPT,https://www.health.gov.za/vacancies/
 "Department of Trade, Industry and Competition (the dtic)",,https://www.thedtic.gov.za/careers/,green_verified,Own careers page,true,pending,South Africa,DEPT,https://www.thedtic.gov.za/careers/
@@ -2475,9 +2472,8 @@ Industrial Training Fund (ITF),,,grey_none_verified,National skills / TVET train
 Agence Tunisienne de la Formation Professionnelle (ATFP),,,grey_none_verified,National skills / TVET training authority,true,pending,Tunisia,SETA,https://www.atfp.tn
 Fonds de Financement de la Formation Professionnelle (3FPT),,,grey_none_verified,National skills / TVET training authority,true,pending,Senegal,SETA,https://www.3fpt.sn
 Instituto Nacional de Emprego e Formacao Profissional (INEFOP),,,grey_none_verified,National skills / TVET training authority,true,pending,Angola,SETA,https://www.inefop.gov.ao
-Human Resource Development Council (HRDC),,,grey_none_verified,National skills / TVET training authority,true,pending,Botswana,SETA,https://www.hrdc.org.bw
 TEVETA Malawi,,,grey_none_verified,National skills / TVET training authority,true,pending,Malawi,SETA,https://www.teveta.mw
-Fonds de Developpement de la Formation Professionnelle (FDFP),,,grey_none_verified,National skills / TVET training authority,true,pending,Cote dIvoire,SETA,https://www.fdfp.ci
+Fonds de Developpement de la Formation Professionnelle (FDFP),,,grey_none_verified,National skills / TVET training authority,true,pending,Côte d'Ivoire,SETA,https://www.fdfp.ci
 Fonds National de l'Emploi (FNE),,,grey_none_verified,National skills / TVET training authority,true,pending,Cameroon,SETA,
 Institut National de la Formation Professionnelle (INFP),,,grey_none_verified,National skills / TVET training authority,true,pending,Algeria,SETA,
 Federal TVET Institute,,,grey_none_verified,National skills / TVET training authority,true,pending,Ethiopia,SETA,
@@ -3028,16 +3024,16 @@ Universite de N Djamena,,,grey_none_verified,Public university,false,pending,Cha
 Universite Adam Barka d Abeche,,,grey_none_verified,Public university,false,pending,Chad,COLLEGE,
 Universite Marien Ngouabi,,,grey_none_verified,Public university (Brazzaville),false,pending,Congo,COLLEGE,
 Universite Denis Sassou Nguesso,,,grey_none_verified,Public university,false,pending,Congo,COLLEGE,
-Institut National Polytechnique Felix Houphouet-Boigny INP-HB,,https://www.careercenter.inphb.ci/,amber_company_route,"Public polytechnic (Yamoussoukro), own-domain career center",true,pending,Cote dIvoire,COLLEGE,https://www.careercenter.inphb.ci/
-Universite Felix Houphouet-Boigny,,,grey_none_verified,Public university (Abidjan-Cocody),false,pending,Cote dIvoire,COLLEGE,
-Universite Nangui Abrogoua,,,grey_none_verified,Public university,false,pending,Cote dIvoire,COLLEGE,
-Universite Alassane Ouattara Bouake,,,grey_none_verified,Public university,false,pending,Cote dIvoire,COLLEGE,
-Universite Jean Lorougnon Guede Daloa,,,grey_none_verified,Public university,false,pending,Cote dIvoire,COLLEGE,
-Universite Peleforo Gon Coulibaly Korhogo,,,grey_none_verified,Public university,false,pending,Cote dIvoire,COLLEGE,
-Universite Virtuelle de Cote d Ivoire UVCI,,,grey_none_verified,Public virtual university,false,pending,Cote dIvoire,COLLEGE,
-Universite Atlantique,,,grey_none_verified,Private university (Abidjan),false,pending,Cote dIvoire,COLLEGE,
-Universite Internationale de Grand-Bassam,,,grey_none_verified,Private university (American model),false,pending,Cote dIvoire,COLLEGE,
-Groupe CSI-Pole Polytechnique,,,grey_none_verified,Private higher institute,false,pending,Cote dIvoire,COLLEGE,
+Institut National Polytechnique Felix Houphouet-Boigny INP-HB,,https://www.careercenter.inphb.ci/,amber_company_route,"Public polytechnic (Yamoussoukro), own-domain career center",true,pending,Côte d'Ivoire,COLLEGE,https://www.careercenter.inphb.ci/
+Universite Felix Houphouet-Boigny,,,grey_none_verified,Public university (Abidjan-Cocody),false,pending,Côte d'Ivoire,COLLEGE,
+Universite Nangui Abrogoua,,,grey_none_verified,Public university,false,pending,Côte d'Ivoire,COLLEGE,
+Universite Alassane Ouattara Bouake,,,grey_none_verified,Public university,false,pending,Côte d'Ivoire,COLLEGE,
+Universite Jean Lorougnon Guede Daloa,,,grey_none_verified,Public university,false,pending,Côte d'Ivoire,COLLEGE,
+Universite Peleforo Gon Coulibaly Korhogo,,,grey_none_verified,Public university,false,pending,Côte d'Ivoire,COLLEGE,
+Universite Virtuelle de Cote d Ivoire UVCI,,,grey_none_verified,Public virtual university,false,pending,Côte d'Ivoire,COLLEGE,
+Universite Atlantique,,,grey_none_verified,Private university (Abidjan),false,pending,Côte d'Ivoire,COLLEGE,
+Universite Internationale de Grand-Bassam,,,grey_none_verified,Private university (American model),false,pending,Côte d'Ivoire,COLLEGE,
+Groupe CSI-Pole Polytechnique,,,grey_none_verified,Private higher institute,false,pending,Côte d'Ivoire,COLLEGE,
 Universite de Djibouti,,,grey_none_verified,Public university,false,pending,Djibouti,COLLEGE,
 Universidad Nacional de Guinea Ecuatorial UNGE,,,grey_none_verified,Public university,false,pending,Equatorial Guinea,COLLEGE,
 Eritrea Institute of Technology,,,grey_none_verified,Public higher institute,false,pending,Eritrea,COLLEGE,

@@ -1,8 +1,10 @@
 """Company CSV importer (blueprint section 20).
 
 Accepts the seed CSV (company_name, jse_code, careers_url, source_type, ...) and
-upserts Company records. Deduplicates on a normalised company name + JSE code so
-re-importing an updated file does not create duplicates.
+upserts Company records. Deduplicates on a normalised company name + JSE code +
+country. Name and ticker alone are not unique across the continent (the same
+skills-body name exists in Botswana and Mauritius); keying without country made
+a later blank row wipe a verified careers URL in another country.
 """
 from __future__ import annotations
 
@@ -45,10 +47,11 @@ def import_companies_from_csv(db: Session, content: bytes) -> CompanyImportResul
     created = updated = skipped = total = 0
     errors: list[str] = []
 
-    # Build an index of existing companies for dedup.
-    existing: dict[tuple[str, str], Company] = {}
+    # Build an index of existing companies for dedup. Country is part of the key
+    # so two employers that share a name in different countries stay two rows.
+    existing: dict[tuple[str, str, str], Company] = {}
     for c in db.query(Company).all():
-        existing[(_norm(c.company_name), (c.jse_code or "").strip().upper())] = c
+        existing[(_norm(c.company_name), (c.jse_code or "").strip().upper(), (c.country or "").strip())] = c
 
     for i, row in enumerate(reader, start=2):  # row 1 is the header
         total += 1
@@ -58,7 +61,8 @@ def import_companies_from_csv(db: Session, content: bytes) -> CompanyImportResul
             errors.append(f"Row {i}: missing company_name; skipped.")
             continue
         code = (row.get("jse_code") or "").strip().upper()
-        key = (_norm(name), code)
+        country = (row.get("country") or "South Africa").strip() or "South Africa"
+        key = (_norm(name), code, country)
 
         careers_url = (row.get("careers_url") or "").strip() or None
         source_type = (row.get("source_type") or "JSE").strip().upper()[:10] or "JSE"
@@ -69,7 +73,6 @@ def import_companies_from_csv(db: Session, content: bytes) -> CompanyImportResul
         active_raw = (row.get("active") or ("true" if careers_url else "false")).strip().lower()
         active = active_raw in ("true", "1", "yes", "y")
         notes = (row.get("relevance_note") or row.get("notes") or "").strip() or None
-        country = (row.get("country") or "South Africa").strip() or "South Africa"
         official_website = (row.get("official_website") or "").strip() or None
 
         company = existing.get(key)

@@ -7,7 +7,7 @@ split into hard vs soft (section 9). Change-detection state lives on the source.
 """
 from datetime import datetime, date
 
-from sqlalchemy import String, Integer, Text, Boolean, Date, DateTime, ForeignKey, JSON
+from sqlalchemy import String, Integer, Text, Boolean, Date, DateTime, ForeignKey, JSON, Index
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base, UUIDMixin, TimestampMixin
@@ -39,6 +39,9 @@ class VacancySource(UUIDMixin, TimestampMixin, Base):
 
 class Vacancy(UUIDMixin, TimestampMixin, Base):
     __tablename__ = "vacancies"
+    __table_args__ = (
+        Index("ix_vacancies_open_closing", "is_open", "closing_date"),
+    )
 
     company_id: Mapped[str] = mapped_column(
         String(36), ForeignKey("companies.id", ondelete="CASCADE"), index=True, nullable=False

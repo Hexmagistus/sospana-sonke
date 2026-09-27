@@ -11,5 +11,13 @@ jobs:
     steps:
       - name: Ping /health
         run: |
-          curl -sS --max-time 45 -o /dev/null -w "status=%{http_code} time=%{time_total}s\n" \
-            https://sospana-sonke-api.onrender.com/health || echo "Ping failed - backend may have been mid cold-start; not failing the workflow."
+          url=https://sospana-sonke-api.onrender.com/health
+          # Free-tier Render sleeps after ~15 minutes. The first request often
+          # spends its whole budget waking the instance, so a second hit in the
+          # same job reaches the process once it is up. Neither failure fails
+          # the workflow: a missed ping must not turn the Actions tab red.
+          curl -sS --max-time 50 -o /dev/null -w "first status=%{http_code} time=%{time_total}s\n" "$url" \
+            || echo "First ping timed out while the instance was waking."
+          sleep 8
+          curl -sS --max-time 30 -o /dev/null -w "second status=%{http_code} time=%{time_total}s\n" "$url" \
+            || echo "Ping failed - backend may still have been mid cold-start; not failing the workflow."

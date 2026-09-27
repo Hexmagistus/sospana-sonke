@@ -1,8 +1,8 @@
 "use client";
 
-// Ndebele-art-inspired decorative border bands (bold black-outlined geometric
-// triangles in bright alternating colors, echoing the mural/beadwork tradition
-// of the amaNdebele). Shared so any page can frame a card/section with it.
+// Ndebele-art-inspired decorative border. No page mounts this any more: the
+// band fought the photographic layout. Kept so the pattern can return as a
+// single accent without being redrawn. Logo, gold, and navy carry the brand.
 //
 // `palette` picks which row set to use -- "classic" is the original 3-row
 // strip (red/gold, navy/sky, green/orange); "vivid" is a wider 5-row strip

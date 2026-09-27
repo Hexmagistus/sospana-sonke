@@ -3,13 +3,15 @@
 Listing is available to any authenticated user; import, edit, and URL testing are
 administrator-only (role-based access control).
 """
+import time
 from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Request, UploadFile, File, Query, status
 from fastapi.responses import RedirectResponse
-from sqlalchemy import func, or_
+from sqlalchemy import and_, case, func, or_
 from sqlalchemy.orm import Session
 
+from app.core.config import settings
 from app.core.deps import get_current_user, require_admin
 from app.core.rate_limit import limiter, user_or_ip_key
 from app.db.session import get_db
@@ -81,10 +83,27 @@ def list_companies(
     return [CompanyResponse.model_validate(c) for c in query.all()]
 
 
+# Directory headline counts change only when an admin imports or edits a row.
+# A short in-process cache keeps the country tabs from re-running the group-by
+# on every page load. Off under ENV=test so a test that inserts a row and then
+# reads /facets cannot see a stale snapshot from an earlier test.
+_FACETS_TTL_SECONDS = 60.0
+_facets_cache: dict = {"at": 0.0, "data": None}
+
+
+def invalidate_company_facets_cache() -> None:
+    _facets_cache["data"] = None
+    _facets_cache["at"] = 0.0
+
+
 @router.get("/facets")
 def company_facets(db: Session = Depends(get_db), _: User = Depends(get_current_user)):
     """Counts for the directory's country tabs and headline stats -- numbers
     only, no company rows -- so the page never needs the full list."""
+    now = time.monotonic()
+    cached = _facets_cache["data"]
+    if settings.ENV != "test" and cached is not None and now - _facets_cache["at"] < _FACETS_TTL_SECONDS:
+        return cached
     rows = (db.query(Company.country, Company.source_type,
                      func.count(Company.id), func.count(Company.careers_url))
             .filter(Company.deleted_at.is_(None))
@@ -101,8 +120,12 @@ def company_facets(db: Session = Depends(get_db), _: User = Depends(get_current_
         type_counts[key] = type_counts.get(key, 0) + n
         total += n
         with_links += n_links
-    return {"total": total, "with_links": with_links, "country_counts": country_counts,
-            "country_with_links": country_with_links, "type_counts": type_counts}
+    payload = {"total": total, "with_links": with_links, "country_counts": country_counts,
+               "country_with_links": country_with_links, "type_counts": type_counts}
+    if settings.ENV != "test":
+        _facets_cache["at"] = now
+        _facets_cache["data"] = payload
+    return payload
 
 
 @router.get("/surprise", response_model=CompanyResponse)
@@ -124,23 +147,40 @@ def coverage_map(db: Session = Depends(get_db), _: User = Depends(get_current_us
     Doubles as the team's own to-do list for filling gaps, not just a stat for
     users -- see the "Full-Africa university coverage" note in the project
     doc for why this matters for the rows added fastest (universities)."""
-    buckets: dict[tuple[str, str], dict] = {}
-    for c in db.query(Company).filter(Company.deleted_at.is_(None)).all():
-        key = (c.country or "Unknown", (c.source_type or "").upper() or "OTHER")
-        b = buckets.setdefault(key, {"total": 0, "active": 0, "with_careers_url": 0,
-                                     "verified_ok": 0, "pending_verification": 0, "needs_attention": 0})
-        b["total"] += 1
-        b["active"] += int(c.active)
-        b["with_careers_url"] += int(bool(c.careers_url))
-        if c.scraping_status == "ok":
-            b["verified_ok"] += 1
-        elif c.scraping_status == "pending":
-            b["pending_verification"] += 1
-        elif c.scraping_status in _NEEDS_ATTENTION:
-            b["needs_attention"] += 1
-    rows = [CoverageRow(country=k[0], source_type=k[1], **v) for k, v in buckets.items()]
-    rows.sort(key=lambda r: (r.country, r.source_type))
-    return rows
+    # Same buckets as the previous row-by-row pass, computed in SQL so a
+    # multi-thousand-row directory is not loaded into Python on every view.
+    country_expr = func.coalesce(func.nullif(Company.country, ""), "Unknown")
+    type_expr = func.upper(func.coalesce(func.nullif(Company.source_type, ""), "OTHER"))
+    has_url = and_(Company.careers_url.isnot(None), Company.careers_url != "")
+    counted = (
+        db.query(
+            country_expr,
+            type_expr,
+            func.count(Company.id),
+            func.sum(case((Company.active.is_(True), 1), else_=0)),
+            func.sum(case((has_url, 1), else_=0)),
+            func.sum(case((Company.scraping_status == "ok", 1), else_=0)),
+            func.sum(case((Company.scraping_status == "pending", 1), else_=0)),
+            func.sum(case((Company.scraping_status.in_(tuple(_NEEDS_ATTENTION)), 1), else_=0)),
+        )
+        .filter(Company.deleted_at.is_(None))
+        .group_by(country_expr, type_expr)
+        .order_by(country_expr, type_expr)
+        .all()
+    )
+    return [
+        CoverageRow(
+            country=country,
+            source_type=source_type,
+            total=int(total or 0),
+            active=int(active or 0),
+            with_careers_url=int(with_url or 0),
+            verified_ok=int(verified or 0),
+            pending_verification=int(pending or 0),
+            needs_attention=int(needs or 0),
+        )
+        for country, source_type, total, active, with_url, verified, pending, needs in counted
+    ]
 
 
 @router.get("/trending", response_model=list[TrendingCompany])
@@ -231,7 +271,9 @@ async def import_companies(file: UploadFile = File(...), db: Session = Depends(g
                                 detail=f"File exceeds the {_MAX_IMPORT_MB} MB limit.")
         chunks.append(chunk)
     content = b"".join(chunks)
-    return import_companies_from_csv(db, content)
+    result = import_companies_from_csv(db, content)
+    invalidate_company_facets_cache()
+    return result
 
 
 @router.post("/{company_id}/test-url", response_model=UrlTestResult, dependencies=[Depends(require_admin)])
