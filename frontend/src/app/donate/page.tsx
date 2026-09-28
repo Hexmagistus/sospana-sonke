@@ -177,10 +177,12 @@ export default function DonatePage() {
         </p>
         {cash === null && <p className="mt-3 text-sm text-ss-muted">Checking whether cash send is published…</p>}
         {cash && !cash.ready && (
-          <Alert kind="info">
-            Cash send is coming soon — the recipient number isn&apos;t published yet. Card checkout above
-            still works once a payment provider is switched on. The kettle&apos;s on either way.
-          </Alert>
+          <div className="mt-3">
+            <Alert kind="info" onPhoto>
+              Cash send is coming soon — the recipient number isn&apos;t published yet. Card checkout above
+              still works once a payment provider is switched on. The kettle&apos;s on either way.
+            </Alert>
+          </div>
         )}
         {cash?.ready && cash.number && (
           <div className="mt-3 space-y-3">
