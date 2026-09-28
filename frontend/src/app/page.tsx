@@ -300,7 +300,9 @@ const VALUES = ["Ambition", "Opportunity", "Dignity", "Ubuntu", "Hustle", "Growt
 // the two HRDC rows that shared a name across countries) and normalising
 // country spellings in the CSV itself (Côte d'Ivoire, Cabo Verde, Congo,
 // Sao Tome and Principe). `pending` stays false — kept as a field in case a
-// country's data is ever pulled back out.
+// country's data is ever pulled back out. Oceania counts added 2026-09-28
+// from the same CSV (Australia 19, New Zealand 5, Fiji 1) — only employers
+// whose careers URL was fetched and showed open roles.
 const LIVE = [
   { name: "South Africa", flag: "🇿🇦", count: 974, pending: false },
   { name: "Zimbabwe", flag: "🇿🇼", count: 197, pending: false },
@@ -358,11 +360,14 @@ const LIVE = [
   { name: "Djibouti", flag: "🇩🇯", count: 24, pending: false },
   { name: "Somalia", flag: "🇸🇴", count: 22, pending: false },
   { name: "Sao Tome and Principe", flag: "🇸🇹", count: 20, pending: false },
+  { name: "Australia", flag: "🇦🇺", count: 19, pending: false },
   { name: "South Sudan", flag: "🇸🇸", count: 18, pending: false },
   { name: "Sudan", flag: "🇸🇩", count: 18, pending: false },
   { name: "Central African Republic", flag: "🇨🇫", count: 16, pending: false },
   { name: "Equatorial Guinea", flag: "🇬🇶", count: 11, pending: false },
   { name: "Eritrea", flag: "🇪🇷", count: 5, pending: false },
+  { name: "New Zealand", flag: "🇳🇿", count: 5, pending: false },
+  { name: "Fiji", flag: "🇫🇯", count: 1, pending: false },
 ];
 // All four countries that used to sit here (Niger, Guinea-Bissau, Equatorial
 // Guinea, Eritrea) got their first real seed rows in the 2026-09-24 COLLEGE
@@ -648,7 +653,7 @@ export default function Home() {
                     <span className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-75" style={{ background: C.mint }} />
                     <span className="relative inline-flex h-2 w-2 rounded-full" style={{ background: C.mint }} />
                   </span>
-                  Live across all 54 African nations · The full continent, one platform
+                  Live across all 54 African nations and Oceania
                 </span>
               </Reveal>
 
@@ -921,7 +926,7 @@ export default function Home() {
               <span className="inline-block rounded-full bg-white/10 px-4 py-1.5 text-xs font-semibold backdrop-blur-sm">🌍 Africa&apos;s Opportunity Map</span>
               <h2 className="mt-4 font-display text-2xl font-extrabold sm:text-4xl">Built for the region. Live across Africa.</h2>
               <p className="mt-3 max-w-3xl text-blue-100">
-                We&apos;re live across all 54 African nations — every SADC member state plus every other country across West, Central, East and North Africa. For a few of our newest markets we start with state-owned employers while their stock-exchange listings are added. Wherever you are, your ambition has a home here.
+                We&apos;re live across all 54 African nations — every SADC member state plus every other country across West, Central, East and North Africa. Australia, New Zealand and Fiji are in the same directory, each with a direct careers link. For a few of our newest markets we start with state-owned employers while their stock-exchange listings are added. Wherever you are, your ambition has a home here.
               </p>
             </Reveal>
 
@@ -940,13 +945,13 @@ export default function Home() {
                 ))}
               </div>
 
-              {/* A real "jump to a country" dropdown -- pick any of the 54,
+              {/* A real "jump to a country" dropdown -- pick any live country,
                   its card appears right below. No long list on the page. */}
               <CountryJumpSelect live={LIVE} soon={SOON} />
             </div>
 
             <p className="mt-5 text-sm font-semibold text-blue-100">
-              🎉 Live across all 54 African nations — the full continent, one platform.
+              🎉 Live across all 54 African nations and Oceania — direct careers links, one platform.
             </p>
 
             {/* Contribution ranking — which country is powering the most opportunities */}

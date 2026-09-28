@@ -329,7 +329,7 @@ function CompaniesDirectoryInner() {
             subtitle={
               <>
                 Browse the full directory and apply on each employer&apos;s official careers page.{" "}
-                <strong className="text-white"><AnimatedNumber value={facets.total} /></strong> companies across Africa ·{" "}
+                <strong className="text-white"><AnimatedNumber value={facets.total} /></strong> companies in the directory ·{" "}
                 <strong className="text-white"><AnimatedNumber value={withLinks} /></strong> with direct careers links.
               </>
             }

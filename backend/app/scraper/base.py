@@ -64,7 +64,11 @@ def detect_ats(url: str) -> tuple[str, dict]:
         # public API understands as country=za. Without it the global board
         # (thousands of jobs) is what comes back.
         token = _token_from_path(url)
-        if host.endswith("smartrecruiters.com") and host not in ("careers.smartrecruiters.com", "www.smartrecruiters.com", "api.smartrecruiters.com"):
+        # jobs.smartrecruiters.com/{Company} puts the company in the path.
+        # The "jobs" subdomain is not a company token.
+        if host.endswith("smartrecruiters.com") and host not in (
+                "careers.smartrecruiters.com", "www.smartrecruiters.com",
+                "api.smartrecruiters.com", "jobs.smartrecruiters.com"):
             token = host.split(".")[0]
         config = {"token": token}
         for part in urlparse(url).path.strip("/").split("/"):

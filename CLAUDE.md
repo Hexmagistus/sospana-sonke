@@ -18,9 +18,9 @@ commit it (and push, if you pushed the rest of your work). Newest entry on top.
   `hexmagistus1`). Backend: FastAPI (`backend/`), deployed on Render
   (`srv-da0le7tg1s2s73btqmbg`).
 - **Country coverage:** all 54 African nations are live in the `LIVE` array
-  (`frontend/src/app/page.tsx`) as of 2026-09-09 — see the Session Log for the
-  full history of batches. `SOON` is `[]` (empty) — coverage is complete, nothing
-  queued. **Caveat: "live" here means the seed CSV exists in
+  (`frontend/src/app/page.tsx`) as of 2026-09-09, plus Australia, New Zealand
+  and Fiji (direct careers links only) as of 2026-09-28 — see the Session Log.
+  `SOON` is `[]` (empty). **Caveat: "live" here means the seed CSV exists in
   `backend/seed/countries/` and the landing page reflects it — most of these
   countries (everything with `pending: true`) have NOT actually been imported into
   the production Postgres DB yet.** Only the original 16 SADC states plus the 10
@@ -48,6 +48,13 @@ commit it (and push, if you pushed the rest of your work). Newest entry on top.
   silently failing, and let Lungani run the `.bat` script if needed.
 
 ## Session Log
+
+### 2026-09-28 — Cursor (Grok 4.7) — Oceania employers with direct careers links
+Oceania only (later continents stay separate). 25 employers appended to `backend/seed/company_database_import.csv` after a fetch that followed redirects and confirmed open roles: Australia 19 (PRIVATE 10, SOE 1, UNI 5, HOSPITAL 2, MUNI 1), New Zealand 5 (PRIVATE 3, SOE 1, UNI 1), Fiji 1 (UNI). Workday and SmartRecruiters URLs are the board the scraper already classifies. `jobs.smartrecruiters.com/{company}` now keeps the path token so the scanner does not ask the API for company "jobs".
+
+Production path is unchanged: `AUTO_SEED` in `render.yaml` upserts that CSV on every boot (`bootstrap.py` → `import_companies_from_csv`). The known "Bootstrap CSV import failed … varchar(30)" abort was 11 existing `scraping_status` cells longer than `companies.scraping_status` String(30). Postgres rolls the whole import back; SQLite tests did not. The importer now maps those cells to `ok`, `needs_review`, or `needs_real_url` (column not widened). New Oceania rows use `pending`, which the importer promotes to `ok` because `careers_status` is `direct vacancy list`.
+
+Dropped, rather than guessed: Workday site slugs that returned 422/404, Greenhouse/Lever 404s, SmartRecruiters boards with 0 postings, HTTP 403/404/timeouts, JavaScript shells with no roles in the HTML (APS Jobs, NSW, Health NZ search, PNG public-service app), marketing pages, Rio Tinto's search page ("0 Live Results"), PNG Foreign Affairs ("we don't have any position vacancy"), and Solomon Islands MEHRD (applications had closed 18 Sep 2026). No verified DEPT, COLLEGE, NGO, or SETA page, and no verified employer in PNG, Samoa, Tonga, Solomon Islands, or Vanuatu. Homepage `LIVE` counts and flags include the three countries that did verify. Directory country filter still comes from `/companies/facets`, so they show up without a new dropdown and are not in the BRICS-only list.
 
 ### 2026-09-28 (later) — Cursor (Grok 4.7) — Point the repo at the Frankfurt API host
 The backend is moving to a new Render service, `sospana-sonke-api-fra` in Frankfurt (`https://sospana-sonke-api-fra.onrender.com`). The old Oregon host stays in place until cutover, so this branch should not be merged before that switch. Workflows, CSP `connect-src`, `render.yaml` (`region: frankfurt`, `rootDir: backend`, `PUBLIC_API_URL`), `DEPLOYMENT.md`, and `backend/.env.example` now use the new host. `frontend/src/lib/api.ts` still falls back to localhost; production uses `NEXT_PUBLIC_API_URL` on Vercel, which has to be changed at cutover.
