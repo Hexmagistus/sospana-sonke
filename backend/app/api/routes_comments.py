@@ -1,12 +1,16 @@
 """Community tips under employer links: quick status tags + short tips, so others decide faster.
 
 Tips are public to every visitor and expire 30 days after posting; only signed-in members can post."""
+import time
 from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from pydantic import BaseModel, Field
-from sqlalchemy import func
+from sqlalchemy import case, func, select
 from sqlalchemy.orm import Session
+
+from app.core.config import settings
+from app.core.http_cache import cached_json
 
 from app.core.deps import get_current_user, get_current_user_optional, require_admin
 from app.core.rate_limit import limiter
@@ -19,6 +23,18 @@ from app.models.user import User
 from app.services.message_filter import check_message
 
 router = APIRouter(tags=["comments"])
+
+# Public summary is the same for every visitor. Held in-process so a warm
+# instance does not pay two Neon round trips on every card render. Off under
+# ENV=test so a test that posts a tip and then reads the summary sees it.
+_SUMMARY_TTL_SECONDS = 30.0
+_summary_cache: dict = {"at": 0.0, "data": None}
+_SUMMARY_CACHE_CONTROL = "public, max-age=30, s-maxage=30, stale-while-revalidate=120"
+
+
+def invalidate_comment_summary_cache() -> None:
+    _summary_cache["data"] = None
+    _summary_cache["at"] = 0.0
 
 MAX_PER_DAY = 30
 MAX_PER_COMPANY = 200
@@ -37,6 +53,8 @@ def _cutoff() -> datetime:
 def purge_expired_comments(db: Session) -> int:
     n = db.query(CompanyComment).filter(CompanyComment.created_at <= _cutoff()).delete(synchronize_session=False)
     db.commit()
+    if n:
+        invalidate_comment_summary_cache()
     return n
 
 
@@ -96,21 +114,89 @@ def _notify_mentions(db: Session, c: CompanyComment, author: User, company: Comp
     db.commit()
 
 
-@router.get("/comments/summary")
-def summary(db: Session = Depends(get_db)):  # public
-    """{company_id: {"total": n, "works": n}} for card badges."""
-    rows = (db.query(CompanyComment)
-            .filter(CompanyComment.hidden.is_(False), CompanyComment.created_at > _cutoff())
-            .order_by(CompanyComment.created_at.desc()).limit(2000).all())
-    users = {u.id: u for u in db.query(User).filter(User.id.in_({r.user_id for r in rows})).all()} if rows else {}
+def _summary_payload(db: Session) -> dict:
+    """One round trip: per-company counts plus the newest tip's author.
+
+    The previous version loaded up to 2000 full comment rows and then a second
+    query for every author. The card only needs total / works / broken and the
+    latest kind, body, and display name.
+    """
+    cutoff = _cutoff()
+    visible = (
+        select(
+            CompanyComment.company_id,
+            CompanyComment.kind,
+            CompanyComment.body,
+            CompanyComment.user_id,
+            CompanyComment.created_at,
+        )
+        .where(CompanyComment.hidden.is_(False), CompanyComment.created_at > cutoff)
+        .cte("visible_comments")
+    )
+    counts = (
+        select(
+            visible.c.company_id,
+            func.count(visible.c.company_id).label("total"),
+            func.sum(case((visible.c.kind == "works", 1), else_=0)).label("works"),
+            func.sum(case((visible.c.kind == "broken", 1), else_=0)).label("broken"),
+        )
+        .group_by(visible.c.company_id)
+        .cte("comment_counts")
+    )
+    ranked = select(
+        visible.c.company_id,
+        visible.c.kind,
+        visible.c.body,
+        visible.c.user_id,
+        func.row_number().over(
+            partition_by=visible.c.company_id,
+            order_by=visible.c.created_at.desc(),
+        ).label("rn"),
+    ).cte("ranked_comments")
+    stmt = (
+        select(
+            counts.c.company_id,
+            counts.c.total,
+            counts.c.works,
+            counts.c.broken,
+            ranked.c.kind,
+            ranked.c.body,
+            User.first_name,
+            User.last_name,
+        )
+        .join(ranked, (ranked.c.company_id == counts.c.company_id) & (ranked.c.rn == 1))
+        .outerjoin(User, User.id == ranked.c.user_id)
+    )
     out: dict[str, dict] = {}
-    for r in rows:  # newest first, so the first row per company is its latest tip
-        d = out.setdefault(r.company_id, {"total": 0, "works": 0, "broken": 0, "latest": {
-            "kind": r.kind, "body": r.body, "author": _name(users.get(r.user_id))}})
-        d["total"] += 1
-        if r.kind in ("works", "broken"):
-            d[r.kind] += 1
+    for row in db.execute(stmt):
+        first = row.first_name or ""
+        last = (row.last_name or "").strip()
+        if not first and not last:
+            author = "Member"
+        else:
+            author = f"{first} {last[:1]}." if last else first
+        out[row.company_id] = {
+            "total": int(row.total or 0),
+            "works": int(row.works or 0),
+            "broken": int(row.broken or 0),
+            "latest": {"kind": row.kind, "body": row.body, "author": author},
+        }
     return out
+
+
+@router.get("/comments/summary")
+def summary(request: Request, db: Session = Depends(get_db)):  # public
+    """{company_id: {"total": n, "works": n, "broken": n, "latest": {...}}} for card badges."""
+    now = time.monotonic()
+    cached = _summary_cache["data"]
+    if settings.ENV != "test" and cached is not None and now - _summary_cache["at"] < _SUMMARY_TTL_SECONDS:
+        payload = cached
+    else:
+        payload = _summary_payload(db)
+        if settings.ENV != "test":
+            _summary_cache["at"] = now
+            _summary_cache["data"] = payload
+    return cached_json(request, payload, cache_control=_SUMMARY_CACHE_CONTROL)
 
 
 @router.get("/companies/{company_id}/comments", response_model=CommentsResponse)
@@ -155,6 +241,7 @@ def add_comment(request: Request, company_id: str, body: CommentIn, db: Session 
     db.add(c)
     db.commit()
     db.refresh(c)
+    invalidate_comment_summary_cache()
     _notify_mentions(db, c, user, company, body.mentions)
     return CommentOut(id=c.id, kind=c.kind, body=c.body, author=_name(user), mine=True, created_at=c.created_at)
 
@@ -166,6 +253,7 @@ def delete_comment(comment_id: str, db: Session = Depends(get_db), user: User = 
         raise HTTPException(404, "Not found.")
     db.delete(c)
     db.commit()
+    invalidate_comment_summary_cache()
 
 
 @router.post("/comments/{comment_id}/flag", status_code=status.HTTP_204_NO_CONTENT)
@@ -181,6 +269,7 @@ def flag_comment(request: Request, comment_id: str, db: Session = Depends(get_db
         if db.query(CommentFlag).filter_by(comment_id=c.id).count() >= HIDE_AT_FLAGS:
             c.hidden = True
     db.commit()
+    invalidate_comment_summary_cache()
 
 
 @router.get("/admin/comments/flagged")
@@ -199,3 +288,4 @@ def admin_restore(comment_id: str, db: Session = Depends(get_db), _: User = Depe
     db.query(CommentFlag).filter_by(comment_id=c.id).delete()
     c.hidden = False
     db.commit()
+    invalidate_comment_summary_cache()

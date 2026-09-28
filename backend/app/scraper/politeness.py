@@ -7,8 +7,10 @@ robots handling can be exercised offline.
 """
 from __future__ import annotations
 
+import contextvars
 import logging
 import time
+from contextlib import contextmanager
 from urllib.parse import urlparse
 from urllib.robotparser import RobotFileParser
 
@@ -17,6 +19,22 @@ import httpx
 from app.core.config import settings
 
 logger = logging.getLogger(__name__)
+
+# The cron scan sets this so one dead host cannot burn retries * timeout.
+# Unset (None) leaves request_with_backoff's own `retries` argument alone.
+_backoff_retry_cap: contextvars.ContextVar[int | None] = contextvars.ContextVar(
+    "backoff_retry_cap", default=None,
+)
+
+
+@contextmanager
+def backoff_retry_cap(retries: int):
+    """Cap request_with_backoff attempts for the current context."""
+    token = _backoff_retry_cap.set(retries)
+    try:
+        yield
+    finally:
+        _backoff_retry_cap.reset(token)
 
 
 class RobotsChecker:
@@ -91,6 +109,9 @@ def request_with_backoff(client: httpx.Client, url: str, retries: int = 3,
     failure, so it is retried like a 5xx -- and its Retry-After header (when
     present and a plain number of seconds) sets the wait instead of guessing.
     """
+    cap = _backoff_retry_cap.get()
+    if cap is not None:
+        retries = max(1, min(retries, cap))
     last_exc: Exception | None = None
     for attempt in range(retries):
         try:

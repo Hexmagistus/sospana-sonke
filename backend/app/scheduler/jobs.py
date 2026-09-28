@@ -76,7 +76,7 @@ def scan_south_africa(db: Session, job_run_id: str | None = None) -> dict:
 
 
 def scan_due_companies(db: Session, limit: int = 40, job_run_id: str | None = None,
-                       max_seconds: float = 70.0) -> dict:
+                       max_seconds: float = 55.0) -> dict:
     """Scan the N companies checked longest ago (never-checked first), then stamp
     them so the next run picks up the following batch.
 
@@ -97,9 +97,16 @@ def scan_due_companies(db: Session, limit: int = 40, job_run_id: str | None = No
     So this now bails out of the loop once max_seconds of wall-clock time has
     passed, whatever count it has reached -- every run is bounded by TIME, not
     by how many of the batch happen to be slow, so it always returns well
-    inside the calling workflow's timeout. limit is now just an upper cap for
-    a lucky all-fast batch, not the throttle; raising it further is safe on
-    its own, since the time budget is what actually protects each run.
+    inside the calling workflow's timeout (curl --max-time 100). A company is
+    not started unless about 20 seconds remain, HTTP retries are capped at one
+    attempt, and each request times out at 8 seconds. That keeps one dead host
+    from running past the workflow limit after the loop has already decided
+    there is time left. limit is now just an upper cap for a lucky all-fast
+    batch, not the throttle.
+
+    The scan uses the request's single DB session (one checkout from the
+    pool of 5 + 2 overflow). It does not open a thread pool of sessions, so
+    user requests still have connections left.
 
     Deliberately skips the "N new jobs" candidate broadcast that
     scan_all_companies/scan_south_africa send: NOTIFY_EMAILS is on in
@@ -122,24 +129,37 @@ def scan_due_companies(db: Session, limit: int = 40, job_run_id: str | None = No
     new_vacancy_ids: list[str] = []
     started = time.monotonic()
     timed_out = False
-    for company in companies:
-        if time.monotonic() - started > max_seconds:
-            timed_out = True
-            break
-        try:
-            reports = scan_company(db, company)
-            scanned += 1
-            created += sum(r.created for r in reports)
-            failed += sum(1 for r in reports if r.status not in ("ok", "empty"))
-            for r in reports:
-                new_vacancy_ids.extend(r.created_vacancy_ids)
-        except Exception:
-            logger.warning("scan_due_companies: failed to scan %s (%s)",
-                           company.company_name, company.id, exc_info=True)
-            failed += 1
-        company.last_checked = now
-        db.add(company)
-        db.commit()
+    # Don't begin a company that cannot finish inside the remaining budget.
+    # robots.txt + one page, one attempt each, 8s timeout, plus a little slack.
+    _MIN_START_SECONDS = 20.0
+    from app.scraper.politeness import backoff_retry_cap
+    client = httpx.Client(
+        timeout=httpx.Timeout(8.0, connect=5.0),
+        follow_redirects=True,
+        headers={"User-Agent": settings.URL_TEST_USER_AGENT},
+    )
+    try:
+        with backoff_retry_cap(1):
+            for company in companies:
+                if max_seconds - (time.monotonic() - started) < _MIN_START_SECONDS:
+                    timed_out = True
+                    break
+                try:
+                    reports = scan_company(db, company, client=client)
+                    scanned += 1
+                    created += sum(r.created for r in reports)
+                    failed += sum(1 for r in reports if r.status not in ("ok", "empty"))
+                    for r in reports:
+                        new_vacancy_ids.extend(r.created_vacancy_ids)
+                except Exception:
+                    logger.warning("scan_due_companies: failed to scan %s (%s)",
+                                   company.company_name, company.id, exc_info=True)
+                    failed += 1
+                company.last_checked = now
+                db.add(company)
+                db.commit()
+    finally:
+        client.close()
     # No candidate broadcast here -- see the docstring; it's the one uncapped,
     # potentially-per-candidate-email step and doesn't belong in a job whose
     # whole point is to return within a tight time budget every few hours.

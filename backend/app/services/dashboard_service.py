@@ -5,7 +5,7 @@ dashboard. All figures are computed deterministically from the database.
 """
 from __future__ import annotations
 
-from sqlalchemy import func
+from sqlalchemy import case, func
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
@@ -56,40 +56,51 @@ def _profile_nudge(db: Session, user: User) -> str | None:
             f"complete your profile so we can match you more precisely.")
 
 
+def _as_int(value) -> int:
+    return int(value or 0)
+
+
 def candidate_dashboard(db: Session, user: User) -> dict:
     # No subscription fields here -- Sospana Sonke is free forever, so a
     # candidate's dashboard has nothing to report about billing.
+    #
+    # Counts that used to be one SELECT each are folded into a single aggregate
+    # per table, so a dashboard view is a handful of round trips instead of ~12.
 
-    def match_count(**filt):
-        q = db.query(func.count(CandidateMatch.id)).filter(CandidateMatch.user_id == user.id)
-        for k, v in filt.items():
-            q = q.filter(getattr(CandidateMatch, k) == v)
-        return q.scalar() or 0
+    match_total, strong, apply_n = db.query(
+        func.count(CandidateMatch.id),
+        func.coalesce(func.sum(case((CandidateMatch.band.in_(tuple(_STRONG_BANDS)), 1), else_=0)), 0),
+        func.coalesce(func.sum(case((CandidateMatch.decision == "APPLY", 1), else_=0)), 0),
+    ).filter(CandidateMatch.user_id == user.id).one()
 
-    def app_count(*statuses):
-        q = db.query(func.count(Application.id)).filter(Application.user_id == user.id)
-        if statuses:
-            q = q.filter(Application.status.in_(statuses))
-        return q.scalar() or 0
+    app_total, submitted, awaiting, interviews, offers = db.query(
+        func.count(Application.id),
+        func.coalesce(func.sum(case((Application.status == "SUBMITTED", 1), else_=0)), 0),
+        func.coalesce(func.sum(case((Application.status.in_(tuple(_AWAITING)), 1), else_=0)), 0),
+        func.coalesce(func.sum(case((Application.status == "INTERVIEW", 1), else_=0)), 0),
+        func.coalesce(func.sum(case((Application.status == "OFFER", 1), else_=0)), 0),
+    ).filter(Application.user_id == user.id).one()
 
-    strong = (db.query(func.count(CandidateMatch.id))
-              .filter(CandidateMatch.user_id == user.id, CandidateMatch.band.in_(_STRONG_BANDS))
-              .scalar() or 0)
+    open_n, listings_updated_at = db.query(
+        func.count(Vacancy.id),
+        func.max(Vacancy.last_seen_at),
+    ).filter(Vacancy.is_open.is_(True)).one()
 
     return {
-        "vacancies_open": db.query(func.count(Vacancy.id)).filter(Vacancy.is_open.is_(True)).scalar() or 0,
-        "total_matches": match_count(),
-        "strong_matches": strong,
-        "apply_matches": match_count(decision="APPLY"),
-        "cvs_generated": db.query(func.count(CVVersion.id)).filter(CVVersion.user_id == user.id).scalar() or 0,
-        "cover_letters_generated": db.query(func.count(CoverLetter.id)).filter(CoverLetter.user_id == user.id).scalar() or 0,
-        "applications_total": app_count(),
-        "applications_submitted": app_count("SUBMITTED"),
-        "applications_awaiting_action": app_count(*_AWAITING),
-        "interviews": app_count("INTERVIEW"),
-        "offers": app_count("OFFER"),
-        "listings_updated_at": (db.query(func.max(Vacancy.last_seen_at))
-                                .filter(Vacancy.is_open.is_(True)).scalar()),
+        "vacancies_open": _as_int(open_n),
+        "total_matches": _as_int(match_total),
+        "strong_matches": _as_int(strong),
+        "apply_matches": _as_int(apply_n),
+        "cvs_generated": _as_int(
+            db.query(func.count(CVVersion.id)).filter(CVVersion.user_id == user.id).scalar()),
+        "cover_letters_generated": _as_int(
+            db.query(func.count(CoverLetter.id)).filter(CoverLetter.user_id == user.id).scalar()),
+        "applications_total": _as_int(app_total),
+        "applications_submitted": _as_int(submitted),
+        "applications_awaiting_action": _as_int(awaiting),
+        "interviews": _as_int(interviews),
+        "offers": _as_int(offers),
+        "listings_updated_at": listings_updated_at,
         "profile_nudge": _profile_nudge(db, user),
     }
 

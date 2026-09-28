@@ -8,8 +8,9 @@ name: Scan careers pages
 # GitHub's cron is best-effort. A */15 schedule can slip by minutes, and a
 # cold Render instance can take about a minute to wake. A public JSON board
 # is scanned again about an hour after its last success. Ordinary HTML pages
-# wait about six hours. The first pass of the directory is slower because
-# each call only has about 70 seconds of work.
+# wait about six hours. Each scan_due_companies call stops after about 55
+# seconds and will not start a company unless 20 seconds remain, so this
+# job's 100 second curl limit is not what cuts the run off.
 #
 # ONE-TIME SETUP — the same secret in both places:
 #   1. Render dashboard → sospana-sonke-api → Environment →

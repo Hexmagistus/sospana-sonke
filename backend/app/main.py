@@ -1,8 +1,9 @@
 """Sospana Sonke API entrypoint."""
 import logging
+import os
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
@@ -14,7 +15,7 @@ from app.core.config import settings
 from app.core.logging import configure_logging
 from app.core.origins import VERCEL_ORIGIN_REGEX
 from app.core.rate_limit import limiter
-from app.db.session import init_db
+from app.db.session import describe_database, init_db
 from app.api import (
     routes_auth, routes_companies, routes_profile, routes_cv, routes_vacancies, routes_matches,
     routes_documents, routes_applications, routes_subscription, routes_donation, routes_dashboard,
@@ -145,8 +146,19 @@ def create_app() -> FastAPI:
                       "storage was made permanent. Please re-upload your CV or generate the document again."})
 
     @app.get("/health", tags=["system"])
-    def health() -> dict:
-        return {"status": "ok", "app": settings.APP_NAME, "env": settings.ENV}
+    def health(response: Response) -> dict:
+        # no-store: a redeploy must show the new RENDER_GIT_COMMIT immediately.
+        # db_pooled / db_region come from the hostname only (no credentials).
+        response.headers["Cache-Control"] = "no-store"
+        db = describe_database()
+        return {
+            "status": "ok",
+            "app": settings.APP_NAME,
+            "env": settings.ENV,
+            "commit": os.environ.get("RENDER_GIT_COMMIT") or None,
+            "db_pooled": db["pooled"],
+            "db_region": db["region"],
+        }
 
     app.include_router(routes_auth.router, prefix=settings.API_V1_PREFIX)
     app.include_router(routes_companies.router, prefix=settings.API_V1_PREFIX)
