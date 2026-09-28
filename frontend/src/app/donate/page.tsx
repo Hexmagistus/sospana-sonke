@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Card, Button, Input, Textarea, Field, Alert } from "@/components/ui";
 import { api, ApiError } from "@/lib/api";
@@ -17,6 +17,23 @@ export default function DonatePage() {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [cash, setCash] = useState<{ ready: boolean; number: string | null; reference: string } | null>(null);
+  const [copied, setCopied] = useState("");
+
+  useEffect(() => {
+    api.get<{ ready: boolean; number: string | null; reference: string }>("/donations/cashsend")
+      .then(setCash)
+      .catch(() => setCash({ ready: false, number: null, reference: "Sospana Sonke donation" }));
+  }, []);
+
+  async function copy(label: string, value: string) {
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopied(label);
+    } catch {
+      setCopied("");
+    }
+  }
 
   const effectiveAmount = usingCustom ? Number(customAmount) : amount;
   const canSubmit =
@@ -55,9 +72,9 @@ export default function DonatePage() {
       <div>
         <h1 className="text-2xl font-bold text-ss-text">Help keep Sospana Sonke free</h1>
         <p className="mt-1.5 text-sm text-ss-muted">
-          Sospana Sonke doesn&apos;t charge jobseekers anything — every feature is free for everyone
-          across Southern Africa. If it&apos;s helped you, a small voluntary donation helps cover the
-          hosting and running costs so it can stay that way for the next person.
+          Sospana Sonke doesn&apos;t charge jobseekers anything. If it&apos;s helped you, a small
+          voluntary donation helps cover hosting. It does not unlock features, and it is not a payment
+          for a job. We never see or store your card or bank details.
         </p>
       </div>
 
@@ -143,29 +160,50 @@ export default function DonatePage() {
             Donate R{Number.isFinite(effectiveAmount) && effectiveAmount > 0 ? Math.round(effectiveAmount) : "…"} →
           </Button>
           <p className="text-center text-xs text-ss-muted">
-            Secure card checkout via Paystack. Donations are voluntary and non-refundable, and don&apos;t
-            unlock any extra features — the app is free either way.
+            Card checkout opens on the payment provider&apos;s page (Paystack when that is switched on).
+            This server does not collect the card number. If card payments are not live yet, the button
+            will say so — cash send below is the other option.
           </p>
         </form>
       </Card>
       </GlowFrame>
 
       <Card>
-        <h2 className="mb-2 font-semibold text-ss-text">Prefer a direct bank transfer?</h2>
+        <h2 className="mb-2 font-semibold text-ss-text">Cash send from a South African bank app</h2>
         <p className="text-sm text-ss-muted">
-          You&apos;re welcome to send a donation straight to the project&apos;s bank account instead:
+          Open your own bank app and use FNB eWallet, ABSA CashSend, Standard Bank Instant Money,
+          Nedbank Send-iMali, or Capitec cash send. You pay inside the bank app. We only show a
+          cellphone number, and only when it has been configured.
         </p>
-        <dl className="mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-sm text-ss-text">
-          <dt className="font-medium text-ss-muted">Bank</dt>
-          <dd>Capitec Bank</dd>
-          <dt className="font-medium text-ss-muted">Account number</dt>
-          <dd>2581657193</dd>
-          <dt className="font-medium text-ss-muted">SWIFT/BIC</dt>
-          <dd>CABLZAJJ</dd>
-        </dl>
-        <p className="mt-2 text-xs text-ss-muted">
-          Please use &quot;Sospana Sonke donation&quot; as your payment reference.
-        </p>
+        {cash === null && <p className="mt-3 text-sm text-ss-muted">Checking whether cash send is published…</p>}
+        {cash && !cash.ready && (
+          <Alert kind="info">
+            Cash send is coming soon — the recipient number isn&apos;t published yet. Card checkout above
+            still works once a payment provider is switched on. The kettle&apos;s on either way.
+          </Alert>
+        )}
+        {cash?.ready && cash.number && (
+          <div className="mt-3 space-y-3">
+            <p className="text-sm text-ss-text">
+              Send to <span className="font-semibold">{cash.number}</span>. Reference:{" "}
+              <span className="font-semibold">{cash.reference}</span>.
+            </p>
+            <div className="flex flex-wrap gap-2">
+              <Button type="button" variant="secondary" onClick={() => copy("number", cash.number || "")}>
+                {copied === "number" ? "Number copied" : "Copy number"}
+              </Button>
+              <Button type="button" variant="secondary" onClick={() => copy("reference", cash.reference)}>
+                {copied === "reference" ? "Reference copied" : "Copy reference"}
+              </Button>
+            </div>
+            {copied && (
+              <p className="text-sm text-ss-text" role="status">
+                Copied. Open your bank app, choose cash send, and paste. We don&apos;t get a receipt from
+                the bank, so this screen cannot confirm the money arrived.
+              </p>
+            )}
+          </div>
+        )}
       </Card>
 
       <p className="text-center text-sm">

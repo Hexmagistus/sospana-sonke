@@ -37,6 +37,9 @@ class User(UUIDMixin, TimestampMixin, Base):
     # NULL = never accepted (accounts created before the consent flow, or Google sign-ups).
     policy_accepted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     policy_version: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    # Separate from the required processing consent. Default off. An admin may
+    # only notify or tag someone about a matching post when this is true.
+    notify_opportunity_alerts: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     # Temporary messaging. Opt-in: nobody can be messaged until they switch this on.
     allow_messages: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     # Set by an admin after a confirmed abuse report; the user can no longer send messages.

@@ -14,11 +14,31 @@ on automatically; leave it unset and this is a no-op.
 from __future__ import annotations
 
 import logging
+import re
 import sys
 
 from app.core.config import settings
 
 _CONFIGURED = False
+_EMAIL = re.compile(r"[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}")
+
+
+def _redact(value):
+    if isinstance(value, str):
+        return _EMAIL.sub("[redacted-email]", value)
+    return value
+
+
+class RedactEmailFilter(logging.Filter):
+    """Strip email-shaped strings from log records before they hit stdout."""
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        record.msg = _redact(record.msg)
+        if isinstance(record.args, dict):
+            record.args = {k: _redact(v) for k, v in record.args.items()}
+        elif isinstance(record.args, tuple):
+            record.args = tuple(_redact(a) for a in record.args)
+        return True
 
 
 def configure_logging() -> None:
@@ -38,7 +58,12 @@ def configure_logging() -> None:
             fmt="%(asctime)s %(levelname)-8s %(name)s: %(message)s",
             datefmt="%Y-%m-%dT%H:%M:%S%z",
         ))
+        handler.addFilter(RedactEmailFilter())
         root.addHandler(handler)
+    else:
+        for handler in root.handlers:
+            if not any(isinstance(f, RedactEmailFilter) for f in handler.filters):
+                handler.addFilter(RedactEmailFilter())
 
     _init_sentry()
 

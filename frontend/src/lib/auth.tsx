@@ -23,6 +23,7 @@ interface RegisterData {
   preferred_position?: string;
   qualification_name?: string;
   accepted_policy?: boolean;
+  notify_opportunity_alerts?: boolean;
 }
 
 const AuthContext = createContext<AuthState | null>(null);

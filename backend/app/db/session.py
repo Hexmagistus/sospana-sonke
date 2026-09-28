@@ -102,6 +102,7 @@ _NEW_COLUMNS: list[tuple[str, str, str]] = [
     ("users", "qualification_name", "VARCHAR(200)"),
     ("users", "policy_accepted_at", "TIMESTAMP WITH TIME ZONE" if not DATABASE_URL.startswith("sqlite") else "TIMESTAMP"),
     ("users", "policy_version", "VARCHAR(20)"),
+    ("users", "notify_opportunity_alerts", "BOOLEAN DEFAULT FALSE"),
     ("users", "allow_messages", "BOOLEAN DEFAULT FALSE"),
     ("users", "messaging_banned", "BOOLEAN DEFAULT FALSE"),
     ("users", "token_version", "INTEGER NOT NULL DEFAULT 0"),

@@ -15,6 +15,8 @@ class RegisterRequest(BaseModel):
     qualification_name: str | None = Field(default=None, max_length=200)
     # True when the user ticked the POPIA consent box (Privacy Policy + Terms).
     accepted_policy: bool = False
+    # Separate, optional. Opportunity alerts from an administrator. Off unless ticked.
+    notify_opportunity_alerts: bool = False
 
 
 class LoginRequest(BaseModel):
@@ -52,6 +54,17 @@ class UserResponse(BaseModel):
     policy_accepted_at: datetime | None = None
     policy_version: str | None = None
     allow_messages: bool = False
+    notify_opportunity_alerts: bool = False
+
+
+class AcceptPolicyRequest(BaseModel):
+    """Processing consent is recorded by calling the endpoint. This flag is the
+    separate opportunity-alert opt-in, and stays false unless the person ticks it."""
+    notify_opportunity_alerts: bool = False
+
+
+class OpportunityAlertsRequest(BaseModel):
+    enabled: bool
 
 
 class MFASetupResponse(BaseModel):

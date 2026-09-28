@@ -1,10 +1,14 @@
 """Dashboard and report routes (blueprint Steps 10, sections 18, 19, 21, 44)."""
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+import re
+
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
+from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from app.core.deps import get_current_user, require_admin
 from app.core.http_cache import private_short_cache
 from app.db.session import get_db
+from app.models.admin_ops import AdminAuditLog, UserTag
 from app.models.report import Report
 from app.models.user import User
 from app.schemas.report import AdminDashboardResponse, CandidateDashboardResponse, ReportResponse
@@ -37,13 +41,50 @@ def get_admin_analytics(db: Session = Depends(get_db)):
     return admin_analytics(db)
 
 
+_TAG = re.compile(r"^[A-Za-z0-9][A-Za-z0-9 \-]{0,39}$")
+
+
+class TagRequest(BaseModel):
+    tag: str = Field(min_length=1, max_length=40)
+
+
+def _eligible_for_alerts(user: User) -> bool:
+    return bool(
+        user.role == "candidate"
+        and user.is_active
+        and user.notify_opportunity_alerts
+        and (user.preferred_position or "").strip()
+    )
+
+
+def _audit(db: Session, admin_id: str, action: str, target_user_id: str | None, detail: str) -> None:
+    db.add(AdminAuditLog(
+        admin_id=admin_id,
+        action=action[:40],
+        target_user_id=target_user_id,
+        detail=detail[:500],
+    ))
+
+
 @router.get("/admin/users", dependencies=[Depends(require_admin)])
-def list_users(db: Session = Depends(get_db), limit: int = 1000):
+def list_users(db: Session = Depends(get_db), limit: int = 1000,
+               with_preference: bool = Query(default=False)):
     """Every registered account, newest first — email, contact, and whether they
-    have built a candidate profile. Admin-only."""
+    have built a candidate profile. Admin-only.
+
+    with_preference=true keeps only people who typed a preferred post.
+    """
     from app.models.profile import CandidateProfile
     profiles = {p.user_id: p for p in db.query(CandidateProfile).all()}
-    rows = db.query(User).order_by(User.created_at.desc()).limit(limit).all()
+    q = db.query(User).order_by(User.created_at.desc())
+    if with_preference:
+        q = q.filter(User.preferred_position.isnot(None), User.preferred_position != "")
+    rows = q.limit(min(limit, 1000)).all()
+    tags_by_user: dict[str, list[str]] = {}
+    if rows:
+        ids = [u.id for u in rows]
+        for tag in db.query(UserTag).filter(UserTag.user_id.in_(ids)).all():
+            tags_by_user.setdefault(tag.user_id, []).append(tag.tag)
     out = []
     for u in rows:
         p = profiles.get(u.id)
@@ -57,12 +98,54 @@ def list_users(db: Session = Depends(get_db), limit: int = 1000):
             "role": u.role,
             "email_verified": u.email_verified,
             "is_active": u.is_active,
+            "notify_opportunity_alerts": bool(u.notify_opportunity_alerts),
+            "tags": tags_by_user.get(u.id, []),
             "created_at": u.created_at.isoformat() if u.created_at else None,
             "has_profile": p is not None,
             "city": p.city if p else None,
             "current_occupation": p.current_occupation if p else None,
         })
     return out
+
+
+@router.post("/admin/users/{user_id}/tags", dependencies=[Depends(require_admin)])
+def add_user_tag(user_id: str, body: TagRequest, db: Session = Depends(get_db),
+                 admin: User = Depends(require_admin)):
+    """Tag someone who opted in and named a preferred post. Writes an audit row."""
+    target = db.get(User, user_id)
+    if target is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
+    if not _eligible_for_alerts(target):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="This person has not opted in to opportunity alerts, or has not set a preferred post.",
+        )
+    tag = " ".join(body.tag.split())
+    if not _TAG.match(tag):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail="Tags use letters, numbers, spaces and hyphens, up to 40 characters.")
+    existing = db.query(UserTag).filter(UserTag.user_id == target.id, UserTag.tag == tag).first()
+    if existing is None:
+        db.add(UserTag(user_id=target.id, tag=tag, created_by=admin.id))
+    _audit(db, admin.id, "tag", target.id, f"tag={tag}")
+    db.commit()
+    tags = [t.tag for t in db.query(UserTag).filter(UserTag.user_id == target.id).all()]
+    return {"user_id": target.id, "tags": tags}
+
+
+@router.delete("/admin/users/{user_id}/tags/{tag}", dependencies=[Depends(require_admin)])
+def remove_user_tag(user_id: str, tag: str, db: Session = Depends(get_db),
+                    admin: User = Depends(require_admin)):
+    target = db.get(User, user_id)
+    if target is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
+    row = db.query(UserTag).filter(UserTag.user_id == user_id, UserTag.tag == tag).first()
+    if row is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Tag not found.")
+    db.delete(row)
+    _audit(db, admin.id, "untag", target.id, f"tag={tag}")
+    db.commit()
+    return {"user_id": target.id, "removed": tag}
 
 
 @router.post("/reports/generate", response_model=ReportResponse, status_code=status.HTTP_201_CREATED)

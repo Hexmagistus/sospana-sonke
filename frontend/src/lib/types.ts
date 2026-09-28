@@ -12,6 +12,7 @@ export interface User {
   policy_accepted_at?: string | null;
   policy_version?: string | null;
   allow_messages?: boolean;
+  notify_opportunity_alerts?: boolean;
 }
 
 export interface Tokens {

@@ -5,7 +5,7 @@ import secrets
 
 import httpx
 import jwt
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request, status
+from fastapi import APIRouter, BackgroundTasks, Body, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
 
 from app.core import security
@@ -20,6 +20,7 @@ from app.schemas.auth import (
     RegisterRequest, RegisterResponse, LoginRequest, TokenResponse,
     RefreshRequest, UserResponse, MFASetupResponse, MFACodeRequest,
     PasswordResetRequest, PasswordResetConfirm, SimpleMessage, GoogleLoginRequest,
+    AcceptPolicyRequest,
 )
 
 logger = logging.getLogger(__name__)
@@ -64,6 +65,7 @@ def register(request: Request, body: RegisterRequest, db: Session = Depends(get_
         mobile_number=body.mobile_number,
         preferred_position=body.preferred_position,
         qualification_name=body.qualification_name,
+        notify_opportunity_alerts=bool(body.notify_opportunity_alerts),
     )
     if body.accepted_policy:
         user.policy_accepted_at = datetime.now(timezone.utc)
@@ -88,7 +90,7 @@ def register(request: Request, body: RegisterRequest, db: Session = Depends(get_
         # production for testing), but a silent failure here meant a real user
         # could be stuck unverified with no record anywhere of why their email
         # never arrived.
-        logger.error("Failed to send verification email to %s", user.email, exc_info=True)
+        logger.error("Failed to send verification email for user_id=%s", user.id, exc_info=True)
     return RegisterResponse(
         user=UserResponse.model_validate(user),
         email_verification_token=token if settings.ENV != "production" else None,
@@ -230,10 +232,18 @@ def me(user: User = Depends(get_current_user)):
 
 
 @router.post("/accept-policy", response_model=UserResponse)
-def accept_policy(db: Session = Depends(get_db), user: User = Depends(get_current_user)):
-    """Record that the signed-in user accepted the current Privacy Policy and Terms (POPIA consent)."""
+def accept_policy(body: AcceptPolicyRequest | None = Body(default=None), db: Session = Depends(get_db),
+                  user: User = Depends(get_current_user)):
+    """Record that the signed-in user accepted the current Privacy Policy and Terms (POPIA consent).
+
+    Opportunity alerts stay off unless the separate checkbox was ticked. Accepting
+    the policy never turns that opt-in on by itself, and never turns an existing
+    opt-in off.
+    """
     user.policy_accepted_at = datetime.now(timezone.utc)
     user.policy_version = CURRENT_POLICY_VERSION
+    if body is not None and body.notify_opportunity_alerts:
+        user.notify_opportunity_alerts = True
     db.commit()
     db.refresh(user)
     return UserResponse.model_validate(user)
@@ -299,7 +309,7 @@ def password_reset_request(request: Request, body: PasswordResetRequest, db: Ses
                 f"If you didn't request this, you can safely ignore this email.",
             )
         except Exception:
-            logger.error("Failed to send password-reset email to %s", user.email, exc_info=True)
+            logger.error("Failed to send password-reset email for user_id=%s", user.id, exc_info=True)
     return SimpleMessage(status="If that email exists, a reset link has been sent.",
                          reset_token=token if settings.ENV != "production" else None)
 

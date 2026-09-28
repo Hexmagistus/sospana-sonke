@@ -118,6 +118,25 @@ def invalidate_company_facets_cache() -> None:
     _facets_cache["at"] = 0.0
 
 
+@router.get("/stats")
+@limiter.limit("60/minute")
+def directory_stats(request: Request, response: Response, db: Session = Depends(get_db)):
+    """Public counts only: employers and countries. No personal data.
+
+    Counts are non-deleted directory rows, the same population as the country
+    tabs. The homepage uses these and falls back to the published seed totals
+    if the API is asleep. by_country is the per-country split of that total.
+    """
+    listed = Company.deleted_at.is_(None)
+    employers = db.query(func.count(Company.id)).filter(listed).scalar() or 0
+    rows = (db.query(Company.country, func.count(Company.id))
+            .filter(listed, Company.country.isnot(None), Company.country != "")
+            .group_by(Company.country).all())
+    by_country = {country: int(n) for country, n in rows}
+    response.headers["Cache-Control"] = "public, max-age=300"
+    return {"employers": int(employers), "countries": len(by_country), "by_country": by_country}
+
+
 @router.get("/facets")
 def company_facets(db: Session = Depends(get_db), _: User = Depends(get_current_user)):
     """Counts for the directory's country tabs and headline stats -- numbers
