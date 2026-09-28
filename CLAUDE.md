@@ -50,6 +50,9 @@ commit it (and push, if you pushed the rest of your work). Newest entry on top.
 
 ## Session Log
 
+### 2026-09-28 (install prompt) — Cursor (Grok 4.7) — Keep the home-screen card off sign-in
+The “Add Sospana Sonke to your home screen” card was appearing about a second and a half after load and covering the Email field on `/login` and `/register` on a phone. It no longer shows on the sign-in, registration, or password-reset pages. While any field is focused it hides, and if it would still sit on a field it moves up, then stays hidden. Logged-out pages dock it at the bottom corner; the higher position is only used when the bottom tab bar is on screen.
+
 ### 2026-09-28 (login) — Cursor (Grok 4.7) — Sign-in and registration delight
 Login and register now share a circuit mascot (it covers its eyes while a password is typed and smiles once you're in), gold traces that light as fields are filled, and a rotating local greeting (Sawubona, Dumela, Molo, Howzit, Bonjour, Olá) with the time of day. Register and reset show a password-strength line in plain language. A short pause, skipped when reduced motion is on, plays before the redirect. `/forgot-password` and `/reset-password` call the existing reset endpoints; the request still answers the same way whether or not the email exists, and confirming a reset still signs every other session out. Google sign-in, MFA, and the rate limits are unchanged.
 Next: South America direct-careers rows.
