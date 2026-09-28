@@ -237,7 +237,10 @@ def test_trigger_unknown_job(client, db_engine):
 
 def test_admin_can_suggest_to_specific_candidates(client, db_engine):
     admin = _admin(client, db_engine)
-    reg, tokens = register_and_login(client, email="candidate1@example.com")
+    reg, tokens = register_and_login(
+        client, email="candidate1@example.com",
+        preferred_position="Process Controller", notify_opportunity_alerts=True,
+    )
     candidate_id = reg["user"]["id"]
 
     resp = client.post("/api/v1/admin/suggestions", headers=_auth(admin), json={
@@ -246,6 +249,7 @@ def test_admin_can_suggest_to_specific_candidates(client, db_engine):
     })
     assert resp.status_code == 200, resp.text
     assert resp.json()["sent"] == 1
+    assert resp.json()["skipped"] == 0
 
     notes = [n for n in client.get("/api/v1/notifications", headers=_auth(tokens)).json()
              if n["type"] == "admin_suggestion"]
@@ -256,8 +260,14 @@ def test_admin_can_suggest_to_specific_candidates(client, db_engine):
 
 def test_admin_suggestion_to_all_candidates(client, db_engine):
     admin = _admin(client, db_engine)
-    _, tokens_a = register_and_login(client, email="candidatea@example.com")
-    _, tokens_b = register_and_login(client, email="candidateb@example.com")
+    _, tokens_a = register_and_login(
+        client, email="candidatea@example.com",
+        preferred_position="Nurse", notify_opportunity_alerts=True,
+    )
+    _, tokens_b = register_and_login(
+        client, email="candidateb@example.com",
+        preferred_position="Teacher", notify_opportunity_alerts=True,
+    )
 
     resp = client.post("/api/v1/admin/suggestions", headers=_auth(admin), json={
         "title": "New guide for everyone", "body": "Check this out.",
@@ -265,12 +275,30 @@ def test_admin_suggestion_to_all_candidates(client, db_engine):
     })
     assert resp.status_code == 200
     assert resp.json()["sent"] == 2
+    assert resp.json()["skipped"] == 0
 
     for t in (tokens_a, tokens_b):
         notes = [n for n in client.get("/api/v1/notifications", headers=_auth(t)).json()
                  if n["type"] == "admin_suggestion"]
         assert len(notes) == 1
         assert notes[0]["link_url"] is None
+
+
+def test_admin_suggestion_skips_people_who_did_not_opt_in(client, db_engine):
+    admin = _admin(client, db_engine)
+    reg, tokens = register_and_login(
+        client, email="quiet@example.com", preferred_position="Driver",
+    )
+    resp = client.post("/api/v1/admin/suggestions", headers=_auth(admin), json={
+        "title": "A matching post", "body": "Only for people who asked.",
+        "user_ids": [reg["user"]["id"]],
+    })
+    assert resp.status_code == 200, resp.text
+    assert resp.json()["sent"] == 0
+    assert resp.json()["skipped"] == 1
+    notes = [n for n in client.get("/api/v1/notifications", headers=_auth(tokens)).json()
+             if n["type"] == "admin_suggestion"]
+    assert notes == []
 
 
 def test_admin_suggestion_requires_admin(client, db_engine):

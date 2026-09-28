@@ -19,6 +19,7 @@ export default function RegisterPage() {
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [consent, setConsent] = useState(false);
+  const [alerts, setAlerts] = useState(false);
 
   function set(k: string, v: string) {
     setForm((f) => ({ ...f, [k]: v }));
@@ -33,7 +34,7 @@ export default function RegisterPage() {
     }
     setBusy(true);
     try {
-      await register({ ...form, accepted_policy: true });
+      await register({ ...form, accepted_policy: true, notify_opportunity_alerts: alerts });
       router.push("/companies");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Registration failed");
@@ -63,6 +64,7 @@ export default function RegisterPage() {
         </LogoGlow>
       </div>
       <h1 className="animate-gradient-text mb-1 bg-gradient-to-r from-[#22d3ee] via-[#f5b301] to-[#a78bfa] bg-clip-text text-center text-4xl font-extrabold text-transparent [filter:drop-shadow(0_0_16px_rgba(245,179,1,0.45))]">Create your account</h1>
+      <p className="mb-2 text-center text-xs font-semibold uppercase tracking-[0.16em] text-[#ffcf5a]">Born in SADC, built for the world</p>
       <p className="mb-5 text-center text-base font-medium text-blue-100">Free forever. Takes about 60 seconds. Your future self says thanks. 🚀</p>
       <div className="mb-6">
         <Alert kind="info" onPhoto>
@@ -119,6 +121,19 @@ export default function RegisterPage() {
                 and{" "}
                 <Link href="/terms" target="_blank" className="text-brand hover:underline">Terms</Link>, and I agree
                 that Sospana Sonke may process my personal information to match me to vacancies, as described there (POPIA).
+              </span>
+            </label>
+            <label className="flex items-start gap-2 text-sm text-ss-muted">
+              <input
+                type="checkbox"
+                checked={alerts}
+                onChange={(e) => setAlerts(e.target.checked)}
+                className="mt-1 h-4 w-4 shrink-0 accent-[#f5b301]"
+              />
+              <span>
+                Optional, and off unless you tick it: an administrator may notify me about posts that match the
+                preferred role I typed above. This is separate from the consent above. You can switch it off later
+                on the Security page.
               </span>
             </label>
             <Button type="submit" loading={busy} disabled={busy || !consent} glow className="w-full">

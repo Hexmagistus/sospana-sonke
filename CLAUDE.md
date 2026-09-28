@@ -50,6 +50,37 @@ commit it (and push, if you pushed the rest of your work). Newest entry on top.
 
 ## Session Log
 
+### 2026-09-28 (brand, POPIA, donations) — Cursor (Grok 4.7) — One PR stacked on Europe pass 2
+Europe pass 2 (PR #10, `cursor/europe-pass-2-240c`) was still unmerged, so this branch
+starts from that tip, not from `main`. Do not merge it ahead of #10.
+
+- Brand: code-drawn `WorldCircuitMark` (navy + gold circuits, Africa largest with a SADC
+  mark, Europe and Oceania marked, faint outlines for later continents, geometric strip).
+  Tagline "Born in SADC, built for the world". Outfit via `next/font` on the existing
+  display variable. No paid assets, no photos of people in the new mark.
+- Get started (the homepage, there is no `/get-started` route): copy no longer says
+  "every open vacancy" or "54 nations". Country bars stay the published seed list.
+  `GET /companies/stats` is public counts only; the gold total uses that when the API
+  answers with a number above zero, otherwise the seed total, and the label says which.
+- POPIA: `users.notify_opportunity_alerts` defaults off and is a separate checkbox on
+  register, the policy gate, and Security. Export includes the flag and a short profile.
+  Delete clears it and removes tags. Auth failure logs use user id. A logging filter
+  redacts email-shaped strings. `GET /compliance` publishes the Information Officer
+  already named on the privacy page (Lungani Tshabalala). `/privacy.html` redirects to
+  `/privacy`.
+- Admin: filter users with a preferred post; tag and suggestion notifications only if
+  they opted in and named a post. `admin_audit_log` records tag, untag, and notify
+  (counts, not emails). Suggestion responses include `skipped`.
+- Donations: `GET /donations/cashsend` reads `DONATION_CASHSEND_NUMBER`. Unset or
+  invalid shows "coming soon". The page copies the number and the reference. No card
+  or bank details are stored. The old hardcoded Capitec account is off the page.
+  `PAYMENT_PROVIDER=mock` still checks out in non-production and still 503s in production.
+- Login/register: CSS float that stops under `prefers-reduced-motion`, existing auth,
+  Google, and rate limits kept. Humour left in place (FunSpinner, lockout copy, empty admin).
+
+Next: South America directory, after this. Set `DONATION_CASHSEND_NUMBER` on Render when
+a real cellphone should be published.
+
 ### 2026-09-28 (later still) — Cursor (Grok 4.7) — Second Europe pass
 19 more employers whose careers URL a plain fetch could read, appended to `backend/seed/company_database_import.csv`. New countries: Italy 5, Norway 1, Czechia 1, Austria 1, Luxembourg 1, Lithuania 1. Added to thin countries: France 3, Germany 3, Ireland 2, Sweden 1. Workday hosts were taken from a published job URL (Airbus, Leonardo, Equinor), then confirmed with the CXS jobs endpoint. Other rows are the employer's own search-results page, and the HTML parser read real titles. Homepage heading now says Africa, Oceania and Europe. The eight Live now cards are the largest country in each region plus the next-largest overall, and they show the same seed-row count as the bar (the old count-up reset to 0, so a snapshot could show South Africa as 716 while the bar already said 974).
 

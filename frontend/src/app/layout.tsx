@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Space_Grotesk } from "next/font/google";
+import { Outfit } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import { AuthProvider } from "@/lib/auth";
@@ -15,7 +15,7 @@ import CopyGuard from "@/components/CopyGuard";
 import PhotoWash from "@/components/PhotoWash";
 import { SITE_URL, SITE_NAME, SITE_TAGLINE, SITE_DESCRIPTION, SITE_KEYWORDS } from "@/lib/seo";
 
-const spaceGrotesk = Space_Grotesk({
+const outfit = Outfit({
   subsets: ["latin"],
   variable: "--font-space",
   display: "swap",
@@ -54,7 +54,7 @@ export const metadata: Metadata = {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Sospana Sonke — find verified employers across Africa",
+        alt: "Sospana Sonke — born in SADC, built for the world",
       },
     ],
   },
@@ -93,7 +93,7 @@ const jsonLd = {
       url: SITE_URL,
       logo: `${SITE_URL}/logo-full.png`,
       description: SITE_DESCRIPTION,
-      areaServed: "Africa",
+      areaServed: "Africa, Oceania, Europe and partner markets. First made for the SADC region.",
     },
     {
       // No SearchAction here: the one place a keyword search actually lives
@@ -113,7 +113,7 @@ const jsonLd = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={spaceGrotesk.variable}>
+    <html lang="en" className={outfit.variable}>
       <head>
         <Script id="ss-theme-bootstrap" strategy="beforeInteractive">
           {THEME_BOOTSTRAP_SCRIPT}

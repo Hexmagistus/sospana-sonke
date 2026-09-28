@@ -21,6 +21,8 @@ interface AdminUser {
   has_profile: boolean;
   city: string | null;
   current_occupation: string | null;
+  notify_opportunity_alerts?: boolean;
+  tags?: string[];
 }
 
 interface MsgReport {
@@ -164,13 +166,23 @@ function AdminInner() {
   const [suggestBusy, setSuggestBusy] = useState(false);
   const [suggestMsg, setSuggestMsg] = useState("");
   const [suggestErr, setSuggestErr] = useState("");
+  const [preferenceOnly, setPreferenceOnly] = useState(false);
+  const [tagDraft, setTagDraft] = useState<Record<string, string>>({});
+
+  function canNotify(u: AdminUser) {
+    return !!(u.notify_opportunity_alerts && u.preferred_position);
+  }
 
   async function load() {
     setD(await api.get<AdminDashboard>("/admin/dashboard"));
   }
+  function loadUsers(pref: boolean) {
+    const q = pref ? "?with_preference=true" : "";
+    api.get<AdminUser[]>(`/admin/users${q}`).then(setUsers).catch(() => {});
+  }
   useEffect(() => {
     load().catch((e) => setErr(e.message));
-    api.get<AdminUser[]>("/admin/users").then(setUsers).catch(() => {});
+    loadUsers(false);
   }, []);
 
   function copyEmails() {
@@ -204,14 +216,17 @@ function AdminInner() {
     }
     setSuggestBusy(true);
     try {
-      const res = await api.post<{ sent: number }>("/admin/suggestions", {
+      const res = await api.post<{ sent: number; skipped: number }>("/admin/suggestions", {
         title: suggestTitle.trim(),
         body: suggestBody.trim(),
         link_url: suggestLink.trim() || undefined,
         all_candidates: allCandidates,
         user_ids: allCandidates ? [] : Array.from(selected),
       });
-      setSuggestMsg(`Sent to ${res.sent} candidate${res.sent === 1 ? "" : "s"}.`);
+      setSuggestMsg(
+        `Sent to ${res.sent} opted-in candidate${res.sent === 1 ? "" : "s"}` +
+        (res.skipped ? `. Skipped ${res.skipped} who did not opt in or have no preferred post.` : ".")
+      );
       setSuggestTitle(""); setSuggestBody(""); setSuggestLink(""); setSelected(new Set());
     } catch (e) {
       setSuggestErr(e instanceof Error ? e.message : "Failed to send.");
@@ -282,8 +297,9 @@ function AdminInner() {
       <Card>
         <h2 className="mb-1 font-semibold">Suggest a post or link</h2>
         <p className="mb-3 text-sm text-ss-muted">
-          Curate something relevant -- an article, a resource, a company post -- and alert specific
-          candidates (or everyone) with it. It shows up as a notification on their own dashboard/notifications page.
+          Alert people who saved a preferred post and opted in to opportunity alerts. Anyone else is
+          skipped, on purpose. It shows up as a notification. The action is written to the audit log
+          without copying their email into that log.
         </p>
         {suggestErr && <Alert kind="error">{suggestErr}</Alert>}
         {suggestMsg && <Alert kind="success">{suggestMsg}</Alert>}
@@ -306,7 +322,7 @@ function AdminInner() {
             Send to selected ({selected.size})
           </Button>
           <Button variant="ghost" onClick={() => sendSuggestion(true)} disabled={suggestBusy}>
-            Send to all candidates ({users.length})
+            Send to everyone who opted in
           </Button>
         </div>
       </Card>
@@ -314,7 +330,18 @@ function AdminInner() {
       <Card>
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <h2 className="font-semibold">Registered users ({users.length})</h2>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <label className="flex items-center gap-2 text-sm text-ss-muted">
+              <input
+                type="checkbox"
+                checked={preferenceOnly}
+                onChange={(e) => {
+                  setPreferenceOnly(e.target.checked);
+                  loadUsers(e.target.checked);
+                }}
+              />
+              Has a preferred post
+            </label>
             <Button variant="ghost" onClick={toggleAll} disabled={users.length === 0}>
               {selected.size === users.length && users.length > 0 ? "Deselect all" : "Select all"}
             </Button>
@@ -334,6 +361,8 @@ function AdminInner() {
                 <th className="py-2 pr-4">Name</th>
                 <th className="py-2 pr-4">Mobile</th>
                 <th className="py-2 pr-4">Preferred post</th>
+                <th className="py-2 pr-4">Alerts</th>
+                <th className="py-2 pr-4">Tags</th>
                 <th className="py-2 pr-4">Qualification</th>
                 <th className="py-2 pr-4">Profile</th>
                 <th className="py-2 pr-4">Joined</th>
@@ -350,6 +379,43 @@ function AdminInner() {
                   <td className="py-2 pr-4">{u.name}</td>
                   <td className="py-2 pr-4">{u.mobile_number || "—"}</td>
                   <td className="py-2 pr-4">{u.preferred_position || "—"}</td>
+                  <td className="py-2 pr-4">
+                    <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${canNotify(u) ? "bg-brand/10 text-brand-dark" : "bg-ss-border text-ss-muted"}`}>
+                      {canNotify(u) ? "Opted in" : "No alerts"}
+                    </span>
+                  </td>
+                  <td className="py-2 pr-4">
+                    <div className="flex flex-col gap-1">
+                      <span>{(u.tags || []).join(", ") || "—"}</span>
+                      {canNotify(u) && (
+                        <form
+                          className="flex gap-1"
+                          onSubmit={async (e) => {
+                            e.preventDefault();
+                            const tag = (tagDraft[u.id] || "").trim();
+                            if (!tag) return;
+                            try {
+                              const res = await api.post<{ tags: string[] }>(`/admin/users/${u.id}/tags`, { tag });
+                              setUsers((prev) => prev.map((row) => row.id === u.id ? { ...row, tags: res.tags } : row));
+                              setTagDraft((d) => ({ ...d, [u.id]: "" }));
+                            } catch (ex) {
+                              setSuggestErr(ex instanceof Error ? ex.message : "Could not tag");
+                            }
+                          }}
+                        >
+                          <input
+                            value={tagDraft[u.id] || ""}
+                            onChange={(e) => setTagDraft((d) => ({ ...d, [u.id]: e.target.value }))}
+                            placeholder="Tag"
+                            maxLength={40}
+                            className="w-24 rounded border border-ss-border bg-ss-surface px-2 py-1 text-xs"
+                            aria-label={`Tag ${u.email}`}
+                          />
+                          <button type="submit" className="text-xs font-semibold text-brand">Add</button>
+                        </form>
+                      )}
+                    </div>
+                  </td>
                   <td className="py-2 pr-4">{u.qualification_name || "—"}</td>
                   <td className="py-2 pr-4">
                     <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${u.has_profile ? "bg-brand/10 text-brand-dark" : "bg-ss-border text-ss-muted"}`}>
@@ -360,7 +426,7 @@ function AdminInner() {
                 </tr>
               ))}
               {users.length === 0 && (
-                <tr><td colSpan={8} className="py-3 text-ss-muted">No users yet.</td></tr>
+                <tr><td colSpan={10} className="py-3 text-ss-muted">No users yet. The kettle is on.</td></tr>
               )}
             </tbody>
           </table>

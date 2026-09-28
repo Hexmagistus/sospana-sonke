@@ -18,6 +18,7 @@ export default function PolicyConsent() {
   const { user, loading, refreshUser, logout } = useAuth();
   const pathname = usePathname();
   const [agreed, setAgreed] = useState(false);
+  const [alerts, setAlerts] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
@@ -28,7 +29,7 @@ export default function PolicyConsent() {
     setBusy(true);
     setError("");
     try {
-      await api.post("/auth/accept-policy", {});
+      await api.post("/auth/accept-policy", { notify_opportunity_alerts: alerts });
       await refreshUser();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not save your choice. Please try again.");
@@ -65,6 +66,18 @@ export default function PolicyConsent() {
             <Link href="/privacy" className="text-brand hover:underline">Privacy Policy</Link> and{" "}
             <Link href="/terms" className="text-brand hover:underline">Terms</Link>, and I agree that
             Sospana Sonke may process my personal information as described there.
+          </span>
+        </label>
+        <label className="mb-4 flex items-start gap-2 text-sm text-ss-muted">
+          <input
+            type="checkbox"
+            checked={alerts}
+            onChange={(e) => setAlerts(e.target.checked)}
+            className="mt-1 h-4 w-4 shrink-0 accent-[#f5b301]"
+          />
+          <span>
+            Optional: let an administrator notify me about posts that match a preferred role I have saved.
+            Leave this unticked and we will not send those alerts.
           </span>
         </label>
         <div className="flex gap-3">

@@ -44,6 +44,7 @@ class AdminSuggestionRequest(BaseModel):
 
 class AdminSuggestionResponse(BaseModel):
     sent: int
+    skipped: int = 0
 
 
 class UnreadCountResponse(BaseModel):

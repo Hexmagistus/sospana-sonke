@@ -7,6 +7,7 @@ from pydantic import BaseModel
 from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
+from app.core.config import settings
 from app.core.deps import get_current_user
 from app.core.rate_limit import limiter
 from app.core.security import hash_password, verify_password
@@ -15,11 +16,23 @@ from app.models.comment import CompanyComment
 from app.models.message import Message, UserBlock, MessageReport
 from app.models.notification import Notification, PushToken
 from app.models.user import User
+from app.models.admin_ops import UserTag
+from app.schemas.auth import OpportunityAlertsRequest
 from app.models.cv import CV
 from app.models.document import CVVersion, CoverLetter
 from app.models.profile import CandidateProfile, Education, Certification, WorkExperience, Skill
 
 router = APIRouter(tags=["account"])
+
+
+@router.get("/compliance")
+@limiter.limit("30/minute")
+def compliance_notice(request: Request):
+    """Public POPIA contact. No account data. The donate/privacy pages can read this."""
+    return {
+        "information_officer_name": settings.INFORMATION_OFFICER_NAME,
+        "information_officer_email": settings.INFORMATION_OFFICER_EMAIL,
+    }
 
 
 class DeleteRequest(BaseModel):
@@ -42,6 +55,7 @@ def export_my_data(request: Request, db: Session = Depends(get_db), user: User =
             "qualification_name": user.qualification_name, "role": user.role,
             "email_verified": user.email_verified, "mfa_enabled": user.mfa_enabled,
             "allow_messages": user.allow_messages,
+            "notify_opportunity_alerts": user.notify_opportunity_alerts,
             "policy_version": user.policy_version,
             "policy_accepted_at": user.policy_accepted_at.isoformat() if user.policy_accepted_at else None,
             "created_at": user.created_at.isoformat() if user.created_at else None,
@@ -58,9 +72,39 @@ def export_my_data(request: Request, db: Session = Depends(get_db), user: User =
             for c in db.query(CompanyComment).filter(CompanyComment.user_id == user.id)
         ],
         "blocked_user_ids": [b.blocked_id for b in db.query(UserBlock).filter(UserBlock.blocker_id == user.id)],
+        "profile": _export_profile(db, user),
         "note": "Temporary messages are deleted automatically 24 hours after they are sent. "
-                "Your CV, profile, applications and other records can be requested from the Information Officer.",
+                "This file includes your account and profile. Uploaded CV files are not attached; "
+                "ask the Information Officer for a copy of a file before you delete the account. "
+                "Deleting the account erases stored CV files, generated documents and the profile.",
     }
+
+
+def _export_profile(db: Session, user: User) -> dict | None:
+    profile = db.query(CandidateProfile).filter(CandidateProfile.user_id == user.id).first()
+    if profile is None:
+        return None
+    return {
+        "city": profile.city,
+        "country": profile.country,
+        "current_occupation": profile.current_occupation,
+        "desired_occupations": profile.desired_occupations,
+        "industries": profile.industries,
+        "years_experience": profile.years_experience,
+        "preferred_locations": profile.preferred_locations,
+        "work_mode_preference": profile.work_mode_preference,
+        "languages": profile.languages,
+    }
+
+
+@router.put("/account/opportunity-alerts")
+@limiter.limit("20/hour")
+def set_opportunity_alerts(request: Request, body: OpportunityAlertsRequest, db: Session = Depends(get_db),
+                           user: User = Depends(get_current_user)):
+    """Turn administrator opportunity alerts on or off. Separate from policy consent."""
+    user.notify_opportunity_alerts = bool(body.enabled)
+    db.commit()
+    return {"notify_opportunity_alerts": user.notify_opportunity_alerts}
 
 
 def _erase_documents_and_profile(db: Session, user: User) -> None:
@@ -124,6 +168,7 @@ def delete_my_account(request: Request, body: DeleteRequest, db: Session = Depen
     db.query(CompanyComment).filter(CompanyComment.user_id == user.id).delete(synchronize_session=False)
     db.query(Notification).filter(Notification.user_id == user.id).delete(synchronize_session=False)
     db.query(PushToken).filter(PushToken.user_id == user.id).delete(synchronize_session=False)
+    db.query(UserTag).filter(UserTag.user_id == user.id).delete(synchronize_session=False)
     _erase_documents_and_profile(db, user)
     user.token_version = (user.token_version or 0) + 1  # kill every session now
     user.email = f"deleted-{user.id}@deleted.invalid"
@@ -135,6 +180,7 @@ def delete_my_account(request: Request, body: DeleteRequest, db: Session = Depen
     user.mfa_enabled = False
     user.mfa_secret = None
     user.allow_messages = False
+    user.notify_opportunity_alerts = False
     user.password_hash = hash_password(secrets.token_urlsafe(32))
     user.is_active = False
     user.deleted_at = datetime.now(timezone.utc)

@@ -31,7 +31,7 @@ function AuthLoader() {
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-ss-glass px-6 backdrop-blur-sm">
       <div className="w-full max-w-sm rounded-2xl border border-ss-border bg-ss-surface p-8 text-center shadow-xl">
-        <svg viewBox="0 0 50 50" className="mx-auto mb-5 h-14 w-14 animate-spin" style={{ animationDuration: "1.1s" }}>
+        <svg viewBox="0 0 50 50" className="auth-spin mx-auto mb-5 h-14 w-14 animate-spin" style={{ animationDuration: "1.1s" }}>
           <circle cx="25" cy="25" r="20" fill="none" stroke="var(--ss-border)" strokeWidth="5" />
           <circle cx="25" cy="25" r="20" fill="none" stroke="#0f766e" strokeWidth="5" strokeLinecap="round" strokeDasharray="90 160" />
         </svg>
@@ -126,7 +126,8 @@ export default function LoginPage() {
       <div className="relative mx-auto max-w-md">
       {authing && <AuthLoader />}
       <CircuitOverlay className="-z-10 opacity-40" opacity={0.12} stroke="#f5b301" dotColor="#f5b301" />
-      <div className="mb-4 flex justify-center">
+      <p className="mb-3 text-center text-xs font-semibold uppercase tracking-[0.18em] text-[#ffcf5a]">Born in SADC, built for the world</p>
+      <div className="auth-float mb-4 flex justify-center">
         <LogoGlow>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logo-mark.png" alt="Sospana Sonke" className="block h-24 w-24 max-w-none shrink-0 aspect-square rounded-2xl object-cover shadow-[0_0_44px_-4px_var(--ss-primary-glow)] ring-1 ring-ss-primary/30" />

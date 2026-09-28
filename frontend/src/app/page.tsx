@@ -6,6 +6,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth";
 import { setPendingSearch } from "@/lib/agentHandoff";
+import { API_BASE } from "@/lib/api";
+import WorldCircuitMark from "@/components/WorldCircuitMark";
 
 const C = {
   navy: "#0b1f3a", ink: "#071528", gold: "#f5b301", amber: "#ff9e2c",
@@ -397,7 +399,7 @@ const SOON: { name: string; flag: string }[] = [];
 const TOTAL_EMPLOYERS = LIVE.reduce((sum, c) => sum + c.count, 0);
 // Hero, map footer and the closing paragraph all read this. Add the next
 // continent here so the copy stays in step with the directory.
-const COVERAGE = "all 54 African nations, Oceania and Europe";
+const COVERAGE = "all 54 African nations, Oceania, Europe and partner markets";
 // Same seed-row totals as LIVE. The bar chart and the Live now cards both
 // read `.count` from this list — cards must show that integer directly.
 // A count-up that resets to 0 paints a smaller number for the first second,
@@ -623,11 +625,28 @@ export default function Home() {
   const { user, loading } = useAuth();
   const router = useRouter();
   const [scrolled, setScrolled] = useState(false);
+  const [liveEmployers, setLiveEmployers] = useState<number | null>(null);
   const RANKING_PREVIEW = 10;
+  const shownEmployers = liveEmployers ?? TOTAL_EMPLOYERS;
 
   useEffect(() => {
     if (!loading && user) router.replace("/companies");
   }, [loading, user, router]);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch(`${API_BASE}/companies/stats`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data: { employers?: number } | null) => {
+        if (!cancelled && data && typeof data.employers === "number" && data.employers > 0) {
+          setLiveEmployers(data.employers);
+        }
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     function onScroll() {
@@ -712,13 +731,16 @@ export default function Home() {
           />
           <div className="relative flex flex-wrap items-center gap-10">
             <div className="min-w-[16rem] flex-1">
-              <Reveal>
+              <Reveal className="flex flex-wrap gap-2">
                 <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-semibold backdrop-blur-sm">
                   <span className="relative flex h-2 w-2">
                     <span className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-75" style={{ background: C.mint }} />
                     <span className="relative inline-flex h-2 w-2 rounded-full" style={{ background: C.mint }} />
                   </span>
                   Live across {COVERAGE}
+                </span>
+                <span className="inline-flex items-center rounded-full border border-[#f5b301]/50 bg-[#f5b301]/15 px-3 py-1 text-xs font-semibold text-[#ffcf5a]">
+                  Born in SADC, built for the world
                 </span>
               </Reveal>
 
@@ -737,7 +759,7 @@ export default function Home() {
               </Reveal>
               <Reveal delay={240}>
                 <p className="mt-6 max-w-xl text-lg leading-relaxed text-blue-100">
-                  A professional job-search platform that connects ambitious young people directly to real employers — with every open vacancy across the region, including state-owned employers, in one place.
+                  First made for the SADC region, now listing employers across Africa, Oceania, Europe and partner markets. Each card is a direct link to that employer&apos;s own careers page. We do not host every vacancy, and we do not promise you the job.
                 </p>
               </Reveal>
 
@@ -770,31 +792,18 @@ export default function Home() {
                   <Link href="/companies" className="rounded-xl px-6 py-3.5 font-bold text-white shadow-lg transition hover:-translate-y-0.5 hover:brightness-110" style={{ background: C.teal }}>
                     Browse companies →
                   </Link>
-                  <Link href="/companies?type=SOE&country=South%20Africa" className="rounded-xl border border-white/40 bg-white/5 px-6 py-3.5 font-semibold text-white backdrop-blur-sm transition hover:-translate-y-0.5 hover:bg-white/10">
-                    🏛️ SOE vacancies (SA)
+                  <Link href="/companies?type=SOE" className="rounded-xl border border-white/40 bg-white/5 px-6 py-3.5 font-semibold text-white backdrop-blur-sm transition hover:-translate-y-0.5 hover:bg-white/10">
+                    🏛️ State-owned employers
                   </Link>
                 </div>
                 <p className="mt-6 text-sm text-blue-200">
-                  <b style={{ color: C.gold }}>Free to use</b> · Direct employer links, SOE vacancies &amp; application tracking all included.
+                  <b style={{ color: C.gold }}>Free to use</b> · Direct employer links, application tracking, and a daily agent that drafts — you still press send.
                 </p>
               </Reveal>
             </div>
 
-            <Reveal delay={200} className="hidden w-full max-w-[280px] shrink-0 lg:block">
-              <div className="relative aspect-[3/4] overflow-hidden rounded-[1.5rem] shadow-2xl ring-1 ring-white/40">
-                <Image
-                  src="/photos/professional.jpg"
-                  alt="A professional looking toward the next opportunity"
-                  fill
-                  sizes="280px"
-                  className="object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#071528]/80 via-transparent to-transparent" />
-                <div className="absolute inset-x-0 bottom-0 p-4">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gold">54 nations, one platform</p>
-                  <p className="mt-1 font-display text-lg font-bold leading-snug">Your next role is already live.</p>
-                </div>
-              </div>
+            <Reveal delay={200} className="mx-auto w-full max-w-[220px] shrink-0 sm:max-w-[280px]">
+              <WorldCircuitMark className="w-full drop-shadow-2xl" />
             </Reveal>
           </div>
         </div>
@@ -808,9 +817,9 @@ export default function Home() {
             <div className="pointer-events-none absolute inset-0 bg-noise opacity-[0.04]" />
             <div className="relative grid grid-cols-2 gap-3 sm:grid-cols-4">
               {[
-                [TOTAL_EMPLOYERS, "+", "Employers tracked", C.gold],
+                [shownEmployers, "+", liveEmployers ? "Employers in the live directory" : "Employers in the published list", C.gold],
                 [null, "Direct", "To official careers pages", C.mint],
-                [null, "SOE", "Vacancies across South Africa", C.green],
+                [null, "SOE", "State-owned employers, linked", C.green],
                 [null, "Free", "Full access, no charge", C.sky],
               ].map(([n, suffixOrLabel, l, col], i) => (
                 <div key={l as string} className="rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-center backdrop-blur-sm">
@@ -831,9 +840,9 @@ export default function Home() {
       {/* Pillars */}
       <section className="mx-auto grid max-w-6xl gap-5 px-4 py-12 sm:grid-cols-2 lg:grid-cols-4">
         {[
-          ["🎯", "Straight to employers", `Direct links to ${TOTAL_EMPLOYERS.toLocaleString()}+ companies' official careers pages across the region — no middle-man boards, no games.`, C.red],
-          ["🏛️", "Don't miss the SOEs", "Browse open roles at state-owned enterprises across South Africa and the region — filtered and ready to explore.", C.gold],
-          ["🤖", "Your agent works while you sleep", "Every night your Career Agent finds new matches and drafts a tailored CV + cover letter for the strongest ones — a ready-to-review queue waiting for you. Nothing is ever sent without your say-so.", C.sky],
+          ["🎯", "Straight to employers", `Direct links to ${shownEmployers.toLocaleString()} employers' official careers pages. You apply on their site. We don't invent listings.`, C.red],
+          ["🏛️", "State-owned employers too", "SOEs are in the same directory, each with a link we could verify. South Africa has the most. Other countries are added the same way.", C.gold],
+          ["🤖", "A daily agent, still your call", "When the daily agent runs, it refreshes matches and drafts a CV and cover letter for the strongest new ones. Nothing is sent until you say so.", C.sky],
           ["📈", "Track & rise", "Every application in one place. Stay organised, stay ready, and keep moving forward.", C.teal],
         ].map(([ic, t, d, col], i) => (
           <Reveal key={t as string} delay={i * 120}>
@@ -989,9 +998,9 @@ export default function Home() {
           <div className="relative">
             <Reveal>
               <span className="inline-block rounded-full bg-white/10 px-4 py-1.5 text-xs font-semibold backdrop-blur-sm">🌍 Opportunity map</span>
-              <h2 className="mt-4 font-display text-2xl font-extrabold sm:text-4xl">Built for the region. Live across Africa, Oceania and Europe.</h2>
+              <h2 className="mt-4 font-display text-2xl font-extrabold sm:text-4xl">Born in SADC. Live across Africa, Oceania, Europe and partner markets.</h2>
               <p className="mt-3 max-w-3xl text-blue-100">
-                We&apos;re live across {COVERAGE}: every African country, then Oceania and Europe. A country is added when a direct careers page lists open roles. Wherever you are, your ambition has a home here.
+                We&apos;re live across {COVERAGE}. A country is listed once a direct careers page is verified. Country bars use the published directory list{liveEmployers ? "; the gold total above is the live database" : ""}. No testimonials, no guaranteed interviews.
               </p>
             </Reveal>
 
@@ -1132,7 +1141,7 @@ export default function Home() {
         <span>© 2026 Sospana Sonke · Southern Africa</span>
         <div className="flex items-center gap-4">
           <Link href="/donate" className="hover:text-gray-800">Donate</Link>
-          <a href="/privacy.html" className="hover:text-gray-800">Privacy Policy</a>
+          <a href="/privacy" className="hover:text-gray-800">Privacy Policy</a>
         </div>
       </footer>
     </div>

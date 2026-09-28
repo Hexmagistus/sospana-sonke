@@ -99,6 +99,13 @@ class Settings(BaseSettings):
     # same Paystack account but return the browser to a different page.
     # In prod set this to https://sospana-sonke.vercel.app/donate/thanks
     DONATION_RETURN_URL: str = "http://localhost:3000/donate/thanks"
+    # Cell number donors cash-send to (FNB eWallet, ABSA CashSend, and the rest).
+    # Empty means the donate page says cash send is not published yet.
+    DONATION_CASHSEND_NUMBER: str | None = None
+    # POPIA Information Officer. Defaults match the notice already published
+    # on the privacy page; override in the environment if the officer changes.
+    INFORMATION_OFFICER_NAME: str = "Lungani Tshabalala"
+    INFORMATION_OFFICER_EMAIL: str = "gastricl@gmail.com"
     PLAN_AMOUNT_ZAR: int = 100              # the R100/month price
     PLAN_CURRENCY: str = "ZAR"
     BILLING_PERIOD_DAYS: int = 30

@@ -71,11 +71,13 @@ def client(db_engine):
     app.dependency_overrides.clear()
 
 
-def register_and_login(client, email="thandi@example.com", password="Password123!"):
-    reg = client.post("/api/v1/auth/register", json={
+def register_and_login(client, email="thandi@example.com", password="Password123!", **extra):
+    payload = {
         "email": email, "password": password,
         "first_name": "Thandi", "last_name": "Mokoena", "mobile_number": "0821234567",
-    })
+    }
+    payload.update(extra)
+    reg = client.post("/api/v1/auth/register", json=payload)
     assert reg.status_code == 201, reg.text
     tokens = client.post("/api/v1/auth/login", json={"email": email, "password": password}).json()
     return reg.json(), tokens

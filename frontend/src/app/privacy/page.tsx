@@ -8,12 +8,13 @@ export default function PrivacyPage() {
     <div className="mx-auto mt-8 max-w-3xl">
       <Card>
         <h1 className="mb-1 text-2xl font-bold text-ss-text">Privacy Policy</h1>
-        <p className="mb-6 text-sm text-ss-muted">Last updated: 20 September 2026</p>
+        <p className="mb-6 text-sm text-ss-muted">Last updated: 28 September 2026</p>
         <div className="space-y-4 text-sm leading-relaxed text-ss-text">
           <p>
-            Sospana Sonke (&quot;we&quot;, &quot;us&quot;) helps job seekers across Southern Africa
-            discover vacancies and apply directly to employers. This policy explains what
-            personal information we collect, why we collect it, and the choices you have.
+            Sospana Sonke (&quot;we&quot;, &quot;us&quot;) started in the SADC region and lists employers
+            with a direct careers-page link across Africa, Oceania, Europe and partner markets.
+            This policy explains what personal information we collect, why, and the choices you have
+            under South Africa&apos;s Protection of Personal Information Act (POPIA).
           </p>
 
           <h2 className="pt-2 text-lg font-semibold text-ss-text">Information we collect</h2>
@@ -72,6 +73,8 @@ export default function PrivacyPage() {
             and sending service messages. We process it because you gave consent when you registered
             and because it is needed to provide the service you asked for. You may withdraw consent at
             any time by deleting your account, which does not affect processing done before then.
+            We do not put your email address in application logs. Passwords are hashed. We do not store
+            card or bank details for donations.
           </p>
 
           <h2 className="pt-2 text-lg font-semibold text-ss-text">Service providers and transfers abroad</h2>
@@ -92,6 +95,15 @@ export default function PrivacyPage() {
             personal information. You can tag members who have switched messaging on; they receive an in-app
             notification and pop-up and nothing else is shared with them. You can delete your own tips at
             any time, and they are included in your data download.
+          </p>
+
+          <h2 className="pt-2 text-lg font-semibold text-ss-text">Opportunity alerts (a separate choice)</h2>
+          <p>
+            Matching you to vacancies inside the product is part of the service you sign up for. A
+            different choice, off unless you tick it, lets an administrator notify you about a post
+            that matches a preferred role you saved. That opt-in is not bundled into the privacy
+            checkbox. You can switch it off on the Security page. People who leave it off are not
+            tagged or notified for this.
           </p>
 
           <h2 className="pt-2 text-lg font-semibold text-ss-text">Temporary messages between members</h2>

@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from app.core.deps import get_current_user, require_admin
 from app.db.session import get_db
 from app.models.notification import Notification, JobRun, PushToken
+from app.models.admin_ops import AdminAuditLog
 from app.models.user import User
 from app.models.company import Company
 from app.models.vacancy import Vacancy, VacancySource
@@ -80,9 +81,20 @@ def register_push_token(body: PushTokenRequest, db: Session = Depends(get_db),
 
 # ---- admin: suggest a post/link to relevant candidates ----
 
-@router.post("/admin/suggestions", response_model=AdminSuggestionResponse,
-             dependencies=[Depends(require_admin)])
-def send_admin_suggestion(body: AdminSuggestionRequest, db: Session = Depends(get_db)):
+def _can_receive_suggestion(user: User) -> bool:
+    """POPIA: only an active candidate who named a preferred post and opted in."""
+    return bool(
+        user.role == "candidate"
+        and user.is_active
+        and not user.deleted_at
+        and user.notify_opportunity_alerts
+        and (user.preferred_position or "").strip()
+    )
+
+
+@router.post("/admin/suggestions", response_model=AdminSuggestionResponse)
+def send_admin_suggestion(body: AdminSuggestionRequest, db: Session = Depends(get_db),
+                          admin: User = Depends(require_admin)):
     if body.all_candidates:
         targets = db.query(User).filter(User.role == "candidate", User.is_active.is_(True)).all()
     elif body.user_ids:
@@ -92,10 +104,18 @@ def send_admin_suggestion(body: AdminSuggestionRequest, db: Session = Depends(ge
     else:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                             detail="Provide user_ids or set all_candidates to true.")
-    sent = notify_admin_suggestion(db, users=targets, title=body.title, body=body.body,
-                                   link_url=body.link_url)
+    eligible = [u for u in targets if _can_receive_suggestion(u)]
+    skipped = len(targets) - len(eligible)
+    sent = notify_admin_suggestion(db, users=eligible, title=body.title, body=body.body,
+                                   link_url=body.link_url) if eligible else 0
+    db.add(AdminAuditLog(
+        admin_id=admin.id,
+        action="notify",
+        target_user_id=None,
+        detail=f"sent={sent} skipped={skipped} title_len={len(body.title)}",
+    ))
     db.commit()
-    return AdminSuggestionResponse(sent=sent)
+    return AdminSuggestionResponse(sent=sent, skipped=skipped)
 
 
 # ---- admin scheduler ----

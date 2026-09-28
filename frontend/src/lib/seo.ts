@@ -1,9 +1,9 @@
 // Central SEO / site constants. Keep the URL in sync with the production domain.
 export const SITE_URL = "https://sospana-sonke.vercel.app";
 export const SITE_NAME = "Sospana Sonke";
-export const SITE_TAGLINE = "Find verified employers across Africa";
+export const SITE_TAGLINE = "Born in SADC, built for the world";
 export const SITE_DESCRIPTION =
-  "Discover verified employers across Africa — private companies, state-owned enterprises, government departments and municipalities — and apply directly on their official careers pages. No middleman job boards.";
+  "Sospana Sonke started in the SADC region. It lists employers with a direct link to their own careers page across Africa, Oceania, Europe and partner markets. You apply on the employer's site. The tools are free. We do not promise a job.";
 export const SITE_KEYWORDS = [
   "jobs in Africa",
   "African job vacancies",

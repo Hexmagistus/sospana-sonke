@@ -130,6 +130,32 @@ function SecurityInner() {
       </Card>
 
       <Card>
+        <h2 className="mb-2 text-lg font-semibold text-ss-text">Opportunity alerts</h2>
+        <p className="mb-3 text-sm text-ss-muted">
+          Separate from the privacy consent you already gave. When this is on, an administrator may notify
+          you about a post that matches a preferred role you saved. Off means they must not.
+        </p>
+        <label className="flex items-start gap-2 text-sm text-ss-text">
+          <input
+            type="checkbox"
+            checked={!!user?.notify_opportunity_alerts}
+            onChange={async (e) => {
+              setErr(""); setMsg("");
+              try {
+                await api.put("/account/opportunity-alerts", { enabled: e.target.checked });
+                await refreshUser();
+                setMsg(e.target.checked ? "Opportunity alerts are on." : "Opportunity alerts are off. We'll keep it that way.");
+              } catch (ex) {
+                setErr(ex instanceof Error ? ex.message : "Could not save that choice");
+              }
+            }}
+            className="mt-1 h-4 w-4 shrink-0 accent-[#f5b301]"
+          />
+          <span>Tell me about posts that match my preferred role.</span>
+        </label>
+      </Card>
+
+      <Card>
         <h2 className="mb-2 text-lg font-semibold text-ss-text">Your data (POPIA)</h2>
         <p className="mb-4 text-sm text-ss-muted">
           You have the right to see the personal information we hold about you and to have it deleted.
