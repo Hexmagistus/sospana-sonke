@@ -50,6 +50,10 @@ commit it (and push, if you pushed the rest of your work). Newest entry on top.
 
 ## Session Log
 
+### 2026-09-28 (South America) — Cursor (Grok 4.7) — Direct careers boards
+Added 17 employers whose public ATS feeds returned open roles on 2026-09-28: Brazil 13 (Greenhouse, Lever, Workable), Chile 2 (Lever), Colombia 1 (Workable), Argentina 1 (SmartRecruiters). Brazil's homepage count is 55 → 68. Argentina, Chile and Colombia are new on the landing page. Brazil is grouped with South America rather than the partner-market set. Homepage copy names South America alongside Africa, Oceania and Europe.
+Rejected after a fetch, not guessed: Clara and Kavak are in Mexico; SumUp, Thoughtworks and AB InBev boards are global; Dock's Recruitee host is a Dutch organisation; Avianca's only open SmartRecruiters post was in Atlanta; Itaú's SmartRecruiters board is test jobs; Greenhouse `bcp` is a Canadian employer; SmartRecruiters `gtt` is the French company. No readable board turned up for Uruguay, Ecuador, Peru, Paraguay, Bolivia, Venezuela, Guyana or Suriname.
+
 ### 2026-09-28 (brand follow-up) — Cursor (Grok 4.7) — Live counts, no zero flash, wrapping cards
 Added onto the brand/POPIA/donations branch after Europe pass 2 landed on main (`db64fdd`):
 - Live now cards and the country bars wrap at phone width instead of clipping "Zimbabwe" / "United Kingdom" / "employers".
