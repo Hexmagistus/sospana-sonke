@@ -5,7 +5,7 @@ import time
 from collections.abc import Generator
 from urllib.parse import urlparse
 
-from sqlalchemy import create_engine, event
+from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
 from app.core.config import settings
@@ -52,13 +52,27 @@ def describe_database(url: str | None = None) -> dict:
 # before Neon closes them. pool_pre_ping stays: a dead connection would otherwise
 # 500 the next request, and the ping is one round trip only on checkout.
 _is_sqlite = DATABASE_URL.startswith("sqlite")
-# 60s: a notification SELECT left idle across a failed SMTP call (Render free
-# cannot reach SMTP) pinned AccessExclusiveLock and the next boot's ALTER TABLE
-# never finished. The server aborts that session instead of holding the lock.
-_IDLE_IN_TRANSACTION = "60s"
-_connect_args = {"check_same_thread": False} if _is_sqlite else {
-    "options": "-c idle_in_transaction_session_timeout=60000",
-}
+
+
+def postgres_connect_args(url: str, extra: dict | None = None) -> dict:
+    """psycopg2 connect args. Neon’s `-pooler` host is pgbouncer in transaction mode.
+
+    It rejects libpq startup parameters (`unsupported startup parameter in
+    options: idle_in_transaction_session_timeout`). That timeout is set on the
+    role (`ALTER ROLE ... SET idle_in_transaction_session_timeout = '60s'`).
+    A per-connection SET would not survive transaction pooling either, so this
+    function never sends startup `options` to a pooler host.
+    """
+    args = dict(extra or {})
+    host = urlparse(url).hostname or ""
+    if "-pooler" in host:
+        args.pop("options", None)
+    return args
+
+
+_connect_args = (
+    {"check_same_thread": False} if _is_sqlite else postgres_connect_args(DATABASE_URL)
+)
 _engine_kwargs: dict = {"pool_pre_ping": True}
 if not _is_sqlite:
     _engine_kwargs.update(
@@ -78,28 +92,6 @@ if not _is_sqlite:
 
 engine = create_engine(DATABASE_URL, connect_args=_connect_args, **_engine_kwargs)
 SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False, class_=Session)
-
-if not _is_sqlite:
-    @event.listens_for(engine, "connect")
-    def _arm_idle_in_transaction_timeout(dbapi_connection, _connection_record):
-        """Repeat the startup GUC in case a pooler drops libpq options.
-
-        A failure here must not refuse the connection: lock_timeout on the
-        DDL path is what keeps boot from hanging.
-        """
-        try:
-            cursor = dbapi_connection.cursor()
-            try:
-                cursor.execute(
-                    f"SET idle_in_transaction_session_timeout = '{_IDLE_IN_TRANSACTION}'"
-                )
-            finally:
-                cursor.close()
-            dbapi_connection.commit()
-        except Exception:
-            logger.warning(
-                "Could not set idle_in_transaction_session_timeout", exc_info=True
-            )
 
 
 def get_db() -> Generator[Session, None, None]:
