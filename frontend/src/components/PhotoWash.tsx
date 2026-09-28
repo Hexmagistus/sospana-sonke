@@ -26,7 +26,7 @@ const SCENES: { test: (path: string) => boolean; scene: Scene }[] = [
 const FALLBACK: Scene = { src: "/photos/mara-sunset.jpg", position: "center" };
 
 function sceneFor(path: string): Scene | null {
-  if (path === "/" || path.startsWith("/login") || path.startsWith("/register")) return null;
+  if (path === "/" || path.startsWith("/login") || path.startsWith("/register") || path.startsWith("/forgot-password") || path.startsWith("/reset-password")) return null;
   return SCENES.find((s) => s.test(path))?.scene ?? FALLBACK;
 }
 
