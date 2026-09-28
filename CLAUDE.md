@@ -50,6 +50,12 @@ commit it (and push, if you pushed the rest of your work). Newest entry on top.
 
 ## Session Log
 
+### 2026-09-28 (brand follow-up) — Cursor (Grok 4.7) — Live counts, no zero flash, wrapping cards
+Added onto the brand/POPIA/donations branch after Europe pass 2 landed on main (`db64fdd`):
+- Live now cards and the country bars wrap at phone width instead of clipping "Zimbabwe" / "United Kingdom" / "employers".
+- `GET /companies/stats` now returns `by_country` (non-deleted rows). The homepage overlays those counts on the published list and keeps a country's hardcoded number when the API does not name it.
+- The employer total is the real figure on first paint. The count-up no longer starts at 0.
+
 ### 2026-09-28 (brand, POPIA, donations) — Cursor (Grok 4.7) — One PR stacked on Europe pass 2
 Europe pass 2 (PR #10, `cursor/europe-pass-2-240c`) was still unmerged, so this branch
 starts from that tip, not from `main`. Do not merge it ahead of #10.

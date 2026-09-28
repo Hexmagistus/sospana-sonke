@@ -121,16 +121,20 @@ def invalidate_company_facets_cache() -> None:
 @router.get("/stats")
 @limiter.limit("60/minute")
 def directory_stats(request: Request, response: Response, db: Session = Depends(get_db)):
-    """Public counts only: how many active employers, and how many countries.
-    No names, no personal data. The homepage uses this and falls back to the
-    published seed totals if the API is asleep."""
-    active = and_(Company.deleted_at.is_(None), Company.active.is_(True))
-    employers = db.query(func.count(Company.id)).filter(active).scalar() or 0
-    countries = (db.query(func.count(func.distinct(Company.country)))
-                 .filter(active, Company.country.isnot(None), Company.country != "")
-                 .scalar() or 0)
+    """Public counts only: employers and countries. No personal data.
+
+    Counts are non-deleted directory rows, the same population as the country
+    tabs. The homepage uses these and falls back to the published seed totals
+    if the API is asleep. by_country is the per-country split of that total.
+    """
+    listed = Company.deleted_at.is_(None)
+    employers = db.query(func.count(Company.id)).filter(listed).scalar() or 0
+    rows = (db.query(Company.country, func.count(Company.id))
+            .filter(listed, Company.country.isnot(None), Company.country != "")
+            .group_by(Company.country).all())
+    by_country = {country: int(n) for country, n in rows}
     response.headers["Cache-Control"] = "public, max-age=300"
-    return {"employers": int(employers), "countries": int(countries)}
+    return {"employers": int(employers), "countries": len(by_country), "by_country": by_country}
 
 
 @router.get("/facets")

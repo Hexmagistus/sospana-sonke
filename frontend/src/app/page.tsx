@@ -67,26 +67,11 @@ function Reveal({
   );
 }
 
-function CountUp({ target, duration = 1400, suffix = "" }: { target: number; duration?: number; suffix?: string }) {
-  const { ref, visible } = useReveal<HTMLSpanElement>(0.6);
-  // Default to the real number so SSR / no-JS / pre-hydration paints never show a
-  // misleading "0" — the count-up is a bonus flourish once it scrolls into view.
-  const [n, setN] = useState(target);
-  useEffect(() => {
-    if (!visible) return;
-    setN(0);
-    let raf = 0;
-    const start = performance.now();
-    const tick = (t: number) => {
-      const p = Math.min(1, (t - start) / duration);
-      const eased = 1 - Math.pow(1 - p, 3);
-      setN(Math.round(target * eased));
-      if (p < 1) raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [visible, target, duration]);
-  return <span ref={ref}>{n}{suffix}</span>;
+function CountUp({ target, suffix = "" }: { target: number; suffix?: string; duration?: number }) {
+  // The number is the real total on first paint. A count-up that starts at 0
+  // is what snapshots and no-JS readers were seeing ("0+") before the
+  // animation finished. duration is accepted so older call sites still type-check.
+  return <span>{target}{suffix}</span>;
 }
 
 function TiltCard({ children, className = "" }: { children: ReactNode; className?: string }) {
@@ -400,11 +385,9 @@ const TOTAL_EMPLOYERS = LIVE.reduce((sum, c) => sum + c.count, 0);
 // Hero, map footer and the closing paragraph all read this. Add the next
 // continent here so the copy stays in step with the directory.
 const COVERAGE = "all 54 African nations, Oceania, Europe and partner markets";
-// Same seed-row totals as LIVE. The bar chart and the Live now cards both
-// read `.count` from this list — cards must show that integer directly.
-// A count-up that resets to 0 paints a smaller number for the first second,
-// which is how a live check saw South Africa as 716 on a card and 974 on the bar.
-const RANKED = [...LIVE].sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+function rankCountries(rows: typeof LIVE) {
+  return [...rows].sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+}
 const OCEANIA = new Set(["Australia", "New Zealand", "Fiji", "Papua New Guinea", "Samoa", "Tonga", "Solomon Islands", "Vanuatu"]);
 const EUROPE = new Set([
   "United Kingdom", "Germany", "France", "Netherlands", "Switzerland", "Sweden", "Denmark",
@@ -425,17 +408,17 @@ function regionOf(name: string): "Africa" | "Oceania" | "Europe" | "Partners" {
 
 // Eight cards: the largest country in each region that has employers, then the
 // next-largest countries overall. Top-by-count alone is still all African.
-function liveNowCards(n = 8) {
+function liveNowCards(ranked: typeof LIVE, n = 8) {
   const picked: typeof LIVE = [];
   const seen = new Set<string>();
   for (const region of ["Africa", "Oceania", "Europe", "Partners"] as const) {
-    const lead = RANKED.find((c) => regionOf(c.name) === region);
+    const lead = ranked.find((c) => regionOf(c.name) === region);
     if (lead && !seen.has(lead.name)) {
       picked.push(lead);
       seen.add(lead.name);
     }
   }
-  for (const c of RANKED) {
+  for (const c of ranked) {
     if (picked.length >= n) break;
     if (seen.has(c.name)) continue;
     picked.push(c);
@@ -443,8 +426,6 @@ function liveNowCards(n = 8) {
   }
   return picked.sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
 }
-
-const LIVE_NOW = liveNowCards(8);
 
 // Wonders of Africa — line-art icons drawn inline (viewBox 0 0 72 52).
 const WONDERS: { name: string; place: string; art: ReactNode; photo?: string; alt?: string }[] = [
@@ -626,7 +607,16 @@ export default function Home() {
   const router = useRouter();
   const [scrolled, setScrolled] = useState(false);
   const [liveEmployers, setLiveEmployers] = useState<number | null>(null);
+  const [liveByCountry, setLiveByCountry] = useState<Record<string, number> | null>(null);
   const RANKING_PREVIEW = 10;
+  const countries = liveByCountry
+    ? LIVE.map((c) => {
+        const n = liveByCountry[c.name];
+        return typeof n === "number" ? { ...c, count: n } : c;
+      })
+    : LIVE;
+  const ranked = rankCountries(countries);
+  const liveNow = liveNowCards(ranked);
   const shownEmployers = liveEmployers ?? TOTAL_EMPLOYERS;
 
   useEffect(() => {
@@ -637,10 +627,10 @@ export default function Home() {
     let cancelled = false;
     fetch(`${API_BASE}/companies/stats`)
       .then((r) => (r.ok ? r.json() : null))
-      .then((data: { employers?: number } | null) => {
-        if (!cancelled && data && typeof data.employers === "number" && data.employers > 0) {
-          setLiveEmployers(data.employers);
-        }
+      .then((data: { employers?: number; by_country?: Record<string, number> } | null) => {
+        if (cancelled || !data) return;
+        if (typeof data.employers === "number" && data.employers > 0) setLiveEmployers(data.employers);
+        if (data.by_country && typeof data.by_country === "object") setLiveByCountry(data.by_country);
       })
       .catch(() => {});
     return () => {
@@ -1000,7 +990,11 @@ export default function Home() {
               <span className="inline-block rounded-full bg-white/10 px-4 py-1.5 text-xs font-semibold backdrop-blur-sm">🌍 Opportunity map</span>
               <h2 className="mt-4 font-display text-2xl font-extrabold sm:text-4xl">Born in SADC. Live across Africa, Oceania, Europe and partner markets.</h2>
               <p className="mt-3 max-w-3xl text-blue-100">
-                We&apos;re live across {COVERAGE}. A country is listed once a direct careers page is verified. Country bars use the published directory list{liveEmployers ? "; the gold total above is the live database" : ""}. No testimonials, no guaranteed interviews.
+                We&apos;re live across {COVERAGE}. A country is listed once a direct careers page is verified.{" "}
+                {liveByCountry
+                  ? "The counts below are from the live directory. A country the API does not name keeps its published-list number."
+                  : "The counts below are the published list, used when the live directory cannot be reached."}{" "}
+                No testimonials, no guaranteed interviews.
               </p>
             </Reveal>
 
@@ -1014,14 +1008,14 @@ export default function Home() {
                 Live now
               </p>
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-                {LIVE_NOW.map((c, i) => (
+                {liveNow.map((c, i) => (
                   <LiveCountryCard key={c.name} c={c} i={i} />
                 ))}
               </div>
 
               {/* A real "jump to a country" dropdown -- pick any live country,
                   its card appears right below. No long list on the page. */}
-              <CountryJumpSelect live={LIVE} soon={SOON} />
+              <CountryJumpSelect live={countries} soon={SOON} />
             </div>
 
             <p className="mt-5 text-sm font-semibold text-blue-100">
@@ -1034,8 +1028,8 @@ export default function Home() {
                 <p className="text-xs font-semibold uppercase tracking-wider text-blue-200">Who&apos;s powering the directory</p>
                 <p className="mt-1 text-sm text-blue-100">Verified employers on Sospana Sonke by country — a live picture of where the region&apos;s opportunities are opening up.</p>
                 <div className="mt-4 space-y-2.5">
-                  {RANKED.slice(0, RANKING_PREVIEW).map((c, i) => {
-                    const max = LIVE[0].count || 1;
+                  {ranked.slice(0, RANKING_PREVIEW).map((c, i) => {
+                    const max = ranked[0]?.count || 1;
                     const pct = Math.max(6, Math.round((c.count / max) * 100));
                     const cols = [C.gold, C.mint, C.sky, C.green, C.sun, C.plum, C.red, C.teal, C.amber, C.mint, C.sky, C.green, C.gold, C.sun, C.teal, C.plum];
                     const col = cols[i % cols.length];
@@ -1156,14 +1150,14 @@ function LiveCountryCard({ c, i }: { c: { name: string; flag: string; count: num
   return (
     <Reveal delay={(i % 4) * 70}>
       <div
-        className="relative flex items-center gap-3 overflow-hidden rounded-2xl border border-white/15 bg-white/10 p-4 backdrop-blur-sm transition-colors hover:border-white/30 hover:bg-white/[0.15]"
+        className="relative flex min-w-0 flex-col gap-1 rounded-2xl border border-white/15 bg-white/10 p-3 backdrop-blur-sm transition-colors hover:border-white/30 hover:bg-white/[0.15] sm:flex-row sm:items-center sm:gap-3 sm:p-4"
         style={{ borderLeft: `3px solid ${nodeCol}` }}
       >
-        <span className="text-4xl leading-none">{c.flag}</span>
-        <div>
-          <div className="text-sm font-bold leading-tight">{c.name}</div>
-            <div className="mt-0.5 font-mono text-xs font-semibold" style={{ color: C.mint }}>
-            {c.count}{c.count === 1 ? " employer" : " employers"}
+        <span className="text-2xl leading-none sm:text-4xl">{c.flag}</span>
+        <div className="min-w-0">
+          <div className="break-words text-sm font-bold leading-tight">{c.name}</div>
+            <div className="mt-0.5 break-words text-xs font-semibold leading-snug" style={{ color: C.mint }}>
+            {c.count} {c.count === 1 ? "employer" : "employers"}
           </div>
           <span className="mt-1 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold" style={{ background: C.green, color: "#fff" }}>
             <span className="relative flex h-1.5 w-1.5">
@@ -1247,8 +1241,8 @@ function BarRow({ name, flag, pct, count, color, delay }: { name: string; flag: 
   const { ref, visible } = useReveal<HTMLDivElement>(0.4);
   return (
     <div ref={ref} className="flex items-center gap-3">
-      <div className="flex w-28 shrink-0 items-center gap-1.5 text-sm font-semibold sm:w-36">
-        <span>{flag}</span><span className="truncate">{name}</span>
+      <div className="flex w-32 shrink-0 items-start gap-1.5 text-sm font-semibold sm:w-40">
+        <span className="shrink-0">{flag}</span><span className="min-w-0 break-words leading-tight">{name}</span>
       </div>
       <div className="relative h-6 flex-1 overflow-hidden rounded-full bg-white/10">
         <div

@@ -99,12 +99,20 @@ def test_admin_tag_requires_opt_in_and_is_audited(client, db_engine):
         db.close()
 
 
-def test_directory_stats_are_public_counts(client):
+def test_directory_stats_are_public_counts(client, db):
+    from app.models.company import Company
+    db.add(Company(company_name="Stats SA One", country="South Africa", active=True))
+    db.add(Company(company_name="Stats SA Two", country="South Africa", active=False))
+    db.add(Company(company_name="Stats Zim", country="Zimbabwe", active=True))
+    db.commit()
     r = client.get("/api/v1/companies/stats")
     assert r.status_code == 200
     body = r.json()
     assert isinstance(body["employers"], int)
-    assert isinstance(body["countries"], int)
+    assert body["employers"] >= 3
+    assert body["by_country"]["South Africa"] == 2
+    assert body["by_country"]["Zimbabwe"] == 1
+    assert body["countries"] >= 2
 
 
 def test_cashsend_is_hidden_until_configured(client, monkeypatch):
