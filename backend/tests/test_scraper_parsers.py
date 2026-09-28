@@ -37,6 +37,8 @@ def test_detect_ats():
     assert detect_ats("https://boards.greenhouse.io/acme")[1]["token"] == "acme"
     assert detect_ats("https://jobs.lever.co/acme")[0] == "lever"
     assert detect_ats("https://careers.smartrecruiters.com/AcmeCo")[0] == "smartrecruiters"
+    assert detect_ats("https://jobs.smartrecruiters.com/bluescope")[1]["token"] == "bluescope"
+    assert detect_ats("https://acme.smartrecruiters.com/careers")[1]["token"] == "acme"
     assert detect_ats("https://acme.recruitee.com/careers")[0] == "recruitee"
     assert detect_ats("https://acme.recruitee.com/careers")[1]["token"] == "acme"
     assert detect_ats("https://apply.workable.com/acme-inc/")[0] == "workable"

@@ -142,6 +142,26 @@ def test_import_marks_researched_links_live_and_keeps_tester_verdict(db):
     assert db.query(Company).filter(Company.company_name == "Fallback Co").one().scraping_status == "ok"
 
 
+def test_import_caps_scraping_status_so_bootstrap_does_not_abort(db):
+    """Postgres rejects scraping_status longer than varchar(30) and rolls the
+    whole seed import back. A prose status must be stored short, not raised."""
+    from app.models.company import Company
+    from app.services.csv_import import import_companies_from_csv
+
+    prose = "Live-fetched; vacancies page confirmed working (currently no open postings)"
+    assert len(prose) > 30
+    head = "company_name,jse_code,careers_url,careers_status,scraping_status,active,country,source_type\n"
+    body = head + (
+        f'Long Status Co,,https://example.edu/vacancies,grey_none_verified,"{prose}",true,Seychelles,COLLEGE\n'
+    )
+    result = import_companies_from_csv(db, body.encode())
+    assert result.errors == []
+    assert result.created == 1
+    row = db.query(Company).filter(Company.company_name == "Long Status Co").one()
+    assert len(row.scraping_status) <= 30
+    assert row.scraping_status == "needs_review"
+
+
 def test_import_keeps_same_name_in_different_countries(db):
     """A blank later row in one country must not wipe the verified URL of the
     same employer name in another country."""

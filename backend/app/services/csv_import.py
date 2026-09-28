@@ -31,10 +31,28 @@ _LIVE_CAREERS_STATUSES = {
 }
 # Statuses only the URL tester writes; a re-import must not wipe them back to "pending".
 _TESTER_STATUSES = {"ok", "needs_review", "needs_real_url", "error"}
+# companies.scraping_status is VARCHAR(30). A longer cell makes Postgres abort
+# the whole bootstrap transaction, so none of the CSV lands. Map the overflow
+# to a short status instead of widening the column.
+_SCRAPING_STATUS_MAX = 30
 
 
 def _norm(name: str) -> str:
     return " ".join(name.strip().lower().split())
+
+
+def _cap_scraping_status(status: str) -> str:
+    """Fit scraping_status into VARCHAR(30) without dropping the row."""
+    if len(status) <= _SCRAPING_STATUS_MAX:
+        return status
+    low = status.lower()
+    if any(p in low for p in ("no stable", "facebook", "partner portal", "no url")):
+        return "needs_real_url"
+    if any(p in low for p in ("empty", "placeholder", "unverified", "no current", "no_current", "no open")):
+        return "needs_review"
+    if any(p in low for p in ("verified", "live-fetched", "confirmed", "indexed")):
+        return "ok"
+    return "needs_review"
 
 
 def import_companies_from_csv(db: Session, content: bytes) -> CompanyImportResult:
@@ -70,6 +88,7 @@ def import_companies_from_csv(db: Session, content: bytes) -> CompanyImportResul
         careers_status = (row.get("careers_status") or "").strip().lower()
         if careers_url and scraping_status in ("", "pending") and careers_status in _LIVE_CAREERS_STATUSES:
             scraping_status = "ok"
+        scraping_status = _cap_scraping_status(scraping_status)
         active_raw = (row.get("active") or ("true" if careers_url else "false")).strip().lower()
         active = active_raw in ("true", "1", "yes", "y")
         notes = (row.get("relevance_note") or row.get("notes") or "").strip() or None
