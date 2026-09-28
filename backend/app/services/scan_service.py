@@ -17,6 +17,7 @@ from app.core.config import settings
 from app.models.company import Company
 from app.models.vacancy import VacancySource, Vacancy, VacancyRequirement
 from app.scraper.base import detect_ats, get_strategy
+from app.scraper.static_html import BotChallengeError
 from app.scraper.extract import (
     normalize_date, infer_work_mode, content_hash, classify_requirements,
     infer_province, parse_salary_range, infer_nqf_level,
@@ -88,6 +89,16 @@ def scan_source(db: Session, source: VacancySource, client: httpx.Client | None 
         strategy = get_strategy(source.ats_type)
         try:
             raw_list = strategy.fetch(source, client)
+        except BotChallengeError:
+            # A WAF challenge is not an empty board and not a dead link.
+            # Leave the failure streak alone so the URL is not marked broken.
+            source.last_checked = now
+            source.last_status = "blocked"
+            source.last_error = None
+            report.status = "blocked"
+            report.warnings.append("Host returned a bot challenge; link left unchanged.")
+            db.commit()
+            return report
         except httpx.HTTPStatusError as exc:
             return _record_failure(db, source, report, now, "http_error", str(exc))
         except (httpx.TransportError, ValueError) as exc:

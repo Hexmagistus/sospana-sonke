@@ -19,7 +19,8 @@ commit it (and push, if you pushed the rest of your work). Newest entry on top.
   (`srv-da0le7tg1s2s73btqmbg`).
 - **Country coverage:** all 54 African nations are live in the `LIVE` array
   (`frontend/src/app/page.tsx`) as of 2026-09-09, plus Australia, New Zealand
-  and Fiji (direct careers links only) as of 2026-09-28 — see the Session Log.
+  and Fiji, and the European countries that verified on 2026-09-28 (direct
+  careers links only) — see the Session Log.
   `SOON` is `[]` (empty). **Caveat: "live" here means the seed CSV exists in
   `backend/seed/countries/` and the landing page reflects it — most of these
   countries (everything with `pending: true`) have NOT actually been imported into
@@ -48,6 +49,13 @@ commit it (and push, if you pushed the rest of your work). Newest entry on top.
   silently failing, and let Lungani run the `.bat` script if needed.
 
 ## Session Log
+
+### 2026-09-28 (later) — Cursor (Grok 4.7) — Europe employers with direct careers links
+Europe only, same rule as Oceania: a plain fetch had to return HTTP 200 and a page or ATS board that listed open roles. 29 employers appended to `backend/seed/company_database_import.csv`: United Kingdom 9 (PRIVATE 7, HOSPITAL 1, UNI 1), Switzerland 4 (PRIVATE 2, NGO 1, UNI 1), Spain 3 (PRIVATE), Netherlands 3 (PRIVATE 2, DEPT 1), Germany 2 (PRIVATE), Denmark 2 (PRIVATE 1, UNI 1), and one each for France (PRIVATE), Sweden (PRIVATE), Finland (PRIVATE), Ireland (PRIVATE), Belgium (DEPT), Estonia (PRIVATE). Category totals: PRIVATE 22, UNI 3, DEPT 2, HOSPITAL 1, NGO 1. No verified SOE, COLLEGE, MUNI, or SETA. Homepage coverage is one string, `COVERAGE` (`all 54 African nations, Oceania and Europe`), used by the hero, the map paragraph and the footer, so the next continent is a single edit. Counts are seed totals.
+
+UNSW and Mater Health were re-fetched with the scanner user agent. Both returned HTTP 200 and the HTML parser read 12 jobs on each (UNSW Program Manager; Mater Enrolled Nurse). The stored URLs stay. A 202 AWS WAF challenge, if Render's IP gets one, is now `blocked` on a scan (failure streak left alone, vacancies not closed) and stays `ok` on the URL tester when the URL looks like a careers page, so it is not recorded as a dead link or an empty board.
+
+Dropped, rather than guessed: 49 Workday 422s (wrong site slug), 7 Workday 404s, 1 Workday 401 (Siemens), 24 HTTP 404s, 8 HTTP 403s, 4 connection errors (BBC, Network Rail, Austrian karriere.gv.at, University of Montenegro), 4 Greenhouse 404s, 1 Lever 404, 1 HTTP 500 (Cyprus PSC), and HTML with no vacancy list (bare homepages, empty search forms, category hubs, "please enable JavaScript", pages that said there were no vacancies). Manual re-reads also dropped Monaco's government homepage ("offre de soins" is healthcare policy), WHO's Taleo search chrome, Cambridge's category hub (the kept URL is cam.ac.uk/jobs/search), Trinity, KU Leuven, Oslo, Irish publicjobs, Aalto, TUM, Charité's department taxonomy, Karolinska's profession list, British Red Cross category counts, German interamt (JavaScript required), and the EU temporary-vacancies hub (no titles). The EPSO competitions page was a false negative in the scorer and was kept after the page showed an open AD 8 competition. Russia is already in the seed as a BRICS country and was not duplicated. No verified employer for Italy, Austria, Poland, Portugal, Greece, Czechia, Hungary, Romania, Luxembourg, Malta, Cyprus, Latvia, Lithuania, Iceland, Slovakia, Slovenia, Bulgaria, Croatia, Serbia, Ukraine, Norway, or the remaining Balkans and microstates.
 
 ### 2026-09-28 — Cursor (Grok 4.7) — Oceania employers with direct careers links
 Oceania only (later continents stay separate). 25 employers appended to `backend/seed/company_database_import.csv` after a fetch that followed redirects and confirmed open roles: Australia 19 (PRIVATE 10, SOE 1, UNI 5, HOSPITAL 2, MUNI 1), New Zealand 5 (PRIVATE 3, SOE 1, UNI 1), Fiji 1 (UNI). Workday and SmartRecruiters URLs are the board the scraper already classifies. `jobs.smartrecruiters.com/{company}` now keeps the path token so the scanner does not ask the API for company "jobs".

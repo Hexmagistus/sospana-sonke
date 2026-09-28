@@ -117,6 +117,33 @@ def test_http_error_records_failure(db):
     assert src.last_error
 
 
+def test_bot_challenge_does_not_mark_the_source_broken(db):
+    c = Company(company_name="PageUp Uni", careers_url="https://careers.example.edu/listing/",
+                scraping_status="ok", active=True, country="Australia")
+    db.add(c)
+    db.commit()
+    db.refresh(c)
+    src = ensure_source(db, c)
+    src.consecutive_failures = 0
+    db.commit()
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        if str(request.url).endswith("robots.txt"):
+            return httpx.Response(200, text="User-agent: *\nAllow: /")
+        return httpx.Response(
+            202,
+            text="<html>https://token.awswaf.com/challenge.js Human Verification</html>",
+            request=request,
+        )
+
+    with httpx.Client(transport=httpx.MockTransport(handler)) as client:
+        report = scan_source(db, src, client=client, check_robots=True)
+    assert report.status == "blocked"
+    assert src.last_status == "blocked"
+    assert src.consecutive_failures == 0
+    assert db.query(Vacancy).filter(Vacancy.company_id == c.id).count() == 0
+
+
 def test_scan_company_without_url(db):
     c = Company(company_name="NoURL", scraping_status="no_url")
     db.add(c); db.commit(); db.refresh(c)

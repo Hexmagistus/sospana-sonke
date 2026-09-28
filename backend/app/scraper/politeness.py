@@ -100,6 +100,18 @@ def _retry_delay(exc: httpx.HTTPStatusError, base_delay: float, attempt: int) ->
     return delay
 
 
+def is_aws_waf_challenge(status_code: int | None, body: str) -> bool:
+    """True when the host answered with an AWS WAF challenge instead of a page.
+
+    PageUp boards (UNSW, Mater Health) sometimes do this on HTTP 202. The
+    careers URL is still real; the fetch just did not receive the vacancy list.
+    """
+    if status_code != 202:
+        return False
+    low = (body or "").lower()
+    return any(marker in low for marker in ("awswaf", "aws-waf", "gokuprops", "human verification"))
+
+
 def request_with_backoff(client: httpx.Client, url: str, retries: int = 3,
                          base_delay: float = 0.5, sleep=time.sleep,
                          method: str = "GET", json_body: dict | None = None) -> httpx.Response:

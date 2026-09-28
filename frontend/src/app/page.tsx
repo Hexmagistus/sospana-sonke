@@ -365,9 +365,21 @@ const LIVE = [
   { name: "Sudan", flag: "🇸🇩", count: 18, pending: false },
   { name: "Central African Republic", flag: "🇨🇫", count: 16, pending: false },
   { name: "Equatorial Guinea", flag: "🇬🇶", count: 11, pending: false },
+  { name: "United Kingdom", flag: "🇬🇧", count: 9, pending: false },
   { name: "Eritrea", flag: "🇪🇷", count: 5, pending: false },
   { name: "New Zealand", flag: "🇳🇿", count: 5, pending: false },
+  { name: "Switzerland", flag: "🇨🇭", count: 4, pending: false },
+  { name: "Spain", flag: "🇪🇸", count: 3, pending: false },
+  { name: "Netherlands", flag: "🇳🇱", count: 3, pending: false },
+  { name: "Germany", flag: "🇩🇪", count: 2, pending: false },
+  { name: "Denmark", flag: "🇩🇰", count: 2, pending: false },
   { name: "Fiji", flag: "🇫🇯", count: 1, pending: false },
+  { name: "France", flag: "🇫🇷", count: 1, pending: false },
+  { name: "Belgium", flag: "🇧🇪", count: 1, pending: false },
+  { name: "Sweden", flag: "🇸🇪", count: 1, pending: false },
+  { name: "Finland", flag: "🇫🇮", count: 1, pending: false },
+  { name: "Ireland", flag: "🇮🇪", count: 1, pending: false },
+  { name: "Estonia", flag: "🇪🇪", count: 1, pending: false },
 ];
 // All four countries that used to sit here (Niger, Guinea-Bissau, Equatorial
 // Guinea, Eritrea) got their first real seed rows in the 2026-09-24 COLLEGE
@@ -377,6 +389,9 @@ const LIVE = [
 const SOON: { name: string; flag: string }[] = [];
 // Derived from LIVE so this can never drift out of sync with the array above again.
 const TOTAL_EMPLOYERS = LIVE.reduce((sum, c) => sum + c.count, 0);
+// Hero, map footer and the closing paragraph all read this. Add the next
+// continent here so the copy stays in step with the directory.
+const COVERAGE = "all 54 African nations, Oceania and Europe";
 
 // Wonders of Africa — line-art icons drawn inline (viewBox 0 0 72 52).
 const WONDERS: { name: string; place: string; art: ReactNode; photo?: string; alt?: string }[] = [
@@ -653,7 +668,7 @@ export default function Home() {
                     <span className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-75" style={{ background: C.mint }} />
                     <span className="relative inline-flex h-2 w-2 rounded-full" style={{ background: C.mint }} />
                   </span>
-                  Live across all 54 African nations and Oceania
+                  Live across {COVERAGE}
                 </span>
               </Reveal>
 
@@ -926,7 +941,7 @@ export default function Home() {
               <span className="inline-block rounded-full bg-white/10 px-4 py-1.5 text-xs font-semibold backdrop-blur-sm">🌍 Africa&apos;s Opportunity Map</span>
               <h2 className="mt-4 font-display text-2xl font-extrabold sm:text-4xl">Built for the region. Live across Africa.</h2>
               <p className="mt-3 max-w-3xl text-blue-100">
-                We&apos;re live across all 54 African nations — every SADC member state plus every other country across West, Central, East and North Africa. Australia, New Zealand and Fiji are in the same directory, each with a direct careers link. For a few of our newest markets we start with state-owned employers while their stock-exchange listings are added. Wherever you are, your ambition has a home here.
+                We&apos;re live across {COVERAGE}: every African country, then Oceania and Europe. A country is added when a direct careers page lists open roles. Wherever you are, your ambition has a home here.
               </p>
             </Reveal>
 
@@ -951,7 +966,7 @@ export default function Home() {
             </div>
 
             <p className="mt-5 text-sm font-semibold text-blue-100">
-              🎉 Live across all 54 African nations and Oceania — direct careers links, one platform.
+              🎉 Live across {COVERAGE} — direct careers links, one platform.
             </p>
 
             {/* Contribution ranking — which country is powering the most opportunities */}

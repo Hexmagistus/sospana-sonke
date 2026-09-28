@@ -16,7 +16,11 @@ from urllib.parse import urljoin
 import httpx
 
 from app.scraper.base import ScrapeStrategy, RawVacancy, html_to_text
-from app.scraper.politeness import request_with_backoff
+from app.scraper.politeness import is_aws_waf_challenge, request_with_backoff
+
+
+class BotChallengeError(Exception):
+    """The host returned a bot-challenge page, not a vacancy list."""
 
 _LDJSON = re.compile(
     r'<script[^>]+type=["\']application/ld\+json["\'][^>]*>(.*?)</script>',
@@ -192,6 +196,8 @@ class StaticHTMLStrategy(ScrapeStrategy):
 
     def fetch(self, source, client: httpx.Client) -> list[RawVacancy]:
         resp = request_with_backoff(client, source.url)
+        if is_aws_waf_challenge(resp.status_code, resp.text):
+            raise BotChallengeError(source.url)
         resp.raise_for_status()
         html = resp.text
         final = str(resp.url)
