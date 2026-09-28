@@ -12,7 +12,7 @@
 # themselves.
 #
 # ONE-TIME SETUP (same CRON_SECRET as scan.yml / scrape.yml):
-#   Render dashboard -> sospana-sonke-api -> Environment -> CRON_SECRET
+#   Render dashboard -> sospana-sonke-api-fra -> Environment -> CRON_SECRET
 #   GitHub repo -> Settings -> Secrets and variables -> Actions -> CRON_SECRET
 # Until CRON_SECRET is set in both places the endpoint stays disabled (404).
 
@@ -32,7 +32,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Wake the API (Render free tier sleeps when idle)
-        run: curl -s -m 90 https://sospana-sonke-api.onrender.com/health || true
+        run: curl -s -m 90 https://sospana-sonke-api-fra.onrender.com/health || true
 
       - name: Close vacancies past their closing date
         env:
@@ -44,7 +44,7 @@ jobs:
           fi
           curl -sS -m 120 -X POST \
             -H "X-Cron-Secret: $CRON_SECRET" \
-            "https://sospana-sonke-api.onrender.com/api/v1/cron/run/close_expired_vacancies"
+            "https://sospana-sonke-api-fra.onrender.com/api/v1/cron/run/close_expired_vacancies"
 
       - name: Run the daily agent (match, draft, queue for review)
         env:
@@ -52,7 +52,7 @@ jobs:
         run: |
           code=$(curl -sS -o response.json -w "%{http_code}" \
             --max-time 600 --retry 2 --retry-delay 30 \
-            -X POST "https://sospana-sonke-api.onrender.com/api/v1/cron/run/run_daily_agent" \
+            -X POST "https://sospana-sonke-api-fra.onrender.com/api/v1/cron/run/run_daily_agent" \
             -H "X-Cron-Secret: $CRON_SECRET")
           echo "HTTP $code"
           echo "Response:"; cat response.json || true

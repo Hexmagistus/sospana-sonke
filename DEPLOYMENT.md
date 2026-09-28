@@ -41,7 +41,7 @@ Your code is now on GitHub. ✅
 
 1. Go to **render.com** and **Sign up** with **GitHub**.
 2. Click **New ▸ Blueprint**.
-3. Choose your `sospana-sonke` repository. Render finds `render.yaml` and shows a service called **sospana-sonke-api**. Click **Apply**.
+3. Choose your `sospana-sonke` repository. Render finds `render.yaml` and shows a service called **sospana-sonke-api-fra**. Click **Apply**.
 4. Render will ask you to fill in the values marked "sync:false". Enter:
    - **DATABASE_URL** → paste the Neon connection string from Step 2.
    - **CORS_ORIGINS** → leave blank for now (we set it in Step 5).
@@ -49,8 +49,8 @@ Your code is now on GitHub. ✅
    - **ADMIN_PASSWORD** → a strong password for the admin login.
    - (SECRET_KEY, ENV, AUTO_SEED, PAYMENT_PROVIDER are set automatically.)
 5. Click **Create / Deploy** and wait for the build to finish (a few minutes).
-6. When it's live, copy your backend URL (looks like **`https://sospana-sonke-api.onrender.com`**).
-   Test it: open **`https://sospana-sonke-api.onrender.com/health`** — you should see `{"status":"ok",...}`.
+6. When it's live, copy your backend URL (looks like **`https://sospana-sonke-api-fra.onrender.com`**).
+   Test it: open **`https://sospana-sonke-api-fra.onrender.com/health`** — you should see `{"status":"ok",...}`.
 
 The database is seeded with all 367 companies and your admin user automatically on first boot. ✅
 
@@ -63,7 +63,7 @@ The database is seeded with all 367 companies and your admin user automatically 
 3. Set **Root Directory** to **`frontend`** (click *Edit* next to Root Directory and choose the `frontend` folder).
 4. Under **Environment Variables**, add one:
    - **Name:** `NEXT_PUBLIC_API_URL`
-   - **Value:** your backend URL **plus `/api/v1`**, e.g. `https://sospana-sonke-api.onrender.com/api/v1`
+   - **Value:** your backend URL **plus `/api/v1`**, e.g. `https://sospana-sonke-api-fra.onrender.com/api/v1`
 5. Click **Deploy**. When done, copy your site URL (looks like **`https://sospana-sonke.vercel.app`**).
 
 ---

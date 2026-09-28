@@ -6,7 +6,7 @@
 # jobs do not scan the same companies twice.
 #
 # ONE-TIME SETUP (the same CRON_SECRET as scan.yml):
-#   1. Render dashboard → sospana-sonke-api → Environment → CRON_SECRET
+#   1. Render dashboard → sospana-sonke-api-fra → Environment → CRON_SECRET
 #   2. GitHub → Settings → Secrets and variables → Actions → CRON_SECRET
 # This job fails on purpose until that secret exists.
 
@@ -33,14 +33,14 @@ jobs:
           if [ -z "$CRON_SECRET" ]; then
             echo "::error::CRON_SECRET is not set on this repository."
             echo "Add it under GitHub → Settings → Secrets and variables → Actions."
-            echo "Use the same value as Render → sospana-sonke-api → Environment → CRON_SECRET."
+            echo "Use the same value as Render → sospana-sonke-api-fra → Environment → CRON_SECRET."
             exit 1
           fi
 
       - name: Wake the API (Render free tier sleeps when idle)
         run: |
           curl -sS --max-time 90 -o /dev/null -w "wake status=%{http_code}\n" \
-            https://sospana-sonke-api.onrender.com/health || true
+            https://sospana-sonke-api-fra.onrender.com/health || true
           sleep 5
 
       - name: Check unstructured pages for changes
@@ -48,7 +48,7 @@ jobs:
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
         run: |
           code=$(curl -sS -o response.json -w "%{http_code}" --max-time 100 \
-            -X POST "https://sospana-sonke-api.onrender.com/api/v1/cron/run/check_link_changes" \
+            -X POST "https://sospana-sonke-api-fra.onrender.com/api/v1/cron/run/check_link_changes" \
             -H "X-Cron-Secret: $CRON_SECRET" || echo "000")
           echo "HTTP $code"
           cat response.json 2>/dev/null || true

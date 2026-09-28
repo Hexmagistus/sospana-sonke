@@ -65,7 +65,7 @@ if not _is_sqlite:
         logger.warning(
             "DATABASE_URL is not a Neon pooled connection (the host should contain "
             "'-pooler'). Paste the pooled string from the Neon dashboard into Render "
-            "→ sospana-sonke-api → DATABASE_URL. The direct host opens a real "
+            "→ sospana-sonke-api-fra → DATABASE_URL. The direct host opens a real "
             "Postgres connection per checkout and is a poor fit for the free tier."
         )
 
