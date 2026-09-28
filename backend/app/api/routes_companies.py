@@ -26,6 +26,7 @@ from app.schemas.company import (
     TrendingCompany,
 )
 from app.schemas.link_report import LinkReportCreateRequest, LinkReportResponse
+from app.services.country_names import canonical_country, is_country, spellings_for
 from app.services.csv_import import import_companies_from_csv
 from app.services.link_report_service import create_link_report
 from app.services.logo_service import discover_favicon
@@ -86,7 +87,7 @@ def list_companies(
     if source_type:
         query = query.filter(Company.source_type == source_type.upper())
     if country:
-        query = query.filter(Company.country == country)
+        query = query.filter(Company.country.in_(spellings_for(country)))
     if q and q.strip():
         # Escape LIKE wildcards so user input is matched literally.
         raw = q.strip().lower().replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
@@ -125,16 +126,26 @@ def directory_stats(request: Request, response: Response, db: Session = Depends(
 
     Counts are non-deleted directory rows, the same population as the country
     tabs. The homepage uses these and falls back to the published seed totals
-    if the API is asleep. by_country is the per-country split of that total.
+    if the API is asleep. by_country is the per-country split of that total,
+    with one homepage spelling per country. International and Africa stay in
+    by_country and in the employer total, and are left out of countries.
     """
     listed = Company.deleted_at.is_(None)
     employers = db.query(func.count(Company.id)).filter(listed).scalar() or 0
     rows = (db.query(Company.country, func.count(Company.id))
             .filter(listed, Company.country.isnot(None), Company.country != "")
             .group_by(Company.country).all())
-    by_country = {country: int(n) for country, n in rows}
+    by_country: dict[str, int] = {}
+    for country, n in rows:
+        name = canonical_country(country)
+        if not name:
+            continue
+        by_country[name] = by_country.get(name, 0) + int(n)
+    # International and Africa stay in by_country (they are real rows) but
+    # are not countries, so they do not inflate the country count.
+    countries = sum(1 for name in by_country if is_country(name))
     response.headers["Cache-Control"] = "public, max-age=300"
-    return {"employers": int(employers), "countries": len(by_country), "by_country": by_country}
+    return {"employers": int(employers), "countries": countries, "by_country": by_country}
 
 
 @router.get("/facets")
@@ -155,8 +166,9 @@ def company_facets(db: Session = Depends(get_db), _: User = Depends(get_current_
     total = with_links = 0
     for country, st, n, n_links in rows:
         if country:
-            country_counts[country] = country_counts.get(country, 0) + n
-            country_with_links[country] = country_with_links.get(country, 0) + n_links
+            name = canonical_country(country)
+            country_counts[name] = country_counts.get(name, 0) + n
+            country_with_links[name] = country_with_links.get(name, 0) + n_links
         key = (st or "").upper()
         type_counts[key] = type_counts.get(key, 0) + n
         total += n
@@ -210,18 +222,24 @@ def coverage_map(db: Session = Depends(get_db), _: User = Depends(get_current_us
         .order_by(country_expr, type_expr)
         .all()
     )
+    merged: dict[tuple[str, str], list[int]] = {}
+    for country, source_type, total, active, with_url, verified, pending, needs in counted:
+        key = (canonical_country(country) or country, source_type)
+        slot = merged.setdefault(key, [0, 0, 0, 0, 0, 0])
+        for i, val in enumerate((total, active, with_url, verified, pending, needs)):
+            slot[i] += int(val or 0)
     return [
         CoverageRow(
             country=country,
             source_type=source_type,
-            total=int(total or 0),
-            active=int(active or 0),
-            with_careers_url=int(with_url or 0),
-            verified_ok=int(verified or 0),
-            pending_verification=int(pending or 0),
-            needs_attention=int(needs or 0),
+            total=vals[0],
+            active=vals[1],
+            with_careers_url=vals[2],
+            verified_ok=vals[3],
+            pending_verification=vals[4],
+            needs_attention=vals[5],
         )
-        for country, source_type, total, active, with_url, verified, pending, needs in counted
+        for (country, source_type), vals in merged.items()
     ]
 
 

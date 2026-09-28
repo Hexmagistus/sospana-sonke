@@ -118,6 +118,10 @@ def init_db() -> None:
     Base.metadata.create_all(bind=engine)
     _add_new_columns()
     _ensure_indexes()
+    # Before bootstrap imports the seed CSV. The import dedup key includes
+    # country, so an alias row must already wear the canonical spelling or a
+    # re-import inserts a second employer.
+    normalise_country_names()
 
 
 # Base.metadata.create_all() above only creates TABLES that don't exist yet — it
@@ -169,8 +173,15 @@ def _postgres_ddl_guards() -> list[str]:
     ]
 
 
-def _execute_ddl(sql: str, *, attempts: int = DDL_ATTEMPTS) -> bool:
-    """Run one DDL statement. Never raises — a lock timeout skips the statement."""
+def _execute_bounded(
+    sql: str, params: dict | None = None, *, attempts: int = DDL_ATTEMPTS,
+) -> int | None:
+    """Run one statement under the boot lock/statement timeouts.
+
+    Returns the rowcount, or None when every attempt failed. Never raises —
+    a lock timeout must not hang boot. SET LOCAL so a pooled connection does
+    not keep the 5s lock_timeout after the transaction ends.
+    """
     from sqlalchemy import text
 
     last: Exception | None = None
@@ -180,20 +191,54 @@ def _execute_ddl(sql: str, *, attempts: int = DDL_ATTEMPTS) -> bool:
                 if not _is_sqlite:
                     for guard in _postgres_ddl_guards():
                         conn.execute(text(guard))
-                conn.execute(text(sql))
-            return True
+                result = conn.execute(text(sql), params or {})
+            return int(result.rowcount or 0)
         except Exception as exc:
             last = exc
             logger.warning(
-                "DDL attempt %s/%s failed: %s", attempt, attempts, sql, exc_info=True
+                "Boot SQL attempt %s/%s failed: %s", attempt, attempts, sql, exc_info=True
             )
             if attempt < attempts:
                 time.sleep(min(0.4 * attempt, 1.0))
     logger.error(
-        "Skipping DDL after %s attempts so boot can continue: %s (%s)",
+        "Skipping boot SQL after %s attempts so boot can continue: %s (%s)",
         attempts, sql, last,
     )
-    return False
+    return None
+
+
+def _execute_ddl(sql: str, *, attempts: int = DDL_ATTEMPTS) -> bool:
+    """Run one DDL statement. Never raises — a lock timeout skips the statement."""
+    return _execute_bounded(sql, attempts=attempts) is not None
+
+
+def normalise_country_names() -> int:
+    """Rename known country-spelling aliases to the homepage spelling.
+
+    Idempotent: a second boot matches zero rows. Uses the same lock and
+    statement timeouts as DDL so a busy table cannot hang startup. Returns
+    the number of rows renamed, or 0 if the statement was skipped.
+    """
+    from app.services.country_names import COUNTRY_ALIASES
+
+    if not COUNTRY_ALIASES:
+        return 0
+    params: dict[str, str] = {}
+    whens: list[str] = []
+    for i, (alias, canonical) in enumerate(COUNTRY_ALIASES.items()):
+        params[f"a{i}"] = alias
+        params[f"c{i}"] = canonical
+        whens.append(f"WHEN :a{i} THEN :c{i}")
+    in_list = ", ".join(f":a{i}" for i in range(len(COUNTRY_ALIASES)))
+    sql = (
+        "UPDATE companies SET country = CASE country "
+        + " ".join(whens)
+        + f" END WHERE country IN ({in_list})"
+    )
+    updated = _execute_bounded(sql, params)
+    if updated:
+        logger.info("Normalised %s company country name(s) to the homepage spelling", updated)
+    return updated or 0
 
 
 def _add_new_columns() -> None:
