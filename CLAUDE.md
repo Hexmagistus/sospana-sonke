@@ -50,6 +50,9 @@ commit it (and push, if you pushed the rest of your work). Newest entry on top.
 
 ## Session Log
 
+### 2026-09-28 (pooler boot) — Cursor (Grok 4.7) — Drop the libpq startup timeout the Neon pooler rejects
+PR #12 (`59d3bc8`) crashed at boot: psycopg2 `OperationalError` from the Neon pooler, `unsupported startup parameter in options: idle_in_transaction_session_timeout`. That came from `connect_args={"options": "-c idle_in_transaction_session_timeout=60000"}`. Removed that option and the per-connection `SET` (it would not survive pgbouncer transaction pooling). The timeout stays on the role (`ALTER ROLE ... SET idle_in_transaction_session_timeout = '60s'`). `postgres_connect_args` strips startup `options` whenever the host contains `-pooler`.
+
 ### 2026-09-28 (hotfix, country names) — Cursor (Grok 4.7) — One spelling per country on the boot hotfix
 `f66688f` is live on Render (stuck idle-in-transaction sessions were cleared and the service redeployed). The boot/email hotfix is still required and stays on PR #12. Added to that same branch:
 - `/companies/stats` was counting each spelling as its own country (`São Tomé and Príncipe` vs `Sao Tome and Principe`, `Côte d'Ivoire` / `Cote dIvoire` / `Ivory Coast`, `Cabo Verde` vs `Cape Verde`, `Congo` vs `Republic of Congo`) plus `International` and `Africa`, and reported 89 countries.
