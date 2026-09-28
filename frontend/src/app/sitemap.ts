@@ -21,6 +21,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     entry("/donate", 0.5, "monthly"),
     entry("/login", 0.6, "monthly"),
     entry("/register", 0.6, "monthly"),
+    entry("/forgot-password", 0.3, "yearly"),
+    entry("/reset-password", 0.3, "yearly"),
     entry("/privacy", 0.3, "yearly"),
     entry("/terms", 0.3, "yearly"),
   ];

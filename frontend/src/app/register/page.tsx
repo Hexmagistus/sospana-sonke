@@ -8,6 +8,7 @@ import { useAuth } from "@/lib/auth";
 import { Card, Field, Input, Button, Alert } from "@/components/ui";
 import { WhatsAppChannelButton } from "@/components/WhatsAppChannel";
 import { CircuitOverlay, GlowFrame, LogoGlow } from "@/components/HighTech";
+import { CircuitMascot, GreetingLine, LitCircuits, PasswordMeter, friendlyAuthError, successPause } from "@/components/AuthDelight";
 
 export default function RegisterPage() {
   const { register } = useAuth();
@@ -20,6 +21,8 @@ export default function RegisterPage() {
   const [busy, setBusy] = useState(false);
   const [consent, setConsent] = useState(false);
   const [alerts, setAlerts] = useState(false);
+  const [passwordFocused, setPasswordFocused] = useState(false);
+  const [celebrate, setCelebrate] = useState(false);
 
   function set(k: string, v: string) {
     setForm((f) => ({ ...f, [k]: v }));
@@ -35,13 +38,19 @@ export default function RegisterPage() {
     setBusy(true);
     try {
       await register({ ...form, accepted_policy: true, notify_opportunity_alerts: alerts });
+      setCelebrate(true);
+      setBusy(false);
+      await successPause();
       router.push("/companies");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Registration failed");
-    } finally {
       setBusy(false);
+      setError(friendlyAuthError(err instanceof Error ? err.message : "Registration failed"));
     }
   }
+
+  const filled = [
+    form.first_name, form.last_name, form.email, form.password, form.preferred_position,
+  ].filter((v) => v.trim()).length;
 
   return (
     <div className="relative -mx-4 -mt-6 overflow-hidden px-4 pb-16 pt-10 sm:pt-14">
@@ -57,12 +66,15 @@ export default function RegisterPage() {
       <div className="pointer-events-none absolute inset-0 bg-noise opacity-20 mix-blend-overlay" />
       <div className="relative mx-auto max-w-md">
       <CircuitOverlay className="-z-10 opacity-40" opacity={0.12} stroke="#f5b301" dotColor="#f5b301" />
-      <div className="mb-4 flex justify-center">
+      <GreetingLine />
+      <div className="mb-4 flex items-center justify-center gap-4">
         <LogoGlow>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logo-mark.png" alt="Sospana Sonke" className="block h-24 w-24 max-w-none shrink-0 aspect-square rounded-2xl object-cover shadow-[0_0_44px_-4px_var(--ss-primary-glow)] ring-1 ring-ss-primary/30" />
         </LogoGlow>
+        <CircuitMascot coverEyes={passwordFocused && !celebrate} celebrate={celebrate} />
       </div>
+      <LitCircuits lit={filled + (consent ? 1 : 0)} total={6} />
       <h1 className="animate-gradient-text mb-1 bg-gradient-to-r from-[#22d3ee] via-[#f5b301] to-[#a78bfa] bg-clip-text text-center text-4xl font-extrabold text-transparent [filter:drop-shadow(0_0_16px_rgba(245,179,1,0.45))]">Create your account</h1>
       <p className="mb-2 text-center text-xs font-semibold uppercase tracking-[0.16em] text-[#ffcf5a]">Born in SADC, built for the world</p>
       <p className="mb-5 text-center text-base font-medium text-blue-100">Free forever. Takes about 60 seconds. Your future self says thanks. 🚀</p>
@@ -72,8 +84,13 @@ export default function RegisterPage() {
           behind the scenes — it can take a minute or two, not a sign anything&apos;s wrong.
         </Alert>
       </div>
+      {celebrate && (
+        <p className="mb-3 text-center text-sm font-semibold text-[#ffcf5a]" role="status">
+          Account&apos;s open. Taking you to the directory…
+        </p>
+      )}
       <GlowFrame>
-        <Card>
+        <Card className="auth-panel">
           <form onSubmit={submit} className="space-y-4">
             {error && <Alert kind="error">{error}</Alert>}
             <div className="grid grid-cols-2 gap-3">
@@ -105,7 +122,17 @@ export default function RegisterPage() {
               />
             </Field>
             <Field label="Password (min 8 characters)">
-              <Input type="password" value={form.password} onChange={(e) => set("password", e.target.value)} required minLength={8} />
+              <Input
+                type="password"
+                value={form.password}
+                onChange={(e) => set("password", e.target.value)}
+                onFocus={() => setPasswordFocused(true)}
+                onBlur={() => setPasswordFocused(false)}
+                autoComplete="new-password"
+                required
+                minLength={8}
+              />
+              <PasswordMeter password={form.password} />
             </Field>
             <label className="flex items-start gap-2 text-sm text-ss-muted">
               <input
@@ -150,6 +177,10 @@ export default function RegisterPage() {
             Already registered?{" "}
             <Link href="/login" className="text-brand hover:underline">
               Sign in
+            </Link>
+            {" · "}
+            <Link href="/forgot-password" className="text-brand hover:underline">
+              Forgot password
             </Link>
           </p>
         </Card>

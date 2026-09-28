@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth";
 import { Card, Field, Input, Button, Alert } from "@/components/ui";
 import { CircuitOverlay, GlowFrame, LogoGlow } from "@/components/HighTech";
+import { CircuitMascot, GreetingLine, LitCircuits, friendlyAuthError, successPause } from "@/components/AuthDelight";
 
 const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
 
@@ -56,6 +57,8 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [authing, setAuthing] = useState(false);
+  const [passwordFocused, setPasswordFocused] = useState(false);
+  const [celebrate, setCelebrate] = useState(false);
 
   // Load Google Identity Services and render the "Sign in with Google" button,
   // only when a client ID is configured (otherwise the feature stays hidden).
@@ -75,6 +78,9 @@ export default function LoginPage() {
           setAuthing(true);
           try {
             await loginWithGoogle(resp.credential);
+            setCelebrate(true);
+            setAuthing(false);
+            await successPause();
             router.push("/companies");
           } catch (err) {
             setAuthing(false);
@@ -96,18 +102,21 @@ export default function LoginPage() {
     setAuthing(true);
     try {
       await login(email, password, otp);
+      setCelebrate(true);
+      setAuthing(false);
+      setBusy(false);
+      await successPause();
       router.push("/companies");
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Login failed";
+      setAuthing(false);
+      setBusy(false);
       if (/mfa/i.test(msg)) {
         setNeedsOtp(true);
         setError("Enter your authenticator code to continue.");
       } else {
-        setError(msg);
+        setError(friendlyAuthError(msg));
       }
-    } finally {
-      setBusy(false);
-      setAuthing(false);
     }
   }
 
@@ -127,12 +136,20 @@ export default function LoginPage() {
       {authing && <AuthLoader />}
       <CircuitOverlay className="-z-10 opacity-40" opacity={0.12} stroke="#f5b301" dotColor="#f5b301" />
       <p className="mb-3 text-center text-xs font-semibold uppercase tracking-[0.18em] text-[#ffcf5a]">Born in SADC, built for the world</p>
-      <div className="auth-float mb-4 flex justify-center">
-        <LogoGlow>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo-mark.png" alt="Sospana Sonke" className="block h-24 w-24 max-w-none shrink-0 aspect-square rounded-2xl object-cover shadow-[0_0_44px_-4px_var(--ss-primary-glow)] ring-1 ring-ss-primary/30" />
-        </LogoGlow>
+      <GreetingLine />
+      <div className="mb-4 flex items-center justify-center gap-4">
+        <div className="auth-float">
+          <LogoGlow>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo-mark.png" alt="Sospana Sonke" className="block h-24 w-24 max-w-none shrink-0 aspect-square rounded-2xl object-cover shadow-[0_0_44px_-4px_var(--ss-primary-glow)] ring-1 ring-ss-primary/30" />
+          </LogoGlow>
+        </div>
+        <CircuitMascot coverEyes={passwordFocused && !celebrate} celebrate={celebrate} />
       </div>
+      <LitCircuits
+        lit={(email.trim() ? 1 : 0) + (password ? 1 : 0) + (needsOtp && otp.trim() ? 1 : 0)}
+        total={needsOtp ? 3 : 2}
+      />
       <h1 className="animate-gradient-text mb-1 bg-gradient-to-r from-[#22d3ee] via-[#f5b301] to-[#a78bfa] bg-clip-text text-center text-4xl font-extrabold text-transparent [filter:drop-shadow(0_0_16px_rgba(245,179,1,0.45))]">Sospana Sonke</h1>
       <p className="mb-4 text-center text-base font-medium text-blue-100">
         We find the opportunities. You apply direct. <span className="font-bold text-ss-tech">No middle-man, no fees, no nonsense.</span> 😎
@@ -143,8 +160,13 @@ export default function LoginPage() {
           scenes — it can take a minute or two, not a sign anything&apos;s wrong.
         </Alert>
       </div>
+      {celebrate && (
+        <p className="mb-3 text-center text-sm font-semibold text-[#ffcf5a]" role="status">
+          You&apos;re in. Opening the directory…
+        </p>
+      )}
       <GlowFrame>
-        <Card>
+        <Card className="auth-panel">
           <h2 className="text-2xl font-extrabold">Sign in</h2>
           <p className="mb-4 mt-1 text-sm text-ss-muted">Welcome back — your opportunities missed you. 👋</p>
           <form onSubmit={submit} className="space-y-4">
@@ -153,7 +175,15 @@ export default function LoginPage() {
               <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
             </Field>
             <Field label="Password">
-              <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+              <Input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                onFocus={() => setPasswordFocused(true)}
+                onBlur={() => setPasswordFocused(false)}
+                autoComplete="current-password"
+                required
+              />
             </Field>
             {needsOtp && (
               <Field label="Authenticator code">
@@ -163,6 +193,11 @@ export default function LoginPage() {
             <Button type="submit" loading={busy} disabled={busy} glow className="w-full">
               {busy ? "Signing in…" : "Sign in"}
             </Button>
+            <p className="text-center text-sm">
+              <Link href="/forgot-password" className="text-brand hover:underline">
+                Forgot password?
+              </Link>
+            </p>
           </form>
 
           {GOOGLE_CLIENT_ID && (

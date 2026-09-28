@@ -50,6 +50,10 @@ commit it (and push, if you pushed the rest of your work). Newest entry on top.
 
 ## Session Log
 
+### 2026-09-28 (login) — Cursor (Grok 4.7) — Sign-in and registration delight
+Login and register now share a circuit mascot (it covers its eyes while a password is typed and smiles once you're in), gold traces that light as fields are filled, and a rotating local greeting (Sawubona, Dumela, Molo, Howzit, Bonjour, Olá) with the time of day. Register and reset show a password-strength line in plain language. A short pause, skipped when reduced motion is on, plays before the redirect. `/forgot-password` and `/reset-password` call the existing reset endpoints; the request still answers the same way whether or not the email exists, and confirming a reset still signs every other session out. Google sign-in, MFA, and the rate limits are unchanged.
+Next: South America direct-careers rows.
+
 ### 2026-09-28 (brand follow-up) — Cursor (Grok 4.7) — Live counts, no zero flash, wrapping cards
 Added onto the brand/POPIA/donations branch after Europe pass 2 landed on main (`db64fdd`):
 - Live now cards and the country bars wrap at phone width instead of clipping "Zimbabwe" / "United Kingdom" / "employers".
