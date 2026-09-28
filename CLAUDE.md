@@ -54,6 +54,20 @@ commit it (and push, if you pushed the rest of your work). Newest entry on top.
 Added 17 employers whose public ATS feeds returned open roles on 2026-09-28: Brazil 13 (Greenhouse, Lever, Workable), Chile 2 (Lever), Colombia 1 (Workable), Argentina 1 (SmartRecruiters). Brazil's homepage count is 55 → 68. Argentina, Chile and Colombia are new on the landing page. Brazil is grouped with South America rather than the partner-market set. Homepage copy names South America alongside Africa, Oceania and Europe.
 Rejected after a fetch, not guessed: Clara and Kavak are in Mexico; SumUp, Thoughtworks and AB InBev boards are global; Dock's Recruitee host is a Dutch organisation; Avianca's only open SmartRecruiters post was in Atlanta; Itaú's SmartRecruiters board is test jobs; Greenhouse `bcp` is a Canadian employer; SmartRecruiters `gtt` is the French company. No readable board turned up for Uruguay, Ecuador, Peru, Paraguay, Bolivia, Venezuela, Guyana or Suriname.
 
+### 2026-09-28 (hotfix, country names) — Cursor (Grok 4.7) — One spelling per country on the boot hotfix
+`f66688f` is live on Render (stuck idle-in-transaction sessions were cleared and the service redeployed). The boot/email hotfix is still required and stays on PR #12. Added to that same branch:
+- `/companies/stats` was counting each spelling as its own country (`São Tomé and Príncipe` vs `Sao Tome and Principe`, `Côte d'Ivoire` / `Cote dIvoire` / `Ivory Coast`, `Cabo Verde` vs `Cape Verde`, `Congo` vs `Republic of Congo`) plus `International` and `Africa`, and reported 89 countries.
+- Startup now runs one idempotent `UPDATE` (same 5s lock timeout and 15s statement timeout as DDL, retry then skip) before the seed import, renaming those aliases to the homepage spelling. DR Congo is left as DR Congo. CSV import canonicalises too, so a later import cannot insert a second row under the old spelling.
+- `countries` no longer counts `International` or `Africa`. Those buckets stay in `by_country` and in the employer total. The main seed CSV country column was already canonical; the 10 `Cote dIvoire` college rows in `backend/seed/countries/Cote_dIvoire.csv` now say `Côte d'Ivoire`.
+
+### 2026-09-28 (hotfix) — Cursor (Grok 4.7) — Boot DDL and notification transactions
+PR #11 (`f66688f`) failed to deploy: startup `ALTER TABLE users ADD COLUMN notify_opportunity_alerts` waited on two `idle in transaction` sessions. Those were notification SELECTs left open when strong-match SMTP raised `OSError Errno 101` (Render free cannot reach SMTP). The new instance never finished booting (`update_failed`); production stayed on `db64fdd`.
+- Postgres DDL now sets `lock_timeout=5s` and `statement_timeout=15s` (`SET LOCAL`), retries, then skips so boot continues. Connections set `idle_in_transaction_session_timeout=60s`.
+- `create_notification` commits the row before SMTP/SMS/push and rolls back if a send fails, so a channel error cannot leave the connection idle in a transaction.
+- `/donate` cash-send “coming soon” note uses the opaque light-on-navy alert so it is readable on the dark card.
+- Homepage badge and country picker say Africa, Oceania, Europe and partner markets, matching the map heading.
+Next: login/register delight, then South America direct-careers rows.
+
 ### 2026-09-28 (brand follow-up) — Cursor (Grok 4.7) — Live counts, no zero flash, wrapping cards
 Added onto the brand/POPIA/donations branch after Europe pass 2 landed on main (`db64fdd`):
 - Live now cards and the country bars wrap at phone width instead of clipping "Zimbabwe" / "United Kingdom" / "employers".

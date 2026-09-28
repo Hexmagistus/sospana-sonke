@@ -17,6 +17,24 @@ from app.notifications.email import get_email_provider
 logger = logging.getLogger(__name__)
 
 
+def _commit_closed(db: Session) -> None:
+    """Commit and leave no transaction open. Roll back if the commit itself fails."""
+    try:
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise
+
+
+def _rollback_if_open(db: Session) -> None:
+    """A channel error must not leave this connection idle in a transaction."""
+    try:
+        if db.in_transaction():
+            db.rollback()
+    except Exception:
+        logger.warning("Could not roll back after a notification send failure", exc_info=True)
+
+
 def create_notification(db: Session, *, user_id: str, to_email: str | None, type: str,
                         title: str, body: str, related_type: str | None = None,
                         related_id: str | None = None, send_email: bool | None = None,
@@ -30,13 +48,32 @@ def create_notification(db: Session, *, user_id: str, to_email: str | None, type
         if existing:
             return None
 
+    # Read anything the send step needs, then commit BEFORE SMTP/SMS/push.
+    # Render free blocks outbound SMTP (Errno 101). The old code ran that send
+    # inside the caller's transaction, so the SELECT stayed 'idle in transaction'
+    # and the next deploy's ALTER TABLE waited on it until the boot was killed.
+    push_tokens: list[str] = []
+    if settings.NOTIFY_PUSH:
+        from app.models.notification import PushToken
+        push_tokens = [
+            row.token for row in db.query(PushToken).filter(PushToken.user_id == user_id).all()
+        ]
+
     note = Notification(user_id=user_id, type=type, title=title, body=body,
                         related_type=related_type, related_id=related_id, link_url=link_url)
+    db.add(note)
+    db.flush()
+    note_id = note.id
+    _commit_closed(db)
 
     should_email = settings.NOTIFY_EMAILS if send_email is None else send_email
+    email_sent = False
+    sms_sent = False
+    push_sent = False
+
     if should_email and to_email:
         try:
-            note.email_sent = get_email_provider().send(to_email, title, body)
+            email_sent = bool(get_email_provider().send(to_email, title, body))
         except Exception:
             # Never let a channel failure break the flow -- but this used to be
             # completely silent, which matters a lot with NOTIFY_EMAILS on in
@@ -44,30 +81,49 @@ def create_notification(db: Session, *, user_id: str, to_email: str | None, type
             # were relying on (e.g. "your application needs action") with nothing
             # anywhere recording that the send failed.
             logger.warning("Failed to email notification %r to user %s", type, user_id, exc_info=True)
-            note.email_sent = False
+            email_sent = False
+            _rollback_if_open(db)
 
     if settings.NOTIFY_SMS and to_phone:
         try:
             from app.notifications.channels import get_sms_provider
-            note.sms_sent = get_sms_provider().send(to_phone, f"{title}: {body}")
+            sms_sent = bool(get_sms_provider().send(to_phone, f"{title}: {body}"))
         except Exception:
             logger.warning("Failed to SMS notification %r to user %s", type, user_id, exc_info=True)
-            note.sms_sent = False
+            sms_sent = False
+            _rollback_if_open(db)
 
-    if settings.NOTIFY_PUSH:
+    if settings.NOTIFY_PUSH and push_tokens:
         try:
             from app.notifications.channels import get_push_provider
-            from app.models.notification import PushToken
             provider = get_push_provider()
-            tokens = db.query(PushToken).filter(PushToken.user_id == user_id).all()
-            note.push_sent = any(provider.send(t.token, title, body) for t in tokens)
+            push_sent = any(provider.send(token, title, body) for token in push_tokens)
         except Exception:
             logger.warning("Failed to push notification %r to user %s", type, user_id, exc_info=True)
-            note.push_sent = False
+            push_sent = False
+            _rollback_if_open(db)
 
-    db.add(note)
-    db.flush()
-    return note
+    if email_sent or sms_sent or push_sent:
+        saved = db.get(Notification, note_id)
+        if saved is not None:
+            saved.email_sent = email_sent
+            saved.sms_sent = sms_sent
+            saved.push_sent = push_sent
+            try:
+                _commit_closed(db)
+            except Exception:
+                logger.warning(
+                    "Notification %s was saved but the sent-flags could not be stored",
+                    note_id, exc_info=True,
+                )
+                _rollback_if_open(db)
+    # A trailing SELECT would leave the caller's connection in a transaction
+    # again. Detach the row and roll that read back.
+    loaded = db.get(Notification, note_id)
+    if loaded is not None:
+        db.expunge(loaded)
+    _rollback_if_open(db)
+    return loaded
 
 
 def notify_strong_match(db, *, user, match, vacancy_title, company_name) -> Notification | None:

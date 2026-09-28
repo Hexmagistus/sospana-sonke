@@ -15,6 +15,7 @@ from sqlalchemy.orm import Session
 
 from app.models.company import Company
 from app.schemas.company import CompanyImportResult
+from app.services.country_names import canonical_country
 
 _EXPECTED = {"company_name"}
 
@@ -69,7 +70,7 @@ def import_companies_from_csv(db: Session, content: bytes) -> CompanyImportResul
     # so two employers that share a name in different countries stay two rows.
     existing: dict[tuple[str, str, str], Company] = {}
     for c in db.query(Company).all():
-        existing[(_norm(c.company_name), (c.jse_code or "").strip().upper(), (c.country or "").strip())] = c
+        existing[(_norm(c.company_name), (c.jse_code or "").strip().upper(), canonical_country(c.country))] = c
 
     for i, row in enumerate(reader, start=2):  # row 1 is the header
         total += 1
@@ -79,7 +80,7 @@ def import_companies_from_csv(db: Session, content: bytes) -> CompanyImportResul
             errors.append(f"Row {i}: missing company_name; skipped.")
             continue
         code = (row.get("jse_code") or "").strip().upper()
-        country = (row.get("country") or "South Africa").strip() or "South Africa"
+        country = canonical_country((row.get("country") or "South Africa").strip() or "South Africa")
         key = (_norm(name), code, country)
 
         careers_url = (row.get("careers_url") or "").strip() or None
