@@ -384,7 +384,7 @@ const SOON: { name: string; flag: string }[] = [];
 const TOTAL_EMPLOYERS = LIVE.reduce((sum, c) => sum + c.count, 0);
 // Hero, map footer and the closing paragraph all read this. Add the next
 // continent here so the copy stays in step with the directory.
-const COVERAGE = "all 54 African nations, Oceania, Europe and partner markets";
+const COVERAGE = "Africa, Oceania, Europe and partner markets";
 function rankCountries(rows: typeof LIVE) {
   return [...rows].sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
 }
@@ -1175,8 +1175,8 @@ function LiveCountryCard({ c, i }: { c: { name: string; flag: string; count: num
 
 /* A real "jump to a country" dropdown -- a native <select> (so it gets
    keyboard type-ahead and a proper mobile picker for free) listing every
-   one of the 54 countries alphabetically. Choosing one shows just that
-   country's card below -- no long list sitting on the page at all. */
+   country in the directory (Africa, Oceania, Europe, and partner markets)
+   alphabetically. Choosing one shows just that country's card below. */
 function CountryJumpSelect({
   live,
   soon,
@@ -1206,7 +1206,7 @@ function CountryJumpSelect({
           onChange={(e) => setSelected(e.target.value)}
           className="w-full appearance-none rounded-xl border border-white/20 bg-white/10 py-3 pl-4 pr-10 text-sm font-bold text-white backdrop-blur-sm transition hover:border-white/40 hover:bg-white/20 focus:border-white/50 focus:outline-none"
         >
-          <option value="" className="text-navy">Choose from all {options.length} countries…</option>
+          <option value="" className="text-navy">Choose a country in Africa, Oceania, Europe…</option>
           {options.map((o) => (
             <option key={o.name} value={o.name} className="text-navy">
               {o.flag} {o.name}{o.kind === "live" ? ` — ${o.count} ${o.count === 1 ? "employer" : "employers"}` : " — coming soon"}

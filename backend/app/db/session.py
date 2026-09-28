@@ -1,10 +1,11 @@
 """Database engine and session management."""
 import logging
 import re
+import time
 from collections.abc import Generator
 from urllib.parse import urlparse
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, event
 from sqlalchemy.orm import Session, sessionmaker
 
 from app.core.config import settings
@@ -51,7 +52,13 @@ def describe_database(url: str | None = None) -> dict:
 # before Neon closes them. pool_pre_ping stays: a dead connection would otherwise
 # 500 the next request, and the ping is one round trip only on checkout.
 _is_sqlite = DATABASE_URL.startswith("sqlite")
-_connect_args = {"check_same_thread": False} if _is_sqlite else {}
+# 60s: a notification SELECT left idle across a failed SMTP call (Render free
+# cannot reach SMTP) pinned AccessExclusiveLock and the next boot's ALTER TABLE
+# never finished. The server aborts that session instead of holding the lock.
+_IDLE_IN_TRANSACTION = "60s"
+_connect_args = {"check_same_thread": False} if _is_sqlite else {
+    "options": "-c idle_in_transaction_session_timeout=60000",
+}
 _engine_kwargs: dict = {"pool_pre_ping": True}
 if not _is_sqlite:
     _engine_kwargs.update(
@@ -72,6 +79,28 @@ if not _is_sqlite:
 engine = create_engine(DATABASE_URL, connect_args=_connect_args, **_engine_kwargs)
 SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False, class_=Session)
 
+if not _is_sqlite:
+    @event.listens_for(engine, "connect")
+    def _arm_idle_in_transaction_timeout(dbapi_connection, _connection_record):
+        """Repeat the startup GUC in case a pooler drops libpq options.
+
+        A failure here must not refuse the connection: lock_timeout on the
+        DDL path is what keeps boot from hanging.
+        """
+        try:
+            cursor = dbapi_connection.cursor()
+            try:
+                cursor.execute(
+                    f"SET idle_in_transaction_session_timeout = '{_IDLE_IN_TRANSACTION}'"
+                )
+            finally:
+                cursor.close()
+            dbapi_connection.commit()
+        except Exception:
+            logger.warning(
+                "Could not set idle_in_transaction_session_timeout", exc_info=True
+            )
+
 
 def get_db() -> Generator[Session, None, None]:
     """FastAPI dependency that yields a database session and always closes it."""
@@ -89,6 +118,10 @@ def init_db() -> None:
     Base.metadata.create_all(bind=engine)
     _add_new_columns()
     _ensure_indexes()
+    # Before bootstrap imports the seed CSV. The import dedup key includes
+    # country, so an alias row must already wear the canonical spelling or a
+    # re-import inserts a second employer.
+    normalise_country_names()
 
 
 # Base.metadata.create_all() above only creates TABLES that don't exist yet — it
@@ -123,8 +156,93 @@ _NEW_COLUMNS: list[tuple[str, str, str]] = [
 ]
 
 
+# Postgres ALTER TABLE takes AccessExclusiveLock and waits forever by default.
+# Two idle-in-transaction sessions from the previous instance blocked
+# `notify_opportunity_alerts` and the deploy died as update_failed. Bound the
+# wait, retry a few times, then skip so this process can finish booting.
+DDL_LOCK_TIMEOUT = "5s"
+DDL_STATEMENT_TIMEOUT = "15s"
+DDL_ATTEMPTS = 3
+
+
+def _postgres_ddl_guards() -> list[str]:
+    """SET LOCAL so the pooled connection does not keep a 5s lock_timeout."""
+    return [
+        f"SET LOCAL lock_timeout = '{DDL_LOCK_TIMEOUT}'",
+        f"SET LOCAL statement_timeout = '{DDL_STATEMENT_TIMEOUT}'",
+    ]
+
+
+def _execute_bounded(
+    sql: str, params: dict | None = None, *, attempts: int = DDL_ATTEMPTS,
+) -> int | None:
+    """Run one statement under the boot lock/statement timeouts.
+
+    Returns the rowcount, or None when every attempt failed. Never raises —
+    a lock timeout must not hang boot. SET LOCAL so a pooled connection does
+    not keep the 5s lock_timeout after the transaction ends.
+    """
+    from sqlalchemy import text
+
+    last: Exception | None = None
+    for attempt in range(1, attempts + 1):
+        try:
+            with engine.begin() as conn:
+                if not _is_sqlite:
+                    for guard in _postgres_ddl_guards():
+                        conn.execute(text(guard))
+                result = conn.execute(text(sql), params or {})
+            return int(result.rowcount or 0)
+        except Exception as exc:
+            last = exc
+            logger.warning(
+                "Boot SQL attempt %s/%s failed: %s", attempt, attempts, sql, exc_info=True
+            )
+            if attempt < attempts:
+                time.sleep(min(0.4 * attempt, 1.0))
+    logger.error(
+        "Skipping boot SQL after %s attempts so boot can continue: %s (%s)",
+        attempts, sql, last,
+    )
+    return None
+
+
+def _execute_ddl(sql: str, *, attempts: int = DDL_ATTEMPTS) -> bool:
+    """Run one DDL statement. Never raises — a lock timeout skips the statement."""
+    return _execute_bounded(sql, attempts=attempts) is not None
+
+
+def normalise_country_names() -> int:
+    """Rename known country-spelling aliases to the homepage spelling.
+
+    Idempotent: a second boot matches zero rows. Uses the same lock and
+    statement timeouts as DDL so a busy table cannot hang startup. Returns
+    the number of rows renamed, or 0 if the statement was skipped.
+    """
+    from app.services.country_names import COUNTRY_ALIASES
+
+    if not COUNTRY_ALIASES:
+        return 0
+    params: dict[str, str] = {}
+    whens: list[str] = []
+    for i, (alias, canonical) in enumerate(COUNTRY_ALIASES.items()):
+        params[f"a{i}"] = alias
+        params[f"c{i}"] = canonical
+        whens.append(f"WHEN :a{i} THEN :c{i}")
+    in_list = ", ".join(f":a{i}" for i in range(len(COUNTRY_ALIASES)))
+    sql = (
+        "UPDATE companies SET country = CASE country "
+        + " ".join(whens)
+        + f" END WHERE country IN ({in_list})"
+    )
+    updated = _execute_bounded(sql, params)
+    if updated:
+        logger.info("Normalised %s company country name(s) to the homepage spelling", updated)
+    return updated or 0
+
+
 def _add_new_columns() -> None:
-    from sqlalchemy import inspect, text
+    from sqlalchemy import inspect
 
     inspector = inspect(engine)
     existing_tables = set(inspector.get_table_names())
@@ -134,17 +252,12 @@ def _add_new_columns() -> None:
         existing_columns = {c["name"] for c in inspector.get_columns(table)}
         if column in existing_columns:
             continue
-        try:
-            with engine.begin() as conn:
-                conn.execute(text(f"ALTER TABLE {table} ADD COLUMN {column} {ddl_type}"))
-        except Exception:
-            # Never let optional column backfill block startup -- but this used to
-            # fail completely silently, which is a real data-integrity risk: the
-            # app would carry on writing/reading a table that's missing a column
-            # it expects, with no record anywhere of why. Log it loudly instead.
-            logger.exception(
-                "Failed to add column %s.%s (%s) -- schema may now be out of "
-                "sync with the models; writes touching this column may fail.",
+        added = _execute_ddl(f"ALTER TABLE {table} ADD COLUMN {column} {ddl_type}")
+        if not added:
+            # The app can boot on the previous schema. The next boot retries.
+            logger.error(
+                "Column %s.%s (%s) is still missing — writes touching it may fail "
+                "until a later boot can take the lock.",
                 table, column, ddl_type,
             )
 
@@ -171,11 +284,9 @@ _INDEXES: list[tuple[str, str, str]] = [
 
 
 def _ensure_indexes() -> None:
-    from sqlalchemy import text
-
     for name, table, columns in _INDEXES:
-        try:
-            with engine.begin() as conn:
-                conn.execute(text(f"CREATE INDEX IF NOT EXISTS {name} ON {table} ({columns})"))
-        except Exception:
-            logger.exception("Failed to create index %s on %s; queries still run, just slower.", name, table)
+        if not _execute_ddl(f"CREATE INDEX IF NOT EXISTS {name} ON {table} ({columns})"):
+            logger.error(
+                "Index %s on %s was not created; queries still run, just slower.",
+                name, table,
+            )
