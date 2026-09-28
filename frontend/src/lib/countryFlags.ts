@@ -85,4 +85,10 @@ export const COUNTRY_FLAGS: Record<string, string> = {
   "Ireland": "🇮🇪",
   "Spain": "🇪🇸",
   "Belgium": "🇧🇪",
+  "Italy": "🇮🇹",
+  "Norway": "🇳🇴",
+  "Czechia": "🇨🇿",
+  "Austria": "🇦🇹",
+  "Luxembourg": "🇱🇺",
+  "Lithuania": "🇱🇹",
 };

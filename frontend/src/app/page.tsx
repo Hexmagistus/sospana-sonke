@@ -366,20 +366,26 @@ const LIVE = [
   { name: "Central African Republic", flag: "🇨🇫", count: 16, pending: false },
   { name: "Equatorial Guinea", flag: "🇬🇶", count: 11, pending: false },
   { name: "United Kingdom", flag: "🇬🇧", count: 9, pending: false },
+  { name: "Italy", flag: "🇮🇹", count: 5, pending: false },
+  { name: "Germany", flag: "🇩🇪", count: 5, pending: false },
   { name: "Eritrea", flag: "🇪🇷", count: 5, pending: false },
   { name: "New Zealand", flag: "🇳🇿", count: 5, pending: false },
+  { name: "France", flag: "🇫🇷", count: 4, pending: false },
   { name: "Switzerland", flag: "🇨🇭", count: 4, pending: false },
+  { name: "Ireland", flag: "🇮🇪", count: 3, pending: false },
   { name: "Spain", flag: "🇪🇸", count: 3, pending: false },
   { name: "Netherlands", flag: "🇳🇱", count: 3, pending: false },
-  { name: "Germany", flag: "🇩🇪", count: 2, pending: false },
+  { name: "Sweden", flag: "🇸🇪", count: 2, pending: false },
   { name: "Denmark", flag: "🇩🇰", count: 2, pending: false },
   { name: "Fiji", flag: "🇫🇯", count: 1, pending: false },
-  { name: "France", flag: "🇫🇷", count: 1, pending: false },
   { name: "Belgium", flag: "🇧🇪", count: 1, pending: false },
-  { name: "Sweden", flag: "🇸🇪", count: 1, pending: false },
   { name: "Finland", flag: "🇫🇮", count: 1, pending: false },
-  { name: "Ireland", flag: "🇮🇪", count: 1, pending: false },
   { name: "Estonia", flag: "🇪🇪", count: 1, pending: false },
+  { name: "Norway", flag: "🇳🇴", count: 1, pending: false },
+  { name: "Czechia", flag: "🇨🇿", count: 1, pending: false },
+  { name: "Austria", flag: "🇦🇹", count: 1, pending: false },
+  { name: "Luxembourg", flag: "🇱🇺", count: 1, pending: false },
+  { name: "Lithuania", flag: "🇱🇹", count: 1, pending: false },
 ];
 // All four countries that used to sit here (Niger, Guinea-Bissau, Equatorial
 // Guinea, Eritrea) got their first real seed rows in the 2026-09-24 COLLEGE
@@ -392,6 +398,51 @@ const TOTAL_EMPLOYERS = LIVE.reduce((sum, c) => sum + c.count, 0);
 // Hero, map footer and the closing paragraph all read this. Add the next
 // continent here so the copy stays in step with the directory.
 const COVERAGE = "all 54 African nations, Oceania and Europe";
+// Same seed-row totals as LIVE. The bar chart and the Live now cards both
+// read `.count` from this list — cards must show that integer directly.
+// A count-up that resets to 0 paints a smaller number for the first second,
+// which is how a live check saw South Africa as 716 on a card and 974 on the bar.
+const RANKED = [...LIVE].sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+const OCEANIA = new Set(["Australia", "New Zealand", "Fiji", "Papua New Guinea", "Samoa", "Tonga", "Solomon Islands", "Vanuatu"]);
+const EUROPE = new Set([
+  "United Kingdom", "Germany", "France", "Netherlands", "Switzerland", "Sweden", "Denmark",
+  "Finland", "Estonia", "Ireland", "Spain", "Belgium", "Italy", "Poland", "Austria",
+  "Portugal", "Greece", "Czechia", "Hungary", "Romania", "Norway", "Ukraine", "Luxembourg",
+  "Malta", "Cyprus", "Latvia", "Lithuania", "Iceland", "Slovakia", "Slovenia", "Bulgaria",
+  "Croatia", "Serbia", "Albania", "Bosnia and Herzegovina", "North Macedonia", "Montenegro",
+  "Kosovo", "Moldova", "Belarus",
+]);
+const PARTNERS = new Set(["Brazil", "Russia", "India", "China", "Iran", "United Arab Emirates", "Indonesia"]);
+
+function regionOf(name: string): "Africa" | "Oceania" | "Europe" | "Partners" {
+  if (OCEANIA.has(name)) return "Oceania";
+  if (EUROPE.has(name)) return "Europe";
+  if (PARTNERS.has(name)) return "Partners";
+  return "Africa";
+}
+
+// Eight cards: the largest country in each region that has employers, then the
+// next-largest countries overall. Top-by-count alone is still all African.
+function liveNowCards(n = 8) {
+  const picked: typeof LIVE = [];
+  const seen = new Set<string>();
+  for (const region of ["Africa", "Oceania", "Europe", "Partners"] as const) {
+    const lead = RANKED.find((c) => regionOf(c.name) === region);
+    if (lead && !seen.has(lead.name)) {
+      picked.push(lead);
+      seen.add(lead.name);
+    }
+  }
+  for (const c of RANKED) {
+    if (picked.length >= n) break;
+    if (seen.has(c.name)) continue;
+    picked.push(c);
+    seen.add(c.name);
+  }
+  return picked.sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+}
+
+const LIVE_NOW = liveNowCards(8);
 
 // Wonders of Africa — line-art icons drawn inline (viewBox 0 0 72 52).
 const WONDERS: { name: string; place: string; art: ReactNode; photo?: string; alt?: string }[] = [
@@ -572,7 +623,6 @@ export default function Home() {
   const { user, loading } = useAuth();
   const router = useRouter();
   const [scrolled, setScrolled] = useState(false);
-  const LIVE_PREVIEW = 8;
   const RANKING_PREVIEW = 10;
 
   useEffect(() => {
@@ -938,8 +988,8 @@ export default function Home() {
           />
           <div className="relative">
             <Reveal>
-              <span className="inline-block rounded-full bg-white/10 px-4 py-1.5 text-xs font-semibold backdrop-blur-sm">🌍 Africa&apos;s Opportunity Map</span>
-              <h2 className="mt-4 font-display text-2xl font-extrabold sm:text-4xl">Built for the region. Live across Africa.</h2>
+              <span className="inline-block rounded-full bg-white/10 px-4 py-1.5 text-xs font-semibold backdrop-blur-sm">🌍 Opportunity map</span>
+              <h2 className="mt-4 font-display text-2xl font-extrabold sm:text-4xl">Built for the region. Live across Africa, Oceania and Europe.</h2>
               <p className="mt-3 max-w-3xl text-blue-100">
                 We&apos;re live across {COVERAGE}: every African country, then Oceania and Europe. A country is added when a direct careers page lists open roles. Wherever you are, your ambition has a home here.
               </p>
@@ -955,7 +1005,7 @@ export default function Home() {
                 Live now
               </p>
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-                {LIVE.slice(0, LIVE_PREVIEW).map((c, i) => (
+                {LIVE_NOW.map((c, i) => (
                   <LiveCountryCard key={c.name} c={c} i={i} />
                 ))}
               </div>
@@ -972,10 +1022,10 @@ export default function Home() {
             {/* Contribution ranking — which country is powering the most opportunities */}
             <Reveal delay={100}>
               <div className="mt-8 rounded-2xl border border-white/10 bg-black/20 p-5">
-                <p className="text-xs font-semibold uppercase tracking-wider text-blue-200">Who&apos;s powering Africa&apos;s opportunities</p>
+                <p className="text-xs font-semibold uppercase tracking-wider text-blue-200">Who&apos;s powering the directory</p>
                 <p className="mt-1 text-sm text-blue-100">Verified employers on Sospana Sonke by country — a live picture of where the region&apos;s opportunities are opening up.</p>
                 <div className="mt-4 space-y-2.5">
-                  {LIVE.slice(0, RANKING_PREVIEW).map((c, i) => {
+                  {RANKED.slice(0, RANKING_PREVIEW).map((c, i) => {
                     const max = LIVE[0].count || 1;
                     const pct = Math.max(6, Math.round((c.count / max) * 100));
                     const cols = [C.gold, C.mint, C.sky, C.green, C.sun, C.plum, C.red, C.teal, C.amber, C.mint, C.sky, C.green, C.gold, C.sun, C.teal, C.plum];
@@ -1103,8 +1153,8 @@ function LiveCountryCard({ c, i }: { c: { name: string; flag: string; count: num
         <span className="text-4xl leading-none">{c.flag}</span>
         <div>
           <div className="text-sm font-bold leading-tight">{c.name}</div>
-          <div className="mt-0.5 font-mono text-xs font-semibold" style={{ color: C.mint }}>
-            <CountUp target={c.count} suffix={c.count === 1 ? " employer" : " employers"} duration={1000} />
+            <div className="mt-0.5 font-mono text-xs font-semibold" style={{ color: C.mint }}>
+            {c.count}{c.count === 1 ? " employer" : " employers"}
           </div>
           <span className="mt-1 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold" style={{ background: C.green, color: "#fff" }}>
             <span className="relative flex h-1.5 w-1.5">

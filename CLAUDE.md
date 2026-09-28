@@ -50,6 +50,9 @@ commit it (and push, if you pushed the rest of your work). Newest entry on top.
 
 ## Session Log
 
+### 2026-09-28 (later still) — Cursor (Grok 4.7) — Second Europe pass
+19 more employers whose careers URL a plain fetch could read, appended to `backend/seed/company_database_import.csv`. New countries: Italy 5, Norway 1, Czechia 1, Austria 1, Luxembourg 1, Lithuania 1. Added to thin countries: France 3, Germany 3, Ireland 2, Sweden 1. Workday hosts were taken from a published job URL (Airbus, Leonardo, Equinor), then confirmed with the CXS jobs endpoint. Other rows are the employer's own search-results page, and the HTML parser read real titles. Homepage heading now says Africa, Oceania and Europe. The eight Live now cards are the largest country in each region plus the next-largest overall, and they show the same seed-row count as the bar (the old count-up reset to 0, so a snapshot could show South Africa as 716 while the bar already said 974).
+
 ### 2026-09-28 (later) — Cursor (Grok 4.7) — Europe employers with direct careers links
 Europe only, same rule as Oceania: a plain fetch had to return HTTP 200 and a page or ATS board that listed open roles. 29 employers appended to `backend/seed/company_database_import.csv`: United Kingdom 9 (PRIVATE 7, HOSPITAL 1, UNI 1), Switzerland 4 (PRIVATE 2, NGO 1, UNI 1), Spain 3 (PRIVATE), Netherlands 3 (PRIVATE 2, DEPT 1), Germany 2 (PRIVATE), Denmark 2 (PRIVATE 1, UNI 1), and one each for France (PRIVATE), Sweden (PRIVATE), Finland (PRIVATE), Ireland (PRIVATE), Belgium (DEPT), Estonia (PRIVATE). Category totals: PRIVATE 22, UNI 3, DEPT 2, HOSPITAL 1, NGO 1. No verified SOE, COLLEGE, MUNI, or SETA. Homepage coverage is one string, `COVERAGE` (`all 54 African nations, Oceania and Europe`), used by the hero, the map paragraph and the footer, so the next continent is a single edit. Counts are seed totals.
 
