@@ -50,6 +50,14 @@ commit it (and push, if you pushed the rest of your work). Newest entry on top.
 
 ## Session Log
 
+### 2026-09-28 (hotfix) — Cursor (Grok 4.7) — Boot DDL and notification transactions
+PR #11 (`f66688f`) failed to deploy: startup `ALTER TABLE users ADD COLUMN notify_opportunity_alerts` waited on two `idle in transaction` sessions. Those were notification SELECTs left open when strong-match SMTP raised `OSError Errno 101` (Render free cannot reach SMTP). The new instance never finished booting (`update_failed`); production stayed on `db64fdd`.
+- Postgres DDL now sets `lock_timeout=5s` and `statement_timeout=15s` (`SET LOCAL`), retries, then skips so boot continues. Connections set `idle_in_transaction_session_timeout=60s`.
+- `create_notification` commits the row before SMTP/SMS/push and rolls back if a send fails, so a channel error cannot leave the connection idle in a transaction.
+- `/donate` cash-send “coming soon” note uses the opaque light-on-navy alert so it is readable on the dark card.
+- Homepage badge and country picker say Africa, Oceania, Europe and partner markets, matching the map heading.
+Next: login/register delight, then South America direct-careers rows.
+
 ### 2026-09-28 (brand follow-up) — Cursor (Grok 4.7) — Live counts, no zero flash, wrapping cards
 Added onto the brand/POPIA/donations branch after Europe pass 2 landed on main (`db64fdd`):
 - Live now cards and the country bars wrap at phone width instead of clipping "Zimbabwe" / "United Kingdom" / "employers".
