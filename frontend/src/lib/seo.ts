@@ -24,6 +24,8 @@ export const PUBLIC_ROUTES = [
   "/donate",
   "/login",
   "/register",
+  "/forgot-password",
+  "/reset-password",
   "/privacy",
   "/terms",
 ];
