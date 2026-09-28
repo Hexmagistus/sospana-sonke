@@ -9,6 +9,18 @@ from app.models.user import User
 from app.services.notification_service import create_notification
 
 
+def test_neon_pooler_connect_args_never_carry_startup_options():
+    """pgbouncer rejects idle_in_transaction_session_timeout in libpq options."""
+    url = "postgresql://user:s3cret@ep-example-pooler.eu-central-1.aws.neon.tech/neondb?sslmode=require"
+    poisoned = {"options": "-c idle_in_transaction_session_timeout=60000"}
+    args = db_session.postgres_connect_args(url, poisoned)
+    assert "options" not in args
+    assert args == {}
+    assert db_session.postgres_connect_args(url) == {}
+    direct = "postgresql://user:s3cret@ep-example.eu-central-1.aws.neon.tech/neondb"
+    assert "options" not in db_session.postgres_connect_args(direct)
+
+
 def test_postgres_ddl_guards_set_lock_and_statement_timeout():
     guards = db_session._postgres_ddl_guards()
     assert any("lock_timeout" in sql and "5s" in sql for sql in guards)
