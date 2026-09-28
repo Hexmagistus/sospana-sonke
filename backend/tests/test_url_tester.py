@@ -92,6 +92,23 @@ def test_test_url_sync_ok_and_404():
     assert status_from_result(bad) == "needs_real_url"
 
 
+def test_aws_waf_challenge_is_not_a_broken_link():
+    """HTTP 202 plus an AWS WAF page must not downgrade a real careers URL."""
+    from app.services.url_tester import test_url_sync
+
+    body = "<html><script src='https://token.awswaf.com/challenge.js'></script>Human Verification</html>"
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(202, text=body, request=request)
+
+    with httpx.Client(transport=httpx.MockTransport(handler)) as client:
+        result = test_url_sync("https://careers.example.edu/listing/", client=client)
+    assert result.ok is True
+    assert result.status_code == 202
+    assert result.looks_like_careers is True
+    assert status_from_result(result) == "ok"
+
+
 def test_test_url_sync_no_url():
     from app.services.url_tester import test_url_sync
     result = test_url_sync("")

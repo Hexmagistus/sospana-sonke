@@ -13,6 +13,7 @@ import httpx
 
 from app.core.config import settings
 from app.schemas.company import UrlTestResult
+from app.scraper.politeness import is_aws_waf_challenge
 
 _CAREERS_HINTS = ("career", "job", "vacan", "recruit", "opportunit", "employment", "join-us", "join us")
 _TITLE_RE = re.compile(r"<title[^>]*>(.*?)</title>", re.IGNORECASE | re.DOTALL)
@@ -42,8 +43,15 @@ async def test_url(url: str | None, client: httpx.AsyncClient | None = None) -> 
         )
     try:
         resp = await client.get(url)
-        html = resp.text if resp.status_code < 400 else ""
+        html = resp.text or ""
         final_url = str(resp.url)
+        if is_aws_waf_challenge(resp.status_code, html):
+            return UrlTestResult(
+                url=url, ok=True, status_code=resp.status_code, final_url=final_url,
+                looks_like_careers=looks_like_careers(url),
+            )
+        if resp.status_code >= 400:
+            html = ""
         return UrlTestResult(
             url=url,
             ok=200 <= resp.status_code < 400,
@@ -93,8 +101,15 @@ def test_url_sync(url: str | None, client: "httpx.Client | None" = None) -> UrlT
         )
     try:
         resp = client.get(url)
-        html = resp.text if resp.status_code < 400 else ""
+        html = resp.text or ""
         final_url = str(resp.url)
+        if is_aws_waf_challenge(resp.status_code, html):
+            return UrlTestResult(
+                url=url, ok=True, status_code=resp.status_code, final_url=final_url,
+                looks_like_careers=looks_like_careers(url),
+            )
+        if resp.status_code >= 400:
+            html = ""
         return UrlTestResult(
             url=url,
             ok=200 <= resp.status_code < 400,
