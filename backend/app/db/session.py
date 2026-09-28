@@ -1,6 +1,8 @@
 """Database engine and session management."""
 import logging
+import re
 from collections.abc import Generator
+from urllib.parse import urlparse
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
@@ -8,6 +10,10 @@ from sqlalchemy.orm import Session, sessionmaker
 from app.core.config import settings
 
 logger = logging.getLogger(__name__)
+
+# Neon hostnames look like ep-name-pooler.us-west-2.aws.neon.tech. The region
+# token is the AWS region, not a secret. The endpoint id before it is omitted.
+_REGION_RE = re.compile(r"\b((?:us|eu|ap|sa|ca|af|me)-[a-z]+-\d+)\b")
 
 
 def _normalise_db_url(url: str) -> str:
@@ -22,10 +28,48 @@ def _normalise_db_url(url: str) -> str:
 
 DATABASE_URL = _normalise_db_url(settings.DATABASE_URL)
 
-# SQLite needs a special flag for use across threads (dev/test only).
-_connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
 
-engine = create_engine(DATABASE_URL, connect_args=_connect_args, pool_pre_ping=True)
+def describe_database(url: str | None = None) -> dict:
+    """Non-secret facts about DATABASE_URL: pooled host, and the region in the hostname.
+
+    Never returns the user, password, endpoint id, or database name. /health uses
+    this so a deploy can be checked without opening the Render env screen.
+    """
+    raw = settings.DATABASE_URL if url is None else url
+    if raw.startswith("sqlite"):
+        return {"pooled": False, "region": None}
+    host = urlparse(raw).hostname or ""
+    if not host and "://" not in raw:
+        host = ""
+    match = _REGION_RE.search(host)
+    return {"pooled": "-pooler" in host, "region": match.group(1) if match else None}
+
+
+# SQLite needs a special flag for use across threads (dev/test only).
+# Postgres gets a small pool that fits Render free (512 MB, one worker) and
+# Neon's pooler. pool_recycle stays under 300s so idle connections are dropped
+# before Neon closes them. pool_pre_ping stays: a dead connection would otherwise
+# 500 the next request, and the ping is one round trip only on checkout.
+_is_sqlite = DATABASE_URL.startswith("sqlite")
+_connect_args = {"check_same_thread": False} if _is_sqlite else {}
+_engine_kwargs: dict = {"pool_pre_ping": True}
+if not _is_sqlite:
+    _engine_kwargs.update(
+        pool_size=5,
+        max_overflow=2,
+        pool_timeout=10,
+        pool_recycle=240,
+    )
+    _info = describe_database()
+    if not _info["pooled"]:
+        logger.warning(
+            "DATABASE_URL is not a Neon pooled connection (the host should contain "
+            "'-pooler'). Paste the pooled string from the Neon dashboard into Render "
+            "→ sospana-sonke-api → DATABASE_URL. The direct host opens a real "
+            "Postgres connection per checkout and is a poor fit for the free tier."
+        )
+
+engine = create_engine(DATABASE_URL, connect_args=_connect_args, **_engine_kwargs)
 SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False, class_=Session)
 
 
@@ -112,7 +156,16 @@ def _add_new_columns() -> None:
 _INDEXES: list[tuple[str, str, str]] = [
     ("ix_companies_country_type", "companies", "country, source_type"),
     ("ix_companies_deleted_at", "companies", "deleted_at"),
+    # Directory list: WHERE deleted_at IS NULL ORDER BY company_name.
+    ("ix_companies_deleted_name", "companies", "deleted_at, company_name"),
     ("ix_vacancies_open_closing", "vacancies", "is_open, closing_date"),
+    # Vacancy list and the dashboard "listings last confirmed" stamp:
+    # WHERE is_open ORDER BY / MAX(last_seen_at).
+    ("ix_vacancies_open_last_seen", "vacancies", "is_open, last_seen_at"),
+    # Public tip summary: WHERE hidden = false AND created_at > cutoff.
+    ("ix_comments_visible_created", "company_comments", "hidden, created_at"),
+    # Match list: WHERE user_id = ? ORDER BY score DESC.
+    ("ix_matches_user_score", "candidate_matches", "user_id, score"),
 ]
 
 

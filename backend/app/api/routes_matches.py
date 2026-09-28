@@ -3,10 +3,11 @@
 Candidates run and view their own matches; the scoring is deterministic and every
 match is explainable (reasons + gaps). Weights/thresholds are admin-configurable.
 """
-from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy.orm import Session
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
+from sqlalchemy.orm import Session, load_only
 
 from app.core.deps import get_current_user, require_admin
+from app.core.http_cache import private_short_cache
 from app.db.session import get_db
 from app.models.company import Company
 from app.models.match import CandidateMatch
@@ -60,10 +61,11 @@ def run_matches(db: Session = Depends(get_db), user: User = Depends(get_current_
 
 
 @router.get("/matches", response_model=list[MatchResponse])
-def list_matches(db: Session = Depends(get_db), user: User = Depends(get_current_user),
+def list_matches(response: Response, db: Session = Depends(get_db), user: User = Depends(get_current_user),
                  decision: str | None = Query(default=None),
                  min_score: float | None = Query(default=None),
                  limit: int = Query(default=100, le=500), offset: int = Query(default=0, ge=0)):
+    private_short_cache(response)
     q = db.query(CandidateMatch).filter(CandidateMatch.user_id == user.id)
     if decision:
         q = q.filter(CandidateMatch.decision == decision.upper())
@@ -73,9 +75,13 @@ def list_matches(db: Session = Depends(get_db), user: User = Depends(get_current
 
     # Batch-load vacancies and companies to avoid an N+1 query per match.
     vac_ids = {m.vacancy_id for m in matches}
-    vacs = {v.id: v for v in db.query(Vacancy).filter(Vacancy.id.in_(vac_ids)).all()} if vac_ids else {}
+    vacs = {v.id: v for v in db.query(Vacancy).options(
+        load_only(Vacancy.id, Vacancy.company_id, Vacancy.title),
+    ).filter(Vacancy.id.in_(vac_ids)).all()} if vac_ids else {}
     company_ids = {v.company_id for v in vacs.values()}
-    companies = ({c.id: c for c in db.query(Company).filter(Company.id.in_(company_ids)).all()}
+    companies = ({c.id: c for c in db.query(Company).options(
+        load_only(Company.id, Company.company_name),
+    ).filter(Company.id.in_(company_ids)).all()}
                  if company_ids else {})
 
     out = []

@@ -12,7 +12,11 @@ services:
     plan: free
     healthCheckPath: /health
     buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    # One process fits the free 512 MB instance. A second worker would copy the
+    # SQLAlchemy pool and the imported app. uvloop + httptools ship with
+    # uvicorn[standard]. limit-concurrency keeps a stampede from spawning more
+    # threads than the 5+2 DB pool can serve. timeout-keep-alive frees idle sockets.
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT --workers 1 --loop uvloop --http httptools --timeout-keep-alive 5 --limit-concurrency 40
     envVars:
       - key: PYTHON_VERSION
         value: "3.12.7"              # wheels exist for all deps on 3.12 (fixes build)
@@ -25,7 +29,7 @@ services:
       - key: PAYMENT_PROVIDER
         value: mock
       - key: DATABASE_URL
-        sync: false
+        sync: false                 # Neon *pooled* string (hostname contains -pooler). Prefer AWS us-west-2 (Oregon): this service runs in GCP us-west1. Moving a Neon project is a manual dashboard step.
       - key: CORS_ORIGINS
         sync: false
       - key: ADMIN_EMAIL

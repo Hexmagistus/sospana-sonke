@@ -3,16 +3,19 @@
 Listing is available to any authenticated user; import, edit, and URL testing are
 administrator-only (role-based access control).
 """
+import asyncio
+import inspect
 import time
 from datetime import datetime, timedelta, timezone
 
-from fastapi import APIRouter, Depends, HTTPException, Request, UploadFile, File, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, UploadFile, File, Query, status
 from fastapi.responses import RedirectResponse
 from sqlalchemy import and_, case, func, or_
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, defer
 
 from app.core.config import settings
 from app.core.deps import get_current_user, require_admin
+from app.core.http_cache import private_short_cache
 from app.core.rate_limit import limiter, user_or_ip_key
 from app.db.session import get_db
 from app.models.company import Company
@@ -37,6 +40,23 @@ _FAVICON_RECHECK = timedelta(days=30)
 
 router = APIRouter(prefix="/companies", tags=["companies"])
 
+# Columns the list/card payload never returns. Deferring them keeps description-sized
+# text (notes stay — the card can show them) and the favicon/hash blobs off the wire
+# from Postgres. A later attribute access would lazy-load; CompanyResponse does not.
+_LIST_DEFER = (
+    defer(Company.last_final_url),
+    defer(Company.favicon_url),
+    defer(Company.favicon_checked_at),
+    defer(Company.content_hash),
+    defer(Company.content_checked_at),
+    defer(Company.sector),
+)
+
+# In-process icon cache on top of the 30-day DB cache. Repeat <img> loads on a
+# directory page should not each open a DB round trip.
+_ICON_CACHE_TTL = 600.0
+_icon_cache: dict[str, tuple[float, str | None]] = {}
+
 
 # Anti-bulk-copy: a regular user can't pull the whole directory in one call any
 # more. Every non-admin request must be scoped (one country, one category, a
@@ -50,6 +70,7 @@ _UNSCOPED_USER_MAX_ROWS = 100
 @limiter.limit("200/hour", key_func=user_or_ip_key)
 def list_companies(
     request: Request,
+    response: Response,
     db: Session = Depends(get_db),
     user: User = Depends(get_current_user),
     source_type: str | None = Query(default=None, max_length=20, description="Category, e.g. SOE, UNI, COLLEGE"),
@@ -60,7 +81,8 @@ def list_companies(
     limit: int = Query(default=100, ge=1, le=5000),
     offset: int = Query(default=0, ge=0),
 ):
-    query = db.query(Company).filter(Company.deleted_at.is_(None))
+    private_short_cache(response)
+    query = db.query(Company).options(*_LIST_DEFER).filter(Company.deleted_at.is_(None))
     if source_type:
         query = query.filter(Company.source_type == source_type.upper())
     if country:
@@ -132,8 +154,9 @@ def company_facets(db: Session = Depends(get_db), _: User = Depends(get_current_
 @limiter.limit("60/hour", key_func=user_or_ip_key)
 def surprise_company(request: Request, db: Session = Depends(get_db), _: User = Depends(get_current_user)):
     """One random employer with a careers link (the directory's "Surprise me")."""
-    c = (db.query(Company).filter(Company.deleted_at.is_(None), Company.careers_url.isnot(None),
-                                  Company.careers_url != "")
+    c = (db.query(Company).options(*_LIST_DEFER)
+         .filter(Company.deleted_at.is_(None), Company.careers_url.isnot(None),
+                 Company.careers_url != "")
          .order_by(func.random()).first())
     if c is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No employers yet.")
@@ -219,16 +242,50 @@ def list_link_reports(db: Session = Depends(get_db),
     return [LinkReportResponse.model_validate(r) for r in q.all()]
 
 
+def _icon_cached(company_id: str) -> tuple[bool, str | None]:
+    hit = _icon_cache.get(company_id)
+    if hit is None:
+        return False, None
+    at, url = hit
+    if time.monotonic() - at > _ICON_CACHE_TTL:
+        _icon_cache.pop(company_id, None)
+        return False, None
+    return True, url
+
+
+def _discover_icon(website: str | None, careers_url: str | None) -> str | None:
+    """Run favicon discovery off the event loop.
+
+    discover_favicon is async (tests and the logo service use an async HTTP
+    client). This route is a plain def so the blocking DB commit and the network
+    wait run in FastAPI's threadpool instead of stalling every other request.
+    An async test double is still awaited via asyncio.run inside that thread.
+    """
+    found = discover_favicon(website, careers_url)
+    if inspect.isawaitable(found):
+        return asyncio.run(found)
+    return found
+
+
 @router.get("/{company_id}/icon")
-async def company_icon(company_id: str, db: Session = Depends(get_db)):
+def company_icon(company_id: str, db: Session = Depends(get_db)):
     """Redirect to the real icon pulled directly from this company's own page —
     not a guessed domain. Cached on the company row (see Company.favicon_url) so
-    a given company's site is fetched at most once every 30 days.
+    a given company's site is fetched at most once every 30 days, and in this
+    process for ten minutes so a page of cards does not re-query for each image.
 
     Intentionally unauthenticated: a plain <img src> can't send an Authorization
     header, and this only ever exposes a company's own already-public favicon —
     nothing about Sospana Sonke's data.
     """
+    fresh, cached_url = _icon_cached(company_id)
+    if fresh:
+        if not cached_url:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No icon found for this company.")
+        redirect = RedirectResponse(cached_url, status_code=status.HTTP_302_FOUND)
+        redirect.headers["Cache-Control"] = "public, max-age=86400"
+        return redirect
+
     company = db.get(Company, company_id)
     if company is None or company.deleted_at is not None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Company not found.")
@@ -241,13 +298,16 @@ async def company_icon(company_id: str, db: Session = Depends(get_db)):
         checked_at = checked_at.replace(tzinfo=timezone.utc)
     stale = checked_at is None or datetime.now(timezone.utc) - checked_at > _FAVICON_RECHECK
     if stale:
-        company.favicon_url = await discover_favicon(company.official_website, company.careers_url)
+        company.favicon_url = _discover_icon(company.official_website, company.careers_url)
         company.favicon_checked_at = datetime.now(timezone.utc)
         db.commit()
 
+    _icon_cache[company.id] = (time.monotonic(), company.favicon_url)
     if not company.favicon_url:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No icon found for this company.")
-    return RedirectResponse(company.favicon_url, status_code=status.HTTP_302_FOUND)
+    redirect = RedirectResponse(company.favicon_url, status_code=status.HTTP_302_FOUND)
+    redirect.headers["Cache-Control"] = "public, max-age=86400"
+    return redirect
 
 
 _MAX_IMPORT_MB = 25  # admin-only, but still capped -- see app/api/routes_cv.py's

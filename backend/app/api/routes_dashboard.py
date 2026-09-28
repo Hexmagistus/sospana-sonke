@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.orm import Session
 
 from app.core.deps import get_current_user, require_admin
+from app.core.http_cache import private_short_cache
 from app.db.session import get_db
 from app.models.report import Report
 from app.models.user import User
@@ -15,11 +16,13 @@ router = APIRouter(tags=["dashboard"])
 
 
 @router.get("/dashboard", response_model=CandidateDashboardResponse)
-def get_candidate_dashboard(db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+def get_candidate_dashboard(response: Response, db: Session = Depends(get_db),
+                            user: User = Depends(get_current_user)):
     """Candidate-facing home base: at-a-glance counts across matches, CVs,
     cover letters and applications, plus subscription status. The service
     function and response schema behind this were already fully built -- this
     route was the only missing piece (see tests/test_dashboard.py)."""
+    private_short_cache(response, max_age=15, swr=45)
     return CandidateDashboardResponse(**candidate_dashboard(db, user))
 
 

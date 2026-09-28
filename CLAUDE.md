@@ -49,6 +49,17 @@ commit it (and push, if you pushed the rest of your work). Newest entry on top.
 
 ## Session Log
 
+### 2026-09-28 — Cursor (Grok 4.7) — Backend speed pass (free tier only)
+Lungani asked for a server speed pass on FastAPI (Render free, 512 MB) and Neon Postgres. Branch `cursor/backend-speed-pass-240c` off `main` at `40bd6b0`. No paid tier, no Redis, no extra workers.
+
+- Pool (Postgres only; SQLite tests reject those kwargs): `pool_size=5`, `max_overflow=2`, `pool_timeout=10`, `pool_recycle=240`, `pool_pre_ping` kept. Startup warns if the host is not a Neon `-pooler` host. `/health` now returns `commit` (`RENDER_GIT_COMMIT`), `db_pooled`, and `db_region` (hostname only, no credentials) and `Cache-Control: no-store`.
+- Render's origin is `gcp-us-west1-1` (Oregon). The Neon region is not in the repo. After deploy, `/health` shows it. If `db_region` is not `us-west-2`, or `db_pooled` is false, the owner has to change that in the Neon and Render dashboards (see the PR). This session cannot.
+- Queries: directory/vacancy lists defer text columns the JSON never returns. Match list loads only title and company name. Dashboard counts are 5 statements instead of about 12. Comments summary is one SQL aggregate (counts + latest tip) instead of up to 2000 ORM rows plus a user query. New indexes: companies `(deleted_at, company_name)`, vacancies `(is_open, last_seen_at)`, comments `(hidden, created_at)`, matches `(user_id, score)`. SQLite `EXPLAIN QUERY PLAN` uses all four.
+- `GET /companies/{id}/icon` is a plain `def` (threadpool) with a 10-minute in-process cache on top of the 30-day DB cache, so it no longer blocks the event loop.
+- `scan_due_companies` budget is 55s, a company is not started unless 20s remain, HTTP timeout is 8s, and backoff is one attempt. It uses the request's single DB session. Workflow curl stays at 100s.
+- Public `GET /comments/summary` sends `Cache-Control: public, max-age=30, stale-while-revalidate=120` and an ETag (304). Authenticated dashboard/companies/vacancies/matches get a short `private` cache. orjson serializes the summary. FastAPI 0.141's response models stay on Pydantic's serializer (`ORJSONResponse` is deprecated and turns that fast path off). Uvicorn start command is one worker, uvloop, httptools, `--limit-concurrency 40`.
+- Local sqlite (not the production RTT): vacancy list of 50 rows with 8 KB description + 8 KB raw dropped from 0.92 ms to 0.72 ms and stopped loading ~800 KB of text the client never sees. Dashboard is 5 statements. Full pytest green.
+
 ### 2026-09-27 (login contrast) — Cursor (Grok 4.7) — Readable sign-in note, centred logo
 The info note on `/login` used navy text (`#0b2447`) on a 5% sky wash, so on the dark photograph it failed contrast at 390px and on desktop. The logo sat on the left of that column because `LogoGlow` is `inline-block`, which cancelled `mx-auto`. Same pair of issues on `/register`. The note is now light text on a 92% navy-blue panel (measured above WCAG AA), and the logo is centred with the title. Other alerts are unchanged.
 
