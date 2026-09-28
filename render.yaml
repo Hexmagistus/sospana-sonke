@@ -1,4 +1,5 @@
-# Render Blueprint — deploys the Sospana Sonke backend for free.
+# Render Blueprint — deploys the Sospana Sonke backend for free in Frankfurt.
+# Live host: https://sospana-sonke-api-fra.onrender.com
 # In Render: New ▸ Blueprint ▸ pick your repo. Render reads this file and creates
 # the service. You then paste a few values (marked sync:false) in the dashboard.
 #
@@ -6,8 +7,9 @@
 # string into DATABASE_URL. The frontend is deployed separately on Vercel.
 services:
   - type: web
-    name: sospana-sonke-api
+    name: sospana-sonke-api-fra
     runtime: python
+    region: frankfurt
     rootDir: backend
     plan: free
     healthCheckPath: /health
@@ -29,7 +31,7 @@ services:
       - key: PAYMENT_PROVIDER
         value: mock
       - key: DATABASE_URL
-        sync: false                 # Neon *pooled* string (hostname contains -pooler). Prefer AWS us-west-2 (Oregon): this service runs in GCP us-west1. Moving a Neon project is a manual dashboard step.
+        sync: false                 # Neon *pooled* string (hostname contains -pooler). This service runs in Frankfurt; the closest Neon region is AWS eu-central-1. Moving a Neon project is a manual dashboard step.
       - key: CORS_ORIGINS
         sync: false
       - key: ADMIN_EMAIL
@@ -53,7 +55,7 @@ services:
       - key: NOTIFY_EMAILS
         value: "true"
       - key: PUBLIC_API_URL
-        value: https://sospana-sonke-api.onrender.com
+        value: https://sospana-sonke-api-fra.onrender.com
       - key: CRON_SECRET
         sync: false                 # long random string; set the SAME value as the GitHub repo secret CRON_SECRET.
                                      # Enables scheduled scraping (.github/workflows/scrape.yml). Until set, the cron endpoint is 404 (off).

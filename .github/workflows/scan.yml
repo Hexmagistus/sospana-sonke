@@ -13,7 +13,7 @@ name: Scan careers pages
 # job's 100 second curl limit is not what cuts the run off.
 #
 # ONE-TIME SETUP — the same secret in both places:
-#   1. Render dashboard → sospana-sonke-api → Environment →
+#   1. Render dashboard → sospana-sonke-api-fra → Environment →
 #      CRON_SECRET = a long random string
 #   2. GitHub → Settings → Secrets and variables → Actions →
 #      New repository secret → name CRON_SECRET, the same value
@@ -41,7 +41,7 @@ jobs:
           if [ -z "$CRON_SECRET" ]; then
             echo "::error::CRON_SECRET is not set on this repository."
             echo "Add it under GitHub → Settings → Secrets and variables → Actions."
-            echo "Use the same value as Render → sospana-sonke-api → Environment → CRON_SECRET."
+            echo "Use the same value as Render → sospana-sonke-api-fra → Environment → CRON_SECRET."
             echo "The scanner calls the API. It does not need a DATABASE_URL secret in GitHub."
             exit 1
           fi
@@ -49,7 +49,7 @@ jobs:
       - name: Wake the API (Render free tier sleeps when idle)
         run: |
           curl -sS --max-time 90 -o /dev/null -w "wake status=%{http_code} time=%{time_total}s\n" \
-            https://sospana-sonke-api.onrender.com/health || echo "Wake timed out; the next step still tries."
+            https://sospana-sonke-api-fra.onrender.com/health || echo "Wake timed out; the next step still tries."
           sleep 5
 
       - name: Scan the next batch and close expired listings
@@ -59,14 +59,14 @@ jobs:
           fail=0
           for job in scan_due_companies close_expired_vacancies; do
             code=$(curl -sS -o "resp-$job.json" -w "%{http_code}" --max-time 100 \
-              -X POST "https://sospana-sonke-api.onrender.com/api/v1/cron/run/$job" \
+              -X POST "https://sospana-sonke-api-fra.onrender.com/api/v1/cron/run/$job" \
               -H "X-Cron-Secret: $CRON_SECRET" || echo "000")
             echo "$job HTTP $code"
             cat "resp-$job.json" 2>/dev/null || true
             echo
             if [ "$code" != "200" ]; then
               echo "::error::$job returned HTTP $code."
-              echo "404 means CRON_SECRET is unset on Render (sospana-sonke-api → Environment)."
+              echo "404 means CRON_SECRET is unset on Render (sospana-sonke-api-fra → Environment)."
               echo "401 means the GitHub Actions secret does not match the Render value."
               echo "000 means the request timed out while the free instance was waking; the next 15-minute run retries."
               fail=1

@@ -11,7 +11,7 @@ jobs:
     steps:
       - name: Ping /health
         run: |
-          url=https://sospana-sonke-api.onrender.com/health
+          url=https://sospana-sonke-api-fra.onrender.com/health
           # Free-tier Render sleeps after ~15 minutes. The first request often
           # spends its whole budget waking the instance, so a second hit in the
           # same job reaches the process once it is up. Neither failure fails

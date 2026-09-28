@@ -20,7 +20,7 @@ const contentSecurityPolicy = [
   "img-src 'self' data: https:",
   "font-src 'self' data:",
   // Backend API (Render) + Google sign-in token endpoints.
-  "connect-src 'self' https://sospana-sonke-api.onrender.com https://accounts.google.com https://apis.google.com",
+  "connect-src 'self' https://sospana-sonke-api-fra.onrender.com https://accounts.google.com https://apis.google.com",
   "frame-src https://accounts.google.com",
 ].join("; ");
 const securityHeaders = [

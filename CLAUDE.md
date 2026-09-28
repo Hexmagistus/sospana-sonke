@@ -49,6 +49,9 @@ commit it (and push, if you pushed the rest of your work). Newest entry on top.
 
 ## Session Log
 
+### 2026-09-28 (later) — Cursor (Grok 4.7) — Point the repo at the Frankfurt API host
+The backend is moving to a new Render service, `sospana-sonke-api-fra` in Frankfurt (`https://sospana-sonke-api-fra.onrender.com`). The old Oregon host stays in place until cutover, so this branch should not be merged before that switch. Workflows, CSP `connect-src`, `render.yaml` (`region: frankfurt`, `rootDir: backend`, `PUBLIC_API_URL`), `DEPLOYMENT.md`, and `backend/.env.example` now use the new host. `frontend/src/lib/api.ts` still falls back to localhost; production uses `NEXT_PUBLIC_API_URL` on Vercel, which has to be changed at cutover.
+
 ### 2026-09-28 — Cursor (Grok 4.7) — Backend speed pass (free tier only)
 Lungani asked for a server speed pass on FastAPI (Render free, 512 MB) and Neon Postgres. Branch `cursor/backend-speed-pass-240c` off `main` at `40bd6b0`. No paid tier, no Redis, no extra workers.
 
