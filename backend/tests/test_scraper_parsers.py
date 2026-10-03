@@ -10,7 +10,8 @@ from app.scraper.base import detect_ats, get_strategy, html_to_text
 from app.scraper.breezy import BreezyStrategy
 from app.scraper.cihr import CihrStrategy
 from app.scraper.extract import normalize_date
-from app.scraper.greenhouse import GreenhouseStrategy
+from app.scraper.greenhouse import GREENHOUSE_DETAIL_LIMIT, GreenhouseStrategy
+from app.scraper.politeness import MAX_RESPONSE_BYTES
 from app.scraper.lever import LeverStrategy
 from app.scraper.oracle_ce import OracleCEStrategy
 from app.scraper.pinpoint import PinpointStrategy
@@ -100,6 +101,79 @@ def test_greenhouse_parser():
     assert vacs[0].external_id == "101"
     assert vacs[0].location == "Johannesburg"
     assert "Must have 5 years experience" in vacs[0].description
+
+
+def test_greenhouse_large_board_keeps_the_list_when_content_exceeds_the_cap():
+    """Anthropic's content=true body is ~9 MB. The list feed is the count."""
+    assert MAX_RESPONSE_BYTES == 5_000_000
+    assert GREENHOUSE_DETAIL_LIMIT == 40
+    payload = json.loads(_fixture("greenhouse_light_list.json"))
+    seen: list[str] = []
+
+    def handler(request):
+        url = str(request.url)
+        seen.append(url)
+        assert "content=true" not in url.split("?", 1)[0]
+        if "content=true" in url:
+            # Real politeness cap: the body is over MAX_RESPONSE_BYTES, not a stubbed exception.
+            return httpx.Response(200, content=b"x" * (MAX_RESPONSE_BYTES + 1))
+        return httpx.Response(200, json=payload)
+
+    src = _Src("https://job-boards.greenhouse.io/bigboard", "greenhouse", {"token": "bigboard"})
+    with _client(handler) as c:
+        vacs = GreenhouseStrategy().fetch(src, c)
+    assert seen[0].endswith("/v1/boards/bigboard/jobs")
+    assert "content=true" in seen[1]
+    assert len(seen) == 2
+    assert [v.external_id for v in vacs] == ["4001", "4002", "4003"]
+    assert [v.title for v in vacs] == ["Research Engineer", "Policy Manager", "Recruiter"]
+    assert vacs[0].location == "San Francisco, CA"
+    assert vacs[0].department == "Research"
+    assert all(v.description == "" for v in vacs)
+
+
+def test_greenhouse_skips_content_when_the_board_is_over_the_detail_limit(monkeypatch):
+    payload = json.loads(_fixture("greenhouse_light_list.json"))
+    monkeypatch.setattr("app.scraper.greenhouse.GREENHOUSE_DETAIL_LIMIT", 2)
+    seen: list[str] = []
+
+    def handler(request):
+        seen.append(str(request.url))
+        return httpx.Response(200, json=payload)
+
+    src = _Src("https://boards.greenhouse.io/bigboard", "greenhouse", {"token": "bigboard"})
+    with _client(handler) as c:
+        vacs = GreenhouseStrategy().fetch(src, c)
+    assert len(vacs) == 3
+    assert all("content=true" not in url for url in seen)
+
+
+def test_greenhouse_merges_content_for_a_small_board():
+    payload = json.loads(_fixture("greenhouse_light_list.json"))
+    rich_jobs = []
+    for job in payload["jobs"][:2]:
+        copied = dict(job)
+        copied["content"] = "<p>Must have 5 years experience</p>"
+        rich_jobs.append(copied)
+
+    seen: list[str] = []
+
+    def handler(request):
+        seen.append(str(request.url))
+        if "content=true" in str(request.url):
+            return httpx.Response(200, json={"jobs": rich_jobs})
+        return httpx.Response(200, json=payload)
+
+    src = _Src("https://boards.greenhouse.io/bigboard", "greenhouse", {"token": "big board"})
+    with _client(handler) as c:
+        vacs = GreenhouseStrategy().fetch(src, c)
+    assert seen[0].endswith("/v1/boards/big%20board/jobs")
+    assert " " not in seen[0]
+    by_id = {v.external_id: v for v in vacs}
+    assert list(by_id) == ["4001", "4002", "4003"]
+    assert "Must have 5 years experience" in by_id["4001"].description
+    assert "Must have 5 years experience" in by_id["4002"].description
+    assert by_id["4003"].description == ""
 
 
 def test_lever_parser():
