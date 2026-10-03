@@ -41,8 +41,7 @@ describe("CountrySidebar markup", () => {
 
   it("only the selected country is aria-selected", () => {
     const selected = out.match(/aria-selected="true"/g) ?? [];
-    // one option plus the active tab
-    assert.equal(selected.length, 2);
+    assert.equal(selected.length, 1);
     assert.match(out, /role="option"[^>]*aria-selected="true"[^>]*data-country="KE"|aria-selected="true"[^>]*role="option"[^>]*data-country="KE"/);
   });
 
@@ -84,10 +83,15 @@ describe("CountrySidebar markup", () => {
     assert.match(folded, /aria-expanded="false"/);
   });
 
-  it("Categories tab appears only when categories are given", () => {
+  it("is just the country list: no Countries/Categories tabs", () => {
+    assert.ok(!out.includes('role="tab"'));
     assert.ok(!out.includes("Categories"));
-    const withCats = html({ categories: [{ id: "all", label: "All", count: null }, { id: "SOE", label: "State-owned", count: 4 }], selectedCategory: "SOE", initialTab: "categories" });
-    assert.match(withCats, /Categories \(2\)/);
-    assert.match(withCats, /State-owned/);
+  });
+
+  it("South Africa is the first row and the first group", () => {
+    const first = out.match(/role="option"[^>]*data-country="([A-Z]+)"/);
+    assert.equal(first?.[1], "ZA");
+    const sa = html({ selected: "South Africa" });
+    assert.match(sa, /aria-selected="true"[^>]*data-country="ZA"|data-country="ZA"[^>]*aria-selected="true"/);
   });
 });

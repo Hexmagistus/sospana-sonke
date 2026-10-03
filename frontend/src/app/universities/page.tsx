@@ -160,7 +160,6 @@ function UniversitiesDirectoryInner() {
     withLinks: countryWithLinks,
     counted: scoped.filter((c) => c.open_vacancies_known).length,
     openVacancies: scoped.reduce((n, c) => n + (c.open_vacancies || 0), 0),
-    categories: [],
   };
 
   if (err) return <Alert kind="error">{err}</Alert>;

@@ -26,10 +26,8 @@ import {
   FILTER_TO_TYPE,
   type DirectoryFilter,
   categoryChipCount,
-  categoryChipLinked,
   countryAfterFilterChange,
   countryFromDirectoryLink,
-  readStoredCountry,
   directoryListPath,
   directorySliceKey,
   isDirectoryFilter,
@@ -234,7 +232,8 @@ function CompaniesDirectoryInner() {
       const next = countryFromDirectoryLink({
         current: countryRef.current,
         urlCountry: wantedCountry ? (fromUrl ?? wantedCountry) : null,
-        storedCountry: wantedCountry ? null : readStoredCountry(),
+        // A bare URL opens on South Africa. The old saved country is no longer applied.
+        storedCountry: null,
       });
       if (next !== countryRef.current) setCountry(next);
       if (!storedCountryApplied.current) initialCountryRef.current = next;
@@ -353,25 +352,15 @@ function CompaniesDirectoryInner() {
     College: "🏫 Colleges", Hospital: "🏥 Hospitals", SETA: "🛠️ SETAs", Sports: "🏅 Sports associations", Federations: "🌐 Federations", Music: "🎵 Music industry",
   };
 
-  const typeToLabel: Record<string, string> = {};
-  for (const f of DIRECTORY_FILTERS) {
-    const t = FILTER_TO_TYPE[f];
-    if (t) typeToLabel[t] = filterLabel[f].replace(/^\S*\p{Extended_Pictographic}\S*\s/u, "");
-  }
   const explorerCategories = DIRECTORY_FILTERS.map((f) => {
     const t = FILTER_TO_TYPE[f];
     return { id: f, label: filterLabel[f], count: t ? categoryChipCount(facets, country, t) : null };
   });
-  const byType = country ? facets.country_type_counts?.[country] : facets.type_counts;
   const explorerStats: ExplorerStats = {
     employers: country ? (countryCounts[country] ?? 0) : facets.total,
     withLinks: country ? (facets.country_with_links?.[country] ?? 0) : facets.with_links,
     counted: country ? (facets.country_counted?.[country] ?? 0) : sumValues(facets.country_counted),
     openVacancies: country ? (facets.country_open_vacancies?.[country] ?? 0) : sumValues(facets.country_open_vacancies),
-    categories: Object.entries(byType ?? {})
-      .filter(([, n]) => n > 0)
-      .map(([t, n]) => ({ label: typeToLabel[t] ?? `${t}-listed`, count: n }))
-      .sort((a, b) => b.count - a.count),
   };
 
   return (
@@ -488,36 +477,12 @@ function CompaniesDirectoryInner() {
             />
           </div>
 
-          <div className="mt-3 flex flex-wrap gap-1.5">
-            {DIRECTORY_FILTERS.map((f) => {
-              const active = filter === f;
-              const st = FILTER_TO_TYPE[f];
-              const count = st ? categoryChipCount(facets, country, st) : null;
-              return (
-                <button
-                  key={f}
-                  title={st && country ? `${count} in ${country}, ${categoryChipLinked(facets, country, st)} with a careers link` : undefined}
-                  onClick={() => selectFilter(f)}
-                  className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-semibold transition ${
-                    active ? "bg-gradient-to-r from-brand to-brand-dark text-white shadow-sm" : "bg-ss-border text-ss-muted hover:bg-ss-primary-soft hover:text-ss-text"
-                  }`}
-                >
-                  <span>{filterLabel[f]}</span>
-                  {count !== null && (
-                    <span className={`rounded-full px-1.5 py-0.5 text-[11px] font-bold tabular-nums ${active ? "bg-white/20 text-white" : "bg-ss-surface text-ss-muted"}`}>
-                      {count}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-          </div>
           <p className="ss-hud-tag mt-1.5 text-[10px] text-ss-muted">
             {globalType && country
               ? `Showing ${filterLabel[filter]} in ${country}.`
               : globalType
-                ? "Showing this category in every country. Pick a country above to narrow it."
-                : "Pick a category. The country you chose stays selected."}
+                ? "Showing this category in every country. Pick a country in the list to narrow it."
+                : "Use the Category menu above the map. The country you chose stays selected."}
           </p>
         </Card>
         </GlowFrame>

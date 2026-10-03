@@ -6,8 +6,6 @@ import {
   type CountryRow, type GroupId,
 } from "../countryExplorer";
 
-export type CategoryItem = { id: string; label: string; count: number | null };
-
 type Props = {
   rows: readonly CountryRow[];
   /** Selected country name. "" means All countries. */
@@ -15,27 +13,20 @@ type Props = {
   onSelect: (name: string) => void;
   /** Noun for the sub-text, e.g. "employers", "universities". */
   noun?: string;
-  /** Show the Categories tab (only on /companies). */
-  categories?: readonly CategoryItem[];
-  selectedCategory?: string;
-  onSelectCategory?: (id: string) => void;
   /** Whether "All countries" can be picked in the current view. */
   allowAll?: boolean;
-  /** Start with a tab (tests). */
-  initialTab?: "countries" | "categories";
   /** Start with these groups folded (tests). */
   initialCollapsed?: readonly GroupId[];
 };
 
-/** Left side of the split view: search, tabs, grouped country list. Navy panel in both themes. */
+/** Left side of the split view: search and the grouped country list. Navy panel in both themes. */
 export function CountrySidebar({
-  rows, selected, onSelect, noun = "employers", categories, selectedCategory, onSelectCategory,
-  allowAll = true, initialTab = "countries", initialCollapsed = [],
+  rows, selected, onSelect, noun = "employers", allowAll = true, initialCollapsed = [],
 }: Props) {
   const uid = useId();
   const searchRef = useRef<HTMLInputElement | null>(null);
   const optionRefs = useRef(new Map<string, HTMLLIElement>());
-  const [tab, setTab] = useState<"countries" | "categories">(initialTab);
+  const listRef = useRef<HTMLDivElement | null>(null);
   const [query, setQuery] = useState("");
   const [collapsed, setCollapsed] = useState<Set<GroupId>>(new Set(initialCollapsed));
   const [focusName, setFocusName] = useState<string | null>(null);
@@ -87,26 +78,17 @@ export function CountrySidebar({
     });
   }
 
-  const tabBtn = (id: "countries" | "categories", label: string) => {
-    const active = tab === id;
-    return (
-      <button
-        type="button"
-        role="tab"
-        id={`${uid}-tab-${id}`}
-        aria-selected={active}
-        aria-controls={`${uid}-panel-${id}`}
-        tabIndex={active ? 0 : -1}
-        onClick={() => setTab(id)}
-        className={`relative flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm font-semibold transition-colors ${
-          active ? "bg-white/10 text-white" : "text-blue-200 hover:bg-white/5 hover:text-white"
-        }`}
-      >
-        {active && <span aria-hidden className="absolute inset-y-1.5 left-0 w-1 rounded-full bg-gold" />}
-        <span className="pl-1.5">{label}</span>
-      </button>
-    );
-  };
+  // Keep the selected country in view inside the list (South Africa on first open).
+  // Scrolls the list itself, never the page.
+  useEffect(() => {
+    const box = listRef.current;
+    const el = selected ? optionRefs.current.get(selected) : null;
+    if (!box || !el) return;
+    const top = el.offsetTop; // the list is the offsetParent (position: relative)
+    if (top < box.scrollTop || top + el.offsetHeight > box.scrollTop + box.clientHeight) {
+      box.scrollTop = Math.max(0, top - 48);
+    }
+  }, [selected, rows]);
 
   return (
     <div className="flex h-full min-h-0 flex-col gap-3 text-white">
@@ -125,13 +107,7 @@ export function CountrySidebar({
         <kbd aria-hidden className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 rounded border border-white/20 px-1.5 py-0.5 text-[10px] font-semibold text-blue-200">/</kbd>
       </div>
 
-      <div role="tablist" aria-label="Browse by" className="grid gap-1">
-        {tabBtn("countries", "Countries")}
-        {categories && categories.length > 0 && tabBtn("categories", "Categories")}
-      </div>
-
-      {tab === "countries" || !categories ? (
-        <div role="tabpanel" id={`${uid}-panel-countries`} aria-labelledby={`${uid}-tab-countries`} className="flex min-h-0 flex-1 flex-col">
+      <div className="flex min-h-0 flex-1 flex-col">
           <div className="mb-1 flex items-center justify-between px-1">
             <h3 className="text-[11px] font-bold uppercase tracking-wider text-blue-200">Countries ({total})</h3>
             {allowAll && (
@@ -145,7 +121,7 @@ export function CountrySidebar({
               </button>
             )}
           </div>
-          <div className="max-h-[22rem] min-h-0 flex-1 space-y-2 overflow-y-auto pr-1 lg:max-h-none" data-testid="country-list">
+          <div ref={listRef} className="relative max-h-[22rem] min-h-0 flex-1 space-y-2 overflow-y-auto pr-1 lg:max-h-none" data-testid="country-list">
             {groups.length === 0 && (
               <p className="px-2 py-4 text-sm text-blue-200">No country matches “{query.trim()}”.</p>
             )}
@@ -222,30 +198,6 @@ export function CountrySidebar({
             })}
           </div>
         </div>
-      ) : (
-        <div role="tabpanel" id={`${uid}-panel-categories`} aria-labelledby={`${uid}-tab-categories`} className="min-h-0 flex-1 overflow-y-auto">
-          <h3 className="mb-1 px-1 text-[11px] font-bold uppercase tracking-wider text-blue-200">Categories ({categories.length})</h3>
-          <ul className="space-y-0.5">
-            {categories.map((c) => {
-              const active = selectedCategory === c.id;
-              return (
-                <li key={c.id}>
-                  <button
-                    type="button"
-                    aria-pressed={active}
-                    onClick={() => onSelectCategory?.(c.id)}
-                    className={`relative flex w-full items-center justify-between gap-2 rounded-lg px-3 py-1.5 text-left text-sm hover:bg-white/10 ${active ? "bg-white/10" : ""}`}
-                  >
-                    {active && <span aria-hidden className="absolute inset-y-1.5 left-0 w-1 rounded-full bg-gold" />}
-                    <span className="font-semibold">{c.label}</span>
-                    {c.count !== null && <span className="text-[11px] tabular-nums text-blue-200">{c.count}</span>}
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      )}
     </div>
   );
 }
