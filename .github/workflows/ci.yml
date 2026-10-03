@@ -40,8 +40,6 @@ jobs:
         run: npx tsc --noEmit
       - name: Dependency audit
         working-directory: frontend
-        # Production dependencies only. braces <=3.0.3 (GHSA-vfj7-8cjw-p6xm)
-        # comes from tailwindcss's file watcher, a devDependency. 3.0.3 is the
-        # newest release and is still inside that range; `npm audit fix --force`
-        # would install Tailwind 4. Vercel does not ship the Tailwind watcher.
-        run: npm audit --omit=dev --audit-level=high
+        # braces is installed from frontend/vendor/braces (3.0.4) and overrides
+        # force every copy onto that one. Tailwind stays on 3.4.7.
+        run: npm audit --audit-level=high

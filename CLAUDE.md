@@ -63,6 +63,9 @@ What is running today, before the pipeline work below. This is the system the up
 
 ## Session Log
 
+### 2026-10-03 — Cursor (Grok 4.7) — Pin braces so the full npm audit passes
+The same pin as PR #16 (`47ab402`). `braces` 3.0.3 is still the newest npm release and is inside GHSA-vfj7-8cjw-p6xm, via Tailwind 3.4.7. `frontend/vendor/braces` is that release plus a nesting cap of 100, versioned 3.0.4, and `overrides.braces` is `$braces`. CI runs `npm audit --audit-level=high` on the whole tree. Tailwind stays on 3.4.7. This is not an upstream braces release.
+
 ### 2026-10-03 — Cursor (Grok 4.7) — Admin scraper health and the apply button
 The admin careers card now shows employer, vacancy, expiry, duplicate, and review counts, plus the scan log. Pause/resume and Scan now stay admin-only; Scan now is limited to 20 an hour and writes an audit row with the company id, not an email. On a vacancy card, “Apply on employer website” is used only when the listing has its own application URL. “Last seen on the employer site” is the last scan time. That is not labelled verified: rows stay DISCOVERED until an application link is actually requested, which this release does not do.
 
