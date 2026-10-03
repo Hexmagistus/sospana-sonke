@@ -94,6 +94,8 @@ def build_tailored_cv(facts: dict, vacancy: dict | None = None) -> dict:
         "certifications": list(facts.get("certifications") or []),
         "languages": list(facts.get("languages") or []),
         "drivers_licence": facts.get("drivers_licence"),
+        "professional_memberships": list(facts.get("professional_memberships") or []),
+        "work_authorization": facts.get("work_authorization"),
         "target_vacancy_title": vacancy.get("title"),
     }
 

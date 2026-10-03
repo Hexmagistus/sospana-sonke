@@ -174,7 +174,7 @@ def analyze_job(db: Session, user: User, job_title: str | None, company_name: st
         quality_score=quality["overall"], quality_breakdown=quality["breakdown"],
         quality_suggestions=quality["suggestions"],
         readiness_score=readiness_score, readiness_label=readiness_label, recommended_action=action,
-        template="professional", status="PREPARING",
+        template="classic", status="PREPARING",
     )
     db.add(analysis)
     db.commit()
@@ -198,7 +198,7 @@ def generate_cv(db: Session, user: User, job_analysis_id: str, cv_data: dict, te
         title=analysis.job_title, description=analysis.job_description,
         requirements=analysis.extracted.get("requirements") or [],
     ).skill_terms
-    template = template or analysis.template or "professional"
+    template = template or analysis.template or "classic"
     version = persist_cv_version(db, user, cv_data, analysis.job_title, analysis.company_name,
                                  skill_terms, template=template)
     analysis.cv_version_id = version.id
