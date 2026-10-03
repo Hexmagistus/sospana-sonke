@@ -14,6 +14,7 @@ import {
   countryRows, parseStats, readCachedStats, snapshotStats, SNAPSHOT_AS_OF, writeCachedStats,
   type LandingStats,
 } from "@/lib/landingStats";
+import DailySparkTease from "@/components/DailySparkTease";
 
 const CoverageWorldMap = dynamic(() => import("@/components/CoverageWorldMap"), {
   loading: () => <WorldMapSkeleton />,
@@ -1018,6 +1019,8 @@ export default function Home() {
           ))}
         </div>
       </section>
+
+      <DailySparkTease />
 
       {/* Final CTA */}
       <section className="mx-auto max-w-6xl px-4 py-12">

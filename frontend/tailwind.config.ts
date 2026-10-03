@@ -11,7 +11,9 @@ const config: Config = {
       colors: {
         brand: { DEFAULT: "#0f766e", dark: "#115e59", light: "#5eead4" },
         navy: { DEFAULT: "#0b2447", light: "#123a6b" },
-        gold: { DEFAULT: "#f5b301", light: "#ffd76a" },
+        // gold.dark is the AA-safe gold for TEXT on light surfaces (5.9:1 on white);
+        // plain gold is for fills, borders and text on navy/dark.
+        gold: { DEFAULT: "#f5b301", light: "#ffd76a", dark: "#8a5a00" },
         coral: "#ff6b5b",
         purple: "#7c5cff",
         sky: "#2f9bf6",
@@ -40,9 +42,34 @@ const config: Config = {
           "danger-soft-border": "var(--ss-danger-soft-border)",
         },
       },
-      fontFamily: {
-        display: ["var(--font-space)", "ui-sans-serif", "system-ui", "sans-serif"],
+      // Gold text must stay readable on light surfaces, so text-ss-primary resolves
+      // to --ss-primary-text (dark gold in light mode, bright gold in dark mode).
+      // bg-/border-/ring-ss-primary keep the bright brand gold.
+      textColor: {
+        "ss-primary": "var(--ss-primary-text)",
       },
+      fontFamily: {
+        // Headings / display moments.
+        display: ["var(--font-display)", "var(--font-text)", "ui-sans-serif", "system-ui", "sans-serif"],
+        // UI + body. Overrides Tailwind's default sans so the whole app follows.
+        sans: [
+          "var(--font-text)", "ui-sans-serif", "system-ui", "-apple-system", "Segoe UI",
+          "Roboto", "Noto Sans", "Helvetica Neue", "Arial", "sans-serif",
+        ],
+      },
+      // Fluid type scale (tokens live in globals.css). Existing text-sm / text-xl...
+      // utilities are unchanged so no layout shifts; new work can use text-step-*.
+      fontSize: {
+        "step--1": ["var(--ss-step--1)", { lineHeight: "1.5" }],
+        "step-0": ["var(--ss-step-0)", { lineHeight: "1.6" }],
+        "step-1": ["var(--ss-step-1)", { lineHeight: "1.4" }],
+        "step-2": ["var(--ss-step-2)", { lineHeight: "1.3" }],
+        "step-3": ["var(--ss-step-3)", { lineHeight: "1.2" }],
+        "step-4": ["var(--ss-step-4)", { lineHeight: "1.12" }],
+        "step-5": ["var(--ss-step-5)", { lineHeight: "1.05" }],
+      },
+      transitionTimingFunction: { ss: "var(--ss-ease)" },
+      transitionDuration: { "ss-fast": "var(--ss-dur-fast)", ss: "var(--ss-dur)", "ss-slow": "var(--ss-dur-slow)" },
     },
   },
   plugins: [],

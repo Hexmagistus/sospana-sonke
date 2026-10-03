@@ -15,6 +15,7 @@ from app.db.session import get_db
 from app.models.comment import CompanyComment
 from app.models.message import Message, UserBlock, MessageReport
 from app.models.notification import Notification, PushToken
+from app.models.spark import SparkOpen
 from app.models.user import User
 from app.models.admin_ops import UserTag
 from app.schemas.auth import NotificationPreferencesRequest, OpportunityAlertsRequest, UserResponse
@@ -83,6 +84,9 @@ def export_my_data(request: Request, db: Session = Depends(get_db), user: User =
              "posted_at": c.created_at.isoformat() if c.created_at else None}
             for c in db.query(CompanyComment).filter(CompanyComment.user_id == user.id)
         ],
+        "daily_spark_opens": [d.isoformat() for (d,) in
+                              db.query(SparkOpen.spark_date).filter(SparkOpen.user_id == user.id)
+                              .order_by(SparkOpen.spark_date)],
         "blocked_user_ids": [b.blocked_id for b in db.query(UserBlock).filter(UserBlock.blocker_id == user.id)],
         "profile": _export_profile(db, user),
         "note": "Temporary messages are deleted automatically 24 hours after they are sent. "
@@ -223,6 +227,7 @@ def delete_my_account(request: Request, body: DeleteRequest, db: Session = Depen
     db.query(MessageReport).filter(MessageReport.reporter_id == user.id).delete(synchronize_session=False)
     db.query(CompanyComment).filter(CompanyComment.user_id == user.id).delete(synchronize_session=False)
     db.query(Notification).filter(Notification.user_id == user.id).delete(synchronize_session=False)
+    db.query(SparkOpen).filter(SparkOpen.user_id == user.id).delete(synchronize_session=False)
     db.query(PushToken).filter(PushToken.user_id == user.id).delete(synchronize_session=False)
     db.query(UserTag).filter(UserTag.user_id == user.id).delete(synchronize_session=False)
     _erase_documents_and_profile(db, user)

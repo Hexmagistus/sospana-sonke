@@ -395,3 +395,173 @@ main tbody tr {
 @media (prefers-reduced-motion: reduce) {
   .auth-float, .auth-spin, .auth-panel { animation: none !important; }
 }
+
+
+/* ================================================================== */
+/* DESIGN SYSTEM v2 -- type, spacing, motion, focus, surfaces.         */
+/* Appended as one block so it layers over the tokens above without    */
+/* rewriting them. Everything here is a token or a global element rule */
+/* so the whole site moves together. CV documents are rendered by the  */
+/* backend (PDF/DOCX) and are NOT affected by anything in this file.   */
+/* ================================================================== */
+
+:root {
+  /* --- Type scale: fluid, ~1.2 ratio. Use via Tailwind text-step-* or var(). --- */
+  --ss-step--1: clamp(0.82rem, 0.80rem + 0.10vw, 0.88rem);
+  --ss-step-0: 1rem;
+  --ss-step-1: clamp(1.14rem, 1.08rem + 0.30vw, 1.30rem);
+  --ss-step-2: clamp(1.36rem, 1.24rem + 0.60vw, 1.68rem);
+  --ss-step-3: clamp(1.70rem, 1.46rem + 1.20vw, 2.30rem);
+  --ss-step-4: clamp(2.10rem, 1.70rem + 2.00vw, 3.10rem);
+  --ss-step-5: clamp(2.60rem, 1.90rem + 3.50vw, 4.40rem);
+  --ss-leading-body: 1.6;
+  --ss-leading-tight: 1.15;
+
+  /* --- Spacing (4px rhythm) and shape --- */
+  --ss-space-1: 0.25rem;
+  --ss-space-2: 0.5rem;
+  --ss-space-3: 0.75rem;
+  --ss-space-4: 1rem;
+  --ss-space-5: 1.5rem;
+  --ss-space-6: 2rem;
+  --ss-space-7: 3rem;
+  --ss-space-8: 4.5rem;
+  --ss-radius-sm: 0.5rem;
+  --ss-radius-md: 0.75rem;
+  --ss-radius-lg: 1rem;
+  --ss-radius-xl: 1.5rem;
+
+  /* --- Motion: short, ease-out, never decorative-loud. --- */
+  --ss-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --ss-dur-fast: 120ms;
+  --ss-dur: 200ms;
+  --ss-dur-slow: 360ms;
+
+  /* --- Contrast-corrected text tokens (WCAG AA on --ss-bg / --ss-surface). --- */
+  --ss-text-muted: #5b6472;      /* 5.6:1 on the page background (was 4.6:1) */
+  --ss-success: #15803d;         /* 5.0:1 on white (was 3.3:1) */
+  --ss-primary-text: #7a5200;    /* gold, but readable as TEXT on light surfaces */
+
+  /* --- Focus: a dark ring with a gold halo is visible on light AND photo
+        backgrounds; plain gold on white was only 1.8:1. --- */
+  --ss-focus: #0b2447;
+  --ss-focus-halo: #f5b301;
+
+  /* --- Circuit-board motif (corner trace on cards), tinted by theme. --- */
+  --ss-circuit: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='90' viewBox='0 0 140 90' fill='none' stroke='%23f5b301' stroke-opacity='.38' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M140 14H108L96 26H72'/%3E%3Cpath d='M140 36H120L110 46'/%3E%3Cpath d='M140 60H100'/%3E%3Ccircle cx='70' cy='26' r='2.6' fill='%23f5b301' fill-opacity='.45'/%3E%3Ccircle cx='108' cy='48' r='2.6' fill='%23f5b301' fill-opacity='.45'/%3E%3Ccircle cx='98' cy='60' r='2.6' fill='%23f5b301' fill-opacity='.45'/%3E%3C/svg%3E");
+}
+
+:root[data-theme="dark"] {
+  --ss-text-muted: #a3b2c7;      /* 7.6:1 on dark surface */
+  --ss-success: #22c55e;
+  --ss-primary-text: #f5b301;    /* 9.3:1 on --ss-surface */
+  --ss-focus: #f5b301;
+  --ss-focus-halo: #0b2447;
+}
+
+/* ---- Typography ---- */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+
+body {
+  font-family: var(--font-text), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", "Helvetica Neue", Arial, sans-serif;
+  line-height: var(--ss-leading-body);
+  font-kerning: normal;
+  font-feature-settings: "kern", "liga", "calt";
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3, h4, .font-display {
+  font-family: var(--font-display), var(--font-text), ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+h1, h2 { line-height: var(--ss-leading-tight); }
+p, li, dd, blockquote { text-wrap: pretty; }
+
+/* Long African-language words and URLs wrap instead of overflowing cards. */
+main p, main li, main a { overflow-wrap: break-word; }
+
+/* Numerals line up in stats and tables. */
+main table, .tabular { font-variant-numeric: tabular-nums; }
+
+/* The old page-title glow smeared letter edges; keep it for dark mode only. */
+main h1 { text-shadow: none; }
+:root[data-theme="dark"] main h1 { text-shadow: 0 0 22px var(--ss-primary-glow); }
+
+/* ---- Focus (keyboard + assistive tech only) ---- */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible,
+summary:focus-visible {
+  outline: 2px solid var(--ss-focus);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 5px var(--ss-focus-halo);
+  border-radius: var(--ss-radius-sm);
+}
+
+/* ---- Surfaces: refined card with a circuit trace in the corner ---- */
+.ss-card-neon {
+  background-image: var(--ss-circuit);
+  background-repeat: no-repeat;
+  background-position: top right;
+  background-size: 140px 90px;
+  transition:
+    transform var(--ss-dur) var(--ss-ease),
+    box-shadow var(--ss-dur-slow) var(--ss-ease),
+    border-color var(--ss-dur) var(--ss-ease);
+}
+:root[data-theme="dark"] .ss-card-neon { background-size: 150px 96px; }
+
+/* ---- Motion: gentle reveal, opt-in via .ss-reveal ---- */
+@keyframes ss-reveal-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+.ss-reveal { animation: ss-reveal-in var(--ss-dur-slow) var(--ss-ease) both; }
+
+/* ---- Badges / chips: one consistent pill ---- */
+.ss-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: 9999px;
+  padding: 0.2rem 0.65rem;
+  font-size: var(--ss-step--1);
+  font-weight: 600;
+  line-height: 1.4;
+  border: 1px solid var(--ss-primary-border-soft);
+  background: var(--ss-primary-soft);
+  color: var(--ss-text);
+}
+
+/* Respect the reader's motion setting everywhere, including Tailwind's
+   animate-* utilities and transitions the rules above do not name. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Windows high-contrast / forced-colors: keep the focus ring honest. */
+@media (forced-colors: active) {
+  a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible,
+  textarea:focus-visible, [tabindex]:focus-visible, summary:focus-visible {
+    outline: 3px solid Highlight;
+    box-shadow: none;
+  }
+}
+
+/* ---- AA-safe overrides for a few hard-coded text colours used across pages ----
+   Chips such as "Private company" and the JSE code use text-[#a9791a] on a gold wash
+   (3.4:1) and "text-brand-dark" is unreadable on the dark theme (2.3:1). Re-pointing
+   them here fixes every page at once without touching each component. */
+.text-\[\#a9791a\] { color: #7a5200; }
+:root[data-theme="dark"] .text-\[\#a9791a\] { color: #ffd666; }
+:root[data-theme="dark"] .text-brand-dark { color: #5eead4; }

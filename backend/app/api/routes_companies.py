@@ -3,10 +3,8 @@
 Listing is available to any authenticated user; import, edit, and URL testing are
 administrator-only (role-based access control).
 """
-import asyncio
-import inspect
 import time
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, UploadFile, File, Query, status
 from fastapi.responses import RedirectResponse
@@ -29,16 +27,11 @@ from app.schemas.link_report import LinkReportCreateRequest, LinkReportResponse
 from app.services.country_names import canonical_country, is_country, spellings_for
 from app.services.csv_import import import_companies_from_csv
 from app.services.link_report_service import create_link_report
-from app.services.logo_service import discover_favicon
 from app.services.url_tester import test_url, status_from_result
 from app.services.vacancy_counts import companies_with_known_vacancy_count, open_vacancy_counts
 from app.services.watch_service import trending_company_ids
 
 _NEEDS_ATTENTION = {"needs_real_url", "needs_review", "no_url", "error"}
-
-# How long a discovered (or "nothing found") icon result stays cached on the
-# company row before we try that company's site again.
-_FAVICON_RECHECK = timedelta(days=30)
 
 router = APIRouter(prefix="/companies", tags=["companies"])
 
@@ -49,16 +42,12 @@ _LIST_DEFER = (
     defer(Company.last_final_url),
     defer(Company.favicon_url),
     defer(Company.favicon_checked_at),
+    defer(Company.favicon_data),
+    defer(Company.favicon_mime),
     defer(Company.content_hash),
     defer(Company.content_checked_at),
     defer(Company.sector),
 )
-
-# In-process icon cache on top of the 30-day DB cache. Repeat <img> loads on a
-# directory page should not each open a DB round trip.
-_ICON_CACHE_TTL = 600.0
-_icon_cache: dict[str, tuple[float, str | None]] = {}
-
 
 def _with_open_counts(db: Session, companies: list[Company]) -> list[CompanyResponse]:
     """Attach the real open-vacancy count. Two grouped queries for the page."""
@@ -70,8 +59,10 @@ def _with_open_counts(db: Session, companies: list[Company]) -> list[CompanyResp
         have_icons = {
             cid for (cid,) in db.query(Company.id).filter(
                 Company.id.in_(ids),
-                Company.favicon_url.isnot(None),
-                Company.favicon_url != "",
+                or_(
+                    and_(Company.favicon_url.isnot(None), Company.favicon_url != ""),
+                    Company.favicon_data.isnot(None),
+                ),
             )
         }
     out: list[CompanyResponse] = []
@@ -366,72 +357,34 @@ def _icon_missing() -> Response:
                     headers={"Cache-Control": "public, max-age=86400"})
 
 
-def _icon_cached(company_id: str) -> tuple[bool, str | None]:
-    hit = _icon_cache.get(company_id)
-    if hit is None:
-        return False, None
-    at, url = hit
-    if time.monotonic() - at > _ICON_CACHE_TTL:
-        _icon_cache.pop(company_id, None)
-        return False, None
-    return True, url
-
-
-def _discover_icon(website: str | None, careers_url: str | None) -> str | None:
-    """Run favicon discovery off the event loop.
-
-    discover_favicon is async (tests and the logo service use an async HTTP
-    client). This route is a plain def so the blocking DB commit and the network
-    wait run in FastAPI's threadpool instead of stalling every other request.
-    An async test double is still awaited via asyncio.run inside that thread.
-    """
-    found = discover_favicon(website, careers_url)
-    if inspect.isawaitable(found):
-        return asyncio.run(found)
-    return found
-
-
 @router.get("/{company_id}/icon")
 def company_icon(company_id: str, db: Session = Depends(get_db)):
-    """Redirect to the real icon pulled directly from this company's own page —
-    not a guessed domain. Cached on the company row (see Company.favicon_url) so
-    a given company's site is fetched at most once every 30 days, and in this
-    process for ten minutes so a page of cards does not re-query for each image.
+    """Serve the company's own icon from OUR storage.
+
+    The icon is fetched once, politely, by the ``discover_company_icons`` job
+    (robots.txt honoured, rate-limited, size-capped) and stored on the company
+    row. A page view therefore never makes a request to the company's website
+    or any third party: this only reads our database and is cacheable by the
+    browser for a week. Rows from before the job existed may still carry just
+    a URL; those redirect until the job has stored their bytes.
 
     Intentionally unauthenticated: a plain <img src> can't send an Authorization
-    header, and this only ever exposes a company's own already-public favicon —
-    nothing about Sospana Sonke's data.
+    header, and this only ever exposes a company's own already-public favicon.
     """
-    fresh, cached_url = _icon_cached(company_id)
-    if fresh:
-        if not cached_url:
-            return _icon_missing()
-        redirect = RedirectResponse(cached_url, status_code=status.HTTP_302_FOUND)
-        redirect.headers["Cache-Control"] = "public, max-age=86400"
-        return redirect
-
     company = db.get(Company, company_id)
     if company is None or company.deleted_at is not None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Company not found.")
-
-    # SQLite (used in tests/dev) drops tzinfo from DateTime(timezone=True) columns
-    # on read-back, so normalise before comparing rather than assuming Postgres's
-    # behaviour everywhere.
-    checked_at = company.favicon_checked_at
-    if checked_at is not None and checked_at.tzinfo is None:
-        checked_at = checked_at.replace(tzinfo=timezone.utc)
-    stale = checked_at is None or datetime.now(timezone.utc) - checked_at > _FAVICON_RECHECK
-    if stale:
-        company.favicon_url = _discover_icon(company.official_website, company.careers_url)
-        company.favicon_checked_at = datetime.now(timezone.utc)
-        db.commit()
-
-    _icon_cache[company.id] = (time.monotonic(), company.favicon_url)
-    if not company.favicon_url:
-        return _icon_missing()
-    redirect = RedirectResponse(company.favicon_url, status_code=status.HTTP_302_FOUND)
-    redirect.headers["Cache-Control"] = "public, max-age=86400"
-    return redirect
+    if company.favicon_data:
+        return Response(
+            content=company.favicon_data,
+            media_type=company.favicon_mime or "image/png",
+            headers={"Cache-Control": "public, max-age=604800", "X-Content-Type-Options": "nosniff"},
+        )
+    if company.favicon_url:
+        redirect = RedirectResponse(company.favicon_url, status_code=status.HTTP_302_FOUND)
+        redirect.headers["Cache-Control"] = "public, max-age=86400"
+        return redirect
+    return _icon_missing()
 
 
 _MAX_IMPORT_MB = 25  # admin-only, but still capped -- see app/api/routes_cv.py's

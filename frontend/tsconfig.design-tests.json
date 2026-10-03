@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "commonjs",
+    "moduleResolution": "node10",
+    "strict": true,
+    "skipLibCheck": true,
+    "types": [
+      "node"
+    ],
+    "rootDir": "src/lib",
+    "outDir": "/tmp/design-test",
+    "esModuleInterop": true
+  },
+  "files": [
+    "src/lib/monogram.ts",
+    "src/lib/monogram.test.ts",
+    "src/lib/dailySpark.ts",
+    "src/lib/dailySpark.test.ts",
+    "src/lib/dailySparkData.ts"
+  ]
+}

@@ -76,68 +76,45 @@ def _seed_one_company(client, db_engine, **overrides):
     return next(c for c in listed if c["company_name"] == row["company_name"])["id"], tokens
 
 
-def test_icon_redirects_to_discovered_favicon(client, db_engine, monkeypatch):
-    company_id, _ = _seed_one_company(client, db_engine)
-
-    async def fake_discover(website, careers_url, client=None):
-        return "https://careers.goldfields.com/logo.png"
-
-    monkeypatch.setattr("app.api.routes_companies.discover_favicon", fake_discover)
-    r = client.get(f"/api/v1/companies/{company_id}/icon", follow_redirects=False)
-    assert r.status_code == 302
-    assert r.headers["location"] == "https://careers.goldfields.com/logo.png"
-
-
-def test_icon_miss_is_a_cacheable_204(client, db_engine, monkeypatch):
+def test_icon_miss_is_a_cacheable_204_and_never_fetches(client, db_engine, monkeypatch):
     company_id, tokens = _seed_one_company(client, db_engine)
-    calls = {"n": 0}
 
-    async def fake_discover(website, careers_url, client=None):
-        calls["n"] += 1
-        return None
+    def boom(*a, **k):
+        raise AssertionError("a page view must never reach out to the web")
 
-    monkeypatch.setattr("app.api.routes_companies.discover_favicon", fake_discover)
+    monkeypatch.setattr("app.services.logo_service.fetch_company_icon", boom)
     r = client.get(f"/api/v1/companies/{company_id}/icon", follow_redirects=False)
     assert r.status_code == 204
     assert r.headers["cache-control"] == "public, max-age=86400"
-    again = client.get(f"/api/v1/companies/{company_id}/icon", follow_redirects=False)
-    assert again.status_code == 204
-    assert calls["n"] == 1
 
     listed = client.get("/api/v1/companies?country=South%20Africa", headers=_auth_header(tokens)).json()
     row = next(c for c in listed if c["id"] == company_id)
     assert row["has_icon"] is False
-    assert "favicon_url" not in row
+    assert "favicon_url" not in row and "favicon_data" not in row
 
     from sqlalchemy.orm import sessionmaker
     from app.models.company import Company
     db = sessionmaker(bind=db_engine)()
     db.get(Company, company_id).favicon_url = "https://careers.goldfields.com/logo.png"
     db.commit()
+    r = client.get(f"/api/v1/companies/{company_id}/icon", follow_redirects=False)
+    assert r.status_code == 302
+    assert r.headers["location"] == "https://careers.goldfields.com/logo.png"
+    listed = client.get("/api/v1/companies?country=South%20Africa", headers=_auth_header(tokens)).json()
+    assert next(c for c in listed if c["id"] == company_id)["has_icon"] is True
+
+    # Stored bytes alone (no URL) also count as "has an icon".
+    c = db.get(Company, company_id)
+    c.favicon_url, c.favicon_data, c.favicon_mime = None, b"\x89PNG\r\n\x1a\n", "image/png"
+    db.commit()
     db.close()
     listed = client.get("/api/v1/companies?country=South%20Africa", headers=_auth_header(tokens)).json()
-    row = next(c for c in listed if c["id"] == company_id)
-    assert row["has_icon"] is True
+    assert next(c for c in listed if c["id"] == company_id)["has_icon"] is True
 
 
 def test_icon_404_for_unknown_company(client, db_engine):
     r = client.get("/api/v1/companies/does-not-exist/icon", follow_redirects=False)
     assert r.status_code == 404
-
-
-def test_icon_result_cached_not_refetched(client, db_engine, monkeypatch):
-    company_id, _ = _seed_one_company(client, db_engine)
-    calls = {"n": 0}
-
-    async def fake_discover(website, careers_url, client=None):
-        calls["n"] += 1
-        return "https://careers.goldfields.com/logo.png"
-
-    monkeypatch.setattr("app.api.routes_companies.discover_favicon", fake_discover)
-    client.get(f"/api/v1/companies/{company_id}/icon", follow_redirects=False)
-    client.get(f"/api/v1/companies/{company_id}/icon", follow_redirects=False)
-    # Second request is served from the cached favicon_url — discovery ran once.
-    assert calls["n"] == 1
 
 
 def test_import_marks_researched_links_live_and_keeps_tester_verdict(db):

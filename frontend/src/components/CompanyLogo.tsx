@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { API_BASE } from "@/lib/api";
 import { DATA_SAVER_EVENT, isDataSaver } from "@/lib/dataSaver";
+import { monogramColours, monogramInitials } from "@/lib/monogram";
 
 // Careers links that sit on a third-party ATS / job board — their favicon is the
 // platform's logo, not the employer's, so we never take the logo from these.
@@ -28,29 +29,6 @@ const ATS_DOMAINS = [
   "myjobmag.co.za", "myjobmag.com", "builtin.com",
 ];
 
-const COMPANY_SUFFIXES = /\b(ltd|limited|pty|proprietary|holdings?|group|soc|inc|incorporated|corporation|corp|company|co|plc|rf|sa|the)\b/gi;
-
-// The country-appropriate TLD(s) to try first when guessing a company's domain
-// from its name — tried before the generic .com/.co.za fallback.
-const COUNTRY_TLDS: Record<string, string[]> = {
-  "South Africa": ["co.za"],
-  "Zimbabwe": ["co.zw"],
-  "Zambia": ["co.zm"],
-  "Malawi": ["mw"],
-  "Namibia": ["com.na"],
-  "Botswana": ["co.bw"],
-  "Eswatini": ["co.sz"],
-  "Mozambique": ["co.mz"],
-  "Tanzania": ["co.tz"],
-  "Angola": ["co.ao", "ao"],
-  "Lesotho": ["co.ls"],
-  "Mauritius": ["mu"],
-  "Madagascar": ["mg"],
-  "DR Congo": ["cd"],
-  "Seychelles": ["sc"],
-  "Comoros": ["km"],
-};
-
 function domainFrom(url?: string | null): string | null {
   if (!url) return null;
   try {
@@ -69,27 +47,11 @@ export function isAtsPortal(url?: string | null): boolean {
   return isATS(domainFrom(url));
 }
 
-function slugFromName(name: string): string {
-  return name
-    .toLowerCase()
-    .replace(/\(.*?\)/g, " ")        // drop parentheticals e.g. "(RTMC)"
-    .replace(/&/g, " and ")
-    .replace(COMPANY_SUFFIXES, " ")
-    .replace(/[^a-z0-9]+/g, "");
-}
-
-function initials(name: string): string {
-  const parts = name.replace(/[^A-Za-z0-9 ]/g, "").trim().split(/\s+/);
-  const two = ((parts[0]?.[0] || "") + (parts[1]?.[0] || "")).toUpperCase();
-  return two || (name[0] || "?").toUpperCase();
-}
-
 export function CompanyLogo({
   name,
   website,
   careersUrl,
   country,
-  gradient,
   logoUrl,
   id,
   hasIcon = false,
@@ -98,10 +60,10 @@ export function CompanyLogo({
   website?: string | null;
   careersUrl?: string | null;
   country?: string | null;
-  gradient: string;
+  gradient?: string;
   // An explicit, verified logo image URL taken directly from the entity's own
-  // official website. When set, it's tried first — ahead of the Clearbit/
-  // favicon auto-guessing below — since it's a real confirmed logo, not a guess.
+  // official website. When set, it's tried first — ahead of the stored icon —
+  // since it's a real confirmed logo, not a guess.
   logoUrl?: string | null;
   // The company's id. The icon URL is requested only when hasIcon is true,
   // because a directory of cards used to call GET /companies/{id}/icon for
@@ -109,36 +71,16 @@ export function CompanyLogo({
   id?: string | null;
   hasIcon?: boolean;
 }) {
+  // Order: a manually-verified logo first, then the icon OUR API stores for this
+  // company (fetched once, server-side, from the company's own site), then the
+  // monogram badge. The browser never asks Clearbit, Google or any other third
+  // party for a logo, so a page of cards causes no outbound flood.
   const sources = useMemo(() => {
-    const guessed: string[] = [];
-    const siteDomain = domainFrom(website);
-    const careersDomain = domainFrom(careersUrl);
-    // Prefer a real, non-ATS domain we already know.
-    const known = siteDomain || (careersDomain && !isATS(careersDomain) ? careersDomain : null);
-    if (known) {
-      guessed.push(`https://logo.clearbit.com/${known}`, `https://www.google.com/s2/favicons?domain=${known}&sz=128`);
-    } else {
-      // Otherwise guess the company's own domain from its name and only accept a
-      // genuine logo (Clearbit 404s for unknown domains → we fall back to initials,
-      // so a wrong brand is never shown). Try the country's own TLD(s) first
-      // (most African corporate sites live there, not .com), then .com/.co.za.
-      const slug = slugFromName(name);
-      if (slug.length >= 3) {
-        const tlds = [...(country ? COUNTRY_TLDS[country] || [] : []), "com", "co.za"];
-        const uniqueTlds = Array.from(new Set(tlds));
-        guessed.push(...uniqueTlds.map((tld) => `https://logo.clearbit.com/${slug}.${tld}`));
-      }
-    }
-    // Order: a manually-verified logo first, then the real icon the backend
-    // pulled off this company's own page (more trustworthy than a guessed
-    // domain), then the guessed Clearbit/favicon chain as a last resort before
-    // initials.
     const chain: string[] = [];
     if (logoUrl) chain.push(logoUrl);
     if (id && hasIcon) chain.push(`${API_BASE}/companies/${id}/icon`);
-    chain.push(...guessed);
     return chain;
-  }, [name, website, careersUrl, country, logoUrl, id, hasIcon]);
+  }, [logoUrl, id, hasIcon]);
 
   const [idx, setIdx] = useState(0);
   const [saver, setSaver] = useState(false);
@@ -151,9 +93,19 @@ export function CompanyLogo({
   const useLogo = !saver && sources.length > 0 && idx < sources.length;
 
   if (!useLogo) {
+    // Guaranteed fallback: initials on brand navy/gold, colour fixed by the
+    // company so it never changes between visits. `gradient` is kept in the props
+    // so existing callers compile unchanged; the badge no longer needs it.
+    const c = monogramColours(id || name);
+    const initials = monogramInitials(name);
     return (
-      <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${gradient} text-sm font-bold text-white shadow-sm`}>
-        {initials(name)}
+      <div
+        role="img"
+        aria-label={`${name} (initials badge)`}
+        className="ss-monogram flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-sm font-bold tracking-tight shadow-sm"
+        style={{ backgroundColor: c.bg, color: c.fg, boxShadow: `inset 0 0 0 1.5px ${c.ring}55` }}
+      >
+        <span aria-hidden="true">{initials}</span>
       </div>
     );
   }
