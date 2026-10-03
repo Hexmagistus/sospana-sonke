@@ -2,25 +2,10 @@
 
 import { useEffect, useState } from "react";
 import Guard from "@/components/Guard";
+import NoticeLink from "@/components/NoticeLink";
 import { api } from "@/lib/api";
-import { Card, Alert, Spinner, Button, Badge, EmptyState } from "@/components/ui";
+import { Alert, Spinner, Button, Badge, EmptyState } from "@/components/ui";
 import type { Notification } from "@/lib/types";
-
-function listingHref(url: string | null): { href: string; external: boolean } | null {
-  if (!url) return null;
-  const trimmed = url.trim();
-  if (trimmed.startsWith("/") && !trimmed.startsWith("//") && !trimmed.toLowerCase().includes("javascript:")) {
-    return { href: trimmed, external: false };
-  }
-  try {
-    const parsed = new URL(trimmed);
-    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return null;
-    if (parsed.username || parsed.password) return null;
-    return { href: trimmed, external: true };
-  } catch {
-    return null;
-  }
-}
 
 function NotificationsInner() {
   const [notes, setNotes] = useState<Notification[]>([]);
@@ -35,11 +20,12 @@ function NotificationsInner() {
     load().catch((e) => { setErr(e.message); setLoading(false); });
   }, []);
 
-  async function markRead(id: string) {
-    await api.post(`/notifications/${id}/read`);
-    await load();
-    window.dispatchEvent(new Event("notifications:changed"));
-  }
+  useEffect(() => {
+    function refresh() { load().catch((e) => setErr(e.message)); }
+    window.addEventListener("notifications:changed", refresh);
+    return () => window.removeEventListener("notifications:changed", refresh);
+  }, []);
+
   async function markAll() {
     await api.post("/notifications/read-all");
     await load();
@@ -49,7 +35,7 @@ function NotificationsInner() {
   if (loading) return <Spinner />;
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-bold text-ss-text">Notifications</h1>
         <Button variant="ghost" onClick={markAll}>Mark all read</Button>
       </div>
@@ -61,46 +47,27 @@ function NotificationsInner() {
           message="You'll see updates here as your Career Agent finds matches, prepares applications and hears back from employers."
         />
       ) : (
-        <div className="space-y-2">
-          {notes.map((n) => {
-            const listing = listingHref(n.link_url);
-            return (
-            <Card key={n.id} className={n.is_read ? "opacity-60" : ""}>
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium text-ss-text">{n.title}</span>
-                    <Badge>{n.type}</Badge>
-                  </div>
-                  <p className="mt-1 whitespace-pre-wrap text-sm text-ss-muted">{n.body}</p>
-                  {n.type === "admin_suggestion" && (
-                    <p className="mt-2 text-xs font-semibold text-ss-text">Tagged by the Sospana Sonke team</p>
-                  )}
-                  <p className="mt-1 text-xs text-ss-muted">
-                    {n.type === "admin_suggestion" ? "Tagged " : ""}
-                    {new Date(n.created_at).toLocaleString()}
-                  </p>
-                  {listing && (
-                    <a
-                      href={listing.href}
-                      target={listing.external ? "_blank" : undefined}
-                      rel={listing.external ? "noopener noreferrer" : undefined}
-                      className="mt-3 inline-block rounded-lg bg-gradient-to-br from-[#163e73] to-[#0b1f3a] px-4 py-2 text-sm font-semibold text-white ring-1 ring-[#f5b301]/45"
-                    >
-                      Open this listing
-                    </a>
-                  )}
-                </div>
-                {!n.is_read && (
-                  <button onClick={() => markRead(n.id)} className="text-xs text-brand hover:underline">
-                    Mark read
-                  </button>
+        <ul className="space-y-2">
+          {notes.map((n) => (
+            <li key={n.id}>
+              <NoticeLink note={n} className={n.is_read ? "opacity-60" : ""}>
+                <span className="flex flex-wrap items-center gap-2">
+                  <span className="font-medium text-ss-text">{n.title}</span>
+                  <Badge>{n.type}</Badge>
+                  {!n.is_read && <span className="text-[11px] font-semibold uppercase tracking-wide text-ss-primary">Unread</span>}
+                </span>
+                <span className="mt-1 block whitespace-pre-wrap break-words text-sm text-ss-muted">{n.body}</span>
+                {n.type === "admin_suggestion" && (
+                  <span className="mt-2 block text-xs font-semibold text-ss-text">Tagged by the Sospana Sonke team</span>
                 )}
-              </div>
-            </Card>
-            );
-          })}
-        </div>
+                <span className="mt-1 block text-xs text-ss-muted">
+                  {n.type === "admin_suggestion" ? "Tagged " : ""}
+                  {new Date(n.created_at).toLocaleString()}
+                </span>
+              </NoticeLink>
+            </li>
+          ))}
+        </ul>
       )}
     </div>
   );

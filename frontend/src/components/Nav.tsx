@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { api } from "@/lib/api";
 import { useTheme } from "@/lib/theme";
+import NotificationBell from "@/components/NotificationBell";
 
 const LINKS = [
   { href: "/dashboard", label: "Dashboard" },
@@ -140,6 +141,7 @@ export default function Nav() {
             </Link>
           )}
           <div className="ml-auto flex shrink-0 items-center gap-3 whitespace-nowrap pl-2">
+            <NotificationBell unread={unread} />
             <ThemeToggle />
             <span className="hidden max-w-[9rem] truncate text-xs text-blue-200 xl:inline" title={user.email}>{user.email}</span>
             <button
@@ -156,6 +158,7 @@ export default function Nav() {
 
         {/* Mobile: theme toggle + hamburger, pushed to the right */}
         <div className="ml-auto flex items-center gap-1 lg:hidden">
+          <NotificationBell unread={unread} />
           <ThemeToggle />
           <button
             type="button"

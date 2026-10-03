@@ -173,8 +173,9 @@ export interface Notification {
   type: string;
   title: string;
   body: string;
-  // An optional outbound link (e.g. an admin-curated post/article) to open --
-  // rendered as a clickable "Open" action when present.
+  related_type: string | null;
+  related_id: string | null;
+  // http(s) listing, or a same-app path such as a mention of a company.
   link_url: string | null;
   is_read: boolean;
   created_at: string;

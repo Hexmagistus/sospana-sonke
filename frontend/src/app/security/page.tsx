@@ -69,8 +69,13 @@ function SecurityInner() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    if (window.location.hash !== "#notification-preferences") return;
-    document.getElementById("notification-preferences")?.scrollIntoView({ block: "start" });
+    function jump() {
+      if (window.location.hash !== "#notification-preferences") return;
+      document.getElementById("notification-preferences")?.scrollIntoView({ block: "start" });
+    }
+    jump();
+    window.addEventListener("hashchange", jump);
+    return () => window.removeEventListener("hashchange", jump);
   }, [user]);
 
   async function savePreferences() {
