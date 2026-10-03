@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { PreferenceEmailCard, LoginAlertsCard } from "@/components/AdminPreferenceCards";
+import { postTypeLabel } from "@/lib/preferences";
 import Link from "next/link";
 import Guard from "@/components/Guard";
 import { api } from "@/lib/api";
@@ -22,6 +24,10 @@ interface AdminUser {
   city: string | null;
   current_occupation: string | null;
   notify_opportunity_alerts?: boolean;
+  tagging_state?: string;
+  preferred_post_state?: string;
+  preferred_post_type?: string | null;
+  alerts_state?: string;
   tags?: string[];
 }
 
@@ -290,9 +296,10 @@ function AdminInner() {
   const [suggestErr, setSuggestErr] = useState("");
   const [preferenceOnly, setPreferenceOnly] = useState(false);
   const [tagDraft, setTagDraft] = useState<Record<string, string>>({});
-
-  function canNotify(u: AdminUser) {
-    return !!(u.notify_opportunity_alerts && u.preferred_position);
+  function emailChoice(u: AdminUser) {
+    const word = (state?: string) => (state === "yes" ? "Yes" : state === "no" ? "No" : "Not chosen");
+    const post = u.preferred_post_state === "chosen" ? postTypeLabel(u.preferred_post_type) : "Not chosen";
+    return `Tagging ${word(u.tagging_state)} · Post ${post} · Alerts ${word(u.alerts_state)}`;
   }
 
   async function load() {
@@ -338,17 +345,28 @@ function AdminInner() {
     }
     setSuggestBusy(true);
     try {
-      const res = await api.post<{ sent: number; skipped: number }>("/admin/suggestions", {
+      const res = await api.post<{ sent: number; skipped: number; duplicates?: number; emailed?: number }>("/admin/suggestions", {
         title: suggestTitle.trim(),
         body: suggestBody.trim(),
         link_url: suggestLink.trim() || undefined,
         all_candidates: allCandidates,
         user_ids: allCandidates ? [] : Array.from(selected),
       });
-      setSuggestMsg(
-        `Sent to ${res.sent} opted-in candidate${res.sent === 1 ? "" : "s"}` +
-        (res.skipped ? `. Skipped ${res.skipped} who did not opt in or have no preferred post.` : ".")
-      );
+      const duplicates = res.duplicates || 0;
+      const emailed = res.emailed || 0;
+      const parts = allCandidates
+        ? [`Sent an in-app notice to ${res.sent} opted-in candidate${res.sent === 1 ? "" : "s"}.`]
+        : [`Stored an in-app notice for ${res.sent} candidate${res.sent === 1 ? "" : "s"}.`];
+      if (emailed) parts.push(`Emailed ${emailed} who chose tagging email.`);
+      if (res.skipped) {
+        parts.push(allCandidates
+          ? `Skipped ${res.skipped} who have not opted in to a broadcast.`
+          : `Skipped ${res.skipped}.`);
+      }
+      if (duplicates) {
+        parts.push(`${duplicates} already had a notice for this link.`);
+      }
+      setSuggestMsg(parts.join(" "));
       setSuggestTitle(""); setSuggestBody(""); setSuggestLink(""); setSelected(new Set());
     } catch (e) {
       setSuggestErr(e instanceof Error ? e.message : "Failed to send.");
@@ -419,9 +437,10 @@ function AdminInner() {
       <Card>
         <h2 className="mb-1 font-semibold">Suggest a post or link</h2>
         <p className="mb-3 text-sm text-ss-muted">
-          Alert people who saved a preferred post and opted in to opportunity alerts. Anyone else is
-          skipped, on purpose. It shows up as a notification. The action is written to the audit log
-          without copying their email into that log.
+          A selected person gets an in-app notice with the pasted link. Tagging a person needs their
+          tagging choice to be Yes. The email goes only to people who said yes to tagging. Send to everyone
+          stays limited to people who opted in. The same person is not notified twice for the same link. The audit log
+          records the counts, not their email address.
         </p>
         {suggestErr && <Alert kind="error">{suggestErr}</Alert>}
         {suggestMsg && <Alert kind="success">{suggestMsg}</Alert>}
@@ -448,6 +467,9 @@ function AdminInner() {
           </Button>
         </div>
       </Card>
+
+      <PreferenceEmailCard />
+      <LoginAlertsCard />
 
       <Card>
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
@@ -483,7 +505,7 @@ function AdminInner() {
                 <th className="py-2 pr-4">Name</th>
                 <th className="py-2 pr-4">Mobile</th>
                 <th className="py-2 pr-4">Preferred post</th>
-                <th className="py-2 pr-4">Alerts</th>
+                <th className="py-2 pr-4">Choices</th>
                 <th className="py-2 pr-4">Tags</th>
                 <th className="py-2 pr-4">Qualification</th>
                 <th className="py-2 pr-4">Profile</th>
@@ -502,24 +524,44 @@ function AdminInner() {
                   <td className="py-2 pr-4">{u.mobile_number || "—"}</td>
                   <td className="py-2 pr-4">{u.preferred_position || "—"}</td>
                   <td className="py-2 pr-4">
-                    <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${canNotify(u) ? "bg-brand/10 text-brand-dark" : "bg-ss-border text-ss-muted"}`}>
-                      {canNotify(u) ? "Opted in" : "No alerts"}
+                    <span className="rounded-full bg-ss-border px-2 py-0.5 text-xs font-semibold text-ss-muted">
+                      {emailChoice(u)}
                     </span>
                   </td>
                   <td className="py-2 pr-4">
                     <div className="flex flex-col gap-1">
                       <span>{(u.tags || []).join(", ") || "—"}</span>
-                      {canNotify(u) && (
+                      {u.role === "candidate" && u.is_active && u.tagging_state !== "yes" && (
+                        <span className="text-xs text-ss-muted">
+                          Cannot be tagged: {u.tagging_state === "no" ? "they said no" : "not chosen yet"}
+                        </span>
+                      )}
+                      {u.role === "candidate" && u.is_active && u.tagging_state === "yes" && (
                         <form
                           className="flex gap-1"
                           onSubmit={async (e) => {
                             e.preventDefault();
                             const tag = (tagDraft[u.id] || "").trim();
                             if (!tag) return;
+                            const link = suggestLink.trim();
                             try {
-                              const res = await api.post<{ tags: string[] }>(`/admin/users/${u.id}/tags`, { tag });
+                              const res = await api.post<{
+                                tags: string[];
+                                notice_sent?: number;
+                                notice_duplicate?: number;
+                              }>(`/admin/users/${u.id}/tags`, {
+                                tag,
+                                link_url: link || undefined,
+                              });
                               setUsers((prev) => prev.map((row) => row.id === u.id ? { ...row, tags: res.tags } : row));
                               setTagDraft((d) => ({ ...d, [u.id]: "" }));
+                              if (link && res.notice_sent) {
+                                setSuggestErr("");
+                                setSuggestMsg("Tagged. They have a notice with that link.");
+                              } else if (link && res.notice_duplicate) {
+                                setSuggestErr("");
+                                setSuggestMsg("Tagged. They already had a notice for this link.");
+                              }
                             } catch (ex) {
                               setSuggestErr(ex instanceof Error ? ex.message : "Could not tag");
                             }

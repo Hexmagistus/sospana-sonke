@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Guard from "@/components/Guard";
 import { useAuth } from "@/lib/auth";
@@ -16,7 +17,6 @@ function SecurityInner() {
   const [code, setCode] = useState("");
   const [msg, setMsg] = useState("");
   const [err, setErr] = useState("");
-
   async function begin() {
     setErr(""); setMsg("");
     try {
@@ -130,29 +130,14 @@ function SecurityInner() {
       </Card>
 
       <Card>
-        <h2 className="mb-2 text-lg font-semibold text-ss-text">Opportunity alerts</h2>
+        <h2 className="mb-2 text-lg font-semibold text-ss-text">Preferences</h2>
         <p className="mb-3 text-sm text-ss-muted">
-          Separate from the privacy consent you already gave. When this is on, an administrator may notify
-          you about a post that matches a preferred role you saved. Off means they must not.
+          Tagging by an administrator, the kind of post you want to be considered for, and alerts each have their own
+          page now. Each one is saved separately.
         </p>
-        <label className="flex items-start gap-2 text-sm text-ss-text">
-          <input
-            type="checkbox"
-            checked={!!user?.notify_opportunity_alerts}
-            onChange={async (e) => {
-              setErr(""); setMsg("");
-              try {
-                await api.put("/account/opportunity-alerts", { enabled: e.target.checked });
-                await refreshUser();
-                setMsg(e.target.checked ? "Opportunity alerts are on." : "Opportunity alerts are off. We'll keep it that way.");
-              } catch (ex) {
-                setErr(ex instanceof Error ? ex.message : "Could not save that choice");
-              }
-            }}
-            className="mt-1 h-4 w-4 shrink-0 accent-[#f5b301]"
-          />
-          <span>Tell me about posts that match my preferred role.</span>
-        </label>
+        <Link href="/preferences" className="inline-flex min-h-11 items-center rounded-lg bg-ss-primary px-3 text-sm font-semibold text-navy">
+          Open my preferences
+        </Link>
       </Card>
 
       <Card>

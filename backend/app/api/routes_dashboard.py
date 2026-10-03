@@ -2,8 +2,10 @@
 import re
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from sqlalchemy.orm import Session
+
+from app.notifications.links import validated_notice_url
 
 from app.core.deps import get_current_user, require_admin
 from app.core.http_cache import private_short_cache
@@ -46,14 +48,26 @@ _TAG = re.compile(r"^[A-Za-z0-9][A-Za-z0-9 \-]{0,39}$")
 
 class TagRequest(BaseModel):
     tag: str = Field(min_length=1, max_length=40)
+    # When the admin pasted a vacancy, careers, or apply URL, the tagged
+    # person gets that link in their notice. Empty means tag only.
+    link_url: str | None = Field(default=None, max_length=2000)
+
+    @field_validator("link_url")
+    @classmethod
+    def _link(cls, value: str | None) -> str | None:
+        return validated_notice_url(value)
 
 
-def _eligible_for_alerts(user: User) -> bool:
+def _can_be_tagged(user: User) -> bool:
+    """An active candidate who explicitly chose "yes" to being tagged to employers.
+
+    Not chosen yet and an explicit no both mean an admin must not tag them.
+    """
     return bool(
         user.role == "candidate"
         and user.is_active
-        and user.notify_opportunity_alerts
-        and (user.preferred_position or "").strip()
+        and not user.deleted_at
+        and user.tagging_allowed
     )
 
 
@@ -99,6 +113,11 @@ def list_users(db: Session = Depends(get_db), limit: int = 1000,
             "email_verified": u.email_verified,
             "is_active": u.is_active,
             "notify_opportunity_alerts": bool(u.notify_opportunity_alerts),
+            "allow_tagging": bool(u.allow_tagging),
+            "preferred_post_type": u.preferred_post_type,
+            "tagging_state": u.tagging_state,
+            "preferred_post_state": u.preferred_post_state,
+            "alerts_state": u.alerts_state,
             "tags": tags_by_user.get(u.id, []),
             "created_at": u.created_at.isoformat() if u.created_at else None,
             "has_profile": p is not None,
@@ -111,14 +130,15 @@ def list_users(db: Session = Depends(get_db), limit: int = 1000,
 @router.post("/admin/users/{user_id}/tags", dependencies=[Depends(require_admin)])
 def add_user_tag(user_id: str, body: TagRequest, db: Session = Depends(get_db),
                  admin: User = Depends(require_admin)):
-    """Tag someone who opted in and named a preferred post. Writes an audit row."""
+    """Tag a candidate who allowed tagging. A pasted link is stored in their account. Writes an audit row."""
     target = db.get(User, user_id)
     if target is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
-    if not _eligible_for_alerts(target):
+    if not _can_be_tagged(target):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="This person has not opted in to opportunity alerts, or has not set a preferred post.",
+            detail="This person has not agreed to being tagged to employers (their tagging "
+                   "preference is not set to yes), so they cannot be tagged.",
         )
     tag = " ".join(body.tag.split())
     if not _TAG.match(tag):
@@ -127,10 +147,27 @@ def add_user_tag(user_id: str, body: TagRequest, db: Session = Depends(get_db),
     existing = db.query(UserTag).filter(UserTag.user_id == target.id, UserTag.tag == tag).first()
     if existing is None:
         db.add(UserTag(user_id=target.id, tag=tag, created_by=admin.id))
-    _audit(db, admin.id, "tag", target.id, f"tag={tag}")
+    notice_sent = 0
+    notice_duplicate = 0
+    notice_emailed = 0
+    if body.link_url:
+        from app.services.notification_service import notify_admin_suggestion
+        notice_sent, notice_duplicate, notice_emailed = notify_admin_suggestion(
+            db, users=[target], title=tag,
+            body="The Sospana Sonke team tagged you for this opening.",
+            link_url=body.link_url,
+        )
+    _audit(db, admin.id, "tag", target.id,
+           f"tag={tag} link={1 if body.link_url else 0} sent={notice_sent} emailed={notice_emailed}")
     db.commit()
     tags = [t.tag for t in db.query(UserTag).filter(UserTag.user_id == target.id).all()]
-    return {"user_id": target.id, "tags": tags}
+    return {
+        "user_id": target.id,
+        "tags": tags,
+        "notice_sent": notice_sent,
+        "notice_duplicate": notice_duplicate,
+        "notice_emailed": notice_emailed,
+    }
 
 
 @router.delete("/admin/users/{user_id}/tags/{tag}", dependencies=[Depends(require_admin)])

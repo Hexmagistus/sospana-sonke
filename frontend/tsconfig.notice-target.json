@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "strict": true,
+    "outDir": ".notice-target-test",
+    "rootDir": "src/lib",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "types": [
+      "node"
+    ]
+  },
+  "include": [
+    "src/lib/notificationTarget.ts",
+    "src/lib/notificationTarget.test.ts",
+    "src/lib/preferences.ts",
+    "src/lib/preferences.test.ts"
+  ]
+}

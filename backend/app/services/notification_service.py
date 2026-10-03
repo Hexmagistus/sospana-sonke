@@ -133,6 +133,7 @@ def notify_strong_match(db, *, user, match, vacancy_title, company_name) -> Noti
         body=(f"{vacancy_title} at {company_name} — match {int(match.score)}% "
               f"({match.band}). Your tailored CV can be generated in one click."),
         related_type="match", related_id=match.id, to_phone=getattr(user, "mobile_number", None),
+        send_email=None if _alerts_email_opted_in(user) else False,
     )
 
 
@@ -190,6 +191,7 @@ def notify_daily_agent_briefing(db, *, user, application_ids: list[str],
         db, user_id=user.id, to_email=user.email, type="daily_agent_briefing",
         title=title, body=body, related_type="job_run", related_id=job_run_id,
         to_phone=getattr(user, "mobile_number", None),
+        send_email=None if _alerts_email_opted_in(user) else False,
     )
 
 
@@ -228,6 +230,7 @@ def notify_new_jobs_broadcast(db, *, vacancy_ids: list[str], job_run_id: str) ->
         note = create_notification(
             db, user_id=user.id, to_email=user.email, type="new_jobs", title=title, body=body,
             related_type="job_run", related_id=job_run_id, to_phone=getattr(user, "mobile_number", None),
+            send_email=None if _alerts_email_opted_in(user) else False,
         )
         if note is not None:
             sent += 1
@@ -250,26 +253,116 @@ def notify_admins(db, *, type: str, title: str, body: str,
     return sent
 
 
-def notify_admin_suggestion(db, *, users: list, title: str, body: str,
-                            link_url: str | None = None) -> int:
-    """Send an admin-curated post/link to a hand-picked (or "all candidates")
-    list of registered users, as a normal dashboard notification.
+def _active_candidate(user) -> bool:
+    """In-app tag notices stay inside the account. Consent is not required for that."""
+    return bool(
+        getattr(user, "role", None) == "candidate"
+        and getattr(user, "is_active", False)
+        and not getattr(user, "deleted_at", None)
+    )
 
-    No idempotency key -- each admin send is a deliberate one-off action, so
-    unlike the automated notify_* helpers above it's never a re-run of the same
-    trigger that should be suppressed. Email/SMS/push are always off here: this
-    is meant to surface on the candidate's own page (Notifications, and the Nav
-    badge), not to push another outbound message on the admin's behalf.
+
+def _tagging_email_opted_in(user) -> bool:
+    """Explicit tagging yes only. No recorded choice and an explicit no stay off."""
+    return _active_candidate(user) and bool(
+        getattr(user, "allow_tagging", False) and getattr(user, "allow_tagging_chosen_at", None)
+    )
+
+
+def _alerts_email_opted_in(user) -> bool:
+    """Alert mail follows the alerts yes/no. A legacy True still counts as yes."""
+    return bool(getattr(user, "notify_opportunity_alerts", False))
+
+
+def _opening_for_link(db, link_url: str | None) -> tuple[str | None, str | None]:
+    """Role title and employer name when this URL is already a stored listing."""
+    if not link_url:
+        return None, None
+    from sqlalchemy import or_
+
+    from app.models.company import Company
+    from app.models.vacancy import Vacancy
+    from app.scraper.urls import canonical_listing_url
+
+    keys = {link_url}
+    canonical = canonical_listing_url(link_url)
+    if canonical:
+        keys.add(canonical)
+    row = (db.query(Vacancy.title, Company.company_name)
+           .join(Company, Company.id == Vacancy.company_id)
+           .filter(Vacancy.deleted_at.is_(None), Company.deleted_at.is_(None))
+           .filter(or_(
+               Vacancy.application_url.in_(keys),
+               Vacancy.source_url.in_(keys),
+               Vacancy.canonical_url.in_(keys),
+           ))
+           .first())
+    if row is not None:
+        return (row[0] or None), (row[1] or None)
+    company = (db.query(Company.company_name)
+               .filter(Company.deleted_at.is_(None), Company.careers_url.in_(keys))
+               .first())
+    if company is not None:
+        return None, company[0]
+    return None, None
+
+
+def _suggestion_body(message: str, link_url: str | None,
+                     role: str | None, employer: str | None) -> str:
+    from datetime import datetime, timezone
+
+    lines = [message.strip(), "", "Tagged by the Sospana Sonke team."]
+    when = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+    lines.append(f"Tagged at {when}.")
+    if role:
+        lines.append(f"Role: {role.strip()}")
+    if employer:
+        lines.append(f"Employer: {employer.strip()}")
+    if link_url:
+        lines.extend(["", link_url])
+    return "\n".join(lines)
+
+
+def notify_admin_suggestion(db, *, users: list, title: str, body: str,
+                            link_url: str | None = None) -> tuple[int, int, int]:
+    """In-app notice for every active candidate. Email only after an explicit yes.
+
+    Returns ``(sent, duplicates, emailed)``. A missing choice and an explicit
+    no both skip email. The same user and the same link is stored once.
+    Email still follows ``NOTIFY_EMAILS`` and the Brevo or SMTP provider.
     """
+    from app.notifications.links import validated_notice_url
+
+    safe_link = validated_notice_url(link_url) if link_url else None
+    role, employer = _opening_for_link(db, safe_link)
+    notice_body = _suggestion_body(body, safe_link, role, employer)
+    safe_title = " ".join(title.split())[:200] or "A listing for you"
     sent = 0
+    duplicates = 0
+    emailed = 0
     for user in users:
+        if not _active_candidate(user):
+            continue
+        if safe_link:
+            existing = (db.query(Notification)
+                        .filter(Notification.user_id == user.id,
+                                Notification.type == "admin_suggestion",
+                                Notification.link_url == safe_link)
+                        .first())
+            if existing is not None:
+                duplicates += 1
+                continue
+        mail = None if _tagging_email_opted_in(user) else False
         note = create_notification(
             db, user_id=user.id, to_email=user.email, type="admin_suggestion",
-            title=title, body=body, link_url=link_url, send_email=False,
+            title=safe_title, body=notice_body, link_url=safe_link,
+            send_email=mail,
         )
         if note is not None:
             sent += 1
-    return sent
+            if note.email_sent:
+                emailed += 1
+    return sent, duplicates, emailed
 
 
 def notify_report_ready(db, *, user, report) -> Notification | None:

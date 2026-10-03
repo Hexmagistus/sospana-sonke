@@ -7,9 +7,10 @@ every caller goes through Brevo's HTTPS transactional API instead: Render's
 free plan cannot open SMTP ("Network is unreachable").
 
 POPIA stays with the callers. This module does not decide who may be mailed.
-Admin post suggestions already require notify_opportunity_alerts and do not
-email. Password reset, verification, and the owner login alert are account
-mail, not opportunity alerts.
+A tagging notice is emailed only when the caller has already checked an
+explicit tagging-email yes, and the platform mail switch is on. Password
+reset, verification, the owner login alert, and the one-time settings email
+are account mail.
 """
 from __future__ import annotations
 
@@ -63,7 +64,14 @@ class SMTPEmailProvider(EmailProvider):
         from email.mime.text import MIMEText
         if not settings.SMTP_HOST:
             return False
-        msg = MIMEText(body)
+        html_body = _html_from_text(body)
+        if "<a " in html_body:
+            from email.mime.multipart import MIMEMultipart
+            msg = MIMEMultipart("alternative")
+            msg.attach(MIMEText(body, "plain", "utf-8"))
+            msg.attach(MIMEText(html_body, "html", "utf-8"))
+        else:
+            msg = MIMEText(body, "plain", "utf-8")
         msg["Subject"] = subject
         msg["From"] = settings.EMAIL_FROM
         msg["To"] = to
@@ -119,8 +127,35 @@ def _halt_category(status: int, body: str) -> str | None:
 
 
 def _html_from_text(body: str) -> str:
-    escaped = html.escape(body, quote=True).replace("\n", "<br>\n")
-    return f"<p>{escaped}</p>"
+    """Escape every line. A line that is only an http(s) URL becomes a button."""
+    from app.notifications.links import validated_notice_url
+
+    blocks: list[str] = []
+    for line in body.split("\n"):
+        url = None
+        try:
+            url = validated_notice_url(line)
+        except ValueError:
+            url = None
+        if url and line.strip() == url:
+            href = html.escape(url, quote=True)
+            if "Tagged by the Sospana Sonke team" in body:
+                label = "Open this listing"
+            elif url.rstrip("/").endswith("/preferences"):
+                label = "Choose my preferences"
+            elif url.rstrip("/").endswith("/privacy"):
+                label = "Privacy Policy"
+            else:
+                label = "Open"
+            blocks.append(
+                '<p><a href="' + href + '" '
+                'style="display:inline-block;background:#0b2447;color:#ffffff;'
+                'padding:10px 16px;border-radius:8px;text-decoration:none;font-weight:700">'
+                + html.escape(label) + "</a></p>"
+            )
+        else:
+            blocks.append("<p>" + html.escape(line, quote=True) + "</p>")
+    return "\n".join(blocks)
 
 
 def _reply_to(sender_email: str) -> dict | None:

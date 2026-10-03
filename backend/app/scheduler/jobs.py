@@ -277,7 +277,20 @@ def run_daily_agent(db: Session, job_run_id: str | None = None) -> dict:
     submits each application themselves. See app/services/agent_service.py.
     """
     from app.services.agent_service import run_daily_agent as _run_daily_agent
-    return _run_daily_agent(db, job_run_id=job_run_id)
+    summary = _run_daily_agent(db, job_run_id=job_run_id)
+    # The optional admin sign-in digest rides on this once-a-day job (no extra
+    # workflow). Off for every admin unless they switched it on.
+    try:
+        summary["admin_login_digests"] = send_admin_login_digest(db)["sent"]
+    except Exception:
+        logger.warning("Admin sign-in digest step failed", exc_info=True)
+    return summary
+
+
+def send_admin_login_digest(db: Session) -> dict:
+    """Email the optional digest of client sign-ins to admins who turned it on."""
+    from app.services.admin_login_alerts import send_login_digest
+    return send_login_digest(db, respect_interval=True)
 
 
 def test_all_urls(db: Session, limit: int = 200, job_run_id: str | None = None,

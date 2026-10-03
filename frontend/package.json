@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
+    "test:notice-target": "tsc -p tsconfig.notice-target.json && node --test .notice-target-test/notificationTarget.test.js .notice-target-test/preferences.test.js",
     "test:landing": "tsc -p tsconfig.landing.json && node --test /tmp/landing-test/lib/landingStats.test.js"
   },
   "dependencies": {

@@ -13,6 +13,12 @@ export interface User {
   policy_version?: string | null;
   allow_messages?: boolean;
   notify_opportunity_alerts?: boolean;
+  allow_tagging?: boolean;
+  preferred_post_type?: string | null;
+  tagging_state?: "not_chosen" | "yes" | "no";
+  preferred_post_state?: "not_chosen" | "chosen";
+  alerts_state?: "not_chosen" | "yes" | "no";
+  show_consent_banner?: boolean;
 }
 
 export interface Tokens {
@@ -167,8 +173,9 @@ export interface Notification {
   type: string;
   title: string;
   body: string;
-  // An optional outbound link (e.g. an admin-curated post/article) to open --
-  // rendered as a clickable "Open" action when present.
+  related_type: string | null;
+  related_id: string | null;
+  // http(s) listing, or a same-app path such as a mention of a company.
   link_url: string | null;
   is_read: boolean;
   created_at: string;

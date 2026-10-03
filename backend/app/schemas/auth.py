@@ -1,6 +1,16 @@
 """Request/response schemas for authentication."""
 from datetime import datetime
-from pydantic import BaseModel, EmailStr, Field, ConfigDict
+from pydantic import BaseModel, EmailStr, Field, ConfigDict, field_validator
+
+from app.models.user import POST_TYPES
+
+
+def _check_post_type(value: str | None) -> str | None:
+    if value is None or value == "":
+        return None
+    if value not in POST_TYPES:
+        raise ValueError("preferred_post_type must be one of: " + ", ".join(POST_TYPES))
+    return value
 
 
 class RegisterRequest(BaseModel):
@@ -15,8 +25,17 @@ class RegisterRequest(BaseModel):
     qualification_name: str | None = Field(default=None, max_length=200)
     # True when the user ticked the POPIA consent box (Privacy Policy + Terms).
     accepted_policy: bool = False
-    # Separate, optional. Opportunity alerts from an administrator. Off unless ticked.
-    notify_opportunity_alerts: bool = False
+    # None means this registration did not show the choice (leave it unrecorded).
+    # True or false means the person saw the box and picked.
+    allow_tagging: bool | None = None
+    # One of the post types in app.models.user.POST_TYPES; None = not chosen.
+    preferred_post_type: str | None = Field(default=None, max_length=30)
+    notify_opportunity_alerts: bool | None = None
+
+    @field_validator("preferred_post_type")
+    @classmethod
+    def _post_type(cls, value: str | None) -> str | None:
+        return _check_post_type(value)
 
 
 class LoginRequest(BaseModel):
@@ -54,7 +73,13 @@ class UserResponse(BaseModel):
     policy_accepted_at: datetime | None = None
     policy_version: str | None = None
     allow_messages: bool = False
+    allow_tagging: bool = False
+    preferred_post_type: str | None = None
     notify_opportunity_alerts: bool = False
+    tagging_state: str = "not_chosen"
+    preferred_post_state: str = "not_chosen"
+    alerts_state: str = "not_chosen"
+    show_consent_banner: bool = False
 
 
 class AcceptPolicyRequest(BaseModel):
@@ -65,6 +90,19 @@ class AcceptPolicyRequest(BaseModel):
 
 class OpportunityAlertsRequest(BaseModel):
     enabled: bool
+
+
+class NotificationPreferencesRequest(BaseModel):
+    """Any of the three preferences. A field that is left out stays as it was,
+    including "not chosen yet"; a field that is sent is recorded as chosen."""
+    allow_tagging: bool | None = None
+    preferred_post_type: str | None = Field(default=None, max_length=30)
+    notify_opportunity_alerts: bool | None = None
+
+    @field_validator("preferred_post_type")
+    @classmethod
+    def _post_type(cls, value: str | None) -> str | None:
+        return _check_post_type(value)
 
 
 class MFASetupResponse(BaseModel):

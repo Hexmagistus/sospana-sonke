@@ -5,10 +5,29 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth";
-import { Card, Field, Input, Button, Alert } from "@/components/ui";
+import { Card, Field, Input, Select, Button, Alert } from "@/components/ui";
+import { POST_TYPES } from "@/lib/preferences";
 import { WhatsAppChannelButton } from "@/components/WhatsAppChannel";
 import { CircuitOverlay, GlowFrame, LogoGlow } from "@/components/HighTech";
 import { CircuitMascot, GreetingLine, LitCircuits, PasswordMeter, friendlyAuthError, successPause } from "@/components/AuthDelight";
+
+function YesNo({
+  name, label, value, onChange,
+}: { name: string; label: string; value: boolean | null; onChange: (next: boolean) => void }) {
+  return (
+    <div role="radiogroup" aria-label={label} className="text-sm text-ss-text">
+      <span className="mb-1 block text-ss-muted">{label}</span>
+      <div className="flex gap-5">
+        <label className="flex min-h-11 items-center gap-2">
+          <input type="radio" name={name} checked={value === true} onChange={() => onChange(true)} /> Yes
+        </label>
+        <label className="flex min-h-11 items-center gap-2">
+          <input type="radio" name={name} checked={value === false} onChange={() => onChange(false)} /> No
+        </label>
+      </div>
+    </div>
+  );
+}
 
 export default function RegisterPage() {
   const { register } = useAuth();
@@ -20,7 +39,10 @@ export default function RegisterPage() {
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [consent, setConsent] = useState(false);
-  const [alerts, setAlerts] = useState(false);
+  // null = left unanswered, which stays "not chosen yet" on the server.
+  const [alerts, setAlerts] = useState<boolean | null>(null);
+  const [tagging, setTagging] = useState<boolean | null>(null);
+  const [postType, setPostType] = useState("");
   const [passwordFocused, setPasswordFocused] = useState(false);
   const [celebrate, setCelebrate] = useState(false);
 
@@ -37,7 +59,13 @@ export default function RegisterPage() {
     }
     setBusy(true);
     try {
-      await register({ ...form, accepted_policy: true, notify_opportunity_alerts: alerts });
+      await register({
+        ...form,
+        accepted_policy: true,
+        ...(tagging === null ? {} : { allow_tagging: tagging }),
+        ...(postType ? { preferred_post_type: postType } : {}),
+        ...(alerts === null ? {} : { notify_opportunity_alerts: alerts }),
+      });
       setCelebrate(true);
       setBusy(false);
       await successPause();
@@ -107,7 +135,7 @@ export default function RegisterPage() {
             <Field label="Mobile number">
               <Input value={form.mobile_number} onChange={(e) => set("mobile_number", e.target.value)} />
             </Field>
-            <Field label="Preferred post (the role you're looking for)">
+            <Field label="Role you're looking for">
               <Input
                 value={form.preferred_position}
                 onChange={(e) => set("preferred_position", e.target.value)}
@@ -150,19 +178,34 @@ export default function RegisterPage() {
                 that Sospana Sonke may process my personal information to match me to vacancies, as described there (POPIA).
               </span>
             </label>
-            <label className="flex items-start gap-2 text-sm text-ss-muted">
-              <input
-                type="checkbox"
-                checked={alerts}
-                onChange={(e) => setAlerts(e.target.checked)}
-                className="mt-1 h-4 w-4 shrink-0 accent-[#f5b301]"
+            <fieldset className="space-y-4 rounded-xl border border-ss-border p-3">
+              <legend className="px-1 text-sm font-semibold text-ss-text">Optional: your preferences</legend>
+              <p className="text-xs text-ss-muted">
+                Each choice is separate and optional. Anything you leave unanswered stays &ldquo;not chosen&rdquo;
+                and we will remind you to choose. Nothing is switched on for you. You can change these later on the Preferences page.
+              </p>
+              <YesNo
+                name="tagging"
+                label="May an administrator tag you to employers?"
+                value={tagging}
+                onChange={setTagging}
               />
-              <span>
-                Optional, and off unless you tick it: an administrator may notify me about posts that match the
-                preferred role I typed above. This is separate from the consent above. You can switch it off later
-                on the Security page.
-              </span>
-            </label>
+              <label className="block text-sm text-ss-text">
+                <span className="mb-1 block text-ss-muted">What kind of post would you like to be considered for?</span>
+                <Select value={postType} onChange={(e) => setPostType(e.target.value)}>
+                  <option value="">Choose later</option>
+                  {POST_TYPES.map((p) => (
+                    <option key={p.value} value={p.value}>{p.label}</option>
+                  ))}
+                </Select>
+              </label>
+              <YesNo
+                name="alerts"
+                label="May we send you alerts about posts that match you?"
+                value={alerts}
+                onChange={setAlerts}
+              />
+            </fieldset>
             <Button type="submit" loading={busy} disabled={busy || !consent} glow className="w-full">
               {busy ? "Creating…" : "Create account"}
             </Button>
