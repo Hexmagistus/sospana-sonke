@@ -6,9 +6,11 @@ until its own Search button is pressed, which posts the page's form back with
 all this strategy does: the same anonymous session (cookie kept by the HTTP
 client), the same hidden fields, no login and no CAPTCHA.
 
-PeopleSoft refuses a client whose user agent it does not recognise with an
-"Unsupported Browser" page, so these two requests send a browser-style agent
-that still names the bot.
+These requests go out with the scanner's own honest SospanaSonkeBot user
+agent, like every other source. PeopleSoft may answer an agent it does not
+recognise with an "Unsupported Browser" page; that page has no search form,
+so the scan fails and the employer stays "Not counted yet". The scanner does
+not pretend to be a browser to get past it.
 
 ``N jobs found`` is the board size. If it is missing, or the rows on the page
 do not match it, the scan fails instead of storing a partial count.
@@ -27,7 +29,6 @@ from app.scraper.politeness import request_with_backoff
 SEARCH_PATH = "/psp/hr/EMPLOYEE/HRMS/c/HRS_HRAM_FL.HRS_CG_SEARCH_FL.GBL?FOCUS=Applicant"
 _SEARCH_BUTTON = "HRS_SCH_WRK_FLU_HRS_SEARCH_BTN"
 _KEYWORD_FIELD = "HRS_SCH_WRK_HRS_SCH_TEXT100$0"
-_UA = "Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0 SospanaSonkeBot/0.1"
 
 _FORM = re.compile(r"<form\b[^>]*name=['\"]win0['\"][^>]*>", re.IGNORECASE)
 _ACTION = re.compile(r"""action\s*=\s*["']([^"']+)["']""", re.IGNORECASE)
@@ -125,8 +126,7 @@ class PeopleSoftStrategy(ScrapeStrategy):
             start = source.url
         else:
             start = f"https://{parsed.netloc}{SEARCH_PATH}"
-        headers = {"User-Agent": _UA}
-        resp = request_with_backoff(client, start, headers=headers)
+        resp = request_with_backoff(client, start)
         resp.raise_for_status()
         page_url = str(resp.url)
         if (urlparse(page_url).hostname or "").lower() != host:
@@ -135,7 +135,6 @@ class PeopleSoftStrategy(ScrapeStrategy):
         if (urlparse(action).hostname or "").lower() != host:
             raise ValueError("PeopleSoft form posts to a different host")
         fields.update({"ICAction": _SEARCH_BUTTON, _KEYWORD_FIELD: ""})
-        result = request_with_backoff(client, action, method="POST", headers=headers,
-                                      form_body=fields)
+        result = request_with_backoff(client, action, method="POST", form_body=fields)
         result.raise_for_status()
         return parse_results(result.text, action)

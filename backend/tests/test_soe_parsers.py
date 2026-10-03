@@ -39,8 +39,12 @@ class _Src:
         self.url, self.ats_type, self.config = url, ats_type, config or {}
 
 
+BOT_UA = "SospanaSonkeBot/0.1 (+https://sospanasonke.co.za/bot)"
+
+
 def _client(handler):
-    return httpx.Client(transport=httpx.MockTransport(handler))
+    # The scanner builds its client with the honest bot agent (scan_service).
+    return httpx.Client(transport=httpx.MockTransport(handler), headers={"User-Agent": BOT_UA})
 
 
 # ---- detection --------------------------------------------------------------
@@ -202,7 +206,9 @@ def test_peoplesoft_reads_csir_results():
     form = dict(re.findall(r"([^&=]+)=([^&]*)", post.content.decode()))
     assert form["ICAction"] == "HRS_SCH_WRK_FLU_HRS_SEARCH_BTN"
     assert form["ICSID"] and form["ICStateNum"] == "1"
-    assert "Unsupported" not in post.headers["user-agent"] and "SospanaSonkeBot" in post.headers["user-agent"]
+    # Honest agent only: no browser-style shim on either request.
+    assert all(r.headers["user-agent"] == BOT_UA for r in seen)
+    assert not any("mozilla" in r.headers["user-agent"].lower() for r in seen)
     first = vacs[0]
     assert first.external_id == "315144"
     assert first.location == "Durban (On-site)"
@@ -224,6 +230,20 @@ def test_peoplesoft_count_must_match_rows():
     with _client(_csir_handler("<html><body>Unsupported Browser</body></html>", [])) as c:
         with pytest.raises(ValueError, match="how many"):
             PeopleSoftStrategy().fetch(_Src(CSIR, "peoplesoft", {}), c)
+
+
+def test_peoplesoft_unsupported_browser_page_fails_the_scan():
+    """If the site turns the honest bot away, nothing is counted (card stays 'Not counted yet')."""
+    seen: list[httpx.Request] = []
+
+    def handler(request: httpx.Request):
+        seen.append(request)
+        return httpx.Response(200, text="<html><body>Unsupported Browser</body></html>")
+
+    with _client(handler) as c:
+        with pytest.raises(ValueError, match="no search form"):
+            PeopleSoftStrategy().fetch(_Src(CSIR, "peoplesoft", {}), c)
+    assert len(seen) == 1 and seen[0].headers["user-agent"] == BOT_UA
 
 
 def test_peoplesoft_explicit_zero():
