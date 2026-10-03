@@ -50,6 +50,9 @@ commit it (and push, if you pushed the rest of your work). Newest entry on top.
 
 ## Session Log
 
+### 2026-10-03 — Cursor (Grok 4.7) — CI audits production dependencies
+`npm audit --audit-level=high` failed on `braces` 3.0.3, which is only pulled in by Tailwind's file watcher (a devDependency). 3.0.3 is the latest release and is still inside the advisory, and forcing a fix would install Tailwind 4. The frontend job now audits production dependencies (`npm audit --omit=dev`). That check reports no high vulnerabilities.
+
 ### 2026-10-03 — Cursor (Grok 4.7) — Country picker names South America
 The jump-to-country placeholder still said “Choose a country in Africa, Oceania, Europe…”. It now uses the same coverage line as the rest of the homepage, so it names South America and partner markets.
 
