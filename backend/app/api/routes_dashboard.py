@@ -2,8 +2,10 @@
 import re
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from sqlalchemy.orm import Session
+
+from app.notifications.links import validated_notice_url
 
 from app.core.deps import get_current_user, require_admin
 from app.core.http_cache import private_short_cache
@@ -46,6 +48,14 @@ _TAG = re.compile(r"^[A-Za-z0-9][A-Za-z0-9 \-]{0,39}$")
 
 class TagRequest(BaseModel):
     tag: str = Field(min_length=1, max_length=40)
+    # When the admin pasted a vacancy, careers, or apply URL, the tagged
+    # person gets that link in their notice. Empty means tag only.
+    link_url: str | None = Field(default=None, max_length=2000)
+
+    @field_validator("link_url")
+    @classmethod
+    def _link(cls, value: str | None) -> str | None:
+        return validated_notice_url(value)
 
 
 def _eligible_for_alerts(user: User) -> bool:
@@ -127,10 +137,25 @@ def add_user_tag(user_id: str, body: TagRequest, db: Session = Depends(get_db),
     existing = db.query(UserTag).filter(UserTag.user_id == target.id, UserTag.tag == tag).first()
     if existing is None:
         db.add(UserTag(user_id=target.id, tag=tag, created_by=admin.id))
-    _audit(db, admin.id, "tag", target.id, f"tag={tag}")
+    notice_sent = 0
+    notice_duplicate = 0
+    if body.link_url:
+        from app.services.notification_service import notify_admin_suggestion
+        notice_sent, notice_duplicate = notify_admin_suggestion(
+            db, users=[target], title=tag,
+            body="The Sospana Sonke team tagged you for this opening.",
+            link_url=body.link_url,
+        )
+    _audit(db, admin.id, "tag", target.id,
+           f"tag={tag} link={1 if body.link_url else 0} sent={notice_sent}")
     db.commit()
     tags = [t.tag for t in db.query(UserTag).filter(UserTag.user_id == target.id).all()]
-    return {"user_id": target.id, "tags": tags}
+    return {
+        "user_id": target.id,
+        "tags": tags,
+        "notice_sent": notice_sent,
+        "notice_duplicate": notice_duplicate,
+    }
 
 
 @router.delete("/admin/users/{user_id}/tags/{tag}", dependencies=[Depends(require_admin)])

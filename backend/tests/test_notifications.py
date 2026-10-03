@@ -319,7 +319,131 @@ def test_admin_suggestion_requires_a_target(client, db_engine):
 
 def test_admin_suggestion_rejects_non_http_link(client, db_engine):
     admin = _admin(client, db_engine)
-    resp = client.post("/api/v1/admin/suggestions", headers=_auth(admin), json={
-        "title": "x", "body": "y", "link_url": "javascript:alert(1)", "all_candidates": True,
-    })
-    assert resp.status_code == 422
+    for link in ("javascript:alert(1)", "data:text/html,hi", "https://user:pass@example.com/jobs", "http://"):
+        resp = client.post("/api/v1/admin/suggestions", headers=_auth(admin), json={
+            "title": "x", "body": "y", "link_url": link, "all_candidates": True,
+        })
+        assert resp.status_code == 422, link
+
+
+def test_suggestion_notice_includes_the_link_and_is_not_repeated(client, db_engine, monkeypatch):
+    from sqlalchemy.orm import sessionmaker
+    from app.core.config import settings
+    from app.models.company import Company
+    from app.models.vacancy import Vacancy, VacancySource
+    from app.notifications.email import ConsoleEmailProvider, _html_from_text
+
+    monkeypatch.setattr(settings, "NOTIFY_EMAILS", True)
+    admin = _admin(client, db_engine)
+    reg, tokens = register_and_login(
+        client, email="tagged@example.com",
+        preferred_position="Nurse", notify_opportunity_alerts=True,
+    )
+    quiet, quiet_tokens = register_and_login(
+        client, email="quiet-tag@example.com", preferred_position="Nurse",
+    )
+    now = datetime.now(timezone.utc)
+    session = sessionmaker(bind=db_engine)()
+    try:
+        company = Company(company_name="Acme Logistics", country="South Africa",
+                          careers_url="https://acme.example/careers")
+        session.add(company)
+        session.commit()
+        session.refresh(company)
+        source = VacancySource(company_id=company.id, url=company.careers_url, ats_type="static")
+        session.add(source)
+        session.commit()
+        session.refresh(source)
+        session.add(Vacancy(
+            company_id=company.id, source_id=source.id, title="Ward Nurse",
+            application_url="https://apply.example.com/nurse",
+            content_hash="nurse-hash", is_open=True, first_seen_at=now, last_seen_at=now,
+        ))
+        session.commit()
+    finally:
+        session.close()
+
+    ConsoleEmailProvider.outbox.clear()
+    link = "https://apply.example.com/nurse"
+    payload = {
+        "title": "A ward role",
+        "body": "This matches the post you saved.",
+        "link_url": link,
+        "user_ids": [reg["user"]["id"], quiet["user"]["id"]],
+    }
+    first = client.post("/api/v1/admin/suggestions", headers=_auth(admin), json=payload)
+    assert first.status_code == 200, first.text
+    assert first.json()["sent"] == 1
+    assert first.json()["skipped"] == 1
+    assert first.json()["duplicates"] == 0
+
+    notes = [n for n in client.get("/api/v1/notifications", headers=_auth(tokens)).json()
+             if n["type"] == "admin_suggestion"]
+    assert len(notes) == 1
+    assert notes[0]["link_url"] == link
+    assert notes[0]["email_sent"] is True
+    assert "Tagged by the Sospana Sonke team." in notes[0]["body"]
+    assert "Role: Ward Nurse" in notes[0]["body"]
+    assert "Employer: Acme Logistics" in notes[0]["body"]
+    assert link in notes[0]["body"]
+    assert "Tagged at " in notes[0]["body"]
+    mailed = [m for m in ConsoleEmailProvider.outbox if m["to"] == "tagged@example.com" and link in m["body"]]
+    assert len(mailed) == 1
+    html = _html_from_text(notes[0]["body"])
+    assert f'href="{link}"' in html
+    assert "Open this listing" in html
+    assert "<script>" not in html
+    quiet_notes = [n for n in client.get("/api/v1/notifications", headers=_auth(quiet_tokens)).json()
+                   if n["type"] == "admin_suggestion"]
+    assert quiet_notes == []
+
+    second = client.post("/api/v1/admin/suggestions", headers=_auth(admin), json=payload)
+    assert second.status_code == 200, second.text
+    assert second.json()["sent"] == 0
+    assert second.json()["duplicates"] == 1
+    again = [n for n in client.get("/api/v1/notifications", headers=_auth(tokens)).json()
+             if n["type"] == "admin_suggestion"]
+    assert len(again) == 1
+    assert len([m for m in ConsoleEmailProvider.outbox if m["to"] == "tagged@example.com" and link in m["body"]]) == 1
+
+
+def test_tagging_with_a_link_sends_one_notice(client, db_engine):
+    admin = _admin(client, db_engine)
+    reg, tokens = register_and_login(
+        client, email="tag-link@example.com",
+        preferred_position="Chef", notify_opportunity_alerts=True,
+    )
+    user_id = reg["user"]["id"]
+    blocked = client.post(
+        f"/api/v1/admin/users/{user_id}/tags", headers=_auth(admin),
+        json={"tag": "kitchen", "link_url": "javascript:alert(1)"},
+    )
+    assert blocked.status_code == 422
+    listed = client.get("/api/v1/admin/users", headers=_auth(admin)).json()
+    row = next(r for r in listed if r["id"] == user_id)
+    assert row["tags"] == []
+
+    ok = client.post(
+        f"/api/v1/admin/users/{user_id}/tags", headers=_auth(admin),
+        json={"tag": "kitchen", "link_url": "https://acme.example/careers"},
+    )
+    assert ok.status_code == 200, ok.text
+    assert ok.json()["notice_sent"] == 1
+    assert "kitchen" in ok.json()["tags"]
+    notes = [n for n in client.get("/api/v1/notifications", headers=_auth(tokens)).json()
+             if n["type"] == "admin_suggestion"]
+    assert len(notes) == 1
+    assert notes[0]["link_url"] == "https://acme.example/careers"
+    assert notes[0]["title"] == "kitchen"
+    assert "Tagged by the Sospana Sonke team." in notes[0]["body"]
+
+    repeat = client.post(
+        f"/api/v1/admin/users/{user_id}/tags", headers=_auth(admin),
+        json={"tag": "kitchen", "link_url": "https://acme.example/careers"},
+    )
+    assert repeat.status_code == 200, repeat.text
+    assert repeat.json()["notice_duplicate"] == 1
+    assert repeat.json()["notice_sent"] == 0
+    notes = [n for n in client.get("/api/v1/notifications", headers=_auth(tokens)).json()
+             if n["type"] == "admin_suggestion"]
+    assert len(notes) == 1

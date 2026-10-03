@@ -109,16 +109,20 @@ def send_admin_suggestion(body: AdminSuggestionRequest, db: Session = Depends(ge
                             detail="Provide user_ids or set all_candidates to true.")
     eligible = [u for u in targets if _can_receive_suggestion(u)]
     skipped = len(targets) - len(eligible)
-    sent = notify_admin_suggestion(db, users=eligible, title=body.title, body=body.body,
-                                   link_url=body.link_url) if eligible else 0
+    sent, duplicates = (
+        notify_admin_suggestion(db, users=eligible, title=body.title, body=body.body,
+                                link_url=body.link_url)
+        if eligible else (0, 0)
+    )
     db.add(AdminAuditLog(
         admin_id=admin.id,
         action="notify",
         target_user_id=None,
-        detail=f"sent={sent} skipped={skipped} title_len={len(body.title)}",
+        detail=(f"sent={sent} skipped={skipped} duplicates={duplicates} "
+                f"link={1 if body.link_url else 0} title_len={len(body.title)}"),
     ))
     db.commit()
-    return AdminSuggestionResponse(sent=sent, skipped=skipped)
+    return AdminSuggestionResponse(sent=sent, skipped=skipped, duplicates=duplicates)
 
 
 # ---- admin scheduler ----

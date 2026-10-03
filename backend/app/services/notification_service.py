@@ -250,26 +250,102 @@ def notify_admins(db, *, type: str, title: str, body: str,
     return sent
 
 
-def notify_admin_suggestion(db, *, users: list, title: str, body: str,
-                            link_url: str | None = None) -> int:
-    """Send an admin-curated post/link to a hand-picked (or "all candidates")
-    list of registered users, as a normal dashboard notification.
+def _eligible_for_opportunity_notice(user) -> bool:
+    """POPIA: an active candidate who named a preferred post and opted in."""
+    return bool(
+        getattr(user, "role", None) == "candidate"
+        and getattr(user, "is_active", False)
+        and not getattr(user, "deleted_at", None)
+        and getattr(user, "notify_opportunity_alerts", False)
+        and (getattr(user, "preferred_position", None) or "").strip()
+    )
 
-    No idempotency key -- each admin send is a deliberate one-off action, so
-    unlike the automated notify_* helpers above it's never a re-run of the same
-    trigger that should be suppressed. Email/SMS/push are always off here: this
-    is meant to surface on the candidate's own page (Notifications, and the Nav
-    badge), not to push another outbound message on the admin's behalf.
+
+def _opening_for_link(db, link_url: str | None) -> tuple[str | None, str | None]:
+    """Role title and employer name when this URL is already a stored listing."""
+    if not link_url:
+        return None, None
+    from sqlalchemy import or_
+
+    from app.models.company import Company
+    from app.models.vacancy import Vacancy
+    from app.scraper.urls import canonical_listing_url
+
+    keys = {link_url}
+    canonical = canonical_listing_url(link_url)
+    if canonical:
+        keys.add(canonical)
+    row = (db.query(Vacancy.title, Company.company_name)
+           .join(Company, Company.id == Vacancy.company_id)
+           .filter(Vacancy.deleted_at.is_(None), Company.deleted_at.is_(None))
+           .filter(or_(
+               Vacancy.application_url.in_(keys),
+               Vacancy.source_url.in_(keys),
+               Vacancy.canonical_url.in_(keys),
+           ))
+           .first())
+    if row is not None:
+        return (row[0] or None), (row[1] or None)
+    company = (db.query(Company.company_name)
+               .filter(Company.deleted_at.is_(None), Company.careers_url.in_(keys))
+               .first())
+    if company is not None:
+        return None, company[0]
+    return None, None
+
+
+def _suggestion_body(message: str, link_url: str | None,
+                     role: str | None, employer: str | None) -> str:
+    from datetime import datetime, timezone
+
+    lines = [message.strip(), "", "Tagged by the Sospana Sonke team."]
+    when = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+    lines.append(f"Tagged at {when}.")
+    if role:
+        lines.append(f"Role: {role.strip()}")
+    if employer:
+        lines.append(f"Employer: {employer.strip()}")
+    if link_url:
+        lines.extend(["", link_url])
+    return "\n".join(lines)
+
+
+def notify_admin_suggestion(db, *, users: list, title: str, body: str,
+                            link_url: str | None = None) -> tuple[int, int]:
+    """Notice opted-in candidates about a post or listing.
+
+    Returns ``(sent, duplicates)``. Someone who has not opted in is not
+    counted and is not mailed. The same user and the same link is stored
+    once. Email uses the existing provider and only runs when
+    ``NOTIFY_EMAILS`` is on.
     """
+    from app.notifications.links import validated_notice_url
+
+    safe_link = validated_notice_url(link_url) if link_url else None
+    role, employer = _opening_for_link(db, safe_link)
+    notice_body = _suggestion_body(body, safe_link, role, employer)
+    safe_title = " ".join(title.split())[:200] or "A listing for you"
     sent = 0
+    duplicates = 0
     for user in users:
+        if not _eligible_for_opportunity_notice(user):
+            continue
+        if safe_link:
+            existing = (db.query(Notification)
+                        .filter(Notification.user_id == user.id,
+                                Notification.type == "admin_suggestion",
+                                Notification.link_url == safe_link)
+                        .first())
+            if existing is not None:
+                duplicates += 1
+                continue
         note = create_notification(
             db, user_id=user.id, to_email=user.email, type="admin_suggestion",
-            title=title, body=body, link_url=link_url, send_email=False,
+            title=safe_title, body=notice_body, link_url=safe_link,
         )
         if note is not None:
             sent += 1
-    return sent
+    return sent, duplicates
 
 
 def notify_report_ready(db, *, user, report) -> Notification | None:

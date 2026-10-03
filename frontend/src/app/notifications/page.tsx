@@ -6,6 +6,22 @@ import { api } from "@/lib/api";
 import { Card, Alert, Spinner, Button, Badge, EmptyState } from "@/components/ui";
 import type { Notification } from "@/lib/types";
 
+function listingHref(url: string | null): { href: string; external: boolean } | null {
+  if (!url) return null;
+  const trimmed = url.trim();
+  if (trimmed.startsWith("/") && !trimmed.startsWith("//") && !trimmed.toLowerCase().includes("javascript:")) {
+    return { href: trimmed, external: false };
+  }
+  try {
+    const parsed = new URL(trimmed);
+    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return null;
+    if (parsed.username || parsed.password) return null;
+    return { href: trimmed, external: true };
+  } catch {
+    return null;
+  }
+}
+
 function NotificationsInner() {
   const [notes, setNotes] = useState<Notification[]>([]);
   const [err, setErr] = useState("");
@@ -46,7 +62,9 @@ function NotificationsInner() {
         />
       ) : (
         <div className="space-y-2">
-          {notes.map((n) => (
+          {notes.map((n) => {
+            const listing = listingHref(n.link_url);
+            return (
             <Card key={n.id} className={n.is_read ? "opacity-60" : ""}>
               <div className="flex items-start justify-between gap-3">
                 <div>
@@ -54,18 +72,24 @@ function NotificationsInner() {
                     <span className="font-medium text-ss-text">{n.title}</span>
                     <Badge>{n.type}</Badge>
                   </div>
-                  <p className="mt-1 text-sm text-ss-muted">{n.body}</p>
-                  {n.link_url && (
+                  <p className="mt-1 whitespace-pre-wrap text-sm text-ss-muted">{n.body}</p>
+                  {n.type === "admin_suggestion" && (
+                    <p className="mt-2 text-xs font-semibold text-ss-text">Tagged by the Sospana Sonke team</p>
+                  )}
+                  <p className="mt-1 text-xs text-ss-muted">
+                    {n.type === "admin_suggestion" ? "Tagged " : ""}
+                    {new Date(n.created_at).toLocaleString()}
+                  </p>
+                  {listing && (
                     <a
-                      href={n.link_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="mt-1 inline-block text-xs font-semibold text-brand hover:underline"
+                      href={listing.href}
+                      target={listing.external ? "_blank" : undefined}
+                      rel={listing.external ? "noopener noreferrer" : undefined}
+                      className="mt-3 inline-block rounded-lg bg-gradient-to-br from-[#163e73] to-[#0b1f3a] px-4 py-2 text-sm font-semibold text-white ring-1 ring-[#f5b301]/45"
                     >
-                      Open →
+                      Open this listing
                     </a>
                   )}
-                  <p className="mt-1 text-xs text-ss-muted">{new Date(n.created_at).toLocaleString()}</p>
                 </div>
                 {!n.is_read && (
                   <button onClick={() => markRead(n.id)} className="text-xs text-brand hover:underline">
@@ -74,7 +98,8 @@ function NotificationsInner() {
                 )}
               </div>
             </Card>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

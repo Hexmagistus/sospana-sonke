@@ -2,6 +2,8 @@
 from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
+from app.notifications.links import validated_notice_url
+
 
 class NotificationResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -35,16 +37,14 @@ class AdminSuggestionRequest(BaseModel):
     @field_validator("link_url")
     @classmethod
     def _http_or_none(cls, v: str | None) -> str | None:
-        if v is None or v == "":
-            return None
-        if not (v.startswith("http://") or v.startswith("https://")):
-            raise ValueError("link_url must start with http:// or https://")
-        return v
+        return validated_notice_url(v)
 
 
 class AdminSuggestionResponse(BaseModel):
     sent: int
     skipped: int = 0
+    # Same person and the same link already had a notice. Nothing new was stored or mailed.
+    duplicates: int = 0
 
 
 class UnreadCountResponse(BaseModel):

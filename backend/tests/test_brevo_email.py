@@ -242,7 +242,7 @@ def test_strong_match_and_briefing_use_brevo_after_commit(db, monkeypatch):
 
 
 def test_opted_out_admin_suggestion_does_not_email(db, monkeypatch):
-    """POPIA: suggestions already require the opt-in, and they never email."""
+    """POPIA: no in-app notice and no email when opportunity alerts are off."""
     _enable_brevo(monkeypatch)
     monkeypatch.setattr(settings, "NOTIFY_EMAILS", True)
     calls = _capture_posts(monkeypatch, [(201, "{}")])
@@ -251,13 +251,62 @@ def test_opted_out_admin_suggestion_does_not_email(db, monkeypatch):
         password_hash=security.hash_password("Password123!"),
         first_name="Out",
         last_name="User",
+        preferred_position="Nurse",
         notify_opportunity_alerts=False,
     )
     db.add(opted_out)
     db.commit()
-    sent = notify_admin_suggestion(db, users=[opted_out], title="A post", body="Look here")
-    assert sent == 1
+    sent, duplicates = notify_admin_suggestion(
+        db, users=[opted_out], title="A post", body="Look here",
+        link_url="https://apply.example.com/nurse",
+    )
+    assert (sent, duplicates) == (0, 0)
     assert calls == []
+
+
+def test_email_html_button_rejects_a_javascript_line():
+    from app.notifications.email import _html_from_text
+    html = _html_from_text("javascript:alert(1)\nhttps://jobs.example/apply")
+    assert html.count("<a ") == 1
+    assert 'href="https://jobs.example/apply"' in html
+    assert 'href="javascript:' not in html.lower()
+
+
+def test_opted_in_suggestion_emails_the_link_once(db, monkeypatch):
+    _enable_brevo(monkeypatch)
+    monkeypatch.setattr(settings, "NOTIFY_EMAILS", True)
+    calls = _capture_posts(monkeypatch, [(201, "{}"), (201, "{}")])
+    user = User(
+        email="in@example.com",
+        password_hash=security.hash_password("Password123!"),
+        first_name="In",
+        last_name="User",
+        preferred_position="Nurse",
+        notify_opportunity_alerts=True,
+    )
+    db.add(user)
+    db.commit()
+    sent, duplicates = notify_admin_suggestion(
+        db, users=[user], title="Ward clerk",
+        body="Please look. <script>alert(1)</script>",
+        link_url="https://apply.example.com/nurse",
+    )
+    assert (sent, duplicates) == (1, 0)
+    assert len(calls) == 1
+    text = calls[0]["payload"]["textContent"]
+    html_body = calls[0]["payload"]["htmlContent"]
+    assert "https://apply.example.com/nurse" in text
+    assert "Tagged by the Sospana Sonke team." in text
+    assert 'href="https://apply.example.com/nurse"' in html_body
+    assert "Open this listing" in html_body
+    assert "<script>" not in html_body
+    assert "&lt;script&gt;" in html_body
+    again, dup_again = notify_admin_suggestion(
+        db, users=[user], title="Ward clerk", body="Please look again.",
+        link_url="https://apply.example.com/nurse",
+    )
+    assert (again, dup_again) == (0, 1)
+    assert len(calls) == 1
 
 
 def test_password_reset_uses_brevo_with_no_open_transaction(client, db_engine, monkeypatch):

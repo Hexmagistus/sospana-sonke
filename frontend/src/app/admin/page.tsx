@@ -338,17 +338,22 @@ function AdminInner() {
     }
     setSuggestBusy(true);
     try {
-      const res = await api.post<{ sent: number; skipped: number }>("/admin/suggestions", {
+      const res = await api.post<{ sent: number; skipped: number; duplicates?: number }>("/admin/suggestions", {
         title: suggestTitle.trim(),
         body: suggestBody.trim(),
         link_url: suggestLink.trim() || undefined,
         all_candidates: allCandidates,
         user_ids: allCandidates ? [] : Array.from(selected),
       });
-      setSuggestMsg(
-        `Sent to ${res.sent} opted-in candidate${res.sent === 1 ? "" : "s"}` +
-        (res.skipped ? `. Skipped ${res.skipped} who did not opt in or have no preferred post.` : ".")
-      );
+      const duplicates = res.duplicates || 0;
+      const parts = [`Sent to ${res.sent} opted-in candidate${res.sent === 1 ? "" : "s"}.`];
+      if (res.skipped) {
+        parts.push(`Skipped ${res.skipped} who did not opt in or have no preferred post.`);
+      }
+      if (duplicates) {
+        parts.push(`${duplicates} already had a notice for this link.`);
+      }
+      setSuggestMsg(parts.join(" "));
       setSuggestTitle(""); setSuggestBody(""); setSuggestLink(""); setSelected(new Set());
     } catch (e) {
       setSuggestErr(e instanceof Error ? e.message : "Failed to send.");
@@ -420,8 +425,9 @@ function AdminInner() {
         <h2 className="mb-1 font-semibold">Suggest a post or link</h2>
         <p className="mb-3 text-sm text-ss-muted">
           Alert people who saved a preferred post and opted in to opportunity alerts. Anyone else is
-          skipped, on purpose. It shows up as a notification. The action is written to the audit log
-          without copying their email into that log.
+          skipped, on purpose. A pasted vacancy, careers, or apply link is included in their
+          notification and, when mail is on, in the email. The same person is not notified twice
+          for the same link. The audit log records the counts, not their email address.
         </p>
         {suggestErr && <Alert kind="error">{suggestErr}</Alert>}
         {suggestMsg && <Alert kind="success">{suggestMsg}</Alert>}
@@ -516,10 +522,25 @@ function AdminInner() {
                             e.preventDefault();
                             const tag = (tagDraft[u.id] || "").trim();
                             if (!tag) return;
+                            const link = suggestLink.trim();
                             try {
-                              const res = await api.post<{ tags: string[] }>(`/admin/users/${u.id}/tags`, { tag });
+                              const res = await api.post<{
+                                tags: string[];
+                                notice_sent?: number;
+                                notice_duplicate?: number;
+                              }>(`/admin/users/${u.id}/tags`, {
+                                tag,
+                                link_url: link || undefined,
+                              });
                               setUsers((prev) => prev.map((row) => row.id === u.id ? { ...row, tags: res.tags } : row));
                               setTagDraft((d) => ({ ...d, [u.id]: "" }));
+                              if (link && res.notice_sent) {
+                                setSuggestErr("");
+                                setSuggestMsg("Tagged. They have a notice with that link.");
+                              } else if (link && res.notice_duplicate) {
+                                setSuggestErr("");
+                                setSuggestMsg("Tagged. They already had a notice for this link.");
+                              }
                             } catch (ex) {
                               setSuggestErr(ex instanceof Error ? ex.message : "Could not tag");
                             }
