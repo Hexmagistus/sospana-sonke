@@ -23,9 +23,9 @@ from app.core.config import settings
 from app.models.company import Company
 from app.models.scan_log import ScanLog
 from app.models.vacancy import VacancySource, Vacancy, VacancyRequirement
-from app.scraper.base import detect_ats, get_strategy
+from app.scraper.adapter import adapter_for
+from app.scraper.base import detect_ats
 from app.scraper.errors import classify_fetch_error, http_status_of
-from app.scraper.normalise import prepare_listing
 from app.scraper.static_html import BotChallengeError
 from app.scraper.ssrf import SsrfBlocked, assert_safe_fetch_url
 from app.services.trust_service import scan_for_trust_flags
@@ -156,8 +156,9 @@ def scan_source(db: Session, source: VacancySource, client: httpx.Client | None 
 
         try:
             assert_safe_fetch_url(source.url)
-            strategy = get_strategy(source.ats_type)
-            raw_list = strategy.fetch(source, client)
+            adapter = adapter_for(source.ats_type)
+            source.parser_used = adapter.name
+            raw_list = adapter.discover(source, client)
         except BotChallengeError:
             # A WAF challenge is not an empty board and not a dead link.
             # Leave the failure streak alone so the URL is not marked broken.
@@ -179,12 +180,15 @@ def scan_source(db: Session, source: VacancySource, client: httpx.Client | None 
         company_country = company.country if company else None
         seen_ids: set[str] = set()
         for raw in raw_list:
+            raw = adapter.extract(raw)
             if not raw.title:
                 continue
-            fields = prepare_listing(
+            fields = adapter.normalize(
                 raw, company_id=source.company_id, company_name=company_name,
                 company_country=company_country, source_url=source.url,
             )
+            if "title" in adapter.validate(fields):
+                continue
             existing = _find_existing(db, source, fields)
             if existing:
                 was_open = existing.is_open

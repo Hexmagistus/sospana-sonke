@@ -44,18 +44,26 @@ _FAST_ATS_MARKERS = ("greenhouse.io", "lever.co", "smartrecruiters.com",
                      "pinpointhq.com")
 
 
-def due_after_hours(url: str | None, consecutive_failures: int) -> float:
+def due_after_hours(url: str | None, consecutive_failures: int,
+                    empty_streak: int = 0) -> float:
     """How long to wait before scanning this company again.
 
     Failures back off. A healthy public JSON board is due after an hour;
-    a healthy HTML page waits six, because those fetches are slower and
-    usually return nothing.
+    a healthy HTML page waits six. A board that keeps returning no roles
+    waits longer: 12 hours, then a day, then a week. That cuts traffic to
+    careers pages that are consistently empty.
     """
     if consecutive_failures > 0:
         return backoff_hours(consecutive_failures)
-    if _is_fast_ats(url):
-        return FAST_RESCAN_HOURS
-    return MIN_RESCAN_HOURS
+    base = FAST_RESCAN_HOURS if _is_fast_ats(url) else MIN_RESCAN_HOURS
+    streak = empty_streak or 0
+    if streak >= 8:
+        return max(base, 24.0 * 7)
+    if streak >= 3:
+        return max(base, 24.0)
+    if streak >= 1:
+        return max(base, 12.0)
+    return base
 
 
 def backoff_hours(consecutive_failures: int) -> float:
@@ -91,15 +99,20 @@ def select_due_company_ids(db: Session, limit: int, now: datetime | None = None)
               .all())
     ids = [c.id for c in window]
     fails: dict[str, int] = {}
+    streaks: dict[str, int] = {}
     if ids:
-        for cid, n in (db.query(VacancySource.company_id, VacancySource.consecutive_failures)
-                       .filter(VacancySource.company_id.in_(ids)).all()):
+        for cid, n, streak in (
+            db.query(VacancySource.company_id, VacancySource.consecutive_failures,
+                     VacancySource.empty_streak)
+            .filter(VacancySource.company_id.in_(ids)).all()
+        ):
             fails[cid] = max(fails.get(cid, 0), n or 0)
+            streaks[cid] = max(streaks.get(cid, 0), streak or 0)
 
     due: list[Company] = []
     for c in window:
         last = _aware(c.last_checked)
-        gap = due_after_hours(c.careers_url, fails.get(c.id, 0))
+        gap = due_after_hours(c.careers_url, fails.get(c.id, 0), streaks.get(c.id, 0))
         if last is None or now - last >= timedelta(hours=gap):
             due.append(c)
 
