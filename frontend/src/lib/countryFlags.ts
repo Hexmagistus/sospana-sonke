@@ -91,4 +91,10 @@ export const COUNTRY_FLAGS: Record<string, string> = {
   "Austria": "🇦🇹",
   "Luxembourg": "🇱🇺",
   "Lithuania": "🇱🇹",
+  "United States": "🇺🇸",
+  "Canada": "🇨🇦",
+  "Mexico": "🇲🇽",
+  "Chile": "🇨🇱",
+  "Colombia": "🇨🇴",
+  "Argentina": "🇦🇷",
 };
