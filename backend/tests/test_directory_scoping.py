@@ -65,6 +65,42 @@ def test_facets_counts_without_rows(client, db_engine):
     assert f["type_counts"]["SOE"] + f["type_counts"]["PRIVATE"] == 8
 
 
+def test_facets_type_counts_per_country_match_the_list(client, db_engine):
+    """A chip shows what the list shows once a country is chosen."""
+    from sqlalchemy.orm import sessionmaker
+    from app.models.company import Company
+    db = sessionmaker(bind=db_engine)()
+    rows = [
+        ("South Africa", "UNI", "https://uni.example/careers"),
+        ("South Africa", "UNI", None),
+        ("South Africa", "COLLEGE", "https://tvet.example/jobs"),
+        ("Kenya", "UNI", "https://ke.example/jobs"),
+        ("Kenya", "UNI", "https://ke2.example/jobs"),
+        ("Kenya", "UNI", ""),
+    ]
+    for i, (country, st, url) in enumerate(rows):
+        db.add(Company(id=str(uuid.uuid4()), company_name=f"{country} {st} {i}", country=country,
+                       source_type=st, active=True, careers_url=url))
+    deleted = Company(id=str(uuid.uuid4()), company_name="Gone", country="South Africa",
+                      source_type="UNI", active=True, careers_url="https://gone.example")
+    from datetime import datetime, timezone
+    deleted.deleted_at = datetime.now(timezone.utc)
+    db.add(deleted)
+    db.commit(); db.close()
+    h = _h(client)
+    f = client.get("/api/v1/companies/facets", headers=h).json()
+    # Worldwide totals stay as they were.
+    assert f["type_counts"] == {"UNI": 5, "COLLEGE": 1}
+    # Per country: deleted rows are left out, and so are empty link strings.
+    assert f["country_type_counts"]["South Africa"] == {"UNI": 2, "COLLEGE": 1}
+    assert f["country_type_counts"]["Kenya"] == {"UNI": 3}
+    assert f["country_type_with_links"]["South Africa"] == {"UNI": 1, "COLLEGE": 1}
+    assert f["country_type_with_links"]["Kenya"] == {"UNI": 2}
+    # The chip number equals the rows the list returns for that country and type.
+    listed = client.get("/api/v1/companies?country=South Africa&source_type=UNI&limit=1500", headers=h).json()
+    assert len(listed) == f["country_type_counts"]["South Africa"]["UNI"]
+
+
 def test_surprise_returns_one_with_link(client, db_engine):
     _seed(db_engine)
     c = client.get("/api/v1/companies/surprise", headers=_h(client)).json()

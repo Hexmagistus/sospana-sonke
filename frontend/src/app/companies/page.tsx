@@ -22,6 +22,8 @@ import {
   DIRECTORY_GUIDE_STEPS,
   FILTER_TO_TYPE,
   type DirectoryFilter,
+  categoryChipCount,
+  categoryChipLinked,
   countryAfterFilterChange,
   countryFromDirectoryLink,
   readStoredCountry,
@@ -117,6 +119,8 @@ type Facets = {
   country_counts: Record<string, number>;
   country_with_links: Record<string, number>;
   type_counts: Record<string, number>;
+  country_type_counts?: Record<string, Record<string, number>>;
+  country_type_with_links?: Record<string, Record<string, number>>;
 };
 
 function CompaniesDirectoryInner() {
@@ -469,10 +473,11 @@ function CompaniesDirectoryInner() {
             {DIRECTORY_FILTERS.map((f) => {
               const active = filter === f;
               const st = FILTER_TO_TYPE[f];
-              const count = st ? (facets.type_counts?.[st] ?? 0) : null;
+              const count = st ? categoryChipCount(facets, country, st) : null;
               return (
                 <button
                   key={f}
+                  title={st && country ? `${count} in ${country}, ${categoryChipLinked(facets, country, st)} with a careers link` : undefined}
                   onClick={() => selectFilter(f)}
                   className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-semibold transition ${
                     active ? "bg-gradient-to-r from-brand to-brand-dark text-white shadow-sm" : "bg-ss-border text-ss-muted hover:bg-ss-primary-soft hover:text-ss-text"
