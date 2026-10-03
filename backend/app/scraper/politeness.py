@@ -122,7 +122,9 @@ def is_aws_waf_challenge(status_code: int | None, body: str) -> bool:
 
 def request_with_backoff(client: httpx.Client, url: str, retries: int = 3,
                          base_delay: float = 0.5, sleep=time.sleep,
-                         method: str = "GET", json_body: dict | None = None) -> httpx.Response:
+                         method: str = "GET", json_body: dict | None = None,
+                         headers: dict | None = None,
+                         form_body: dict | None = None) -> httpx.Response:
     """GET (or POST) with exponential backoff on transient (5xx / 429 / network) errors.
 
     A 429 is a server explicitly asking us to slow down, not a permanent
@@ -136,7 +138,8 @@ def request_with_backoff(client: httpx.Client, url: str, retries: int = 3,
     for attempt in range(retries):
         try:
             assert_safe_fetch_url(url)
-            resp = _fetch_limited(client, url, method=method, json_body=json_body)
+            resp = _fetch_limited(client, url, method=method, json_body=json_body,
+                                  headers=headers, form_body=form_body)
             if resp.status_code == 429 or resp.status_code >= 500:
                 raise httpx.HTTPStatusError("retryable status", request=resp.request, response=resp)
             return resp
@@ -153,14 +156,24 @@ def request_with_backoff(client: httpx.Client, url: str, retries: int = 3,
 
 
 def _fetch_limited(client: httpx.Client, url: str, *, method: str,
-                   json_body: dict | None) -> httpx.Response:
-    """GET/POST without letting the client follow a redirect we have not checked."""
+                   json_body: dict | None, headers: dict | None = None,
+                   form_body: dict | None = None) -> httpx.Response:
+    """GET/POST without letting the client follow a redirect we have not checked.
+
+    ``headers`` are sent on the request only (the client's own headers stay
+    as they are). ``form_body`` posts a urlencoded form instead of JSON.
+    """
     current = url
     for _hop in range(_MAX_REDIRECTS + 1):
         if method.upper() == "POST":
-            resp = client.post(current, json=json_body or {}, follow_redirects=False)
+            if form_body is not None:
+                resp = client.post(current, data=form_body, headers=headers,
+                                   follow_redirects=False)
+            else:
+                resp = client.post(current, json=json_body or {}, headers=headers,
+                                   follow_redirects=False)
         else:
-            resp = client.get(current, follow_redirects=False)
+            resp = client.get(current, headers=headers, follow_redirects=False)
         if resp.status_code not in _REDIRECTS:
             _reject_oversized_or_binary(resp)
             return resp
@@ -171,6 +184,7 @@ def _fetch_limited(client: httpx.Client, url: str, *, method: str,
         assert_safe_fetch_url(current)
         method = "GET"
         json_body = None
+        form_body = None
     raise ValueError("too many redirects")
 
 

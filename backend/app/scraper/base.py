@@ -102,6 +102,23 @@ def detect_ats(url: str) -> tuple[str, dict]:
     # inside an unrelated name must not match.
     if host == "ci.hr" or host.endswith(".ci.hr"):
         return "cihr", {"host": host}
+    # Cornerstone OnDemand career sites ({corp}.csod.com/ux/ats/careersite/{id}).
+    if host.endswith(".csod.com"):
+        from app.scraper.cornerstone import career_site_ref
+        csod_host, site_id = career_site_ref(url)
+        if csod_host and site_id:
+            return "cornerstone", {"host": csod_host, "career_site_id": site_id}
+    # MCI Direct Hire ({tenant}.mcidirecthire.com). jobs.mcidirecthire.com is
+    # the separate "Job Central" product and stays on the static path.
+    if host.endswith(".mcidirecthire.com") and host != "jobs.mcidirecthire.com":
+        return "mci", {"host": host}
+    # simplify.hr company career sites ({company}.simplify.hr).
+    if host.endswith(".simplify.hr") and host != "www.simplify.hr":
+        return "simplify", {"host": host}
+    # PeopleSoft HCM "Careers" guest search (candidate.csir.co.za).
+    from app.scraper.peoplesoft import is_peoplesoft_careers
+    if is_peoplesoft_careers(url):
+        return "peoplesoft", {"host": host}
     # Still need a browser: SuccessFactors, Taleo, Jobvite, generic Workday
     # hosts that aren't the public candidate site. Render's free plan cannot
     # run Chromium, so these stay empty unless JS_RENDER_ENABLED is on.
@@ -167,6 +184,10 @@ def get_strategy(ats_type: str) -> ScrapeStrategy:
     from app.scraper.breezy import BreezyStrategy
     from app.scraper.pinpoint import PinpointStrategy
     from app.scraper.cihr import CihrStrategy
+    from app.scraper.cornerstone import CornerstoneStrategy
+    from app.scraper.mci import MciStrategy
+    from app.scraper.peoplesoft import PeopleSoftStrategy
+    from app.scraper.simplify import SimplifyStrategy
     from app.scraper.static_html import StaticHTMLStrategy
     from app.scraper.rendered_html import RenderedHTMLStrategy
     return {
@@ -180,6 +201,10 @@ def get_strategy(ats_type: str) -> ScrapeStrategy:
         "breezy": BreezyStrategy(),
         "pinpoint": PinpointStrategy(),
         "cihr": CihrStrategy(),
+        "cornerstone": CornerstoneStrategy(),
+        "mci": MciStrategy(),
+        "peoplesoft": PeopleSoftStrategy(),
+        "simplify": SimplifyStrategy(),
         "static": StaticHTMLStrategy(),
         "js": RenderedHTMLStrategy(),
     }.get(ats_type, StaticHTMLStrategy())

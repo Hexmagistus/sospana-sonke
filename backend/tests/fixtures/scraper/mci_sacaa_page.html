@@ -1,0 +1,102 @@
+<html><body>
+<form action="/External/Search1?JobBoard=default" data-ajax="true" data-ajax-method="Post" enctype="multipart/form-data" id="ExternalJobSearchForm" method="post"><input id="HiddenQuerystring" name="HiddenQuerystring" type="hidden" value="TEkBhDYErs0qhHgueWeCgt_yRI-cnPLR1MRk1RR6CprzB-U-2v9zdrDRc_O8UHXm" />                                        <div class="row">
+                                            <!-- Reference Number -->
+                                            <div class="col-lg-2 col-md-2 col-sm-6 col-xs-12 spacing">
+                                                <label>Ref #</label>
+                                            </div>
+                                            <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 spacing">
+                                                <div class="input-group">
+                                                    <span class="input-group-addon">
+                                                        <i class="fa fa-hashtag input-icon"></i>
+                                                    </span>
+                                                    <input class="form-control search-control Secure" id="ReferenceNumber" name="ReferenceNumber" placeholder="Reference Number" type="text" value="" />
+                                                </div>
+                                            </div>
+
+                                            <!-- Job Title -->
+                                            <div class="col-lg-2 col-md-2 col-sm-6 col-xs-12 spacing">
+                                                <label>Title</label>
+                                            </div>
+                                            <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 spacing">
+                                                <div class="input-group">
+                                                    <span class="input-group-addon">
+                                                        <i class="fa fa-quote-right input-icon"></i>
+                                                    </span>
+                                                    <input class="form-control search-control Secure" id="Title" name="Title" placeholder="Title" type="text" value="" />
+                                                </div>
+                                            </div>
+
+                                            <!-- job Type -->
+                                            <div class="col-lg-2 col-md-2 col-sm-6 col-xs-12 spacing">
+                                                <label>Job Type</label>
+                                            </div>
+                                            <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 spacing">
+                                                <div class="input-group">
+                                                    <span class="input-group-addon">
+                                                        <i class="fa fa-briefcase input-icon"></i>
+                                                    </span>
+                                                    <select class="form-control search-control select2" data-val="true" data-val-number="The field JobTypeId must be a number." id="JobTypeId" name="JobTypeId"><option value="">Select Job Type</option>
+<option value="2">Contract</option>
+<option value="3">Permanent</option>
+<option value="1">Temp</option>
+</select>
+                                                </div>
+                                            </div>
+
+                                            <!-- Work Level -->
+                                            <div class="col-lg-2 col-md-2 col-sm-6 col-xs-12 spacing">
+                                                <label>Work Level</label>
+                                            </div>
+                                            <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 spacing">
+                                                <div class="input-group">
+                                                    <span class="input-group-addon">
+                                                        <i class="fa fa-sitemap input-icon"></i>
+                                                    </span>
+                                                    <select class="form-control search-control select2" data-val="true" data-val-number="The field WorkLevelId must be a number." id="WorkLevelId" name="WorkLevelId"><option value="">Select Work Level</option>
+<option value="1">Student/Graduate</option>
+<option value="2">Junior</option>
+<option value="3">Skilled</option>
+<option value="4">Mid-Level</option>
+<option value="5">Senior</option>
+<option value="6">Management</option>
+<option value="7">Junior Management</option>
+<option value="8">Middle Management</option>
+<option value="9">Senior Management</option>
+<option value="10">Executive</option>
+</select>
+                                                </div>
+                                            </div>
+
+                                            <!-- Locations -->
+                                            <div class="col-lg-2 col-md-2 col-sm-6 col-xs-12 spacing">
+                                                <label>Location</label>
+                                            </div>
+                                            <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 spacing">
+                                                <div class="input-group">
+                                                    <span class="input-group-addon">
+                                                        <i class="fa fa-map-pin input-icon"></i>
+                                                    </span>
+                                                    <select class="form-control search-control select2" data-val="true" data-val-number="The field LocationId must be a number." id="LocationId" name="LocationId"><option value="">Select Location</option>
+<option value="16">Centurion</option>
+<option value="3">Gauteng</option>
+</select>
+                                                </div>
+                                            </div>
+
+                                            <input id="JobBoard" name="JobBoard" type="hidden" value="default" />
+                                            <input data-val="true" data-val-number="The field JobBoardId must be a number." data-val-required="The JobBoardId field is required." id="JobBoardId" name="JobBoardId" type="hidden" value="0" />
+                                            <input id="CompanyName" name="CompanyName" type="hidden" value="sacaa" />
+                                            <input id="AddThisId" name="AddThisId" type="hidden" value="" />
+
+                                            <input id="Region" name="Region" type="hidden" value="" />
+                                            <input id="Category" name="Category" type="hidden" value="" />
+                                            <input id="NotInCategory" name="NotInCategory" type="hidden" value="" />
+
+                                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 spacing" style="text-align:right;">
+                                                <input id="btnFilterClear" type="button" class="btn btn-dh job-container-button" value="Clear" />
+                                                <input id="btnSearch" type="submit" class="btn btn-dh job-container-button" value="Search" />
+                                            </div>
+                                        </div>
+</form>
+<div id="JobSearchResultsContainer"></div>
+</body></html>
