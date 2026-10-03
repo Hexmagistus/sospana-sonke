@@ -8,7 +8,8 @@ from sqlalchemy.orm import sessionmaker
 from app.models.company import Company
 from app.models.vacancy import VacancySource
 from app.services.scan_runner import (
-    backoff_hours, scan_due_parallel, select_due_company_ids, MIN_RESCAN_HOURS,
+    FAST_RESCAN_HOURS, backoff_hours, due_after_hours, scan_due_parallel,
+    select_due_company_ids, MIN_RESCAN_HOURS,
 )
 from app.services.scan_service import ScanReport
 
@@ -57,6 +58,11 @@ def test_fast_json_boards_are_due_again_after_an_hour(db):
     ids = select_due_company_ids(db, limit=10, now=NOW)
     assert board.id in ids
     assert html.id not in ids
+
+
+def test_cihr_boards_rescan_hourly():
+    url = "https://atns.ci.hr/applicant/index.php?controller=Page&name=jobsearch"
+    assert due_after_hours(url, 0, 0) == FAST_RESCAN_HOURS
 
 
 def test_empty_boards_are_scanned_less_often(db):

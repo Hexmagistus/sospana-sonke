@@ -41,7 +41,7 @@ BACKOFF_CAP_HOURS = 24.0 * 7    # a persistently failing source is retried weekl
 _FAST_ATS_MARKERS = ("greenhouse.io", "lever.co", "smartrecruiters.com",
                      "recruitee.com", "workable.com", "myworkdayjobs.com",
                      "myworkdaysite.com", "oraclecloud.com", "breezy.hr",
-                     "pinpointhq.com")
+                     "pinpointhq.com", "ci.hr")
 
 
 def due_after_hours(url: str | None, consecutive_failures: int,

@@ -33,6 +33,10 @@ class CompanyResponse(BaseModel):
     # Open vacancies we currently hold for this employer. Filled by one grouped
     # query on the list, not by the ORM. 0 means we hold none, not an estimate.
     open_vacancies: int = 0
+    # False when we have never successfully parsed this board. The card must
+    # say "Not counted yet" rather than "0 vacancies found". True when a
+    # structured parser finished (including a real empty list) or we hold rows.
+    open_vacancies_known: bool = False
 
 
 class CompanyImportResult(BaseModel):

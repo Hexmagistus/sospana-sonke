@@ -55,11 +55,16 @@ export function VerifiedBadge({ company }: { company: Company }) {
 }
 
 /** How many open vacancies we hold for an employer with a careers link.
- * The number comes from the companies payload. Zero is shown. Employers
- * without a direct link get nothing here. */
+ * Zero is shown only after a structured parse finished and found nothing.
+ * Until then the card says "Not counted yet", including when a link check
+ * has a time but no vacancy parse has succeeded. */
 export function OpenVacancyCount({ company }: { company: Company }) {
   if (!company.careers_url) return null;
   const n = company.open_vacancies ?? 0;
+  const known = company.open_vacancies_known === true || n > 0;
+  if (!known) {
+    return <span className="text-xs font-medium text-ss-muted">Not counted yet</span>;
+  }
   const label = n === 0
     ? "0 vacancies found"
     : n === 1

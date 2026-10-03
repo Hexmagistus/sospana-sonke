@@ -98,6 +98,10 @@ def detect_ats(url: str) -> tuple[str, dict]:
         return "breezy", {"token": host.split(".")[0]}
     if host.endswith(".pinpointhq.com"):
         return "pinpoint", {"host": host}
+    # CareerInHR boards. The host is the tenant (atns.ci.hr). A substring
+    # inside an unrelated name must not match.
+    if host == "ci.hr" or host.endswith(".ci.hr"):
+        return "cihr", {"host": host}
     # Still need a browser: SuccessFactors, Taleo, Jobvite, generic Workday
     # hosts that aren't the public candidate site. Render's free plan cannot
     # run Chromium, so these stay empty unless JS_RENDER_ENABLED is on.
@@ -162,6 +166,7 @@ def get_strategy(ats_type: str) -> ScrapeStrategy:
     from app.scraper.oracle_ce import OracleCEStrategy
     from app.scraper.breezy import BreezyStrategy
     from app.scraper.pinpoint import PinpointStrategy
+    from app.scraper.cihr import CihrStrategy
     from app.scraper.static_html import StaticHTMLStrategy
     from app.scraper.rendered_html import RenderedHTMLStrategy
     return {
@@ -174,6 +179,7 @@ def get_strategy(ats_type: str) -> ScrapeStrategy:
         "oracle": OracleCEStrategy(),
         "breezy": BreezyStrategy(),
         "pinpoint": PinpointStrategy(),
+        "cihr": CihrStrategy(),
         "static": StaticHTMLStrategy(),
         "js": RenderedHTMLStrategy(),
     }.get(ats_type, StaticHTMLStrategy())

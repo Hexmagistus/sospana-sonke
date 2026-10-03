@@ -4,8 +4,12 @@ from pathlib import Path
 
 import httpx
 
-from app.scraper.base import detect_ats, html_to_text
+from datetime import date
+
+from app.scraper.base import detect_ats, get_strategy, html_to_text
 from app.scraper.breezy import BreezyStrategy
+from app.scraper.cihr import CihrStrategy
+from app.scraper.extract import normalize_date
 from app.scraper.greenhouse import GreenhouseStrategy
 from app.scraper.lever import LeverStrategy
 from app.scraper.oracle_ce import OracleCEStrategy
@@ -60,6 +64,12 @@ def test_detect_ats():
     assert detect_ats("https://isuzu.breezy.hr/")[0] == "breezy"
     assert detect_ats("https://kempinski.pinpointhq.com/postings")[0] == "pinpoint"
     assert detect_ats("https://career5.successfactors.eu/careers")[0] == "js"
+    assert detect_ats("https://atns.ci.hr/applicant/index.php?controller=Page&name=jobsearch")[0] == "cihr"
+    assert detect_ats("https://astral.ci.hr/index.php?controller=Page&name=jobsearch")[1]["host"] == "astral.ci.hr"
+    assert detect_ats("https://nefcareers.ci.hr/?controller=Page&name=jobsearch")[0] == "cihr"
+    assert detect_ats("https://assmang.ci.hr")[0] == "cihr"
+    assert detect_ats("https://careers.unilever.com/ci.hr")[0] == "static"
+    assert get_strategy("cihr").ats_type == "cihr"
 
 
 def test_html_to_text_preserves_bullets():
@@ -291,6 +301,181 @@ def test_smartrecruiters_reads_saved_page():
     assert vacs[0].location == "Pretoria, South Africa"
     bosch = detect_ats("https://careers.smartrecruiters.com/BoschGroup/south-africa")
     assert bosch[1]["token"] == "BoschGroup" and bosch[1]["country"] == "za"
+
+
+ATNS = "https://atns.ci.hr/applicant/index.php?controller=Page&name=jobsearch"
+_VIEW = "54e0dd96-197b-4502-b2d0-7afd6f1acd67"
+
+
+def test_cihr_reads_atns_listings_fixture():
+    page = _fixture("cihr_atns_page.js.txt")
+    listings = _fixture("cihr_atns_listings.html")
+    seen: list[str] = []
+
+    def handler(request: httpx.Request):
+        seen.append(str(request.url))
+        if "controller=Listings" in str(request.url):
+            assert "method=get" in str(request.url)
+            assert "entity=listings" in str(request.url)
+            assert f"viewid={_VIEW}" in str(request.url)
+            assert "batch=1" in str(request.url)
+            assert "batchsize=25" in str(request.url)
+            assert "adapter=" in str(request.url)
+            return httpx.Response(200, text=listings)
+        return httpx.Response(200, text=page)
+
+    src = _Src(ATNS, "cihr", {"host": "atns.ci.hr"})
+    with _client(handler) as c:
+        vacs = CihrStrategy().fetch(src, c)
+    assert len(seen) == 2
+    assert [v.title for v in vacs] == [
+        "Head - ATM Planning and Technology adoption",
+        "Manager Air Traffic Services: FALA",
+    ]
+    first, second = vacs
+    assert first.external_id == "658d690a-ac5f-4b44-b547-abcfed4e0e32"
+    assert first.location == "Southern Africa"
+    assert first.employment_type == "Permanent"
+    assert first.salary == "Market Related"
+    assert first.department == "Transport, Logistics and Freight"
+    assert first.closing_date == "7 October 2026"
+    assert normalize_date(first.closing_date) == date(2026, 10, 7)
+    assert first.description.startswith("To provide a strategic")
+    assert "listingid=658d690a-ac5f-4b44-b547-abcfed4e0e32" in first.application_url
+    assert first.application_url.startswith("https://atns.ci.hr/applicant/index.php")
+    assert second.location == "Johannesburg"
+    assert second.department == "Transport and Logistics Management"
+    assert "Aviation & Aerospace" not in (first.department or "")
+
+
+def test_cihr_empty_board_is_a_real_zero():
+    page = _fixture("cihr_atns_page.js.txt")
+    empty = '<div class="list-items-container adaptive-list" data-recordcount="0"></div>'
+
+    def handler(request: httpx.Request):
+        if "controller=Listings" in str(request.url):
+            return httpx.Response(200, text=empty)
+        return httpx.Response(200, text=page)
+
+    src = _Src(ATNS, "cihr", {"host": "atns.ci.hr"})
+    with _client(handler) as c:
+        assert CihrStrategy().fetch(src, c) == []
+
+
+def test_cihr_missing_widget_is_a_failure():
+    src = _Src(ATNS, "cihr", {"host": "atns.ci.hr"})
+
+    def handler(request: httpx.Request):
+        return httpx.Response(200, text="<html><p>Welcome</p></html>")
+
+    with _client(handler) as c:
+        try:
+            CihrStrategy().fetch(src, c)
+        except ValueError as exc:
+            assert "listings widget" in str(exc)
+        else:
+            raise AssertionError("expected a failure, not an empty list")
+
+
+def test_cihr_missing_list_container_is_a_failure():
+    page = _fixture("cihr_atns_page.js.txt")
+
+    def handler(request: httpx.Request):
+        if "controller=Listings" in str(request.url):
+            return httpx.Response(200, text="<html>no list</html>")
+        return httpx.Response(200, text=page)
+
+    src = _Src(ATNS, "cihr", {"host": "atns.ci.hr"})
+    with _client(handler) as c:
+        try:
+            CihrStrategy().fetch(src, c)
+        except ValueError as exc:
+            assert "no job list" in str(exc)
+        else:
+            raise AssertionError("expected a failure, not an empty list")
+
+
+def test_cihr_follows_jobsearch_and_ignores_featured_cards():
+    home = (
+        '<a href="?controller=Listings&method=view&listingid=featured-only">Featured</a>'
+        '<a href="?controller=Page&amp;name=jobsearch">All jobs</a>'
+    )
+    page = _fixture("cihr_atns_page.js.txt")
+    listings = _fixture("cihr_atns_listings.html")
+    seen: list[str] = []
+
+    def handler(request: httpx.Request):
+        url = str(request.url)
+        seen.append(url)
+        if "name=jobsearch" in url:
+            return httpx.Response(200, text=page)
+        if "controller=Listings" in url and "method=get" in url:
+            return httpx.Response(200, text=listings)
+        return httpx.Response(200, text=home)
+
+    src = _Src("https://assmang.ci.hr", "cihr", {"host": "assmang.ci.hr"})
+    with _client(handler) as c:
+        vacs = CihrStrategy().fetch(src, c)
+    assert len(vacs) == 2
+    assert all("featured-only" not in (v.external_id or "") for v in vacs)
+    assert any("name=jobsearch" in url for url in seen)
+    assert any("batchsize=25" in url for url in seen)
+
+
+def test_cihr_refuses_an_off_host_redirect():
+    def handler(request: httpx.Request):
+        if request.url.host == "wsucareers.ci.hr":
+            return httpx.Response(302, headers={"location": "https://www.ci.hr/"})
+        return httpx.Response(200, text="<html>vendor home</html>")
+
+    src = _Src("https://wsucareers.ci.hr/applicant", "cihr", {"host": "wsucareers.ci.hr"})
+    with _client(handler) as c:
+        try:
+            CihrStrategy().fetch(src, c)
+        except ValueError as exc:
+            assert "different host" in str(exc)
+        else:
+            raise AssertionError("off-host redirect must not become a vacancy list")
+
+
+def test_cihr_paginates_until_recordcount_and_caps_batch_size():
+    page = 'new List({ id:"listings-list", entity:"listings", viewId:"view-1", controller:"Listings", endpoint:"get", adapter:"", batchsize: 500 })'
+    one = '''
+    <div class="list-items-container" data-recordcount="2">
+      <div class="dynamic-card view-data-row" id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa1">
+        <h5><a href="?controller=Listings&method=view&listingid=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa1">First role</a></h5>
+        <p>One</p>
+        <b>Apply by:</b> 1 January 2027
+        <b>Location</b>: Cape Town
+      </div>
+    </div>
+    '''
+    two = '''
+    <div class="list-items-container" data-recordcount="2">
+      <div class="dynamic-card view-data-row" id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa2">
+        <h5><a href="?controller=Listings&method=view&listingid=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa2">Second role</a></h5>
+      </div>
+    </div>
+    '''
+    batches: list[str] = []
+
+    def handler(request: httpx.Request):
+        url = str(request.url)
+        if "controller=Listings" not in url:
+            return httpx.Response(200, text=page)
+        batches.append(url)
+        assert "batchsize=100" in url
+        if "batch=1" in url:
+            return httpx.Response(200, text=one)
+        return httpx.Response(200, text=two)
+
+    src = _Src(ATNS, "cihr", {"host": "atns.ci.hr"})
+    with _client(handler) as c:
+        vacs = CihrStrategy().fetch(src, c)
+    assert [v.title for v in vacs] == ["First role", "Second role"]
+    assert len(batches) == 2
+    assert vacs[0].location == "Cape Town"
+    assert vacs[0].closing_date == "1 January 2027"
 
 
 def test_static_html_follows_rss_when_the_page_has_no_jobs():

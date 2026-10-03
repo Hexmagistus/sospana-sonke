@@ -1,0 +1,18 @@
+app.add(
+			"listings-list", 
+			new List({
+				id:"listings-list",
+				entity:"listings",
+				viewId:"54e0dd96-197b-4502-b2d0-7afd6f1acd67",
+				adapter:"",
+				controller:"Listings",
+				endpoint: "get",
+								defaultFilter: null,
+				order: null,
+				readonly: false,
+				openInModal: false,
+				formId: null,
+				batchsize: 25,
+				getOnScroll: false
+			}) 
+		);
