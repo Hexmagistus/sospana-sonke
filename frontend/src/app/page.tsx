@@ -1183,7 +1183,7 @@ function LiveCountryCard({ c, i }: { c: { name: string; flag: string; count: num
 
 /* A real "jump to a country" dropdown -- a native <select> (so it gets
    keyboard type-ahead and a proper mobile picker for free) listing every
-   country in the directory (Africa, Oceania, Europe, and partner markets)
+   country in the directory (the same coverage line as the rest of the page)
    alphabetically. Choosing one shows just that country's card below. */
 function CountryJumpSelect({
   live,
@@ -1214,7 +1214,7 @@ function CountryJumpSelect({
           onChange={(e) => setSelected(e.target.value)}
           className="w-full appearance-none rounded-xl border border-white/20 bg-white/10 py-3 pl-4 pr-10 text-sm font-bold text-white backdrop-blur-sm transition hover:border-white/40 hover:bg-white/20 focus:border-white/50 focus:outline-none"
         >
-          <option value="" className="text-navy">Choose a country in Africa, Oceania, Europe…</option>
+          <option value="" className="text-navy">Choose a country in {COVERAGE}</option>
           {options.map((o) => (
             <option key={o.name} value={o.name} className="text-navy">
               {o.flag} {o.name}{o.kind === "live" ? ` — ${o.count} ${o.count === 1 ? "employer" : "employers"}` : " — coming soon"}
