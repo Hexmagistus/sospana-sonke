@@ -37,6 +37,9 @@ class CompanyResponse(BaseModel):
     # say "Not counted yet" rather than "0 vacancies found". True when a
     # structured parser finished (including a real empty list) or we hold rows.
     open_vacancies_known: bool = False
+    # True only when a favicon URL is already stored. The directory uses this
+    # so a card does not call GET /companies/{id}/icon just to learn there is none.
+    has_icon: bool = False
 
 
 class CompanyImportResult(BaseModel):

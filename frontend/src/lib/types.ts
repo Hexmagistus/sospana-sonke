@@ -213,6 +213,8 @@ export interface Company {
   // False, or absent, means we have not parsed this board. A displayed 0
   // requires this flag (or a count above zero).
   open_vacancies_known?: boolean;
+  // True when the API already has a favicon. Absent or false: do not call /icon.
+  has_icon?: boolean;
 }
 
 // One row of the "popular this week" ranking (GET /companies/trending).
