@@ -63,6 +63,9 @@ What is running today, before the pipeline work below. This is the system the up
 
 ## Session Log
 
+### 2026-10-03 — Cursor (Grok 4.7) — Admin scraper health and the apply button
+The admin careers card now shows employer, vacancy, expiry, duplicate, and review counts, plus the scan log. Pause/resume and Scan now stay admin-only; Scan now is limited to 20 an hour and writes an audit row with the company id, not an email. On a vacancy card, “Apply on employer website” is used only when the listing has its own application URL. “Last seen on the employer site” is the last scan time. That is not labelled verified: rows stay DISCOVERED until an application link is actually requested, which this release does not do.
+
 ### 2026-10-03 — Cursor (Grok 4.7) — Scan scheduling and a strategy adapter
 Empty careers boards wait 12 hours, then a day, then a week, instead of the normal 6-hour (HTML) or 1-hour (public JSON) gap. Failures still use the existing backoff. `StrategyAdapter` wraps the current ATS strategies (`discover` / `extract` / `normalize` / `validate`). A new feed is still a strategy registered in `get_strategy`; the scanner does not grow a second copy.
 

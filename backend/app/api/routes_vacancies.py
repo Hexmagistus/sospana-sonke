@@ -14,6 +14,7 @@ from app.core.deps import get_current_user, require_admin
 from app.core.http_cache import private_short_cache
 from app.core.rate_limit import limiter, user_or_ip_key
 from app.db.session import get_db
+from app.models.admin_ops import AdminAuditLog
 from app.models.company import Company
 from app.models.user import User
 from app.models.vacancy import Vacancy, VacancySource
@@ -37,18 +38,25 @@ _LIST_DEFER = (
 )
 
 
-@router.post("/companies/{company_id}/scan", response_model=list[ScanReportResponse],
-             dependencies=[Depends(require_admin)])
-def trigger_scan(company_id: str, check_robots: bool = True, db: Session = Depends(get_db)):
-    """Manually scan a company's careers source now.
+@router.post("/companies/{company_id}/scan", response_model=list[ScanReportResponse])
+@limiter.limit("20/hour")
+def trigger_scan(request: Request, company_id: str, db: Session = Depends(get_db),
+                 admin: User = Depends(require_admin)):
+    """Manually scan one company's careers source. Admin only, rate-limited, audit-logged.
 
-    In production this enqueues a background job; here it runs inline so an admin
-    can trigger and inspect a scan on demand.
+    Runs in this request so the admin can read the result. It does not scan the
+    whole directory. Ordinary candidates cannot call it.
     """
     company = db.get(Company, company_id)
     if company is None or company.deleted_at is not None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Company not found.")
     reports = scan_company(db, company)
+    status_note = reports[0].status if reports else "none"
+    db.add(AdminAuditLog(
+        admin_id=admin.id, action="scan_now", target_user_id=None,
+        detail=f"company={company_id} status={status_note}"[:500],
+    ))
+    db.commit()
     return [ScanReportResponse(**asdict(r)) for r in reports]
 
 

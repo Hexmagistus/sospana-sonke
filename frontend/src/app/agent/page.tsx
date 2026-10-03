@@ -1149,9 +1149,10 @@ const REPORT_CATEGORIES: { value: string; label: string }[] = [
 ];
 
 function VacancyCard({ data }: { data: VacancyCardData }) {
-  const { vacancy: v, employer, employerCareers } = data;
+  const { vacancy: v, employer } = data;
   const close = closingStatus(v.closing_date);
-  const applyUrl = v.application_url || v.source_url || employerCareers || null;
+  const applyUrl = v.application_url || null;
+  const listingUrl = v.source_url && v.source_url !== v.application_url ? v.source_url : null;
   const [reporting, setReporting] = useState(false);
   const [reportCategory, setReportCategory] = useState("scam");
   const [reportDetails, setReportDetails] = useState("");
@@ -1186,6 +1187,10 @@ function VacancyCard({ data }: { data: VacancyCardData }) {
         {v.location && <span>📍 {v.location}{v.province && v.province !== v.location ? ` (${v.province})` : ""}</span>}
         {v.employment_type && <span>🗂️ {v.employment_type}</span>}
         {v.work_mode && <span>🏢 {v.work_mode}</span>}
+        {v.posting_date && <span>Posted {v.posting_date.slice(0, 10)}</span>}
+        {v.closing_date && <span>Closes {v.closing_date.slice(0, 10)}</span>}
+        <span>Last seen on the employer site {v.last_seen_at.slice(0, 16).replace("T", " ")} UTC</span>
+        {v.verification_state === "VERIFIED" && <span>Application link checked</span>}
         <span>💰 {v.salary || "Not disclosed"}</span>
         {v.nqf_level != null && <span title="Estimated from the listing's own text, not an official SAQA rating">🎓 Est. NQF {v.nqf_level}</span>}
       </div>
@@ -1198,10 +1203,15 @@ function VacancyCard({ data }: { data: VacancyCardData }) {
       <div className="mt-3 flex flex-wrap items-center gap-3">
         {applyUrl ? (
           <a href={applyUrl} target="_blank" rel="noopener noreferrer">
-            <Button variant="ghost" size="sm">View / apply on source →</Button>
+            <Button variant="ghost" size="sm">Apply on employer website</Button>
           </a>
         ) : (
-          <span className="text-xs text-ss-muted">No application link provided</span>
+          <span className="text-xs text-ss-muted">No application link on this listing</span>
+        )}
+        {listingUrl && (
+          <a href={listingUrl} target="_blank" rel="noopener noreferrer" className="text-xs font-medium text-ss-muted underline">
+            View listing
+          </a>
         )}
         {!reportSent ? (
           <button onClick={() => setReporting((r) => !r)} className="text-xs font-medium text-ss-muted hover:text-ss-danger">
