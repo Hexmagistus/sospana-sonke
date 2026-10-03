@@ -1,6 +1,13 @@
-"""Owner gets an email every time someone signs in."""
+"""Legacy owner email per sign-in. Off by default now (see test_admin_login_alerts.py);
+these tests cover the opt-in path, LOGIN_ALERTS_ENABLED=true."""
+import pytest
 from app.core.config import settings
 from app.notifications.email import ConsoleEmailProvider
+
+
+@pytest.fixture(autouse=True)
+def _legacy_on(monkeypatch):
+    monkeypatch.setattr(settings, "LOGIN_ALERTS_ENABLED", True)
 
 
 def _register(client, email="thandi@example.com"):

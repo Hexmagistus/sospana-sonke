@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from "react";
 import Guard from "@/components/Guard";
+import NoticeLink from "@/components/NoticeLink";
 import { api } from "@/lib/api";
-import { Card, Alert, Spinner, Button, Badge, EmptyState } from "@/components/ui";
+import { Alert, Spinner, Button, Badge, EmptyState } from "@/components/ui";
 import type { Notification } from "@/lib/types";
 
 function NotificationsInner() {
@@ -19,11 +20,12 @@ function NotificationsInner() {
     load().catch((e) => { setErr(e.message); setLoading(false); });
   }, []);
 
-  async function markRead(id: string) {
-    await api.post(`/notifications/${id}/read`);
-    await load();
-    window.dispatchEvent(new Event("notifications:changed"));
-  }
+  useEffect(() => {
+    function refresh() { load().catch((e) => setErr(e.message)); }
+    window.addEventListener("notifications:changed", refresh);
+    return () => window.removeEventListener("notifications:changed", refresh);
+  }, []);
+
   async function markAll() {
     await api.post("/notifications/read-all");
     await load();
@@ -33,7 +35,7 @@ function NotificationsInner() {
   if (loading) return <Spinner />;
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-bold text-ss-text">Notifications</h1>
         <Button variant="ghost" onClick={markAll}>Mark all read</Button>
       </div>
@@ -45,37 +47,27 @@ function NotificationsInner() {
           message="You'll see updates here as your Career Agent finds matches, prepares applications and hears back from employers."
         />
       ) : (
-        <div className="space-y-2">
+        <ul className="space-y-2">
           {notes.map((n) => (
-            <Card key={n.id} className={n.is_read ? "opacity-60" : ""}>
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium text-ss-text">{n.title}</span>
-                    <Badge>{n.type}</Badge>
-                  </div>
-                  <p className="mt-1 text-sm text-ss-muted">{n.body}</p>
-                  {n.link_url && (
-                    <a
-                      href={n.link_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="mt-1 inline-block text-xs font-semibold text-brand hover:underline"
-                    >
-                      Open →
-                    </a>
-                  )}
-                  <p className="mt-1 text-xs text-ss-muted">{new Date(n.created_at).toLocaleString()}</p>
-                </div>
-                {!n.is_read && (
-                  <button onClick={() => markRead(n.id)} className="text-xs text-brand hover:underline">
-                    Mark read
-                  </button>
+            <li key={n.id}>
+              <NoticeLink note={n} className={n.is_read ? "opacity-60" : ""}>
+                <span className="flex flex-wrap items-center gap-2">
+                  <span className="font-medium text-ss-text">{n.title}</span>
+                  <Badge>{n.type}</Badge>
+                  {!n.is_read && <span className="text-[11px] font-semibold uppercase tracking-wide text-ss-primary">Unread</span>}
+                </span>
+                <span className="mt-1 block whitespace-pre-wrap break-words text-sm text-ss-muted">{n.body}</span>
+                {n.type === "admin_suggestion" && (
+                  <span className="mt-2 block text-xs font-semibold text-ss-text">Tagged by the Sospana Sonke team</span>
                 )}
-              </div>
-            </Card>
+                <span className="mt-1 block text-xs text-ss-muted">
+                  {n.type === "admin_suggestion" ? "Tagged " : ""}
+                  {new Date(n.created_at).toLocaleString()}
+                </span>
+              </NoticeLink>
+            </li>
           ))}
-        </div>
+        </ul>
       )}
     </div>
   );

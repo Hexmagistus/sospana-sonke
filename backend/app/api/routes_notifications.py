@@ -1,11 +1,12 @@
 """Notification routes (candidate) and scheduler routes (admin) — blueprint Steps 11, 22, 31."""
 from datetime import datetime, timedelta, timezone
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.core.deps import get_current_user, require_admin
+from app.core.rate_limit import limiter
 from app.db.session import get_db
 from app.models.notification import Notification, JobRun, PushToken
 from app.models.admin_ops import AdminAuditLog
@@ -16,11 +17,14 @@ from app.models.scan_log import ScanLog
 from app.schemas.notification import (
     NotificationResponse, UnreadCountResponse, ScheduleResponse, ScheduleUpdateRequest, JobRunResponse,
     PushTokenRequest, PushTokenResponse, AdminSuggestionRequest, AdminSuggestionResponse,
+    PreferenceEmailRequest, PreferenceEmailResponse, LoginDigestSettings, LoginDigestResult,
     SourceHealthResponse, SourceHealthItem, ScanLogItem, SourceActiveUpdate,
 )
 from app.scheduler.registry import get_schedule, set_schedule, JOBS
 from app.scheduler.runner import run_job, UnknownJob
 from app.services.notification_service import notify_admin_suggestion
+from app.services.preference_mail import send_preference_emails
+from app.services.admin_login_alerts import send_login_digest
 
 router = APIRouter(tags=["notifications"])
 
@@ -84,14 +88,21 @@ def register_push_token(body: PushTokenRequest, db: Session = Depends(get_db),
 
 # ---- admin: suggest a post/link to relevant candidates ----
 
-def _can_receive_suggestion(user: User) -> bool:
-    """POPIA: only an active candidate who named a preferred post and opted in."""
+def _can_receive_in_app(user: User) -> bool:
+    """A tag notice lives in the account. It does not require an email choice."""
     return bool(
         user.role == "candidate"
         and user.is_active
         and not user.deleted_at
-        and user.notify_opportunity_alerts
-        and (user.preferred_position or "").strip()
+    )
+
+
+def _can_receive_broadcast(user: User) -> bool:
+    """A send-to-everyone is not a personal tag. It stays with people who opted in."""
+    return _can_receive_in_app(user) and bool(
+        user.notify_opportunity_alerts or (
+            user.allow_tagging and user.allow_tagging_chosen_at is not None
+        )
     )
 
 
@@ -107,18 +118,79 @@ def send_admin_suggestion(body: AdminSuggestionRequest, db: Session = Depends(ge
     else:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                             detail="Provide user_ids or set all_candidates to true.")
-    eligible = [u for u in targets if _can_receive_suggestion(u)]
+    gate = _can_receive_broadcast if body.all_candidates else _can_receive_in_app
+    eligible = [u for u in targets if gate(u)]
     skipped = len(targets) - len(eligible)
-    sent = notify_admin_suggestion(db, users=eligible, title=body.title, body=body.body,
-                                   link_url=body.link_url) if eligible else 0
+    sent, duplicates, emailed = (
+        notify_admin_suggestion(db, users=eligible, title=body.title, body=body.body,
+                                link_url=body.link_url)
+        if eligible else (0, 0, 0)
+    )
     db.add(AdminAuditLog(
         admin_id=admin.id,
         action="notify",
         target_user_id=None,
-        detail=f"sent={sent} skipped={skipped} title_len={len(body.title)}",
+        detail=(f"sent={sent} skipped={skipped} duplicates={duplicates} emailed={emailed} "
+                f"link={1 if body.link_url else 0} title_len={len(body.title)}"),
     ))
     db.commit()
-    return AdminSuggestionResponse(sent=sent, skipped=skipped)
+    return AdminSuggestionResponse(sent=sent, skipped=skipped, duplicates=duplicates, emailed=emailed)
+
+
+@router.post("/admin/preference-email", response_model=PreferenceEmailResponse)
+@limiter.limit("12/hour")
+def send_preference_email(request: Request, body: PreferenceEmailRequest,
+                          db: Session = Depends(get_db),
+                          admin: User = Depends(require_admin)):
+    """One-time service email to existing users who have not chosen their preferences.
+
+    Admin only. dry_run is the default and only counts. A real send claims each
+    address before the message leaves, stops at the daily cap, and never includes
+    job content. The audit row stores counts, not addresses.
+    """
+    result = send_preference_emails(db, batch=body.batch, dry_run=body.dry_run)
+    db.add(AdminAuditLog(
+        admin_id=admin.id,
+        action="preference_email",
+        target_user_id=None,
+        detail=(f"dry_run={int(result['dry_run'])} eligible={result['eligible']} "
+                f"sent={result['sent']} would_send={result['would_send']} "
+                f"last_24h={result['sent_last_24h']}"),
+    ))
+    db.commit()
+    return PreferenceEmailResponse(**result)
+
+
+# ---- admin: client sign-in alerts ----
+
+@router.get("/admin/login-alerts", response_model=LoginDigestSettings)
+def get_login_alert_settings(admin: User = Depends(require_admin)):
+    return LoginDigestSettings(email_digest=bool(admin.admin_login_digest))
+
+
+@router.put("/admin/login-alerts", response_model=LoginDigestSettings)
+@limiter.limit("30/hour")
+def set_login_alert_settings(request: Request, body: LoginDigestSettings,
+                             db: Session = Depends(get_db),
+                             admin: User = Depends(require_admin)):
+    """Turn this admin's optional email digest of client sign-ins on or off (default off)."""
+    admin.admin_login_digest = bool(body.email_digest)
+    if body.email_digest and admin.admin_login_digest_sent_at is None:
+        from datetime import datetime, timezone
+        # Start counting from now so switching it on does not mail a backlog.
+        admin.admin_login_digest_sent_at = datetime.now(timezone.utc)
+    db.commit()
+    return LoginDigestSettings(email_digest=bool(admin.admin_login_digest))
+
+
+@router.post("/admin/login-alerts/digest", response_model=LoginDigestResult)
+@limiter.limit("6/hour")
+def send_login_alert_digest(request: Request, db: Session = Depends(get_db),
+                            admin: User = Depends(require_admin)):
+    """Send this admin their pending digest now (only if they turned it on)."""
+    result = send_login_digest(db, only_admin_id=admin.id)
+    return LoginDigestResult(email_digest=bool(admin.admin_login_digest),
+                             sent=result["sent"] > 0, clients=result["clients"])
 
 
 # ---- admin scheduler ----

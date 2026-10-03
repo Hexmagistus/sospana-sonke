@@ -19,6 +19,7 @@ venv/
 # Node / frontend
 node_modules/
 .next/
+frontend/.notice-target-test/
 
 # Test DB artifacts
 *.db-journal

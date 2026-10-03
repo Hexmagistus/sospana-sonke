@@ -2,6 +2,8 @@
 from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
+from app.notifications.links import validated_notice_url
+
 
 class NotificationResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -35,16 +37,48 @@ class AdminSuggestionRequest(BaseModel):
     @field_validator("link_url")
     @classmethod
     def _http_or_none(cls, v: str | None) -> str | None:
-        if v is None or v == "":
-            return None
-        if not (v.startswith("http://") or v.startswith("https://")):
-            raise ValueError("link_url must start with http:// or https://")
-        return v
+        return validated_notice_url(v)
 
 
 class AdminSuggestionResponse(BaseModel):
     sent: int
     skipped: int = 0
+    # Same person and the same link already had a notice. Nothing new was stored or mailed.
+    duplicates: int = 0
+    emailed: int = 0
+
+
+class PreferenceEmailRequest(BaseModel):
+    """Count first. A send is a separate call with dry_run false."""
+    dry_run: bool = True
+    batch: int = Field(default=40, ge=1, le=50)
+
+
+class PreferenceEmailResponse(BaseModel):
+    dry_run: bool
+    eligible: int
+    skipped_no_email: int = 0
+    already_sent: int
+    sent_last_24h: int
+    remaining_today: int
+    daily_cap: int
+    provider_daily_limit: int
+    batch: int
+    would_send: int
+    sent: int
+    failed: int = 0
+    resume_at: str | None = None
+
+
+class LoginDigestSettings(BaseModel):
+    """An admin's own choice. Off by default."""
+    email_digest: bool
+
+
+class LoginDigestResult(BaseModel):
+    email_digest: bool
+    sent: bool = False
+    clients: int = 0
 
 
 class UnreadCountResponse(BaseModel):

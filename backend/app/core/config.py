@@ -131,10 +131,13 @@ class Settings(BaseSettings):
     # fixes it without anyone re-entering settings; SMTP_USER wins if both exist.
     SMTP_USER: str | None = Field(default=None, validation_alias=AliasChoices("SMTP_USER", "SMPT_USER"))
     SMTP_PASSWORD: str | None = None
-    # Owner alert on every successful sign-in (password or Google). Recipient(s):
+    # Legacy owner email on every successful sign-in. OFF by default now: when a client
+    # signs in, admins get an in-app notice (type client_login) instead, and each admin
+    # can switch on an optional email digest from the Admin page (off by default).
+    # Set LOGIN_ALERTS_ENABLED=true to keep one email per sign-in. Recipient(s):
     # LOGIN_ALERT_EMAIL (comma-separated), falling back to SMTP_USER, then ADMIN_EMAIL.
     # Delivers when BREVO_API_KEY is set, or when EMAIL_PROVIDER=smtp. Independent of NOTIFY_EMAILS.
-    LOGIN_ALERTS_ENABLED: bool = True
+    LOGIN_ALERTS_ENABLED: bool = False
     LOGIN_ALERT_EMAIL: str | None = None
     # Brevo transactional HTTPS (free plan, 300 emails/day). Render free cannot open SMTP.
     # When the key is set, every email path uses POST https://api.brevo.com/v3/smtp/email
