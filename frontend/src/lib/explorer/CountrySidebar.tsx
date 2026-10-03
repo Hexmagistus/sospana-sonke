@@ -2,7 +2,7 @@
 
 import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import {
-  fold, groupRows, listedCountryCount, navigableRows,
+  GROUPS, fold, groupOf, groupRows, listedCountryCount, navigableRows,
   type CountryRow, type GroupId,
 } from "../countryExplorer";
 
@@ -15,20 +15,24 @@ type Props = {
   noun?: string;
   /** Whether "All countries" can be picked in the current view. */
   allowAll?: boolean;
-  /** Start with these groups folded (tests). */
-  initialCollapsed?: readonly GroupId[];
+  /** Groups open on first render. Default: none (tests pass some). */
+  initialExpanded?: readonly GroupId[];
 };
 
 /** Left side of the split view: search and the grouped country list. Navy panel in both themes. */
 export function CountrySidebar({
-  rows, selected, onSelect, noun = "employers", allowAll = true, initialCollapsed = [],
+  rows, selected, onSelect, noun = "employers", allowAll = true, initialExpanded,
 }: Props) {
   const uid = useId();
   const searchRef = useRef<HTMLInputElement | null>(null);
   const optionRefs = useRef(new Map<string, HTMLLIElement>());
   const listRef = useRef<HTMLDivElement | null>(null);
   const [query, setQuery] = useState("");
-  const [collapsed, setCollapsed] = useState<Set<GroupId>>(new Set(initialCollapsed));
+  // Every group starts folded, the one holding the selected country included. A group opens
+  // only when its header is clicked, or while a search is showing its matches.
+  const selectedGroup = selected && rows.some((r) => r.name === selected) ? groupOf(selected) : null;
+  const [expanded, setExpanded] = useState<Set<GroupId>>(() => new Set(initialExpanded ?? []));
+  const collapsed = useMemo(() => new Set(GROUPS.map((g) => g.id).filter((id) => !expanded.has(id))), [expanded]);
   const [focusName, setFocusName] = useState<string | null>(null);
 
   const searching = fold(query) !== "";
@@ -70,7 +74,7 @@ export function CountrySidebar({
   }
 
   function toggle(id: GroupId) {
-    setCollapsed((prev) => {
+    setExpanded((prev) => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
       else next.add(id);
@@ -88,7 +92,7 @@ export function CountrySidebar({
     if (top < box.scrollTop || top + el.offsetHeight > box.scrollTop + box.clientHeight) {
       box.scrollTop = Math.max(0, top - 48);
     }
-  }, [selected, rows]);
+  }, [selected, rows, expanded]);
 
   return (
     <div className="flex h-full min-h-0 flex-col gap-3 text-white">
@@ -139,7 +143,15 @@ export function CountrySidebar({
                       className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-[11px] font-bold uppercase tracking-wider text-blue-200 hover:bg-white/5"
                     >
                       <span aria-hidden className={`inline-block transition-transform ${open ? "rotate-90" : ""}`}>▸</span>
-                      <span className="flex-1">{g.label}</span>
+                      <span className="flex-1">
+                        {g.label}
+                        {!open && selectedGroup === g.id && (
+                          <>
+                            <span aria-hidden title={`${selected} is selected`} className="ml-2 inline-block h-1.5 w-1.5 rounded-full bg-gold align-middle" />
+                            <span className="sr-only"> (contains the selected country, {selected})</span>
+                          </>
+                        )}
+                      </span>
                       <span className="rounded-full bg-white/10 px-1.5 text-[10px] tabular-nums">{g.rows.length}</span>
                     </button>
                   </h4>
