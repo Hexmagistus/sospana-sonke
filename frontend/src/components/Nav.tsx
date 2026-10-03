@@ -25,28 +25,36 @@ const LINKS = [
 ];
 
 /** Sun/moon toggle -- a real, functional light/dark switch (brief section 26),
- * not decoration. Lives in the nav on both desktop and the mobile dropdown so
- * it's reachable everywhere the rest of the app shell is. */
+ * not decoration. The gold caption sits under the icon on desktop and mobile.
+ * aria-label and the tooltip keep the action ("switch to light/dark mode"). */
 function ThemeToggle({ className = "" }: { className?: string }) {
   const { theme, toggleTheme } = useTheme();
+  const hint = theme === "dark"
+    ? "Adjust brightness. Switch to light mode"
+    : "Adjust brightness. Switch to dark mode";
   return (
     <button
       type="button"
       onClick={toggleTheme}
-      aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-      title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-      className={`flex h-8 w-8 items-center justify-center rounded-full text-blue-100 transition hover:bg-white/10 hover:text-white ${className}`}
+      aria-label={hint}
+      title={hint}
+      className={`flex w-[5.25rem] shrink-0 flex-col items-center gap-0.5 rounded-md px-0.5 py-0.5 text-gold transition hover:bg-white/10 hover:text-gold-light ${className}`}
     >
-      {theme === "dark" ? (
-        <svg viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-          <circle cx="12" cy="12" r="4.5" />
-          <path strokeLinecap="round" d="M12 2.5v2M12 19.5v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M2.5 12h2M19.5 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4" />
-        </svg>
-      ) : (
-        <svg viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M20.5 14.5A8.5 8.5 0 019.5 3.5a8.5 8.5 0 1011 11z" />
-        </svg>
-      )}
+      <span className="flex h-7 w-7 items-center justify-center" aria-hidden="true">
+        {theme === "dark" ? (
+          <svg viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="none" stroke="currentColor" strokeWidth="2">
+            <circle cx="12" cy="12" r="4.5" />
+            <path strokeLinecap="round" d="M12 2.5v2M12 19.5v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M2.5 12h2M19.5 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4" />
+          </svg>
+        ) : (
+          <svg viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="none" stroke="currentColor" strokeWidth="2">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M20.5 14.5A8.5 8.5 0 019.5 3.5a8.5 8.5 0 1011 11z" />
+          </svg>
+        )}
+      </span>
+      <span className="block w-full whitespace-normal text-center text-[11px] font-semibold leading-tight tracking-tight text-gold">
+        Adjust brightness
+      </span>
     </button>
   );
 }
