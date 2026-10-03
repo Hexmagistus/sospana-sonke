@@ -1,11 +1,11 @@
 "use client";
 
-import { Suspense, useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Guard from "@/components/Guard";
 import { api } from "@/lib/api";
-import { Card, Input, Button, Alert, Spinner, Select, EmptyState } from "@/components/ui";
+import { Card, Input, Button, Alert, Spinner, EmptyState } from "@/components/ui";
 import { Banner } from "@/components/Banner";
 import { CompanyLogo, isAtsPortal } from "@/components/CompanyLogo";
 import { CompanyActionsRow, NotCountedNotice, OpenVacancyCount, TrendingBadge, ShortlistStar } from "@/components/CompanyActions";
@@ -13,6 +13,9 @@ import { CompanyPreviewModal } from "@/components/CompanyPreviewModal";
 import { AnimatedNumber } from "@/components/AnimatedNumber";
 import { FunSpinner } from "@/components/FunSpinner";
 import { COUNTRY_FLAGS } from "@/lib/countryFlags";
+import { CountryExplorer, type ExplorerStats } from "@/components/CountryExplorer";
+import { KNOWN_COUNTRY_NAMES } from "@/lib/countryCodes";
+import { buildCountryRows, countryFromQuery, searchForSelection } from "@/lib/countryExplorer";
 import { getShortlist, SHORTLIST_EVENT } from "@/lib/shortlist";
 import type { Company, TrendingCompany } from "@/lib/types";
 
@@ -38,6 +41,9 @@ function hashCode(s: string): number {
 
 function HospitalsDirectoryInner() {
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const loadedOnce = useRef(false);
+  const pathname = usePathname();
   const [hospitals, setHospitals] = useState<Company[]>([]);
   const [trending, setTrending] = useState<Set<string>>(new Set());
   const [err, setErr] = useState("");
@@ -82,16 +88,15 @@ function HospitalsDirectoryInner() {
       }
     }
     if (wantedCountry) {
-      setCountry(wantedCountry);
+      // ?country= is a short code (ZA), "all" (every country) or, in older links, the full name.
+      setCountry(countryFromQuery(wantedCountry, KNOWN_COUNTRY_NAMES) ?? wantedCountry);
       setShortlistOnly(false);
+    } else if (loadedOnce.current) {
+      // A bare URL after the page has opened (Back/Forward): the default view.
+      setCountry("South Africa");
     }
+    loadedOnce.current = true;
   }, [searchParams, hospitals]);
-
-  const countries = useMemo(() => {
-    const set = Array.from(new Set(hospitals.map((c) => c.country).filter(Boolean) as string[]));
-    set.sort((a, b) => (a === "South Africa" ? -1 : b === "South Africa" ? 1 : a.localeCompare(b)));
-    return set;
-  }, [hospitals]);
 
   const countryCounts = useMemo(() => {
     const m: Record<string, number> = {};
@@ -102,10 +107,32 @@ function HospitalsDirectoryInner() {
     return m;
   }, [hospitals]);
 
+  const explorerRows = useMemo(() => {
+    const withLinks: Record<string, number> = {};
+    const counted: Record<string, number> = {};
+    const openVacancies: Record<string, number> = {};
+    for (const c of hospitals) {
+      const k = c.country || "";
+      if (!k) continue;
+      if (c.careers_url) withLinks[k] = (withLinks[k] || 0) + 1;
+      if (c.open_vacancies_known) counted[k] = (counted[k] || 0) + 1;
+      openVacancies[k] = (openVacancies[k] || 0) + (c.open_vacancies || 0);
+    }
+    return buildCountryRows({ employers: countryCounts, withLinks, counted, openVacancies });
+  }, [hospitals, countryCounts]);
+
+  // Picking a country (list or map) updates the page and the address bar
+  // (?country=ZA), so Back and a refresh land on the same country. "" is All countries.
+  function chooseCountry(name: string) {
+    setShortlistOnly(false);
+    setCountry(name);
+    router.push(`${pathname}${searchForSelection(window.location.search, name)}`, { scroll: false });
+  }
+
   const shownHospitals = useMemo(() => {
     const needle = q.trim().toLowerCase();
     const filtered = hospitals
-      .filter((c) => shortlistOnly || (c.country || "") === country)
+      .filter((c) => shortlistOnly || !country || (c.country || "") === country)
       .filter((c) => !shortlistOnly || shortlistIds.has(c.id))
       .filter((c) => !needle || c.company_name.toLowerCase().includes(needle));
     return [...filtered].sort((a, b) => Number(!a.careers_url) - Number(!b.careers_url) || a.company_name.localeCompare(b.company_name));
@@ -124,8 +151,17 @@ function HospitalsDirectoryInner() {
 
   const withLinks = hospitals.filter((c) => c.careers_url).length;
   const flag = COUNTRY_FLAGS[country] || "🌍";
-  const countryTotal = countryCounts[country] ?? 0;
-  const countryWithLinks = hospitals.filter((c) => (c.country || "") === country && c.careers_url).length;
+  const countryTotal = country ? (countryCounts[country] ?? 0) : hospitals.length;
+  const countryWithLinks = hospitals.filter((c) => (!country || (c.country || "") === country) && c.careers_url).length;
+
+  const scoped = hospitals.filter((c) => !country || (c.country || "") === country);
+  const explorerStats: ExplorerStats = {
+    employers: scoped.length,
+    withLinks: countryWithLinks,
+    counted: scoped.filter((c) => c.open_vacancies_known).length,
+    openVacancies: scoped.reduce((n, c) => n + (c.open_vacancies || 0), 0),
+    categories: [],
+  };
 
   if (err) return <Alert kind="error">{err}</Alert>;
   if (!hospitals.length) return <FunSpinner label="Loading hospitals…" />;
@@ -157,37 +193,24 @@ function HospitalsDirectoryInner() {
           </Banner>
         </div>
 
-        <div className="flex items-center gap-4 rounded-2xl border border-ss-border bg-ss-glass px-5 py-4 shadow-sm backdrop-blur-sm">
-          <span className="text-5xl leading-none drop-shadow-sm">{flag}</span>
-          <div>
-            <div className="text-xl font-extrabold text-ss-text">{country}</div>
-            <div className="text-sm text-ss-muted">
-              <strong className="text-ss-text"><AnimatedNumber value={countryTotal} /></strong> hospitals ·{" "}
-              <strong className="text-ss-text"><AnimatedNumber value={countryWithLinks} /></strong> with direct careers links
-            </div>
-          </div>
-        </div>
+        <CountryExplorer
+          rows={explorerRows}
+          selected={shortlistOnly ? "" : country}
+          onSelect={chooseCountry}
+          stats={explorerStats}
+          noun="hospitals"
+          viewLabel="View all hospitals"
+          onView={() => {
+            setShortlistOnly(false);
+            document.getElementById("explorer-results")?.scrollIntoView({ behavior: "smooth", block: "start" });
+          }}
+        />
 
         <Card>
-          {countries.length > 1 && (
-            <div className="mb-3 flex flex-wrap gap-1.5 border-b border-ss-border pb-3">
-              {countries.map((cn) => {
-                const active = !shortlistOnly && country === cn;
-                return (
-                  <button
-                    key={cn}
-                    onClick={() => { setShortlistOnly(false); setCountry(cn); }}
-                    className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-semibold transition ${
-                      active ? "bg-navy text-white shadow-sm" : "bg-ss-border text-ss-muted hover:bg-ss-primary-soft hover:text-ss-text"
-                    }`}
-                  >
-                    <span>{COUNTRY_FLAGS[cn] || "🌍"} {cn}</span>
-                    <span className={`rounded-full px-1.5 py-0.5 text-[11px] font-bold tabular-nums ${
-                      active ? "bg-white/20 text-white" : "bg-ss-surface text-ss-muted"
-                    }`}>{countryCounts[cn] ?? 0}</span>
-                  </button>
-                );
-              })}
+          <div className="mb-3 flex flex-wrap items-center gap-2 border-b border-ss-border pb-3">
+            <p className="min-w-[12rem] flex-1 text-[11px] text-ss-muted">
+              {country ? `Showing ${flag} ${country}.` : "All countries. Pick one in the list or on the map to narrow it."}
+            </p>
               <button
                 onClick={() => setShortlistOnly((v) => !v)}
                 className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-semibold transition ${
@@ -199,8 +222,7 @@ function HospitalsDirectoryInner() {
                   shortlistOnly ? "bg-white/20 text-white" : "bg-ss-surface text-ss-muted"
                 }`}>{shortlistIds.size}</span>
               </button>
-            </div>
-          )}
+          </div>
 
           <div className="flex flex-wrap items-center gap-2">
             <div className="min-w-[14rem] flex-1">
@@ -213,9 +235,9 @@ function HospitalsDirectoryInner() {
           </div>
         </Card>
 
-        <p className="text-sm text-ss-muted">
+        <p id="explorer-results" className="scroll-mt-24 text-sm text-ss-muted">
           Showing <strong className="text-ss-text">{shownHospitals.length}</strong> of{" "}
-          {shortlistOnly ? shortlistIds.size : countryTotal} {shortlistOnly ? "shortlisted hospitals" : `hospitals in ${country}`}.
+          {shortlistOnly ? shortlistIds.size : countryTotal} {shortlistOnly ? "shortlisted hospitals" : (country ? `hospitals in ${country}` : `hospitals in every country`)}.
         </p>
 
         <NotCountedNotice companies={shownHospitals} />

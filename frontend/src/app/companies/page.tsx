@@ -1,11 +1,11 @@
 "use client";
 
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Guard from "@/components/Guard";
 import { api } from "@/lib/api";
-import { Card, Input, Button, Alert, Spinner, Select, EmptyState } from "@/components/ui";
+import { Card, Input, Button, Alert, Spinner, EmptyState } from "@/components/ui";
 import { Banner } from "@/components/Banner";
 import { CircuitOverlay, GlowFrame } from "@/components/HighTech";
 import { CompanyLogo, isAtsPortal } from "@/components/CompanyLogo";
@@ -14,7 +14,10 @@ import { CompanyPreviewModal } from "@/components/CompanyPreviewModal";
 import { AnimatedNumber } from "@/components/AnimatedNumber";
 import { FunSpinner } from "@/components/FunSpinner";
 import PendingSearchBanner from "@/components/PendingSearchBanner";
+import { CountryExplorer, type ExplorerStats } from "@/components/CountryExplorer";
 import { COUNTRY_FLAGS } from "@/lib/countryFlags";
+import { KNOWN_COUNTRY_NAMES } from "@/lib/countryCodes";
+import { buildCountryRows, countryFromQuery, searchForSelection } from "@/lib/countryExplorer";
 import {
   DEFAULT_DIRECTORY_COUNTRY,
   DIRECTORY_COUNTRY_KEY,
@@ -30,13 +33,7 @@ import {
   directoryListPath,
   directorySliceKey,
   isDirectoryFilter,
-  sortCountries,
 } from "@/lib/directoryFilters";
-
-// South Africa's BRICS partners get their own dropdown beside the main country picker.
-// Egypt and Ethiopia are African BRICS members, so they stay in the main list too.
-const BRICS_PARTNERS = ["Brazil", "Russia", "India", "China", "Iran", "United Arab Emirates", "Indonesia", "Egypt", "Ethiopia"];
-const BRICS_ONLY = new Set(BRICS_PARTNERS.slice(0, 7));
 import { getShortlist, SHORTLIST_EVENT } from "@/lib/shortlist";
 import type { Company, TrendingCompany } from "@/lib/types";
 
@@ -121,10 +118,19 @@ type Facets = {
   type_counts: Record<string, number>;
   country_type_counts?: Record<string, Record<string, number>>;
   country_type_with_links?: Record<string, Record<string, number>>;
+  /** Employers with a counted vacancy result, per country (the rest say "Not counted yet"). */
+  country_counted?: Record<string, number>;
+  /** Open vacancy rows we hold, per country. */
+  country_open_vacancies?: Record<string, number>;
 };
+
+const sumValues = (m: Record<string, number> | undefined) =>
+  Object.values(m ?? {}).reduce((a, b) => a + b, 0);
 
 function CompaniesDirectoryInner() {
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
   // Only the slice on screen (one country, federations, or the shortlist) is
   // ever loaded -- the API no longer hands the whole directory to one request.
   const [companies, setCompanies] = useState<Company[]>([]);
@@ -141,6 +147,8 @@ function CompaniesDirectoryInner() {
   const [shortlistIds, setShortlistIds] = useState<Set<string>>(new Set());
   const [previewCompany, setPreviewCompany] = useState<Company | null>(null);
   const storedCountryApplied = useRef(false);
+  // The country the page opened with.
+  const initialCountryRef = useRef(DEFAULT_DIRECTORY_COUNTRY);
   const countryRef = useRef(country);
   countryRef.current = country;
 
@@ -172,6 +180,8 @@ function CompaniesDirectoryInner() {
 
   useEffect(() => {
     if (!facets) return;
+    // "All countries" with no category cannot be listed at once. Show the hint instead.
+    if (!country && !globalType && !sliceKey.startsWith("ids:")) { setCompanies([]); return; }
     const cached = sliceCache.current[sliceKey];
     if (cached) { setCompanies(cached); return; }
     let path: string;
@@ -192,7 +202,7 @@ function CompaniesDirectoryInner() {
       .catch((e) => { if (!cancelled) setErr(e.message); })
       .finally(() => { if (!cancelled) setSliceLoading(false); });
     return () => { cancelled = true; };
-  }, [facets, sliceKey, country]);
+  }, [facets, sliceKey, country, globalType]);
 
   // Deep link from a "Share" button elsewhere (?company=<id>), the Coverage
   // map (?country=<name>), or a category shortcut such as /companies?type=SOE.
@@ -212,13 +222,22 @@ function CompaniesDirectoryInner() {
         .catch(() => {});
       return;
     }
-    if (!storedCountryApplied.current || wantedCountry) {
+    // ?country= is a short code (ZA), "all" (every country) or, in older links, the full name.
+    const fromUrl = countryFromQuery(wantedCountry, KNOWN_COUNTRY_NAMES);
+    if (wantedCountry && fromUrl === "") {
+      if (countryRef.current !== "") setCountry("");
+      setShortlistOnly(false);
+    } else if (!wantedCountry && storedCountryApplied.current) {
+      // A bare URL after the page has opened (Back/Forward, or the nav link): the view the page opened with.
+      if (countryRef.current !== initialCountryRef.current) setCountry(initialCountryRef.current);
+    } else if (!storedCountryApplied.current || wantedCountry) {
       const next = countryFromDirectoryLink({
         current: countryRef.current,
-        urlCountry: wantedCountry,
+        urlCountry: wantedCountry ? (fromUrl ?? wantedCountry) : null,
         storedCountry: wantedCountry ? null : readStoredCountry(),
       });
       if (next !== countryRef.current) setCountry(next);
+      if (!storedCountryApplied.current) initialCountryRef.current = next;
       if (wantedCountry) setShortlistOnly(false);
     }
     storedCountryApplied.current = true;
@@ -239,7 +258,7 @@ function CompaniesDirectoryInner() {
   useEffect(() => {
     const write = window.setTimeout(() => {
       try {
-        localStorage.setItem(DIRECTORY_COUNTRY_KEY, country);
+        if (country) localStorage.setItem(DIRECTORY_COUNTRY_KEY, country);
       } catch {
         /* private mode */
       }
@@ -248,12 +267,27 @@ function CompaniesDirectoryInner() {
   }, [country]);
 
   const countryCounts: Record<string, number> = facets?.country_counts ?? {};
-  const countries = useMemo(
-    () => sortCountries(Object.keys(facets?.country_counts ?? {})),
+  const explorerRows = useMemo(
+    () => buildCountryRows({
+      employers: facets?.country_counts ?? {},
+      withLinks: facets?.country_with_links,
+      counted: facets?.country_counted,
+      openVacancies: facets?.country_open_vacancies,
+    }, { includeEmptyAfrican: true }),
     [facets],
   );
 
+  // Picking a country (list or map) updates the page and the address bar
+  // (?country=ZA), so Back and a refresh land on the same country. "" is All countries.
+  function chooseCountry(name: string) {
+    setShortlistOnly(false);
+    setCountry(name);
+    const search = searchForSelection(window.location.search, name);
+    router.push(`${pathname}${search}`, { scroll: false });
+  }
+
   const shownCompanies = useMemo(() => {
+    if (!shortlistOnly && !country && !globalType) return [];
     const needle = q.trim().toLowerCase();
     const filtered = companies
       // A category and a country are fetched together. An empty country is
@@ -319,6 +353,27 @@ function CompaniesDirectoryInner() {
     College: "🏫 Colleges", Hospital: "🏥 Hospitals", SETA: "🛠️ SETAs", Sports: "🏅 Sports associations", Federations: "🌐 Federations", Music: "🎵 Music industry",
   };
 
+  const typeToLabel: Record<string, string> = {};
+  for (const f of DIRECTORY_FILTERS) {
+    const t = FILTER_TO_TYPE[f];
+    if (t) typeToLabel[t] = filterLabel[f].replace(/^\S*\p{Extended_Pictographic}\S*\s/u, "");
+  }
+  const explorerCategories = DIRECTORY_FILTERS.map((f) => {
+    const t = FILTER_TO_TYPE[f];
+    return { id: f, label: filterLabel[f], count: t ? categoryChipCount(facets, country, t) : null };
+  });
+  const byType = country ? facets.country_type_counts?.[country] : facets.type_counts;
+  const explorerStats: ExplorerStats = {
+    employers: country ? (countryCounts[country] ?? 0) : facets.total,
+    withLinks: country ? (facets.country_with_links?.[country] ?? 0) : facets.with_links,
+    counted: country ? (facets.country_counted?.[country] ?? 0) : sumValues(facets.country_counted),
+    openVacancies: country ? (facets.country_open_vacancies?.[country] ?? 0) : sumValues(facets.country_open_vacancies),
+    categories: Object.entries(byType ?? {})
+      .filter(([, n]) => n > 0)
+      .map(([t, n]) => ({ label: typeToLabel[t] ?? `${t}-listed`, count: n }))
+      .sort((a, b) => b.count - a.count),
+  };
+
   return (
     <div className="relative">
       <CircuitOverlay className="-z-10 opacity-70" opacity={0.07} stroke="#0b1f3a" dotColor="#f5b301" />
@@ -348,19 +403,23 @@ function CompaniesDirectoryInner() {
           </Banner>
         </div>
 
-        <div className="ss-hud-card flex items-center gap-4 rounded-2xl border border-ss-border bg-ss-glass px-5 py-4 shadow-sm backdrop-blur-sm">
-          <span aria-hidden className="ss-hud-scan !opacity-60 animate-scan-sweep" />
-          <span className="text-5xl leading-none drop-shadow-sm">{flag}</span>
-          <div>
-            <div className="text-xl font-extrabold text-ss-text">
-              {globalType ? (country ? `${filterLabel[filter]} · ${country}` : `${filterLabel[filter]} — every country`) : country}
-            </div>
-            <div className="ss-hud-tag text-xs text-ss-muted">
-              <strong className="text-ss-text"><AnimatedNumber value={countryTotal} /></strong> employers mapped 📡 ·{" "}
-              <strong className="text-ss-text"><AnimatedNumber value={countryWithLinks} /></strong> with a straight-to-jobs link 🚀
-            </div>
-          </div>
-        </div>
+        <CountryExplorer
+          rows={explorerRows}
+          selected={shortlistOnly ? "" : country}
+          onSelect={chooseCountry}
+          stats={explorerStats}
+          noun="employers"
+          categories={explorerCategories}
+          selectedCategory={filter}
+          onSelectCategory={(id) => { if (isDirectoryFilter(id)) selectFilter(id); }}
+          viewLabel="View all companies"
+          onView={() => {
+            selectFilter("all");
+            setShortlistOnly(false);
+            document.getElementById("explorer-results")?.scrollIntoView({ behavior: "smooth", block: "start" });
+          }}
+          allHint="Pick a country, or choose a category to see it in every country."
+        />
 
         <GlowFrame ringClassName="rounded-2xl">
         <Card>
@@ -402,51 +461,12 @@ function CompaniesDirectoryInner() {
               How to use
             </button>
           )}
-          {countries.length > 1 && (
-            <div className="mb-3 flex flex-wrap items-center gap-2 border-b border-ss-border pb-3">
-              <div className="min-w-[12rem] flex-1 sm:max-w-xs">
-                <Select
-                  value={BRICS_ONLY.has(country) ? "" : country}
-                  onChange={(e) => {
-                    const v = e.target.value;
-                    if (!v && !globalType) return; // inert placeholder outside category mode
-                    setShortlistOnly(false);
-                    setCountry(v);
-                  }}
-                  aria-label="Country"
-                >
-                  {globalType
-                    ? <option value="">🌍 All countries</option>
-                    : (BRICS_ONLY.has(country) && <option value="">Choose a country…</option>)}
-                  {countries.filter((cn) => !BRICS_ONLY.has(cn)).map((cn) => (
-                    <option key={cn} value={cn}>
-                      {COUNTRY_FLAGS[cn] || "🌍"} {cn} — {countryCounts[cn] ?? 0}
-                    </option>
-                  ))}
-                </Select>
-                <p className="ss-hud-tag mt-1 text-[10px] text-ss-muted">
-                  {country
-                    ? "Your country stays when you pick a category."
-                    : "All countries. Pick one whenever you want to narrow the list."}
-                </p>
-              </div>
-              {BRICS_PARTNERS.some((cn) => (countryCounts[cn] ?? 0) > 0) && (
-                <div className="min-w-[12rem] flex-1 sm:max-w-xs">
-                  <Select
-                    value={BRICS_PARTNERS.includes(country) ? country : ""}
-                    onChange={(e) => { if (e.target.value) { setShortlistOnly(false); setCountry(e.target.value); } }}
-                    aria-label="BRICS partners"
-                  >
-                    <option value="">🌐 BRICS partners…</option>
-                    {BRICS_PARTNERS.filter((cn) => (countryCounts[cn] ?? 0) > 0).map((cn) => (
-                      <option key={cn} value={cn}>
-                        {COUNTRY_FLAGS[cn] || "🌍"} {cn} — {countryCounts[cn] ?? 0}
-                      </option>
-                    ))}
-                  </Select>
-                  <p className="ss-hud-tag mt-1 text-[10px] text-ss-muted">🌐 Pick a BRICS partner country to browse its employers</p>
-                </div>
-              )}
+          <div className="mb-3 flex flex-wrap items-center gap-2 border-b border-ss-border pb-3">
+            <p className="ss-hud-tag min-w-[12rem] flex-1 text-[11px] text-ss-muted">
+              {country
+                ? `Showing ${flag} ${country}. Your country stays when you pick a category.`
+                : "All countries. Pick one in the list or on the map whenever you want to narrow it."}
+            </p>
               <button
                 onClick={() => setShortlistOnly((v) => !v)}
                 className={`flex shrink-0 flex-col items-center rounded-xl px-3.5 py-1.5 leading-tight transition ${
@@ -458,8 +478,7 @@ function CompaniesDirectoryInner() {
                   {shortlistIds.size} saved
                 </span>
               </button>
-            </div>
-          )}
+          </div>
 
           <div className="min-w-[14rem]">
             <Input
@@ -525,6 +544,7 @@ function CompaniesDirectoryInner() {
           <span className="ss-hud-tag text-[11px] text-ss-muted sm:ml-auto">Pick a card, any card 🃏</span>
         </div>
 
+        <div id="explorer-results" className="scroll-mt-24" />
         <NotCountedNotice companies={shownCompanies} />
 
         <div className="grid gap-3 md:grid-cols-2">
