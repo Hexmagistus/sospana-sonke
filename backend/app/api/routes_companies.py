@@ -31,6 +31,7 @@ from app.services.csv_import import import_companies_from_csv
 from app.services.link_report_service import create_link_report
 from app.services.logo_service import discover_favicon
 from app.services.url_tester import test_url, status_from_result
+from app.services.vacancy_counts import open_vacancy_counts
 from app.services.watch_service import trending_company_ids
 
 _NEEDS_ATTENTION = {"needs_real_url", "needs_review", "no_url", "error"}
@@ -57,6 +58,17 @@ _LIST_DEFER = (
 # directory page should not each open a DB round trip.
 _ICON_CACHE_TTL = 600.0
 _icon_cache: dict[str, tuple[float, str | None]] = {}
+
+
+def _with_open_counts(db: Session, companies: list[Company]) -> list[CompanyResponse]:
+    """Attach the real open-vacancy count. One grouped query for the whole page."""
+    counts = open_vacancy_counts(db, [c.id for c in companies])
+    out: list[CompanyResponse] = []
+    for company in companies:
+        row = CompanyResponse.model_validate(company)
+        row.open_vacancies = counts.get(company.id, 0)
+        out.append(row)
+    return out
 
 
 # Anti-bulk-copy: a regular user can't pull the whole directory in one call any
@@ -103,7 +115,7 @@ def list_companies(
         scoped = bool(source_type or country or (q and q.strip()) or ids)
         limit = min(limit, _USER_MAX_ROWS if scoped else _UNSCOPED_USER_MAX_ROWS)
     query = query.order_by(Company.company_name).offset(offset).limit(limit)
-    return [CompanyResponse.model_validate(c) for c in query.all()]
+    return _with_open_counts(db, query.all())
 
 
 # Directory headline counts change only when an admin imports or edits a row.
@@ -191,7 +203,7 @@ def surprise_company(request: Request, db: Session = Depends(get_db), _: User = 
          .order_by(func.random()).first())
     if c is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No employers yet.")
-    return CompanyResponse.model_validate(c)
+    return _with_open_counts(db, [c])[0]
 
 
 @router.get("/coverage", response_model=list[CoverageRow])
@@ -400,4 +412,4 @@ async def set_automation_policy(company_id: str, body: AutomationPolicyRequest,
     company.has_captcha = body.has_captcha
     db.commit()
     db.refresh(company)
-    return CompanyResponse.model_validate(company)
+    return _with_open_counts(db, [company])[0]

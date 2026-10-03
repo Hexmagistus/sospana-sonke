@@ -2,8 +2,7 @@
 
 import { useEffect } from "react";
 import { Button } from "@/components/ui";
-import { CompanyActionsRow } from "@/components/CompanyActions";
-import { TipPreview } from "@/components/TipPreview";
+import { CompanyActionsRow, OpenVacancyCount } from "@/components/CompanyActions";
 import { COUNTRY_FLAGS } from "@/lib/countryFlags";
 import type { Company } from "@/lib/types";
 
@@ -12,12 +11,10 @@ import type { Company } from "@/lib/types";
  * report actions are all still right here. */
 export function CompanyPreviewModal({
   company,
-  openJobs,
   shareBasePath,
   onClose,
 }: {
   company: Company;
-  openJobs: number;
   shareBasePath: string;
   onClose: () => void;
 }) {
@@ -59,11 +56,9 @@ export function CompanyPreviewModal({
           </button>
         </div>
 
-        {openJobs > 0 && (
-          <p className="mt-3 text-sm font-semibold text-brand-dark">
-            {openJobs} open position{openJobs === 1 ? "" : "s"}
-          </p>
-        )}
+        <div className="mt-3">
+          <OpenVacancyCount company={company} />
+        </div>
         {company.notes && <p className="mt-2 text-sm text-ss-muted">{company.notes}</p>}
 
         <div className="mt-4">
@@ -75,8 +70,6 @@ export function CompanyPreviewModal({
             <span className="text-xs text-ss-muted">No careers page yet</span>
           )}
         </div>
-
-        {company.careers_url && <div className="mt-3 flex"><TipPreview companyId={company.id} /></div>}
 
         <CompanyActionsRow company={company} shareBasePath={shareBasePath} />
       </div>

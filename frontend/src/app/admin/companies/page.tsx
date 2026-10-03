@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Guard from "@/components/Guard";
 import { api } from "@/lib/api";
 import { Card, Alert, Spinner, Button, Badge, Input } from "@/components/ui";
+import { OpenVacancyCount } from "@/components/CompanyActions";
 import type { Company } from "@/lib/types";
 
 function CompaniesInner() {
@@ -81,6 +82,7 @@ function CompaniesInner() {
                   <th>Type</th>
                   <th>Status</th>
                   <th>Careers URL</th>
+                  <th>Open vacancies we found</th>
                   <th></th>
                 </tr>
               </thead>
@@ -92,6 +94,9 @@ function CompaniesInner() {
                     <td className="text-ss-muted">{c.scraping_status}</td>
                     <td className="max-w-[16rem] truncate text-ss-muted">
                       {c.careers_url ? <a href={c.careers_url} target="_blank" rel="noreferrer" className="text-brand hover:underline">{c.careers_url}</a> : "—"}
+                    </td>
+                    <td className="text-ss-muted">
+                      {c.careers_url ? <OpenVacancyCount company={c} /> : "—"}
                     </td>
                     <td className="text-right">
                       {c.careers_url && (

@@ -207,6 +207,9 @@ export interface Company {
   // When this row was first added to the directory -- powers the "Recently
   // added" badge on the Companies/Universities cards (see CompanyActions.tsx).
   created_at: string;
+  // Open vacancies we currently hold. 0 is a real zero from the directory
+  // query, not an estimate. Absent on older cached responses.
+  open_vacancies?: number;
 }
 
 // One row of the "popular this week" ranking (GET /companies/trending).

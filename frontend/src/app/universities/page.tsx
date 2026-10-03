@@ -8,14 +8,13 @@ import { api } from "@/lib/api";
 import { Card, Input, Button, Alert, Spinner, Select, EmptyState } from "@/components/ui";
 import { Banner } from "@/components/Banner";
 import { CompanyLogo, isAtsPortal } from "@/components/CompanyLogo";
-import { CompanyActionsRow, TrendingBadge, ShortlistStar } from "@/components/CompanyActions";
-import { TipPreview } from "@/components/TipPreview";
+import { CompanyActionsRow, OpenVacancyCount, TrendingBadge, ShortlistStar } from "@/components/CompanyActions";
 import { CompanyPreviewModal } from "@/components/CompanyPreviewModal";
 import { AnimatedNumber } from "@/components/AnimatedNumber";
 import { FunSpinner } from "@/components/FunSpinner";
 import { COUNTRY_FLAGS } from "@/lib/countryFlags";
 import { getShortlist, SHORTLIST_EVENT } from "@/lib/shortlist";
-import type { Company, Vacancy, TrendingCompany } from "@/lib/types";
+import type { Company, TrendingCompany } from "@/lib/types";
 
 const AVATAR_GRADIENTS = [
   "from-sky to-purple",
@@ -40,7 +39,6 @@ function hashCode(s: string): number {
 function UniversitiesDirectoryInner() {
   const searchParams = useSearchParams();
   const [universities, setUniversities] = useState<Company[]>([]);
-  const [vacancies, setVacancies] = useState<Vacancy[]>([]);
   const [trending, setTrending] = useState<Set<string>>(new Set());
   const [err, setErr] = useState("");
   const [q, setQ] = useState("");
@@ -50,15 +48,9 @@ function UniversitiesDirectoryInner() {
   const [previewCompany, setPreviewCompany] = useState<Company | null>(null);
 
   useEffect(() => {
-    Promise.all([
-      // active=true: same fix as the Companies directory -- exclude
-      // not-yet-vetted rows from the public listing and its counts.
-      api.get<Company[]>("/companies?source_type=UNI&limit=5000&active=true"),
-      api.getAll<Vacancy>("/vacancies?is_open=true").catch(() => [] as Vacancy[]),
-    ]).then(([unis, vacs]) => {
-      setUniversities(unis);
-      setVacancies(vacs);
-    }).catch((e) => setErr(e.message));
+    api.get<Company[]>("/companies?source_type=UNI&limit=5000&active=true")
+      .then(setUniversities)
+      .catch((e) => setErr(e.message));
     // Best-effort: a quiet directory with no watches yet just shows no badges.
     api.get<TrendingCompany[]>("/companies/trending?days=7&limit=200")
       .then((rows) => setTrending(new Set(rows.map((r) => r.company_id))))
@@ -95,14 +87,6 @@ function UniversitiesDirectoryInner() {
     }
   }, [searchParams, universities]);
 
-  // Real open-position counts per university, from the same vacancy data the
-  // Find Jobs page uses -- never fabricated.
-  const jobsByUni = useMemo(() => {
-    const m: Record<string, number> = {};
-    for (const v of vacancies) m[v.company_id] = (m[v.company_id] || 0) + 1;
-    return m;
-  }, [vacancies]);
-
   const countries = useMemo(() => {
     const set = Array.from(new Set(universities.map((c) => c.country).filter(Boolean) as string[]));
     set.sort((a, b) => (a === "South Africa" ? -1 : b === "South Africa" ? 1 : a.localeCompare(b)));
@@ -125,7 +109,7 @@ function UniversitiesDirectoryInner() {
       .filter((c) => !shortlistOnly || shortlistIds.has(c.id))
       .filter((c) => !needle || c.company_name.toLowerCase().includes(needle));
     return [...filtered].sort((a, b) => Number(!a.careers_url) - Number(!b.careers_url) || a.company_name.localeCompare(b.company_name));
-  }, [universities, q, country, jobsByUni, shortlistOnly, shortlistIds]);
+  }, [universities, q, country, shortlistOnly, shortlistIds]);
 
   function surpriseMe() {
     if (!universities.length) return;
@@ -236,7 +220,6 @@ function UniversitiesDirectoryInner() {
 
         <div className="grid gap-3 md:grid-cols-2">
           {shownUniversities.map((c) => {
-            const openJobs = jobsByUni[c.id] || 0;
             const accent = CARD_ACCENTS[Math.abs(hashCode(c.id)) % CARD_ACCENTS.length];
             return (
               <div
@@ -273,11 +256,9 @@ function UniversitiesDirectoryInner() {
                 </div>
 
                 <div className="mt-3 flex flex-wrap items-center gap-3 border-t border-ss-border pt-3 text-xs">
-                  {openJobs > 0 && (
+                  {c.careers_url && (
                     <>
-                      <span className="font-semibold text-brand-dark">
-                        {`${openJobs} open position${openJobs === 1 ? "" : "s"}`}
-                      </span>
+                      <OpenVacancyCount company={c} />
                       <span className="text-ss-border">·</span>
                     </>
                   )}
@@ -288,12 +269,9 @@ function UniversitiesDirectoryInner() {
 
                 <div className="mt-3 flex flex-wrap items-stretch gap-3" onClick={(e) => e.stopPropagation()}>
                   {c.careers_url ? (
-                    <>
-                      <a href={c.careers_url} target="_blank" rel="noopener noreferrer" className="self-center">
-                        <Button>View vacancies →</Button>
-                      </a>
-                      <TipPreview companyId={c.id} />
-                    </>
+                    <a href={c.careers_url} target="_blank" rel="noopener noreferrer" className="self-center">
+                      <Button>View vacancies →</Button>
+                    </a>
                   ) : (
                     <span className="whitespace-nowrap text-xs text-ss-muted">No careers page yet</span>
                   )}
@@ -327,7 +305,6 @@ function UniversitiesDirectoryInner() {
       {previewCompany && (
         <CompanyPreviewModal
           company={previewCompany}
-          openJobs={jobsByUni[previewCompany.id] || 0}
           shareBasePath="/universities"
           onClose={() => setPreviewCompany(null)}
         />
