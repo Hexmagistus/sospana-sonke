@@ -59,6 +59,24 @@ def test_fast_json_boards_are_due_again_after_an_hour(db):
     assert html.id not in ids
 
 
+def test_empty_boards_are_scanned_less_often(db):
+    from app.services.scan_runner import due_after_hours
+    recent = NOW - timedelta(hours=13)
+    quiet = _co(db, "QuietHtml", last=recent)
+    _src(db, quiet, fails=0)
+    src = db.query(VacancySource).filter_by(company_id=quiet.id).one()
+    src.empty_streak = 3
+    db.commit()
+    busy = _co(db, "BusyHtml", last=NOW - timedelta(hours=7))
+    assert due_after_hours("https://example.com/careers", 0, 0) == MIN_RESCAN_HOURS
+    assert due_after_hours("https://example.com/careers", 0, 1) == 12
+    assert due_after_hours("https://boards.greenhouse.io/acme", 0, 3) == 24
+    assert due_after_hours("https://example.com/careers", 0, 8) == 24 * 7
+    ids = select_due_company_ids(db, limit=10, now=NOW)
+    assert quiet.id not in ids
+    assert busy.id in ids
+
+
 def test_selection_respects_limit_and_skips_inactive(db):
     a = _co(db, "A"); b = _co(db, "B")
     b.active = False; db.commit()

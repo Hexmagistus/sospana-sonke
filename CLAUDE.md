@@ -66,6 +66,9 @@ What is running today, before the pipeline work below. This is the system the up
 ### 2026-10-03 — Cursor (Grok 4.7) — Pin braces so the full npm audit passes
 The same pin as PR #16 (`47ab402`). `braces` 3.0.3 is still the newest npm release and is inside GHSA-vfj7-8cjw-p6xm, via Tailwind 3.4.7. `frontend/vendor/braces` is that release plus a nesting cap of 100, versioned 3.0.4, and `overrides.braces` is `$braces`. CI runs `npm audit --audit-level=high` on the whole tree. Tailwind stays on 3.4.7. This is not an upstream braces release.
 
+### 2026-10-03 — Cursor (Grok 4.7) — Scan scheduling and a strategy adapter
+Empty careers boards wait 12 hours, then a day, then a week, instead of the normal 6-hour (HTML) or 1-hour (public JSON) gap. Failures still use the existing backoff. `StrategyAdapter` wraps the current ATS strategies (`discover` / `extract` / `normalize` / `validate`). A new feed is still a strategy registered in `get_strategy`; the scanner does not grow a second copy.
+
 ### 2026-10-03 — Cursor (Grok 4.7) — Scraper pipeline, schema and core path
 Architecture assessment is the section above. This change keeps the existing strategies and scan cron, and makes the store/upsert/close path stricter: stable fingerprint, canonical listing URL separate from the untouched application URL, two-miss close, per-scan log, SSRF checks, script stripping, and a completeness score that is not a legitimacy claim. Browser-only boards are marked `JAVASCRIPT_REQUIRED` and are not fetched. Application links are not HEAD-checked, so new rows stay `DISCOVERED`.
 
