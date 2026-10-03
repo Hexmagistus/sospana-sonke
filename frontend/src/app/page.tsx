@@ -315,7 +315,7 @@ const LIVE = [
   { name: "Ethiopia", flag: "🇪🇹", count: 66, pending: false },
   { name: "Tunisia", flag: "🇹🇳", count: 62, pending: false },
   { name: "India", flag: "🇮🇳", count: 58, pending: false },
-  { name: "Brazil", flag: "🇧🇷", count: 55, pending: false },
+  { name: "Brazil", flag: "🇧🇷", count: 68, pending: false },
   { name: "Benin", flag: "🇧🇯", count: 54, pending: false },
   { name: "Guinea", flag: "🇬🇳", count: 56, pending: false },
   { name: "Algeria", flag: "🇩🇿", count: 56, pending: false },
@@ -363,6 +363,7 @@ const LIVE = [
   { name: "Spain", flag: "🇪🇸", count: 3, pending: false },
   { name: "Netherlands", flag: "🇳🇱", count: 3, pending: false },
   { name: "Sweden", flag: "🇸🇪", count: 2, pending: false },
+  { name: "Chile", flag: "🇨🇱", count: 2, pending: false },
   { name: "Denmark", flag: "🇩🇰", count: 2, pending: false },
   { name: "Fiji", flag: "🇫🇯", count: 1, pending: false },
   { name: "Belgium", flag: "🇧🇪", count: 1, pending: false },
@@ -373,6 +374,8 @@ const LIVE = [
   { name: "Austria", flag: "🇦🇹", count: 1, pending: false },
   { name: "Luxembourg", flag: "🇱🇺", count: 1, pending: false },
   { name: "Lithuania", flag: "🇱🇹", count: 1, pending: false },
+  { name: "Colombia", flag: "🇨🇴", count: 1, pending: false },
+  { name: "Argentina", flag: "🇦🇷", count: 1, pending: false },
 ];
 // All four countries that used to sit here (Niger, Guinea-Bissau, Equatorial
 // Guinea, Eritrea) got their first real seed rows in the 2026-09-24 COLLEGE
@@ -384,7 +387,7 @@ const SOON: { name: string; flag: string }[] = [];
 const TOTAL_EMPLOYERS = LIVE.reduce((sum, c) => sum + c.count, 0);
 // Hero, map footer and the closing paragraph all read this. Add the next
 // continent here so the copy stays in step with the directory.
-const COVERAGE = "Africa, Oceania, Europe and partner markets";
+const COVERAGE = "Africa, Oceania, Europe, South America and partner markets";
 function rankCountries(rows: typeof LIVE) {
   return [...rows].sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
 }
@@ -397,11 +400,16 @@ const EUROPE = new Set([
   "Croatia", "Serbia", "Albania", "Bosnia and Herzegovina", "North Macedonia", "Montenegro",
   "Kosovo", "Moldova", "Belarus",
 ]);
-const PARTNERS = new Set(["Brazil", "Russia", "India", "China", "Iran", "United Arab Emirates", "Indonesia"]);
+const SOUTH_AMERICA = new Set([
+  "Argentina", "Bolivia", "Brazil", "Chile", "Colombia", "Ecuador", "Guyana",
+  "Paraguay", "Peru", "Suriname", "Uruguay", "Venezuela",
+]);
+const PARTNERS = new Set(["Russia", "India", "China", "Iran", "United Arab Emirates", "Indonesia"]);
 
-function regionOf(name: string): "Africa" | "Oceania" | "Europe" | "Partners" {
+function regionOf(name: string): "Africa" | "Oceania" | "Europe" | "South America" | "Partners" {
   if (OCEANIA.has(name)) return "Oceania";
   if (EUROPE.has(name)) return "Europe";
+  if (SOUTH_AMERICA.has(name)) return "South America";
   if (PARTNERS.has(name)) return "Partners";
   return "Africa";
 }
@@ -411,7 +419,7 @@ function regionOf(name: string): "Africa" | "Oceania" | "Europe" | "Partners" {
 function liveNowCards(ranked: typeof LIVE, n = 8) {
   const picked: typeof LIVE = [];
   const seen = new Set<string>();
-  for (const region of ["Africa", "Oceania", "Europe", "Partners"] as const) {
+  for (const region of ["Africa", "Oceania", "Europe", "South America", "Partners"] as const) {
     const lead = ranked.find((c) => regionOf(c.name) === region);
     if (lead && !seen.has(lead.name)) {
       picked.push(lead);
@@ -749,7 +757,7 @@ export default function Home() {
               </Reveal>
               <Reveal delay={240}>
                 <p className="mt-6 max-w-xl text-lg leading-relaxed text-blue-100">
-                  First made for the SADC region, now listing employers across Africa, Oceania, Europe and partner markets. Each card is a direct link to that employer&apos;s own careers page. We do not host every vacancy, and we do not promise you the job.
+                  First made for the SADC region, now listing employers across Africa, Oceania, Europe, South America and partner markets. Each card is a direct link to that employer&apos;s own careers page. We do not host every vacancy, and we do not promise you the job.
                 </p>
               </Reveal>
 
@@ -988,7 +996,7 @@ export default function Home() {
           <div className="relative">
             <Reveal>
               <span className="inline-block rounded-full bg-white/10 px-4 py-1.5 text-xs font-semibold backdrop-blur-sm">🌍 Opportunity map</span>
-              <h2 className="mt-4 font-display text-2xl font-extrabold sm:text-4xl">Born in SADC. Live across Africa, Oceania, Europe and partner markets.</h2>
+              <h2 className="mt-4 font-display text-2xl font-extrabold sm:text-4xl">Born in SADC. Live across Africa, Oceania, Europe, South America and partner markets.</h2>
               <p className="mt-3 max-w-3xl text-blue-100">
                 We&apos;re live across {COVERAGE}. A country is listed once a direct careers page is verified.{" "}
                 {liveByCountry
@@ -1175,7 +1183,7 @@ function LiveCountryCard({ c, i }: { c: { name: string; flag: string; count: num
 
 /* A real "jump to a country" dropdown -- a native <select> (so it gets
    keyboard type-ahead and a proper mobile picker for free) listing every
-   country in the directory (Africa, Oceania, Europe, and partner markets)
+   country in the directory (the same coverage line as the rest of the page)
    alphabetically. Choosing one shows just that country's card below. */
 function CountryJumpSelect({
   live,
@@ -1206,7 +1214,7 @@ function CountryJumpSelect({
           onChange={(e) => setSelected(e.target.value)}
           className="w-full appearance-none rounded-xl border border-white/20 bg-white/10 py-3 pl-4 pr-10 text-sm font-bold text-white backdrop-blur-sm transition hover:border-white/40 hover:bg-white/20 focus:border-white/50 focus:outline-none"
         >
-          <option value="" className="text-navy">Choose a country in Africa, Oceania, Europe…</option>
+          <option value="" className="text-navy">Choose a country in {COVERAGE}</option>
           {options.map((o) => (
             <option key={o.name} value={o.name} className="text-navy">
               {o.flag} {o.name}{o.kind === "live" ? ` — ${o.count} ${o.count === 1 ? "employer" : "employers"}` : " — coming soon"}

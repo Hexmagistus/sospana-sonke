@@ -50,8 +50,15 @@ commit it (and push, if you pushed the rest of your work). Newest entry on top.
 
 ## Session Log
 
+### 2026-10-03 — Cursor (Grok 4.7) — Country picker names South America
+The jump-to-country placeholder still said “Choose a country in Africa, Oceania, Europe…”. It now uses the same coverage line as the rest of the homepage, so it names South America and partner markets.
+
 ### 2026-09-28 (install prompt) — Cursor (Grok 4.7) — Keep the home-screen card off sign-in
 The “Add Sospana Sonke to your home screen” card was appearing about a second and a half after load and covering the Email field on `/login` and `/register` on a phone. It no longer shows on the sign-in, registration, or password-reset pages. While any field is focused it hides, and if it would still sit on a field it moves up, then stays hidden. Logged-out pages dock it at the bottom corner; the higher position is only used when the bottom tab bar is on screen.
+
+### 2026-09-28 (South America) — Cursor (Grok 4.7) — Direct careers boards
+Added 17 employers whose public ATS feeds returned open roles on 2026-09-28: Brazil 13 (Greenhouse, Lever, Workable), Chile 2 (Lever), Colombia 1 (Workable), Argentina 1 (SmartRecruiters). Brazil's homepage count is 55 → 68. Argentina, Chile and Colombia are new on the landing page. Brazil is grouped with South America rather than the partner-market set. Homepage copy names South America alongside Africa, Oceania and Europe.
+Rejected after a fetch, not guessed: Clara and Kavak are in Mexico; SumUp, Thoughtworks and AB InBev boards are global; Dock's Recruitee host is a Dutch organisation; Avianca's only open SmartRecruiters post was in Atlanta; Itaú's SmartRecruiters board is test jobs; Greenhouse `bcp` is a Canadian employer; SmartRecruiters `gtt` is the French company. No readable board turned up for Uruguay, Ecuador, Peru, Paraguay, Bolivia, Venezuela, Guyana or Suriname.
 
 ### 2026-09-28 (login) — Cursor (Grok 4.7) — Sign-in and registration delight
 Login and register now share a circuit mascot (it covers its eyes while a password is typed and smiles once you're in), gold traces that light as fields are filled, and a rotating local greeting (Sawubona, Dumela, Molo, Howzit, Bonjour, Olá) with the time of day. Register and reset show a password-strength line in plain language. A short pause, skipped when reduced motion is on, plays before the redirect. `/forgot-password` and `/reset-password` call the existing reset endpoints; the request still answers the same way whether or not the email exists, and confirming a reset still signs every other session out. Google sign-in, MFA, and the rate limits are unchanged.

@@ -1,7 +1,7 @@
 /**
  * Code-drawn brand mark. Gold circuits on navy.
  * Africa is drawn largest because the platform started in the SADC region.
- * Europe and Oceania are marked because they are on the directory now.
+ * Europe, Oceania and South America are marked because they are on the directory now.
  * The faint outlines are room for later continents. No map tiles, no photos of people.
  */
 export default function WorldCircuitMark({ className = "" }: { className?: string }) {
@@ -9,7 +9,7 @@ export default function WorldCircuitMark({ className = "" }: { className?: strin
     <svg
       viewBox="0 0 320 420"
       role="img"
-      aria-label="Born in SADC, built for the world. Africa, Europe and Oceania on a gold circuit."
+      aria-label="Born in SADC, built for the world. Africa, Europe, Oceania and South America on a gold circuit."
       className={className}
     >
       <defs>
@@ -63,6 +63,13 @@ export default function WorldCircuitMark({ className = "" }: { className?: strin
       <text x="160" y="292" textAnchor="middle" fill="#071528" fontSize="11" fontWeight="700">
         SADC
       </text>
+      {/* South America, west of Africa. */}
+      <path
+        d="M58 176 C74 164 90 176 88 196 C84 216 68 226 56 214 C46 200 46 184 58 176 Z"
+        fill="#f5b301"
+        opacity="0.85"
+      />
+      <text x="72" y="160" textAnchor="middle" fill="#ffcf5a" fontSize="10" fontWeight="600">S. America</text>
       <text x="188" y="74" fill="#e8f7f5" fontSize="11" fontWeight="600">Europe</text>
       <text x="228" y="186" fill="#e8f4ff" fontSize="11" fontWeight="600">Oceania</text>
       <text x="160" y="168" textAnchor="middle" fill="#3a2b00" fontSize="13" fontWeight="700">Africa</text>
