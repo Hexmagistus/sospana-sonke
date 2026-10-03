@@ -43,6 +43,8 @@ type Props = {
   onView?: () => void;
   /** Shown when All countries is picked in a view that cannot list everything at once. */
   allHint?: ReactNode;
+  /** Name list for the chosen country and category, drawn over the map (below it on small screens). */
+  mapList?: ReactNode;
 };
 
 function Stat({ label, value, sub }: { label: string; value: string; sub?: string }) {
@@ -58,7 +60,7 @@ function Stat({ label, value, sub }: { label: string; value: string; sub?: strin
 /** Split view: country list on the left, big map, header and stats strip on the right. */
 export function CountryExplorer({
   rows, selected, onSelect, stats, noun = "employers", categories, selectedCategory,
-  onSelectCategory, allowAll = true, viewLabel, onView, allHint,
+  onSelectCategory, allowAll = true, viewLabel, onView, allHint, mapList,
 }: Props) {
   const counts = useMemo(() => {
     const m: Record<string, number> = {};
@@ -142,7 +144,10 @@ export function CountryExplorer({
             />
           )}
 
-          <ExplorerMap counts={counts} selected={selected} onSelect={onSelect} noun={noun} />
+          <div className="relative">
+            <ExplorerMap counts={counts} selected={selected} onSelect={onSelect} noun={noun} />
+            {mapList}
+          </div>
 
           {selected && row && !row.selectable && (
             <p className="mt-2 text-sm text-blue-200">No {noun} yet in {selected}.</p>

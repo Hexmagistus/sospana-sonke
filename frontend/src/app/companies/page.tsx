@@ -14,6 +14,8 @@ import { CompanyPreviewModal } from "@/components/CompanyPreviewModal";
 import { AnimatedNumber } from "@/components/AnimatedNumber";
 import { FunSpinner } from "@/components/FunSpinner";
 import PendingSearchBanner from "@/components/PendingSearchBanner";
+import { CategoryListPanel } from "@/lib/explorer/CategoryListPanel";
+import { categoryListItems } from "@/lib/explorer/categoryList";
 import { HowToUseCard } from "@/lib/explorer/HowToUseCard";
 import { CountryExplorer, type ExplorerStats } from "@/components/CountryExplorer";
 import { COUNTRY_FLAGS } from "@/lib/countryFlags";
@@ -24,6 +26,7 @@ import {
   DIRECTORY_COUNTRY_KEY,
   DIRECTORY_FILTERS,
   guideStepsFor,
+  matchesDirectoryFilter,
   FILTER_TO_TYPE,
   type DirectoryFilter,
   categoryChipCount,
@@ -285,23 +288,7 @@ function CompaniesDirectoryInner() {
       // "All countries", and only the country control sets that.
       .filter((c) => shortlistOnly || !country || (c.country || "") === country)
       .filter((c) => !shortlistOnly || shortlistIds.has(c.id))
-      .filter((c) => {
-        if (filter === "all") return true;
-        const st = (c.source_type || "").toUpperCase();
-        if (filter === "SOE") return st === "SOE";
-        if (filter === "Municipality") return st === "MUNI";
-        if (filter === "Department") return st === "DEPT";
-        if (filter === "Private") return st === "PRIVATE";
-        if (filter === "NGO") return st === "NGO";
-        if (filter === "University") return st === "UNI";
-        if (filter === "College") return st === "COLLEGE";
-        if (filter === "Hospital") return st === "HOSPITAL";
-        if (filter === "SETA") return st === "SETA";
-        if (filter === "Sports") return st === "SPORT";
-        if (filter === "Federations") return st === "FED";
-        if (filter === "Music") return st === "MUSIC";
-        return st !== "SOE" && st !== "MUNI" && st !== "PRIVATE" && st !== "NGO" && st !== "UNI" && st !== "COLLEGE" && st !== "HOSPITAL" && st !== "SETA" && st !== "SPORT" && st !== "FED" && st !== "MUSIC";
-      })
+      .filter((c) => matchesDirectoryFilter(c, filter))
       .filter((c) => !needle
         || c.company_name.toLowerCase().includes(needle)
         || (c.jse_code || "").toLowerCase().includes(needle));
@@ -401,6 +388,15 @@ function CompaniesDirectoryInner() {
             document.getElementById("explorer-results")?.scrollIntoView({ behavior: "smooth", block: "start" });
           }}
           allHint="Pick a country, or choose a category to see it in every country."
+          mapList={
+            country && !shortlistOnly && !sliceLoading ? (
+              <CategoryListPanel
+                items={categoryListItems(companies.filter((c) => (c.country || "") === country && matchesDirectoryFilter(c, filter)))}
+                category={filter === "all" ? "All categories" : filterLabel[filter].replace(/^\S*\p{Extended_Pictographic}\S*\s/u, "")}
+                country={country}
+              />
+            ) : null
+          }
         />
 
         <GlowFrame ringClassName="rounded-2xl">

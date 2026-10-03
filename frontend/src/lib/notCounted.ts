@@ -28,15 +28,18 @@ export const NOT_COUNTED_NOTICE_BODY =
   "Open the employer's careers link and check that employer directly, and keep checking such " +
   "employers yourself from time to time.";
 
+/** A vacancy count exists (a real zero included) or vacancies are held. */
+export function hasCountedResult(company: Pick<Company, "open_vacancies" | "open_vacancies_known">): boolean {
+  return company.open_vacancies_known === true || (company.open_vacancies ?? 0) > 0;
+}
+
 /** Same rule the card uses: a careers link exists and no count is known.
  * A known count (including a real zero) or any held vacancy is not "not counted". */
 export function isNotCounted(
   company: Pick<Company, "careers_url" | "open_vacancies" | "open_vacancies_known">,
 ): boolean {
   if (!company.careers_url) return false;
-  const n = company.open_vacancies ?? 0;
-  const known = company.open_vacancies_known === true || n > 0;
-  return !known;
+  return !hasCountedResult(company);
 }
 
 export function anyNotCounted(
