@@ -787,7 +787,7 @@ export default function Home() {
               </Reveal>
               <Reveal delay={240}>
                 <p className="mt-6 max-w-xl text-lg leading-relaxed text-blue-100">
-                  First made for the SADC region, now listing employers across Africa, Oceania, Europe, South America and partner markets. Each card is a direct link to that employer&apos;s own careers page. We do not host every vacancy, and we do not promise you the job.
+                  First made for the SADC region, now listing employers across Africa, Oceania, Europe, South America and partner markets. Each card is a direct link to that employer&apos;s own careers page. We do not host every vacancy, and we do not promise you the job. A card that says &ldquo;Not counted yet&rdquo; does not mean the employer has no vacancies: check their careers page directly.
                 </p>
               </Reveal>
 

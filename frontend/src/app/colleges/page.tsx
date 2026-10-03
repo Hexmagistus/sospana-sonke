@@ -8,7 +8,7 @@ import { api } from "@/lib/api";
 import { Card, Input, Button, Alert, Spinner, Select, EmptyState } from "@/components/ui";
 import { Banner } from "@/components/Banner";
 import { CompanyLogo, isAtsPortal } from "@/components/CompanyLogo";
-import { CompanyActionsRow, OpenVacancyCount, TrendingBadge, ShortlistStar } from "@/components/CompanyActions";
+import { CompanyActionsRow, NotCountedNotice, OpenVacancyCount, TrendingBadge, ShortlistStar } from "@/components/CompanyActions";
 import { CompanyPreviewModal } from "@/components/CompanyPreviewModal";
 import { AnimatedNumber } from "@/components/AnimatedNumber";
 import { FunSpinner } from "@/components/FunSpinner";
@@ -217,6 +217,8 @@ function CollegesDirectoryInner() {
           Showing <strong className="text-ss-text">{shownColleges.length}</strong> of{" "}
           {shortlistOnly ? shortlistIds.size : countryTotal} {shortlistOnly ? "shortlisted colleges" : `colleges in ${country}`}.
         </p>
+
+        <NotCountedNotice companies={shownColleges} />
 
         <div className="grid gap-3 md:grid-cols-2">
           {shownColleges.map((c) => {

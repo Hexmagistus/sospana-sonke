@@ -9,5 +9,10 @@
     "rootDir": "src/lib",
     "outDir": "/tmp/dir-filter-test"
   },
-  "files": ["src/lib/directoryFilters.ts", "src/lib/directoryFilters.test.ts"]
+  "files": [
+    "src/lib/directoryFilters.ts",
+    "src/lib/directoryFilters.test.ts",
+    "src/lib/notCounted.ts",
+    "src/lib/notCounted.test.ts"
+  ]
 }

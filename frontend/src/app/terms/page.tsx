@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Card } from "@/components/ui";
+import { NOT_COUNTED_LABEL, NOT_COUNTED_NOTICE_BODY } from "@/lib/notCounted";
 
 export const metadata = { title: "Terms of Service — Sospana Sonke" };
 
@@ -60,6 +61,9 @@ export default function TermsPage() {
             our best to keep them accurate but cannot guarantee that every listing is current or that
             an external site is available. Your application and any hiring decision are between you and
             the employer.
+          </p>
+          <p>
+            <strong>&quot;{NOT_COUNTED_LABEL}&quot; on an employer card.</strong> {NOT_COUNTED_NOTICE_BODY}
           </p>
           <p>
             Employer, university, college, hospital and public-body names, logos and trade marks belong

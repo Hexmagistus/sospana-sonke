@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Card } from "@/components/ui";
+import { NOT_COUNTED_LABEL, NOT_COUNTED_NOTICE_BODY } from "@/lib/notCounted";
 
 export const metadata = { title: "Privacy Policy — Sospana Sonke" };
 
@@ -151,6 +152,9 @@ export default function PrivacyPage() {
             mean the organisation partners with, sponsors or endorses Sospana Sonke. Labels such as
             &quot;BRICS partner&quot; describe the country&apos;s relationship to South Africa only. If you
             represent an organisation and want a listing corrected or removed, email us.
+          </p>
+          <p>
+            <strong>&quot;{NOT_COUNTED_LABEL}&quot; on an employer card.</strong> {NOT_COUNTED_NOTICE_BODY}
           </p>
 
           <h2 className="pt-2 text-lg font-semibold text-ss-text">Children</h2>
