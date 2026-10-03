@@ -4,8 +4,6 @@ import { useEffect, useState } from "react";
 import { api, ApiError } from "@/lib/api";
 import { Button, Textarea } from "@/components/ui";
 import { isShortlisted, toggleShortlist } from "@/lib/shortlist";
-import { CompanyTips } from "@/components/CompanyTips";
-import { OPEN_TIPS_EVENT } from "@/components/TipPreview";
 import type { Company } from "@/lib/types";
 
 function timeAgo(iso: string | null | undefined): string | null {
@@ -56,6 +54,26 @@ export function VerifiedBadge({ company }: { company: Company }) {
   );
 }
 
+/** How many open vacancies we hold for an employer with a careers link.
+ * The number comes from the companies payload. Zero is shown. Employers
+ * without a direct link get nothing here. */
+export function OpenVacancyCount({ company }: { company: Company }) {
+  if (!company.careers_url) return null;
+  const n = company.open_vacancies ?? 0;
+  const label = n === 0
+    ? "0 vacancies found"
+    : n === 1
+      ? "1 open vacancy we found"
+      : `${n} open vacancies we found`;
+  const checked = timeAgo(company.last_checked);
+  return (
+    <span className="text-xs">
+      <span className="font-semibold text-brand-dark">{label}</span>
+      {checked && <span className="text-ss-muted">{` · last checked ${checked}`}</span>}
+    </span>
+  );
+}
+
 /** "Popular this week" badge — driven by real notify-me subscription counts
  * (see watch_service.trending_company_ids), the only honest popularity signal
  * available without share/click tracking. The caller decides who qualifies. */
@@ -100,21 +118,13 @@ export function ShortlistStar({ companyId }: { companyId: string }) {
  * Universities directories so every listed employer gets the same feedback
  * loop, whatever page it's browsed from. */
 export function CompanyActionsRow({ company, shareBasePath }: { company: Company; shareBasePath: string }) {
-  const [open, setOpen] = useState<"notify" | "report" | "tips" | null>(null);
+  const [open, setOpen] = useState<"notify" | "report" | null>(null);
   const [reason, setReason] = useState("");
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
   const [celebrate, setCelebrate] = useState(false);
 
-  useEffect(() => {
-    const h = (e: Event) => {
-      if ((e as CustomEvent).detail === company.id && company.careers_url) { setOpen("tips"); setMsg(""); }
-    };
-    window.addEventListener(OPEN_TIPS_EVENT, h);
-    return () => window.removeEventListener(OPEN_TIPS_EVENT, h);
-  }, [company.id, company.careers_url]);
-
-  function toggle(which: "notify" | "report" | "tips") {
+  function toggle(which: "notify" | "report") {
     setOpen((cur) => (cur === which ? null : which));
     setMsg("");
   }
@@ -206,14 +216,6 @@ export function CompanyActionsRow({ company, shareBasePath }: { company: Company
           >
             🔔 Notify me
           </button>
-          {company.careers_url && (
-            <button
-              onClick={() => toggle("tips")}
-              className={`rounded-md px-2.5 py-1 text-xs font-medium transition ${open === "tips" ? "bg-brand-dark text-white" : "bg-ss-primary-soft text-ss-muted hover:bg-gray-200"}`}
-            >
-              💬 Tips
-            </button>
-          )}
           <button
             onClick={share}
             className="rounded-md bg-ss-primary-soft px-2.5 py-1 text-xs font-medium text-ss-muted transition hover:bg-gray-200"
@@ -235,8 +237,6 @@ export function CompanyActionsRow({ company, shareBasePath }: { company: Company
           <Button size="sm" loading={busy} onClick={subscribe}>Notify me</Button>
         </div>
       )}
-
-      {open === "tips" && <CompanyTips companyId={company.id} />}
 
       {open === "report" && (
         <div className="mt-2 space-y-2">

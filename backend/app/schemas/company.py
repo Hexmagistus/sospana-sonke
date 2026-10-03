@@ -30,6 +30,9 @@ class CompanyResponse(BaseModel):
     # added" badge on the Companies/Universities cards. Real TimestampMixin
     # data, not a guess.
     created_at: datetime
+    # Open vacancies we currently hold for this employer. Filled by one grouped
+    # query on the list, not by the ORM. 0 means we hold none, not an estimate.
+    open_vacancies: int = 0
 
 
 class CompanyImportResult(BaseModel):

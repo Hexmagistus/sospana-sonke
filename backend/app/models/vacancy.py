@@ -55,6 +55,8 @@ class Vacancy(UUIDMixin, TimestampMixin, Base):
     __tablename__ = "vacancies"
     __table_args__ = (
         Index("ix_vacancies_open_closing", "is_open", "closing_date"),
+        # Directory count: company_id IN (...) AND is_open AND deleted_at IS NULL.
+        Index("ix_vacancies_company_open", "company_id", "is_open", "deleted_at"),
     )
 
     company_id: Mapped[str] = mapped_column(

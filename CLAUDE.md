@@ -63,6 +63,9 @@ What is running today, before the pipeline work below. This is the system the up
 
 ## Session Log
 
+### 2026-10-03 — Cursor (Grok 4.7) — Open vacancy counts on employer cards, Tips box removed
+Each employer with a careers link now carries `open_vacancies` from one grouped query: `is_open`, not deleted, lifecycle `ACTIVE`, `OPEN`, or null. The cards say "N open vacancies we found" or "0 vacancies found", plus last checked when we have a time. The community Tips box (the dashed tip preview and the Tips button on company, college, hospital, university, and career-agent cards) is off those cards. Interview-prep Tips on tailor and match pages stay. The comments API is unchanged.
+
 ### 2026-10-03 — Cursor (Grok 4.7) — A long Workday id was failing the scan cron
 The "Scan careers pages" workflow (runs 37089469500 and the one before it, code `255efe5`) woke the Frankfurt API and then `POST /api/v1/cron/run/scan_due_companies` returned HTTP 500 in about 3 seconds. `close_expired_vacancies` on the same `X-Cron-Secret` returned 200, so the host and the secret were fine. Render logged Absa's Workday board answering 200, then `varchar(200)` on `vacancies.external_id`. The public path is 230 characters and the requisition id is at the end. The failed insert aborted the transaction; the scan loop then read the company name on that session, so the cron returned a bare 500 and never stamped `last_checked`. Absa stayed first every 15 minutes.
 

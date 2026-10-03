@@ -9,8 +9,7 @@ import { Card, Input, Button, Alert, Spinner, Select, EmptyState } from "@/compo
 import { Banner } from "@/components/Banner";
 import { CircuitOverlay, GlowFrame } from "@/components/HighTech";
 import { CompanyLogo, isAtsPortal } from "@/components/CompanyLogo";
-import { CompanyActionsRow, TrendingBadge, ShortlistStar } from "@/components/CompanyActions";
-import { TipPreview } from "@/components/TipPreview";
+import { CompanyActionsRow, OpenVacancyCount, TrendingBadge, ShortlistStar } from "@/components/CompanyActions";
 import { CompanyPreviewModal } from "@/components/CompanyPreviewModal";
 import { AnimatedNumber } from "@/components/AnimatedNumber";
 import { FunSpinner } from "@/components/FunSpinner";
@@ -22,7 +21,7 @@ import { COUNTRY_FLAGS } from "@/lib/countryFlags";
 const BRICS_PARTNERS = ["Brazil", "Russia", "India", "China", "Iran", "United Arab Emirates", "Indonesia", "Egypt", "Ethiopia"];
 const BRICS_ONLY = new Set(BRICS_PARTNERS.slice(0, 7));
 import { getShortlist, SHORTLIST_EVENT } from "@/lib/shortlist";
-import type { Company, Vacancy, TrendingCompany } from "@/lib/types";
+import type { Company, TrendingCompany } from "@/lib/types";
 
 const AVATAR_GRADIENTS = [
   "from-sky to-purple",
@@ -124,7 +123,6 @@ function CompaniesDirectoryInner() {
   const [facets, setFacets] = useState<Facets | null>(null);
   const [sliceLoading, setSliceLoading] = useState(false);
   const sliceCache = useRef<Record<string, Company[]>>({});
-  const [vacancies, setVacancies] = useState<Vacancy[]>([]);
   const [trending, setTrending] = useState<Set<string>>(new Set());
   const [err, setErr] = useState("");
   const [q, setQ] = useState("");
@@ -136,7 +134,6 @@ function CompaniesDirectoryInner() {
 
   useEffect(() => {
     api.get<Facets>("/companies/facets").then(setFacets).catch((e) => setErr(e.message));
-    api.getAll<Vacancy>("/vacancies?is_open=true").then(setVacancies).catch(() => {});
     // Best-effort: a quiet directory with no watches yet just shows no badges.
     api.get<TrendingCompany[]>("/companies/trending?days=7&limit=200")
       .then((rows) => setTrending(new Set(rows.map((r) => r.company_id))))
@@ -216,14 +213,6 @@ function CompaniesDirectoryInner() {
     }
   }, [searchParams]);
 
-  // Real open-position counts per company, from the same vacancy data the
-  // Find Jobs page uses -- never fabricated.
-  const jobsByCompany = useMemo(() => {
-    const m: Record<string, number> = {};
-    for (const v of vacancies) m[v.company_id] = (m[v.company_id] || 0) + 1;
-    return m;
-  }, [vacancies]);
-
   const countryCounts: Record<string, number> = facets?.country_counts ?? {};
   const countries = useMemo(() => {
     const set = Object.keys(facets?.country_counts ?? {});
@@ -261,7 +250,7 @@ function CompaniesDirectoryInner() {
         || c.company_name.toLowerCase().includes(needle)
         || (c.jse_code || "").toLowerCase().includes(needle));
     return [...filtered].sort((a, b) => Number(!a.careers_url) - Number(!b.careers_url) || a.company_name.localeCompare(b.company_name));
-  }, [companies, q, filter, country, globalType, jobsByCompany, shortlistOnly, shortlistIds]);
+  }, [companies, q, filter, country, globalType, shortlistOnly, shortlistIds]);
 
   function surpriseMe() {
     api.get<Company>("/companies/surprise").then((pick) => {
@@ -477,7 +466,6 @@ function CompaniesDirectoryInner() {
             const st = (c.source_type || "").toUpperCase();
             const isDept = st === "DEPT";
             const badge = typeBadge(c.source_type);
-            const openJobs = jobsByCompany[c.id] || 0;
             const accent = CARD_ACCENTS[Math.abs(hashCode(c.id)) % CARD_ACCENTS.length];
             return (
               <div
@@ -519,11 +507,9 @@ function CompaniesDirectoryInner() {
                 </div>
 
                 <div className="mt-3 flex flex-wrap items-center gap-3 border-t border-ss-border pt-3 text-xs">
-                  {openJobs > 0 && (
+                  {c.careers_url && (
                     <>
-                      <span className="font-semibold text-brand-dark">
-                        {`🔥 ${openJobs} open position${openJobs === 1 ? "" : "s"} right now`}
-                      </span>
+                      <OpenVacancyCount company={c} />
                       <span className="text-ss-border">·</span>
                     </>
                   )}
@@ -534,12 +520,9 @@ function CompaniesDirectoryInner() {
 
                 <div className="mt-3 flex flex-wrap items-stretch gap-3" onClick={(e) => e.stopPropagation()}>
                   {c.careers_url ? (
-                    <>
-                      <a href={c.careers_url} target="_blank" rel="noopener noreferrer" className="self-center">
-                        <Button>{isDept ? "Visit department →" : "View jobs →"}</Button>
-                      </a>
-                      <TipPreview companyId={c.id} />
-                    </>
+                    <a href={c.careers_url} target="_blank" rel="noopener noreferrer" className="self-center">
+                      <Button>{isDept ? "Visit department →" : "View jobs →"}</Button>
+                    </a>
                   ) : (
                     <span className="whitespace-nowrap text-xs text-ss-muted">Still hunting for their careers page 🕵️</span>
                   )}
@@ -578,7 +561,6 @@ function CompaniesDirectoryInner() {
       {previewCompany && (
         <CompanyPreviewModal
           company={previewCompany}
-          openJobs={jobsByCompany[previewCompany.id] || 0}
           shareBasePath="/companies"
           onClose={() => setPreviewCompany(null)}
         />

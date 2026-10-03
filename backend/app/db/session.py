@@ -322,6 +322,8 @@ _INDEXES: list[tuple[str, str, str]] = [
     # Directory list: WHERE deleted_at IS NULL ORDER BY company_name.
     ("ix_companies_deleted_name", "companies", "deleted_at, company_name"),
     ("ix_vacancies_open_closing", "vacancies", "is_open, closing_date"),
+    # Employer cards: count open vacancies for the companies on the page.
+    ("ix_vacancies_company_open", "vacancies", "company_id, is_open, deleted_at"),
     # Vacancy list and the dashboard "listings last confirmed" stamp:
     # WHERE is_open ORDER BY / MAX(last_seen_at).
     ("ix_vacancies_open_last_seen", "vacancies", "is_open, last_seen_at"),
