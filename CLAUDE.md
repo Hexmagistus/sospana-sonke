@@ -48,7 +48,26 @@ commit it (and push, if you pushed the rest of your work). Newest entry on top.
   device-linked session may not be able to push non-interactively — say so rather than
   silently failing, and let Lungani run the `.bat` script if needed.
 
+## Architecture assessment (2026-10-03)
+
+What is running today, before the pipeline work below. This is the system the upgrade extends. It is not a rewrite.
+
+- **Frontend.** Next.js 15 (`frontend/`), Vercel project `sospana-sonke`. Gold/navy brand, `ss-*` tokens, light and dark. Landing page (`frontend/src/app/page.tsx`) holds the country list and seed counts; `GET /companies/stats` overlays live counts when the API answers. Signed-in directory, colleges, hospitals, universities, career agent, matches, tailor, applications, profile. Auth is email/password plus optional TOTP and Google. Vacancy cards already link out with the stored application URL. There is no in-app application form.
+- **Backend.** FastAPI (`backend/app`), one Uvicorn worker on Render free in Frankfurt (`sospana-sonke-api-fra`). SQLAlchemy 2 and Postgres via the Neon pooler. Startup DDL uses `lock_timeout=5s` and `statement_timeout=15s`, then skips. No startup `options` parameter (the pooler rejects it). Notifications commit before SMTP because Render free cannot send mail.
+- **Database.** Companies (name, country, `careers_url`, `source_type`, `scraping_status`). `vacancy_sources` (one careers URL, ATS type, `last_status`, `consecutive_failures`, `last_vacancy_count`). `vacancies` (title, location, dates, salary text plus parsed min/max, `external_id`, `content_hash`, `application_url`, `source_url`, `is_open`, `first_seen_at`, `last_seen_at`). Requirements are separate rows. Soft-delete via `deleted_at`.
+- **Scraper (PR #4 and follow-ups).** `detect_ats` plus a strategy per public feed: Greenhouse, Lever, SmartRecruiters, Workable, Recruitee, Workday CXS, Oracle Candidate Experience, Breezy, Pinpoint, and static HTML (JSON-LD JobPosting, then a strict link heuristic, then RSS). SuccessFactors, Taleo, Jobvite, and generic Workday hosts are classified `js`. `JS_RENDER_ENABLED` stays off: the free service cannot run Chromium. GitHub Actions calls `POST /api/v1/cron/run/scan_due_companies` and `close_expired_vacancies` every 15 minutes with `X-Cron-Secret`. A batch stops around 55 seconds. Public JSON is due again after 1 hour, HTML after 6, failures back off up to 7 days. South African employers are sorted first; every other country is still scanned.
+- **Dedupe before this change.** `content_hash` includes the first 2000 characters of the description, so a wording edit inserted a new row. A second lookup by source plus `external_id` caught some of those. A role missing from one successful scan was closed immediately.
+- **Search.** `GET /vacancies` (authenticated, max 200) filters title, province, employment type, salary, NQF, open/closing date. Province inference is a South African city list and returns null otherwise.
+- **Auth and limits.** Admin role is read from the database on each request. `POST /companies/{id}/scan` is already admin-only. slowapi limits auth and some reads; the limiter is off when `ENV=test`. Cron uses `hmac.compare_digest`.
+- **Deploy.** `render.yaml` (`region: frankfurt`, `rootDir: backend`). `AUTO_SEED` upserts `backend/seed/company_database_import.csv` on boot. `backend/seed/countries/*.csv` is not auto-loaded. Frontend uses `NEXT_PUBLIC_API_URL`.
+
 ## Session Log
+
+### 2026-10-03 — Cursor (Grok 4.7) — Pin braces so the full npm audit passes
+The same pin as PR #16 (`47ab402`). `braces` 3.0.3 is still the newest npm release and is inside GHSA-vfj7-8cjw-p6xm, via Tailwind 3.4.7. `frontend/vendor/braces` is that release plus a nesting cap of 100, versioned 3.0.4, and `overrides.braces` is `$braces`. CI runs `npm audit --audit-level=high` on the whole tree. Tailwind stays on 3.4.7. This is not an upstream braces release.
+
+### 2026-10-03 — Cursor (Grok 4.7) — Scraper pipeline, schema and core path
+Architecture assessment is the section above. This change keeps the existing strategies and scan cron, and makes the store/upsert/close path stricter: stable fingerprint, canonical listing URL separate from the untouched application URL, two-miss close, per-scan log, SSRF checks, script stripping, and a completeness score that is not a legitimacy claim. Browser-only boards are marked `JAVASCRIPT_REQUIRED` and are not fetched. Application links are not HEAD-checked, so new rows stay `DISCOVERED`.
 
 ### 2026-10-03 — Cursor (Grok 4.7) — Pin braces past GHSA-vfj7-8cjw-p6xm
 `npm audit --audit-level=high` reports five highs, all `braces` <=3.0.3 (GHSA-vfj7-8cjw-p6xm) via tailwindcss 3.4.7 → chokidar / micromatch / fast-glob. npm `latest` is still 3.0.3 and the advisory has no patched version, so `npm update braces micromatch` cannot clear it. Tailwind stays on 3.4.7.

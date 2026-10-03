@@ -122,6 +122,8 @@ def init_db() -> None:
 # here, or it silently never appears anywhere the table pre-dates the change
 # (e.g. production). Each entry is (table, column, column DDL type); additive
 # and idempotent, so this is always safe to run on every boot.
+_TS = "TIMESTAMP WITH TIME ZONE" if not DATABASE_URL.startswith("sqlite") else "TIMESTAMP"
+
 _NEW_COLUMNS: list[tuple[str, str, str]] = [
     ("users", "preferred_position", "VARCHAR(150)"),
     ("users", "qualification_name", "VARCHAR(200)"),
@@ -145,6 +147,29 @@ _NEW_COLUMNS: list[tuple[str, str, str]] = [
     ("vacancies", "nqf_level", "INTEGER"),
     ("vacancies", "trust_flags", "JSON" if not DATABASE_URL.startswith("sqlite") else "TEXT"),
     ("vacancies", "duplicate_of_id", "VARCHAR(36)"),
+    ("vacancies", "city", "VARCHAR(120)"),
+    ("vacancies", "country", "VARCHAR(60)"),
+    ("vacancies", "salary_currency", "VARCHAR(8)"),
+    ("vacancies", "requirements_text", "TEXT"),
+    ("vacancies", "qualifications", "TEXT"),
+    ("vacancies", "experience", "TEXT"),
+    ("vacancies", "canonical_url", "TEXT"),
+    ("vacancies", "source_domain", "VARCHAR(255)"),
+    ("vacancies", "fingerprint", "VARCHAR(64)"),
+    ("vacancies", "lifecycle_status", "VARCHAR(20)"),
+    ("vacancies", "verification_state", "VARCHAR(20)"),
+    ("vacancies", "quality_score", "INTEGER"),
+    ("vacancies", "consecutive_misses", "INTEGER NOT NULL DEFAULT 0"),
+    ("vacancy_sources", "last_success_at", _TS),
+    ("vacancy_sources", "last_vacancy_found_at", _TS),
+    ("vacancy_sources", "http_status", "INTEGER"),
+    ("vacancy_sources", "response_time_ms", "INTEGER"),
+    ("vacancy_sources", "parser_used", "VARCHAR(40)"),
+    ("vacancy_sources", "failure_count", "INTEGER NOT NULL DEFAULT 0"),
+    ("vacancy_sources", "scraper_status", "VARCHAR(30)"),
+    ("vacancy_sources", "error_category", "VARCHAR(40)"),
+    ("vacancy_sources", "duplicates_prevented", "INTEGER NOT NULL DEFAULT 0"),
+    ("vacancy_sources", "empty_streak", "INTEGER NOT NULL DEFAULT 0"),
 ]
 
 
@@ -272,6 +297,14 @@ _INDEXES: list[tuple[str, str, str]] = [
     ("ix_comments_visible_created", "company_comments", "hidden, created_at"),
     # Match list: WHERE user_id = ? ORDER BY score DESC.
     ("ix_matches_user_score", "candidate_matches", "user_id, score"),
+    ("ix_vacancies_fingerprint", "vacancies", "fingerprint"),
+    ("ix_vacancies_lifecycle", "vacancies", "lifecycle_status"),
+    ("ix_vacancies_country", "vacancies", "country"),
+    ("ix_vacancies_province", "vacancies", "province"),
+    ("ix_vacancies_city", "vacancies", "city"),
+    ("ix_vacancies_posted", "vacancies", "posting_date"),
+    ("ix_vacancies_first_seen", "vacancies", "first_seen_at"),
+    ("ix_scan_logs_company_created", "scan_logs", "company_id, created_at"),
 ]
 
 

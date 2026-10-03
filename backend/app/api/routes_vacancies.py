@@ -31,7 +31,10 @@ router = APIRouter(tags=["vacancies"])
 
 # List cards never return the advertisement body. Leaving these Text columns in
 # the SELECT made every page pull the raw scrape into Python.
-_LIST_DEFER = (defer(Vacancy.description), defer(Vacancy.raw_content))
+_LIST_DEFER = (
+    defer(Vacancy.description), defer(Vacancy.raw_content),
+    defer(Vacancy.requirements_text), defer(Vacancy.qualifications), defer(Vacancy.experience),
+)
 
 
 @router.post("/companies/{company_id}/scan", response_model=list[ScanReportResponse],

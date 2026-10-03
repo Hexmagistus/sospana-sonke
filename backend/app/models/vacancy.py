@@ -33,6 +33,20 @@ class VacancySource(UUIDMixin, TimestampMixin, Base):
     consecutive_failures: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     last_error: Mapped[str | None] = mapped_column(Text, nullable=True)
     last_vacancy_count: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    # Finer health than last_status. Nullable so a source scanned before this
+    # column existed stays blank until the next run, rather than claiming a state.
+    last_success_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    last_vacancy_found_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    http_status: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    response_time_ms: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    parser_used: Mapped[str | None] = mapped_column(String(40), nullable=True)
+    failure_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    scraper_status: Mapped[str | None] = mapped_column(String(30), nullable=True)
+    error_category: Mapped[str | None] = mapped_column(String(40), nullable=True)
+    duplicates_prevented: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    # Successful scans that returned no roles. The scheduler uses this to
+    # slow down boards that stay empty. Reset when a role is found.
+    empty_streak: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
 
     vacancies: Mapped[list["Vacancy"]] = relationship(back_populates="source")
 
@@ -66,8 +80,11 @@ class Vacancy(UUIDMixin, TimestampMixin, Base):
     # facet/filter without needing a candidate to parse prose. All nullable: a None
     # means "couldn't be inferred", never a fabricated value.
     province: Mapped[str | None] = mapped_column(String(40), nullable=True)
-    salary_min: Mapped[int | None] = mapped_column(Integer, nullable=True)  # monthly ZAR
-    salary_max: Mapped[int | None] = mapped_column(Integer, nullable=True)  # monthly ZAR
+    city: Mapped[str | None] = mapped_column(String(120), nullable=True)
+    country: Mapped[str | None] = mapped_column(String(60), nullable=True)
+    salary_min: Mapped[int | None] = mapped_column(Integer, nullable=True)  # monthly amount; currency separate
+    salary_max: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    salary_currency: Mapped[str | None] = mapped_column(String(8), nullable=True)
     nqf_level: Mapped[int | None] = mapped_column(Integer, nullable=True)   # estimated, 1-10
 
     # Trust & safety (blueprint section 18): heuristic scam/quality signals computed
@@ -82,8 +99,22 @@ class Vacancy(UUIDMixin, TimestampMixin, Base):
     )
 
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    requirements_text: Mapped[str | None] = mapped_column(Text, nullable=True)
+    qualifications: Mapped[str | None] = mapped_column(Text, nullable=True)
+    experience: Mapped[str | None] = mapped_column(Text, nullable=True)
     application_url: Mapped[str | None] = mapped_column(Text, nullable=True)
     source_url: Mapped[str | None] = mapped_column(Text, nullable=True)
+    canonical_url: Mapped[str | None] = mapped_column(Text, nullable=True)
+    source_domain: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    fingerprint: Mapped[str | None] = mapped_column(String(64), index=True, nullable=True)
+    # ACTIVE | CLOSED | EXPIRED | REMOVED | UNKNOWN. Null on rows written
+    # before this column: readers treat null + is_open as ACTIVE.
+    lifecycle_status: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    # DISCOVERED until an application link is actually requested. This pipeline
+    # does not mark VERIFIED on its own.
+    verification_state: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    quality_score: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    consecutive_misses: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
 
     # Original advertisement content, retained for re-analysis (section 6).
     raw_content: Mapped[str | None] = mapped_column(Text, nullable=True)

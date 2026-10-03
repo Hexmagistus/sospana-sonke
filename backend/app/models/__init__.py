@@ -24,3 +24,4 @@ from app.models.message import Message, UserBlock, MessageReport  # noqa: F401
 from app.models.comment import CompanyComment, CommentFlag  # noqa: F401
 from app.models.stored_file import StoredFile  # noqa: F401
 from app.models.admin_ops import UserTag, AdminAuditLog  # noqa: F401
+from app.models.scan_log import ScanLog  # noqa: F401
