@@ -7,10 +7,10 @@ every caller goes through Brevo's HTTPS transactional API instead: Render's
 free plan cannot open SMTP ("Network is unreachable").
 
 POPIA stays with the callers. This module does not decide who may be mailed.
-Opportunity notices email only when the caller has already checked
-notify_opportunity_alerts and the platform mail switch is on. Password
-reset, verification, and the owner login alert are account mail, not
-opportunity alerts.
+A tagging notice is emailed only when the caller has already checked an
+explicit tagging-email yes, and the platform mail switch is on. Password
+reset, verification, the owner login alert, and the one-time settings email
+are account mail.
 """
 from __future__ import annotations
 
@@ -139,11 +139,17 @@ def _html_from_text(body: str) -> str:
             url = None
         if url and line.strip() == url:
             href = html.escape(url, quote=True)
+            if "Tagged by the Sospana Sonke team" in body:
+                label = "Open this listing"
+            elif "Choose or turn off" in body:
+                label = "Choose or turn off"
+            else:
+                label = "Open"
             blocks.append(
                 '<p><a href="' + href + '" '
                 'style="display:inline-block;background:#0b2447;color:#ffffff;'
                 'padding:10px 16px;border-radius:8px;text-decoration:none;font-weight:700">'
-                "Open this listing</a></p>"
+                + html.escape(label) + "</a></p>"
             )
         else:
             blocks.append("<p>" + html.escape(line, quote=True) + "</p>")

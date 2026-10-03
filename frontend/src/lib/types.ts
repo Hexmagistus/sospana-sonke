@@ -13,6 +13,8 @@ export interface User {
   policy_version?: string | null;
   allow_messages?: boolean;
   notify_opportunity_alerts?: boolean;
+  tagging_email?: boolean | null;
+  show_tagging_banner?: boolean;
 }
 
 export interface Tokens {

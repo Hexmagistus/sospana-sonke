@@ -250,15 +250,18 @@ def notify_admins(db, *, type: str, title: str, body: str,
     return sent
 
 
-def _eligible_for_opportunity_notice(user) -> bool:
-    """POPIA: an active candidate who named a preferred post and opted in."""
+def _active_candidate(user) -> bool:
+    """In-app tag notices stay inside the account. Consent is not required for that."""
     return bool(
         getattr(user, "role", None) == "candidate"
         and getattr(user, "is_active", False)
         and not getattr(user, "deleted_at", None)
-        and getattr(user, "notify_opportunity_alerts", False)
-        and (getattr(user, "preferred_position", None) or "").strip()
     )
+
+
+def _tagging_email_opted_in(user) -> bool:
+    """Only an explicit yes. No recorded choice and an explicit no both stay off."""
+    return _active_candidate(user) and getattr(user, "tagging_email", None) is True
 
 
 def _opening_for_link(db, link_url: str | None) -> tuple[str | None, str | None]:
@@ -311,13 +314,12 @@ def _suggestion_body(message: str, link_url: str | None,
 
 
 def notify_admin_suggestion(db, *, users: list, title: str, body: str,
-                            link_url: str | None = None) -> tuple[int, int]:
-    """Notice opted-in candidates about a post or listing.
+                            link_url: str | None = None) -> tuple[int, int, int]:
+    """In-app notice for every active candidate. Email only after an explicit yes.
 
-    Returns ``(sent, duplicates)``. Someone who has not opted in is not
-    counted and is not mailed. The same user and the same link is stored
-    once. Email uses the existing provider and only runs when
-    ``NOTIFY_EMAILS`` is on.
+    Returns ``(sent, duplicates, emailed)``. A missing choice and an explicit
+    no both skip email. The same user and the same link is stored once.
+    Email still follows ``NOTIFY_EMAILS`` and the Brevo or SMTP provider.
     """
     from app.notifications.links import validated_notice_url
 
@@ -327,8 +329,9 @@ def notify_admin_suggestion(db, *, users: list, title: str, body: str,
     safe_title = " ".join(title.split())[:200] or "A listing for you"
     sent = 0
     duplicates = 0
+    emailed = 0
     for user in users:
-        if not _eligible_for_opportunity_notice(user):
+        if not _active_candidate(user):
             continue
         if safe_link:
             existing = (db.query(Notification)
@@ -339,13 +342,17 @@ def notify_admin_suggestion(db, *, users: list, title: str, body: str,
             if existing is not None:
                 duplicates += 1
                 continue
+        mail = None if _tagging_email_opted_in(user) else False
         note = create_notification(
             db, user_id=user.id, to_email=user.email, type="admin_suggestion",
             title=safe_title, body=notice_body, link_url=safe_link,
+            send_email=mail,
         )
         if note is not None:
             sent += 1
-    return sent, duplicates
+            if note.email_sent:
+                emailed += 1
+    return sent, duplicates, emailed
 
 
 def notify_report_ready(db, *, user, report) -> Notification | None:

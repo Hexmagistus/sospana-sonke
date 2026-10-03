@@ -1,11 +1,12 @@
 """Notification routes (candidate) and scheduler routes (admin) — blueprint Steps 11, 22, 31."""
 from datetime import datetime, timedelta, timezone
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.core.deps import get_current_user, require_admin
+from app.core.rate_limit import limiter
 from app.db.session import get_db
 from app.models.notification import Notification, JobRun, PushToken
 from app.models.admin_ops import AdminAuditLog
@@ -16,11 +17,13 @@ from app.models.scan_log import ScanLog
 from app.schemas.notification import (
     NotificationResponse, UnreadCountResponse, ScheduleResponse, ScheduleUpdateRequest, JobRunResponse,
     PushTokenRequest, PushTokenResponse, AdminSuggestionRequest, AdminSuggestionResponse,
+    TaggingPrefEmailRequest, TaggingPrefEmailResponse,
     SourceHealthResponse, SourceHealthItem, ScanLogItem, SourceActiveUpdate,
 )
 from app.scheduler.registry import get_schedule, set_schedule, JOBS
 from app.scheduler.runner import run_job, UnknownJob
 from app.services.notification_service import notify_admin_suggestion
+from app.services.tagging_pref_mail import send_tagging_preference_emails
 
 router = APIRouter(tags=["notifications"])
 
@@ -84,14 +87,19 @@ def register_push_token(body: PushTokenRequest, db: Session = Depends(get_db),
 
 # ---- admin: suggest a post/link to relevant candidates ----
 
-def _can_receive_suggestion(user: User) -> bool:
-    """POPIA: only an active candidate who named a preferred post and opted in."""
+def _can_receive_in_app(user: User) -> bool:
+    """A tag notice lives in the account. It does not require an email choice."""
     return bool(
         user.role == "candidate"
         and user.is_active
         and not user.deleted_at
-        and user.notify_opportunity_alerts
-        and (user.preferred_position or "").strip()
+    )
+
+
+def _can_receive_broadcast(user: User) -> bool:
+    """A send-to-everyone is not a personal tag. It stays with people who opted in."""
+    return _can_receive_in_app(user) and bool(
+        user.notify_opportunity_alerts or user.tagging_email is True
     )
 
 
@@ -107,22 +115,47 @@ def send_admin_suggestion(body: AdminSuggestionRequest, db: Session = Depends(ge
     else:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                             detail="Provide user_ids or set all_candidates to true.")
-    eligible = [u for u in targets if _can_receive_suggestion(u)]
+    gate = _can_receive_broadcast if body.all_candidates else _can_receive_in_app
+    eligible = [u for u in targets if gate(u)]
     skipped = len(targets) - len(eligible)
-    sent, duplicates = (
+    sent, duplicates, emailed = (
         notify_admin_suggestion(db, users=eligible, title=body.title, body=body.body,
                                 link_url=body.link_url)
-        if eligible else (0, 0)
+        if eligible else (0, 0, 0)
     )
     db.add(AdminAuditLog(
         admin_id=admin.id,
         action="notify",
         target_user_id=None,
-        detail=(f"sent={sent} skipped={skipped} duplicates={duplicates} "
+        detail=(f"sent={sent} skipped={skipped} duplicates={duplicates} emailed={emailed} "
                 f"link={1 if body.link_url else 0} title_len={len(body.title)}"),
     ))
     db.commit()
-    return AdminSuggestionResponse(sent=sent, skipped=skipped, duplicates=duplicates)
+    return AdminSuggestionResponse(sent=sent, skipped=skipped, duplicates=duplicates, emailed=emailed)
+
+
+@router.post("/admin/tagging-preference-email", response_model=TaggingPrefEmailResponse)
+@limiter.limit("6/hour")
+def send_tagging_preference_email(request: Request, body: TaggingPrefEmailRequest,
+                                  db: Session = Depends(get_db),
+                                  admin: User = Depends(require_admin)):
+    """One service email for accounts that have never chosen tagging email.
+
+    dry_run is the default and only counts. A real send stamps each address
+    before the message leaves, stops at the daily cap, and never includes a
+    listing. The audit row stores counts, not addresses.
+    """
+    result = send_tagging_preference_emails(db, batch=body.batch, dry_run=body.dry_run)
+    db.add(AdminAuditLog(
+        admin_id=admin.id,
+        action="tagging_pref_email",
+        target_user_id=None,
+        detail=(f"dry_run={int(result['dry_run'])} eligible={result['eligible']} "
+                f"sent={result['sent']} would_send={result['would_send']} "
+                f"sent_today={result['sent_today']}"),
+    ))
+    db.commit()
+    return TaggingPrefEmailResponse(**result)
 
 
 # ---- admin scheduler ----

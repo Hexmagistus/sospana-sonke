@@ -45,6 +45,26 @@ class AdminSuggestionResponse(BaseModel):
     skipped: int = 0
     # Same person and the same link already had a notice. Nothing new was stored or mailed.
     duplicates: int = 0
+    emailed: int = 0
+
+
+class TaggingPrefEmailRequest(BaseModel):
+    """Count first. A send is a separate call with dry_run false."""
+    dry_run: bool = True
+    batch: int = Field(default=40, ge=1, le=50)
+
+
+class TaggingPrefEmailResponse(BaseModel):
+    dry_run: bool
+    eligible: int
+    already_sent: int
+    sent_today: int
+    remaining_today: int
+    daily_cap: int
+    batch: int
+    would_send: int
+    sent: int
+    resume_on: str | None = None
 
 
 class UnreadCountResponse(BaseModel):

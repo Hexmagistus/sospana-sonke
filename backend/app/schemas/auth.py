@@ -17,6 +17,9 @@ class RegisterRequest(BaseModel):
     accepted_policy: bool = False
     # Separate, optional. Opportunity alerts from an administrator. Off unless ticked.
     notify_opportunity_alerts: bool = False
+    # None means the client did not show this choice (leave it unrecorded).
+    # True or false is a recorded tagging-email decision.
+    tagging_email: bool | None = None
 
 
 class LoginRequest(BaseModel):
@@ -55,6 +58,8 @@ class UserResponse(BaseModel):
     policy_version: str | None = None
     allow_messages: bool = False
     notify_opportunity_alerts: bool = False
+    tagging_email: bool | None = None
+    show_tagging_banner: bool = False
 
 
 class AcceptPolicyRequest(BaseModel):
@@ -65,6 +70,15 @@ class AcceptPolicyRequest(BaseModel):
 
 class OpportunityAlertsRequest(BaseModel):
     enabled: bool
+
+
+class NotificationPreferencesRequest(BaseModel):
+    """Account settings for how Sospana Sonke may contact this person."""
+    preferred_position: str | None = Field(default=None, max_length=150)
+    notify_opportunity_alerts: bool | None = None
+    # Omitted leaves the recorded choice alone. True or false records one.
+    tagging_email: bool | None = None
+    record_tagging_email: bool = False
 
 
 class MFASetupResponse(BaseModel):

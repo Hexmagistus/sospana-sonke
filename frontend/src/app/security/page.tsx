@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Guard from "@/components/Guard";
 import { useAuth } from "@/lib/auth";
@@ -16,6 +16,36 @@ function SecurityInner() {
   const [code, setCode] = useState("");
   const [msg, setMsg] = useState("");
   const [err, setErr] = useState("");
+  const [post, setPost] = useState("");
+  const [alertsOn, setAlertsOn] = useState(false);
+
+  useEffect(() => {
+    setPost(user?.preferred_position || "");
+    setAlertsOn(!!user?.notify_opportunity_alerts);
+  }, [user?.preferred_position, user?.notify_opportunity_alerts]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (window.location.hash !== "#notification-preferences") return;
+    document.getElementById("notification-preferences")?.scrollIntoView({ block: "start" });
+  }, [user]);
+
+  async function savePreferences(recordEmail: boolean | null) {
+    setErr(""); setMsg("");
+    try {
+      await api.put("/account/notification-preferences", {
+        preferred_position: post,
+        notify_opportunity_alerts: alertsOn,
+        ...(recordEmail === null ? {} : { tagging_email: recordEmail, record_tagging_email: true }),
+      });
+      await refreshUser();
+      if (recordEmail === true) setMsg("Tagging notices will also be emailed.");
+      else if (recordEmail === false) setMsg("Tagging notices stay in your account. We will not email them.");
+      else setMsg("Notification preferences saved.");
+    } catch (ex) {
+      setErr(ex instanceof Error ? ex.message : "Could not save that choice");
+    }
+  }
 
   async function begin() {
     setErr(""); setMsg("");
@@ -130,29 +160,44 @@ function SecurityInner() {
       </Card>
 
       <Card>
-        <h2 className="mb-2 text-lg font-semibold text-ss-text">Opportunity alerts</h2>
+        <div id="notification-preferences" className="scroll-mt-24">
+        <h2 className="mb-2 text-lg font-semibold text-ss-text">Notification preferences</h2>
         <p className="mb-3 text-sm text-ss-muted">
-          Separate from the privacy consent you already gave. When this is on, an administrator may notify
-          you about a post that matches a preferred role you saved. Off means they must not.
+          When the Sospana Sonke team tags you, a notice always appears inside this account.
+          Email is a separate choice. Your preferred post is the kind of work you want.
+          Member messages are switched on from the <a href="/messages" className="text-brand hover:underline">Messages</a> page.
         </p>
-        <label className="flex items-start gap-2 text-sm text-ss-text">
+        <Field label="Preferred post">
+          <Input value={post} onChange={(e) => setPost(e.target.value)} maxLength={150} placeholder="e.g. Nurse" />
+        </Field>
+        <label className="mt-3 flex items-start gap-2 text-sm text-ss-text">
           <input
             type="checkbox"
-            checked={!!user?.notify_opportunity_alerts}
-            onChange={async (e) => {
-              setErr(""); setMsg("");
-              try {
-                await api.put("/account/opportunity-alerts", { enabled: e.target.checked });
-                await refreshUser();
-                setMsg(e.target.checked ? "Opportunity alerts are on." : "Opportunity alerts are off. We'll keep it that way.");
-              } catch (ex) {
-                setErr(ex instanceof Error ? ex.message : "Could not save that choice");
-              }
-            }}
+            checked={alertsOn}
+            onChange={(e) => setAlertsOn(e.target.checked)}
             className="mt-1 h-4 w-4 shrink-0 accent-[#f5b301]"
           />
-          <span>Tell me about posts that match my preferred role.</span>
+          <span>
+            Tell me about posts that match my preferred role. This does not turn tagging emails on or off,
+            and a tag notice still appears in your account when it is unticked.
+          </span>
         </label>
+        <p className="mt-4 text-sm text-ss-text">
+          Tagging notices by email:{" "}
+          <b>
+            {user?.tagging_email === true
+              ? "On"
+              : user?.tagging_email === false
+                ? "Off"
+                : "You haven't chosen yet."}
+          </b>
+        </p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <Button onClick={() => savePreferences(null)}>Save post and matching alerts</Button>
+          <Button variant="secondary" onClick={() => savePreferences(true)}>Email me these notices</Button>
+          <Button variant="ghost" onClick={() => savePreferences(false)}>Don&apos;t email me</Button>
+        </div>
+        </div>
       </Card>
 
       <Card>

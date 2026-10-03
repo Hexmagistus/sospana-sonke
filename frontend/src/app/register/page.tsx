@@ -21,6 +21,7 @@ export default function RegisterPage() {
   const [busy, setBusy] = useState(false);
   const [consent, setConsent] = useState(false);
   const [alerts, setAlerts] = useState(false);
+  const [tagEmail, setTagEmail] = useState(false);
   const [passwordFocused, setPasswordFocused] = useState(false);
   const [celebrate, setCelebrate] = useState(false);
 
@@ -37,7 +38,12 @@ export default function RegisterPage() {
     }
     setBusy(true);
     try {
-      await register({ ...form, accepted_policy: true, notify_opportunity_alerts: alerts });
+      await register({
+        ...form,
+        accepted_policy: true,
+        notify_opportunity_alerts: alerts,
+        tagging_email: tagEmail,
+      });
       setCelebrate(true);
       setBusy(false);
       await successPause();
@@ -161,6 +167,18 @@ export default function RegisterPage() {
                 Optional, and off unless you tick it: an administrator may notify me about posts that match the
                 preferred role I typed above. This is separate from the consent above. You can switch it off later
                 on the Security page.
+              </span>
+            </label>
+            <label className="flex items-start gap-2 text-sm text-ss-muted">
+              <input
+                type="checkbox"
+                checked={tagEmail}
+                onChange={(e) => setTagEmail(e.target.checked)}
+                className="mt-1 h-4 w-4 shrink-0 accent-[#f5b301]"
+              />
+              <span>
+                Optional: email me when the Sospana Sonke team tags me. Leave this unticked and we will not email
+                you about a tag. A notice still appears inside your account. You can change this on the Security page.
               </span>
             </label>
             <Button type="submit" loading={busy} disabled={busy || !consent} glow className="w-full">

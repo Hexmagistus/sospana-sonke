@@ -22,6 +22,7 @@ interface AdminUser {
   city: string | null;
   current_occupation: string | null;
   notify_opportunity_alerts?: boolean;
+  tagging_email?: boolean | null;
   tags?: string[];
 }
 
@@ -290,9 +291,18 @@ function AdminInner() {
   const [suggestErr, setSuggestErr] = useState("");
   const [preferenceOnly, setPreferenceOnly] = useState(false);
   const [tagDraft, setTagDraft] = useState<Record<string, string>>({});
+  const [prefMail, setPrefMail] = useState<{
+    eligible: number; would_send: number; sent: number; sent_today: number;
+    daily_cap: number; remaining_today: number; resume_on?: string | null; dry_run: boolean;
+  } | null>(null);
+  const [prefBusy, setPrefBusy] = useState(false);
+  const [prefMsg, setPrefMsg] = useState("");
+  const [prefErr, setPrefErr] = useState("");
 
-  function canNotify(u: AdminUser) {
-    return !!(u.notify_opportunity_alerts && u.preferred_position);
+  function emailChoice(u: AdminUser) {
+    if (u.tagging_email === true) return "Yes";
+    if (u.tagging_email === false) return "No";
+    return "Not chosen";
   }
 
   async function load() {
@@ -338,7 +348,7 @@ function AdminInner() {
     }
     setSuggestBusy(true);
     try {
-      const res = await api.post<{ sent: number; skipped: number; duplicates?: number }>("/admin/suggestions", {
+      const res = await api.post<{ sent: number; skipped: number; duplicates?: number; emailed?: number }>("/admin/suggestions", {
         title: suggestTitle.trim(),
         body: suggestBody.trim(),
         link_url: suggestLink.trim() || undefined,
@@ -346,9 +356,15 @@ function AdminInner() {
         user_ids: allCandidates ? [] : Array.from(selected),
       });
       const duplicates = res.duplicates || 0;
-      const parts = [`Sent to ${res.sent} opted-in candidate${res.sent === 1 ? "" : "s"}.`];
+      const emailed = res.emailed || 0;
+      const parts = allCandidates
+        ? [`Sent an in-app notice to ${res.sent} opted-in candidate${res.sent === 1 ? "" : "s"}.`]
+        : [`Stored an in-app notice for ${res.sent} candidate${res.sent === 1 ? "" : "s"}.`];
+      if (emailed) parts.push(`Emailed ${emailed} who chose tagging email.`);
       if (res.skipped) {
-        parts.push(`Skipped ${res.skipped} who did not opt in or have no preferred post.`);
+        parts.push(allCandidates
+          ? `Skipped ${res.skipped} who have not opted in to a broadcast.`
+          : `Skipped ${res.skipped}.`);
       }
       if (duplicates) {
         parts.push(`${duplicates} already had a notice for this link.`);
@@ -359,6 +375,27 @@ function AdminInner() {
       setSuggestErr(e instanceof Error ? e.message : "Failed to send.");
     } finally {
       setSuggestBusy(false);
+    }
+  }
+
+  async function runPrefMail(dry: boolean) {
+    setPrefBusy(true); setPrefErr(""); setPrefMsg("");
+    try {
+      const res = await api.post<{
+        eligible: number; would_send: number; sent: number; sent_today: number;
+        daily_cap: number; remaining_today: number; resume_on?: string | null; dry_run: boolean;
+      }>("/admin/tagging-preference-email", { dry_run: dry, batch: 40 });
+      setPrefMail(res);
+      if (dry) {
+        setPrefMsg(`${res.eligible} people have no email choice. This batch would send ${res.would_send}. ${res.sent_today} already sent today (cap ${res.daily_cap} a UTC day).`);
+      } else {
+        const later = res.resume_on ? ` Resume on ${res.resume_on}.` : "";
+        setPrefMsg(`Sent ${res.sent}. ${res.eligible} still have no recorded choice.${later}`);
+      }
+    } catch (e) {
+      setPrefErr(e instanceof Error ? e.message : "Could not send that email");
+    } finally {
+      setPrefBusy(false);
     }
   }
 
@@ -424,10 +461,10 @@ function AdminInner() {
       <Card>
         <h2 className="mb-1 font-semibold">Suggest a post or link</h2>
         <p className="mb-3 text-sm text-ss-muted">
-          Alert people who saved a preferred post and opted in to opportunity alerts. Anyone else is
-          skipped, on purpose. A pasted vacancy, careers, or apply link is included in their
-          notification and, when mail is on, in the email. The same person is not notified twice
-          for the same link. The audit log records the counts, not their email address.
+          A selected person gets an in-app notice with the pasted link, whether or not they chose email.
+          The email goes only to people who turned tagging email on. Send to everyone stays limited to
+          people who opted in. The same person is not notified twice for the same link. The audit log
+          records the counts, not their email address.
         </p>
         {suggestErr && <Alert kind="error">{suggestErr}</Alert>}
         {suggestMsg && <Alert kind="success">{suggestMsg}</Alert>}
@@ -451,6 +488,30 @@ function AdminInner() {
           </Button>
           <Button variant="ghost" onClick={() => sendSuggestion(true)} disabled={suggestBusy}>
             Send to everyone who opted in
+          </Button>
+        </div>
+      </Card>
+
+      <Card>
+        <h2 className="mb-1 font-semibold">One email about notification settings</h2>
+        <p className="mb-3 text-sm text-ss-muted">
+          For account holders who have never chosen whether a tag may be emailed. The message names
+          Sospana Sonke, explains the in-account notice, and links to the preferences page. It has no
+          listings. Count first. Then send one batch of 40. It stops at 300 a UTC day and continues
+          the next day. Each address is recorded, so nobody receives it twice.
+        </p>
+        {prefErr && <Alert kind="error">{prefErr}</Alert>}
+        {prefMsg && <Alert kind="success">{prefMsg}</Alert>}
+        <div className="mt-3 flex flex-wrap gap-3">
+          <Button onClick={() => runPrefMail(true)} disabled={prefBusy} loading={prefBusy && prefMail === null}>
+            Count people with no email choice
+          </Button>
+          <Button
+            variant="ghost"
+            onClick={() => runPrefMail(false)}
+            disabled={prefBusy || !prefMail || prefMail.would_send === 0}
+          >
+            Send one batch
           </Button>
         </div>
       </Card>
@@ -489,7 +550,7 @@ function AdminInner() {
                 <th className="py-2 pr-4">Name</th>
                 <th className="py-2 pr-4">Mobile</th>
                 <th className="py-2 pr-4">Preferred post</th>
-                <th className="py-2 pr-4">Alerts</th>
+                <th className="py-2 pr-4">Tag email</th>
                 <th className="py-2 pr-4">Tags</th>
                 <th className="py-2 pr-4">Qualification</th>
                 <th className="py-2 pr-4">Profile</th>
@@ -508,14 +569,14 @@ function AdminInner() {
                   <td className="py-2 pr-4">{u.mobile_number || "—"}</td>
                   <td className="py-2 pr-4">{u.preferred_position || "—"}</td>
                   <td className="py-2 pr-4">
-                    <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${canNotify(u) ? "bg-brand/10 text-brand-dark" : "bg-ss-border text-ss-muted"}`}>
-                      {canNotify(u) ? "Opted in" : "No alerts"}
+                    <span className="rounded-full bg-ss-border px-2 py-0.5 text-xs font-semibold text-ss-muted">
+                      {emailChoice(u)}
                     </span>
                   </td>
                   <td className="py-2 pr-4">
                     <div className="flex flex-col gap-1">
                       <span>{(u.tags || []).join(", ") || "—"}</span>
-                      {canNotify(u) && (
+                      {u.role === "candidate" && u.is_active && (
                         <form
                           className="flex gap-1"
                           onSubmit={async (e) => {

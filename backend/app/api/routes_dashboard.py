@@ -58,12 +58,12 @@ class TagRequest(BaseModel):
         return validated_notice_url(value)
 
 
-def _eligible_for_alerts(user: User) -> bool:
+def _can_be_tagged(user: User) -> bool:
+    """Any active candidate can be tagged. The notice stays in their account."""
     return bool(
         user.role == "candidate"
         and user.is_active
-        and user.notify_opportunity_alerts
-        and (user.preferred_position or "").strip()
+        and not user.deleted_at
     )
 
 
@@ -109,6 +109,7 @@ def list_users(db: Session = Depends(get_db), limit: int = 1000,
             "email_verified": u.email_verified,
             "is_active": u.is_active,
             "notify_opportunity_alerts": bool(u.notify_opportunity_alerts),
+            "tagging_email": u.tagging_email,
             "tags": tags_by_user.get(u.id, []),
             "created_at": u.created_at.isoformat() if u.created_at else None,
             "has_profile": p is not None,
@@ -121,14 +122,14 @@ def list_users(db: Session = Depends(get_db), limit: int = 1000,
 @router.post("/admin/users/{user_id}/tags", dependencies=[Depends(require_admin)])
 def add_user_tag(user_id: str, body: TagRequest, db: Session = Depends(get_db),
                  admin: User = Depends(require_admin)):
-    """Tag someone who opted in and named a preferred post. Writes an audit row."""
+    """Tag an active candidate. A pasted link is stored in their account. Writes an audit row."""
     target = db.get(User, user_id)
     if target is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
-    if not _eligible_for_alerts(target):
+    if not _can_be_tagged(target):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="This person has not opted in to opportunity alerts, or has not set a preferred post.",
+            detail="Only an active candidate account can be tagged.",
         )
     tag = " ".join(body.tag.split())
     if not _TAG.match(tag):
@@ -139,15 +140,16 @@ def add_user_tag(user_id: str, body: TagRequest, db: Session = Depends(get_db),
         db.add(UserTag(user_id=target.id, tag=tag, created_by=admin.id))
     notice_sent = 0
     notice_duplicate = 0
+    notice_emailed = 0
     if body.link_url:
         from app.services.notification_service import notify_admin_suggestion
-        notice_sent, notice_duplicate = notify_admin_suggestion(
+        notice_sent, notice_duplicate, notice_emailed = notify_admin_suggestion(
             db, users=[target], title=tag,
             body="The Sospana Sonke team tagged you for this opening.",
             link_url=body.link_url,
         )
     _audit(db, admin.id, "tag", target.id,
-           f"tag={tag} link={1 if body.link_url else 0} sent={notice_sent}")
+           f"tag={tag} link={1 if body.link_url else 0} sent={notice_sent} emailed={notice_emailed}")
     db.commit()
     tags = [t.tag for t in db.query(UserTag).filter(UserTag.user_id == target.id).all()]
     return {
@@ -155,6 +157,7 @@ def add_user_tag(user_id: str, body: TagRequest, db: Session = Depends(get_db),
         "tags": tags,
         "notice_sent": notice_sent,
         "notice_duplicate": notice_duplicate,
+        "notice_emailed": notice_emailed,
     }
 
 

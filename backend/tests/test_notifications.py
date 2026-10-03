@@ -284,21 +284,33 @@ def test_admin_suggestion_to_all_candidates(client, db_engine):
         assert notes[0]["link_url"] is None
 
 
-def test_admin_suggestion_skips_people_who_did_not_opt_in(client, db_engine):
+def test_admin_suggestion_stores_an_in_app_notice_without_an_email_choice(client, db_engine):
+    """A selected person with no recorded choice gets the notice, and no email."""
     admin = _admin(client, db_engine)
     reg, tokens = register_and_login(
         client, email="quiet@example.com", preferred_position="Driver",
     )
     resp = client.post("/api/v1/admin/suggestions", headers=_auth(admin), json={
-        "title": "A matching post", "body": "Only for people who asked.",
+        "title": "A matching post", "body": "Inside your account.",
+        "link_url": "https://example.com/driver",
         "user_ids": [reg["user"]["id"]],
     })
     assert resp.status_code == 200, resp.text
-    assert resp.json()["sent"] == 0
-    assert resp.json()["skipped"] == 1
+    assert resp.json()["sent"] == 1
+    assert resp.json()["skipped"] == 0
+    assert resp.json()["emailed"] == 0
     notes = [n for n in client.get("/api/v1/notifications", headers=_auth(tokens)).json()
              if n["type"] == "admin_suggestion"]
-    assert notes == []
+    assert len(notes) == 1
+    assert notes[0]["email_sent"] is False
+
+    broadcast = client.post("/api/v1/admin/suggestions", headers=_auth(admin), json={
+        "title": "Everyone", "body": "Only people who opted in.",
+        "all_candidates": True,
+    })
+    assert broadcast.status_code == 200, broadcast.text
+    assert broadcast.json()["sent"] == 0
+    assert broadcast.json()["skipped"] == 1
 
 
 def test_admin_suggestion_requires_admin(client, db_engine):
@@ -337,7 +349,7 @@ def test_suggestion_notice_includes_the_link_and_is_not_repeated(client, db_engi
     admin = _admin(client, db_engine)
     reg, tokens = register_and_login(
         client, email="tagged@example.com",
-        preferred_position="Nurse", notify_opportunity_alerts=True,
+        preferred_position="Nurse", notify_opportunity_alerts=True, tagging_email=True,
     )
     quiet, quiet_tokens = register_and_login(
         client, email="quiet-tag@example.com", preferred_position="Nurse",
@@ -373,9 +385,10 @@ def test_suggestion_notice_includes_the_link_and_is_not_repeated(client, db_engi
     }
     first = client.post("/api/v1/admin/suggestions", headers=_auth(admin), json=payload)
     assert first.status_code == 200, first.text
-    assert first.json()["sent"] == 1
-    assert first.json()["skipped"] == 1
+    assert first.json()["sent"] == 2
+    assert first.json()["skipped"] == 0
     assert first.json()["duplicates"] == 0
+    assert first.json()["emailed"] == 1
 
     notes = [n for n in client.get("/api/v1/notifications", headers=_auth(tokens)).json()
              if n["type"] == "admin_suggestion"]
@@ -395,12 +408,14 @@ def test_suggestion_notice_includes_the_link_and_is_not_repeated(client, db_engi
     assert "<script>" not in html
     quiet_notes = [n for n in client.get("/api/v1/notifications", headers=_auth(quiet_tokens)).json()
                    if n["type"] == "admin_suggestion"]
-    assert quiet_notes == []
+    assert len(quiet_notes) == 1
+    assert quiet_notes[0]["email_sent"] is False
+    assert link in quiet_notes[0]["body"]
 
     second = client.post("/api/v1/admin/suggestions", headers=_auth(admin), json=payload)
     assert second.status_code == 200, second.text
     assert second.json()["sent"] == 0
-    assert second.json()["duplicates"] == 1
+    assert second.json()["duplicates"] == 2
     again = [n for n in client.get("/api/v1/notifications", headers=_auth(tokens)).json()
              if n["type"] == "admin_suggestion"]
     assert len(again) == 1

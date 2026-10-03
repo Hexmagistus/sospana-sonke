@@ -76,6 +76,11 @@ def register(request: Request, body: RegisterRequest, db: Session = Depends(get_
         qualification_name=body.qualification_name,
         notify_opportunity_alerts=bool(body.notify_opportunity_alerts),
     )
+    if body.tagging_email is not None:
+        chosen = datetime.now(timezone.utc)
+        user.tagging_email = bool(body.tagging_email)
+        user.tagging_email_chosen_at = chosen
+        user.tagging_banner_seen_at = chosen
     if body.accepted_policy:
         user.policy_accepted_at = datetime.now(timezone.utc)
         user.policy_version = CURRENT_POLICY_VERSION

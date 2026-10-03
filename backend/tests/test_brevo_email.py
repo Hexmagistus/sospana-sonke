@@ -242,7 +242,7 @@ def test_strong_match_and_briefing_use_brevo_after_commit(db, monkeypatch):
 
 
 def test_opted_out_admin_suggestion_does_not_email(db, monkeypatch):
-    """POPIA: no in-app notice and no email when opportunity alerts are off."""
+    """An explicit no, and a missing choice, both stay in the account and off the mail path."""
     _enable_brevo(monkeypatch)
     monkeypatch.setattr(settings, "NOTIFY_EMAILS", True)
     calls = _capture_posts(monkeypatch, [(201, "{}")])
@@ -253,14 +253,23 @@ def test_opted_out_admin_suggestion_does_not_email(db, monkeypatch):
         last_name="User",
         preferred_position="Nurse",
         notify_opportunity_alerts=False,
+        tagging_email=False,
+    )
+    unset = User(
+        email="unset@example.com",
+        password_hash=security.hash_password("Password123!"),
+        first_name="Unset",
+        last_name="User",
+        tagging_email=None,
     )
     db.add(opted_out)
+    db.add(unset)
     db.commit()
-    sent, duplicates = notify_admin_suggestion(
-        db, users=[opted_out], title="A post", body="Look here",
+    sent, duplicates, emailed = notify_admin_suggestion(
+        db, users=[opted_out, unset], title="A post", body="Look here",
         link_url="https://apply.example.com/nurse",
     )
-    assert (sent, duplicates) == (0, 0)
+    assert (sent, duplicates, emailed) == (2, 0, 0)
     assert calls == []
 
 
@@ -283,15 +292,16 @@ def test_opted_in_suggestion_emails_the_link_once(db, monkeypatch):
         last_name="User",
         preferred_position="Nurse",
         notify_opportunity_alerts=True,
+        tagging_email=True,
     )
     db.add(user)
     db.commit()
-    sent, duplicates = notify_admin_suggestion(
+    sent, duplicates, emailed = notify_admin_suggestion(
         db, users=[user], title="Ward clerk",
         body="Please look. <script>alert(1)</script>",
         link_url="https://apply.example.com/nurse",
     )
-    assert (sent, duplicates) == (1, 0)
+    assert (sent, duplicates, emailed) == (1, 0, 1)
     assert len(calls) == 1
     text = calls[0]["payload"]["textContent"]
     html_body = calls[0]["payload"]["htmlContent"]
@@ -301,11 +311,11 @@ def test_opted_in_suggestion_emails_the_link_once(db, monkeypatch):
     assert "Open this listing" in html_body
     assert "<script>" not in html_body
     assert "&lt;script&gt;" in html_body
-    again, dup_again = notify_admin_suggestion(
+    again, dup_again, emailed_again = notify_admin_suggestion(
         db, users=[user], title="Ward clerk", body="Please look again.",
         link_url="https://apply.example.com/nurse",
     )
-    assert (again, dup_again) == (0, 1)
+    assert (again, dup_again, emailed_again) == (0, 1, 0)
     assert len(calls) == 1
 
 

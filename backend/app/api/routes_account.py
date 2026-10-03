@@ -17,7 +17,7 @@ from app.models.message import Message, UserBlock, MessageReport
 from app.models.notification import Notification, PushToken
 from app.models.user import User
 from app.models.admin_ops import UserTag
-from app.schemas.auth import OpportunityAlertsRequest
+from app.schemas.auth import NotificationPreferencesRequest, OpportunityAlertsRequest, UserResponse
 from app.models.cv import CV
 from app.models.document import CVVersion, CoverLetter
 from app.models.profile import CandidateProfile, Education, Certification, WorkExperience, Skill
@@ -56,6 +56,10 @@ def export_my_data(request: Request, db: Session = Depends(get_db), user: User =
             "email_verified": user.email_verified, "mfa_enabled": user.mfa_enabled,
             "allow_messages": user.allow_messages,
             "notify_opportunity_alerts": user.notify_opportunity_alerts,
+            "tagging_email": user.tagging_email,
+            "tagging_email_chosen_at": (
+                user.tagging_email_chosen_at.isoformat() if user.tagging_email_chosen_at else None
+            ),
             "policy_version": user.policy_version,
             "policy_accepted_at": user.policy_accepted_at.isoformat() if user.policy_accepted_at else None,
             "created_at": user.created_at.isoformat() if user.created_at else None,
@@ -105,6 +109,45 @@ def set_opportunity_alerts(request: Request, body: OpportunityAlertsRequest, db:
     user.notify_opportunity_alerts = bool(body.enabled)
     db.commit()
     return {"notify_opportunity_alerts": user.notify_opportunity_alerts}
+
+
+@router.put("/account/notification-preferences", response_model=UserResponse)
+@limiter.limit("20/hour")
+def set_notification_preferences(request: Request, body: NotificationPreferencesRequest,
+                                 db: Session = Depends(get_db),
+                                 user: User = Depends(get_current_user)):
+    """Preferred post, matching-post alerts, and the tagging-email choice.
+
+    Omitting a field leaves it as it is. Tagging email changes only when
+    record_tagging_email is true, so a save of the preferred post cannot
+    invent a yes or a no.
+    """
+    fields = body.model_fields_set
+    if "preferred_position" in fields:
+        user.preferred_position = (body.preferred_position or "").strip() or None
+    if "notify_opportunity_alerts" in fields and body.notify_opportunity_alerts is not None:
+        user.notify_opportunity_alerts = bool(body.notify_opportunity_alerts)
+    if body.record_tagging_email and body.tagging_email is not None:
+        now = datetime.now(timezone.utc)
+        user.tagging_email = bool(body.tagging_email)
+        user.tagging_email_chosen_at = now
+        if user.tagging_banner_seen_at is None:
+            user.tagging_banner_seen_at = now
+    db.commit()
+    db.refresh(user)
+    return UserResponse.model_validate(user)
+
+
+@router.post("/account/tagging-banner/dismiss")
+@limiter.limit("20/hour")
+def dismiss_tagging_banner(request: Request, db: Session = Depends(get_db),
+                           user: User = Depends(get_current_user)):
+    """Hide the one-time prompt. This does not record an email choice."""
+    if user.tagging_banner_seen_at is None:
+        user.tagging_banner_seen_at = datetime.now(timezone.utc)
+        db.commit()
+        db.refresh(user)
+    return {"show_tagging_banner": bool(user.show_tagging_banner)}
 
 
 def _erase_documents_and_profile(db: Session, user: User) -> None:
@@ -181,6 +224,10 @@ def delete_my_account(request: Request, body: DeleteRequest, db: Session = Depen
     user.mfa_secret = None
     user.allow_messages = False
     user.notify_opportunity_alerts = False
+    user.tagging_email = None
+    user.tagging_email_chosen_at = None
+    user.tagging_banner_seen_at = None
+    user.tagging_pref_service_sent_at = None
     user.password_hash = hash_password(secrets.token_urlsafe(32))
     user.is_active = False
     user.deleted_at = datetime.now(timezone.utc)

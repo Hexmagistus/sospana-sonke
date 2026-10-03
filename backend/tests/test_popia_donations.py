@@ -60,19 +60,27 @@ def test_log_filter_redacts_email_addresses():
     assert "[redacted-email]" in record.getMessage()
 
 
-def test_admin_tag_requires_opt_in_and_is_audited(client, db_engine):
+def test_admin_tag_is_available_without_an_email_choice_and_is_audited(client, db_engine):
     email, password = make_admin(db_engine)
     admin = client.post("/api/v1/auth/login", json={"email": email, "password": password}).json()
-    quiet, _ = register_and_login(client, email="notags@example.com", preferred_position="Chef")
-    denied = client.post(
+    quiet, quiet_tokens = register_and_login(client, email="notags@example.com", preferred_position="Chef")
+    tagged = client.post(
         f"/api/v1/admin/users/{quiet['user']['id']}/tags",
-        headers=_auth(admin), json={"tag": "hospitality"},
+        headers=_auth(admin),
+        json={"tag": "hospitality", "link_url": "https://acme.example/careers"},
     )
-    assert denied.status_code == 403
+    assert tagged.status_code == 200, tagged.text
+    assert "hospitality" in tagged.json()["tags"]
+    assert tagged.json()["notice_sent"] == 1
+    assert tagged.json()["notice_emailed"] == 0
+    notes = [n for n in client.get("/api/v1/notifications", headers=_auth(quiet_tokens)).json()
+             if n["type"] == "admin_suggestion"]
+    assert len(notes) == 1
+    assert notes[0]["email_sent"] is False
 
     opted, _ = register_and_login(
         client, email="tags@example.com",
-        preferred_position="Chef", notify_opportunity_alerts=True,
+        preferred_position="Chef", notify_opportunity_alerts=True, tagging_email=True,
     )
     ok = client.post(
         f"/api/v1/admin/users/{opted['user']['id']}/tags",
@@ -87,6 +95,7 @@ def test_admin_tag_requires_opt_in_and_is_audited(client, db_engine):
     assert opted["user"]["id"] in ids
     row = next(r for r in listed.json() if r["id"] == opted["user"]["id"])
     assert row["notify_opportunity_alerts"] is True
+    assert row["tagging_email"] is True
     assert "hospitality" in row["tags"]
 
     from sqlalchemy.orm import sessionmaker
