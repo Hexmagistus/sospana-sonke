@@ -6,20 +6,21 @@ from app.scraper.base import detect_ats
 
 CSV = Path(__file__).resolve().parents[2] / "backend" / "seed" / "company_database_import.csv"
 
+# Companies whose link moved to their own branded careers page read as "static"; the ATS board stays in vacancy_sources.
 EXPECTED = {
-    "Wildlife Studios": ("Brazil", "greenhouse"),
+    "Wildlife Studios": ("Brazil", "static"),
     "Stone": ("Brazil", "greenhouse"),
     "QuintoAndar": ("Brazil", "greenhouse"),
     "VTEX": ("Brazil", "greenhouse"),
-    "EBANX": ("Brazil", "greenhouse"),
+    "EBANX": ("Brazil", "static"),
     "Wellhub": ("Brazil", "greenhouse"),
     "RD Station": ("Brazil", "greenhouse"),
     "Banco Inter": ("Brazil", "greenhouse"),
     "XP Inc": ("Brazil", "greenhouse"),
     "Getnet": ("Brazil", "greenhouse"),
     "C6 Bank": ("Brazil", "greenhouse"),
-    "Neon": ("Brazil", "lever"),
-    "RecargaPay": ("Brazil", "workable"),
+    "Neon": ("Brazil", "static"),
+    "RecargaPay": ("Brazil", "static"),
     "Fintual": ("Chile", "lever"),
     "Xepelin": ("Chile", "lever"),
     "Platzi": ("Colombia", "workable"),

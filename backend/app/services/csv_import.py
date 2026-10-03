@@ -69,8 +69,14 @@ def import_companies_from_csv(db: Session, content: bytes) -> CompanyImportResul
     # Build an index of existing companies for dedup. Country is part of the key
     # so two employers that share a name in different countries stay two rows.
     existing: dict[tuple[str, str, str], Company] = {}
+    # Soft-deleted rows stay in the index on purpose: a CSV row that matches one updates it
+    # (it stays deleted) instead of the importer re-creating a duplicate on every boot. When a
+    # live row and a soft-deleted row share a key, the live row is the one to refresh.
     for c in db.query(Company).all():
-        existing[(_norm(c.company_name), (c.jse_code or "").strip().upper(), canonical_country(c.country))] = c
+        key = (_norm(c.company_name), (c.jse_code or "").strip().upper(), canonical_country(c.country))
+        held = existing.get(key)
+        if held is None or (held.deleted_at is not None and c.deleted_at is None):
+            existing[key] = c
 
     for i, row in enumerate(reader, start=2):  # row 1 is the header
         total += 1

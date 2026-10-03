@@ -7,24 +7,26 @@ from app.scraper.base import detect_ats
 CSV = Path(__file__).resolve().parents[2] / "backend" / "seed" / "company_database_import.csv"
 
 # (company, country, ats). Three UWI campuses share a name stem and stay separate rows.
+# Companies whose link moved to their own branded careers page read as "static"; the ATS board stays in vacancy_sources.
+# Companies whose link moved to their own branded careers page read as "static"; the ATS board stays in vacancy_sources.
 EXPECTED = [
-    ("University of Pennsylvania", "United States", "workday"),
-    ("Cleveland Clinic", "United States", "workday"),
-    ("Stanford Health Care", "United States", "workday"),
-    ("Mass General Brigham", "United States", "workday"),
-    ("Mayo Clinic", "United States", "oracle"),
+    ("University of Pennsylvania", "United States", "static"),
+    ("Cleveland Clinic", "United States", "static"),
+    ("Stanford Health Care", "United States", "static"),
+    ("Mass General Brigham", "United States", "static"),
+    ("Mayo Clinic", "United States", "static"),
     ("American Red Cross", "United States", "workday"),
     ("New York City School Construction Authority", "United States", "workday"),
     ("City of New York", "United States", "static"),
-    ("University of British Columbia", "Canada", "workday"),
-    ("McGill University", "Canada", "workday"),
-    ("University of Waterloo", "Canada", "workday"),
+    ("University of British Columbia", "Canada", "static"),
+    ("McGill University", "Canada", "static"),
+    ("University of Waterloo", "Canada", "static"),
     ("University of Toronto", "Canada", "static"),
-    ("Public Health Ontario", "Canada", "workday"),
+    ("Public Health Ontario", "Canada", "static"),
     ("Spin (FEMSA)", "Mexico", "greenhouse"),
     ("Rappi", "Colombia", "workday"),
     ("dLocal", "Uruguay", "lever"),
-    ("Devsu", "Ecuador", "workable"),
+    ("Devsu", "Ecuador", "static"),
     ("Vana", "Guatemala", "lever"),
     ("University of the West Indies, Mona", "Jamaica", "static"),
     ("University of the West Indies, St. Augustine", "Trinidad and Tobago", "static"),
