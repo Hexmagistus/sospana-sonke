@@ -9,23 +9,18 @@ Two passes, in order of reliability:
 """
 from __future__ import annotations
 
-import json
 import re
 from urllib.parse import urljoin
 
 import httpx
 
-from app.scraper.base import ScrapeStrategy, RawVacancy, html_to_text
+from app.scraper.base import ScrapeStrategy, RawVacancy
+from app.scraper.jsonld import parse_job_postings
 from app.scraper.politeness import is_aws_waf_challenge, request_with_backoff
 
 
 class BotChallengeError(Exception):
     """The host returned a bot-challenge page, not a vacancy list."""
-
-_LDJSON = re.compile(
-    r'<script[^>]+type=["\']application/ld\+json["\'][^>]*>(.*?)</script>',
-    re.IGNORECASE | re.DOTALL,
-)
 
 # ---- heuristic link extractor ----------------------------------------------
 _ROLE_KW = ("manager", "officer", "engineer", "administrator", "clerk", "specialist",
@@ -70,62 +65,11 @@ def _clean_title(t: str) -> str:
     return re.sub(r'\s+', ' ', t).strip()
 
 
-def _location(job: dict) -> str | None:
-    loc = job.get("jobLocation")
-    if isinstance(loc, list):
-        loc = loc[0] if loc else None
-    if isinstance(loc, dict):
-        addr = loc.get("address", {})
-        if isinstance(addr, dict):
-            return ", ".join(x for x in [addr.get("addressLocality"), addr.get("addressRegion"),
-                                         addr.get("addressCountry")] if isinstance(x, str)) or None
-    return None
-
-
-def _iter_jobpostings(obj):
-    if isinstance(obj, list):
-        for item in obj:
-            yield from _iter_jobpostings(item)
-    elif isinstance(obj, dict):
-        t = obj.get("@type")
-        types = t if isinstance(t, list) else [t]
-        if "JobPosting" in types:
-            yield obj
-        if "@graph" in obj:
-            yield from _iter_jobpostings(obj["@graph"])
-
-
 class StaticHTMLStrategy(ScrapeStrategy):
     ats_type = "static"
 
     def parse_jsonld(self, html: str, source_url: str | None = None) -> list[RawVacancy]:
-        out: list[RawVacancy] = []
-        for block in _LDJSON.findall(html):
-            try:
-                data = json.loads(block)
-            except json.JSONDecodeError:
-                continue
-            for job in _iter_jobpostings(data):
-                title = job.get("title")
-                if not title:
-                    continue
-                emp_type = job.get("employmentType")
-                if isinstance(emp_type, list):
-                    emp_type = ", ".join(emp_type)
-                out.append(RawVacancy(
-                    title=str(title).strip(),
-                    external_id=str(job.get("identifier", {}).get("value"))
-                        if isinstance(job.get("identifier"), dict) else None,
-                    location=_location(job),
-                    employment_type=emp_type,
-                    posting_date=job.get("datePosted"),
-                    closing_date=job.get("validThrough"),
-                    description=html_to_text(job.get("description")),
-                    application_url=(job.get("url") or source_url),
-                    source_url=source_url,
-                    raw=job,
-                ))
-        return out
+        return parse_job_postings(html, source_url)
 
     def parse_links(self, html: str, source_url: str | None = None) -> list[RawVacancy]:
         base = source_url or ""

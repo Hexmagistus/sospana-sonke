@@ -1,0 +1,214 @@
+{
+ "status": "Success",
+ "timestamp": "2026-10-03T14:46:26.8209023Z",
+ "data": {
+  "totalCount": 8,
+  "requisitions": [
+   {
+    "requisitionId": 5986,
+    "postingEffectiveDate": "10/2/2026",
+    "postingExpirationDate": "10/13/2026",
+    "displayJobTitle": "Work Integrated Technical Learner - Plumber (Durban, Richards Bay, CPT, East London, PE, Saldanha)",
+    "locations": [
+     {
+      "country": "ZA"
+     }
+    ],
+    "externalDescription": "The Work Integrated Learning (WIL) Trainee Programme aims to provide recently qualified apprentices ( with a red seal) with practical work experience allowing them to apply their academic and vocational or practical knowledge in a real-world environment. This programme is designed to enhance participants' employability by offering hands-on training, mentorship, and exposure to industry-specific tasks. The WIL trainee programme is conducted over a period of 24 months."
+   },
+   {
+    "requisitionId": 5921,
+    "postingEffectiveDate": "10/1/2026",
+    "postingExpirationDate": "10/12/2026",
+    "displayJobTitle": "Helicopter Night Captain",
+    "locations": [
+     {
+      "city": "Richards Bay",
+      "country": "ZA"
+     }
+    ],
+    "externalDescription": "The Helicopter Night Captain is the Commander of the aircraft for both Day and Night operations and takes ultimate responsibility for the safety and management of the flight crew and passengers on board the aircraft as per TNPA procedures as well as the SACAA Civil Aviation Regulations and Technical Standards, including but not limited to, Parts 91.02.7 and 91.02.8."
+   },
+   {
+    "requisitionId": 5965,
+    "postingEffectiveDate": "9/30/2026",
+    "postingExpirationDate": "10/8/2026",
+    "displayJobTitle": "Snr Treasury Accountant",
+    "locations": [
+     {
+      "city": "Johannesburg",
+      "country": "ZA"
+     }
+    ],
+    "externalDescription": "To coordinate and supervise the full spectrum of Treasury Financial Accounting and Reporting and deliver accurate and timely treasury financial, reporting and management information to support appropriate strategic decision making whilst maintaining strong financial governance, effective internal controls, enabling systems, policies, procedures and business processes with a view to achieving clean audits."
+   },
+   {
+    "requisitionId": 5957,
+    "postingEffectiveDate": "9/29/2026",
+    "postingExpirationDate": "10/7/2026",
+    "displayJobTitle": "System Analyst (BI)(Re-advert)",
+    "locations": [
+     {
+      "city": "Kilner Park",
+      "country": "ZA"
+     }
+    ],
+    "externalDescription": "To bring forth critical Business Intelligence from multiples of process data information that cuts across all Transnet Engineering Business units. \u2022 Implement solutions that require extraction, transformation and loading of key data from various sources into target platforms \u2022 To analyse and understand critical reporting business requirements and interpret data into information the business can use in critical decision-making process"
+   },
+   {
+    "requisitionId": 5736,
+    "postingEffectiveDate": "9/28/2026",
+    "postingExpirationDate": "10/6/2026",
+    "displayJobTitle": "Able Seafarer(Re-advertised)",
+    "locations": [
+     {
+      "city": "Saldanha",
+      "country": "ZA"
+     }
+    ],
+    "externalDescription": "\u2022To serve as a (rating) positioned in a capacity of AB (Deck or Engine) on a Tug, Launch, Pilot Boat, Work Boat or Floating Crane operating within the confines of the port operations area, \u2022Be responsible for the safe and efficient handling and/or operation of ropes, wires, winches, capstans and other deck equipment during the shipping operations, \u2022To perform maintenance duties on the deck, accommodation, tank, void and engine room spaces of the crafts including general cleaning and housekeeping thereby ensuring a safe, reliable and professional delivery of marine fleet services to the client. \u2022Participate in Bridge and/or Engine Room Resource Management activities as and when required by the Master or Chief Marine Engineers Officer, i.e. perform look out duties on the bridge. \u2022Be responsible for the efficient and economical use of paints, working tools and consumable stores. \u2022To safely operate all deck or engine lifting , towing, cleaning and pumping machinery as and when required by the Master and/or Chief Marine Engineer Officer."
+   },
+   {
+    "requisitionId": 5566,
+    "postingEffectiveDate": "9/25/2026",
+    "postingExpirationDate": "10/6/2026",
+    "displayJobTitle": "Work Intergrated Non Technical Learner (University of Technology)",
+    "locations": [
+     {
+      "city": "Durban",
+      "country": "ZA"
+     }
+    ],
+    "externalDescription": "The Work Integrated Learning (WIL) Trainee Programme aims to provide students and recent graduates with practical workplace experience, allowing them to apply their academic knowledge in a real-world environment. This programme is designed to enhance participants' employability by offering hands-on training, mentorship, and exposure to industry-specific tasks. The WIL trainee programme is conducted over a period of 12 months."
+   },
+   {
+    "requisitionId": 5963,
+    "postingEffectiveDate": "9/23/2026",
+    "postingExpirationDate": "10/6/2026",
+    "displayJobTitle": "Trainee Controller - Learnership",
+    "locations": [
+     {
+      "country": "ZA"
+     }
+    ],
+    "externalDescription": "The controller is responsible for the Safe and efficient movement of Petroleum products through the Pipeline network by operating highly specialized equipment in accordance with a scheduled program/instructions with due cognizance to volume/quality of product, the safety of personnel, company assets and satisfaction of both internal and external customers."
+   },
+   {
+    "requisitionId": 5954,
+    "postingEffectiveDate": "9/22/2026",
+    "postingExpirationDate": "10/5/2026",
+    "displayJobTitle": "Pilot",
+    "locations": [
+     {
+      "city": "Richards Bay",
+      "country": "ZA"
+     }
+    ],
+    "externalDescription": " Candidate to hold a Pilot License from any South African Port. A pilot\u2019s primary duty is to use his skill and knowledge to protect the ship from collision, grounding and other hazard by providing accurate and timely navigational advice to the vessel master. Where so approved by the master, the pilot may be required to safely conduct the navigation and manoeuvring of the vessel whilst in pilotage waters The pilot is further responsible; \u2022 For the manoeuvring of the vessel within port limits having due regard for safety of the vessel, its crew and the environment. \u2022 Is also there to ensure the safe and efficient docking / undocking and shifting of vessels within port limit. \u2022 Must recognise that the observance of good seamanship dictates that operational contingency plans be available at all times \u2022 Provide the master with an efficient service by sharing with them his professional ship handling ship skills and his local knowledge. "
+   }
+  ],
+  "filters": [
+   {
+    "filterType": "Country",
+    "doLocalize": true,
+    "items": [
+     {
+      "key": "za",
+      "text": "Country.ZA",
+      "count": 8
+     }
+    ]
+   },
+   {
+    "filterType": "City",
+    "doLocalize": false,
+    "items": [
+     {
+      "key": "richards bay",
+      "text": "Richards Bay",
+      "count": 2
+     },
+     {
+      "key": "durban",
+      "text": "Durban",
+      "count": 1
+     },
+     {
+      "key": "johannesburg",
+      "text": "Johannesburg",
+      "count": 1
+     },
+     {
+      "key": "kilner park",
+      "text": "Kilner Park",
+      "count": 1
+     },
+     {
+      "key": "saldanha",
+      "text": "Saldanha",
+      "count": 1
+     }
+    ]
+   },
+   {
+    "filterType": "DatePosted",
+    "doLocalize": true,
+    "items": [
+     {
+      "key": "WithinThreeDays",
+      "text": "WithinThreeDays",
+      "count": 2
+     },
+     {
+      "key": "WithinSevenDays",
+      "text": "WithinSevenDays",
+      "count": 5
+     },
+     {
+      "key": "WithinFifteenDays",
+      "text": "WithinFifteenDays",
+      "count": 8
+     },
+     {
+      "key": "WithinThirtyDays",
+      "text": "WithinThirtyDays",
+      "count": 8
+     },
+     {
+      "key": "Anytime",
+      "text": "Anytime",
+      "count": 8
+     }
+    ]
+   }
+  ],
+  "customFieldFilters": [
+   {
+    "id": "163",
+    "items": [
+     {
+      "key": "122",
+      "count": 4
+     },
+     {
+      "key": "121",
+      "count": 3
+     },
+     {
+      "key": "120",
+      "count": 1
+     }
+    ]
+   },
+   {
+    "id": "164",
+    "items": [
+     {
+      "key": "123",
+      "count": 8
+     }
+    ]
+   }
+  ]
+ }
+}

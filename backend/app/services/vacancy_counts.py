@@ -20,6 +20,7 @@ _OPEN_LIFECYCLE = ("ACTIVE", "OPEN")
 _STRUCTURED_PARSERS = (
     "greenhouse", "lever", "smartrecruiters", "recruitee", "workable",
     "workday", "oracle", "breezy", "pinpoint", "cihr",
+    "cornerstone", "mci", "peoplesoft", "simplify",
 )
 
 
