@@ -135,3 +135,25 @@ export function directoryListPath(input: {
   params.set("limit", "1500");
   return `/companies?${params.toString()}`;
 }
+
+export type CategoryFacets = {
+  type_counts?: Record<string, number>;
+  country_type_counts?: Record<string, Record<string, number>>;
+  country_type_with_links?: Record<string, Record<string, number>>;
+} | null | undefined;
+
+/**
+ * Number on a category chip. With a country chosen it is the number of rows the
+ * list shows for that country and category (the list is fetched by both), so
+ * the chip and the list agree. With "all countries" it is the worldwide total.
+ */
+export function categoryChipCount(facets: CategoryFacets, country: string, type: string): number {
+  if (!country) return facets?.type_counts?.[type] ?? 0;
+  return facets?.country_type_counts?.[country]?.[type] ?? 0;
+}
+
+/** Rows of that category and country that have a careers link. */
+export function categoryChipLinked(facets: CategoryFacets, country: string, type: string): number {
+  if (!country) return 0;
+  return facets?.country_type_with_links?.[country]?.[type] ?? 0;
+}

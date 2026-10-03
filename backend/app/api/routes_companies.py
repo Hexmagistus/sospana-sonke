@@ -222,24 +222,36 @@ def company_facets(db: Session = Depends(get_db), _: User = Depends(get_current_
     if settings.ENV != "test" and cached is not None and now - _facets_cache["at"] < _FACETS_TTL_SECONDS:
         return cached
     rows = (db.query(Company.country, Company.source_type,
-                     func.count(Company.id), func.count(Company.careers_url))
+                     func.count(Company.id),
+                     func.count(case((func.length(func.coalesce(Company.careers_url, "")) > 0, 1))))
             .filter(Company.deleted_at.is_(None))
             .group_by(Company.country, Company.source_type).all())
     country_counts: dict[str, int] = {}
     country_with_links: dict[str, int] = {}
     type_counts: dict[str, int] = {}
+    # The category chips must show what the list shows once a country is
+    # chosen, so the type counts are also kept per country (canonical spelling,
+    # same population as GET /companies?country=&source_type=).
+    country_type_counts: dict[str, dict[str, int]] = {}
+    country_type_with_links: dict[str, dict[str, int]] = {}
     total = with_links = 0
     for country, st, n, n_links in rows:
+        key = (st or "").upper()
         if country:
             name = canonical_country(country)
             country_counts[name] = country_counts.get(name, 0) + n
             country_with_links[name] = country_with_links.get(name, 0) + n_links
-        key = (st or "").upper()
+            by_type = country_type_counts.setdefault(name, {})
+            by_type[key] = by_type.get(key, 0) + n
+            by_type_links = country_type_with_links.setdefault(name, {})
+            by_type_links[key] = by_type_links.get(key, 0) + n_links
         type_counts[key] = type_counts.get(key, 0) + n
         total += n
         with_links += n_links
     payload = {"total": total, "with_links": with_links, "country_counts": country_counts,
-               "country_with_links": country_with_links, "type_counts": type_counts}
+               "country_with_links": country_with_links, "type_counts": type_counts,
+               "country_type_counts": country_type_counts,
+               "country_type_with_links": country_type_with_links}
     if settings.ENV != "test":
         _facets_cache["at"] = now
         _facets_cache["data"] = payload

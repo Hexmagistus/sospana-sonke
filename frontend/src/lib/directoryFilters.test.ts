@@ -5,6 +5,8 @@ import {
   DIRECTORY_GUIDE_STEPS,
   compareCountries,
   countryAfterFilterChange,
+  categoryChipCount,
+  categoryChipLinked,
   countryFromDirectoryLink,
   directoryListPath,
   directorySliceKey,
@@ -76,5 +78,33 @@ describe("directory country stays when the category changes", () => {
     assert.match(DIRECTORY_GUIDE_STEPS[1], /category/i);
     assert.match(DIRECTORY_GUIDE_STEPS[2], /careers/i);
     assert.match(DIRECTORY_GUIDE_STEPS[3], /CV/i);
+  });
+});
+
+describe("category chip counts follow the selected country", () => {
+  const facets = {
+    type_counts: { UNI: 561, COLLEGE: 354 },
+    country_type_counts: { "South Africa": { UNI: 26, COLLEGE: 107 }, Kenya: { UNI: 45 } },
+    country_type_with_links: { "South Africa": { UNI: 26, COLLEGE: 59 } },
+  };
+
+  it("uses the country's own count when a country is chosen", () => {
+    assert.equal(categoryChipCount(facets, "South Africa", "UNI"), 26);
+    assert.equal(categoryChipCount(facets, "South Africa", "COLLEGE"), 107);
+    assert.equal(categoryChipLinked(facets, "South Africa", "COLLEGE"), 59);
+  });
+
+  it("is zero, not the worldwide number, where the country has none", () => {
+    assert.equal(categoryChipCount(facets, "Kenya", "COLLEGE"), 0);
+    assert.equal(categoryChipCount(facets, "South Africa", "FED"), 0);
+  });
+
+  it("uses the worldwide total only for all countries", () => {
+    assert.equal(categoryChipCount(facets, "", "UNI"), 561);
+  });
+
+  it("copes with an old API that has no per-country counts", () => {
+    assert.equal(categoryChipCount({ type_counts: { UNI: 9 } }, "South Africa", "UNI"), 0);
+    assert.equal(categoryChipCount(null, "", "UNI"), 0);
   });
 });
