@@ -14,3 +14,7 @@ settings.gradle
 twa-manifest.json.bak
 store_icon.png
 keystore.secrets.bat
+
+# Build logs can echo a keystore password from the signer command line.
+build-log*.txt
+*.log

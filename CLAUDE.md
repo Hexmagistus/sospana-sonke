@@ -1480,11 +1480,11 @@ Implemented the remaining audit fixes (1–4 were committed earlier in `62a8b9a`
 Set up the real Google OAuth in the owner's Google Cloud + Vercel via browser control:
 - **Google Cloud** ("My First Project"): OAuth consent screen configured (External,
   publishing status = **Testing**), app name "Sospana Sonke", support/dev email
-  gastricl@gmail.com. Created a **Web** OAuth client. **Client ID (public):**
+  the project owner. Created a **Web** OAuth client. **Client ID (public):**
   `343080221936-307hr2su2ufv6n4t443jb2crjtk0bdho.apps.googleusercontent.com`
   (client secret is NOT used by the GIS ID-token flow and was never recorded).
   Authorized JavaScript origins: `http://localhost:3000` and
-  `https://sospana-sonke.vercel.app`. Added test user gastricl@gmail.com.
+  `https://sospana-sonke.vercel.app`. Added test user the project owner.
 - **Vercel** (project sospana-sonke, prod domain sospana-sonke.vercel.app): added
   `NEXT_PUBLIC_GOOGLE_CLIENT_ID` (Config type, Production) = the Client ID above;
   triggered a Production redeploy.
