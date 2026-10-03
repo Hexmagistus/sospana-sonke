@@ -6,7 +6,7 @@ the vacancy discovery engine. Careers URLs are validated by the URL tester
 """
 from datetime import datetime
 
-from sqlalchemy import String, Boolean, DateTime, Text, Index
+from sqlalchemy import String, Boolean, DateTime, LargeBinary, Text, Index
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base import Base, UUIDMixin, TimestampMixin
@@ -51,6 +51,12 @@ class Company(UUIDMixin, TimestampMixin, Base):
     # None after a checked attempt means no icon was found there.
     favicon_url: Mapped[str | None] = mapped_column(Text, nullable=True)
     favicon_checked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    # The icon itself, fetched ONCE by the polite `discover_company_icons` job and
+    # then served from our own API, so a directory page never hot-links a
+    # company's server (or any third party). Small (<= MAX_ICON_BYTES), sniffed
+    # raster image only. NULL = not stored yet; the UI falls back to a monogram.
+    favicon_data: Mapped[bytes | None] = mapped_column(LargeBinary, nullable=True)
+    favicon_mime: Mapped[str | None] = mapped_column(String(40), nullable=True)
 
     # Lightweight change-detection for careers pages that don't yield
     # structured vacancies via app/scraper (most homepage/news-feed careers

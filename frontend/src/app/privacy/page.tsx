@@ -31,6 +31,7 @@ export default function PrivacyPage() {
               and any CV or documents you upload.
             </li>
             <li>Records of the jobs you view and the applications you submit through the platform.</li>
+            <li>If you press “Reveal today’s spark” on your dashboard, the date of that day, so we can show your streak. We send no reminders about it. It is included in your data export and deleted with your account.</li>
           </ul>
 
           <h2 className="pt-2 text-lg font-semibold text-ss-text">How we use your information</h2>

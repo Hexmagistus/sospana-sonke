@@ -146,6 +146,8 @@ _NEW_COLUMNS: list[tuple[str, str, str]] = [
     ("users", "locked_until", "TIMESTAMP WITH TIME ZONE" if not DATABASE_URL.startswith("sqlite") else "TIMESTAMP"),
     ("companies", "favicon_url", "TEXT"),
     ("companies", "favicon_checked_at", "TIMESTAMP WITH TIME ZONE" if not DATABASE_URL.startswith("sqlite") else "TIMESTAMP"),
+    ("companies", "favicon_data", "BYTEA" if not DATABASE_URL.startswith("sqlite") else "BLOB"),
+    ("companies", "favicon_mime", "VARCHAR(40)"),
     ("companies", "content_hash", "VARCHAR(64)"),
     ("companies", "content_checked_at", "TIMESTAMP WITH TIME ZONE" if not DATABASE_URL.startswith("sqlite") else "TIMESTAMP"),
     ("companies", "content_changed_at", "TIMESTAMP WITH TIME ZONE" if not DATABASE_URL.startswith("sqlite") else "TIMESTAMP"),

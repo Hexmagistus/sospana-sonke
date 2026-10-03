@@ -79,10 +79,10 @@ export function StatusBadge({
 
 const STAT_ACCENT: Record<Accent, { bar: string; val: string }> = {
   teal: { bar: "from-brand to-brand-light", val: "text-brand-dark" },
-  gold: { bar: "from-gold to-gold-light", val: "text-gold" },
-  coral: { bar: "from-coral to-[#ffb3aa]", val: "text-coral" },
-  purple: { bar: "from-purple to-[#b3a4ff]", val: "text-purple" },
-  sky: { bar: "from-sky to-[#a6d8ff]", val: "text-sky" },
+  gold: { bar: "from-gold to-gold-light", val: "text-gold-dark dark:text-gold" },
+  coral: { bar: "from-coral to-[#ffb3aa]", val: "text-[#b3382b] dark:text-coral" },
+  purple: { bar: "from-purple to-[#b3a4ff]", val: "text-[#5b3fd6] dark:text-purple" },
+  sky: { bar: "from-sky to-[#a6d8ff]", val: "text-[#14568f] dark:text-sky" },
   navy: { bar: "from-navy to-navy-light", val: "text-navy" },
 };
 
@@ -139,7 +139,7 @@ export function Button({
 } & ButtonHTMLAttributes<HTMLButtonElement>) {
   const styles = {
     primary: "bg-gradient-to-br from-[#163e73] to-[#0b1f3a] text-white shadow-[0_12px_28px_-14px_rgba(11,31,58,0.85)] ring-1 ring-[#f5b301]/45 hover:brightness-110 focus-visible:ring-gold",
-    secondary: "bg-ss-primary-soft text-ss-text shadow-sm ring-1 ring-ss-primary-border-soft hover:bg-ss-primary-soft-strong focus-visible:ring-ss-primary",
+    secondary: "bg-ss-primary-soft text-ss-text shadow-sm ring-1 ring-ss-primary-border-soft hover:bg-ss-primary-soft-strong focus-visible:ring-navy dark:focus-visible:ring-gold",
     ghost: "border border-ss-border bg-ss-glass text-ss-text shadow-sm backdrop-blur-md hover:border-brand hover:bg-brand/5 hover:text-brand-dark focus-visible:ring-brand/30",
     danger: "bg-ss-danger text-white hover:brightness-110 focus-visible:ring-ss-danger",
   }[variant];
@@ -152,7 +152,7 @@ export function Button({
     <button
       {...props}
       disabled={props.disabled || loading}
-      className={`group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-lg font-medium transition-all duration-150 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 ${sizes} ${styles} ${props.className || ""}`}
+      className={`group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-lg font-medium transition-all duration-150 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${sizes} ${styles} ${props.className || ""}`}
     >
       {loading && (
         <svg className="h-3.5 w-3.5 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -178,7 +178,7 @@ const BAND_COLORS: Record<string, string> = {
   REVIEW: "bg-yellow-100 text-yellow-800",
   DO_NOT_APPLY: "bg-gray-100 text-gray-600",
   ACTIVE: "bg-green-100 text-green-800",
-  TRIAL: "bg-sky/15 text-sky",
+  TRIAL: "bg-sky/15 text-[#14568f] dark:text-sky",
   PAST_DUE: "bg-orange-100 text-orange-800",
   CANCELLED: "bg-gray-100 text-gray-600",
   EXPIRED: "bg-gray-100 text-gray-600",

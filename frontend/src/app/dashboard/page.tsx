@@ -8,6 +8,7 @@ import { Alert, Card, Skeleton, Stat, StatusBadge } from "@/components/ui";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { WhatsAppChannelCard } from "@/components/WhatsAppChannel";
+import DailySpark from "@/components/DailySpark";
 import type { Dashboard } from "@/lib/types";
 
 function DashboardInner() {
@@ -48,6 +49,8 @@ function DashboardInner() {
           </div>
         )}
       </Banner>
+
+      <DailySpark />
 
       {err && <Alert kind="error">{err}</Alert>}
 

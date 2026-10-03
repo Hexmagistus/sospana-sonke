@@ -231,6 +231,96 @@ def check_link_changes(db: Session, limit: int = 25, job_run_id: str | None = No
             "pages_changed": changed_count, "watchers_notified": notified, "errors": errors}
 
 
+def discover_company_icons(db: Session, limit: int = 12, job_run_id: str | None = None,
+                           max_seconds: float = 40.0) -> dict:
+    """Fetch each company's own icon ONCE and store it in our database.
+
+    This is the only place icons are fetched from the web, and never on a page
+    view. Polite by design: robots.txt is honoured, requests to the same host
+    are spaced out, a small batch per run, a wall-clock budget, a descriptive
+    User-Agent, size/type-checked responses, and a "nothing found" result is
+    stored too (retried after 30 days) so nobody is asked repeatedly.
+
+    Order is South Africa, the rest of SADC, the rest of Africa, then others;
+    never-checked companies first. Companies with no usable source (no website,
+    ATS-only careers link) are stamped without any request: the monogram badge
+    is their icon. Rows that pre-date stored bytes (a URL only) are converted
+    after 7 days instead of 30 so existing icons stop being hot-linked soon.
+    """
+    from sqlalchemy import and_, case, or_
+    from datetime import timedelta
+    from app.scraper.politeness import RateLimiter, RobotsChecker
+    from app.services.logo_service import fetch_company_icon, has_icon_source
+    from app.services.scan_runner import _OTHER_AFRICA, _SADC
+
+    now = datetime.now(timezone.utc)
+    miss_cutoff = now - timedelta(days=30)
+    legacy_cutoff = now - timedelta(days=7)
+    has_url = and_(Company.favicon_url.isnot(None), Company.favicon_url != "")
+    band = case(
+        (Company.country == "South Africa", 0),
+        (Company.country.in_(sorted(_SADC)), 1),
+        (Company.country.in_(sorted(_OTHER_AFRICA)), 2),
+        else_=3,
+    )
+    pool = (db.query(Company)
+            .filter(Company.active.is_(True), Company.deleted_at.is_(None),
+                    Company.favicon_data.is_(None),
+                    or_(Company.favicon_checked_at.is_(None),
+                        and_(has_url, Company.favicon_checked_at < legacy_cutoff),
+                        and_(~has_url, Company.favicon_checked_at < miss_cutoff)))
+            .order_by(band, Company.favicon_checked_at.is_(None).desc(),
+                      Company.favicon_checked_at.asc(), Company.company_name)
+            .limit(limit * 10)
+            .all())
+
+    stored = missed = skipped = attempted = 0
+    started = time.monotonic()
+    timed_out = False
+    client = httpx.Client(
+        timeout=httpx.Timeout(8.0, connect=5.0),
+        follow_redirects=True,
+        headers={"User-Agent": settings.URL_TEST_USER_AGENT},
+    )
+    robots = RobotsChecker(client)
+    limiter = RateLimiter(min_interval_seconds=1.0)
+    try:
+        for company in pool:
+            if attempted >= limit:
+                break
+            if max_seconds - (time.monotonic() - started) < 15.0:
+                timed_out = True
+                break
+            name = company.company_name
+            try:
+                if not has_icon_source(company.official_website, company.careers_url,
+                                       company.favicon_url or None):
+                    company.favicon_checked_at = now
+                    skipped += 1
+                else:
+                    attempted += 1
+                    found = fetch_company_icon(
+                        company.official_website, company.careers_url,
+                        client, robots, limiter, known_icon_url=company.favicon_url or None)
+                    company.favicon_checked_at = datetime.now(timezone.utc)
+                    if found:
+                        company.favicon_url = found.source_url
+                        company.favicon_data = found.data
+                        company.favicon_mime = found.mime
+                        stored += 1
+                    else:
+                        missed += 1  # keep any legacy URL; the monogram covers a true miss
+                db.add(company)
+                db.commit()
+            except Exception:
+                logger.warning("discover_company_icons: failed for %s", name, exc_info=True)
+                db.rollback()
+    finally:
+        client.close()
+    return {"batch_limit": limit, "icons_stored": stored, "nothing_found": missed,
+            "no_source_monogram_only": skipped, "stopped_early_on_time_budget": timed_out}
+
+
 def close_expired_vacancies(db: Session, job_run_id: str | None = None) -> dict:
     """Close every open vacancy whose own advertised closing date has passed.
 

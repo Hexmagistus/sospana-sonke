@@ -19,7 +19,7 @@ from app.db.session import describe_database, init_db
 from app.api import (
     routes_auth, routes_companies, routes_profile, routes_cv, routes_vacancies, routes_matches,
     routes_documents, routes_applications, routes_subscription, routes_donation, routes_dashboard,
-    routes_notifications, routes_cron, routes_tailor, routes_watches, routes_career, routes_messages, routes_account, routes_comments,
+    routes_notifications, routes_cron, routes_tailor, routes_watches, routes_career, routes_messages, routes_account, routes_comments, routes_spark,
 )
 
 # Set up logging (and Sentry, if SENTRY_DSN is configured) before anything else
@@ -178,6 +178,7 @@ def create_app() -> FastAPI:
     app.include_router(routes_career.router, prefix=settings.API_V1_PREFIX)
     app.include_router(routes_messages.router, prefix=settings.API_V1_PREFIX)
     app.include_router(routes_account.router, prefix=settings.API_V1_PREFIX)
+    app.include_router(routes_spark.router, prefix=settings.API_V1_PREFIX)
     app.include_router(routes_comments.router, prefix=settings.API_V1_PREFIX)
 
     # Outermost user middleware (last add_middleware is wrapped latest). Compresses

@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Outfit } from "next/font/google";
+import { Bricolage_Grotesque, Inter } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import { AuthProvider } from "@/lib/auth";
@@ -16,9 +16,23 @@ import CopyGuard from "@/components/CopyGuard";
 import PhotoWash from "@/components/PhotoWash";
 import { SITE_URL, SITE_NAME, SITE_TAGLINE, SITE_DESCRIPTION, SITE_KEYWORDS } from "@/lib/seo";
 
-const outfit = Outfit({
-  subsets: ["latin"],
-  variable: "--font-space",
+// Type pairing (self-hosted by next/font at build time, no runtime request to Google):
+//  - Bricolage Grotesque: characterful display face for headings, with a warm,
+//    slightly quirky voice that suits the site's humour.
+//  - Inter: calm, very legible UI/body face with tabular numerals and the widest
+//    African-orthography coverage of the readable free text faces we tested
+//    (Yoruba ẹ ọ ṣ + tone marks, Hausa ɓ ɗ ƙ, Ewe/Akan/Lingala ɛ ɔ ŋ, ǀ ǁ ǂ ǃ clicks,
+//    Nguni/Sotho/Shona diacritics, ₦ ₵). Atkinson Hyperlegible Next was rejected
+//    because it lacks all of those; Bricolage lacks only ṣ and the hooked/click
+//    letters, which fall through to Inter (see the font stack in globals.css).
+const display = Bricolage_Grotesque({
+  subsets: ["latin", "latin-ext", "vietnamese"],
+  variable: "--font-display",
+  display: "swap",
+});
+const text = Inter({
+  subsets: ["latin", "latin-ext", "vietnamese"],
+  variable: "--font-text",
   display: "swap",
 });
 
@@ -114,7 +128,7 @@ const jsonLd = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={outfit.variable}>
+    <html lang="en" className={`${display.variable} ${text.variable}`}>
       <head>
         <Script id="ss-theme-bootstrap" strategy="beforeInteractive">
           {THEME_BOOTSTRAP_SCRIPT}
