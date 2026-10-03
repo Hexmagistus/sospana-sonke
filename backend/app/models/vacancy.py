@@ -64,7 +64,9 @@ class Vacancy(UUIDMixin, TimestampMixin, Base):
         String(36), ForeignKey("vacancy_sources.id", ondelete="CASCADE"), index=True, nullable=False
     )
 
-    external_id: Mapped[str | None] = mapped_column(String(200), index=True, nullable=True)  # employer vacancy id
+    # Workday's public id is the job path, and the requisition number is at the
+    # end. varchar(200) rejected a real Absa path (230 chars) and aborted the scan.
+    external_id: Mapped[str | None] = mapped_column(String(2000), index=True, nullable=True)
     title: Mapped[str] = mapped_column(String(300), nullable=False)
     department: Mapped[str | None] = mapped_column(String(200), nullable=True)
     location: Mapped[str | None] = mapped_column(String(200), nullable=True)

@@ -121,7 +121,7 @@ def scan_due_companies(db: Session, limit: int = 40, job_run_id: str | None = No
     """
     # Same priority as the parallel runner: never-scanned and public JSON
     # boards first, and failing URLs back off instead of being retried every tick.
-    from app.services.scan_runner import select_due_company_ids
+    from app.services.scan_runner import _stamp_failure, select_due_company_ids
     now = datetime.now(timezone.utc)
     ids = select_due_company_ids(db, limit, now)
     companies = [c for cid in ids if (c := db.get(Company, cid)) is not None]
@@ -144,6 +144,8 @@ def scan_due_companies(db: Session, limit: int = 40, job_run_id: str | None = No
                 if max_seconds - (time.monotonic() - started) < _MIN_START_SECONDS:
                     timed_out = True
                     break
+                company_id = company.id
+                company_name = company.company_name
                 try:
                     reports = scan_company(db, company, client=client)
                     scanned += 1
@@ -151,13 +153,24 @@ def scan_due_companies(db: Session, limit: int = 40, job_run_id: str | None = No
                     failed += sum(1 for r in reports if r.status not in ("ok", "empty"))
                     for r in reports:
                         new_vacancy_ids.extend(r.created_vacancy_ids)
+                    company.last_checked = now
+                    db.add(company)
+                    db.commit()
                 except Exception:
+                    # A failed INSERT aborts the transaction. Reading the company
+                    # after that, or committing it, raises again and the cron
+                    # returns a bare 500. Roll back, stamp last_checked, continue.
                     logger.warning("scan_due_companies: failed to scan %s (%s)",
-                                   company.company_name, company.id, exc_info=True)
+                                   company_name, company_id, exc_info=True)
                     failed += 1
-                company.last_checked = now
-                db.add(company)
-                db.commit()
+                    try:
+                        _stamp_failure(db, company_id, now)
+                    except Exception:
+                        logger.warning(
+                            "scan_due_companies: could not stamp failure for %s",
+                            company_id, exc_info=True,
+                        )
+                        db.rollback()
     finally:
         client.close()
     # No candidate broadcast here -- see the docstring; it's the one uncapped,

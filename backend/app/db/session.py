@@ -109,6 +109,7 @@ def init_db() -> None:
     from app import models  # noqa: F401  (ensures models are registered)
     Base.metadata.create_all(bind=engine)
     _add_new_columns()
+    _widen_external_id()
     _ensure_indexes()
     # Before bootstrap imports the seed CSV. The import dedup key includes
     # country, so an alias row must already wear the canonical spelling or a
@@ -256,6 +257,37 @@ def normalise_country_names() -> int:
     if updated:
         logger.info("Normalised %s company country name(s) to the homepage spelling", updated)
     return updated or 0
+
+
+def _varchar_length(table: str, column: str) -> int | None:
+    """Current varchar length, or None when the column is missing or unbounded."""
+    from sqlalchemy import inspect
+
+    try:
+        columns = inspect(engine).get_columns(table)
+    except Exception:
+        logger.warning("Could not inspect %s.%s", table, column, exc_info=True)
+        return None
+    for col in columns:
+        if col["name"] == column:
+            return getattr(col.get("type"), "length", None)
+    return None
+
+
+def _widen_external_id() -> None:
+    """Widen vacancies.external_id when production still has varchar(200).
+
+    Increasing a varchar length is a catalog change. The same 5s lock timeout
+    and 15s statement timeout as other boot DDL apply, and a lock timeout
+    skips the statement so boot continues. SQLite tests create the column
+    from the model and do not need this.
+    """
+    if _is_sqlite:
+        return
+    length = _varchar_length("vacancies", "external_id")
+    if length is None or length >= 2000:
+        return
+    _execute_ddl("ALTER TABLE vacancies ALTER COLUMN external_id TYPE VARCHAR(2000)")
 
 
 def _add_new_columns() -> None:

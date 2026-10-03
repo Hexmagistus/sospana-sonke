@@ -9,7 +9,7 @@ from app.models.scan_log import ScanLog
 from app.models.vacancy import Vacancy
 from app.scraper.base import RawVacancy, html_to_text
 from app.scraper.fingerprint import vacancy_fingerprint
-from app.scraper.normalise import prepare_listing
+from app.scraper.normalise import fit_external_id, prepare_listing
 from app.scraper.ssrf import SsrfBlocked, assert_safe_fetch_url, classify_url
 from app.scraper.urls import canonical_listing_url, safe_application_url
 from app.services.scan_service import ensure_source, scan_source
@@ -90,6 +90,36 @@ def test_prepare_listing_leaves_unknowns_blank_and_scores_completeness():
     )
     assert closed_fields["lifecycle_status"] == "CLOSED"
     assert closed_fields["is_open"] is False
+
+
+def test_prepare_listing_keeps_a_workday_path_past_200_characters():
+    """The requisition id is the last token. Cutting at 200 drops it."""
+    path = (
+        "/job/Johannesburg/Living-with-a-Disability--Eligibility-Requirements--"
+        "Unemployed--not-currently-studying---Valid-Driver-s-Licence-Required---"
+        "Travel-Within-Gauteng-Learnership-Opportunity--Microinsurance-Sales-"
+        "Consultant_R-15991641"
+    )
+    assert len(path) > 200
+    fields = prepare_listing(
+        RawVacancy(title="Learnership", external_id=path, location="Johannesburg"),
+        company_id="absa", company_name="Absa", company_country="South Africa",
+        source_url="https://absa.wd3.myworkdayjobs.com/ABSAcareers",
+    )
+    assert fields["external_id"] == path
+    assert fields["external_id"].endswith("_R-15991641")
+    assert fields["fingerprint"] == vacancy_fingerprint("absa", path, "Learnership", "Johannesburg")
+
+
+def test_fit_external_id_keeps_the_tail_when_the_path_exceeds_the_column():
+    path = ("x" * 1990) + "_R-15991641"
+    assert len(path) > 2000
+    fitted = fit_external_id(path)
+    assert fitted is not None
+    assert len(fitted) == 2000
+    assert fitted.endswith("_R-15991641")
+    assert fit_external_id("  ") is None
+    assert fit_external_id(None) is None
 
 
 def test_scan_writes_a_log_and_does_not_duplicate_when_the_wording_changes(db):

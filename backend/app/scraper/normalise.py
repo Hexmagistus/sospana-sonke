@@ -41,6 +41,23 @@ _EMPLOYMENT = (
 )
 
 
+# Matches Vacancy.external_id. A Workday externalPath longer than this keeps
+# its tail, because the requisition id is the last token, not the first.
+_EXTERNAL_ID_MAX = 2000
+
+
+def fit_external_id(value: str | None) -> str | None:
+    """Store the employer's own vacancy id, including a long Workday path."""
+    if value is None:
+        return None
+    text = str(value).strip()
+    if not text:
+        return None
+    if len(text) <= _EXTERNAL_ID_MAX:
+        return text
+    return text[-_EXTERNAL_ID_MAX:]
+
+
 def listing_explicitly_closed(title: str | None, description: str | None) -> bool:
     blob = f"{title or ''} {description or ''}".lower()
     return any(phrase in blob for phrase in _CLOSED_PHRASES)
@@ -107,9 +124,9 @@ def prepare_listing(raw: RawVacancy, *, company_id: str, company_name: str | Non
     requirements = classify_requirements(description)
     closed = listing_explicitly_closed(title, description)
     location = (raw.location or "").strip() or None
-    external_id = (raw.external_id or "").strip() or None
+    external_id = fit_external_id(raw.external_id)
     return {
-        "external_id": external_id[:200] if external_id else None,
+        "external_id": external_id,
         "title": title[:300],
         "department": (raw.department or "").strip()[:200] or None,
         "location": location[:200] if location else None,

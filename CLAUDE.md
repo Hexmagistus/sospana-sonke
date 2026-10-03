@@ -63,6 +63,11 @@ What is running today, before the pipeline work below. This is the system the up
 
 ## Session Log
 
+### 2026-10-03 — Cursor (Grok 4.7) — A long Workday id was failing the scan cron
+The "Scan careers pages" workflow (runs 37089469500 and the one before it, code `255efe5`) woke the Frankfurt API and then `POST /api/v1/cron/run/scan_due_companies` returned HTTP 500 in about 3 seconds. `close_expired_vacancies` on the same `X-Cron-Secret` returned 200, so the host and the secret were fine. Render logged Absa's Workday board answering 200, then `varchar(200)` on `vacancies.external_id`. The public path is 230 characters and the requisition id is at the end. The failed insert aborted the transaction; the scan loop then read the company name on that session, so the cron returned a bare 500 and never stamped `last_checked`. Absa stayed first every 15 minutes.
+
+`external_id` is now `VARCHAR(2000)`. Boot widens the live column with the same 5s lock timeout and 15s statement timeout, then skips. A path longer than 2000 keeps its tail. A database error in `scan_due_companies` rolls back, stamps `last_checked`, and continues. `run_job` rolls back before it writes the error row.
+
 ### 2026-10-03 — Cursor (Grok 4.7) — Pin braces so the full npm audit passes
 The same pin as PR #16 (`47ab402`). `braces` 3.0.3 is still the newest npm release and is inside GHSA-vfj7-8cjw-p6xm, via Tailwind 3.4.7. `frontend/vendor/braces` is that release plus a nesting cap of 100, versioned 3.0.4, and `overrides.braces` is `$braces`. CI runs `npm audit --audit-level=high` on the whole tree. Tailwind stays on 3.4.7. This is not an upstream braces release.
 
