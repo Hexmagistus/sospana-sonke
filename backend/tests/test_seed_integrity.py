@@ -93,3 +93,27 @@ def test_reimport_sets_category_and_url_from_seed_and_leaves_vacancy_sources_alo
     assert (c2.source_type, c2.careers_url) == ("HOSPITAL", "https://jobs.beta.example/search")
     s2 = db.query(VacancySource).filter(VacancySource.company_id == c.id).one()
     assert (s2.url, s2.ats_type, s2.last_status) == before
+
+
+def test_seed_keys_are_unique_and_a_second_import_creates_nothing(db):
+    """The importer keys on (name, JSE code, country). A repeated key would make two seed rows fight
+    over one company, and a key the DB already holds must update that row, never add another."""
+    from app.services.country_names import canonical_country
+    keys = [(" ".join(r["company_name"].lower().split()), (r["jse_code"] or "").strip().upper(),
+             canonical_country((r["country"] or "South Africa").strip() or "South Africa")) for r in _rows()]
+    assert len(keys) == len(set(keys))
+    body = _SEED.read_bytes()
+    first = import_companies_from_csv(db, body)
+    assert first.created == len(keys) and first.errors == []
+    second = import_companies_from_csv(db, body)
+    assert second.created == 0 and second.updated == len(keys)
+    assert db.query(Company).count() == len(keys)
+
+
+def test_seed_carries_the_url_fixes_made_in_the_database():
+    urls = {(r["company_name"], r["country"]): r["careers_url"] for r in _rows()}
+    assert urls[("Central University of Technology (CUT)", "South Africa")] == "https://cut.simplify.hr/"
+    assert urls[("North-West University (NWU)", "South Africa")] == "https://nwu.ci.hr/applicant/index.php"
+    assert urls[("Walter Sisulu University (WSU)", "South Africa")] == "https://waltersisulucareers.ci.hr/applicant/index.php"
+    assert urls[("Brand South Africa", "South Africa")] == "https://www.brandsouthafrica.com/vacancies/"
+    assert urls[("Microsoft", "United States")] == "https://careers.microsoft.com/v2/global/en/home.html"
