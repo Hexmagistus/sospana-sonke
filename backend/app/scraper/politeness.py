@@ -11,14 +11,20 @@ import contextvars
 import logging
 import time
 from contextlib import contextmanager
-from urllib.parse import urlparse
+from urllib.parse import urljoin, urlparse
 from urllib.robotparser import RobotFileParser
 
 import httpx
 
 from app.core.config import settings
+from app.scraper.ssrf import assert_safe_fetch_url
 
 logger = logging.getLogger(__name__)
+
+# A public JSON board can be large. Cap the body so one host cannot fill memory.
+MAX_RESPONSE_BYTES = 5_000_000
+_REDIRECTS = {301, 302, 303, 307, 308}
+_MAX_REDIRECTS = 5
 
 # The cron scan sets this so one dead host cannot burn retries * timeout.
 # Unset (None) leaves request_with_backoff's own `retries` argument alone.
@@ -50,7 +56,9 @@ class RobotsChecker:
             return self._cache[base]
         rp = RobotFileParser()
         try:
-            resp = self._client.get(f"{base}/robots.txt", timeout=5.0)
+            robots_url = f"{base}/robots.txt"
+            assert_safe_fetch_url(robots_url)
+            resp = self._client.get(robots_url, timeout=5.0, follow_redirects=False)
             if resp.status_code >= 400:
                 rp = None  # no robots.txt -> allowed
             else:
@@ -127,13 +135,13 @@ def request_with_backoff(client: httpx.Client, url: str, retries: int = 3,
     last_exc: Exception | None = None
     for attempt in range(retries):
         try:
-            if method.upper() == "POST":
-                resp = client.post(url, json=json_body or {})
-            else:
-                resp = client.get(url)
+            assert_safe_fetch_url(url)
+            resp = _fetch_limited(client, url, method=method, json_body=json_body)
             if resp.status_code == 429 or resp.status_code >= 500:
                 raise httpx.HTTPStatusError("retryable status", request=resp.request, response=resp)
             return resp
+        except ValueError:
+            raise
         except (httpx.TransportError, httpx.HTTPStatusError) as exc:
             last_exc = exc
             if attempt < retries - 1:
@@ -142,3 +150,41 @@ def request_with_backoff(client: httpx.Client, url: str, retries: int = 3,
                 sleep(delay)
     assert last_exc is not None
     raise last_exc
+
+
+def _fetch_limited(client: httpx.Client, url: str, *, method: str,
+                   json_body: dict | None) -> httpx.Response:
+    """GET/POST without letting the client follow a redirect we have not checked."""
+    current = url
+    for _hop in range(_MAX_REDIRECTS + 1):
+        if method.upper() == "POST":
+            resp = client.post(current, json=json_body or {}, follow_redirects=False)
+        else:
+            resp = client.get(current, follow_redirects=False)
+        if resp.status_code not in _REDIRECTS:
+            _reject_oversized_or_binary(resp)
+            return resp
+        location = resp.headers.get("location")
+        if not location:
+            return resp
+        current = urljoin(str(resp.url), location)
+        assert_safe_fetch_url(current)
+        method = "GET"
+        json_body = None
+    raise ValueError("too many redirects")
+
+
+def _reject_oversized_or_binary(resp: httpx.Response) -> None:
+    declared = resp.headers.get("content-length")
+    if declared:
+        try:
+            if int(declared) > MAX_RESPONSE_BYTES:
+                raise ValueError("response exceeds size cap")
+        except ValueError as exc:
+            if "size cap" in str(exc):
+                raise
+    if len(resp.content) > MAX_RESPONSE_BYTES:
+        raise ValueError("response exceeds size cap")
+    ctype = (resp.headers.get("content-type") or "").split(";")[0].strip().lower()
+    if ctype.startswith(("image/", "video/", "audio/")):
+        raise ValueError(f"unsupported content type {ctype}")

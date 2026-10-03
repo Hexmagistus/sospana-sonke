@@ -73,16 +73,26 @@ def test_rescan_dedupes_and_closes(db):
         r1 = scan_source(db, src, client=client)
     assert r1.created == 2
 
-    # Second scan: job 2 disappeared, job 1 unchanged -> no new rows, job 2 closed.
+    # Second scan: job 2 disappeared. One miss is not enough to close it.
     second = [first[0]]
     with httpx.Client(transport=httpx.MockTransport(_greenhouse_handler(second))) as client:
         r2 = scan_source(db, src, client=client)
     assert r2.created == 0
     assert r2.updated == 1
-    assert r2.closed == 1
+    assert r2.closed == 0
+    assert r2.duplicates_prevented == 1
     assert db.query(Vacancy).filter(Vacancy.company_id == c.id).count() == 2  # no duplicates
-    closed = db.query(Vacancy).filter(Vacancy.title == "Data Analyst").first()
-    assert closed.is_open is False
+    missing = db.query(Vacancy).filter(Vacancy.title == "Data Analyst").first()
+    assert missing.is_open is True
+    assert missing.consecutive_misses == 1
+
+    # Third successful scan still omitting job 2 closes it.
+    with httpx.Client(transport=httpx.MockTransport(_greenhouse_handler(second))) as client:
+        r3 = scan_source(db, src, client=client)
+    assert r3.closed == 1
+    db.refresh(missing)
+    assert missing.is_open is False
+    assert missing.lifecycle_status == "REMOVED"
 
 
 def test_robots_disallowed_blocks_scan(db):

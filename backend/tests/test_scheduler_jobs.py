@@ -30,6 +30,7 @@ def test_close_expired_vacancies_closes_only_past_closing_date(db):
     assert result["vacancies_closed"] == 1
     db.refresh(expired); db.refresh(still_open); db.refresh(no_closing_date); db.refresh(already_closed)
     assert expired.is_open is False
+    assert expired.lifecycle_status == "EXPIRED"
     assert still_open.is_open is True
     assert no_closing_date.is_open is True
     assert already_closed.is_open is False

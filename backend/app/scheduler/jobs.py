@@ -217,9 +217,9 @@ def check_link_changes(db: Session, limit: int = 25, job_run_id: str | None = No
 def close_expired_vacancies(db: Session, job_run_id: str | None = None) -> dict:
     """Close every open vacancy whose own advertised closing date has passed.
 
-    A scan only closes a role once it has positively re-checked the source and
-    no longer sees it (scan_service.scan_source deliberately never wipes
-    vacancies on an empty/failed fetch), so a role can otherwise sit "open"
+    A scan closes a role only after it has been missing from two successful
+    non-empty scans (scan_service.scan_source never wipes vacancies on an
+    empty or failed fetch), so a role can otherwise sit "open"
     for days past its own closing date just because the company's careers
     page hasn't been re-scanned yet. This is a pure DB sweep -- no network
     calls -- so it keeps is_open accurate everywhere that filters on it
@@ -233,6 +233,7 @@ def close_expired_vacancies(db: Session, job_run_id: str | None = None) -> dict:
              .all())
     for vac in stale:
         vac.is_open = False
+        vac.lifecycle_status = "EXPIRED"
     db.commit()
     return {"vacancies_closed": len(stale)}
 

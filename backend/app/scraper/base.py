@@ -182,13 +182,24 @@ def get_strategy(ats_type: str) -> ScrapeStrategy:
 _TAG_RE = re.compile(r"<[^>]+>")
 # Block-level boundaries that should become line breaks so structure survives.
 _BLOCK_BREAK_RE = re.compile(r"</?(?:li|p|div|br|h[1-6]|ul|ol|tr)\b[^>]*>", re.IGNORECASE)
+# Drop the element and its contents. A leftover <script> would otherwise
+# become readable text, and the stored description is shown to candidates.
+_UNTRUSTED_BLOCK_RE = re.compile(
+    r"<(script|style|iframe|object|embed|noscript)\b[^>]*>.*?</\1>",
+    re.IGNORECASE | re.DOTALL,
+)
+_EVENT_HANDLER_RE = re.compile(r"""\s+on[a-z]+\s*=\s*(['"]).*?\1""", re.IGNORECASE | re.DOTALL)
+_JS_URL_RE = re.compile(r"""(?i)\b(?:javascript|data)\s*:""")
 
 
 def html_to_text(html: str | None) -> str:
     if not html:
         return ""
+    text = _UNTRUSTED_BLOCK_RE.sub(" ", html)
+    text = _EVENT_HANDLER_RE.sub(" ", text)
+    text = _JS_URL_RE.sub("", text)
     # Turn block boundaries into newlines first, then strip remaining inline tags.
-    text = _BLOCK_BREAK_RE.sub("\n", html)
+    text = _BLOCK_BREAK_RE.sub("\n", text)
     text = _TAG_RE.sub(" ", text)
     text = (text.replace("&amp;", "&").replace("&lt;", "<").replace("&gt;", ">")
                 .replace("&nbsp;", " ").replace("&#39;", "'").replace("&quot;", '"'))
