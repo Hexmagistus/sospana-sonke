@@ -69,15 +69,26 @@ function MessageReports() {
 
 interface SourceHealth {
   sources: number;
+  employers?: number;
   open_vacancies: number;
+  expired_vacancies?: number;
+  vacancies_new_today?: number;
+  vacancies_new_week?: number;
+  duplicates_prevented?: number;
+  needs_review?: number;
   last_success_at: string | null;
   by_status: Record<string, number>;
+  by_scraper_status?: Record<string, number>;
   by_ats: Record<string, number>;
   recent: {
+    source_id?: string | null;
+    company_id?: string | null;
     company_name: string;
     country: string | null;
     ats_type: string;
     url: string;
+    active?: boolean;
+    scraper_status?: string | null;
     last_status: string;
     last_error: string | null;
     last_checked: string | null;
@@ -86,29 +97,89 @@ interface SourceHealth {
   }[];
 }
 
+interface ScanLogRow {
+  id: string;
+  company_id: string;
+  company_name: string | null;
+  url: string | null;
+  status: string;
+  error_category: string | null;
+  pages_scanned: number;
+  vacancies_discovered: number;
+  vacancies_new: number;
+  vacancies_updated: number;
+  duplicates_prevented: number;
+  vacancies_closed: number;
+  duration_ms: number | null;
+  parser_used: string | null;
+  finished_at: string | null;
+}
+
 function SourceHealthCard() {
   const [health, setHealth] = useState<SourceHealth | null>(null);
+  const [logs, setLogs] = useState<ScanLogRow[]>([]);
+  const [statusFilter, setStatusFilter] = useState("");
   const [err, setErr] = useState("");
-  useEffect(() => {
+  const [busyId, setBusyId] = useState("");
+
+  function load(status = statusFilter) {
     api.get<SourceHealth>("/admin/source-health").then(setHealth).catch((e) => setErr(e.message));
-  }, []);
+    const q = status ? `?status=${encodeURIComponent(status)}` : "";
+    api.get<ScanLogRow[]>(`/admin/scan-logs${q}`).then(setLogs).catch((e) => setErr(e.message));
+  }
+  useEffect(() => { load(""); }, []);
+
+  async function pause(row: SourceHealth["recent"][number], active: boolean) {
+    if (!row.source_id) return;
+    setBusyId(row.source_id);
+    try {
+      await api.post(`/admin/sources/${row.source_id}/active`, { active });
+      await load();
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : "Could not update this source");
+    } finally {
+      setBusyId("");
+    }
+  }
+
+  async function scanNow(row: SourceHealth["recent"][number]) {
+    if (!row.company_id) return;
+    setBusyId(row.company_id);
+    try {
+      await api.post(`/companies/${row.company_id}/scan`, {});
+      await load();
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : "Scan failed");
+    } finally {
+      setBusyId("");
+    }
+  }
+
   return (
     <Card>
       <h2 className="mb-1 font-semibold">Careers-source health</h2>
       <p className="mb-3 text-sm text-ss-muted">
         Each employer is scanned on its own. One failure does not stop the run.
         GitHub Actions asks the API every 15 minutes; GitHub may delay that.
-        Public job feeds are revisited about hourly, ordinary web pages about every six hours.
+        A public feed with roles is due again after about an hour, an ordinary page after about six hours.
+        A board that keeps returning no roles waits 12 hours, then a day, then a week.
+        Scan now is limited to 20 times an hour.
       </p>
       {err && <Alert kind="error">{err}</Alert>}
       {!health && !err && <Spinner />}
       {health && (
         <>
           <p className="mb-3 text-sm text-ss-text">
-            {health.sources} sources · {health.open_vacancies} open vacancies · last successful read{" "}
+            {health.employers ?? "—"} employers · {health.sources} sources · {health.open_vacancies} open vacancies
+            {" · "}{health.vacancies_new_today ?? 0} new today · {health.vacancies_new_week ?? 0} this week
+            {" · "}{health.expired_vacancies ?? 0} expired · {health.duplicates_prevented ?? 0} duplicates prevented
+            {" · "}{health.needs_review ?? 0} need review · last successful read{" "}
             <strong>{health.last_success_at ? health.last_success_at.slice(0, 16).replace("T", " ") + " UTC" : "not yet"}</strong>
           </p>
           <div className="mb-3 flex flex-wrap gap-2">
+            {Object.entries(health.by_scraper_status || {}).map(([k, v]) => (
+              <span key={`s-${k}`} className="rounded-lg bg-ss-border px-3 py-1 text-sm text-ss-text">{k}: <b>{v}</b></span>
+            ))}
             {Object.entries(health.by_status).map(([k, v]) => (
               <span key={k} className="rounded-lg bg-ss-border px-3 py-1 text-sm text-ss-text">{k}: <b>{v}</b></span>
             ))}
@@ -128,23 +199,74 @@ function SourceHealthCard() {
                     <th className="py-2 pr-3">Jobs</th>
                     <th className="py-2 pr-3">Checked</th>
                     <th className="py-2 pr-3">Last error</th>
+                    <th className="py-2 pr-3"> </th>
                   </tr>
                 </thead>
                 <tbody>
                   {health.recent.map((row) => (
-                    <tr key={row.url} className="border-t border-ss-border">
+                    <tr key={row.source_id || row.url} className="border-t border-ss-border">
                       <td className="py-2 pr-3">{row.company_name}</td>
                       <td className="py-2 pr-3">{row.ats_type}</td>
-                      <td className="py-2 pr-3">{row.last_status}{row.consecutive_failures ? ` · ${row.consecutive_failures} fails` : ""}</td>
+                      <td className="py-2 pr-3">{row.scraper_status || row.last_status}{row.consecutive_failures ? ` · ${row.consecutive_failures} fails` : ""}{row.active === false ? " · paused" : ""}</td>
                       <td className="py-2 pr-3">{row.last_vacancy_count ?? "—"}</td>
                       <td className="py-2 pr-3 text-ss-muted">{row.last_checked ? row.last_checked.slice(0, 16).replace("T", " ") : "—"}</td>
                       <td className="max-w-xs truncate py-2 pr-3 text-ss-muted" title={row.last_error || ""}>{row.last_error || "—"}</td>
+                      <td className="py-2 pr-3 whitespace-nowrap">
+                        <button type="button" className="mr-2 text-xs font-medium text-ss-text underline" disabled={busyId !== ""} onClick={() => scanNow(row)}>Scan now</button>
+                        <button type="button" className="text-xs font-medium text-ss-muted underline" disabled={busyId !== ""} onClick={() => pause(row, row.active === false)}>
+                          {row.active === false ? "Resume" : "Pause"}
+                        </button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
           )}
+          <div className="mt-4">
+            <div className="mb-2 flex flex-wrap items-center gap-2">
+              <h3 className="text-sm font-semibold text-ss-text">Scan log</h3>
+              <label className="text-xs text-ss-muted">
+                Status{" "}
+                <input value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}
+                  className="ml-1 rounded border border-ss-border bg-transparent px-2 py-1 text-ss-text" placeholder="ok" />
+              </label>
+              <button type="button" className="text-xs font-medium text-ss-text underline" onClick={() => load(statusFilter)}>Filter</button>
+            </div>
+            {logs.length === 0 && <p className="text-sm text-ss-muted">No scan log rows yet.</p>}
+            {logs.length > 0 && (
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="text-left text-ss-muted">
+                      <th className="py-2 pr-3">Employer</th>
+                      <th className="py-2 pr-3">Status</th>
+                      <th className="py-2 pr-3">Parser</th>
+                      <th className="py-2 pr-3">New</th>
+                      <th className="py-2 pr-3">Updated</th>
+                      <th className="py-2 pr-3">Dupes kept</th>
+                      <th className="py-2 pr-3">Closed</th>
+                      <th className="py-2 pr-3">ms</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {logs.map((row) => (
+                      <tr key={row.id} className="border-t border-ss-border">
+                        <td className="py-2 pr-3">{row.company_name || row.company_id}</td>
+                        <td className="py-2 pr-3">{row.status}{row.error_category ? ` · ${row.error_category}` : ""}</td>
+                        <td className="py-2 pr-3">{row.parser_used || "—"}</td>
+                        <td className="py-2 pr-3">{row.vacancies_new}</td>
+                        <td className="py-2 pr-3">{row.vacancies_updated}</td>
+                        <td className="py-2 pr-3">{row.duplicates_prevented}</td>
+                        <td className="py-2 pr-3">{row.vacancies_closed}</td>
+                        <td className="py-2 pr-3 text-ss-muted">{row.duration_ms ?? "—"}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
         </>
       )}
     </Card>

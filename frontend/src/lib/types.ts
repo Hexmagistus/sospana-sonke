@@ -403,6 +403,12 @@ export interface Vacancy {
   closing_date: string | null;
   application_url: string | null;
   source_url: string | null;
+  canonical_url?: string | null;
+  city?: string | null;
+  country?: string | null;
+  lifecycle_status?: string | null;
+  verification_state?: string | null;
+  quality_score?: number | null;
   is_open: boolean;
   first_seen_at: string;
   last_seen_at: string;

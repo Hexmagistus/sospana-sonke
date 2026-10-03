@@ -35,6 +35,29 @@ def test_scan_requires_admin(client, db_engine):
     assert r.status_code == 403
 
 
+def test_scan_now_writes_an_audit_row_and_does_not_fetch(client, db_engine, monkeypatch):
+    from sqlalchemy.orm import sessionmaker
+    from app.models.admin_ops import AdminAuditLog
+    from app.services.scan_service import ScanReport
+
+    def _fake(db, company, client=None, check_robots=True):
+        return [ScanReport(source_id="s", status="ok", created=0)]
+
+    monkeypatch.setattr("app.api.routes_vacancies.scan_company", _fake)
+    email, password = make_admin(db_engine)
+    tokens = client.post("/api/v1/auth/login", json={"email": email, "password": password}).json()
+    company_id, _ = _seed_vacancy(db_engine)
+    r = client.post(f"/api/v1/companies/{company_id}/scan", headers=_auth(tokens))
+    assert r.status_code == 200, r.text
+    s = sessionmaker(bind=db_engine)()
+    try:
+        row = s.query(AdminAuditLog).filter(AdminAuditLog.action == "scan_now").one()
+        assert company_id in row.detail
+        assert "status=ok" in row.detail
+    finally:
+        s.close()
+
+
 def test_scan_missing_company(client, db_engine):
     email, password = make_admin(db_engine)
     tokens = client.post("/api/v1/auth/login", json={"email": email, "password": password}).json()

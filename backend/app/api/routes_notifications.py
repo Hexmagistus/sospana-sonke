@@ -1,4 +1,6 @@
 """Notification routes (candidate) and scheduler routes (admin) — blueprint Steps 11, 22, 31."""
+from datetime import datetime, timedelta, timezone
+
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import func
 from sqlalchemy.orm import Session
@@ -10,10 +12,11 @@ from app.models.admin_ops import AdminAuditLog
 from app.models.user import User
 from app.models.company import Company
 from app.models.vacancy import Vacancy, VacancySource
+from app.models.scan_log import ScanLog
 from app.schemas.notification import (
     NotificationResponse, UnreadCountResponse, ScheduleResponse, ScheduleUpdateRequest, JobRunResponse,
     PushTokenRequest, PushTokenResponse, AdminSuggestionRequest, AdminSuggestionResponse,
-    SourceHealthResponse, SourceHealthItem,
+    SourceHealthResponse, SourceHealthItem, ScanLogItem, SourceActiveUpdate,
 )
 from app.scheduler.registry import get_schedule, set_schedule, JOBS
 from app.scheduler.runner import run_job, UnknownJob
@@ -124,29 +127,101 @@ def send_admin_suggestion(body: AdminSuggestionRequest, db: Session = Depends(ge
 def source_health(db: Session = Depends(get_db)):
     """Last success, last error, and counts per careers source. Numbers only
     plus the 20 most recently checked sources — not the whole directory."""
+    now = datetime.now(timezone.utc)
+    today_start = datetime(now.year, now.month, now.day, tzinfo=timezone.utc)
+    week_start = now - timedelta(days=7)
     sources = db.query(func.count(VacancySource.id)).scalar() or 0
+    employers = (db.query(func.count(Company.id)).filter(Company.deleted_at.is_(None)).scalar() or 0)
     open_vacancies = (db.query(func.count(Vacancy.id)).filter(Vacancy.is_open.is_(True)).scalar() or 0)
+    expired = (db.query(func.count(Vacancy.id))
+               .filter(Vacancy.lifecycle_status == "EXPIRED").scalar() or 0)
+    new_today = (db.query(func.count(Vacancy.id))
+                 .filter(Vacancy.first_seen_at >= today_start).scalar() or 0)
+    new_week = (db.query(func.count(Vacancy.id))
+                .filter(Vacancy.first_seen_at >= week_start).scalar() or 0)
+    prevented = db.query(func.coalesce(func.sum(VacancySource.duplicates_prevented), 0)).scalar() or 0
+    review_states = (
+        "REQUIRES_REVIEW", "INVALID_URL", "SITE_CHANGED", "JAVASCRIPT_REQUIRED",
+        "BLOCKED", "PARSER_ERROR",
+    )
+    needs_review = (db.query(func.count(VacancySource.id))
+                    .filter(VacancySource.scraper_status.in_(review_states)).scalar() or 0)
     last_success_at = (db.query(func.max(VacancySource.last_checked))
                        .filter(VacancySource.last_status == "ok").scalar())
     by_status = {row[0] or "unknown": row[1] for row in
                  db.query(VacancySource.last_status, func.count(VacancySource.id))
                  .group_by(VacancySource.last_status).all()}
+    by_scraper = {row[0] or "unknown": row[1] for row in
+                  db.query(VacancySource.scraper_status, func.count(VacancySource.id))
+                  .group_by(VacancySource.scraper_status).all()}
     by_ats = {row[0] or "unknown": row[1] for row in
               db.query(VacancySource.ats_type, func.count(VacancySource.id))
               .group_by(VacancySource.ats_type).all()}
-    recent_rows = (db.query(VacancySource, Company.company_name, Company.country)
+    recent_rows = (db.query(VacancySource, Company.company_name, Company.country, Company.id)
                    .join(Company, Company.id == VacancySource.company_id)
                    .order_by(VacancySource.last_checked.is_(None), VacancySource.last_checked.desc())
                    .limit(20).all())
     recent = [SourceHealthItem(
-        company_name=name, country=country, ats_type=src.ats_type, url=src.url,
-        last_status=src.last_status, last_error=src.last_error, last_checked=src.last_checked,
+        source_id=src.id, company_id=company_id, company_name=name, country=country,
+        ats_type=src.ats_type, url=src.url, active=bool(src.active),
+        last_status=src.last_status, scraper_status=src.scraper_status,
+        last_error=src.last_error, last_checked=src.last_checked,
         last_vacancy_count=src.last_vacancy_count, consecutive_failures=src.consecutive_failures or 0,
-    ) for src, name, country in recent_rows]
+    ) for src, name, country, company_id in recent_rows]
     return SourceHealthResponse(
-        sources=sources, open_vacancies=open_vacancies, last_success_at=last_success_at,
-        by_status=by_status, by_ats=by_ats, recent=recent,
+        sources=sources, employers=employers, open_vacancies=open_vacancies,
+        expired_vacancies=expired, vacancies_new_today=new_today, vacancies_new_week=new_week,
+        duplicates_prevented=int(prevented), needs_review=needs_review,
+        last_success_at=last_success_at, by_status=by_status, by_scraper_status=by_scraper,
+        by_ats=by_ats, recent=recent,
     )
+
+
+@router.get("/admin/scan-logs", response_model=list[ScanLogItem], dependencies=[Depends(require_admin)])
+def list_scan_logs(db: Session = Depends(get_db),
+                   status_filter: str | None = Query(default=None, alias="status"),
+                   company_id: str | None = Query(default=None),
+                   limit: int = Query(default=50, le=100)):
+    """Recent scan attempts. No candidate or admin identity is stored on these rows."""
+    q = (db.query(ScanLog, Company.company_name)
+         .outerjoin(Company, Company.id == ScanLog.company_id)
+         .filter(ScanLog.deleted_at.is_(None)))
+    if status_filter:
+        q = q.filter(ScanLog.status == status_filter)
+    if company_id:
+        q = q.filter(ScanLog.company_id == company_id)
+    rows = q.order_by(ScanLog.finished_at.is_(None), ScanLog.finished_at.desc()).limit(limit).all()
+    return [ScanLogItem(
+        id=log.id, company_id=log.company_id, company_name=name, url=log.url,
+        status=log.status, error_category=log.error_category, pages_scanned=log.pages_scanned or 0,
+        vacancies_discovered=log.vacancies_discovered or 0, vacancies_new=log.vacancies_new or 0,
+        vacancies_updated=log.vacancies_updated or 0,
+        duplicates_prevented=log.duplicates_prevented or 0,
+        vacancies_closed=log.vacancies_closed or 0, duration_ms=log.duration_ms,
+        parser_used=log.parser_used, finished_at=log.finished_at,
+    ) for log, name in rows]
+
+
+@router.post("/admin/sources/{source_id}/active")
+def set_source_active(source_id: str, body: SourceActiveUpdate, db: Session = Depends(get_db),
+                      admin: User = Depends(require_admin)):
+    """Pause or resume one careers source. Does not delete vacancies."""
+    source = db.get(VacancySource, source_id)
+    if source is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Source not found.")
+    source.active = body.active
+    if not body.active:
+        source.scraper_status = "DISABLED"
+    elif source.scraper_status == "DISABLED":
+        source.scraper_status = None
+    db.add(AdminAuditLog(
+        admin_id=admin.id,
+        action="source_resume" if body.active else "source_pause",
+        target_user_id=None,
+        detail=f"source={source_id} company={source.company_id}",
+    ))
+    db.commit()
+    return {"source_id": source.id, "active": source.active}
 
 @router.get("/admin/schedule", response_model=ScheduleResponse, dependencies=[Depends(require_admin)])
 def read_schedule(db: Session = Depends(get_db)):

@@ -70,11 +70,15 @@ class ScheduleUpdateRequest(BaseModel):
 
 
 class SourceHealthItem(BaseModel):
+    source_id: str | None = None
+    company_id: str | None = None
     company_name: str
     country: str | None = None
     ats_type: str
     url: str
+    active: bool = True
     last_status: str
+    scraper_status: str | None = None
     last_error: str | None = None
     last_checked: datetime | None = None
     last_vacancy_count: int | None = None
@@ -84,11 +88,40 @@ class SourceHealthItem(BaseModel):
 class SourceHealthResponse(BaseModel):
     """Per-source scan health for the admin dashboard."""
     sources: int
+    employers: int = 0
     open_vacancies: int
+    expired_vacancies: int = 0
+    vacancies_new_today: int = 0
+    vacancies_new_week: int = 0
+    duplicates_prevented: int = 0
+    needs_review: int = 0
     last_success_at: datetime | None = None
     by_status: dict[str, int]
+    by_scraper_status: dict[str, int] = {}
     by_ats: dict[str, int]
     recent: list[SourceHealthItem]
+
+
+class ScanLogItem(BaseModel):
+    id: str
+    company_id: str
+    company_name: str | None = None
+    url: str | None = None
+    status: str
+    error_category: str | None = None
+    pages_scanned: int = 0
+    vacancies_discovered: int = 0
+    vacancies_new: int = 0
+    vacancies_updated: int = 0
+    duplicates_prevented: int = 0
+    vacancies_closed: int = 0
+    duration_ms: int | None = None
+    parser_used: str | None = None
+    finished_at: datetime | None = None
+
+
+class SourceActiveUpdate(BaseModel):
+    active: bool
 
 
 class JobRunResponse(BaseModel):

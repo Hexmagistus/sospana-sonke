@@ -57,3 +57,27 @@ def test_source_health_is_admin_only_and_reports_the_latest_read(client, db_engi
     dash = client.get("/api/v1/dashboard", headers=_auth(tokens))
     assert dash.status_code == 200
     assert dash.json()["listings_updated_at"].startswith("2026-09-27T08:15")
+    assert health["employers"] >= 1
+    assert health["recent"][0]["source_id"]
+    assert health["duplicates_prevented"] == 0
+
+    logs = client.get("/api/v1/admin/scan-logs", headers=_auth(admin))
+    assert logs.status_code == 200
+    assert logs.json() == []
+    assert client.get("/api/v1/admin/scan-logs", headers=_auth(tokens)).status_code == 403
+
+    paused = client.post(
+        f"/api/v1/admin/sources/{health['recent'][0]['source_id']}/active",
+        json={"active": False}, headers=_auth(admin),
+    )
+    assert paused.status_code == 200
+    assert paused.json()["active"] is False
+    resumed = client.post(
+        f"/api/v1/admin/sources/{health['recent'][0]['source_id']}/active",
+        json={"active": True}, headers=_auth(admin),
+    )
+    assert resumed.status_code == 200
+    assert resumed.json()["active"] is True
+    again = client.get("/api/v1/admin/source-health", headers=_auth(admin)).json()
+    assert again["recent"][0]["active"] is True
+    assert again["recent"][0]["scraper_status"] is None
