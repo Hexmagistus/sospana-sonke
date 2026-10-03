@@ -113,7 +113,7 @@ class Settings(BaseSettings):
     PAST_DUE_GRACE_DAYS: int = 3             # access retained briefly after a failed renewal
 
     # Notifications & email (blueprint section 31).
-    EMAIL_PROVIDER: str = "console"          # console | smtp
+    EMAIL_PROVIDER: str = "console"          # console | smtp. Ignored when BREVO_API_KEY is set.
     EMAIL_FROM: str = "Sospana Sonke <no-reply@sospanasonke.co.za>"
     NOTIFY_EMAILS: bool = False              # send emails in addition to dashboard notifications
     NOTIFY_SMS: bool = False
@@ -132,10 +132,16 @@ class Settings(BaseSettings):
     SMTP_USER: str | None = Field(default=None, validation_alias=AliasChoices("SMTP_USER", "SMPT_USER"))
     SMTP_PASSWORD: str | None = None
     # Owner alert on every successful sign-in (password or Google). Recipient(s):
-    # LOGIN_ALERT_EMAIL (comma-separated), falling back to SMTP_USER, then ADMIN_EMAIL. Needs
-    # EMAIL_PROVIDER=smtp to actually deliver. Independent of NOTIFY_EMAILS.
+    # LOGIN_ALERT_EMAIL (comma-separated), falling back to SMTP_USER, then ADMIN_EMAIL.
+    # Delivers when BREVO_API_KEY is set, or when EMAIL_PROVIDER=smtp. Independent of NOTIFY_EMAILS.
     LOGIN_ALERTS_ENABLED: bool = True
     LOGIN_ALERT_EMAIL: str | None = None
+    # Brevo transactional HTTPS (free plan, 300 emails/day). Render free cannot open SMTP.
+    # When the key is set, every email path uses POST https://api.brevo.com/v3/smtp/email
+    # and the SMTP settings below are left unused. Unset = existing console/SMTP behaviour.
+    BREVO_API_KEY: str | None = None
+    BREVO_SENDER_EMAIL: str | None = None
+    BREVO_SENDER_NAME: str = "Sospana Sonke"
 
     # Application automation (blueprint sections 13, 14, 28 — Phase 2).
     # OFF by default: a global kill-switch so automated submission is opt-in and safe.

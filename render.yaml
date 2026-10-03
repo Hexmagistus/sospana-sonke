@@ -38,8 +38,14 @@ services:
         sync: false
       - key: ADMIN_PASSWORD
         sync: false
+      - key: BREVO_API_KEY
+        sync: false                 # Brevo free transactional key. When set, mail goes over HTTPS (Render free blocks SMTP).
+      - key: BREVO_SENDER_EMAIL
+        sync: false                 # verified Brevo sender address
+      - key: BREVO_SENDER_NAME
+        value: Sospana Sonke
       - key: EMAIL_PROVIDER
-        value: smtp
+        value: smtp                 # used only when BREVO_API_KEY is unset
       - key: SMTP_HOST
         value: smtp.gmail.com
       - key: SMTP_PORT

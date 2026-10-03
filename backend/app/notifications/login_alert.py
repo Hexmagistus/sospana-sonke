@@ -2,8 +2,10 @@
 
 Recipient is LOGIN_ALERT_EMAIL (comma-separated allowed), falling back to
 SMTP_USER (the Gmail inbox that sends the platform's mail), then ADMIN_EMAIL. Independent of NOTIFY_EMAILS (that toggle is for candidate-facing
-mail). Runs as a FastAPI background task so SMTP never slows down the login
-response, and never raises — a failed alert must not break sign-in.
+mail). Runs as a FastAPI background task so the send never slows down the login
+response, and never raises — a failed alert must not break sign-in. Delivery
+uses the shared provider (Brevo HTTPS when BREVO_API_KEY is set, otherwise
+SMTP or the console outbox).
 """
 from __future__ import annotations
 

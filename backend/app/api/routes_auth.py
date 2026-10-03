@@ -25,6 +25,15 @@ from app.schemas.auth import (
 
 logger = logging.getLogger(__name__)
 
+
+def _close_before_network(db: Session) -> None:
+    """A user lookup must not stay open across SMTP or the Brevo HTTPS call."""
+    try:
+        if db.in_transaction():
+            db.rollback()
+    except Exception:
+        logger.warning("Could not close the database session before sending mail", exc_info=True)
+
 # Bump when the Privacy Policy / Terms change materially; every user is then asked to
 # accept again. Keep in sync with frontend/src/lib/policy.ts.
 CURRENT_POLICY_VERSION = "2026-09-25"
@@ -73,12 +82,16 @@ def register(request: Request, body: RegisterRequest, db: Session = Depends(get_
     db.add(user)
     db.commit()
     db.refresh(user)
-    token = security.create_email_verification_token(user.id)
+    response_user = UserResponse.model_validate(user)
+    user_id = user.id
+    user_email = user.email
+    token = security.create_email_verification_token(user_id)
     verify_url = f"{settings.PUBLIC_API_URL.rstrip('/')}{settings.API_V1_PREFIX}/auth/verify?token={token}"
+    _close_before_network(db)
     try:
         from app.notifications.email import get_email_provider
         get_email_provider().send(
-            user.email,
+            user_email,
             f"Verify your {settings.APP_NAME} account",
             f"Welcome to {settings.APP_NAME}!\n\n"
             f"Confirm your email address by opening this link:\n{verify_url}\n\n"
@@ -90,9 +103,9 @@ def register(request: Request, body: RegisterRequest, db: Session = Depends(get_
         # production for testing), but a silent failure here meant a real user
         # could be stuck unverified with no record anywhere of why their email
         # never arrived.
-        logger.error("Failed to send verification email for user_id=%s", user.id, exc_info=True)
+        logger.error("Failed to send verification email for user_id=%s", user_id, exc_info=True)
     return RegisterResponse(
-        user=UserResponse.model_validate(user),
+        user=response_user,
         email_verification_token=token if settings.ENV != "production" else None,
     )
 
@@ -299,17 +312,22 @@ def password_reset_request(request: Request, body: PasswordResetRequest, db: Ses
     user = db.query(User).filter(User.email == body.email.lower()).first()
     token = None
     if user:
-        token = security.create_password_reset_token(user.id, user.token_version or 0)
+        user_id = user.id
+        user_email = user.email
+        token = security.create_password_reset_token(user_id, user.token_version or 0)
+        _close_before_network(db)
         try:
             from app.notifications.email import get_email_provider
             get_email_provider().send(
-                user.email, f"Reset your {settings.APP_NAME} password",
+                user_email, f"Reset your {settings.APP_NAME} password",
                 f"We received a request to reset your {settings.APP_NAME} password.\n\n"
                 f"Use this token to set a new password:\n{token}\n\n"
                 f"If you didn't request this, you can safely ignore this email.",
             )
         except Exception:
-            logger.error("Failed to send password-reset email for user_id=%s", user.id, exc_info=True)
+            logger.error("Failed to send password-reset email for user_id=%s", user_id, exc_info=True)
+    else:
+        _close_before_network(db)
     return SimpleMessage(status="If that email exists, a reset link has been sent.",
                          reset_token=token if settings.ENV != "production" else None)
 
