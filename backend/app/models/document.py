@@ -28,7 +28,7 @@ class CVVersion(UUIDMixin, TimestampMixin, Base):
     )
 
     label: Mapped[str] = mapped_column(String(300), nullable=False)  # human filename
-    template: Mapped[str] = mapped_column(String(40), default="ats_clean", nullable=False)
+    template: Mapped[str] = mapped_column(String(40), default="classic", nullable=False)
 
     content: Mapped[dict] = mapped_column(JSON, nullable=False)       # the structured CV data used
     storage_key_pdf: Mapped[str | None] = mapped_column(String(512), nullable=True)

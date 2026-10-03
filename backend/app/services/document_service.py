@@ -53,7 +53,7 @@ def generate_cv_for_match(db: Session, user: User, match_id: str, template: str 
 
     truth_result = validate_cv(cv_data, truth)
     ats, breakdown = score_ats(cv_data, skill_terms)
-    template = template or "professional"
+    template = template or "classic"
 
     label = safe_filename(facts["full_name"], vac.title, company.company_name if company else "") + "_CV"
     version = CVVersion(
@@ -119,7 +119,7 @@ def generate_cv_for_target(db: Session, user: User, job_title: str | None,
     cv_data = build_tailored_cv(facts, {"title": title, "skill_terms": skill_terms})
     truth_result = validate_cv(cv_data, truth)
     ats, breakdown = score_ats(cv_data, skill_terms)
-    template = template or "professional"
+    template = template or "classic"
 
     label = safe_filename(facts["full_name"], title, company_name or "") + "_CV"
     version = CVVersion(
@@ -163,7 +163,7 @@ def persist_cv_version(db: Session, user: User, cv_data: dict, title: str, compa
     _, truth = _facts_and_truth(db, user)
     truth_result = validate_cv(cv_data, truth)
     ats, breakdown = score_ats(cv_data, skill_terms)
-    template = template or "professional"
+    template = template or "classic"
 
     label = safe_filename(cv_data.get("full_name", ""), title, company_name or "") + "_CV"
     version = CVVersion(

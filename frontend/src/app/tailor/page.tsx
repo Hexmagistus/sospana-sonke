@@ -17,6 +17,20 @@ interface InterviewPrepDoc {
 }
 
 const STEPS = ["Target job", "Match report", "Improve & design", "Preview & export"] as const;
+
+// Older saved designs still open on the closest current template.
+const TEMPLATE_ALIAS: Record<string, string> = {
+  professional: "classic",
+  executive: "classic",
+  academic: "classic",
+  ats_pro: "compact",
+  ats_clean: "compact",
+};
+
+function shownTemplate(id: string | null | undefined) {
+  const key = (id || "classic").toLowerCase();
+  return TEMPLATE_ALIAS[key] || key;
+}
 type Step = 0 | 1 | 2 | 3;
 
 const SUB_SCORE_LABELS: Record<string, string> = {
@@ -110,7 +124,7 @@ function TailorInner() {
   const [draftCv, setDraftCv] = useState<CvData | null>(null);
   const [violations, setViolations] = useState<string[]>([]);
   const [templates, setTemplates] = useState<TemplateInfo[]>([]);
-  const [template, setTemplate] = useState("professional");
+  const [template, setTemplate] = useState("classic");
   const [skillsText, setSkillsText] = useState("");
 
   // Step 3 state
@@ -142,7 +156,7 @@ function TailorInner() {
       setAnalysis(r.job_analysis);
       setDraftCv(r.draft_cv);
       setViolations(r.fact_check.violations);
-      setTemplate(r.job_analysis.template || "professional");
+      setTemplate(shownTemplate(r.job_analysis.template));
       setSkillsText(r.draft_cv.skills.join(", "));
       setStep(1);
     } catch (e) {
@@ -388,7 +402,10 @@ function TailorInner() {
           </Card>
 
           <Card>
-            <h2 className="mb-3 font-semibold">Choose a CV design</h2>
+            <h2 className="mb-1 font-semibold">Choose a CV design</h2>
+            <p className="mb-3 text-sm text-ss-muted">
+              Single column, real text, and no photo, so an applicant tracking system can read it. Classic is the default.
+            </p>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {(templates.length ? templates : []).map((t) => (
                 <button

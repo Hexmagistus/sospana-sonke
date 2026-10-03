@@ -64,8 +64,8 @@ def test_master_cv_endpoint_reflects_profile(client, db_engine):
 def test_templates_listed():
     from app.documents.render import list_templates
     templates = list_templates()
-    ids = {t["id"] for t in templates}
-    assert {"executive", "professional", "modern", "ats_pro", "academic"} <= ids
+    ids = [t["id"] for t in templates]
+    assert ids == ["classic", "modern", "compact"]
 
 
 def test_analyze_job_never_fabricates_and_scores(client, db_engine):

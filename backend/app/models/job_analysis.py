@@ -78,7 +78,7 @@ class JobAnalysis(UUIDMixin, TimestampMixin, Base):
     recommended_action: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     # ---- Generated documents (nullable until the candidate generates them) ----
-    template: Mapped[str] = mapped_column(String(20), default="professional", nullable=False)
+    template: Mapped[str] = mapped_column(String(20), default="classic", nullable=False)
     cv_version_id: Mapped[str | None] = mapped_column(
         String(36), ForeignKey("cv_versions.id", ondelete="SET NULL"), nullable=True
     )

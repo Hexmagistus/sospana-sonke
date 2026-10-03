@@ -101,6 +101,8 @@ def get_full_profile_facts(db: Session, user: User):
                        "confirmed_by_candidate": e.confirmed_by_candidate}
                       for e in edu],
         "certifications": [{"name": c.name, "issuing_organization": c.issuing_organization,
+                            "issue_date": c.issue_date.isoformat() if c.issue_date else None,
+                            "expiry_date": c.expiry_date.isoformat() if c.expiry_date else None,
                             "confirmed_by_candidate": c.confirmed_by_candidate} for c in certs],
         "experience": [{"employer": w.employer, "position": w.position,
                         "start_date": w.start_date.isoformat() if w.start_date else None,
