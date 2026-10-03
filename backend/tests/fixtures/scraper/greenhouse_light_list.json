@@ -1,0 +1,28 @@
+{
+  "jobs": [
+    {
+      "id": 4001,
+      "title": "Research Engineer",
+      "location": {"name": "San Francisco, CA"},
+      "departments": [{"name": "Research"}],
+      "absolute_url": "https://job-boards.greenhouse.io/bigboard/jobs/4001",
+      "updated_at": "2026-09-28T12:00:00Z"
+    },
+    {
+      "id": 4002,
+      "title": "Policy Manager",
+      "location": {"name": "London, UK"},
+      "departments": [{"name": "Policy"}],
+      "absolute_url": "https://job-boards.greenhouse.io/bigboard/jobs/4002",
+      "updated_at": "2026-09-27T08:30:00Z"
+    },
+    {
+      "id": 4003,
+      "title": "Recruiter",
+      "location": {"name": "Remote"},
+      "departments": [{"name": "People"}],
+      "absolute_url": "https://job-boards.greenhouse.io/bigboard/jobs/4003",
+      "updated_at": "2026-09-26T15:00:00Z"
+    }
+  ]
+}
