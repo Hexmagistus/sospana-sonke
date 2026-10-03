@@ -159,3 +159,28 @@ def test_scan_company_without_url(db):
     db.add(c); db.commit(); db.refresh(c)
     reports = scan_company(db, c)
     assert reports[0].status == "no_url"
+
+
+def test_wait_page_on_a_static_college_site_is_blocked_not_empty(db):
+    """15 college sites answer HTTP 200 with a 'One moment, please...' reload page."""
+    c = Company(company_name="Challenge College", careers_url="https://college.example.ac.za/vacancies/",
+                scraping_status="ok", active=True, country="South Africa")
+    db.add(c)
+    db.commit()
+    db.refresh(c)
+    src = ensure_source(db, c)
+    assert src.ats_type == "static"
+    page = ("<html><head><title>One moment, please...</title></head><body>"
+            "<script>setTimeout(function(){window.location.reload(true)},4000)</script></body></html>")
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        if str(request.url).endswith("robots.txt"):
+            return httpx.Response(200, text="User-agent: *\nAllow: /")
+        return httpx.Response(200, text=page, request=request)
+
+    with httpx.Client(transport=httpx.MockTransport(handler)) as client:
+        report = scan_source(db, src, client=client, check_robots=True)
+    assert report.status == "blocked"
+    assert src.scraper_status == "BLOCKED" and src.last_success_at is None
+    assert src.consecutive_failures == 0
+    assert db.query(Vacancy).filter(Vacancy.company_id == c.id).count() == 0

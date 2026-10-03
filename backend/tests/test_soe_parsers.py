@@ -424,6 +424,21 @@ def test_simplify_real_zero_and_real_lists():
     assert vacs[0].closing_date is None
 
 
+def test_simplify_reads_absolute_vacancy_links():
+    """The IIE group's tenants link https://{tenant}.Simplify.hr/Vacancy/N, not /Vacancy/N."""
+    fragment = _fx("simplify_sanbi_vacancies.html").replace(
+        'href="/Vacancy/', 'href="https://rbi.Simplify.hr/Vacancy/')
+    assert "https://rbi.Simplify.hr/Vacancy/205122" in fragment
+    with _client(_simplify_handler("rbi", fragment)) as c:
+        vacs = SimplifyStrategy().fetch(_Src("https://rbi.simplify.hr/", "simplify", {}), c)
+    assert [(v.external_id, v.title) for v in vacs] == [
+        ("205122", "Administrative Officer"),
+        ("204739", "Senior Project Officer: Biological Risk Analysis"),
+    ]
+    # The link always points at the tenant being scanned, whatever host the markup names.
+    assert vacs[0].application_url == "https://rbi.simplify.hr/Vacancy/205122"
+
+
 def test_simplify_unreadable_fragment_is_not_zero():
     with _client(_simplify_handler("x", "<html><body>Server busy</body></html>")) as c:
         with pytest.raises(ValueError, match="not readable"):
@@ -434,6 +449,17 @@ def test_simplify_unreadable_fragment_is_not_zero():
             SimplifyStrategy().fetch(_Src("https://x.simplify.hr/", "simplify", {}), c)
     with pytest.raises(ValueError):
         SimplifyStrategy().fetch(_Src("https://example.com/", "simplify", {}), _client(lambda r: None))
+
+
+# ---- CareerInHR on an employer's own domain ----------------------------------
+
+def test_cihr_on_a_verified_custom_domain_only():
+    assert detect_ats("https://jobs.uj.ac.za/applicant/index.php") == ("cihr", {"host": "jobs.uj.ac.za"})
+    assert detect_ats("https://JOBS.UJ.AC.ZA/")[0] == "cihr"
+    # Only the exact verified host: look-alikes and other subdomains are not guessed at.
+    assert detect_ats("https://jobs.uj.ac.za.evil.example/")[0] == "static"
+    assert detect_ats("https://www.uj.ac.za/jobs")[0] == "static"
+    assert detect_ats("https://other.ac.za/")[0] == "static"
 
 
 # ---- JSON-LD ----------------------------------------------------------------
