@@ -61,6 +61,18 @@ export const FILTER_TO_TYPE: Record<string, string> = {
   Sports: "SPORT", Federations: "FED", Music: "MUSIC",
 };
 
+/** Types the "Listed" filter leaves out (it keeps everything else, department rows included). */
+const NOT_LISTED_TYPES = new Set(["SOE", "MUNI", "PRIVATE", "NGO", "UNI", "COLLEGE", "HOSPITAL", "SETA", "SPORT", "FED", "MUSIC"]);
+
+/** Whether a row belongs to a category filter. Shared by the cards and the on-map name list. */
+export function matchesDirectoryFilter(company: { source_type?: string | null }, filter: string): boolean {
+  if (filter === "all") return true;
+  const st = (company.source_type || "").toUpperCase();
+  const wanted = FILTER_TO_TYPE[filter];
+  if (wanted) return st === wanted;
+  return !NOT_LISTED_TYPES.has(st);
+}
+
 export const DIRECTORY_FILTERS = [
   "all", "listed", "SOE", "Municipality", "Department", "Private", "NGO",
   "University", "College", "Hospital", "SETA", "Sports", "Federations", "Music",

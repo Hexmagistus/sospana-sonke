@@ -21,6 +21,7 @@
     "src/lib/countryExplorer.test.ts",
     "src/lib/explorer/CountrySidebar.test.tsx",
     "src/lib/worldRegions.test.ts",
+    "src/lib/explorer/categoryList.test.tsx",
     "src/lib/explorer/sidebarWidth.test.ts",
     "src/lib/explorer/ExplorerControls.test.tsx",
     "src/lib/explorer/testPaths.ts"
