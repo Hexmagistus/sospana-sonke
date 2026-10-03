@@ -28,6 +28,26 @@ def test_postgres_ddl_guards_set_lock_and_statement_timeout():
     assert all(sql.startswith("SET LOCAL ") for sql in guards)
 
 
+def test_external_id_widen_runs_only_while_the_column_is_short(monkeypatch):
+    calls: list[str] = []
+    monkeypatch.setattr(db_session, "_is_sqlite", False)
+    monkeypatch.setattr(db_session, "_execute_ddl", lambda sql: calls.append(sql) or True)
+
+    monkeypatch.setattr(db_session, "_varchar_length", lambda table, column: 200)
+    db_session._widen_external_id()
+    assert calls and "external_id TYPE VARCHAR(2000)" in calls[0]
+
+    calls.clear()
+    monkeypatch.setattr(db_session, "_varchar_length", lambda table, column: 2000)
+    db_session._widen_external_id()
+    assert calls == []
+
+    monkeypatch.setattr(db_session, "_is_sqlite", True)
+    monkeypatch.setattr(db_session, "_varchar_length", lambda table, column: 200)
+    db_session._widen_external_id()
+    assert calls == []
+
+
 def test_execute_ddl_skips_instead_of_raising(monkeypatch):
     class _Boom:
         def __enter__(self):

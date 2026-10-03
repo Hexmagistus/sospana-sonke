@@ -1,10 +1,14 @@
 """Tests for standalone scheduler job functions not covered elsewhere."""
 from datetime import date, datetime, timedelta, timezone
 
+from sqlalchemy import text
+
 from app.models.company import Company
+from app.models.notification import JobRun
 from app.models.vacancy import Vacancy
-from app.scheduler.jobs import close_expired_vacancies
+from app.scheduler.jobs import close_expired_vacancies, scan_due_companies
 from app.scheduler.registry import JOBS, DEFAULT_SCHEDULE
+from app.scheduler.runner import run_job
 
 
 def _mk_vacancy(db, title, closing_date=None, is_open=True):
@@ -39,3 +43,50 @@ def test_close_expired_vacancies_closes_only_past_closing_date(db):
 def test_close_expired_vacancies_registered_in_scheduler():
     assert "close_expired_vacancies" in JOBS
     assert "close_expired_vacancies" in DEFAULT_SCHEDULE
+
+
+def test_scan_due_companies_advances_after_a_database_error(db, monkeypatch):
+    """A failed insert must not abort the cron request or pin that employer first."""
+    now = datetime.now(timezone.utc)
+    bad = Company(
+        company_name="Absa", country="South Africa", active=True,
+        careers_url="https://absa.wd3.myworkdayjobs.com/ABSAcareers",
+    )
+    good = Company(
+        company_name="Clinic", country="South Africa", active=True,
+        careers_url="https://boards.greenhouse.io/clinic",
+        last_checked=now - timedelta(days=2),
+    )
+    db.add_all([bad, good])
+    db.commit()
+    seen: list[str] = []
+
+    def _scan(session, company, client=None, check_robots=True):
+        seen.append(company.company_name)
+        if company.company_name == "Absa":
+            session.execute(text("SELECT * FROM table_that_does_not_exist"))
+        return []
+
+    monkeypatch.setattr("app.scheduler.jobs.scan_company", _scan)
+    out = scan_due_companies(db, limit=10, max_seconds=55)
+
+    assert seen[0] == "Absa"
+    assert "Clinic" in seen
+    assert out["sources_failed"] >= 1
+    db.expire_all()
+    absa = db.query(Company).filter(Company.company_name == "Absa").one()
+    assert absa.last_checked is not None
+
+
+def test_run_job_records_an_error_when_the_statement_fails(db, monkeypatch):
+    def _bad(session, job_run_id=None):
+        session.execute(text("SELECT * FROM table_that_does_not_exist"))
+
+    monkeypatch.setitem(JOBS, "close_expired_vacancies", _bad)
+    run = run_job(db, "close_expired_vacancies")
+    assert run.status == "error"
+    assert run.finished_at is not None
+    db.expire_all()
+    stored = db.get(JobRun, run.id)
+    assert stored is not None
+    assert stored.status == "error"

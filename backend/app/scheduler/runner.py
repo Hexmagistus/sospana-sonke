@@ -25,6 +25,7 @@ def run_job(db: Session, name: str) -> JobRun:
     run = JobRun(job_name=name, status="success", started_at=started)
     db.add(run)
     db.flush()
+    run_id = run.id
     try:
         fn = JOBS[name]
         # Jobs that support alerting on what they find (e.g. new-job broadcasts)
@@ -34,13 +35,18 @@ def run_job(db: Session, name: str) -> JobRun:
         run.detail = json.dumps(summary)[:2000]
         run.status = "success"
     except Exception as exc:  # record failure rather than crashing the scheduler
-        run.status = "error"
-        run.detail = f"{type(exc).__name__}: {exc}"[:2000]
-        # JobRun already persists this to the DB, but that's only visible if
-        # someone queries /admin/jobs/runs -- log it too so it shows up
-        # immediately in Render's log stream (and, if SENTRY_DSN is set, fires
-        # an alert) without anyone having to go look.
+        # The job may have left the transaction aborted (a too-long INSERT does).
+        # Writing the error row before rollback raises again, and the cron
+        # route then returns a bare 500 instead of this JobRun.
         logger.exception("Scheduled job %r failed", name)
+        message = f"{type(exc).__name__}: {exc}"[:2000]
+        db.rollback()
+        run = db.get(JobRun, run_id)
+        if run is None:
+            run = JobRun(id=run_id, job_name=name, status="error", started_at=started)
+            db.add(run)
+        run.status = "error"
+        run.detail = message
     run.finished_at = datetime.now(timezone.utc)
     db.commit()
     db.refresh(run)
