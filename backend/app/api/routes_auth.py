@@ -60,6 +60,30 @@ _LOCKED = ("Too many wrong passwords in a row, so we've locked this account for 
            "Happens to the best of us. Make a cup of rooibos and try again, or reset your password.")
 
 
+def _ensure_consent_notice(db: Session, user: User) -> None:
+    try:
+        from app.services.tagging_pref_mail import ensure_consent_notice
+        ensure_consent_notice(db, user)
+    except Exception:
+        logger.warning("Could not store the consent notice", exc_info=True)
+
+
+def _record_registration_consents(user: User, body: RegisterRequest) -> None:
+    """A shown checkbox records yes or no. An omitted field stays unchosen."""
+    now = datetime.now(timezone.utc)
+    pairs = (
+        ("allow_tagging", "allow_tagging", "allow_tagging_chosen_at"),
+        ("contact_by_post", "contact_by_post", "contact_by_post_chosen_at"),
+        ("notify_opportunity_alerts", "notify_opportunity_alerts", "notify_opportunity_alerts_chosen_at"),
+    )
+    for source, flag, stamp in pairs:
+        value = getattr(body, source)
+        if value is None:
+            continue
+        setattr(user, flag, bool(value))
+        setattr(user, stamp, now)
+
+
 @router.post("/register", response_model=RegisterResponse, status_code=status.HTTP_201_CREATED)
 @limiter.limit("10/hour")
 def register(request: Request, body: RegisterRequest, db: Session = Depends(get_db)):
@@ -74,13 +98,8 @@ def register(request: Request, body: RegisterRequest, db: Session = Depends(get_
         mobile_number=body.mobile_number,
         preferred_position=body.preferred_position,
         qualification_name=body.qualification_name,
-        notify_opportunity_alerts=bool(body.notify_opportunity_alerts),
     )
-    if body.tagging_email is not None:
-        chosen = datetime.now(timezone.utc)
-        user.tagging_email = bool(body.tagging_email)
-        user.tagging_email_chosen_at = chosen
-        user.tagging_banner_seen_at = chosen
+    _record_registration_consents(user, body)
     if body.accepted_policy:
         user.policy_accepted_at = datetime.now(timezone.utc)
         user.policy_version = CURRENT_POLICY_VERSION
@@ -164,6 +183,7 @@ def login(request: Request, body: LoginRequest, background_tasks: BackgroundTask
         user.locked_until = None
         db.commit()
     queue_login_alert(background_tasks, request, user, method="email & password")
+    _ensure_consent_notice(db, user)
     return _issue_tokens(user)
 
 
@@ -216,6 +236,7 @@ def google_login(request: Request, body: GoogleLoginRequest, background_tasks: B
     if not user.is_active or user.deleted_at is not None:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Account is disabled.")
     queue_login_alert(background_tasks, request, user, method="Google", new_account=new_account)
+    _ensure_consent_notice(db, user)
     return _issue_tokens(user)
 
 
@@ -262,6 +283,7 @@ def accept_policy(body: AcceptPolicyRequest | None = Body(default=None), db: Ses
     user.policy_version = CURRENT_POLICY_VERSION
     if body is not None and body.notify_opportunity_alerts:
         user.notify_opportunity_alerts = True
+        user.notify_opportunity_alerts_chosen_at = datetime.now(timezone.utc)
     db.commit()
     db.refresh(user)
     return UserResponse.model_validate(user)

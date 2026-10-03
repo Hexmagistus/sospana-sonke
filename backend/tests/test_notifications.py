@@ -349,7 +349,7 @@ def test_suggestion_notice_includes_the_link_and_is_not_repeated(client, db_engi
     admin = _admin(client, db_engine)
     reg, tokens = register_and_login(
         client, email="tagged@example.com",
-        preferred_position="Nurse", notify_opportunity_alerts=True, tagging_email=True,
+        preferred_position="Nurse", notify_opportunity_alerts=True, allow_tagging=True,
     )
     quiet, quiet_tokens = register_and_login(
         client, email="quiet-tag@example.com", preferred_position="Nurse",

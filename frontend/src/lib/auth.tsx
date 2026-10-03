@@ -24,7 +24,8 @@ interface RegisterData {
   qualification_name?: string;
   accepted_policy?: boolean;
   notify_opportunity_alerts?: boolean;
-  tagging_email?: boolean;
+  allow_tagging?: boolean;
+  contact_by_post?: boolean;
 }
 
 const AuthContext = createContext<AuthState | null>(null);

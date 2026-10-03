@@ -22,7 +22,9 @@ interface AdminUser {
   city: string | null;
   current_occupation: string | null;
   notify_opportunity_alerts?: boolean;
-  tagging_email?: boolean | null;
+  tagging_state?: string;
+  contact_by_post_state?: string;
+  alerts_state?: string;
   tags?: string[];
 }
 
@@ -300,9 +302,8 @@ function AdminInner() {
   const [prefErr, setPrefErr] = useState("");
 
   function emailChoice(u: AdminUser) {
-    if (u.tagging_email === true) return "Yes";
-    if (u.tagging_email === false) return "No";
-    return "Not chosen";
+    const word = (state?: string) => (state === "yes" ? "Yes" : state === "no" ? "No" : "Not chosen");
+    return `Tagging ${word(u.tagging_state)} · Post ${word(u.contact_by_post_state)} · Alerts ${word(u.alerts_state)}`;
   }
 
   async function load() {
@@ -495,8 +496,8 @@ function AdminInner() {
       <Card>
         <h2 className="mb-1 font-semibold">One email about notification settings</h2>
         <p className="mb-3 text-sm text-ss-muted">
-          For account holders who have never chosen whether a tag may be emailed. The message names
-          Sospana Sonke, explains the in-account notice, and links to the preferences page. It has no
+          For account holders who have never chosen tagging, contact by post, or alerts. The message
+          names Sospana Sonke, shows those three choices, and links to the preferences page. It has no
           listings. Count first. Then send one batch of 40. It stops at 300 a UTC day and continues
           the next day. Each address is recorded, so nobody receives it twice.
         </p>
@@ -550,7 +551,7 @@ function AdminInner() {
                 <th className="py-2 pr-4">Name</th>
                 <th className="py-2 pr-4">Mobile</th>
                 <th className="py-2 pr-4">Preferred post</th>
-                <th className="py-2 pr-4">Tag email</th>
+                <th className="py-2 pr-4">Choices</th>
                 <th className="py-2 pr-4">Tags</th>
                 <th className="py-2 pr-4">Qualification</th>
                 <th className="py-2 pr-4">Profile</th>

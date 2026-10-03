@@ -37,29 +37,61 @@ class User(UUIDMixin, TimestampMixin, Base):
     # NULL = never accepted (accounts created before the consent flow, or Google sign-ups).
     policy_accepted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     policy_version: Mapped[str | None] = mapped_column(String(20), nullable=True)
-    # Separate from the required processing consent. Default off. This is the
-    # older "tell me about matching posts" switch. It is not the tagging-email choice.
+    # Three registration consents. The boolean is yes/no. The timestamp is
+    # whether they have chosen. A default of false with no timestamp means
+    # they have never been asked. Do not add a second copy of these flags.
+    # Tagging: an administrator may tag them. Email of a tag requires yes.
+    allow_tagging: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    allow_tagging_chosen_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    # Preferred post: contact by postal mail. Not the job-title field.
+    contact_by_post: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    contact_by_post_chosen_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    # Alerts: the existing yes/no. The timestamp is the separate "have they chosen".
     notify_opportunity_alerts: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
-    # Tagging emails. NULL means this person has never chosen. False is an
-    # explicit no. True is an explicit yes. In-app tag notices do not use this.
-    tagging_email: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
-    tagging_email_chosen_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
-    # One-time banner. Set when they dismiss it or when they make a choice.
-    tagging_banner_seen_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    notify_opportunity_alerts_chosen_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True,
+    )
+    # One-time banner. Set when they dismiss it. Choosing all three hides it too.
+    consent_banner_seen_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     # One service email asking them to choose. Set before the send so a retry cannot double-send.
-    tagging_pref_service_sent_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    consent_prompt_sent_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     # Temporary messaging. Opt-in: nobody can be messaged until they switch this on.
     allow_messages: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     # Set by an admin after a confirmed abuse report; the user can no longer send messages.
     messaging_banned: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
+    @staticmethod
+    def _choice_state(value: bool, chosen_at: datetime | None) -> str:
+        """not_chosen, yes, or no. A legacy True with no timestamp still counts as yes."""
+        if chosen_at is None and not value:
+            return "not_chosen"
+        return "yes" if value else "no"
+
     @property
-    def show_tagging_banner(self) -> bool:
-        """Existing accounts with no recorded tagging-email choice, until they dismiss or choose."""
+    def tagging_state(self) -> str:
+        return self._choice_state(bool(self.allow_tagging), self.allow_tagging_chosen_at)
+
+    @property
+    def contact_by_post_state(self) -> str:
+        return self._choice_state(bool(self.contact_by_post), self.contact_by_post_chosen_at)
+
+    @property
+    def alerts_state(self) -> str:
+        return self._choice_state(
+            bool(self.notify_opportunity_alerts), self.notify_opportunity_alerts_chosen_at,
+        )
+
+    @property
+    def consent_pending(self) -> bool:
+        return "not_chosen" in (self.tagging_state, self.contact_by_post_state, self.alerts_state)
+
+    @property
+    def show_consent_banner(self) -> bool:
+        """One prompt while any of the three registration choices is still unrecorded."""
         return bool(
             self.role == "candidate"
             and self.is_active
             and self.deleted_at is None
-            and self.tagging_email is None
-            and self.tagging_banner_seen_at is None
+            and self.consent_pending
+            and self.consent_banner_seen_at is None
         )

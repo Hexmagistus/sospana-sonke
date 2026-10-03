@@ -15,11 +15,11 @@ class RegisterRequest(BaseModel):
     qualification_name: str | None = Field(default=None, max_length=200)
     # True when the user ticked the POPIA consent box (Privacy Policy + Terms).
     accepted_policy: bool = False
-    # Separate, optional. Opportunity alerts from an administrator. Off unless ticked.
-    notify_opportunity_alerts: bool = False
-    # None means the client did not show this choice (leave it unrecorded).
-    # True or false is a recorded tagging-email decision.
-    tagging_email: bool | None = None
+    # None means this registration did not show the choice (leave it unrecorded).
+    # True or false means the person saw the box and picked.
+    allow_tagging: bool | None = None
+    contact_by_post: bool | None = None
+    notify_opportunity_alerts: bool | None = None
 
 
 class LoginRequest(BaseModel):
@@ -57,9 +57,13 @@ class UserResponse(BaseModel):
     policy_accepted_at: datetime | None = None
     policy_version: str | None = None
     allow_messages: bool = False
+    allow_tagging: bool = False
+    contact_by_post: bool = False
     notify_opportunity_alerts: bool = False
-    tagging_email: bool | None = None
-    show_tagging_banner: bool = False
+    tagging_state: str = "not_chosen"
+    contact_by_post_state: str = "not_chosen"
+    alerts_state: str = "not_chosen"
+    show_consent_banner: bool = False
 
 
 class AcceptPolicyRequest(BaseModel):
@@ -73,12 +77,10 @@ class OpportunityAlertsRequest(BaseModel):
 
 
 class NotificationPreferencesRequest(BaseModel):
-    """Account settings for how Sospana Sonke may contact this person."""
-    preferred_position: str | None = Field(default=None, max_length=150)
-    notify_opportunity_alerts: bool | None = None
-    # Omitted leaves the recorded choice alone. True or false records one.
-    tagging_email: bool | None = None
-    record_tagging_email: bool = False
+    """The same three registration consents, set together."""
+    allow_tagging: bool
+    contact_by_post: bool
+    notify_opportunity_alerts: bool
 
 
 class MFASetupResponse(BaseModel):

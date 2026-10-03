@@ -99,7 +99,9 @@ def _can_receive_in_app(user: User) -> bool:
 def _can_receive_broadcast(user: User) -> bool:
     """A send-to-everyone is not a personal tag. It stays with people who opted in."""
     return _can_receive_in_app(user) and bool(
-        user.notify_opportunity_alerts or user.tagging_email is True
+        user.notify_opportunity_alerts or (
+            user.allow_tagging and user.allow_tagging_chosen_at is not None
+        )
     )
 
 

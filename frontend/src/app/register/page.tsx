@@ -21,7 +21,8 @@ export default function RegisterPage() {
   const [busy, setBusy] = useState(false);
   const [consent, setConsent] = useState(false);
   const [alerts, setAlerts] = useState(false);
-  const [tagEmail, setTagEmail] = useState(false);
+  const [tagging, setTagging] = useState(false);
+  const [byPost, setByPost] = useState(false);
   const [passwordFocused, setPasswordFocused] = useState(false);
   const [celebrate, setCelebrate] = useState(false);
 
@@ -41,8 +42,9 @@ export default function RegisterPage() {
       await register({
         ...form,
         accepted_policy: true,
+        allow_tagging: tagging,
+        contact_by_post: byPost,
         notify_opportunity_alerts: alerts,
-        tagging_email: tagEmail,
       });
       setCelebrate(true);
       setBusy(false);
@@ -113,7 +115,7 @@ export default function RegisterPage() {
             <Field label="Mobile number">
               <Input value={form.mobile_number} onChange={(e) => set("mobile_number", e.target.value)} />
             </Field>
-            <Field label="Preferred post (the role you're looking for)">
+            <Field label="Role you're looking for">
               <Input
                 value={form.preferred_position}
                 onChange={(e) => set("preferred_position", e.target.value)}
@@ -159,26 +161,37 @@ export default function RegisterPage() {
             <label className="flex items-start gap-2 text-sm text-ss-muted">
               <input
                 type="checkbox"
-                checked={alerts}
-                onChange={(e) => setAlerts(e.target.checked)}
+                checked={tagging}
+                onChange={(e) => setTagging(e.target.checked)}
                 className="mt-1 h-4 w-4 shrink-0 accent-[#f5b301]"
               />
               <span>
-                Optional, and off unless you tick it: an administrator may notify me about posts that match the
-                preferred role I typed above. This is separate from the consent above. You can switch it off later
-                on the Security page.
+                Optional: an administrator may tag me for a vacancy. Leave this unticked and we will not email
+                you about a tag. A notice still appears inside your account. You can change this on the Security page.
               </span>
             </label>
             <label className="flex items-start gap-2 text-sm text-ss-muted">
               <input
                 type="checkbox"
-                checked={tagEmail}
-                onChange={(e) => setTagEmail(e.target.checked)}
+                checked={byPost}
+                onChange={(e) => setByPost(e.target.checked)}
                 className="mt-1 h-4 w-4 shrink-0 accent-[#f5b301]"
               />
               <span>
-                Optional: email me when the Sospana Sonke team tags me. Leave this unticked and we will not email
-                you about a tag. A notice still appears inside your account. You can change this on the Security page.
+                Optional: Sospana Sonke may contact me by post (mail). Leave this unticked and we will not.
+                You can change this on the Security page.
+              </span>
+            </label>
+            <label className="flex items-start gap-2 text-sm text-ss-muted">
+              <input
+                type="checkbox"
+                checked={alerts}
+                onChange={(e) => setAlerts(e.target.checked)}
+                className="mt-1 h-4 w-4 shrink-0 accent-[#f5b301]"
+              />
+              <span>
+                Optional, and off unless you tick it: send me alerts about roles that match the one I typed above.
+                This is separate from the consent above. You can switch it off later on the Security page.
               </span>
             </label>
             <Button type="submit" loading={busy} disabled={busy || !consent} glow className="w-full">

@@ -80,7 +80,7 @@ def test_admin_tag_is_available_without_an_email_choice_and_is_audited(client, d
 
     opted, _ = register_and_login(
         client, email="tags@example.com",
-        preferred_position="Chef", notify_opportunity_alerts=True, tagging_email=True,
+        preferred_position="Chef", notify_opportunity_alerts=True, allow_tagging=True,
     )
     ok = client.post(
         f"/api/v1/admin/users/{opted['user']['id']}/tags",
@@ -95,7 +95,8 @@ def test_admin_tag_is_available_without_an_email_choice_and_is_audited(client, d
     assert opted["user"]["id"] in ids
     row = next(r for r in listed.json() if r["id"] == opted["user"]["id"])
     assert row["notify_opportunity_alerts"] is True
-    assert row["tagging_email"] is True
+    assert row["allow_tagging"] is True
+    assert row["tagging_state"] == "yes"
     assert "hospitality" in row["tags"]
 
     from sqlalchemy.orm import sessionmaker

@@ -133,6 +133,7 @@ def notify_strong_match(db, *, user, match, vacancy_title, company_name) -> Noti
         body=(f"{vacancy_title} at {company_name} — match {int(match.score)}% "
               f"({match.band}). Your tailored CV can be generated in one click."),
         related_type="match", related_id=match.id, to_phone=getattr(user, "mobile_number", None),
+        send_email=None if _alerts_email_opted_in(user) else False,
     )
 
 
@@ -190,6 +191,7 @@ def notify_daily_agent_briefing(db, *, user, application_ids: list[str],
         db, user_id=user.id, to_email=user.email, type="daily_agent_briefing",
         title=title, body=body, related_type="job_run", related_id=job_run_id,
         to_phone=getattr(user, "mobile_number", None),
+        send_email=None if _alerts_email_opted_in(user) else False,
     )
 
 
@@ -228,6 +230,7 @@ def notify_new_jobs_broadcast(db, *, vacancy_ids: list[str], job_run_id: str) ->
         note = create_notification(
             db, user_id=user.id, to_email=user.email, type="new_jobs", title=title, body=body,
             related_type="job_run", related_id=job_run_id, to_phone=getattr(user, "mobile_number", None),
+            send_email=None if _alerts_email_opted_in(user) else False,
         )
         if note is not None:
             sent += 1
@@ -260,8 +263,15 @@ def _active_candidate(user) -> bool:
 
 
 def _tagging_email_opted_in(user) -> bool:
-    """Only an explicit yes. No recorded choice and an explicit no both stay off."""
-    return _active_candidate(user) and getattr(user, "tagging_email", None) is True
+    """Explicit tagging yes only. No recorded choice and an explicit no stay off."""
+    return _active_candidate(user) and bool(
+        getattr(user, "allow_tagging", False) and getattr(user, "allow_tagging_chosen_at", None)
+    )
+
+
+def _alerts_email_opted_in(user) -> bool:
+    """Alert mail follows the alerts yes/no. A legacy True still counts as yes."""
+    return bool(getattr(user, "notify_opportunity_alerts", False))
 
 
 def _opening_for_link(db, link_url: str | None) -> tuple[str | None, str | None]:

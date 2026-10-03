@@ -1,5 +1,6 @@
 """Brevo HTTPS mail, with the SMTP path left in place when the key is unset."""
 import logging
+from datetime import datetime, timezone
 
 import httpx
 import pytest
@@ -253,14 +254,14 @@ def test_opted_out_admin_suggestion_does_not_email(db, monkeypatch):
         last_name="User",
         preferred_position="Nurse",
         notify_opportunity_alerts=False,
-        tagging_email=False,
+        allow_tagging=False,
+        allow_tagging_chosen_at=datetime.now(timezone.utc),
     )
     unset = User(
         email="unset@example.com",
         password_hash=security.hash_password("Password123!"),
         first_name="Unset",
         last_name="User",
-        tagging_email=None,
     )
     db.add(opted_out)
     db.add(unset)
@@ -292,7 +293,8 @@ def test_opted_in_suggestion_emails_the_link_once(db, monkeypatch):
         last_name="User",
         preferred_position="Nurse",
         notify_opportunity_alerts=True,
-        tagging_email=True,
+        allow_tagging=True,
+        allow_tagging_chosen_at=datetime.now(timezone.utc),
     )
     db.add(user)
     db.commit()

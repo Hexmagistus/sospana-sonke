@@ -7,6 +7,41 @@ import { useAuth } from "@/lib/auth";
 import { api } from "@/lib/api";
 import { Card, Field, Input, Button, Alert } from "@/components/ui";
 
+function choiceWord(state: string | undefined) {
+  if (state === "yes") return "Yes";
+  if (state === "no") return "No";
+  return "Not chosen";
+}
+
+function ChoiceRow({
+  name, label, help, state, value, onChange,
+}: {
+  name: string;
+  label: string;
+  help: string;
+  state?: string;
+  value: boolean | null;
+  onChange: (next: boolean) => void;
+}) {
+  return (
+    <fieldset className="mt-4">
+      <legend className="text-sm font-semibold text-ss-text">{label}</legend>
+      <p className="text-sm text-ss-muted">{help}</p>
+      <p className="mt-1 text-sm text-ss-text">Current: <b>{choiceWord(state)}</b></p>
+      <div className="mt-2 flex gap-4 text-sm text-ss-text">
+        <label className="flex items-center gap-2">
+          <input type="radio" name={name} checked={value === true} onChange={() => onChange(true)} />
+          Yes
+        </label>
+        <label className="flex items-center gap-2">
+          <input type="radio" name={name} checked={value === false} onChange={() => onChange(false)} />
+          No
+        </label>
+      </div>
+    </fieldset>
+  );
+}
+
 function SecurityInner() {
   const { user, refreshUser, logout } = useAuth();
   const router = useRouter();
@@ -16,13 +51,21 @@ function SecurityInner() {
   const [code, setCode] = useState("");
   const [msg, setMsg] = useState("");
   const [err, setErr] = useState("");
-  const [post, setPost] = useState("");
-  const [alertsOn, setAlertsOn] = useState(false);
+  const [tagging, setTagging] = useState<boolean | null>(null);
+  const [byPost, setByPost] = useState<boolean | null>(null);
+  const [alertsOn, setAlertsOn] = useState<boolean | null>(null);
+
+  function picked(state: string | undefined, value: boolean | undefined): boolean | null {
+    if (state === "yes") return true;
+    if (state === "no") return false;
+    return value === undefined ? null : null;
+  }
 
   useEffect(() => {
-    setPost(user?.preferred_position || "");
-    setAlertsOn(!!user?.notify_opportunity_alerts);
-  }, [user?.preferred_position, user?.notify_opportunity_alerts]);
+    setTagging(picked(user?.tagging_state, user?.allow_tagging));
+    setByPost(picked(user?.contact_by_post_state, user?.contact_by_post));
+    setAlertsOn(picked(user?.alerts_state, user?.notify_opportunity_alerts));
+  }, [user]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -30,18 +73,17 @@ function SecurityInner() {
     document.getElementById("notification-preferences")?.scrollIntoView({ block: "start" });
   }, [user]);
 
-  async function savePreferences(recordEmail: boolean | null) {
+  async function savePreferences() {
+    if (tagging === null || byPost === null || alertsOn === null) return;
     setErr(""); setMsg("");
     try {
       await api.put("/account/notification-preferences", {
-        preferred_position: post,
+        allow_tagging: tagging,
+        contact_by_post: byPost,
         notify_opportunity_alerts: alertsOn,
-        ...(recordEmail === null ? {} : { tagging_email: recordEmail, record_tagging_email: true }),
       });
       await refreshUser();
-      if (recordEmail === true) setMsg("Tagging notices will also be emailed.");
-      else if (recordEmail === false) setMsg("Tagging notices stay in your account. We will not email them.");
-      else setMsg("Notification preferences saved.");
+      setMsg("Your three choices are saved.");
     } catch (ex) {
       setErr(ex instanceof Error ? ex.message : "Could not save that choice");
     }
@@ -163,39 +205,38 @@ function SecurityInner() {
         <div id="notification-preferences" className="scroll-mt-24">
         <h2 className="mb-2 text-lg font-semibold text-ss-text">Notification preferences</h2>
         <p className="mb-3 text-sm text-ss-muted">
-          When the Sospana Sonke team tags you, a notice always appears inside this account.
-          Email is a separate choice. Your preferred post is the kind of work you want.
+          These are the same three choices as registration. A tag still appears inside this account.
+          Email about a tag, or an alert, is sent only after you choose yes.
           Member messages are switched on from the <a href="/messages" className="text-brand hover:underline">Messages</a> page.
         </p>
-        <Field label="Preferred post">
-          <Input value={post} onChange={(e) => setPost(e.target.value)} maxLength={150} placeholder="e.g. Nurse" />
-        </Field>
-        <label className="mt-3 flex items-start gap-2 text-sm text-ss-text">
-          <input
-            type="checkbox"
-            checked={alertsOn}
-            onChange={(e) => setAlertsOn(e.target.checked)}
-            className="mt-1 h-4 w-4 shrink-0 accent-[#f5b301]"
-          />
-          <span>
-            Tell me about posts that match my preferred role. This does not turn tagging emails on or off,
-            and a tag notice still appears in your account when it is unticked.
-          </span>
-        </label>
-        <p className="mt-4 text-sm text-ss-text">
-          Tagging notices by email:{" "}
-          <b>
-            {user?.tagging_email === true
-              ? "On"
-              : user?.tagging_email === false
-                ? "Off"
-                : "You haven't chosen yet."}
-          </b>
-        </p>
-        <div className="mt-3 flex flex-wrap gap-2">
-          <Button onClick={() => savePreferences(null)}>Save post and matching alerts</Button>
-          <Button variant="secondary" onClick={() => savePreferences(true)}>Email me these notices</Button>
-          <Button variant="ghost" onClick={() => savePreferences(false)}>Don&apos;t email me</Button>
+        <ChoiceRow
+          name="tagging"
+          label="Tagging"
+          help="An administrator may tag you for a vacancy."
+          state={user?.tagging_state}
+          value={tagging}
+          onChange={setTagging}
+        />
+        <ChoiceRow
+          name="post"
+          label="Preferred post"
+          help="We may contact you by post (mail)."
+          state={user?.contact_by_post_state}
+          value={byPost}
+          onChange={setByPost}
+        />
+        <ChoiceRow
+          name="alerts"
+          label="Alerts"
+          help="We may email you about roles that match the one you saved."
+          state={user?.alerts_state}
+          value={alertsOn}
+          onChange={setAlertsOn}
+        />
+        <div className="mt-3">
+          <Button onClick={savePreferences} disabled={tagging === null || byPost === null || alertsOn === null}>
+            Save all three
+          </Button>
         </div>
         </div>
       </Card>

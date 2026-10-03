@@ -13,8 +13,12 @@ export interface User {
   policy_version?: string | null;
   allow_messages?: boolean;
   notify_opportunity_alerts?: boolean;
-  tagging_email?: boolean | null;
-  show_tagging_banner?: boolean;
+  allow_tagging?: boolean;
+  contact_by_post?: boolean;
+  tagging_state?: "not_chosen" | "yes" | "no";
+  contact_by_post_state?: "not_chosen" | "yes" | "no";
+  alerts_state?: "not_chosen" | "yes" | "no";
+  show_consent_banner?: boolean;
 }
 
 export interface Tokens {

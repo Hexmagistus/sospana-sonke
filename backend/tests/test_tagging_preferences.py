@@ -1,4 +1,4 @@
-"""Tagging email is a recorded choice. No choice is not a yes and not a no."""
+"""The three registration consents: tagging, contact by post, and alerts."""
 from datetime import datetime, timedelta, timezone
 
 from sqlalchemy.orm import sessionmaker
@@ -24,73 +24,87 @@ def _admin(client, db_engine):
     return client.post("/api/v1/auth/login", json={"email": email, "password": password}).json()
 
 
+def _all(tagging: bool, post: bool, alerts: bool) -> dict:
+    return {
+        "allow_tagging": tagging,
+        "contact_by_post": post,
+        "notify_opportunity_alerts": alerts,
+    }
+
+
 def test_service_email_names_us_and_has_no_listing_words():
     body = service_email_body()
     low = body.lower()
     assert "Sospana Sonke" in body
     assert "Choose or turn off" in body
+    assert "Tagging: Not chosen" in body
+    assert "Preferred post: Not chosen" in body
+    assert "Alerts: Not chosen" in body
     assert preferences_url() in body
     assert preferences_url().endswith("/security#notification-preferences")
     assert not any(word in low for word in _FORBIDDEN)
 
 
-def test_existing_account_with_no_choice_sees_the_banner_until_they_dismiss_or_choose(client):
+def test_existing_account_with_no_choice_sees_the_three_states(client):
     reg, tokens = register_and_login(client, email="unset-banner@example.com")
     me = client.get("/api/v1/auth/me", headers=_auth(tokens)).json()
-    assert me["tagging_email"] is None
-    assert me["show_tagging_banner"] is True
-    assert me["notify_opportunity_alerts"] is False
+    assert me["tagging_state"] == "not_chosen"
+    assert me["contact_by_post_state"] == "not_chosen"
+    assert me["alerts_state"] == "not_chosen"
+    assert me["show_consent_banner"] is True
+    notes = [n for n in client.get("/api/v1/notifications", headers=_auth(tokens)).json()
+             if n["type"] == "consent_choices"]
+    assert len(notes) == 1
+    assert "Tagging: Not chosen" in notes[0]["body"]
+    assert "Preferred post: Not chosen" in notes[0]["body"]
+    assert "Alerts: Not chosen" in notes[0]["body"]
+    assert notes[0]["email_sent"] is False
 
     dismissed = client.post("/api/v1/account/tagging-banner/dismiss", headers=_auth(tokens))
     assert dismissed.status_code == 200
-    assert dismissed.json()["show_tagging_banner"] is False
+    assert dismissed.json()["show_consent_banner"] is False
     still = client.get("/api/v1/auth/me", headers=_auth(tokens)).json()
-    assert still["tagging_email"] is None
-    assert still["show_tagging_banner"] is False
+    assert still["tagging_state"] == "not_chosen"
+    assert still["show_consent_banner"] is False
 
     chosen = client.put(
         "/api/v1/account/notification-preferences",
         headers=_auth(tokens),
-        json={"preferred_position": "Nurse", "tagging_email": False, "record_tagging_email": True},
+        json=_all(False, True, False),
     )
     assert chosen.status_code == 200, chosen.text
-    assert chosen.json()["tagging_email"] is False
-    assert chosen.json()["preferred_position"] == "Nurse"
-    assert chosen.json()["show_tagging_banner"] is False
+    body = chosen.json()
+    assert body["tagging_state"] == "no"
+    assert body["contact_by_post_state"] == "yes"
+    assert body["alerts_state"] == "no"
+    assert body["show_consent_banner"] is False
 
     exported = client.get("/api/v1/account/export", headers=_auth(tokens)).json()
-    assert exported["account"]["tagging_email"] is False
-    assert exported["account"]["tagging_email_chosen_at"]
+    assert exported["account"]["allow_tagging"] is False
+    assert exported["account"]["contact_by_post"] is True
+    assert exported["account"]["allow_tagging_chosen_at"]
+    assert exported["account"]["contact_by_post_chosen_at"]
+    assert exported["account"]["notify_opportunity_alerts_chosen_at"]
 
 
-def test_register_records_an_explicit_no_and_hides_the_banner(client):
-    reg, tokens = register_and_login(client, email="explicit-no@example.com", tagging_email=False)
-    assert reg["user"]["tagging_email"] is False
-    assert reg["user"]["show_tagging_banner"] is False
-    me = client.get("/api/v1/auth/me", headers=_auth(tokens)).json()
-    assert me["tagging_email"] is False
-
-
-def test_saving_the_preferred_post_does_not_invent_an_email_choice(client):
-    _, tokens = register_and_login(client, email="post-only@example.com", preferred_position="Driver")
-    saved = client.put(
-        "/api/v1/account/notification-preferences",
-        headers=_auth(tokens),
-        json={"preferred_position": "Cook", "notify_opportunity_alerts": True},
-    )
-    assert saved.status_code == 200, saved.text
-    body = saved.json()
-    assert body["preferred_position"] == "Cook"
-    assert body["notify_opportunity_alerts"] is True
-    assert body["tagging_email"] is None
+def test_register_records_an_explicit_no_for_all_three(client):
+    reg, tokens = register_and_login(client, email="explicit-no@example.com", **_all(False, False, False))
+    user = reg["user"]
+    assert user["tagging_state"] == "no"
+    assert user["contact_by_post_state"] == "no"
+    assert user["alerts_state"] == "no"
+    assert user["show_consent_banner"] is False
+    notes = [n for n in client.get("/api/v1/notifications", headers=_auth(tokens)).json()
+             if n["type"] == "consent_choices"]
+    assert notes == []
 
 
 def test_service_email_counts_first_then_sends_once(client, db_engine, monkeypatch):
     monkeypatch.setattr(settings, "NOTIFY_EMAILS", False)
     admin = _admin(client, db_engine)
     register_and_login(client, email="needs-choice@example.com")
-    register_and_login(client, email="already-no@example.com", tagging_email=False)
-    register_and_login(client, email="already-yes@example.com", tagging_email=True)
+    register_and_login(client, email="already-no@example.com", **_all(False, False, False))
+    register_and_login(client, email="already-yes@example.com", **_all(True, True, True))
     ConsoleEmailProvider.outbox.clear()
 
     counted = client.post(
@@ -114,6 +128,9 @@ def test_service_email_counts_first_then_sends_once(client, db_engine, monkeypat
     mailed = [m for m in ConsoleEmailProvider.outbox if m["to"] == "needs-choice@example.com"]
     assert len(mailed) == 1
     assert "Sospana Sonke" in mailed[0]["body"]
+    assert "Tagging: Not chosen" in mailed[0]["body"]
+    assert "Preferred post: Not chosen" in mailed[0]["body"]
+    assert "Alerts: Not chosen" in mailed[0]["body"]
     assert preferences_url() in mailed[0]["body"]
     assert not any(word in mailed[0]["body"].lower() for word in _FORBIDDEN)
 
@@ -164,9 +181,9 @@ def test_service_email_stops_at_the_daily_cap_and_resumes_the_next_day(client, d
     session = sessionmaker(bind=db_engine)()
     try:
         stamped = (session.query(User)
-                   .filter(User.tagging_pref_service_sent_at.isnot(None))
+                   .filter(User.consent_prompt_sent_at.isnot(None))
                    .one())
-        stamped.tagging_pref_service_sent_at = datetime.now(timezone.utc) - timedelta(days=1)
+        stamped.consent_prompt_sent_at = datetime.now(timezone.utc) - timedelta(days=1)
         session.commit()
     finally:
         session.close()
@@ -227,16 +244,18 @@ def test_inactive_account_cannot_be_tagged(client, db_engine):
     assert denied.status_code == 403
 
 
-def test_delete_clears_the_tagging_choice(client, db_engine):
-    reg, tokens = register_and_login(client, email="erase-choice@example.com", tagging_email=True)
+def test_delete_clears_the_three_choices(client, db_engine):
+    reg, tokens = register_and_login(client, email="erase-choice@example.com", **_all(True, False, True))
     gone = client.post("/api/v1/account/delete", headers=_auth(tokens), json={"password": "Password123!"})
     assert gone.status_code == 204
     session = sessionmaker(bind=db_engine)()
     try:
         person = session.get(User, reg["user"]["id"])
-        assert person.tagging_email is None
-        assert person.tagging_email_chosen_at is None
-        assert person.tagging_banner_seen_at is None
-        assert person.tagging_pref_service_sent_at is None
+        assert person.allow_tagging is False
+        assert person.allow_tagging_chosen_at is None
+        assert person.contact_by_post_chosen_at is None
+        assert person.notify_opportunity_alerts_chosen_at is None
+        assert person.consent_banner_seen_at is None
+        assert person.consent_prompt_sent_at is None
     finally:
         session.close()
