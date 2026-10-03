@@ -3,10 +3,12 @@ import { describe, it } from "node:test";
 import {
   DEFAULT_DIRECTORY_COUNTRY,
   DIRECTORY_GUIDE_STEPS,
+  compareCountries,
   countryAfterFilterChange,
   countryFromDirectoryLink,
   directoryListPath,
   directorySliceKey,
+  sortCountries,
 } from "./directoryFilters.js";
 
 describe("directory country stays when the category changes", () => {
@@ -55,6 +57,17 @@ describe("directory country stays when the category changes", () => {
     );
     const worldwide = directoryListPath({ country: "", sourceType: "HOSPITAL" });
     assert.equal(new URL(worldwide, "http://localhost").searchParams.get("country"), null);
+  });
+
+  it("orders South Africa, then SADC, then Africa, then other regions", () => {
+    assert.deepEqual(
+      sortCountries(["Kenya", "Australia", "Botswana", "South Africa", "Nigeria", "Zimbabwe", "France"]),
+      ["South Africa", "Botswana", "Zimbabwe", "Kenya", "Nigeria", "Australia", "France"],
+    );
+    assert.ok(compareCountries("Angola", "Botswana") < 0);
+    assert.ok(compareCountries("Zimbabwe", "Nigeria") < 0);
+    assert.ok(compareCountries("Egypt", "Brazil") < 0);
+    assert.ok(compareCountries("United Kingdom", "Zambia") > 0);
   });
 
   it("lists four how-to steps", () => {

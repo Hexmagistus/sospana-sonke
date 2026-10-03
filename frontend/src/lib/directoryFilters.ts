@@ -7,6 +7,52 @@ those two views are fetched one country at a time.
 
 export const DEFAULT_DIRECTORY_COUNTRY = "South Africa";
 
+/** SADC members other than South Africa. Names match the directory spelling. */
+const SADC_COUNTRIES = [
+  "Angola", "Botswana", "Comoros", "DR Congo", "Eswatini", "Lesotho",
+  "Madagascar", "Malawi", "Mauritius", "Mozambique", "Namibia", "Seychelles",
+  "Tanzania", "Zambia", "Zimbabwe",
+] as const;
+
+/** The other African states, in the spelling the directory already uses. */
+const OTHER_AFRICAN_COUNTRIES = [
+  "Algeria", "Benin", "Burkina Faso", "Burundi", "Cabo Verde", "Cameroon",
+  "Central African Republic", "Chad", "Congo", "Côte d'Ivoire", "Djibouti",
+  "Egypt", "Equatorial Guinea", "Eritrea", "Ethiopia", "Gabon", "Gambia",
+  "Ghana", "Guinea", "Guinea-Bissau", "Kenya", "Liberia", "Libya", "Mali",
+  "Mauritania", "Morocco", "Niger", "Nigeria", "Rwanda", "Sao Tome and Principe",
+  "Senegal", "Sierra Leone", "Somalia", "South Sudan", "Sudan", "Togo", "Tunisia",
+  "Uganda",
+] as const;
+
+const COUNTRY_BAND = new Map<string, number>([
+  [DEFAULT_DIRECTORY_COUNTRY, 0],
+  ...SADC_COUNTRIES.map((name) => [name, 1] as const),
+  ...OTHER_AFRICAN_COUNTRIES.map((name) => [name, 2] as const),
+  // Older spellings still land in Africa if a row has not been renamed yet.
+  ["Cape Verde", 2],
+  ["Ivory Coast", 2],
+  ["Cote dIvoire", 2],
+  ["Republic of Congo", 2],
+  ["São Tomé and Príncipe", 2],
+]);
+
+/** 0 South Africa, 1 other SADC, 2 other Africa, 3 everywhere else. */
+export function countryBand(name: string): number {
+  return COUNTRY_BAND.get(name) ?? 3;
+}
+
+/** South Africa, then the rest of SADC, then the rest of Africa, then other regions. */
+export function compareCountries(a: string, b: string): number {
+  const band = countryBand(a) - countryBand(b);
+  if (band !== 0) return band;
+  return a.localeCompare(b, "en");
+}
+
+export function sortCountries<T extends string>(names: readonly T[]): T[] {
+  return [...names].sort(compareCountries);
+}
+
 export const DIRECTORY_COUNTRY_KEY = "ss-directory-country";
 
 export const FILTER_TO_TYPE: Record<string, string> = {

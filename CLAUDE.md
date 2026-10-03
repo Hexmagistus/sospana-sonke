@@ -61,7 +61,14 @@ What is running today, before the pipeline work below. This is the system the up
 - **Auth and limits.** Admin role is read from the database on each request. `POST /companies/{id}/scan` is already admin-only. slowapi limits auth and some reads; the limiter is off when `ENV=test`. Cron uses `hmac.compare_digest`.
 - **Deploy.** `render.yaml` (`region: frankfurt`, `rootDir: backend`). `AUTO_SEED` upserts `backend/seed/company_database_import.csv` on boot. `backend/seed/countries/*.csv` is not auto-loaded. Frontend uses `NEXT_PUBLIC_API_URL`.
 
+## Standing rule (country order)
+
+Lungani, 2026-10-03: in every country dropdown, list, and work order, put **South Africa first, then the other SADC states, then the rest of Africa, then other regions**. Alphabetical inside each band. The directory picker uses `sortCountries` in `frontend/src/lib/directoryFilters.ts`. Homepage bars that are ranked by employer count are a separate display; new country pickers and work queues follow this order.
+
 ## Session Log
+
+### 2026-10-03 — Cursor (Grok 4.7) — Country picker order
+The `/companies` country dropdown now follows the standing order: South Africa, the other SADC states, the rest of Africa, then other regions, alphabetical inside each band. A category click still does not change the selected country.
 
 ### 2026-10-03 — Cursor (Grok 4.7) — Country stays when a category is chosen
 On `/companies`, choosing State-owned, Hospitals, or any other category called `setCountry("")`, so the dropdown jumped from South Africa (the default, and the stored choice) to All countries. A category click now leaves the country alone. Only the country control changes it. All and Listed still need one country, so a blank choice returns to South Africa for those two views. The directory request sends `country` and `source_type` together. The choice is kept in `localStorage` (`ss-directory-country`); an explicit `?country=` still wins, and `?type=` does not clear it. A short How to use list sits above the selectors (hideable, gold and navy, two columns from `sm`). The rule is covered by `node --test` on `directoryFilters.test.ts` in CI. No new dependencies.

@@ -28,6 +28,7 @@ import {
   directoryListPath,
   directorySliceKey,
   isDirectoryFilter,
+  sortCountries,
 } from "@/lib/directoryFilters";
 
 // South Africa's BRICS partners get their own dropdown beside the main country picker.
@@ -243,11 +244,10 @@ function CompaniesDirectoryInner() {
   }, [country]);
 
   const countryCounts: Record<string, number> = facets?.country_counts ?? {};
-  const countries = useMemo(() => {
-    const set = Object.keys(facets?.country_counts ?? {});
-    set.sort((a, b) => (a === "South Africa" ? -1 : b === "South Africa" ? 1 : a.localeCompare(b)));
-    return set;
-  }, [facets]);
+  const countries = useMemo(
+    () => sortCountries(Object.keys(facets?.country_counts ?? {})),
+    [facets],
+  );
 
   const shownCompanies = useMemo(() => {
     const needle = q.trim().toLowerCase();
