@@ -18,11 +18,13 @@
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
     "autoprefixer": "10.4.19",
+    "braces": "file:vendor/braces",
     "postcss": "8.5.28",
     "tailwindcss": "3.4.7",
     "typescript": "5.5.3"
   },
   "overrides": {
+    "braces": "$braces",
     "next": {
       "postcss": "8.5.28"
     }
