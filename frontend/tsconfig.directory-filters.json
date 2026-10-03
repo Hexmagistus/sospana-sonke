@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "strict": true,
+    "skipLibCheck": true,
+    "types": ["node"],
+    "rootDir": "src/lib",
+    "outDir": "/tmp/dir-filter-test"
+  },
+  "files": ["src/lib/directoryFilters.ts", "src/lib/directoryFilters.test.ts"]
+}

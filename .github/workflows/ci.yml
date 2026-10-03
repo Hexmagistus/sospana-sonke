@@ -38,6 +38,11 @@ jobs:
       - name: Typecheck
         working-directory: frontend
         run: npx tsc --noEmit
+      - name: Directory filter tests
+        working-directory: frontend
+        # Node 20 in this job cannot run TypeScript directly. Emit just these
+        # two files, then run the plain test. No extra packages.
+        run: npx tsc -p tsconfig.directory-filters.json && node --test /tmp/dir-filter-test/directoryFilters.test.js
       - name: Dependency audit
         working-directory: frontend
         # braces is installed from frontend/vendor/braces (3.0.4) and overrides

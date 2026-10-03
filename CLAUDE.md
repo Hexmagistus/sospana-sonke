@@ -63,6 +63,9 @@ What is running today, before the pipeline work below. This is the system the up
 
 ## Session Log
 
+### 2026-10-03 — Cursor (Grok 4.7) — Country stays when a category is chosen
+On `/companies`, choosing State-owned, Hospitals, or any other category called `setCountry("")`, so the dropdown jumped from South Africa (the default, and the stored choice) to All countries. A category click now leaves the country alone. Only the country control changes it. All and Listed still need one country, so a blank choice returns to South Africa for those two views. The directory request sends `country` and `source_type` together. The choice is kept in `localStorage` (`ss-directory-country`); an explicit `?country=` still wins, and `?type=` does not clear it. A short How to use list sits above the selectors (hideable, gold and navy, two columns from `sm`). The rule is covered by `node --test` on `directoryFilters.test.ts` in CI. No new dependencies.
+
 ### 2026-10-03 — Cursor (Grok 4.7) — ci.hr listings, and "Not counted yet" vs a real zero
 ATNS (company `18b3c381-6a46-4bb1-9bd6-d531e3391368`) showed "0 vacancies found" because the directory count is vacancy rows we hold, and `*.ci.hr` had no parser. `scraping_status` pending, `last_http_status` null, and `last_checked` 2026-09-26 are the URL checker, not a successful parse. The public job-search page loads roles with `controller=Listings&method=get` (anonymous session cookie only; no login and no CAPTCHA). `CihrStrategy` reads that HTML. A confirmed zero is `open_vacancies_known` after a structured parser returns `SUCCESS` or `NO_VACANCIES` (including `cihr`). A static empty page stays "Not counted yet", and that label does not append last-checked. Deploy does not backfill ATNS until the next scan.
 
