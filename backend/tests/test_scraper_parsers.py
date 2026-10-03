@@ -566,3 +566,71 @@ def test_static_html_follows_rss_when_the_page_has_no_jobs():
         vacs = StaticHTMLStrategy().fetch(src, c)
     assert [v.title for v in vacs] == ["Workshop Technician", "Graduate Intern"]
     assert vacs[0].application_url == "https://example.co.za/jobs/workshop-technician"
+
+
+# ---- bot-challenge pages and news feeds (SA colleges and universities) -------
+
+WAIT_PAGE = (
+    "<!DOCTYPE html><html><head><title>One moment, please...</title>"
+    "<style>body{font-family:sans-serif}</style></head><body><h1>One moment, please...</h1>"
+    "<p>Please wait while your request is being verified...</p>"
+    "<script>setTimeout(function(){ window.location.reload(true); }, 4000);</script></body></html>"
+)
+
+
+def test_wait_interstitial_is_a_bot_challenge_not_an_empty_list():
+    import pytest
+    from app.scraper.static_html import BotChallengeError, _is_wait_interstitial
+
+    assert _is_wait_interstitial(WAIT_PAGE)
+    # A real page that merely says something similar is not a challenge.
+    assert not _is_wait_interstitial(
+        "<html><head><title>Vacancies</title></head><body>One moment, please read our POPIA notice."
+        "</body></html>")
+    # A page with no reload script is not the challenge either.
+    assert not _is_wait_interstitial("<html><head><title>One moment, please</title></head><body>hi</body></html>")
+
+    src = _Src("https://college.example.ac.za/vacancies/", "static", {})
+    with _client(lambda r: httpx.Response(200, text=WAIT_PAGE)) as c:
+        with pytest.raises(BotChallengeError):
+            StaticHTMLStrategy().fetch(src, c)
+
+
+def test_page_that_says_no_vacancies_is_still_an_empty_list_not_a_challenge():
+    page = "<html><head><title>Vacancies</title></head><body><p>No vacancies at this time.</p></body></html>"
+    src = _Src("https://college.example.ac.za/vacancies/", "static", {})
+    with _client(lambda r: httpx.Response(200, text=page)) as c:
+        assert StaticHTMLStrategy().fetch(src, c) == []
+
+
+NEWS_FEED = """<?xml version="1.0"?><rss version="2.0"><channel><title>College news</title>
+<item><title>2026 SRC Elections at Seme Hall</title><link>https://college.example.ac.za/news/src</link></item>
+<item><title>Heritage Month</title><link>https://college.example.ac.za/news/heritage</link></item>
+<item><title>2026 Newsletter - Edition 2</title><link>https://college.example.ac.za/news/newsletter</link></item>
+<item><title>Founder&#8217;s Annual Lecture to convene leaders on the future world of work</title><link>https://college.example.ac.za/news/lecture</link></item>
+<item><title>International students welcomed at orientation</title><link>https://college.example.ac.za/news/intl</link></item>
+</channel></rss>"""
+
+
+def test_news_only_feed_is_not_read_as_vacancies():
+    page = '<html><head><link rel="alternate" type="application/rss+xml" href="/feed/" /></head><body>Vacancies</body></html>'
+
+    def handler(request: httpx.Request):
+        if request.url.path == "/feed/":
+            return httpx.Response(200, text=NEWS_FEED, headers={"content-type": "application/rss+xml"})
+        return httpx.Response(200, text=page)
+
+    src = _Src("https://college.example.ac.za/vacancies/", "static", {})
+    with _client(handler) as c:
+        assert StaticHTMLStrategy().fetch(src, c) == []
+    assert StaticHTMLStrategy().parse_feed(NEWS_FEED, "https://college.example.ac.za/vacancies/") == []
+
+
+def test_feed_keeps_only_the_items_that_read_like_vacancies():
+    feed = NEWS_FEED.replace("</channel>", (
+        "<item><title>Vacancy: Lecturer - Business Management</title><link>https://college.example.ac.za/v/1</link></item>"
+        "<item><title>Applications invited for the post of Registrar</title><link>https://college.example.ac.za/v/2</link></item>"
+        "</channel>"))
+    titles = [v.title for v in StaticHTMLStrategy().parse_feed(feed, "https://college.example.ac.za/")]
+    assert titles == ["Vacancy: Lecturer - Business Management",
+                      "Applications invited for the post of Registrar"]

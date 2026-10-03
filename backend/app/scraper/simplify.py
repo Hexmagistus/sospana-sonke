@@ -24,7 +24,9 @@ from app.scraper.politeness import request_with_backoff
 
 _ORDER = re.compile(r'id="search"[^>]*\bdata-order="(\d+)"')
 _NONE = re.compile(r"there\s+are\s+currently\s+no\s+open\s+jobs", re.IGNORECASE)
-_TITLE = re.compile(r'<div class="row job-title">\s*<a href="(/Vacancy/(\d+))">(.*?)</a>',
+# Most tenants link "/Vacancy/{id}"; the IIE group's tenants link the absolute
+# "https://{tenant}.Simplify.hr/Vacancy/{id}". Both are the same board.
+_TITLE = re.compile(r'<div class="row job-title">\s*<a href="(?:https?://[A-Za-z0-9.-]+)?(/Vacancy/(\d+))">(.*?)</a>',
                     re.DOTALL | re.IGNORECASE)
 _PLACE = re.compile(r'<span class="fa fa-map-marker"></span>\s*([^<]+)')
 _PUBLISHED = re.compile(r"Published\s+(\d{1,2}\s+[A-Za-z]+\s+\d{4})")

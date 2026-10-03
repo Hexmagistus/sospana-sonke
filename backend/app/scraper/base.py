@@ -48,6 +48,11 @@ def _token_from_path(url: str) -> str | None:
     return path.split("/")[0] if path else None
 
 
+# CareerInHR boards served on the employer's own domain (same job-search page
+# and Listings endpoint as *.ci.hr). Verified by hand before a host is added.
+_CIHR_CUSTOM_HOSTS = frozenset({"jobs.uj.ac.za"})
+
+
 def detect_ats(url: str) -> tuple[str, dict]:
     """Return (ats_type, config) for a careers URL. config may hold a board token."""
     host = (urlparse(url).hostname or "").lower()
@@ -100,7 +105,7 @@ def detect_ats(url: str) -> tuple[str, dict]:
         return "pinpoint", {"host": host}
     # CareerInHR boards. The host is the tenant (atns.ci.hr). A substring
     # inside an unrelated name must not match.
-    if host == "ci.hr" or host.endswith(".ci.hr"):
+    if host == "ci.hr" or host.endswith(".ci.hr") or host in _CIHR_CUSTOM_HOSTS:
         return "cihr", {"host": host}
     # Cornerstone OnDemand career sites ({corp}.csod.com/ux/ats/careersite/{id}).
     if host.endswith(".csod.com"):

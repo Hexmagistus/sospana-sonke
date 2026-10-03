@@ -9,6 +9,7 @@ Two passes, in order of reliability:
 """
 from __future__ import annotations
 
+import html
 import re
 from urllib.parse import urljoin
 
@@ -54,6 +55,7 @@ def _clean_text(t: str) -> str:
     t = re.sub(r'<[^>]+>', ' ', t)
     t = (t.replace('&amp;', '&').replace('&#39;', "'").replace('&nbsp;', ' ')
          .replace('&quot;', '"').replace('&#8211;', '-'))
+    t = html.unescape(t).replace('\xa0', ' ')
     return re.sub(r'\s+', ' ', t).strip()
 
 
@@ -63,6 +65,31 @@ def _clean_title(t: str) -> str:
     t = _ADVERT.sub('', t)                    # drop "Re-Advert -" prefixes
     t = t.replace('_', ' ')
     return re.sub(r'\s+', ' ', t).strip()
+
+
+# A feed is a site's whole post stream (a WordPress site's RSS lists news, events and
+# newsletters). An item is only taken as a vacancy when its title reads like one:
+# a job-title word or an explicit vacancy phrase. Anything else is left out, so a
+# college whose feed holds only news stays "Not counted yet" instead of showing
+# its headlines as jobs.
+_ROLE_WORD = re.compile(r"\b(?:" + "|".join(re.escape(k) for k in _ROLE_KW) + r")\b", re.I)
+_VACANCY_PHRASE = re.compile(
+    r"\b(?:vacanc(?:y|ies)|positions?|jobs?|hiring|adverts?|advertisements?|"
+    r"applications?\s+(?:are\s+)?invited)\b", re.I)
+
+
+def looks_like_vacancy_title(title: str) -> bool:
+    return bool(_ROLE_WORD.search(title) or _VACANCY_PHRASE.search(title))
+
+
+_WAIT_TITLE = re.compile(r"<title[^>]*>\s*one\s+moment,?\s*please", re.I)
+_WAIT_RELOAD = re.compile(r"location\s*\.\s*reload\s*\(", re.I)
+
+
+def _is_wait_interstitial(body: str) -> bool:
+    """The "One moment, please..." page: HTTP 200, title says wait, script reloads."""
+    head = (body or "")[:4000]
+    return bool(_WAIT_TITLE.search(head) and _WAIT_RELOAD.search(body or ""))
 
 
 class StaticHTMLStrategy(ScrapeStrategy):
@@ -120,6 +147,8 @@ class StaticHTMLStrategy(ScrapeStrategy):
             title = _clean_text(title_match.group(1)) if title_match else ""
             if not title or title.lower() in seen:
                 continue
+            if not looks_like_vacancy_title(title):
+                continue
             seen.add(title.lower())
             link_match = _LINK.search(block)
             href = ""
@@ -141,6 +170,10 @@ class StaticHTMLStrategy(ScrapeStrategy):
     def fetch(self, source, client: httpx.Client) -> list[RawVacancy]:
         resp = request_with_backoff(client, source.url)
         if is_aws_waf_challenge(resp.status_code, resp.text):
+            raise BotChallengeError(source.url)
+        if _is_wait_interstitial(resp.text):
+            # "One moment, please..." auto-reload page served with HTTP 200 by a
+            # shared hosting WAF. It is a challenge, not an empty vacancy list.
             raise BotChallengeError(source.url)
         resp.raise_for_status()
         html = resp.text
