@@ -5,14 +5,21 @@
     "moduleResolution": "nodenext",
     "strict": true,
     "skipLibCheck": true,
-    "types": ["node"],
+    "types": [
+      "node"
+    ],
     "rootDir": "src/lib",
-    "outDir": "/tmp/dir-filter-test"
+    "outDir": "/tmp/dir-filter-test",
+    "jsx": "react-jsx",
+    "esModuleInterop": true
   },
   "files": [
     "src/lib/directoryFilters.ts",
     "src/lib/directoryFilters.test.ts",
     "src/lib/notCounted.ts",
-    "src/lib/notCounted.test.ts"
+    "src/lib/notCounted.test.ts",
+    "src/lib/countryExplorer.test.ts",
+    "src/lib/explorer/CountrySidebar.test.tsx",
+    "src/lib/explorer/testPaths.ts"
   ]
 }

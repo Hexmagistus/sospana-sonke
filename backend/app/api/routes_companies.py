@@ -28,7 +28,9 @@ from app.services.country_names import canonical_country, is_country, spellings_
 from app.services.csv_import import import_companies_from_csv
 from app.services.link_report_service import create_link_report
 from app.services.url_tester import test_url, status_from_result
-from app.services.vacancy_counts import companies_with_known_vacancy_count, open_vacancy_counts
+from app.services.vacancy_counts import (
+    companies_with_known_vacancy_count, country_vacancy_rollup, open_vacancy_counts,
+)
 from app.services.watch_service import trending_company_ids
 
 _NEEDS_ATTENTION = {"needs_real_url", "needs_review", "no_url", "error"}
@@ -239,10 +241,22 @@ def company_facets(db: Session = Depends(get_db), _: User = Depends(get_current_
         type_counts[key] = type_counts.get(key, 0) + n
         total += n
         with_links += n_links
+    # Per country: employers with a counted vacancy result ("Not counted yet"
+    # is everyone else) and open vacancy rows held. Real rows only.
+    country_counted: dict[str, int] = {}
+    country_open_vacancies: dict[str, int] = {}
+    for raw, (n_counted, n_open) in country_vacancy_rollup(db).items():
+        name = canonical_country(raw)
+        if not name:
+            continue
+        country_counted[name] = country_counted.get(name, 0) + n_counted
+        country_open_vacancies[name] = country_open_vacancies.get(name, 0) + n_open
     payload = {"total": total, "with_links": with_links, "country_counts": country_counts,
                "country_with_links": country_with_links, "type_counts": type_counts,
                "country_type_counts": country_type_counts,
-               "country_type_with_links": country_type_with_links}
+               "country_type_with_links": country_type_with_links,
+               "country_counted": country_counted,
+               "country_open_vacancies": country_open_vacancies}
     if settings.ENV != "test":
         _facets_cache["at"] = now
         _facets_cache["data"] = payload

@@ -5,9 +5,10 @@ rows we currently hold, not an estimate of what the careers site lists.
 """
 from __future__ import annotations
 
-from sqlalchemy import and_, func, or_
+from sqlalchemy import and_, case, func, or_
 from sqlalchemy.orm import Session
 
+from app.models.company import Company
 from app.models.vacancy import Vacancy, VacancySource
 
 # Rows written by the scanner use ACTIVE. Older rows leave lifecycle_status
@@ -72,3 +73,52 @@ def companies_with_known_vacancy_count(db: Session, company_ids: list[str]) -> s
         .all()
     )
     return {company_id for (company_id,) in rows}
+
+
+def country_vacancy_rollup(db: Session) -> dict[str, tuple[int, int]]:
+    """Per raw country value: (employers with a counted result, open vacancies held).
+
+    "Counted" is the same rule the directory cards use for "Not counted yet":
+    the employer holds open vacancy rows, or a structured parser finished a
+    read of its board (including a real zero). Read-only, two grouped
+    subqueries and one join, so it scales with the directory, not per row.
+    """
+    open_sq = (
+        db.query(Vacancy.company_id.label("company_id"), func.count(Vacancy.id).label("n"))
+        .filter(
+            Vacancy.is_open.is_(True),
+            Vacancy.deleted_at.is_(None),
+            or_(Vacancy.lifecycle_status.is_(None), Vacancy.lifecycle_status.in_(_OPEN_LIFECYCLE)),
+        )
+        .group_by(Vacancy.company_id)
+        .subquery()
+    )
+    known_sq = (
+        db.query(VacancySource.company_id.label("company_id"))
+        .filter(
+            VacancySource.last_success_at.isnot(None),
+            VacancySource.deleted_at.is_(None),
+            or_(
+                VacancySource.scraper_status == "SUCCESS",
+                and_(
+                    VacancySource.scraper_status == "NO_VACANCIES",
+                    VacancySource.parser_used.in_(_STRUCTURED_PARSERS),
+                ),
+            ),
+        )
+        .distinct()
+        .subquery()
+    )
+    counted = case(
+        (or_(open_sq.c.company_id.isnot(None), known_sq.c.company_id.isnot(None)), 1),
+        else_=0,
+    )
+    rows = (
+        db.query(Company.country, func.sum(counted), func.coalesce(func.sum(open_sq.c.n), 0))
+        .outerjoin(open_sq, open_sq.c.company_id == Company.id)
+        .outerjoin(known_sq, known_sq.c.company_id == Company.id)
+        .filter(Company.deleted_at.is_(None), Company.country.isnot(None), Company.country != "")
+        .group_by(Company.country)
+        .all()
+    )
+    return {country: (int(c or 0), int(n or 0)) for country, c, n in rows}
