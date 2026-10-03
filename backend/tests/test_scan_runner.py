@@ -46,8 +46,12 @@ def test_selection_priority_and_backoff(db):
     dead = _co(db, "Dead", last=NOW - timedelta(hours=48))
     _src(db, dead, fails=8)                                            # backed off ~a week
     ids = select_due_company_ids(db, limit=10, now=NOW)
-    assert ids == [never_sa_ats.id, never_sa.id, never_other.id, stale.id]
+    # South Africa before Kenya, even when the Kenyan row has never been checked.
+    # Inside South Africa, the unparsed Greenhouse board comes before plain HTML,
+    # and a never-checked HTML row comes before one checked three days ago.
+    assert ids == [never_sa_ats.id, never_sa.id, stale.id, never_other.id]
     assert fresh.id not in ids and dead.id not in ids
+    assert select_due_company_ids(db, limit=10, now=NOW) == ids
 
 
 def test_fast_json_boards_are_due_again_after_an_hour(db):
@@ -81,6 +85,43 @@ def test_empty_boards_are_scanned_less_often(db):
     ids = select_due_company_ids(db, limit=10, now=NOW)
     assert quiet.id not in ids
     assert busy.id in ids
+
+
+def test_country_bands_then_unparsed_adapters_then_oldest(db):
+    """Standing order, and a ci.hr board is not stuck behind a pile of HTML."""
+    australia = _co(db, "Telstra", url="https://boards.greenhouse.io/telstra", country="Australia")
+    nigeria = _co(db, "Dangote", url="https://boards.greenhouse.io/dangote", country="Nigeria")
+    botswana = _co(db, "Debswana", url="https://boards.greenhouse.io/debswana", country="Botswana")
+    older = _co(db, "OlderBoard", url="https://boards.greenhouse.io/older",
+                last=NOW - timedelta(days=4))
+    newer = _co(db, "NewerBoard", url="https://jobs.lever.co/newer",
+                last=NOW - timedelta(days=2))
+    atns = _co(
+        db, "ATNS",
+        url="https://atns.ci.hr/applicant/index.php?controller=Page&name=jobsearch",
+        last=NOW - timedelta(days=1),
+    )
+    parsed = _co(db, "AlreadyParsed", url="https://boards.greenhouse.io/parsed",
+                 last=NOW - timedelta(days=3))
+    src = _src(db, parsed, fails=0)
+    src.last_success_at = NOW - timedelta(days=3)
+    db.commit()
+    db.add_all([
+        Company(company_name=f"KenyaHtml{i}", careers_url="https://example.co.ke/careers", country="Kenya")
+        for i in range(220)
+    ])
+    db.commit()
+
+    ids = select_due_company_ids(db, limit=10, now=NOW)
+    assert [db.get(Company, i).company_name for i in ids[:6]] == [
+        "OlderBoard", "NewerBoard", "ATNS", "AlreadyParsed", "Debswana", "Dangote",
+    ]
+    # The Kenyan HTML pile used to fill the oldest-check window and hide ATNS.
+    assert all(db.get(Company, i).country == "Kenya" for i in ids[6:])
+    assert australia.id not in ids
+    wide = select_due_company_ids(db, limit=300, now=NOW)
+    assert wide.index(australia.id) == wide.index(ids[6]) + 220
+    assert select_due_company_ids(db, limit=10, now=NOW) == ids
 
 
 def test_selection_respects_limit_and_skips_inactive(db):

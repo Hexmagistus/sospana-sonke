@@ -77,8 +77,13 @@ def scan_south_africa(db: Session, job_run_id: str | None = None) -> dict:
 
 def scan_due_companies(db: Session, limit: int = 40, job_run_id: str | None = None,
                        max_seconds: float = 55.0) -> dict:
-    """Scan the N companies checked longest ago (never-checked first), then stamp
-    them so the next run picks up the following batch.
+    """Scan the next due batch, then stamp them so the next run moves on.
+
+    Who is due is chosen by select_due_company_ids: South Africa, then the
+    rest of SADC, then the rest of Africa, then other regions. Inside a
+    region, a supported board that has never been parsed successfully
+    (including ci.hr) comes before the oldest check. The wall-clock budget
+    below is what keeps a run inside the free-tier gateway.
 
     Keeps each run bounded (a few minutes, not hours) so a free external
     scheduler can call it reliably every few hours; the whole database still
@@ -119,8 +124,7 @@ def scan_due_companies(db: Session, limit: int = 40, job_run_id: str | None = No
     trigger for a mass email anyway; a full/manual sweep (scan_all_companies)
     is a more sensible place for that broadcast.
     """
-    # Same priority as the parallel runner: never-scanned and public JSON
-    # boards first, and failing URLs back off instead of being retried every tick.
+    # Same priority as the parallel runner. Failing URLs still back off.
     from app.services.scan_runner import _stamp_failure, select_due_company_ids
     now = datetime.now(timezone.utc)
     ids = select_due_company_ids(db, limit, now)
