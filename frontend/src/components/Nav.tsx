@@ -7,6 +7,7 @@ import { useAuth } from "@/lib/auth";
 import { api } from "@/lib/api";
 import { useTheme } from "@/lib/theme";
 import NotificationBell from "@/components/NotificationBell";
+import { isExplorerPath, OPEN_MENU_EVENT } from "@/lib/explorer/explorerPaths";
 
 const LINKS = [
   { href: "/dashboard", label: "Dashboard" },
@@ -68,6 +69,9 @@ export default function Nav() {
   const [unread, setUnread] = useState(0);
   const [unreadMsgs, setUnreadMsgs] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
+  // Desktop drawer for the explorer pages, which have no top bar from `lg` up.
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const explorer = isExplorerPath(pathname);
 
   // Keep the Notifications link's badge current: poll while logged in, and
   // refresh immediately whenever the notifications page marks something read
@@ -108,7 +112,22 @@ export default function Nav() {
   // when the user taps a link and lands on the new page.
   useEffect(() => {
     setMenuOpen(false);
+    setDrawerOpen(false);
   }, [pathname]);
+
+  useEffect(() => {
+    if (!explorer) return;
+    const open = () => setDrawerOpen(true);
+    window.addEventListener(OPEN_MENU_EVENT, open);
+    return () => window.removeEventListener(OPEN_MENU_EVENT, open);
+  }, [explorer]);
+
+  useEffect(() => {
+    if (!drawerOpen) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setDrawerOpen(false); };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [drawerOpen]);
 
   if (!user) return null;
 
@@ -133,7 +152,8 @@ export default function Nav() {
   );
 
   return (
-    <nav className="sticky top-0 z-30 border-b border-white/10 bg-gradient-to-r from-[#071528]/95 via-navy/92 to-brand-dark/90 shadow-[0_16px_40px_-24px_rgba(0,0,0,0.8)] backdrop-blur-xl">
+    <>
+    <nav className={`sticky top-0 z-30 border-b border-white/10 bg-gradient-to-r from-[#071528]/95 via-navy/92 to-brand-dark/90 shadow-[0_16px_40px_-24px_rgba(0,0,0,0.8)] backdrop-blur-xl ${explorer ? "lg:hidden" : ""}`}>
       <div className="mx-auto flex w-full max-w-6xl items-center gap-1 px-4 py-2.5">
         <Link href="/companies" className="mr-3 flex shrink-0 items-center gap-2 whitespace-nowrap">
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -219,5 +239,60 @@ export default function Nav() {
         </div>
       )}
     </nav>
+
+    {/* Desktop explorer pages: the same links, in a drawer opened by the Menu button beside the logo. */}
+    {explorer && drawerOpen && (
+      <div className="fixed inset-0 z-50 hidden lg:block" onMouseDown={(e) => { if (e.target === e.currentTarget) setDrawerOpen(false); }}>
+        <div className="absolute inset-0 bg-black/50" aria-hidden="true" onMouseDown={() => setDrawerOpen(false)} />
+        <aside
+          role="dialog"
+          aria-modal="true"
+          aria-label="Site menu"
+          className="absolute left-0 top-0 flex h-full w-72 flex-col overflow-y-auto border-r border-white/10 bg-gradient-to-b from-[#071528] to-navy p-4 shadow-2xl"
+        >
+          <div className="mb-3 flex items-center justify-between">
+            <span className="flex items-center gap-2 font-bold text-white">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/logo-mark.png" alt="" className="h-8 w-8 rounded-lg object-cover ring-1 ring-gold/50" />
+              Sospana&nbsp;Sonke
+            </span>
+            <button
+              type="button"
+              autoFocus
+              aria-label="Close menu"
+              onClick={() => setDrawerOpen(false)}
+              className="flex h-8 w-8 items-center justify-center rounded-md text-white hover:bg-white/10"
+            >
+              <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M6 6l12 12M18 6L6 18" /></svg>
+            </button>
+          </div>
+          <div className="flex flex-col gap-1">
+            {LINKS.map((l) => renderLink(l, () => setDrawerOpen(false)))}
+            {user.role === "admin" && (
+              <Link href="/admin" onClick={() => setDrawerOpen(false)} className={linkClass(pathname.startsWith("/admin"))}>
+                Admin
+              </Link>
+            )}
+          </div>
+          <div className="mt-4 flex items-center gap-3 border-t border-white/10 pt-3">
+            <NotificationBell unread={unread} />
+            <ThemeToggle />
+          </div>
+          <div className="mt-3 flex items-center justify-between gap-2">
+            <span className="min-w-0 truncate text-xs text-blue-200" title={user.email}>{user.email}</span>
+            <button
+              onClick={() => {
+                logout();
+                router.push("/login");
+              }}
+              className="shrink-0 text-sm text-blue-100 hover:text-white"
+            >
+              Sign out
+            </button>
+          </div>
+        </aside>
+      </div>
+    )}
+    </>
   );
 }

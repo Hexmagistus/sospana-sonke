@@ -177,7 +177,8 @@ function UniversitiesDirectoryInner() {
       </div>
 
       <div className="relative z-10 space-y-6">
-        <div className="overflow-hidden rounded-2xl shadow-sm">
+        {/* Desktop (lg+) drops this hero: the logo, notice, How to use card and Surprise me move into the explorer. */}
+        <div className="overflow-hidden rounded-2xl shadow-sm lg:hidden">
           <Banner
             variant="companies"
             aside={<HowToUseCard steps={guideStepsFor(false)} />}
@@ -196,6 +197,9 @@ function UniversitiesDirectoryInner() {
         </div>
 
         <CountryExplorer
+          notice={<NotCountedNotice companies={shownUniversities} />}
+          howTo={<HowToUseCard steps={guideStepsFor(false)} />}
+          extraActions={<Button variant="secondary" onClick={surpriseMe}>🎲 Surprise me</Button>}
           rows={explorerRows}
           selected={shortlistOnly ? "" : country}
           onSelect={chooseCountry}
@@ -242,7 +246,7 @@ function UniversitiesDirectoryInner() {
           {shortlistOnly ? shortlistIds.size : countryTotal} {shortlistOnly ? "shortlisted universities" : (country ? `universities in ${country}` : `universities in every country`)}.
         </p>
 
-        <NotCountedNotice companies={shownUniversities} />
+        <div className="empty:hidden lg:hidden"><NotCountedNotice companies={shownUniversities} /></div>
 
         <div className="grid gap-3 md:grid-cols-2">
           {shownUniversities.map((c) => {

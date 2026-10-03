@@ -24,6 +24,9 @@
     "src/lib/explorer/categoryList.test.tsx",
     "src/lib/explorer/sidebarWidth.test.ts",
     "src/lib/explorer/ExplorerControls.test.tsx",
+    "src/lib/explorer/adSlots.ts",
+    "src/lib/explorer/adSlots.test.tsx",
+    "src/lib/explorer/explorerPaths.ts",
     "src/lib/explorer/testPaths.ts"
   ]
 }

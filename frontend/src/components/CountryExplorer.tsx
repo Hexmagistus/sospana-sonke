@@ -1,13 +1,19 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useEffect, useId, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import Link from "next/link";
+import { useCallback, useEffect, useId, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { CountrySidebar } from "@/lib/explorer/CountrySidebar";
 import { CategorySelect, type CategoryOption } from "@/lib/explorer/CategorySelect";
 import { SidebarResizer } from "@/lib/explorer/SidebarResizer";
 import { SIDEBAR_DEFAULT, readStoredWidth, storeWidth } from "@/lib/explorer/sidebarWidth";
 import { regionLabel, type CountryRow } from "@/lib/countryExplorer";
 import { countryFlag } from "@/lib/countryCodes";
+import { api } from "@/lib/api";
+import { AdColumn } from "@/lib/explorer/AdSlot";
+import { AdApplyDialog } from "@/lib/explorer/AdApplyDialog";
+import type { PublicAd } from "@/lib/explorer/adSlots";
+import { OPEN_MENU_EVENT } from "@/lib/explorer/explorerPaths";
 
 // The map (about 125 KB of country outlines) loads only when this view is on screen.
 const ExplorerMap = dynamic(() => import("@/components/ExplorerMap"), {
@@ -45,6 +51,12 @@ type Props = {
   allHint?: ReactNode;
   /** Name list for the chosen country and category, drawn over the map (below it on small screens). */
   mapList?: ReactNode;
+  /** Desktop only: the "Not counted yet" notice, shown at the top of the central area. */
+  notice?: ReactNode;
+  /** Desktop only: the How to use card, which lives in the hero banner on small screens. */
+  howTo?: ReactNode;
+  /** Desktop only: extra buttons next to "Clear selection" (the hero banner's own buttons). */
+  extraActions?: ReactNode;
 };
 
 function Stat({ label, value, sub }: { label: string; value: string; sub?: string }) {
@@ -60,7 +72,7 @@ function Stat({ label, value, sub }: { label: string; value: string; sub?: strin
 /** Split view: country list on the left, big map, header and stats strip on the right. */
 export function CountryExplorer({
   rows, selected, onSelect, stats, noun = "employers", categories, selectedCategory,
-  onSelectCategory, allowAll = true, viewLabel, onView, allHint, mapList,
+  onSelectCategory, allowAll = true, viewLabel, onView, allHint, mapList, notice, howTo, extraActions,
 }: Props) {
   const counts = useMemo(() => {
     const m: Record<string, number> = {};
@@ -83,7 +95,20 @@ export function CountryExplorer({
     if (persist) storeWidth(px);
   }
 
+  // Advertiser spots: approved ads only. Empty when none are approved (none are seeded).
+  const [ads, setAds] = useState<PublicAd[]>([]);
+  const [applyFor, setApplyFor] = useState<string | null | undefined>(undefined);
+  const closeApply = useCallback(() => setApplyFor(undefined), []);
+  useEffect(() => {
+    let cancelled = false;
+    api.get<PublicAd[]>("/ads/slots").then((r) => { if (!cancelled) setAds(r); }).catch(() => { /* empty spots still show */ });
+    return () => { cancelled = true; };
+  }, []);
+
   return (
+    <>
+    <div className="xl:mx-[calc(50%_-_min(48vw,44rem))] xl:grid xl:grid-cols-[7.5rem_minmax(0,1fr)_7.5rem] xl:gap-3">
+    <AdColumn side="L" ads={ads} onApply={setApplyFor} />
     <section
       aria-label={`Browse ${noun} by country`}
       className="overflow-hidden rounded-2xl border border-[#1d3a63] bg-[#0a1a30] text-white shadow-lg"
@@ -108,6 +133,25 @@ export function CountryExplorer({
         </div>
 
         <div className="order-1 min-w-0 p-3 sm:p-4 lg:order-3">
+          {/* Desktop: the logo and the notice that used to sit in the top bar and under the list. */}
+          <div className="mb-3 hidden items-center justify-center gap-3 lg:flex">
+            <button
+              type="button"
+              onClick={() => window.dispatchEvent(new Event(OPEN_MENU_EVENT))}
+              aria-label="Open menu"
+              className="flex items-center gap-1.5 rounded-full border border-white/25 px-3 py-1.5 text-sm font-semibold text-white hover:bg-white/10"
+            >
+              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" d="M4 7h16M4 12h16M4 17h16" /></svg>
+              Menu
+            </button>
+            <Link href="/companies" className="flex items-center gap-2 whitespace-nowrap">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/logo-mark.png" alt="Sospana Sonke" className="block h-9 w-9 max-w-none shrink-0 aspect-square rounded-xl object-cover shadow-[0_0_22px_-2px_var(--ss-primary-glow)] ring-1 ring-gold/50" />
+              <span className="text-lg font-bold text-white">Sospana&nbsp;Sonke</span>
+            </Link>
+          </div>
+          {notice && <div className="mb-3 hidden lg:block lg:empty:hidden">{notice}</div>}
+          {howTo && <div className="mb-3 hidden lg:block lg:empty:hidden">{howTo}</div>}
           <header className="flex flex-col items-center gap-1 pb-3 text-center" aria-live="polite">
             <span aria-hidden className="text-6xl leading-none drop-shadow-lg">{flag}</span>
             <h2 className="text-2xl font-extrabold text-white sm:text-3xl">{title}</h2>
@@ -132,6 +176,7 @@ export function CountryExplorer({
                   Clear selection
                 </button>
               )}
+              {extraActions && <div className="hidden lg:block">{extraActions}</div>}
             </div>
           </header>
 
@@ -165,5 +210,9 @@ export function CountryExplorer({
         </div>
       </div>
     </section>
+    <AdColumn side="R" ads={ads} onApply={setApplyFor} />
+    </div>
+    {applyFor !== undefined && <AdApplyDialog slotKey={applyFor} onClose={closeApply} />}
+    </>
   );
 }
