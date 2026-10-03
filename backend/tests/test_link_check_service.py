@@ -72,7 +72,7 @@ def test_no_careers_url_is_a_no_op(db):
     assert company.content_hash is None
 
 
-def test_notify_watchers_of_change_emails_matching_watchers(db, client):
+def test_notify_watchers_of_change_stores_notice_and_defers_email_to_the_digest(db, client):
     ConsoleEmailProvider.outbox.clear()
     reg, _ = register_and_login(client, email="watcher@example.com")
     company = _company(db)
@@ -82,7 +82,8 @@ def test_notify_watchers_of_change_emails_matching_watchers(db, client):
     company.content_hash = "abc123"
     sent = notify_watchers_of_change(db, company)
     assert sent == 1
-    assert any(m["to"] == "watcher@example.com" for m in ConsoleEmailProvider.outbox)
+    assert not any(m["to"] == "watcher@example.com" and "changed" in m["body"]
+                   for m in ConsoleEmailProvider.outbox)
 
 
 def test_notify_watchers_of_change_is_idempotent_per_hash(db, client):

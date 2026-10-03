@@ -16,6 +16,15 @@ from app.notifications.email import get_email_provider
 
 logger = logging.getLogger(__name__)
 
+# Opportunity, alert and job-match notices. They are stored for the dashboard but
+# NEVER emailed one by one: the daily digest (app/services/daily_digest.py, cron job
+# send_daily_digest, 08:00 SAST) collects them and sends one email per user per day.
+# Enforced here, in the single place every email-capable notification passes through,
+# so a future caller cannot bring the per-event mail back by passing send_email=True.
+DIGEST_ONLY_TYPES = frozenset({
+    "strong_match", "new_jobs", "daily_agent_briefing", "admin_suggestion", "link_updated",
+})
+
 
 def _commit_closed(db: Session) -> None:
     """Commit and leave no transaction open. Roll back if the commit itself fails."""
@@ -67,6 +76,8 @@ def create_notification(db: Session, *, user_id: str, to_email: str | None, type
     _commit_closed(db)
 
     should_email = settings.NOTIFY_EMAILS if send_email is None else send_email
+    if type in DIGEST_ONLY_TYPES:
+        should_email = False
     email_sent = False
     sms_sent = False
     push_sent = False
@@ -325,11 +336,11 @@ def _suggestion_body(message: str, link_url: str | None,
 
 def notify_admin_suggestion(db, *, users: list, title: str, body: str,
                             link_url: str | None = None) -> tuple[int, int, int]:
-    """In-app notice for every active candidate. Email only after an explicit yes.
+    """In-app notice for every active candidate.
 
-    Returns ``(sent, duplicates, emailed)``. A missing choice and an explicit
-    no both skip email. The same user and the same link is stored once.
-    Email still follows ``NOTIFY_EMAILS`` and the Brevo or SMTP provider.
+    Returns ``(sent, duplicates, emailed)``. ``emailed`` is always 0 now: a tag is
+    never emailed on its own. After an explicit tagging yes it is collected into that
+    person's next daily digest. The same user and the same link is stored once.
     """
     from app.notifications.links import validated_notice_url
 
@@ -352,11 +363,10 @@ def notify_admin_suggestion(db, *, users: list, title: str, body: str,
             if existing is not None:
                 duplicates += 1
                 continue
-        mail = None if _tagging_email_opted_in(user) else False
         note = create_notification(
             db, user_id=user.id, to_email=user.email, type="admin_suggestion",
             title=safe_title, body=notice_body, link_url=safe_link,
-            send_email=mail,
+            send_email=False,
         )
         if note is not None:
             sent += 1

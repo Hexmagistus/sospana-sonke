@@ -12,7 +12,7 @@ from app.models.match import SystemSetting
 from app.scheduler.jobs import (
     scan_all_companies, scan_south_africa, scan_due_companies, match_all_candidates, check_link_changes,
     test_all_urls, close_expired_vacancies, run_daily_agent, purge_expired_messages,
-    send_admin_login_digest,
+    send_admin_login_digest, send_daily_digest,
     discover_company_icons,
 )
 
@@ -29,6 +29,7 @@ JOBS = {
     "purge_expired_messages": purge_expired_messages,  # hourly: delete expired temporary messages (POPIA storage limitation)
     "run_daily_agent": run_daily_agent,         # proactive daily agent: match -> draft CV/cover letter -> queue
     "send_admin_login_digest": send_admin_login_digest,  # optional (per-admin, off by default) client sign-in digest
+    "send_daily_digest": send_daily_digest,     # ONE "Your daily updates" email per opted-in user per day
 }
 
 DEFAULT_SCHEDULE = {
@@ -41,6 +42,7 @@ DEFAULT_SCHEDULE = {
     "test_all_urls": "0 4 * * *",                # daily 04:00 — rotating careers-URL health check
     "purge_expired_messages": "15 * * * *",      # hourly at :15
     "run_daily_agent": "0 3 * * *",              # nightly at 03:00 — after expiry cleanup, before URL health check
+    "send_daily_digest": "0 6 * * *",            # 06:00 UTC = 08:00 SAST, once a day (idempotent per user per day)
     "send_admin_login_digest": "30 5 * * *",     # daily 05:30; also runs at the end of run_daily_agent
 }
 
