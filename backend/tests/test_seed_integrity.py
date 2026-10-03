@@ -137,3 +137,13 @@ def test_seed_carries_pending_url_fixes_and_db_only_employers():
 def test_seed_urls_have_no_explicit_default_port():
     for r in _rows():
         assert ":443/" not in r["careers_url"] and not r["careers_url"].endswith(":443"), r["company_name"]
+
+
+def test_seed_carries_africa_batches_5_to_9_and_the_later_neon_employers():
+    rows = {(r["company_name"], r["country"]): r for r in _rows()}
+    for key in [("Lux Island Resorts", "Mauritius"), ("Canva", "Australia"), ("UiPath", "Romania"),
+                ("Utrecht University", "Netherlands"), ("Narayana Health", "India"), ("GovTech Singapore", "Singapore")]:
+        assert key in rows, key
+    assert rows[("Canva", "Australia")]["careers_url"] == "https://www.lifeatcanva.com/en/jobs/"
+    assert rows[("Leiden University Medical Center (LUMC)", "Netherlands")]["source_type"] == "HOSPITAL"
+    assert all(r["careers_url"].startswith("http") for r in _rows() if r["active"] == "true" and r["careers_url"])
