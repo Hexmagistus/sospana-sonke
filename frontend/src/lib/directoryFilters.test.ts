@@ -15,6 +15,7 @@ import {
 
 // The CI step runs this one file. These register the split-view tests with it.
 import "./countryExplorer.test.js";
+import "./worldRegions.test.js";
 import "./explorer/CountrySidebar.test.js";
 import "./explorer/sidebarWidth.test.js";
 import "./explorer/ExplorerControls.test.js";

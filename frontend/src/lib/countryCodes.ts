@@ -25,6 +25,10 @@ const EXTRA_CODES: Record<string, string> = {
   "Saint Kitts and Nevis": "KN", "Saint Lucia": "LC", "Saint Vincent and the Grenadines": "VC",
   "Slovakia": "SK", "Sri Lanka": "LK", "Suriname": "SR", "Timor-Leste": "TL",
   "Tuvalu": "TV", "Uzbekistan": "UZ", "Yemen": "YE",
+  // Not in the directory yet; listed so a new country lands in its region, not in "Other".
+  "Bermuda": "BM", "Cuba": "CU", "Greenland": "GL", "Macau": "MO", "Monaco": "MC",
+  "Myanmar": "MM", "North Korea": "KP", "North Macedonia": "MK", "Puerto Rico": "PR",
+  "San Marino": "SM", "Syria": "SY", "Tajikistan": "TJ", "Turkmenistan": "TM",
 };
 
 /** Directory buckets that are not one country. Codes are longer than two letters on purpose. */

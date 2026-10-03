@@ -11,6 +11,7 @@ const EMPLOYERS: Record<string, number> = {
   "United States": 328, "Kenya": 122, "Zimbabwe": 197, "South Africa": 1026, "Botswana": 148,
   "Africa": 9, "Nigeria": 144, "Brazil": 68, "Angola": 90, "International": 5, "Australia": 30,
   "Côte d'Ivoire": 69, "Eswatini": 126, "Germany": 5,
+  "Canada": 40, "Mexico": 12, "Jamaica": 3, "Japan": 7, "Saudi Arabia": 9,
 };
 
 describe("country list order: South Africa, SADC, Africa, others", () => {
@@ -18,8 +19,14 @@ describe("country list order: South Africa, SADC, Africa, others", () => {
   const groups = groupRows(rows);
 
   it("groups come out in the fixed order with the fixed names", () => {
-    assert.deepEqual(groups.map((g) => g.label), ["South Africa", "Rest of SADC", "Rest of Africa", "Other regions"]);
-    assert.deepEqual(groups.map((g) => g.id), ["south-africa", "sadc", "africa", "other"]);
+    assert.deepEqual(groups.map((g) => g.label), [
+      "South Africa", "Rest of SADC", "Rest of Africa", "Europe", "North America",
+      "Central America & Caribbean", "South America", "Asia", "Middle East", "Oceania", "Other",
+    ]);
+    assert.deepEqual(groups.map((g) => g.id), [
+      "south-africa", "sadc", "africa", "europe", "north-america",
+      "central-america-caribbean", "south-america", "asia", "middle-east", "oceania", "other",
+    ]);
   });
 
   it("South Africa is the first row of the whole list", () => {
@@ -30,7 +37,15 @@ describe("country list order: South Africa, SADC, Africa, others", () => {
   it("SADC rows are SADC members only, then Africa rows, then everything else", () => {
     assert.deepEqual(groups[1].rows.map((r) => r.name), ["Angola", "Botswana", "Eswatini", "Zimbabwe"]);
     assert.deepEqual(groups[2].rows.map((r) => r.name), ["Africa", "Côte d'Ivoire", "Kenya", "Nigeria"]);
-    assert.deepEqual(groups[3].rows.map((r) => r.name), ["Australia", "Brazil", "Germany", "International", "United States"]);
+    const byId = (id: string) => groups.find((g) => g.id === id)!.rows.map((r) => r.name);
+    assert.deepEqual(byId("europe"), ["Germany"]);
+    assert.deepEqual(byId("north-america"), ["Canada", "United States", "Mexico"]);
+    assert.deepEqual(byId("central-america-caribbean"), ["Jamaica"]);
+    assert.deepEqual(byId("south-america"), ["Brazil"]);
+    assert.deepEqual(byId("asia"), ["Japan"]);
+    assert.deepEqual(byId("middle-east"), ["Saudi Arabia"]);
+    assert.deepEqual(byId("oceania"), ["Australia"]);
+    assert.deepEqual(byId("other"), ["International"]);
   });
 
   it("the order does not depend on counts or on the order the API sent them", () => {
@@ -40,8 +55,12 @@ describe("country list order: South Africa, SADC, Africa, others", () => {
 
   it("a search keeps the order and drops empty groups", () => {
     const g = groupRows(rows, "ni");
-    assert.deepEqual(g.map((x) => x.id), ["sadc", "africa", "other"]);
+    assert.deepEqual(g.map((x) => x.id), ["sadc", "africa", "north-america"]);
     assert.deepEqual(g.flatMap((x) => x.rows.map((r) => r.name)), ["Eswatini", "Nigeria", "United States"]);
+    // a region name lists the whole region, and Canada is findable by name
+    assert.deepEqual(groupRows(rows, "north america").flatMap((x) => x.rows.map((r) => r.name)), ["Canada", "United States", "Mexico"]);
+    assert.deepEqual(groupRows(rows, "canada").flatMap((x) => x.rows.map((r) => r.name)), ["Canada"]);
+    assert.deepEqual(groupRows(rows, "middle east").flatMap((x) => x.rows.map((r) => r.name)), ["Saudi Arabia"]);
     const accent = groupRows(rows, "cote");
     assert.deepEqual(accent.flatMap((x) => x.rows.map((r) => r.name)), ["Côte d'Ivoire"]);
     assert.deepEqual(groupRows(rows, "zz-nothing"), []);
@@ -57,6 +76,9 @@ describe("country list order: South Africa, SADC, Africa, others", () => {
     assert.equal(regionLabel("Kenya"), "Rest of Africa");
     assert.equal(regionLabel("Germany"), "Europe");
     assert.equal(regionLabel("Brazil"), "South America");
+    assert.equal(regionLabel("Canada"), "North America");
+    assert.equal(regionLabel("Jamaica"), "Central America & Caribbean");
+    assert.equal(regionLabel("Saudi Arabia"), "Middle East");
     assert.equal(regionLabel("Africa"), "Africa-wide");
   });
 });

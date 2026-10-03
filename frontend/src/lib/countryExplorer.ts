@@ -7,15 +7,18 @@ never makes up a number. */
 
 import { countryBand } from "./directoryFilters";
 import { countryCode, countryFlag, resolveCountryParam } from "./countryCodes";
-import { OTHER_AFRICA, SADC, TIERS, tierOf } from "./regions";
+import { OTHER_AFRICA, SADC } from "./regions";
+import { PINNED_FIRST, WORLD_REGIONS, worldRegionOf, type WorldRegionId } from "./worldRegions";
 
-export type GroupId = "south-africa" | "sadc" | "africa" | "other";
+export type GroupId = "south-africa" | "sadc" | "africa" | WorldRegionId | "other";
 
 export const GROUPS: readonly { id: GroupId; label: string }[] = [
   { id: "south-africa", label: "South Africa" },
   { id: "sadc", label: "Rest of SADC" },
   { id: "africa", label: "Rest of Africa" },
-  { id: "other", label: "Other regions" },
+  ...WORLD_REGIONS,
+  // Fallback: the International bucket and anything the region table does not know (a test keeps this empty of real countries).
+  { id: "other", label: "Other" },
 ];
 
 export type CountryRow = {
@@ -43,7 +46,10 @@ export type CountryInputs = {
 export function groupOf(name: string): GroupId {
   if (name === "Africa") return "africa"; // Africa-wide bucket
   const band = countryBand(name);
-  return band === 0 ? "south-africa" : band === 1 ? "sadc" : band === 2 ? "africa" : "other";
+  if (band === 0) return "south-africa";
+  if (band === 1) return "sadc";
+  if (band === 2) return "africa";
+  return worldRegionOf(countryCode(name)) ?? "other";
 }
 
 /** African states (not buckets) the explorer lists even when no employer is in yet. */
@@ -60,7 +66,14 @@ export function fold(text: string): string {
 
 export function compareRows(a: CountryRow, b: CountryRow): number {
   const g = GROUPS.findIndex((x) => x.id === a.group) - GROUPS.findIndex((x) => x.id === b.group);
-  return g || a.name.localeCompare(b.name, "en");
+  if (g) return g;
+  const pinned = PINNED_FIRST[a.group as WorldRegionId];
+  if (pinned) {
+    const pa = pinned.indexOf(a.name);
+    const pb = pinned.indexOf(b.name);
+    if (pa >= 0 || pb >= 0) return (pa < 0 ? 99 : pa) - (pb < 0 ? 99 : pb);
+  }
+  return a.name.localeCompare(b.name, "en");
 }
 
 /**
@@ -98,7 +111,8 @@ export function groupRows(rows: readonly CountryRow[], query = ""): RowGroup[] {
   return GROUPS.map((g) => ({
     id: g.id,
     label: g.label,
-    rows: rows.filter((r) => r.group === g.id && match(r)),
+    // Typing a region ("north america", "caribbean") lists the whole region.
+    rows: rows.filter((r) => r.group === g.id && (match(r) || (needle.length >= 3 && fold(g.label).includes(needle)))),
   })).filter((g) => g.rows.length > 0);
 }
 
@@ -107,14 +121,11 @@ export function listedCountryCount(rows: readonly CountryRow[]): number {
   return rows.filter((r) => r.selectable && r.name !== "Africa" && r.name !== "International").length;
 }
 
-/** "South Africa", "Rest of SADC", "Rest of Africa", or the world region ("Europe"). */
+/** "South Africa", "Rest of SADC", "Rest of Africa", or the world region ("Europe", "Middle East"). */
 export function regionLabel(name: string): string {
   if (name === "Africa") return "Africa-wide";
   if (name === "International") return "International";
-  const g = groupOf(name);
-  if (g !== "other") return GROUPS.find((x) => x.id === g)!.label;
-  const tier = TIERS.find((t) => t.id === tierOf(name));
-  return tier && tier.id !== "other" ? tier.label : "Other regions";
+  return GROUPS.find((x) => x.id === groupOf(name))!.label;
 }
 
 /** Rows in the order a keyboard moves through them (selectable only). */
