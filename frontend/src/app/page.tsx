@@ -1,13 +1,28 @@
 "use client";
 
-import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode } from "react";
+import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth";
 import { setPendingSearch } from "@/lib/agentHandoff";
 import { API_BASE } from "@/lib/api";
-import WorldCircuitMark from "@/components/WorldCircuitMark";
+import { COUNTRY_FLAGS } from "@/lib/countryFlags";
+
+const CoverageWorldMap = dynamic(() => import("@/components/CoverageWorldMap"), {
+  loading: () => <WorldMapSkeleton />,
+});
+
+function WorldMapSkeleton() {
+  return (
+    <div className="w-full" aria-hidden="true">
+      <div className="h-7 w-56 rounded-lg bg-white/10" />
+      <div className="mt-3 aspect-[960/500] w-full rounded-2xl border border-white/15 bg-[#071528] motion-safe:animate-pulse" />
+      <div className="mt-3 h-40 rounded-xl bg-white/5" />
+    </div>
+  );
+}
 
 const C = {
   navy: "#0b1f3a", ink: "#071528", gold: "#f5b301", amber: "#ff9e2c",
@@ -626,6 +641,21 @@ export default function Home() {
   const ranked = rankCountries(countries);
   const liveNow = liveNowCards(ranked);
   const shownEmployers = liveEmployers ?? TOTAL_EMPLOYERS;
+  // The map starts from the published list, then adds any country the public
+  // stats endpoint names that the list does not (for example United States,
+  // Canada and Mexico, which are in the seed but not in LIVE).
+  const mapCountries = useMemo(() => {
+    const rows = countries.map((c) => ({ name: c.name, flag: c.flag, count: c.count }));
+    if (!liveByCountry) return rows;
+    const known = new Set(rows.map((row) => row.name));
+    for (const [name, count] of Object.entries(liveByCountry)) {
+      if (name === "International" || name === "Africa" || known.has(name)) continue;
+      if (typeof count === "number" && count > 0) {
+        rows.push({ name, flag: COUNTRY_FLAGS[name] || "", count });
+      }
+    }
+    return rows;
+  }, [countries, liveByCountry]);
 
   useEffect(() => {
     if (!loading && user) router.replace("/companies");
@@ -727,8 +757,8 @@ export default function Home() {
             className="pointer-events-none absolute inset-0 opacity-[0.06]"
             style={{ backgroundImage: "radial-gradient(#fff 1px, transparent 1px)", backgroundSize: "22px 22px" }}
           />
-          <div className="relative flex flex-wrap items-center gap-10">
-            <div className="min-w-[16rem] flex-1">
+          <div className="relative grid items-start gap-8 lg:grid-cols-2">
+            <div className="min-w-0">
               <Reveal className="flex flex-wrap gap-2">
                 <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-semibold backdrop-blur-sm">
                   <span className="relative flex h-2 w-2">
@@ -800,8 +830,8 @@ export default function Home() {
               </Reveal>
             </div>
 
-            <Reveal delay={200} className="mx-auto w-full max-w-[220px] shrink-0 sm:max-w-[280px]">
-              <WorldCircuitMark className="w-full drop-shadow-2xl" />
+            <Reveal delay={200} className="w-full">
+              <CoverageWorldMap countries={mapCountries} />
             </Reveal>
           </div>
         </div>

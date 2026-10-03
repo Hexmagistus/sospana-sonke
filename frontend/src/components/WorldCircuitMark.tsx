@@ -1,5 +1,6 @@
 /**
  * Code-drawn brand mark. Gold circuits on navy.
+ * The public landing page uses CoverageWorldMap (real country borders) instead.
  * Africa is drawn largest because the platform started in the SADC region.
  * Europe, Oceania and South America are marked because they are on the directory now.
  * The faint outlines are room for later continents. No map tiles, no photos of people.
