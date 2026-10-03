@@ -1,0 +1,33 @@
+Photographs in this folder come from Wikimedia Commons and are used under the
+licence named on each line (CC0, public domain, or a Creative Commons
+Attribution licence). Each file was downloaded as a Commons-generated ~1000 px
+rendition, centre-cropped to 4:3 and saved as an 800x600 JPEG. Attribution
+(author, licence, source page) is also shown under each photo on the landing page.
+
+Licences were read from the Commons file page metadata on 2026-10-03.
+Tsodilo and the Great Barrier Reef have no photo here: no suitable CC0, public
+domain or CC BY image turned up, so the page shows a card instead.
+
+file — site — Commons file title by author — licence — source page
+robben-island.jpg — Robben Island — "Robben Island - Cape Town, South Africa (3883849594).jpg" by South African Tourism from South Africa — CC BY 2.0 (https://creativecommons.org/licenses/by/2.0) — https://commons.wikimedia.org/wiki/File:Robben_Island_-_Cape_Town,_South_Africa_(3883849594).jpg
+isimangaliso.jpg — iSimangaliso Wetland Park — "Kudu Bull - iSimangaliso Wetland Park, KwaZulu-Natal, South Africa (32272328472).jpg" by Fyre Mael — CC BY 2.0 (https://creativecommons.org/licenses/by/2.0) — https://commons.wikimedia.org/wiki/File:Kudu_Bull_-_iSimangaliso_Wetland_Park,_KwaZulu-Natal,_South_Africa_(32272328472).jpg
+drakensberg.jpg — uKhahlamba / Drakensberg Park — "Amphitheatre Drakensberg.jpg" by Bothar — Public domain — https://commons.wikimedia.org/wiki/File:Amphitheatre_Drakensberg.jpg
+mapungubwe.jpg — Mapungubwe Cultural Landscape — "Mapungubwe, Limpopo, South Africa (20535429052).jpg" by South African Tourism from South Africa — CC BY 2.0 (https://creativecommons.org/licenses/by/2.0) — https://commons.wikimedia.org/wiki/File:Mapungubwe,_Limpopo,_South_Africa_(20535429052).jpg
+cradle.jpg — Cradle of Humankind (Fossil Hominid Sites) — "Cradle of Humankind, Maropeng, Gauteng, South Africa (20311531989).jpg" by South African Tourism from South Africa — CC BY 2.0 (https://creativecommons.org/licenses/by/2.0) — https://commons.wikimedia.org/wiki/File:Cradle_of_Humankind,_Maropeng,_Gauteng,_South_Africa_(20311531989).jpg
+victoria-falls.jpg — Mosi-oa-Tunya / Victoria Falls — "The Smoke that Thunders, Victoria Falls, Zimbabwe (14532921781).jpg" by ninara from Helsinki, Finland — CC BY 2.0 (https://creativecommons.org/licenses/by/2.0) — https://commons.wikimedia.org/wiki/File:The_Smoke_that_Thunders,_Victoria_Falls,_Zimbabwe_(14532921781).jpg
+okavango.jpg — Okavango Delta — "Okavango-delta-sunrise-april-2025.jpg" by Richardk85 — CC0 (https://creativecommons.org/publicdomain/zero/1.0/deed.en) — https://commons.wikimedia.org/wiki/File:Okavango-delta-sunrise-april-2025.jpg
+khami.jpg — Khami Ruins National Monument — "Khami ruins (ZW).jpg" by Ulamm — Public domain — https://commons.wikimedia.org/wiki/File:Khami_ruins_(ZW).jpg
+great-zimbabwe.jpg — Great Zimbabwe National Monument — "Great inclosure - Great Zimbabwe (14).jpg" by Fanny Schertzer — CC BY 3.0 (https://creativecommons.org/licenses/by/3.0) — https://commons.wikimedia.org/wiki/File:Great_inclosure_-_Great_Zimbabwe_(14).jpg
+lake-malawi.jpg — Lake Malawi National Park — "Lake malawi national park.jpg" by Kevin Walsh from Oxford, England — CC BY 2.0 (https://creativecommons.org/licenses/by/2.0) — https://commons.wikimedia.org/wiki/File:Lake_malawi_national_park.jpg
+ngorongoro.jpg — Ngorongoro Conservation Area — "Ngorongoro Crater.jpg" by William Warby from London, England — CC BY 2.0 (https://creativecommons.org/licenses/by/2.0) — https://commons.wikimedia.org/wiki/File:Ngorongoro_Crater.jpg
+kilimanjaro.jpg — Kilimanjaro National Park — "Amboseli National Park and Mt. Kilimanjaro.jpg" by Ninaras — CC BY 4.0 (https://creativecommons.org/licenses/by/4.0) — https://commons.wikimedia.org/wiki/File:Amboseli_National_Park_and_Mt._Kilimanjaro.jpg
+zanzibar.jpg — Stone Town of Zanzibar — "Harbour at the picturesque Stone Town.jpg" by Dr. Ondřej Havelka (cestovatel) — CC BY 4.0 (https://creativecommons.org/licenses/by/4.0) — https://commons.wikimedia.org/wiki/File:Harbour_at_the_picturesque_Stone_Town.jpg
+lalibela.jpg — Rock-Hewn Churches, Lalibela — "Lalibela, san giorgio, esterno 24.jpg" by Sailko — CC BY 3.0 (https://creativecommons.org/licenses/by/3.0) — https://commons.wikimedia.org/wiki/File:Lalibela,_san_giorgio,_esterno_24.jpg
+giza.jpg — Memphis and its Necropolis, the Pyramid Fields from Giza to Dahshur — "Pyramids in Giza - Egypt.jpg" by Walkerssk — CC0 (https://creativecommons.org/publicdomain/zero/1.0/deed.en) — https://commons.wikimedia.org/wiki/File:Pyramids_in_Giza_-_Egypt.jpg
+timbuktu.jpg — Timbuktu — "Timbuktu Street (6916743).jpg" by upyernoz from Haverford, USA — CC BY 2.0 (https://creativecommons.org/licenses/by/2.0) — https://commons.wikimedia.org/wiki/File:Timbuktu_Street_(6916743).jpg
+acropolis.jpg — Acropolis, Athens — "Parthenon east side Acropolis Athens, Greece.jpg" by Jebulon — CC0 (https://creativecommons.org/publicdomain/zero/1.0/deed.en) — https://commons.wikimedia.org/wiki/File:Parthenon_east_side_Acropolis_Athens,_Greece.jpg
+machu-picchu.jpg — Historic Sanctuary of Machu Picchu — "Ruins of Machu Picchu (Unsplash).jpg" by Tomas Sobek tomas_nz — CC0 (https://creativecommons.org/publicdomain/zero/1.0/deed.en) — https://commons.wikimedia.org/wiki/File:Ruins_of_Machu_Picchu_(Unsplash).jpg
+grand-canyon.jpg — Grand Canyon National Park — "Grand Canyon layers.jpg" by Mx. Granger — CC0 (https://creativecommons.org/publicdomain/zero/1.0/deed.en) — https://commons.wikimedia.org/wiki/File:Grand_Canyon_layers.jpg
+taj-mahal.jpg — Taj Mahal — "Taj Mahal 2018.jpg" by Almbauer — CC0 (https://creativecommons.org/publicdomain/zero/1.0/deed.en) — https://commons.wikimedia.org/wiki/File:Taj_Mahal_2018.jpg
+angkor.jpg — Angkor — "Angkor Wat in Cambodia.jpg" by Martaapue — CC0 (https://creativecommons.org/publicdomain/zero/1.0/deed.en) — https://commons.wikimedia.org/wiki/File:Angkor_Wat_in_Cambodia.jpg
+petra.jpg — Petra — "Al-Khazneh (The Treasury) 2, Petra, Jordan.jpg" by Vyacheslav Argenberg — CC BY 4.0 (https://creativecommons.org/licenses/by/4.0) — https://commons.wikimedia.org/wiki/File:Al-Khazneh_(The_Treasury)_2,_Petra,_Jordan.jpg

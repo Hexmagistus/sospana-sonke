@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test:landing": "tsc -p tsconfig.landing.json && node --test /tmp/landing-test/lib/landingStats.test.js"
   },
   "dependencies": {
     "next": "15.5.26",

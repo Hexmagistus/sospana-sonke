@@ -1,6 +1,6 @@
-// Flag emoji for every country Sospana Sonke operates in (African countries, BRICS partners, Oceania).
-// Keep this in sync with the LIVE array in app/page.tsx whenever a new country is added —
-// this is the single shared source other pages (companies, jobs) pull flags from.
+// Flag emoji for every country Sospana Sonke operates in (Africa, Asia, Oceania, Europe and the Americas).
+// The landing page builds its country rows from the directory snapshot plus these flags,
+// and every other page (companies, jobs) pulls flags from here too.
 export const COUNTRY_FLAGS: Record<string, string> = {
   "South Africa": "🇿🇦",
   "Zimbabwe": "🇿🇼",
@@ -97,4 +97,37 @@ export const COUNTRY_FLAGS: Record<string, string> = {
   "Chile": "🇨🇱",
   "Colombia": "🇨🇴",
   "Argentina": "🇦🇷",
+  "Greece": "🇬🇷",
+  "Poland": "🇵🇱",
+  "Turkey": "🇹🇷",
+  "Portugal": "🇵🇹",
+  "Bulgaria": "🇧🇬",
+  "Croatia": "🇭🇷",
+  "Romania": "🇷🇴",
+  "Ukraine": "🇺🇦",
+  "Cyprus": "🇨🇾",
+  "Hungary": "🇭🇺",
+  "Serbia": "🇷🇸",
+  "Slovenia": "🇸🇮",
+  "Georgia": "🇬🇪",
+  "Armenia": "🇦🇲",
+  "Singapore": "🇸🇬",
+  "Israel": "🇮🇱",
+  "Hong Kong": "🇭🇰",
+  "Japan": "🇯🇵",
+  "South Korea": "🇰🇷",
+  "Taiwan": "🇹🇼",
+  "Thailand": "🇹🇭",
+  "Philippines": "🇵🇭",
+  "Vietnam": "🇻🇳",
+  "Malaysia": "🇲🇾",
+  "Nepal": "🇳🇵",
+  "Saudi Arabia": "🇸🇦",
+  "Jamaica": "🇯🇲",
+  "Barbados": "🇧🇧",
+  "Trinidad and Tobago": "🇹🇹",
+  "Guatemala": "🇬🇹",
+  "Panama": "🇵🇦",
+  "Ecuador": "🇪🇨",
+  "Uruguay": "🇺🇾",
 };

@@ -13,7 +13,7 @@ export default function PrivacyPage() {
         <div className="space-y-4 text-sm leading-relaxed text-ss-text">
           <p>
             Sospana Sonke (&quot;we&quot;, &quot;us&quot;) started in the SADC region and lists employers
-            with a direct careers-page link across Africa, Oceania, Europe and partner markets.
+            with a direct careers-page link across Africa, Oceania, Europe, South America, North America and Asia.
             This policy explains what personal information we collect, why, and the choices you have
             under South Africa&apos;s Protection of Personal Information Act (POPIA).
           </p>

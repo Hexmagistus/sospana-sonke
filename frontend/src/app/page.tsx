@@ -8,7 +8,12 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth";
 import { setPendingSearch } from "@/lib/agentHandoff";
 import { API_BASE } from "@/lib/api";
-import { COUNTRY_FLAGS } from "@/lib/countryFlags";
+import { HERITAGE_GROUPS, HERITAGE_SITES, type HeritageSite } from "@/data/heritageSites";
+import { coverageText, tierOf, TIERS, TIER_RANK } from "@/lib/regions";
+import {
+  countryRows, parseStats, readCachedStats, snapshotStats, SNAPSHOT_AS_OF, writeCachedStats,
+  type LandingStats,
+} from "@/lib/landingStats";
 
 const CoverageWorldMap = dynamic(() => import("@/components/CoverageWorldMap"), {
   loading: () => <WorldMapSkeleton />,
@@ -296,146 +301,20 @@ const GREETINGS = [
 
 const VALUES = ["Ambition", "Opportunity", "Dignity", "Ubuntu", "Hustle", "Growth", "Pride", "Your future"];
 
-// Employer counts are seed-row totals per country from
-// backend/seed/company_database_import.csv (every row, not only active=true),
-// recomputed 2026-09-27 after dropping four duplicate keys (SASSETA, NTA, and
-// the two HRDC rows that shared a name across countries) and normalising
-// country spellings in the CSV itself (Côte d'Ivoire, Cabo Verde, Congo,
-// Sao Tome and Principe). `pending` stays false — kept as a field in case a
-// country's data is ever pulled back out. Oceania counts added 2026-09-28
-// from the same CSV (Australia 19, New Zealand 5, Fiji 1) — only employers
-// whose careers URL was fetched and showed open roles.
-const LIVE = [
-  { name: "South Africa", flag: "🇿🇦", count: 974, pending: false },
-  { name: "Zimbabwe", flag: "🇿🇼", count: 197, pending: false },
-  { name: "Nigeria", flag: "🇳🇬", count: 141, pending: false },
-  { name: "Botswana", flag: "🇧🇼", count: 146, pending: false },
-  { name: "Eswatini", flag: "🇸🇿", count: 128, pending: false },
-  { name: "Namibia", flag: "🇳🇦", count: 133, pending: false },
-  { name: "Mozambique", flag: "🇲🇿", count: 119, pending: false },
-  { name: "Kenya", flag: "🇰🇪", count: 112, pending: false },
-  { name: "Zambia", flag: "🇿🇲", count: 111, pending: false },
-  { name: "Tanzania", flag: "🇹🇿", count: 109, pending: false },
-  { name: "Mauritius", flag: "🇲🇺", count: 100, pending: false },
-  { name: "DR Congo", flag: "🇨🇩", count: 100, pending: false },
-  { name: "Angola", flag: "🇦🇴", count: 90, pending: false },
-  { name: "Malawi", flag: "🇲🇼", count: 88, pending: false },
-  { name: "Lesotho", flag: "🇱🇸", count: 85, pending: false },
-  { name: "Ghana", flag: "🇬🇭", count: 84, pending: false },
-  { name: "Egypt", flag: "🇪🇬", count: 82, pending: false },
-  { name: "Madagascar", flag: "🇲🇬", count: 82, pending: false },
-  { name: "Uganda", flag: "🇺🇬", count: 83, pending: false },
-  { name: "Cameroon", flag: "🇨🇲", count: 73, pending: false },
-  { name: "Côte d'Ivoire", flag: "🇨🇮", count: 68, pending: false },
-  { name: "Ethiopia", flag: "🇪🇹", count: 66, pending: false },
-  { name: "Tunisia", flag: "🇹🇳", count: 62, pending: false },
-  { name: "India", flag: "🇮🇳", count: 58, pending: false },
-  { name: "Brazil", flag: "🇧🇷", count: 68, pending: false },
-  { name: "Benin", flag: "🇧🇯", count: 54, pending: false },
-  { name: "Guinea", flag: "🇬🇳", count: 56, pending: false },
-  { name: "Algeria", flag: "🇩🇿", count: 56, pending: false },
-  { name: "Rwanda", flag: "🇷🇼", count: 53, pending: false },
-  { name: "China", flag: "🇨🇳", count: 51, pending: false },
-  { name: "Indonesia", flag: "🇮🇩", count: 51, pending: false },
-  { name: "Togo", flag: "🇹🇬", count: 51, pending: false },
-  { name: "Morocco", flag: "🇲🇦", count: 50, pending: false },
-  { name: "Russia", flag: "🇷🇺", count: 50, pending: false },
-  { name: "United Arab Emirates", flag: "🇦🇪", count: 50, pending: false },
-  { name: "Senegal", flag: "🇸🇳", count: 49, pending: false },
-  { name: "Mali", flag: "🇲🇱", count: 46, pending: false },
-  { name: "Iran", flag: "🇮🇷", count: 45, pending: false },
-  { name: "Sierra Leone", flag: "🇸🇱", count: 44, pending: false },
-  { name: "Gabon", flag: "🇬🇦", count: 44, pending: false },
-  { name: "Mauritania", flag: "🇲🇷", count: 39, pending: false },
-  { name: "Niger", flag: "🇳🇪", count: 38, pending: false },
-  { name: "Gambia", flag: "🇬🇲", count: 35, pending: false },
-  { name: "Burkina Faso", flag: "🇧🇫", count: 41, pending: false },
-  { name: "Seychelles", flag: "🇸🇨", count: 42, pending: false },
-  { name: "Congo", flag: "🇨🇬", count: 34, pending: false },
-  { name: "Cabo Verde", flag: "🇨🇻", count: 32, pending: false },
-  { name: "Comoros", flag: "🇰🇲", count: 32, pending: false },
-  { name: "Chad", flag: "🇹🇩", count: 32, pending: false },
-  { name: "Liberia", flag: "🇱🇷", count: 31, pending: false },
-  { name: "Burundi", flag: "🇧🇮", count: 29, pending: false },
-  { name: "Guinea-Bissau", flag: "🇬🇼", count: 28, pending: false },
-  { name: "Libya", flag: "🇱🇾", count: 25, pending: false },
-  { name: "Djibouti", flag: "🇩🇯", count: 24, pending: false },
-  { name: "Somalia", flag: "🇸🇴", count: 22, pending: false },
-  { name: "Sao Tome and Principe", flag: "🇸🇹", count: 20, pending: false },
-  { name: "Australia", flag: "🇦🇺", count: 19, pending: false },
-  { name: "South Sudan", flag: "🇸🇸", count: 18, pending: false },
-  { name: "Sudan", flag: "🇸🇩", count: 18, pending: false },
-  { name: "Central African Republic", flag: "🇨🇫", count: 16, pending: false },
-  { name: "Equatorial Guinea", flag: "🇬🇶", count: 11, pending: false },
-  { name: "United Kingdom", flag: "🇬🇧", count: 9, pending: false },
-  { name: "Italy", flag: "🇮🇹", count: 5, pending: false },
-  { name: "Germany", flag: "🇩🇪", count: 5, pending: false },
-  { name: "Eritrea", flag: "🇪🇷", count: 5, pending: false },
-  { name: "New Zealand", flag: "🇳🇿", count: 5, pending: false },
-  { name: "France", flag: "🇫🇷", count: 4, pending: false },
-  { name: "Switzerland", flag: "🇨🇭", count: 4, pending: false },
-  { name: "Ireland", flag: "🇮🇪", count: 3, pending: false },
-  { name: "Spain", flag: "🇪🇸", count: 3, pending: false },
-  { name: "Netherlands", flag: "🇳🇱", count: 3, pending: false },
-  { name: "Sweden", flag: "🇸🇪", count: 2, pending: false },
-  { name: "Chile", flag: "🇨🇱", count: 2, pending: false },
-  { name: "Denmark", flag: "🇩🇰", count: 2, pending: false },
-  { name: "Fiji", flag: "🇫🇯", count: 1, pending: false },
-  { name: "Belgium", flag: "🇧🇪", count: 1, pending: false },
-  { name: "Finland", flag: "🇫🇮", count: 1, pending: false },
-  { name: "Estonia", flag: "🇪🇪", count: 1, pending: false },
-  { name: "Norway", flag: "🇳🇴", count: 1, pending: false },
-  { name: "Czechia", flag: "🇨🇿", count: 1, pending: false },
-  { name: "Austria", flag: "🇦🇹", count: 1, pending: false },
-  { name: "Luxembourg", flag: "🇱🇺", count: 1, pending: false },
-  { name: "Lithuania", flag: "🇱🇹", count: 1, pending: false },
-  { name: "Colombia", flag: "🇨🇴", count: 1, pending: false },
-  { name: "Argentina", flag: "🇦🇷", count: 1, pending: false },
-];
-// All four countries that used to sit here (Niger, Guinea-Bissau, Equatorial
-// Guinea, Eritrea) got their first real seed rows in the 2026-09-24 COLLEGE
-// merge and moved up into LIVE above. Kept as an empty array (not deleted)
-// since CountryJumpSelect and the "other N countries" copy below still take
-// it as a prop -- if a country's data ever gets fully retired, it goes back here.
-const SOON: { name: string; flag: string }[] = [];
-// Derived from LIVE so this can never drift out of sync with the array above again.
-const TOTAL_EMPLOYERS = LIVE.reduce((sum, c) => sum + c.count, 0);
-// Hero, map footer and the closing paragraph all read this. Add the next
-// continent here so the copy stays in step with the directory.
-const COVERAGE = "Africa, Oceania, Europe, South America and partner markets";
-function rankCountries(rows: typeof LIVE) {
-  return [...rows].sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
-}
-const OCEANIA = new Set(["Australia", "New Zealand", "Fiji", "Papua New Guinea", "Samoa", "Tonga", "Solomon Islands", "Vanuatu"]);
-const EUROPE = new Set([
-  "United Kingdom", "Germany", "France", "Netherlands", "Switzerland", "Sweden", "Denmark",
-  "Finland", "Estonia", "Ireland", "Spain", "Belgium", "Italy", "Poland", "Austria",
-  "Portugal", "Greece", "Czechia", "Hungary", "Romania", "Norway", "Ukraine", "Luxembourg",
-  "Malta", "Cyprus", "Latvia", "Lithuania", "Iceland", "Slovakia", "Slovenia", "Bulgaria",
-  "Croatia", "Serbia", "Albania", "Bosnia and Herzegovina", "North Macedonia", "Montenegro",
-  "Kosovo", "Moldova", "Belarus",
-]);
-const SOUTH_AMERICA = new Set([
-  "Argentina", "Bolivia", "Brazil", "Chile", "Colombia", "Ecuador", "Guyana",
-  "Paraguay", "Peru", "Suriname", "Uruguay", "Venezuela",
-]);
-const PARTNERS = new Set(["Russia", "India", "China", "Iran", "United Arab Emirates", "Indonesia"]);
+// Employer counts: see src/lib/landingStats.ts. The page renders the verified
+// snapshot (src/data/directory-snapshot.json) first, then swaps in the live
+// numbers from the public GET /companies/stats endpoint once it answers.
+type CountryCard = { name: string; flag: string; count: number };
 
-function regionOf(name: string): "Africa" | "Oceania" | "Europe" | "South America" | "Partners" {
-  if (OCEANIA.has(name)) return "Oceania";
-  if (EUROPE.has(name)) return "Europe";
-  if (SOUTH_AMERICA.has(name)) return "South America";
-  if (PARTNERS.has(name)) return "Partners";
-  return "Africa";
-}
-
-// Eight cards: the largest country in each region that has employers, then the
-// next-largest countries overall. Top-by-count alone is still all African.
-function liveNowCards(ranked: typeof LIVE, n = 8) {
-  const picked: typeof LIVE = [];
+// Cards for "Live now": the largest country in each region that has employers
+// (South Africa, rest of SADC, rest of Africa, Oceania, Europe, South America,
+// North America, Asia), then the next-largest countries overall. Shown in the
+// standing order, biggest first inside each region.
+function liveNowCards(ranked: CountryCard[], n = 12) {
+  const picked: CountryCard[] = [];
   const seen = new Set<string>();
-  for (const region of ["Africa", "Oceania", "Europe", "South America", "Partners"] as const) {
-    const lead = ranked.find((c) => regionOf(c.name) === region);
+  for (const tier of TIERS) {
+    const lead = ranked.find((c) => tierOf(c.name) === tier.id);
     if (lead && !seen.has(lead.name)) {
       picked.push(lead);
       seen.add(lead.name);
@@ -447,7 +326,9 @@ function liveNowCards(ranked: typeof LIVE, n = 8) {
     picked.push(c);
     seen.add(c.name);
   }
-  return picked.sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+  return picked.sort(
+    (a, b) => TIER_RANK[tierOf(a.name)] - TIER_RANK[tierOf(b.name)] || b.count - a.count || a.name.localeCompare(b.name),
+  );
 }
 
 // Wonders of Africa — line-art icons drawn inline (viewBox 0 0 72 52).
@@ -629,33 +510,17 @@ export default function Home() {
   const { user, loading } = useAuth();
   const router = useRouter();
   const [scrolled, setScrolled] = useState(false);
-  const [liveEmployers, setLiveEmployers] = useState<number | null>(null);
-  const [liveByCountry, setLiveByCountry] = useState<Record<string, number> | null>(null);
+  // Server and first browser render both use the verified snapshot, so there is
+  // no hydration mismatch; the cached or live numbers replace it after mount.
+  const [stats, setStats] = useState<LandingStats>(snapshotStats);
   const RANKING_PREVIEW = 10;
-  const countries = liveByCountry
-    ? LIVE.map((c) => {
-        const n = liveByCountry[c.name];
-        return typeof n === "number" ? { ...c, count: n } : c;
-      })
-    : LIVE;
-  const ranked = rankCountries(countries);
+  const countries = useMemo(() => countryRows(stats.byCountry), [stats]);
+  const ranked = countries; // biggest first
   const liveNow = liveNowCards(ranked);
-  const shownEmployers = liveEmployers ?? TOTAL_EMPLOYERS;
-  // The map starts from the published list, then adds any country the public
-  // stats endpoint names that the list does not (for example United States,
-  // Canada and Mexico, which are in the seed but not in LIVE).
-  const mapCountries = useMemo(() => {
-    const rows = countries.map((c) => ({ name: c.name, flag: c.flag, count: c.count }));
-    if (!liveByCountry) return rows;
-    const known = new Set(rows.map((row) => row.name));
-    for (const [name, count] of Object.entries(liveByCountry)) {
-      if (name === "International" || name === "Africa" || known.has(name)) continue;
-      if (typeof count === "number" && count > 0) {
-        rows.push({ name, flag: COUNTRY_FLAGS[name] || "", count });
-      }
-    }
-    return rows;
-  }, [countries, liveByCountry]);
+  const shownEmployers = stats.total;
+  const coverage = coverageText(countries);
+  const isLive = stats.source === "live";
+  const mapCountries = countries;
 
   useEffect(() => {
     if (!loading && user) router.replace("/companies");
@@ -663,12 +528,18 @@ export default function Home() {
 
   useEffect(() => {
     let cancelled = false;
+    const cached = readCachedStats(window.localStorage);
+    if (cached) setStats(cached);
     fetch(`${API_BASE}/companies/stats`)
       .then((r) => (r.ok ? r.json() : null))
-      .then((data: { employers?: number; by_country?: Record<string, number> } | null) => {
-        if (cancelled || !data) return;
-        if (typeof data.employers === "number" && data.employers > 0) setLiveEmployers(data.employers);
-        if (data.by_country && typeof data.by_country === "object") setLiveByCountry(data.by_country);
+      .then((data: unknown) => {
+        if (cancelled) return;
+        // An API that predates the direct-link counts is ignored on purpose:
+        // its total includes employers whose careers link is not verified yet.
+        const parsed = parseStats(data);
+        if (!parsed) return;
+        setStats(parsed);
+        writeCachedStats(window.localStorage, data);
       })
       .catch(() => {});
     return () => {
@@ -765,7 +636,7 @@ export default function Home() {
                     <span className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-75" style={{ background: C.mint }} />
                     <span className="relative inline-flex h-2 w-2 rounded-full" style={{ background: C.mint }} />
                   </span>
-                  Live across {COVERAGE}
+                  Live across {coverage}
                 </span>
                 <span className="inline-flex items-center rounded-full border border-[#f5b301]/50 bg-[#f5b301]/15 px-3 py-1 text-xs font-semibold text-[#ffcf5a]">
                   Born in SADC, built for the world
@@ -787,7 +658,7 @@ export default function Home() {
               </Reveal>
               <Reveal delay={240}>
                 <p className="mt-6 max-w-xl text-lg leading-relaxed text-blue-100">
-                  First made for the SADC region, now listing employers across Africa, Oceania, Europe, South America and partner markets. Each card is a direct link to that employer&apos;s own careers page. We do not host every vacancy, and we do not promise you the job. A card that says &ldquo;Not counted yet&rdquo; does not mean the employer has no vacancies: check their careers page directly.
+                  First made for the SADC region, now listing employers across {coverage}. Each card is a direct link to that employer&apos;s own careers page. We do not host every vacancy, and we do not promise you the job. A card that says &ldquo;Not counted yet&rdquo; does not mean the employer has no vacancies: check their careers page directly.
                 </p>
               </Reveal>
 
@@ -845,7 +716,7 @@ export default function Home() {
             <div className="pointer-events-none absolute inset-0 bg-noise opacity-[0.04]" />
             <div className="relative grid grid-cols-2 gap-3 sm:grid-cols-4">
               {[
-                [shownEmployers, "+", liveEmployers ? "Employers in the live directory" : "Employers in the published list", C.gold],
+                [shownEmployers, "", isLive ? "Employers with a direct careers link, live" : "Employers with a direct careers link", C.gold],
                 [null, "Direct", "To official careers pages", C.mint],
                 [null, "SOE", "State-owned employers, linked", C.green],
                 [null, "Free", "Full access, no charge", C.sky],
@@ -868,7 +739,7 @@ export default function Home() {
       {/* Pillars */}
       <section className="mx-auto grid max-w-6xl gap-5 px-4 py-12 sm:grid-cols-2 lg:grid-cols-4">
         {[
-          ["🎯", "Straight to employers", `Direct links to ${shownEmployers.toLocaleString()} employers' official careers pages. You apply on their site. We don't invent listings.`, C.red],
+          ["🎯", "Straight to employers", `Direct links to ${shownEmployers.toLocaleString("en-US")} employers' official careers pages. You apply on their site. We don't invent listings.`, C.red],
           ["🏛️", "State-owned employers too", "SOEs are in the same directory, each with a link we could verify. South Africa has the most. Other countries are added the same way.", C.gold],
           ["🤖", "A daily agent, still your call", "When the daily agent runs, it refreshes matches and drafts a CV and cover letter for the strongest new ones. Nothing is sent until you say so.", C.sky],
           ["📈", "Track & rise", "Every application in one place. Stay organised, stay ready, and keep moving forward.", C.teal],
@@ -1014,6 +885,9 @@ export default function Home() {
         </div>
       </section>
 
+      {/* UNESCO World Heritage Sites — Africa first, then a few from elsewhere */}
+      <HeritageSection />
+
       {/* SADC region */}
       <section className="mx-auto max-w-6xl px-4 pt-12">
         <div className="relative overflow-hidden rounded-[2rem] px-6 py-12 text-white shadow-xl sm:px-12" style={{ background: `linear-gradient(135deg,${C.ink},${C.navy} 55%,#155e45)` }}>
@@ -1026,12 +900,13 @@ export default function Home() {
           <div className="relative">
             <Reveal>
               <span className="inline-block rounded-full bg-white/10 px-4 py-1.5 text-xs font-semibold backdrop-blur-sm">🌍 Opportunity map</span>
-              <h2 className="mt-4 font-display text-2xl font-extrabold sm:text-4xl">Born in SADC. Live across Africa, Oceania, Europe, South America and partner markets.</h2>
+              <h2 className="mt-4 font-display text-2xl font-extrabold sm:text-4xl">Born in SADC. Live across {coverage}.</h2>
               <p className="mt-3 max-w-3xl text-blue-100">
-                We&apos;re live across {COVERAGE}. A country is listed once a direct careers page is verified.{" "}
-                {liveByCountry
-                  ? "The counts below are from the live directory. A country the API does not name keeps its published-list number."
-                  : "The counts below are the published list, used when the live directory cannot be reached."}{" "}
+                We&apos;re live across {coverage}. A country is listed once a direct careers page is verified.{" "}
+                {isLive
+                  ? "The counts below come from the live directory."
+                  : `The counts below are from the directory on ${new Date(SNAPSHOT_AS_OF + "T12:00:00Z").toLocaleDateString("en-ZA", { day: "numeric", month: "long", year: "numeric" })}, and update as soon as the live directory answers.`}{" "}
+                They count employers with a direct careers link; the full directory also lists employers whose link is still being verified.{" "}
                 No testimonials, no guaranteed interviews.
               </p>
             </Reveal>
@@ -1053,11 +928,11 @@ export default function Home() {
 
               {/* A real "jump to a country" dropdown -- pick any live country,
                   its card appears right below. No long list on the page. */}
-              <CountryJumpSelect live={countries} soon={SOON} />
+              <CountryJumpSelect live={countries} coverage={coverage} />
             </div>
 
             <p className="mt-5 text-sm font-semibold text-blue-100">
-              🎉 Live across {COVERAGE} — direct careers links, one platform.
+              🎉 Live across {coverage} — direct careers links, one platform.
             </p>
 
             {/* Contribution ranking — which country is powering the most opportunities */}
@@ -1078,8 +953,8 @@ export default function Home() {
                 </div>
 
                 <p className="mt-3 text-[11px] text-blue-200">
-                  South Africa leads today; as we verify more employers across each market, this picture will keep shifting.
-                  Use the country picker above to look up any of the other {LIVE.length + SOON.length} countries.
+                  South Africa leads today and is listed first, then the rest of SADC, the rest of Africa and the other regions. As we verify more employers across each market, this picture will keep shifting.
+                  Use the country picker above to look up any of the {countries.length} countries.
                 </p>
               </div>
             </Reveal>
@@ -1182,7 +1057,119 @@ export default function Home() {
 
 /* One country tile in the "Live now" grid — pulled out so it can be reused for
    both the always-visible preview and the collapsible full list. */
-function LiveCountryCard({ c, i }: { c: { name: string; flag: string; count: number; pending: boolean }; i: number }) {
+/* UNESCO World Heritage Sites. The list and the photo credits live in
+   src/data/heritageSites.ts. Sites are grouped in the standing order: South
+   Africa, rest of SADC, rest of Africa, then a few from other regions. A site
+   without a freely licensed photo gets a navy-and-gold card instead. */
+function HeritageCard({ site, i }: { site: HeritageSite; i: number }) {
+  const img = site.image;
+  return (
+    <li className="min-w-0">
+      <Reveal delay={(i % 4) * 70} className="h-full">
+      <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-white/15 bg-white/[0.06] shadow-lg backdrop-blur-sm">
+        <div className="relative aspect-[4/3] w-full overflow-hidden">
+          {img ? (
+            <Image
+              src={img.src}
+              alt={img.alt}
+              fill
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+              className="object-cover"
+            />
+          ) : (
+            <div
+              className="flex h-full w-full flex-col items-center justify-center gap-2 px-4 text-center"
+              style={{ background: `linear-gradient(135deg,${C.ink},${C.navy} 60%,#10305a)` }}
+            >
+              <CircuitOverlay className="opacity-60" opacity={0.18} />
+              <svg viewBox="0 0 48 48" className="relative h-14 w-14" aria-hidden="true">
+                <rect x="9" y="9" width="30" height="30" rx="3" transform="rotate(45 24 24)" fill="none" stroke={C.gold} strokeWidth="2.5" />
+                <rect x="17" y="17" width="14" height="14" rx="2" transform="rotate(45 24 24)" fill="none" stroke={C.gold} strokeWidth="1.5" opacity="0.7" />
+                <circle cx="24" cy="24" r="3" fill={C.gold} />
+              </svg>
+              <span className="relative text-[11px] font-semibold uppercase tracking-wider text-blue-200">{site.place}</span>
+            </div>
+          )}
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#071528]/70 via-transparent to-transparent" />
+          <div className="absolute inset-x-0 top-0 h-1" style={{ backgroundImage: `linear-gradient(90deg,${C.gold},${C.amber},${C.gold})` }} aria-hidden="true" />
+          <span
+            className="absolute right-2 top-3 rounded-full px-2.5 py-1 font-mono text-[11px] font-bold shadow"
+            style={{ background: C.gold, color: C.ink }}
+          >
+            <span className="sr-only">Inscribed on the World Heritage List in </span>
+            {site.year}
+          </span>
+        </div>
+        <div className="flex flex-1 flex-col p-3.5">
+          <h4 className="font-display text-sm font-extrabold leading-snug text-white">{site.name}</h4>
+          <p className="mt-0.5 text-xs font-semibold" style={{ color: C.gold }}>{site.place}</p>
+          {img && (
+            <p className="mt-auto pt-2 text-[10px] leading-snug text-blue-200">
+              Photo: <a href={img.sourceUrl} target="_blank" rel="noopener noreferrer" className="underline decoration-white/30 underline-offset-2 hover:text-white">{img.author}</a>
+              {" · "}
+              {img.licenceUrl ? (
+                <a href={img.licenceUrl} target="_blank" rel="noopener noreferrer" className="underline decoration-white/30 underline-offset-2 hover:text-white">{img.licence}</a>
+              ) : (
+                img.licence
+              )}
+              {" · Wikimedia Commons"}
+            </p>
+          )}
+        </div>
+      </div>
+      </Reveal>
+    </li>
+  );
+}
+
+function HeritageSection() {
+  let n = 0;
+  return (
+    <section className="mx-auto max-w-6xl px-4 pt-12" aria-labelledby="heritage-heading">
+      <div className="relative overflow-hidden rounded-[2rem] px-6 py-12 text-white shadow-xl sm:px-12" style={{ background: `linear-gradient(135deg,${C.ink},${C.navy} 60%,#13294b)` }}>
+        <div className="pointer-events-none absolute inset-0 bg-noise opacity-[0.05]" />
+        <CircuitOverlay className="opacity-50" opacity={0.12} />
+        <div
+          className="pointer-events-none absolute -right-10 -top-10 h-56 w-56 animate-float rounded-full blur-3xl"
+          style={{ background: `radial-gradient(circle,${C.gold},transparent 70%)`, opacity: 0.35 }}
+        />
+        <Reveal className="relative text-center">
+          <span className="inline-block rounded-full bg-white/10 px-4 py-1.5 text-xs font-semibold backdrop-blur-sm">🏛️ UNESCO World Heritage</span>
+          <h2 id="heritage-heading" className="mt-4 font-display text-2xl font-extrabold sm:text-4xl">Places the world agrees are worth keeping.</h2>
+          <p className="mx-auto mt-3 max-w-2xl text-blue-100">
+            Every site below is on the UNESCO World Heritage List, with the year it was inscribed. We start at home in South Africa, move through the rest of SADC and the rest of Africa, then look at a few from the other regions our employers are in.
+          </p>
+        </Reveal>
+        <div className="relative mt-9 space-y-10">
+          {HERITAGE_GROUPS.map((group) => {
+            const sites = HERITAGE_SITES.filter((x) => x.group === group.id);
+            if (sites.length === 0) return null;
+            return (
+              <div key={group.id}>
+                <h3 className="mb-4 flex items-center gap-3 text-xs font-bold uppercase tracking-wider" style={{ color: C.gold }}>
+                  <span className="h-px w-8" style={{ background: C.gold }} aria-hidden="true" />
+                  {group.label}
+                </h3>
+                <ul className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+                  {sites.map((site) => (
+                    <HeritageCard key={site.id} site={site} i={n++} />
+                  ))}
+                </ul>
+              </div>
+            );
+          })}
+        </div>
+        <p className="relative mt-8 text-[11px] leading-relaxed text-blue-200">
+          Names, countries and inscription years follow the{" "}
+          <a href="https://whc.unesco.org/en/list/" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-white">UNESCO World Heritage List</a>
+          . Sospana Sonke is not affiliated with or endorsed by UNESCO. Photos are from Wikimedia Commons under the licences shown, resized for this page; a card without a photo means we have not found a free one we can use.
+        </p>
+      </div>
+    </section>
+  );
+}
+
+function LiveCountryCard({ c, i }: { c: CountryCard; i: number }) {
   const nodeCols = [C.gold, C.mint, C.sky, C.green, C.sun, C.plum, C.red, C.teal];
   const nodeCol = nodeCols[i % nodeCols.length];
   return (
@@ -1204,7 +1191,6 @@ function LiveCountryCard({ c, i }: { c: { name: string; flag: string; count: num
             </span>
             Live
           </span>
-          {c.pending && <div className="mt-1 text-[10px] font-medium text-blue-200">Stock exchange listings coming soon</div>}
         </div>
       </div>
     </Reveal>
@@ -1214,19 +1200,14 @@ function LiveCountryCard({ c, i }: { c: { name: string; flag: string; count: num
 /* A real "jump to a country" dropdown -- a native <select> (so it gets
    keyboard type-ahead and a proper mobile picker for free) listing every
    country in the directory (the same coverage line as the rest of the page)
-   alphabetically. Choosing one shows just that country's card below. */
-function CountryJumpSelect({
-  live,
-  soon,
-}: {
-  live: { name: string; flag: string; count: number; pending: boolean }[];
-  soon: { name: string; flag: string }[];
-}) {
+   in the standing order (South Africa, SADC, rest of Africa, other regions). Choosing one shows just that country's card below. */
+function CountryJumpSelect({ live, coverage }: { live: CountryCard[]; coverage: string }) {
   const [selected, setSelected] = useState("");
-  const options = [
-    ...live.map((c) => ({ ...c, kind: "live" as const })),
-    ...soon.map((c) => ({ ...c, kind: "soon" as const, count: 0, pending: true })),
-  ].sort((a, b) => a.name.localeCompare(b.name));
+  // South Africa first, then the rest of SADC, the rest of Africa, then the
+  // other regions; alphabetical inside each group (other regions grouped by region).
+  const options = [...live].sort(
+    (a, b) => TIER_RANK[tierOf(a.name)] - TIER_RANK[tierOf(b.name)] || a.name.localeCompare(b.name, "en"),
+  );
   const chosen = options.find((o) => o.name === selected);
 
   return (
@@ -1244,10 +1225,10 @@ function CountryJumpSelect({
           onChange={(e) => setSelected(e.target.value)}
           className="w-full appearance-none rounded-xl border border-white/20 bg-white/10 py-3 pl-4 pr-10 text-sm font-bold text-white backdrop-blur-sm transition hover:border-white/40 hover:bg-white/20 focus:border-white/50 focus:outline-none"
         >
-          <option value="" className="text-navy">Choose a country in {COVERAGE}</option>
+          <option value="" className="text-navy">Choose a country in {coverage}</option>
           {options.map((o) => (
             <option key={o.name} value={o.name} className="text-navy">
-              {o.flag} {o.name}{o.kind === "live" ? ` — ${o.count} ${o.count === 1 ? "employer" : "employers"}` : " — coming soon"}
+              {o.flag} {o.name} — {o.count} {o.count === 1 ? "employer" : "employers"}
             </option>
           ))}
         </select>
@@ -1256,18 +1237,7 @@ function CountryJumpSelect({
 
       {chosen && (
         <div className="mt-3 max-w-xs">
-          {chosen.kind === "live" ? (
-            <LiveCountryCard c={chosen} i={0} />
-          ) : (
-            <div className="rounded-2xl border border-dashed border-white/20 bg-white/5 p-4 text-center backdrop-blur-sm">
-              <div className="text-4xl grayscale-[0.3]">{chosen.flag}</div>
-              <div className="mt-1.5 text-sm font-bold">{chosen.name}</div>
-              <div className="mt-1.5 inline-flex items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-semibold text-blue-100">
-                <span className="h-1.5 w-1.5 animate-pulse-glow rounded-full" style={{ background: C.sky }} />
-                Coming soon
-              </div>
-            </div>
-          )}
+          <LiveCountryCard c={chosen} i={0} />
         </div>
       )}
     </div>
