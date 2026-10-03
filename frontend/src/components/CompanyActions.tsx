@@ -1,10 +1,20 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { api, ApiError } from "@/lib/api";
 import { Button, Textarea } from "@/components/ui";
 import { isShortlisted, toggleShortlist } from "@/lib/shortlist";
 import type { Company } from "@/lib/types";
+import {
+  NOT_COUNTED_INLINE,
+  NOT_COUNTED_LABEL,
+  NOT_COUNTED_NOTICE_BODY,
+  NOT_COUNTED_NOTICE_TITLE,
+  NOT_COUNTED_TOOLTIP,
+  anyNotCounted,
+  isNotCounted,
+} from "@/lib/notCounted";
 
 function timeAgo(iso: string | null | undefined): string | null {
   if (!iso) return null;
@@ -61,10 +71,7 @@ export function VerifiedBadge({ company }: { company: Company }) {
 export function OpenVacancyCount({ company }: { company: Company }) {
   if (!company.careers_url) return null;
   const n = company.open_vacancies ?? 0;
-  const known = company.open_vacancies_known === true || n > 0;
-  if (!known) {
-    return <span className="text-xs font-medium text-ss-muted">Not counted yet</span>;
-  }
+  if (isNotCounted(company)) return <NotCountedBadge />;
   const label = n === 0
     ? "0 vacancies found"
     : n === 1
@@ -76,6 +83,86 @@ export function OpenVacancyCount({ company }: { company: Company }) {
       <span className="font-semibold text-brand-dark">{label}</span>
       {checked && <span className="text-ss-muted">{` · last checked ${checked}`}</span>}
     </span>
+  );
+}
+
+/** "Not counted yet" with a keyboard-focusable explanation. It is a label plus an
+ * "i" icon plus words, never colour alone. The tooltip opens on hover, focus or
+ * tap, closes on Escape or blur, and is drawn in a portal with fixed positioning
+ * because the directory cards clip their contents and move on hover. */
+export function NotCountedBadge() {
+  const id = useId();
+  const ref = useRef<HTMLButtonElement>(null);
+  const [open, setOpen] = useState(false);
+  const [pos, setPos] = useState<{ left: number; top: number } | null>(null);
+
+  useEffect(() => {
+    if (!open || !ref.current) return;
+    const place = () => {
+      const r = ref.current?.getBoundingClientRect();
+      if (!r) return;
+      const width = Math.min(288, window.innerWidth - 16);
+      const left = Math.max(8, Math.min(r.left, window.innerWidth - width - 8));
+      setPos({ left, top: r.bottom + 6 });
+    };
+    place();
+    window.addEventListener("scroll", place, true);
+    window.addEventListener("resize", place);
+    return () => {
+      window.removeEventListener("scroll", place, true);
+      window.removeEventListener("resize", place);
+    };
+  }, [open]);
+
+  return (
+    <span className="inline-flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs">
+      <button
+        ref={ref}
+        type="button"
+        aria-describedby={open ? id : undefined}
+        aria-expanded={open}
+        onClick={(e) => { e.stopPropagation(); setOpen((v) => !v); }}
+        onMouseEnter={() => setOpen(true)}
+        onMouseLeave={() => setOpen(false)}
+        onFocus={() => setOpen(true)}
+        onBlur={() => setOpen(false)}
+        onKeyDown={(e) => { if (e.key === "Escape") { setOpen(false); e.stopPropagation(); } }}
+        className="inline-flex items-center gap-1 rounded-full border border-gold/60 bg-gold/15 px-2 py-0.5 font-semibold text-navy focus:outline-none focus-visible:ring-2 focus-visible:ring-gold dark:text-gold"
+      >
+        <span aria-hidden className="flex h-3.5 w-3.5 items-center justify-center rounded-full bg-navy text-[10px] font-extrabold leading-none text-gold">i</span>
+        {NOT_COUNTED_LABEL}
+      </button>
+      <span className="text-[11px] text-ss-muted">{NOT_COUNTED_INLINE}</span>
+      {open && pos && typeof document !== "undefined" && createPortal(
+        <span
+          id={id}
+          role="tooltip"
+          style={{ position: "fixed", left: pos.left, top: pos.top, width: Math.min(288, window.innerWidth - 16) }}
+          className="z-[1000] rounded-xl border border-gold/60 bg-navy p-3 text-xs leading-snug text-white shadow-xl"
+        >
+          {NOT_COUNTED_TOOLTIP}
+        </span>,
+        document.body,
+      )}
+    </span>
+  );
+}
+
+/** Notice shown above a list when at least one card in it says "Not counted yet".
+ * Pass the companies on screen; it renders nothing when none qualify. */
+export function NotCountedNotice({ companies, className = "" }: { companies: ReadonlyArray<Company>; className?: string }) {
+  if (!anyNotCounted(companies)) return null;
+  return (
+    <aside
+      aria-label="About “Not counted yet”"
+      className={`flex items-start gap-3 rounded-xl border border-gold/60 bg-gold/10 p-3 text-sm leading-snug text-ss-text dark:bg-navy/50 sm:p-4 ${className}`}
+    >
+      <span aria-hidden className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-navy text-xs font-extrabold text-gold">i</span>
+      <div className="min-w-0">
+        <p className="font-extrabold text-navy dark:text-gold">{NOT_COUNTED_NOTICE_TITLE}</p>
+        <p className="mt-1">{NOT_COUNTED_NOTICE_BODY}</p>
+      </div>
+    </aside>
   );
 }
 

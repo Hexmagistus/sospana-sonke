@@ -9,7 +9,7 @@ import { Card, Input, Button, Alert, Spinner, Select, EmptyState } from "@/compo
 import { Banner } from "@/components/Banner";
 import { CircuitOverlay, GlowFrame } from "@/components/HighTech";
 import { CompanyLogo, isAtsPortal } from "@/components/CompanyLogo";
-import { CompanyActionsRow, OpenVacancyCount, TrendingBadge, ShortlistStar } from "@/components/CompanyActions";
+import { CompanyActionsRow, NotCountedNotice, OpenVacancyCount, TrendingBadge, ShortlistStar } from "@/components/CompanyActions";
 import { CompanyPreviewModal } from "@/components/CompanyPreviewModal";
 import { AnimatedNumber } from "@/components/AnimatedNumber";
 import { FunSpinner } from "@/components/FunSpinner";
@@ -519,6 +519,8 @@ function CompaniesDirectoryInner() {
           </span>
           <span className="ss-hud-tag text-[11px] text-ss-muted sm:ml-auto">Pick a card, any card 🃏</span>
         </div>
+
+        <NotCountedNotice companies={shownCompanies} />
 
         <div className="grid gap-3 md:grid-cols-2">
           {shownCompanies.map((c) => {

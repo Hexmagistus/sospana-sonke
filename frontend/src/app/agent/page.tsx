@@ -30,7 +30,7 @@ import Guard from "@/components/Guard";
 import { api, ApiError } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { Card, Button, Badge, Alert, Spinner, Input, StatusBadge } from "@/components/ui";
-import { OpenVacancyCount } from "@/components/CompanyActions";
+import { NotCountedNotice, OpenVacancyCount } from "@/components/CompanyActions";
 import { consumeAgentCommand } from "@/lib/agentHandoff";
 import type { Match, MatchDetail, Vacancy, Company, GapAnalysis, CareerExplorerResult } from "@/lib/types";
 
@@ -940,6 +940,7 @@ function AgentBubble({
 
       {turn.employers && turn.employers.length > 0 && (
         <div className="ml-0 grid gap-3 sm:ml-9">
+          <NotCountedNotice companies={turn.employers} />
           {turn.employers.map((c) => <EmployerCard key={c.id} c={c} />)}
         </div>
       )}
