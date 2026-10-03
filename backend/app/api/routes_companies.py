@@ -143,6 +143,32 @@ _facets_cache: dict = {"at": 0.0, "data": None}
 def invalidate_company_facets_cache() -> None:
     _facets_cache["data"] = None
     _facets_cache["at"] = 0.0
+    invalidate_directory_stats_cache()
+
+
+# Public landing-page counts. Cached in-process for 5 minutes (off under ENV=test),
+# and the response carries Cache-Control: public, max-age=300 for the browser/CDN.
+_STATS_TTL_SECONDS = 300.0
+_stats_cache: dict = {"at": 0.0, "data": None}
+
+
+def invalidate_directory_stats_cache() -> None:
+    _stats_cache["data"] = None
+    _stats_cache["at"] = 0.0
+
+
+def _country_counts(db: Session, *conditions) -> dict[str, int]:
+    rows = (db.query(Company.country, func.count(Company.id))
+            .filter(Company.deleted_at.is_(None), Company.country.isnot(None),
+                    Company.country != "", *conditions)
+            .group_by(Company.country).all())
+    out: dict[str, int] = {}
+    for country, n in rows:
+        name = canonical_country(country)
+        if not name:
+            continue
+        out[name] = out.get(name, 0) + int(n)
+    return out
 
 
 @router.get("/stats")
@@ -150,28 +176,41 @@ def invalidate_company_facets_cache() -> None:
 def directory_stats(request: Request, response: Response, db: Session = Depends(get_db)):
     """Public counts only: employers and countries. No personal data.
 
-    Counts are non-deleted directory rows, the same population as the country
-    tabs. The homepage uses these and falls back to the published seed totals
-    if the API is asleep. by_country is the per-country split of that total,
-    with one homepage spelling per country. International and Africa stay in
-    by_country and in the employer total, and are left out of countries.
+    ``employers`` / ``by_country`` count every non-deleted directory row (the
+    same population as the country tabs), including rows still waiting for a
+    verified careers link.
+
+    ``with_link`` / ``by_country_with_link`` count only employers that are
+    ``active`` AND have a careers URL: the ones the landing page can honestly
+    describe as "a direct link to their own careers page". The homepage prefers
+    these and falls back to its built-in snapshot if the API is asleep.
+    Country names use one homepage spelling. International and Africa stay in
+    the maps (they are real rows) and are left out of ``countries``.
     """
-    listed = Company.deleted_at.is_(None)
-    employers = db.query(func.count(Company.id)).filter(listed).scalar() or 0
-    rows = (db.query(Company.country, func.count(Company.id))
-            .filter(listed, Company.country.isnot(None), Company.country != "")
-            .group_by(Company.country).all())
-    by_country: dict[str, int] = {}
-    for country, n in rows:
-        name = canonical_country(country)
-        if not name:
-            continue
-        by_country[name] = by_country.get(name, 0) + int(n)
-    # International and Africa stay in by_country (they are real rows) but
-    # are not countries, so they do not inflate the country count.
+    now = time.monotonic()
+    cached = _stats_cache["data"]
+    if settings.ENV != "test" and cached is not None and now - _stats_cache["at"] < _STATS_TTL_SECONDS:
+        response.headers["Cache-Control"] = "public, max-age=300"
+        return cached
+
+    employers = db.query(func.count(Company.id)).filter(Company.deleted_at.is_(None)).scalar() or 0
+    by_country = _country_counts(db)
+    linked = (Company.active.is_(True), Company.careers_url.isnot(None), Company.careers_url != "")
+    by_country_with_link = _country_counts(db, *linked)
     countries = sum(1 for name in by_country if is_country(name))
+    payload = {
+        "employers": int(employers),
+        "countries": countries,
+        "by_country": by_country,
+        "with_link": int(sum(by_country_with_link.values())),
+        "countries_with_link": sum(1 for name in by_country_with_link if is_country(name)),
+        "by_country_with_link": by_country_with_link,
+    }
+    if settings.ENV != "test":
+        _stats_cache["at"] = now
+        _stats_cache["data"] = payload
     response.headers["Cache-Control"] = "public, max-age=300"
-    return {"employers": int(employers), "countries": countries, "by_country": by_country}
+    return payload
 
 
 @router.get("/facets")

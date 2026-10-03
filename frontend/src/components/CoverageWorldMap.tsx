@@ -2,6 +2,7 @@
 
 import { useId, useMemo, useRef, useState, type KeyboardEvent, type MouseEvent, type PointerEvent } from "react";
 import worldMap from "@/data/world-map.json";
+import { TIERS, TIER_RANK, tierOf, type TierId } from "@/lib/regions";
 
 /**
  * Natural Earth country shapes (public domain), via world-atlas 2.0.2,
@@ -29,69 +30,7 @@ const OCEAN = "#0b1f3a";
 const UNCOVERED = "#1a3358";
 const UNCOVERED_STROKE = "#2e4f7a";
 
-/** Priority order: South Africa, the rest of SADC, the rest of Africa, then other regions. */
-const TIERS = [
-  { id: "south-africa", label: "South Africa", fill: "#ffe08a" },
-  { id: "sadc", label: "Rest of SADC", fill: "#f5b301" },
-  { id: "africa", label: "Rest of Africa", fill: "#c47d12" },
-  { id: "oceania", label: "Oceania", fill: "#5fe0d0" },
-  { id: "europe", label: "Europe", fill: "#8ec5ff" },
-  { id: "south-america", label: "South America", fill: "#ff9e2c" },
-  { id: "north-america", label: "North America", fill: "#c4b5fd" },
-  { id: "asia", label: "Asia", fill: "#f0abfc" },
-] as const;
-
-type TierId = (typeof TIERS)[number]["id"];
-
 const TIER_FILL: Record<TierId, string> = Object.fromEntries(TIERS.map((t) => [t.id, t.fill])) as Record<TierId, string>;
-const TIER_RANK: Record<TierId, number> = Object.fromEntries(TIERS.map((t, i) => [t.id, i])) as Record<TierId, number>;
-
-const SADC = new Set([
-  "Angola", "Botswana", "Comoros", "DR Congo", "Eswatini", "Lesotho",
-  "Madagascar", "Malawi", "Mauritius", "Mozambique", "Namibia",
-  "Seychelles", "Tanzania", "Zambia", "Zimbabwe",
-]);
-const OCEANIA = new Set([
-  "Australia", "New Zealand", "Fiji", "Papua New Guinea", "Samoa", "Tonga", "Solomon Islands", "Vanuatu",
-]);
-const EUROPE = new Set([
-  "United Kingdom", "Germany", "France", "Netherlands", "Switzerland", "Sweden", "Denmark",
-  "Finland", "Estonia", "Ireland", "Spain", "Belgium", "Italy", "Poland", "Austria",
-  "Portugal", "Greece", "Czechia", "Czech Republic", "Hungary", "Romania", "Norway", "Ukraine",
-  "Luxembourg", "Malta", "Cyprus", "Latvia", "Lithuania", "Iceland", "Slovakia", "Slovenia",
-  "Bulgaria", "Croatia", "Serbia", "Albania", "Bosnia and Herzegovina", "North Macedonia",
-  "Montenegro", "Kosovo", "Moldova", "Belarus",
-]);
-const SOUTH_AMERICA = new Set([
-  "Argentina", "Bolivia", "Brazil", "Chile", "Colombia", "Ecuador", "Guyana",
-  "Paraguay", "Peru", "Suriname", "Uruguay", "Venezuela",
-]);
-const NORTH_AMERICA = new Set([
-  "Canada", "United States", "United States of America", "Mexico", "Greenland",
-  "Guatemala", "Belize", "Honduras", "El Salvador", "Nicaragua", "Costa Rica", "Panama",
-  "Cuba", "Jamaica", "Haiti", "Dominican Republic", "Bahamas", "The Bahamas",
-  "Trinidad and Tobago", "Barbados", "Puerto Rico",
-]);
-// Russia is shaded with Asia: most of the country is on that continent.
-const ASIA = new Set([
-  "India", "China", "Indonesia", "Iran", "United Arab Emirates", "Russia",
-  "Japan", "South Korea", "North Korea", "Thailand", "Vietnam", "Malaysia", "Singapore",
-  "Philippines", "Pakistan", "Bangladesh", "Sri Lanka", "Nepal", "Myanmar",
-  "Saudi Arabia", "Qatar", "Kuwait", "Oman", "Yemen", "Iraq", "Israel", "Jordan",
-  "Lebanon", "Syria", "Turkey", "Kazakhstan", "Uzbekistan", "Turkmenistan",
-  "Kyrgyzstan", "Tajikistan", "Afghanistan", "Mongolia", "Taiwan", "Cambodia", "Laos",
-]);
-
-export function tierOf(name: string): TierId {
-  if (name === "South Africa") return "south-africa";
-  if (SADC.has(name)) return "sadc";
-  if (OCEANIA.has(name)) return "oceania";
-  if (EUROPE.has(name)) return "europe";
-  if (SOUTH_AMERICA.has(name)) return "south-america";
-  if (NORTH_AMERICA.has(name)) return "north-america";
-  if (ASIA.has(name)) return "asia";
-  return "africa";
-}
 
 function employerHref(name: string) {
   return `/companies?country=${encodeURIComponent(name)}`;
@@ -349,6 +288,8 @@ export default function CoverageWorldMap({ countries }: { countries: MapCountry[
         {TIERS.map((tier) => {
           const summary = tierSummary.get(tier.id)!;
           const empty = summary.countries === 0;
+          // "Other regions" only appears when a country is not mapped to a region yet.
+          if (empty && tier.id === "other") return null;
           return (
             <li key={tier.id} className="flex min-w-0 items-start gap-2 text-xs text-blue-100">
               <span
@@ -358,7 +299,7 @@ export default function CoverageWorldMap({ countries }: { countries: MapCountry[
               />
               <span className="min-w-0 leading-snug">
                 <span className="block font-semibold text-white">{tier.label}</span>
-                <span className="block text-blue-200">{empty ? "None yet" : employerLabel(summary.employers)}</span>
+                <span className="block text-blue-200">{empty ? "No employers yet" : employerLabel(summary.employers)}</span>
               </span>
             </li>
           );

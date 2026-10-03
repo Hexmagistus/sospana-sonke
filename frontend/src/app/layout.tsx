@@ -93,7 +93,7 @@ const jsonLd = {
       url: SITE_URL,
       logo: `${SITE_URL}/logo-full.png`,
       description: SITE_DESCRIPTION,
-      areaServed: "Africa, Oceania, Europe and partner markets. First made for the SADC region.",
+      areaServed: "Africa, Oceania, Europe, South America, North America and Asia. First made for the SADC region.",
     },
     {
       // No SearchAction here: the one place a keyword search actually lives
