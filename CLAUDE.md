@@ -50,8 +50,10 @@ commit it (and push, if you pushed the rest of your work). Newest entry on top.
 
 ## Session Log
 
-### 2026-10-03 — Cursor (Grok 4.7) — CI audits production dependencies
-`npm audit --audit-level=high` failed on `braces` 3.0.3, which is only pulled in by Tailwind's file watcher (a devDependency). 3.0.3 is the latest release and is still inside the advisory, and forcing a fix would install Tailwind 4. The frontend job now audits production dependencies (`npm audit --omit=dev`). That check reports no high vulnerabilities.
+### 2026-10-03 — Cursor (Grok 4.7) — Pin braces past GHSA-vfj7-8cjw-p6xm
+`npm audit --audit-level=high` reports five highs, all `braces` <=3.0.3 (GHSA-vfj7-8cjw-p6xm) via tailwindcss 3.4.7 → chokidar / micromatch / fast-glob. npm `latest` is still 3.0.3 and the advisory has no patched version, so `npm update braces micromatch` cannot clear it. Tailwind stays on 3.4.7.
+
+`frontend/package.json` depends on `braces` via `file:vendor/braces`, and `overrides.braces` is `$braces` so chokidar and micromatch use that copy. A `file:` path written directly in `overrides` was resolved from inside `node_modules` and did not install. The directory is the published 3.0.3 source plus a nesting-depth limit (100) taken from the unmerged micromatch/braces#72, with two local adjustments: `maxDepth` is an integer, and `stringify` keeps the 3.0.3 empty parent so `escapeInvalid` output does not change. The package version is 3.0.4 so it is outside `<= 3.0.3`. It is not an upstream release. CI audits the full tree again (`npm audit --audit-level=high`), including devDependencies. The earlier `--omit=dev` workaround is gone.
 
 ### 2026-10-03 — Cursor (Grok 4.7) — Country picker names South America
 The jump-to-country placeholder still said “Choose a country in Africa, Oceania, Europe…”. It now uses the same coverage line as the rest of the homepage, so it names South America and partner markets.
