@@ -16,6 +16,8 @@ import {
 // The CI step runs this one file. These register the split-view tests with it.
 import "./countryExplorer.test.js";
 import "./explorer/CountrySidebar.test.js";
+import "./explorer/sidebarWidth.test.js";
+import "./explorer/ExplorerControls.test.js";
 
 describe("directory country stays when the category changes", () => {
   it("keeps South Africa when a category is chosen", () => {

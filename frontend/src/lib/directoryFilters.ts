@@ -75,6 +75,11 @@ export const DIRECTORY_GUIDE_STEPS = [
   "Save or tailor your CV for roles you like",
 ] as const;
 
+/** Guide steps for a page; pages without a category menu skip step 2. */
+export function guideStepsFor(hasCategories: boolean): readonly string[] {
+  return hasCategories ? DIRECTORY_GUIDE_STEPS : DIRECTORY_GUIDE_STEPS.filter((_, i) => i !== 1);
+}
+
 export function readStoredCountry(): string | null {
   if (typeof window === "undefined") return null;
   try {

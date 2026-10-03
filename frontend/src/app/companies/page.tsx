@@ -14,6 +14,7 @@ import { CompanyPreviewModal } from "@/components/CompanyPreviewModal";
 import { AnimatedNumber } from "@/components/AnimatedNumber";
 import { FunSpinner } from "@/components/FunSpinner";
 import PendingSearchBanner from "@/components/PendingSearchBanner";
+import { HowToUseCard } from "@/lib/explorer/HowToUseCard";
 import { CountryExplorer, type ExplorerStats } from "@/components/CountryExplorer";
 import { COUNTRY_FLAGS } from "@/lib/countryFlags";
 import { KNOWN_COUNTRY_NAMES } from "@/lib/countryCodes";
@@ -22,14 +23,12 @@ import {
   DEFAULT_DIRECTORY_COUNTRY,
   DIRECTORY_COUNTRY_KEY,
   DIRECTORY_FILTERS,
-  DIRECTORY_GUIDE_STEPS,
+  guideStepsFor,
   FILTER_TO_TYPE,
   type DirectoryFilter,
   categoryChipCount,
-  categoryChipLinked,
   countryAfterFilterChange,
   countryFromDirectoryLink,
-  readStoredCountry,
   directoryListPath,
   directorySliceKey,
   isDirectoryFilter,
@@ -142,7 +141,6 @@ function CompaniesDirectoryInner() {
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState<DirectoryFilter>("all");
   const [country, setCountry] = useState(DEFAULT_DIRECTORY_COUNTRY);
-  const [guideOpen, setGuideOpen] = useState<boolean | null>(null);
   const [shortlistOnly, setShortlistOnly] = useState(false);
   const [shortlistIds, setShortlistIds] = useState<Set<string>>(new Set());
   const [previewCompany, setPreviewCompany] = useState<Company | null>(null);
@@ -234,7 +232,8 @@ function CompaniesDirectoryInner() {
       const next = countryFromDirectoryLink({
         current: countryRef.current,
         urlCountry: wantedCountry ? (fromUrl ?? wantedCountry) : null,
-        storedCountry: wantedCountry ? null : readStoredCountry(),
+        // A bare URL opens on South Africa. The old saved country is no longer applied.
+        storedCountry: null,
       });
       if (next !== countryRef.current) setCountry(next);
       if (!storedCountryApplied.current) initialCountryRef.current = next;
@@ -246,14 +245,6 @@ function CompaniesDirectoryInner() {
       setShortlistOnly(false);
     }
   }, [searchParams]);
-
-  useEffect(() => {
-    try {
-      setGuideOpen(localStorage.getItem("ss-directory-guide") !== "hidden");
-    } catch {
-      setGuideOpen(true);
-    }
-  }, []);
 
   useEffect(() => {
     const write = window.setTimeout(() => {
@@ -353,25 +344,15 @@ function CompaniesDirectoryInner() {
     College: "🏫 Colleges", Hospital: "🏥 Hospitals", SETA: "🛠️ SETAs", Sports: "🏅 Sports associations", Federations: "🌐 Federations", Music: "🎵 Music industry",
   };
 
-  const typeToLabel: Record<string, string> = {};
-  for (const f of DIRECTORY_FILTERS) {
-    const t = FILTER_TO_TYPE[f];
-    if (t) typeToLabel[t] = filterLabel[f].replace(/^\S*\p{Extended_Pictographic}\S*\s/u, "");
-  }
   const explorerCategories = DIRECTORY_FILTERS.map((f) => {
     const t = FILTER_TO_TYPE[f];
     return { id: f, label: filterLabel[f], count: t ? categoryChipCount(facets, country, t) : null };
   });
-  const byType = country ? facets.country_type_counts?.[country] : facets.type_counts;
   const explorerStats: ExplorerStats = {
     employers: country ? (countryCounts[country] ?? 0) : facets.total,
     withLinks: country ? (facets.country_with_links?.[country] ?? 0) : facets.with_links,
     counted: country ? (facets.country_counted?.[country] ?? 0) : sumValues(facets.country_counted),
     openVacancies: country ? (facets.country_open_vacancies?.[country] ?? 0) : sumValues(facets.country_open_vacancies),
-    categories: Object.entries(byType ?? {})
-      .filter(([, n]) => n > 0)
-      .map(([t, n]) => ({ label: typeToLabel[t] ?? `${t}-listed`, count: n }))
-      .sort((a, b) => b.count - a.count),
   };
 
   return (
@@ -390,6 +371,7 @@ function CompaniesDirectoryInner() {
           <Banner
             variant="companies"
             eyebrow="Direct to employers"
+            aside={<HowToUseCard steps={guideStepsFor(true)} />}
             title="Companies & opportunities"
             subtitle={
               <>
@@ -423,44 +405,6 @@ function CompaniesDirectoryInner() {
 
         <GlowFrame ringClassName="rounded-2xl">
         <Card>
-          {guideOpen === null ? null : guideOpen ? (
-            <section aria-label="How to use" className="mb-4 rounded-xl border border-gold/50 bg-gold/10 p-3 dark:bg-navy/50 sm:p-4">
-              <div className="mb-2 flex items-start justify-between gap-2">
-                <h2 className="text-sm font-extrabold text-navy dark:text-gold">How to use</h2>
-                <button
-                  type="button"
-                  className="shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold text-navy hover:bg-gold/20 dark:text-gold"
-                  onClick={() => {
-                    setGuideOpen(false);
-                    try { localStorage.setItem("ss-directory-guide", "hidden"); } catch { /* private mode */ }
-                  }}
-                >
-                  Hide
-                </button>
-              </div>
-              <ol className="grid gap-2 sm:grid-cols-2">
-                {DIRECTORY_GUIDE_STEPS.map((step, i) => (
-                  <li key={step} className="flex min-w-0 items-start gap-2 text-sm leading-snug text-ss-text">
-                    <span aria-hidden className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-gold text-[11px] font-extrabold text-navy">
-                      {i + 1}
-                    </span>
-                    <span className="min-w-0">{step}</span>
-                  </li>
-                ))}
-              </ol>
-            </section>
-          ) : (
-            <button
-              type="button"
-              className="mb-3 rounded-full border border-gold/50 bg-gold/10 px-3 py-1 text-xs font-semibold text-navy hover:bg-gold/20 dark:text-gold"
-              onClick={() => {
-                setGuideOpen(true);
-                try { localStorage.removeItem("ss-directory-guide"); } catch { /* private mode */ }
-              }}
-            >
-              How to use
-            </button>
-          )}
           <div className="mb-3 flex flex-wrap items-center gap-2 border-b border-ss-border pb-3">
             <p className="ss-hud-tag min-w-[12rem] flex-1 text-[11px] text-ss-muted">
               {country
@@ -488,36 +432,12 @@ function CompaniesDirectoryInner() {
             />
           </div>
 
-          <div className="mt-3 flex flex-wrap gap-1.5">
-            {DIRECTORY_FILTERS.map((f) => {
-              const active = filter === f;
-              const st = FILTER_TO_TYPE[f];
-              const count = st ? categoryChipCount(facets, country, st) : null;
-              return (
-                <button
-                  key={f}
-                  title={st && country ? `${count} in ${country}, ${categoryChipLinked(facets, country, st)} with a careers link` : undefined}
-                  onClick={() => selectFilter(f)}
-                  className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-semibold transition ${
-                    active ? "bg-gradient-to-r from-brand to-brand-dark text-white shadow-sm" : "bg-ss-border text-ss-muted hover:bg-ss-primary-soft hover:text-ss-text"
-                  }`}
-                >
-                  <span>{filterLabel[f]}</span>
-                  {count !== null && (
-                    <span className={`rounded-full px-1.5 py-0.5 text-[11px] font-bold tabular-nums ${active ? "bg-white/20 text-white" : "bg-ss-surface text-ss-muted"}`}>
-                      {count}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-          </div>
           <p className="ss-hud-tag mt-1.5 text-[10px] text-ss-muted">
             {globalType && country
               ? `Showing ${filterLabel[filter]} in ${country}.`
               : globalType
-                ? "Showing this category in every country. Pick a country above to narrow it."
-                : "Pick a category. The country you chose stays selected."}
+                ? "Showing this category in every country. Pick a country in the list to narrow it."
+                : "Use the Category menu above the map. The country you chose stays selected."}
           </p>
         </Card>
         </GlowFrame>
