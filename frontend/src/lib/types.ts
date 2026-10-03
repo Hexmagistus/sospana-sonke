@@ -210,6 +210,9 @@ export interface Company {
   // Open vacancies we currently hold. 0 is a real zero from the directory
   // query, not an estimate. Absent on older cached responses.
   open_vacancies?: number;
+  // False, or absent, means we have not parsed this board. A displayed 0
+  // requires this flag (or a count above zero).
+  open_vacancies_known?: boolean;
 }
 
 // One row of the "popular this week" ranking (GET /companies/trending).

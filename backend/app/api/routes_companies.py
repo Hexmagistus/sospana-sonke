@@ -31,7 +31,7 @@ from app.services.csv_import import import_companies_from_csv
 from app.services.link_report_service import create_link_report
 from app.services.logo_service import discover_favicon
 from app.services.url_tester import test_url, status_from_result
-from app.services.vacancy_counts import open_vacancy_counts
+from app.services.vacancy_counts import companies_with_known_vacancy_count, open_vacancy_counts
 from app.services.watch_service import trending_company_ids
 
 _NEEDS_ATTENTION = {"needs_real_url", "needs_review", "no_url", "error"}
@@ -61,12 +61,16 @@ _icon_cache: dict[str, tuple[float, str | None]] = {}
 
 
 def _with_open_counts(db: Session, companies: list[Company]) -> list[CompanyResponse]:
-    """Attach the real open-vacancy count. One grouped query for the whole page."""
-    counts = open_vacancy_counts(db, [c.id for c in companies])
+    """Attach the real open-vacancy count. Two grouped queries for the page."""
+    ids = [c.id for c in companies]
+    counts = open_vacancy_counts(db, ids)
+    known = companies_with_known_vacancy_count(db, ids)
     out: list[CompanyResponse] = []
     for company in companies:
         row = CompanyResponse.model_validate(company)
-        row.open_vacancies = counts.get(company.id, 0)
+        n = counts.get(company.id, 0)
+        row.open_vacancies = n
+        row.open_vacancies_known = n > 0 or company.id in known
         out.append(row)
     return out
 

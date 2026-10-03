@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 
 from app.models.company import Company
 from app.models.vacancy import Vacancy, VacancySource
-from app.services.vacancy_counts import open_vacancy_counts
+from app.services.vacancy_counts import companies_with_known_vacancy_count, open_vacancy_counts
 from tests.conftest import register_and_login
 
 
@@ -69,7 +69,52 @@ def test_company_list_returns_the_count_without_dropping_fields(client, db):
     assert listed.status_code == 200, listed.text
     row = next(item for item in listed.json() if item["id"] == company.id)
     assert row["open_vacancies"] == 1
+    assert row["open_vacancies_known"] is True
     assert row["careers_url"] == "https://gold.example/careers"
     assert row["company_name"] == "Gold Board"
     assert row["last_checked"].startswith("2026-10-02")
     assert row["country"] == "Kenya"
+
+
+def test_unparsed_board_is_not_a_confirmed_zero(db):
+    now = datetime(2026, 10, 3, tzinfo=timezone.utc)
+    held, held_src = _company(db, "Held Roles", "https://held.example/careers")
+    _vacancy(db, held, held_src, "Controller", lifecycle="ACTIVE")
+    static_empty, static_src = _company(db, "Static Empty", "https://static.example/careers")
+    cihr_empty, cihr_src = _company(db, "Cihr Empty", "https://atns.ci.hr/applicant/index.php")
+    never, _ = _company(db, "Never Parsed", "https://never.example/careers")
+    success, success_src = _company(db, "Parsed Then Closed", "https://boards.greenhouse.io/acme")
+    changed, changed_src = _company(db, "Structure Changed", "https://eskomcareers.ci.hr/applicant")
+
+    static_src.last_success_at = now
+    static_src.scraper_status = "NO_VACANCIES"
+    static_src.parser_used = "static"
+    cihr_src.last_success_at = now
+    cihr_src.scraper_status = "NO_VACANCIES"
+    cihr_src.parser_used = "cihr"
+    success_src.last_success_at = now
+    success_src.scraper_status = "SUCCESS"
+    success_src.parser_used = "greenhouse"
+    changed_src.last_success_at = now
+    changed_src.scraper_status = "SITE_CHANGED"
+    changed_src.parser_used = "cihr"
+    db.commit()
+
+    known = companies_with_known_vacancy_count(db, [
+        held.id, static_empty.id, cihr_empty.id, never.id, success.id, changed.id,
+    ])
+    assert known == {cihr_empty.id, success.id}
+    assert held.id not in known
+
+
+def test_company_list_hides_an_unparsed_zero(client, db):
+    company, _ = _company(db, "ATNS", "https://atns.ci.hr/applicant/index.php?controller=Page&name=jobsearch")
+    _, tokens = register_and_login(client)
+    listed = client.get(
+        "/api/v1/companies", params={"country": "Kenya"},
+        headers={"Authorization": f"Bearer {tokens['access_token']}"},
+    )
+    assert listed.status_code == 200, listed.text
+    row = next(item for item in listed.json() if item["id"] == company.id)
+    assert row["open_vacancies"] == 0
+    assert row["open_vacancies_known"] is False
