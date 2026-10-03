@@ -5,7 +5,8 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { CategorySelect, categoryOptionText } from "./CategorySelect";
 import { SidebarResizer } from "./SidebarResizer";
-import { countryFromDirectoryLink, DEFAULT_DIRECTORY_COUNTRY } from "../directoryFilters";
+import { countryFromDirectoryLink, DEFAULT_DIRECTORY_COUNTRY, DIRECTORY_GUIDE_STEPS, guideStepsFor } from "../directoryFilters";
+import { HowToUseCard } from "./HowToUseCard";
 
 const options = [
   { id: "all", label: "All", count: null },
@@ -59,5 +60,41 @@ describe("default country", () => {
       countryFromDirectoryLink({ current: DEFAULT_DIRECTORY_COUNTRY, urlCountry: null, storedCountry: null }),
       "South Africa",
     );
+  });
+});
+
+describe("HowToUseCard (hero banner)", () => {
+  const open = renderToStaticMarkup(createElement(HowToUseCard, { steps: guideStepsFor(true), initialOpen: true }));
+
+  it("shows the existing guide wording as a numbered list", () => {
+    assert.match(open, /aria-label="How to use"/);
+    assert.equal((open.match(/<li/g) ?? []).length, DIRECTORY_GUIDE_STEPS.length);
+    assert.match(open, /<ol/);
+    for (const step of DIRECTORY_GUIDE_STEPS) assert.ok(open.includes(step.replace("'", "&#x27;")) || open.includes(step), step);
+    assert.match(open, />Hide</);
+  });
+
+  it("is always a dark card with light text, so it reads over the photo in either theme", () => {
+    assert.match(open, /bg-\[#071528\]/);
+    assert.match(open, /text-white/);
+    assert.ok(!open.includes("text-ss-text"));
+  });
+
+  it("when hidden, only a small How to use button remains", () => {
+    const hidden = renderToStaticMarkup(createElement(HowToUseCard, { steps: guideStepsFor(true), initialOpen: false }));
+    assert.match(hidden, /<button[^>]*>How to use<\/button>/);
+    assert.ok(!hidden.includes("<ol"));
+  });
+
+  it("renders nothing until the saved choice is read (no flash)", () => {
+    assert.equal(renderToStaticMarkup(createElement(HowToUseCard, { steps: guideStepsFor(true) })), "");
+  });
+
+  it("pages without a category menu drop the category step", () => {
+    assert.equal(guideStepsFor(true).length, 4);
+    const no = guideStepsFor(false);
+    assert.equal(no.length, 3);
+    assert.ok(!no.some((s) => /category/i.test(s)));
+    assert.match(no[0], /country/i);
   });
 });

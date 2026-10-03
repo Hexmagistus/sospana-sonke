@@ -7,6 +7,8 @@ import Guard from "@/components/Guard";
 import { api } from "@/lib/api";
 import { Card, Input, Button, Alert, Spinner, EmptyState } from "@/components/ui";
 import { Banner } from "@/components/Banner";
+import { HowToUseCard } from "@/lib/explorer/HowToUseCard";
+import { guideStepsFor } from "@/lib/directoryFilters";
 import { CompanyLogo, isAtsPortal } from "@/components/CompanyLogo";
 import { CompanyActionsRow, NotCountedNotice, OpenVacancyCount, TrendingBadge, ShortlistStar } from "@/components/CompanyActions";
 import { CompanyPreviewModal } from "@/components/CompanyPreviewModal";
@@ -178,6 +180,7 @@ function HospitalsDirectoryInner() {
         <div className="overflow-hidden rounded-2xl shadow-sm">
           <Banner
             variant="companies"
+            aside={<HowToUseCard steps={guideStepsFor(false)} />}
             eyebrow="Direct to employers"
             title="Hospital vacancies"
             subtitle={

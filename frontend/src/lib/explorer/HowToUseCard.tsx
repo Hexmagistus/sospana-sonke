@@ -1,0 +1,72 @@
+"use client";
+
+import { useEffect, useState } from "react";
+
+export const GUIDE_STORAGE_KEY = "ss-directory-guide";
+
+type Props = {
+  steps: readonly string[];
+  /** Start state for tests / server markup. Real use reads localStorage after mount. */
+  initialOpen?: boolean | null;
+};
+
+/**
+ * Compact "How to use" card for the hero banner: always dark, readable over the photo.
+ * Hide/Show is remembered in localStorage (same key as before).
+ */
+export function HowToUseCard({ steps, initialOpen = null }: Props) {
+  const [open, setOpen] = useState<boolean | null>(initialOpen);
+
+  useEffect(() => {
+    if (initialOpen !== null) return;
+    try { setOpen(localStorage.getItem(GUIDE_STORAGE_KEY) !== "hidden"); } catch { setOpen(true); }
+  }, [initialOpen]);
+
+  if (open === null) return null;
+
+  if (!open) {
+    return (
+      <button
+        type="button"
+        onClick={() => {
+          setOpen(true);
+          try { localStorage.removeItem(GUIDE_STORAGE_KEY); } catch { /* private mode */ }
+        }}
+        className="rounded-full border border-gold/60 bg-[#071528]/70 px-3 py-1 text-xs font-semibold text-[#ffe08a] backdrop-blur hover:bg-[#071528]"
+      >
+        How to use
+      </button>
+    );
+  }
+
+  return (
+    <section
+      aria-label="How to use"
+      className="w-full rounded-xl border border-gold/50 bg-[#071528]/75 p-3 text-white shadow-lg backdrop-blur-sm"
+    >
+      <div className="mb-1.5 flex items-center justify-between gap-2">
+        <h2 className="text-sm font-extrabold text-[#ffe08a]">How to use</h2>
+        <button
+          type="button"
+          onClick={() => {
+            setOpen(false);
+            try { localStorage.setItem(GUIDE_STORAGE_KEY, "hidden"); } catch { /* private mode */ }
+          }}
+          className="rounded-full px-2 py-0.5 text-[11px] font-semibold text-blue-100 hover:bg-white/10"
+        >
+          Hide
+        </button>
+      </div>
+      <ol className="space-y-1.5">
+        {steps.map((step, i) => (
+          <li key={step} className="flex min-w-0 items-start gap-2 text-[13px] leading-snug text-blue-50">
+            <span aria-hidden className="mt-px flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-gold text-[11px] font-extrabold text-navy">
+              {i + 1}
+            </span>
+            <span className="min-w-0">{step}</span>
+          </li>
+        ))}
+      </ol>
+    </section>
+  );
+}

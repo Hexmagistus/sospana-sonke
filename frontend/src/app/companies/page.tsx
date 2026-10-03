@@ -14,6 +14,7 @@ import { CompanyPreviewModal } from "@/components/CompanyPreviewModal";
 import { AnimatedNumber } from "@/components/AnimatedNumber";
 import { FunSpinner } from "@/components/FunSpinner";
 import PendingSearchBanner from "@/components/PendingSearchBanner";
+import { HowToUseCard } from "@/lib/explorer/HowToUseCard";
 import { CountryExplorer, type ExplorerStats } from "@/components/CountryExplorer";
 import { COUNTRY_FLAGS } from "@/lib/countryFlags";
 import { KNOWN_COUNTRY_NAMES } from "@/lib/countryCodes";
@@ -22,7 +23,7 @@ import {
   DEFAULT_DIRECTORY_COUNTRY,
   DIRECTORY_COUNTRY_KEY,
   DIRECTORY_FILTERS,
-  DIRECTORY_GUIDE_STEPS,
+  guideStepsFor,
   FILTER_TO_TYPE,
   type DirectoryFilter,
   categoryChipCount,
@@ -140,7 +141,6 @@ function CompaniesDirectoryInner() {
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState<DirectoryFilter>("all");
   const [country, setCountry] = useState(DEFAULT_DIRECTORY_COUNTRY);
-  const [guideOpen, setGuideOpen] = useState<boolean | null>(null);
   const [shortlistOnly, setShortlistOnly] = useState(false);
   const [shortlistIds, setShortlistIds] = useState<Set<string>>(new Set());
   const [previewCompany, setPreviewCompany] = useState<Company | null>(null);
@@ -245,14 +245,6 @@ function CompaniesDirectoryInner() {
       setShortlistOnly(false);
     }
   }, [searchParams]);
-
-  useEffect(() => {
-    try {
-      setGuideOpen(localStorage.getItem("ss-directory-guide") !== "hidden");
-    } catch {
-      setGuideOpen(true);
-    }
-  }, []);
 
   useEffect(() => {
     const write = window.setTimeout(() => {
@@ -379,6 +371,7 @@ function CompaniesDirectoryInner() {
           <Banner
             variant="companies"
             eyebrow="Direct to employers"
+            aside={<HowToUseCard steps={guideStepsFor(true)} />}
             title="Companies & opportunities"
             subtitle={
               <>
@@ -412,44 +405,6 @@ function CompaniesDirectoryInner() {
 
         <GlowFrame ringClassName="rounded-2xl">
         <Card>
-          {guideOpen === null ? null : guideOpen ? (
-            <section aria-label="How to use" className="mb-4 rounded-xl border border-gold/50 bg-gold/10 p-3 dark:bg-navy/50 sm:p-4">
-              <div className="mb-2 flex items-start justify-between gap-2">
-                <h2 className="text-sm font-extrabold text-navy dark:text-gold">How to use</h2>
-                <button
-                  type="button"
-                  className="shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold text-navy hover:bg-gold/20 dark:text-gold"
-                  onClick={() => {
-                    setGuideOpen(false);
-                    try { localStorage.setItem("ss-directory-guide", "hidden"); } catch { /* private mode */ }
-                  }}
-                >
-                  Hide
-                </button>
-              </div>
-              <ol className="grid gap-2 sm:grid-cols-2">
-                {DIRECTORY_GUIDE_STEPS.map((step, i) => (
-                  <li key={step} className="flex min-w-0 items-start gap-2 text-sm leading-snug text-ss-text">
-                    <span aria-hidden className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-gold text-[11px] font-extrabold text-navy">
-                      {i + 1}
-                    </span>
-                    <span className="min-w-0">{step}</span>
-                  </li>
-                ))}
-              </ol>
-            </section>
-          ) : (
-            <button
-              type="button"
-              className="mb-3 rounded-full border border-gold/50 bg-gold/10 px-3 py-1 text-xs font-semibold text-navy hover:bg-gold/20 dark:text-gold"
-              onClick={() => {
-                setGuideOpen(true);
-                try { localStorage.removeItem("ss-directory-guide"); } catch { /* private mode */ }
-              }}
-            >
-              How to use
-            </button>
-          )}
           <div className="mb-3 flex flex-wrap items-center gap-2 border-b border-ss-border pb-3">
             <p className="ss-hud-tag min-w-[12rem] flex-1 text-[11px] text-ss-muted">
               {country
