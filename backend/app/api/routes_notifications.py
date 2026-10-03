@@ -1,7 +1,9 @@
 """Notification routes (candidate) and scheduler routes (admin) — blueprint Steps 11, 22, 31."""
+import html
 from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
+from fastapi.responses import HTMLResponse
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
@@ -27,6 +29,57 @@ from app.services.preference_mail import send_preference_emails
 from app.services.admin_login_alerts import send_login_digest
 
 router = APIRouter(tags=["notifications"])
+
+
+# ---- daily digest: one-click unsubscribe (linked from every digest email) ----
+
+_PAGE = ("<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\">"
+         "<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">"
+         "<meta name=\"robots\" content=\"noindex\"><title>Daily updates</title></head>"
+         "<body style=\"font-family:system-ui,sans-serif;max-width:32rem;margin:3rem auto;padding:0 1rem\">"
+         "{body}</body></html>")
+
+
+def _unsub_user(db: Session, token: str) -> User | None:
+    import jwt
+    from app.core import security
+    from app.services.daily_digest import UNSUBSCRIBE_TOKEN_TYPE
+    try:
+        payload = security.decode_token(token, UNSUBSCRIBE_TOKEN_TYPE)
+    except jwt.PyJWTError:
+        return None
+    user = db.get(User, payload.get("sub"))
+    return user if user is not None and user.deleted_at is None else None
+
+
+@router.get("/notifications/digest/unsubscribe", response_class=HTMLResponse)
+def digest_unsubscribe_page(token: str = Query(default="", max_length=2000), db: Session = Depends(get_db)):
+    """A confirmation page. GET changes nothing, so mail scanners that prefetch links are harmless."""
+    if _unsub_user(db, token) is None:
+        return HTMLResponse(_PAGE.format(body="<h1>Link not valid</h1><p>This unsubscribe link is invalid or "
+                                              "the account no longer exists. You can change your emails on the "
+                                              "Preferences page after signing in.</p>"), status_code=400)
+    action = html.escape(f"?token={token}", quote=True)
+    return HTMLResponse(_PAGE.format(body=(
+        "<h1>Stop the daily updates?</h1><p>You will no longer get the Your daily updates email. "
+        "You can switch it back on any time on the Preferences page.</p>"
+        f"<form method=\"post\" action=\"{action}\"><button type=\"submit\" "
+        "style=\"padding:.6rem 1rem;font-size:1rem\">Unsubscribe</button></form>")))
+
+
+@router.post("/notifications/digest/unsubscribe", response_class=HTMLResponse)
+def digest_unsubscribe(token: str = Query(default="", max_length=2000), db: Session = Depends(get_db)):
+    user = _unsub_user(db, token)
+    if user is None:
+        return HTMLResponse(_PAGE.format(body="<h1>Link not valid</h1>"), status_code=400)
+    now = datetime.now(timezone.utc)
+    user.digest_unsubscribed_at = now
+    user.notify_opportunity_alerts = False
+    user.notify_opportunity_alerts_chosen_at = now   # equal to the unsubscribe time: not a re-subscribe
+    db.commit()
+    return HTMLResponse(_PAGE.format(body="<h1>You are unsubscribed</h1><p>We will not send you the daily "
+                                          "updates email again. You can change this any time on the "
+                                          "Preferences page.</p>"))
 
 
 # ---- candidate notifications ----

@@ -205,7 +205,8 @@ def test_console_outbox_when_neither_brevo_nor_smtp():
     assert ConsoleEmailProvider.outbox[-1]["to"] == "person@example.com"
 
 
-def test_strong_match_and_briefing_use_brevo_after_commit(db, monkeypatch):
+def test_strong_match_and_briefing_are_not_emailed_one_by_one(db, monkeypatch):
+    """Matches and briefings are stored for the dashboard; the daily digest carries the email."""
     _enable_brevo(monkeypatch)
     monkeypatch.setattr(settings, "NOTIFY_EMAILS", True)
     calls = _capture_posts(monkeypatch, [(201, "{}"), (201, "{}")])
@@ -218,27 +219,17 @@ def test_strong_match_and_briefing_use_brevo_after_commit(db, monkeypatch):
     )
     db.add(user)
     db.commit()
-    open_during = []
-
-    real_post = __import__("app.notifications.email", fromlist=["_post_brevo"])._post_brevo
-
-    def _watching(url, *, headers, payload, timeout):
-        open_during.append(db.in_transaction())
-        return real_post(url, headers=headers, payload=payload, timeout=timeout)
-
-    monkeypatch.setattr("app.notifications.email._post_brevo", _watching)
     note = create_notification(
         db, user_id=user.id, to_email=user.email, type="strong_match",
-        title="A match", body="Details", related_id="match-1",
+        title="A match", body="Details", related_id="match-1", send_email=True,
     )
     briefing = create_notification(
         db, user_id=user.id, to_email=user.email, type="daily_agent_briefing",
         title="Your briefing", body="Three roles", related_id="run-1",
     )
-    assert note is not None and note.email_sent is True
-    assert briefing is not None and briefing.email_sent is True
-    assert open_during == [False, False]
-    assert [c["payload"]["subject"] for c in calls] == ["A match", "Your briefing"]
+    assert note is not None and note.email_sent is False
+    assert briefing is not None and briefing.email_sent is False
+    assert calls == []
     assert not db.in_transaction()
 
 
@@ -282,7 +273,8 @@ def test_email_html_button_rejects_a_javascript_line():
     assert 'href="javascript:' not in html.lower()
 
 
-def test_opted_in_suggestion_emails_the_link_once(db, monkeypatch):
+def test_opted_in_suggestion_is_stored_not_emailed(db, monkeypatch):
+    """A tag is kept in the account and reaches the person in the daily digest, not on its own."""
     _enable_brevo(monkeypatch)
     monkeypatch.setattr(settings, "NOTIFY_EMAILS", True)
     calls = _capture_posts(monkeypatch, [(201, "{}"), (201, "{}")])
@@ -303,22 +295,14 @@ def test_opted_in_suggestion_emails_the_link_once(db, monkeypatch):
         body="Please look. <script>alert(1)</script>",
         link_url="https://apply.example.com/nurse",
     )
-    assert (sent, duplicates, emailed) == (1, 0, 1)
-    assert len(calls) == 1
-    text = calls[0]["payload"]["textContent"]
-    html_body = calls[0]["payload"]["htmlContent"]
-    assert "https://apply.example.com/nurse" in text
-    assert "Tagged by the Sospana Sonke team." in text
-    assert 'href="https://apply.example.com/nurse"' in html_body
-    assert "Open this listing" in html_body
-    assert "<script>" not in html_body
-    assert "&lt;script&gt;" in html_body
+    assert (sent, duplicates, emailed) == (1, 0, 0)
+    assert calls == []
     again, dup_again, emailed_again = notify_admin_suggestion(
         db, users=[user], title="Ward clerk", body="Please look again.",
         link_url="https://apply.example.com/nurse",
     )
     assert (again, dup_again, emailed_again) == (0, 1, 0)
-    assert len(calls) == 1
+    assert calls == []
 
 
 def test_password_reset_uses_brevo_with_no_open_transaction(client, db_engine, monkeypatch):

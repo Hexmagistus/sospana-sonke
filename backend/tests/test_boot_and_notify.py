@@ -81,7 +81,7 @@ def test_email_failure_commits_before_send_and_closes_the_transaction(db, monkey
     monkeypatch.setattr("app.notifications.email.ConsoleEmailProvider.send", boom)
     related = str(uuid.uuid4())
     note = create_notification(
-        db, user_id=user.id, to_email=user.email, type="strong_match",
+        db, user_id=user.id, to_email=user.email, type="action_required",
         title="A match", body="Details", related_type="match", related_id=related,
         send_email=True,
     )

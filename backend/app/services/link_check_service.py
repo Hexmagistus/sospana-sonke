@@ -80,7 +80,8 @@ def check_company_content(company: Company, client: httpx.Client | None = None) 
 
 
 def notify_watchers_of_change(db: Session, company: Company) -> int:
-    """Email every watcher whose scope matches this company. Reuses the
+    """Notify every watcher whose scope matches this company (in-app only; the
+    daily digest carries the email). Reuses the
     existing dashboard-notification idempotency (user, type, related_id), but
     keys related_id on this specific content hash so a repeat change fires a
     fresh alert while an unchanged page never repeats one."""
@@ -99,10 +100,10 @@ def notify_watchers_of_change(db: Session, company: Company) -> int:
             body=(f"The page you're watching for {company.company_name} "
                   f"({company.country}) looks like it changed. Take a look: {company.careers_url}"),
             related_type="company", related_id=f"{company.id}:{(company.content_hash or '')[:16]}",
-            # A watch is an explicit "email me" opt-in, so it always emails --
-            # unlike the broad new-jobs broadcast, this isn't gated behind the
-            # platform-wide NOTIFY_EMAILS marketing toggle.
-            send_email=True,
+            link_url=company.careers_url,
+            # Stored for the dashboard; the daily digest carries it by email (one
+            # email a day, not one per change). create_notification enforces this.
+            send_email=False,
         )
         if note is not None:
             sent += 1
