@@ -117,3 +117,23 @@ def test_seed_carries_the_url_fixes_made_in_the_database():
     assert urls[("Walter Sisulu University (WSU)", "South Africa")] == "https://waltersisulucareers.ci.hr/applicant/index.php"
     assert urls[("Brand South Africa", "South Africa")] == "https://www.brandsouthafrica.com/vacancies/"
     assert urls[("Microsoft", "United States")] == "https://careers.microsoft.com/v2/global/en/home.html"
+
+
+def test_seed_carries_pending_url_fixes_and_db_only_employers():
+    rows = {(r["company_name"], r["country"]): r for r in _rows()}
+    nhbrc = rows[("National Home Builders Registration Council", "South Africa")]
+    assert nhbrc["careers_url"] == "https://www.nhbrc.org.za/career/"
+    sapo = rows[("South African Post Office (SAPO)", "South Africa")]
+    assert sapo["careers_url"] == "https://www.postoffice.co.za/careers.html" and sapo["active"] == "true"
+    assert rows[("Passenger Rail Agency of South Africa (PRASA)", "South Africa")]["careers_url"].startswith("https://prasa.com/")
+    # Africa expansion batches 1-4, US batches 5-13 and the DB-only SA state-owned rows
+    for key in [("Intercare Group", "South Africa"), ("Carbon (Nigeria)", "Nigeria"), ("Instabug", "Egypt"),
+                ("Bill & Melinda Gates Foundation", "United States"), ("Transnet Freight Rail", "South Africa"),
+                ("Electoral Commission of South Africa (IEC)", "South Africa")]:
+        assert key in rows, key
+    assert rows[("Instabug", "Egypt")]["careers_url"] == "https://www.luciq.ai/careers"  # live value, no :443
+
+
+def test_seed_urls_have_no_explicit_default_port():
+    for r in _rows():
+        assert ":443/" not in r["careers_url"] and not r["careers_url"].endswith(":443"), r["company_name"]
