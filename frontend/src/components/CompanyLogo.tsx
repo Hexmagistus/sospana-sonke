@@ -92,6 +92,7 @@ export function CompanyLogo({
   gradient,
   logoUrl,
   id,
+  hasIcon = false,
 }: {
   name: string;
   website?: string | null;
@@ -102,10 +103,11 @@ export function CompanyLogo({
   // official website. When set, it's tried first — ahead of the Clearbit/
   // favicon auto-guessing below — since it's a real confirmed logo, not a guess.
   logoUrl?: string | null;
-  // The company's id — when set, we ask the backend for the real favicon it
-  // found on this company's own page (GET /companies/{id}/icon, cached there)
-  // before falling back to the guessed Clearbit/favicon chain below.
+  // The company's id. The icon URL is requested only when hasIcon is true,
+  // because a directory of cards used to call GET /companies/{id}/icon for
+  // every employer and the misses came back as uncached 404s.
   id?: string | null;
+  hasIcon?: boolean;
 }) {
   const sources = useMemo(() => {
     const guessed: string[] = [];
@@ -133,10 +135,10 @@ export function CompanyLogo({
     // initials.
     const chain: string[] = [];
     if (logoUrl) chain.push(logoUrl);
-    if (id) chain.push(`${API_BASE}/companies/${id}/icon`);
+    if (id && hasIcon) chain.push(`${API_BASE}/companies/${id}/icon`);
     chain.push(...guessed);
     return chain;
-  }, [name, website, careersUrl, country, logoUrl, id]);
+  }, [name, website, careersUrl, country, logoUrl, id, hasIcon]);
 
   const [idx, setIdx] = useState(0);
   const [saver, setSaver] = useState(false);

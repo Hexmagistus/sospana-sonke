@@ -65,12 +65,22 @@ def _with_open_counts(db: Session, companies: list[Company]) -> list[CompanyResp
     ids = [c.id for c in companies]
     counts = open_vacancy_counts(db, ids)
     known = companies_with_known_vacancy_count(db, ids)
+    have_icons: set[str] = set()
+    if ids:
+        have_icons = {
+            cid for (cid,) in db.query(Company.id).filter(
+                Company.id.in_(ids),
+                Company.favicon_url.isnot(None),
+                Company.favicon_url != "",
+            )
+        }
     out: list[CompanyResponse] = []
     for company in companies:
         row = CompanyResponse.model_validate(company)
         n = counts.get(company.id, 0)
         row.open_vacancies = n
         row.open_vacancies_known = n > 0 or company.id in known
+        row.has_icon = company.id in have_icons
         out.append(row)
     return out
 
@@ -295,6 +305,16 @@ def list_link_reports(db: Session = Depends(get_db),
     return [LinkReportResponse.model_validate(r) for r in q.all()]
 
 
+def _icon_missing() -> Response:
+    """A known company with no stored icon.
+
+    204 is cacheable. A 404 is not, so a directory of cards refetched every
+    icon on each visit and filled uvicorn's concurrency limit.
+    """
+    return Response(status_code=status.HTTP_204_NO_CONTENT,
+                    headers={"Cache-Control": "public, max-age=86400"})
+
+
 def _icon_cached(company_id: str) -> tuple[bool, str | None]:
     hit = _icon_cache.get(company_id)
     if hit is None:
@@ -334,7 +354,7 @@ def company_icon(company_id: str, db: Session = Depends(get_db)):
     fresh, cached_url = _icon_cached(company_id)
     if fresh:
         if not cached_url:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No icon found for this company.")
+            return _icon_missing()
         redirect = RedirectResponse(cached_url, status_code=status.HTTP_302_FOUND)
         redirect.headers["Cache-Control"] = "public, max-age=86400"
         return redirect
@@ -357,7 +377,7 @@ def company_icon(company_id: str, db: Session = Depends(get_db)):
 
     _icon_cache[company.id] = (time.monotonic(), company.favicon_url)
     if not company.favicon_url:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No icon found for this company.")
+        return _icon_missing()
     redirect = RedirectResponse(company.favicon_url, status_code=status.HTTP_302_FOUND)
     redirect.headers["Cache-Control"] = "public, max-age=86400"
     return redirect
