@@ -470,3 +470,13 @@ def purge_expired_messages(db: Session, job_run_id: str | None = None) -> dict:
     from app.api.routes_messages import purge_expired
     from app.api.routes_comments import purge_expired_comments
     return {"deleted_messages": purge_expired(db), "deleted_comments": purge_expired_comments(db)}
+
+
+def send_daily_digest(db: Session) -> dict:
+    """08:00 SAST (06:00 UTC): one "Your daily updates" email per opted-in user per day.
+
+    Idempotent per user per SAST day, skips users with nothing new, honours the
+    global send cap and DIGEST_DRY_RUN (see app/services/daily_digest.py).
+    """
+    from app.services.daily_digest import run_daily_digest
+    return run_daily_digest(db)

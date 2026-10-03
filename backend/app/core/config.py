@@ -116,6 +116,12 @@ class Settings(BaseSettings):
     EMAIL_PROVIDER: str = "console"          # console | smtp. Ignored when BREVO_API_KEY is set.
     EMAIL_FROM: str = "Sospana Sonke <no-reply@sospanasonke.co.za>"
     NOTIFY_EMAILS: bool = False              # send emails in addition to dashboard notifications
+    # Daily digest ("Your daily updates"): the ONLY email that carries opportunities.
+    # POST /api/v1/cron/run/send_daily_digest at 06:00 UTC (08:00 SAST).
+    DIGEST_DAILY_SEND_CAP: int = 250         # all email in a rolling 24h; Brevo free plan is 300/day
+    DIGEST_DRY_RUN: bool = False             # true: report what WOULD be sent, send and record nothing
+    DIGEST_MAX_ITEMS: int = 25               # items listed per email; the rest is "see more"
+    DIGEST_LOOKBACK_HOURS: int = 24
     NOTIFY_SMS: bool = False
     NOTIFY_PUSH: bool = False
     SMS_PROVIDER: str = "console"            # console | twilio

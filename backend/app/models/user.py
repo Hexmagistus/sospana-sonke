@@ -74,6 +74,9 @@ class User(UUIDMixin, TimestampMixin, Base):
     # Admins only. Off by default: an optional email digest of client sign-ins.
     admin_login_digest: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     admin_login_digest_sent_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    # Set by the one-click unsubscribe link in the daily digest. The digest stays off
+    # until the person chooses alerts or tagging again (a later *_chosen_at).
+    digest_unsubscribed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     # Temporary messaging. Opt-in: nobody can be messaged until they switch this on.
     allow_messages: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     # Set by an admin after a confirmed abuse report; the user can no longer send messages.

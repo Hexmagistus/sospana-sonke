@@ -133,6 +133,7 @@ _NEW_COLUMNS: list[tuple[str, str, str]] = [
     ("users", "notify_opportunity_alerts", "BOOLEAN DEFAULT FALSE"),
     ("users", "notify_opportunity_alerts_chosen_at", _TS),
     ("users", "allow_tagging", "BOOLEAN NOT NULL DEFAULT FALSE"),
+    ("users", "digest_unsubscribed_at", _TS),
     ("users", "allow_tagging_chosen_at", _TS),
     ("users", "preferred_post_type", "VARCHAR(30)"),
     ("users", "preferred_post_chosen_at", _TS),

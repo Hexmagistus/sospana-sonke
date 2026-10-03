@@ -139,7 +139,15 @@ def _html_from_text(body: str) -> str:
             url = None
         if url and line.strip() == url:
             href = html.escape(url, quote=True)
-            if "Tagged by the Sospana Sonke team" in body:
+            is_digest = body.startswith("Your daily updates")
+            if is_digest and "/digest/unsubscribe" in url:
+                label = "Unsubscribe"
+            elif is_digest and url.rstrip("/").endswith("/agent"):
+                label = "See everything in the app"
+            elif is_digest and not (url.rstrip("/").endswith("/preferences")
+                                    or url.rstrip("/").endswith("/privacy")):
+                label = "View careers page"
+            elif "Tagged by the Sospana Sonke team" in body:
                 label = "Open this listing"
             elif url.rstrip("/").endswith("/preferences"):
                 label = "Choose my preferences"

@@ -388,20 +388,19 @@ def test_suggestion_notice_includes_the_link_and_is_not_repeated(client, db_engi
     assert first.json()["sent"] == 2
     assert first.json()["skipped"] == 0
     assert first.json()["duplicates"] == 0
-    assert first.json()["emailed"] == 1
+    assert first.json()["emailed"] == 0   # never one by one: the daily digest carries it
 
     notes = [n for n in client.get("/api/v1/notifications", headers=_auth(tokens)).json()
              if n["type"] == "admin_suggestion"]
     assert len(notes) == 1
     assert notes[0]["link_url"] == link
-    assert notes[0]["email_sent"] is True
+    assert notes[0]["email_sent"] is False
     assert "Tagged by the Sospana Sonke team." in notes[0]["body"]
     assert "Role: Ward Nurse" in notes[0]["body"]
     assert "Employer: Acme Logistics" in notes[0]["body"]
     assert link in notes[0]["body"]
     assert "Tagged at " in notes[0]["body"]
-    mailed = [m for m in ConsoleEmailProvider.outbox if m["to"] == "tagged@example.com" and link in m["body"]]
-    assert len(mailed) == 1
+    assert not [m for m in ConsoleEmailProvider.outbox if link in m["body"]]
     html = _html_from_text(notes[0]["body"])
     assert f'href="{link}"' in html
     assert "Open this listing" in html
@@ -419,7 +418,7 @@ def test_suggestion_notice_includes_the_link_and_is_not_repeated(client, db_engi
     again = [n for n in client.get("/api/v1/notifications", headers=_auth(tokens)).json()
              if n["type"] == "admin_suggestion"]
     assert len(again) == 1
-    assert len([m for m in ConsoleEmailProvider.outbox if m["to"] == "tagged@example.com" and link in m["body"]]) == 1
+    assert not [m for m in ConsoleEmailProvider.outbox if link in m["body"]]
 
 
 def test_tagging_with_a_link_sends_one_notice(client, db_engine):
