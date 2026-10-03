@@ -63,6 +63,9 @@ What is running today, before the pipeline work below. This is the system the up
 
 ## Session Log
 
+### 2026-10-03 — Cursor (Grok 4.7) — Outbound mail over HTTPS (Brevo free)
+Render free cannot open SMTP (`Network is unreachable`, Errno 101), so verification, password reset, strong-match, the daily agent briefing, and the owner login alert never left the Frankfurt service. If `BREVO_API_KEY` is set, the shared sender (`get_email_provider`) POSTs `https://api.brevo.com/v3/smtp/email` with a 10s timeout: sender from `BREVO_SENDER_EMAIL` and `BREVO_SENDER_NAME` (default Sospana Sonke), plus text and escaped HTML. Unset key keeps the console and SMTP paths. A 4xx that means quota or auth (including the free 300/day cap) stops further Brevo calls for that process and logs one line with no key and no recipient content. Password reset and registration close the database read before that HTTP call. Admin tag and suggestion mail stays off, and those paths still require `notify_opportunity_alerts`. Set `BREVO_API_KEY` and `BREVO_SENDER_EMAIL` on the Frankfurt service; no paid plan.
+
 ### 2026-10-03 — Cursor (Grok 4.7) — Open vacancy counts on employer cards, Tips box removed
 Each employer with a careers link now carries `open_vacancies` from one grouped query: `is_open`, not deleted, lifecycle `ACTIVE`, `OPEN`, or null. The cards say "N open vacancies we found" or "0 vacancies found", plus last checked when we have a time. The community Tips box (the dashed tip preview and the Tips button on company, college, hospital, university, and career-agent cards) is off those cards. Interview-prep Tips on tailor and match pages stay. The comments API is unchanged.
 
