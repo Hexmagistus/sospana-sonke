@@ -65,7 +65,7 @@ export default function NotificationBell({ unread }: { unread: number }) {
       <button
         ref={buttonRef}
         type="button"
-        className="relative flex h-11 w-11 items-center justify-center rounded-full text-ss-text transition hover:bg-ss-primary-soft"
+        className="relative flex h-11 w-[2.3rem] items-center min-[400px]:w-11 justify-center rounded-full text-ss-text transition hover:bg-ss-primary-soft"
         aria-label={label}
         aria-haspopup="dialog"
         aria-expanded={open}
