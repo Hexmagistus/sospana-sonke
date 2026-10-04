@@ -1,6 +1,9 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
+import { usePathname } from "next/navigation";
+import { effectiveTheme } from "./entryFlow";
+import { THEME_STORAGE_KEY } from "./themeBootstrap";
 
 /** SOSPANA SONKE // FUTURE OF WORK -- light/dark theme toggle.
  *
@@ -16,7 +19,7 @@ import { createContext, useCallback, useContext, useEffect, useState, type React
 
 type Theme = "light" | "dark";
 
-const STORAGE_KEY = "ss-theme";
+const STORAGE_KEY = THEME_STORAGE_KEY;
 
 interface ThemeContextValue {
   theme: Theme;
@@ -26,17 +29,28 @@ interface ThemeContextValue {
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setTheme] = useState<Theme>("light");
+  // `stored` is the visitor's choice; the attribute on <html> is effectiveTheme(): the entry
+  // flow (landing, login, register ...) is always bright, see lib/entryFlow.ts.
+  const pathname = usePathname();
+  const [stored, setStored] = useState<Theme>("light");
 
   useEffect(() => {
-    const current = document.documentElement.getAttribute("data-theme");
-    if (current === "dark" || current === "light") setTheme(current);
+    try {
+      const v = window.localStorage.getItem(STORAGE_KEY);
+      if (v === "dark" || v === "light") setStored(v);
+    } catch {
+      /* private mode: keep the default */
+    }
   }, []);
 
+  const theme = effectiveTheme(pathname, stored);
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+  }, [theme]);
+
   const toggleTheme = useCallback(() => {
-    setTheme((prev) => {
+    setStored((prev) => {
       const next: Theme = prev === "dark" ? "light" : "dark";
-      document.documentElement.setAttribute("data-theme", next);
       try {
         window.localStorage.setItem(STORAGE_KEY, next);
       } catch {
@@ -55,18 +69,4 @@ export function useTheme(): ThemeContextValue {
   return ctx;
 }
 
-/** Inline script text for a next/script beforeInteractive tag in layout.tsx.
- * Kept here (not hand-duplicated in JSX) so the storage key and fallback
- * logic can never drift out of sync with the provider above. */
-export const THEME_BOOTSTRAP_SCRIPT = `
-(function () {
-  try {
-    var stored = localStorage.getItem('${STORAGE_KEY}');
-    // Bright is the default so text is easy to read from a distance. Dark is
-    // an option: only an explicit toggle (stored) turns it on. The OS
-    // colour-scheme setting is deliberately not consulted.
-    var theme = stored === 'dark' || stored === 'light' ? stored : 'light';
-    document.documentElement.setAttribute('data-theme', theme);
-  } catch (e) {}
-})();
-`;
+export { THEME_BOOTSTRAP_SCRIPT } from "./themeBootstrap";

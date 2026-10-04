@@ -3,7 +3,8 @@ import { Bricolage_Grotesque, Inter } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import { AuthProvider } from "@/lib/auth";
-import { ThemeProvider, THEME_BOOTSTRAP_SCRIPT } from "@/lib/theme";
+import { ThemeProvider } from "@/lib/theme";
+import { THEME_BOOTSTRAP_SCRIPT } from "@/lib/themeBootstrap";
 import Nav from "@/components/Nav";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import CommandPalette from "@/components/CommandPalette";
@@ -161,7 +162,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               >
                 <p className="text-sm font-semibold leading-relaxed sm:text-base">
                   <span className="text-xl align-middle">🐢💨</span>{" "}
-                  <span className="animate-gradient-text bg-gradient-to-r from-[#22d3ee] via-[#f5b301] to-[#a78bfa] bg-clip-text font-extrabold text-transparent">
+                  <span className="animate-gradient-text bg-gradient-to-r from-[#0b5e58] via-[#6b4700] to-[#5b3fd6] bg-clip-text font-extrabold text-transparent dark:from-[#22d3ee] dark:via-[#f5b301] dark:to-[#a78bfa]">
                     Our server rides the free tier
                   </span>{" "}
                   — so it can be a little slow to wake up, and we&apos;re actively speeding it up. We keep Sospana Sonke{" "}

@@ -32,10 +32,20 @@ function WorldMapSkeleton() {
 
 const C = {
   goldText: "#6b4700",
+  // Darker twins of the brand colours for TEXT on light surfaces (>= 4.5:1 on white and cream)
+  // and for fills that carry white text. Use DARK_OF[colour] rather than the bright colour.
+  tealText: "#0b5e58", greenText: "#166534", skyText: "#14568f", plumText: "#5b21b6",
+  sunText: "#9a3412", redText: "#b91c1c",
   navy: "#0b1f3a", ink: "#071528", gold: "#f5b301", amber: "#ff9e2c",
   teal: "#0f9d8f", mint: "#5fe0d0", red: "#e4322b", green: "#1a9e5f",
   sky: "#2f9bf6", plum: "#7c3aed", sun: "#ff7a1a", cream: "#faf6ee",
 };
+
+const DARK_OF: Record<string, string> = {
+  [C.red]: C.redText, [C.sun]: C.sunText, [C.gold]: C.goldText, [C.green]: C.greenText,
+  [C.teal]: C.tealText, [C.sky]: C.skyText, [C.plum]: C.plumText, [C.amber]: "#92400e", [C.mint]: C.tealText,
+};
+const darkOf = (c: string) => DARK_OF[c] ?? c;
 
 /* ------------------------------------------------------------------ */
 /* Motion primitives — scroll reveal, count-up, tilt, starfield, etc. */
@@ -771,13 +781,13 @@ export default function Home() {
         <Reveal className="text-center">
           <span
             className="inline-flex items-center gap-2 rounded-full border border-teal/20 bg-teal/5 px-4 py-1.5 text-xs font-bold uppercase tracking-widest"
-            style={{ color: C.teal, boxShadow: `0 0 22px ${C.mint}33` }}
+            style={{ color: C.tealText, boxShadow: `0 0 22px ${C.mint}33` }}
           >
             ◈ Explore by category
           </span>
           <h2 className="mt-4 font-display text-2xl font-extrabold sm:text-4xl" style={{ color: C.navy }}>
             Every door to work,{" "}
-            <span style={{ background: `linear-gradient(90deg,${C.teal},${C.sky},${C.plum})`, WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>
+            <span style={{ background: `linear-gradient(90deg,${C.tealText},${C.skyText},${C.plumText})`, WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>
               in one place
             </span>
           </h2>
@@ -863,15 +873,15 @@ export default function Home() {
                         <svg viewBox="0 0 72 52" className="h-14 w-full" aria-hidden="true">{w.art}</svg>
                       </div>
                     )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#071528]/90 via-[#071528]/15 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#071528]/95 via-[#071528]/25 to-transparent" />
                     <div
                       className="absolute inset-x-0 top-0 h-1 animate-shimmer opacity-80"
                       style={{ backgroundImage: `linear-gradient(90deg,${C.gold},${C.green},${C.red},${C.gold})` }}
                       aria-hidden="true"
                     />
-                    <div className="absolute inset-x-0 bottom-0 p-3">
+                    <div className="absolute inset-x-0 bottom-0 bg-[#071528]/85 p-3">
                       <div className="text-sm font-bold text-white [text-shadow:0_1px_3px_rgba(0,0,0,.7)]">{w.name}</div>
-                      <div className="text-[11px] text-white [text-shadow:0_1px_3px_rgba(0,0,0,.7)]">{w.place}</div>
+                      <div className="text-xs text-white [text-shadow:0_1px_3px_rgba(0,0,0,.7)]">{w.place}</div>
                     </div>
                   </div>
                 </TiltCard>
@@ -974,7 +984,7 @@ export default function Home() {
                 const cols = [C.red, C.sun, C.gold, C.green, C.teal, C.sky, C.plum];
                 const col = cols[i % cols.length];
                 return (
-                  <span key={l} className="rounded-full px-3 py-1 text-xs font-semibold transition hover:-translate-y-0.5" style={{ background: `${col}18`, color: col }}>
+                  <span key={l} className="rounded-full px-3 py-1 text-xs font-semibold transition hover:-translate-y-0.5" style={{ background: `${col}18`, color: darkOf(col) }}>
                     {l}
                   </span>
                 );
@@ -1002,7 +1012,7 @@ export default function Home() {
                 className="group relative rounded-2xl bg-white p-6 shadow-sm ring-1 ring-black/5 transition duration-300 hover:-translate-y-1 hover:shadow-md"
                 style={{ boxShadow: `0 8px 26px -16px ${col as string}80` }}
               >
-                <div className="relative flex h-11 w-11 items-center justify-center rounded-xl font-display text-lg font-extrabold text-white shadow-md" style={{ background: col as string }}>
+                <div className="relative flex h-11 w-11 items-center justify-center rounded-xl font-display text-lg font-extrabold text-white shadow-md" style={{ background: darkOf(col as string) }}>
                   <span className="absolute -inset-1 -z-10 animate-node-pulse rounded-xl" aria-hidden="true" />
                   {n}
                 </div>
@@ -1021,13 +1031,13 @@ export default function Home() {
       <section className="mx-auto max-w-6xl px-4 py-12">
         <Reveal>
           <GlowFrame colors={[C.gold, C.sky, C.mint, C.red, C.gold]}>
-            <div className="relative overflow-hidden rounded-[2rem] px-6 py-14 text-center shadow-xl" style={{ background: `linear-gradient(120deg,${C.red},${C.sun} 45%,${C.gold})` }}>
+            <div className="relative overflow-hidden rounded-[2rem] px-6 py-14 text-center shadow-xl" style={{ background: "linear-gradient(120deg,#ffe08a,#f5b301 55%,#ffc24d)" }}>
               <div className="pointer-events-none absolute inset-0 opacity-10" style={{ backgroundImage: "radial-gradient(#000 1px, transparent 1px)", backgroundSize: "20px 20px" }} />
               <CircuitOverlay className="opacity-25 mix-blend-overlay" opacity={0.5} />
               <div className="pointer-events-none absolute -inset-1 animate-pulse-glow rounded-[2rem]" style={{ boxShadow: `0 0 90px 10px ${C.gold}66` }} />
               <div className="relative">
-                <h2 className="font-display text-3xl font-extrabold sm:text-4xl" style={{ color: "#2a1400" }}>Your ambition deserves a real platform.</h2>
-                <p className="mx-auto mt-3 max-w-xl text-lg" style={{ color: "#3a1e00" }}>Build your profile, explore open vacancies, and start applying with confidence today.</p>
+                <h2 className="font-display text-3xl font-extrabold sm:text-4xl" style={{ color: "#1a0f00" }}>Your ambition deserves a real platform.</h2>
+                <p className="mx-auto mt-3 max-w-xl text-lg" style={{ color: "#1a0f00" }}>Build your profile, explore open vacancies, and start applying with confidence today.</p>
                 <Link
                   href="/register"
                   className="group relative mt-7 inline-block overflow-hidden rounded-xl px-8 py-4 text-lg font-extrabold text-white shadow-lg transition hover:-translate-y-0.5 hover:brightness-110"
@@ -1179,10 +1189,10 @@ function LiveCountryCard({ c, i }: { c: CountryCard; i: number }) {
         <span className="text-2xl leading-none sm:text-4xl">{c.flag}</span>
         <div className="min-w-0">
           <div className="break-words text-sm font-bold leading-tight">{c.name}</div>
-            <div className="mt-0.5 break-words text-xs font-semibold leading-snug" style={{ color: C.mint }}>
+            <div className="mt-0.5 break-words text-xs font-semibold leading-snug" style={{ color: C.tealText }}>
             {c.count} {c.count === 1 ? "employer" : "employers"}
           </div>
-          <span className="mt-1 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold" style={{ background: C.green, color: "#fff" }}>
+          <span className="mt-1 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold" style={{ background: C.greenText, color: "#fff" }}>
             <span className="relative flex h-1.5 w-1.5">
               <span className="absolute inline-flex h-full w-full animate-node-pulse rounded-full bg-white/60" />
               <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-white" />
