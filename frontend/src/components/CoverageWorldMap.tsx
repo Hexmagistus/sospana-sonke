@@ -25,10 +25,10 @@ const SHAPES = worldMap.countries as Shape[];
 const VB_W = worldMap.w;
 const VB_H = worldMap.h;
 
-const NAVY = "#071528";
-const OCEAN = "#0b1f3a";
-const UNCOVERED = "#1a3358";
-const UNCOVERED_STROKE = "#2e4f7a";
+const NAVY = "var(--map-ocean)";
+const OCEAN = "var(--map-ocean)";
+const UNCOVERED = "var(--map-land)";
+const UNCOVERED_STROKE = "var(--map-land-stroke)";
 
 const TIER_FILL: Record<TierId, string> = Object.fromEntries(TIERS.map((t) => [t.id, t.fill])) as Record<TierId, string>;
 
@@ -163,10 +163,10 @@ export default function CoverageWorldMap({ countries }: { countries: MapCountry[
 
   return (
     <div id="coverage-world-map" className="w-full min-w-0">
-      <h2 id="coverage-map-heading" className="font-display text-xl font-extrabold text-white sm:text-2xl">
+      <h2 id="coverage-map-heading" className="font-display text-xl font-extrabold text-ss-text sm:text-2xl">
         Where we list employers
       </h2>
-      <p className="mt-1 max-w-3xl text-sm leading-relaxed text-blue-100">
+      <p className="mt-1 max-w-3xl text-sm leading-relaxed text-ss-muted">
         Real country borders. Gold marks South Africa, then the rest of SADC, then the rest of Africa.
         Other colours mark Oceania, Europe, South America, North America and Asia.
         Choosing a country opens its employer list. Sign in if you are not already.
@@ -174,7 +174,7 @@ export default function CoverageWorldMap({ countries }: { countries: MapCountry[
 
       <div
         ref={frameRef}
-        className="relative mt-4 overflow-hidden rounded-2xl border border-white/15 shadow-2xl"
+        className="ss-map relative mt-4 overflow-hidden rounded-2xl border border-ss-border shadow-lg"
         style={{ background: OCEAN }}
       >
         <svg
@@ -191,23 +191,22 @@ export default function CoverageWorldMap({ countries }: { countries: MapCountry[
               <path
                 d="M0 28 H20 M36 28 H56 M28 0 V18 M28 38 V56 M20 28 V14 H36 M20 28 V42 H36"
                 fill="none"
-                stroke="#f5b301"
+                style={{ stroke: "var(--map-circuit)" }}
                 strokeWidth="0.7"
               />
-              <circle cx="20" cy="28" r="1.3" fill="#f5b301" />
-              <circle cx="36" cy="28" r="1.3" fill="#ffe08a" />
-              <circle cx="28" cy="18" r="1.1" fill="#f5b301" />
+              <circle cx="20" cy="28" r="1.3" style={{ fill: "var(--map-circuit)" }} />
+              <circle cx="36" cy="28" r="1.3" style={{ fill: "var(--map-circuit)" }} />
+              <circle cx="28" cy="18" r="1.1" style={{ fill: "var(--map-circuit)" }} />
             </pattern>
           </defs>
-          <rect width={VB_W} height={VB_H} fill={NAVY} />
-          <rect width={VB_W} height={VB_H} fill={`url(#${patternId})`} opacity="0.45" />
+          <rect width={VB_W} height={VB_H} style={{ fill: NAVY }} />
+          <rect width={VB_W} height={VB_H} fill={`url(#${patternId})`} style={{ opacity: "var(--map-circuit-opacity)" }} />
 
           {paintShapes.uncovered.map((shape) => (
             <path
               key={shape.id}
               d={shape.d}
-              fill={UNCOVERED}
-              stroke={UNCOVERED_STROKE}
+              style={{ fill: UNCOVERED, stroke: UNCOVERED_STROKE }}
               strokeWidth={0.45}
               aria-hidden="true"
               className="cursor-default"
@@ -249,14 +248,14 @@ export default function CoverageWorldMap({ countries }: { countries: MapCountry[
                 <path
                   d={shape.d}
                   fill={fill}
-                  stroke={tip?.key === shape.id ? "#fff8e1" : "#071528"}
+                  style={{ stroke: tip?.key === shape.id ? "var(--map-select-stroke)" : "var(--map-covered-stroke)" }}
                   strokeWidth={tip?.key === shape.id ? 1.6 : 0.55}
                   className="cursor-pointer"
                 />
                 {shape.dot && (
                   <>
-                    <circle cx={shape.x} cy={shape.y} r={4.6} fill={fill} stroke="#fff8e1" strokeWidth={0.7} />
-                    <circle cx={shape.x} cy={shape.y} r={1.6} fill="#071528" />
+                    <circle cx={shape.x} cy={shape.y} r={4.6} fill={fill} style={{ stroke: "var(--map-select-stroke)" }} strokeWidth={0.7} />
+                    <circle cx={shape.x} cy={shape.y} r={1.6} style={{ fill: "var(--map-pin)" }} />
                   </>
                 )}
               </a>
@@ -267,7 +266,7 @@ export default function CoverageWorldMap({ countries }: { countries: MapCountry[
         {tip && (
           <div
             role="tooltip"
-            className="pointer-events-none absolute z-20 max-w-[14rem] rounded-xl border border-[#f5b301]/70 bg-[#071528]/95 px-3 py-2 text-left shadow-xl"
+            className="pointer-events-none absolute z-20 max-w-[14rem] rounded-xl border-2 border-navy bg-ss-surface px-3 py-2 text-left shadow-xl"
             style={{
               left: `${tip.left}%`,
               top: `${tip.top}%`,
@@ -276,8 +275,8 @@ export default function CoverageWorldMap({ countries }: { countries: MapCountry[
                 : `translate(${tipShift}, 12px)`,
             }}
           >
-            <div className="text-sm font-bold text-white">{tip.name}</div>
-            <div className="text-xs font-semibold text-[#ffe08a]">
+            <div className="text-sm font-bold text-ss-text">{tip.name}</div>
+            <div className="text-xs font-semibold text-ss-primary">
               {tip.count == null ? "No employers listed" : employerLabel(tip.count)}
             </div>
           </div>
@@ -291,37 +290,37 @@ export default function CoverageWorldMap({ countries }: { countries: MapCountry[
           // "Other regions" only appears when a country is not mapped to a region yet.
           if (empty && tier.id === "other") return null;
           return (
-            <li key={tier.id} className="flex min-w-0 items-start gap-2 text-xs text-blue-100">
+            <li key={tier.id} className="flex min-w-0 items-start gap-2 text-xs text-ss-muted">
               <span
-                className="mt-0.5 h-3 w-3 shrink-0 rounded-sm border border-white/40"
+                className="mt-0.5 h-3 w-3 shrink-0 rounded-sm border border-ss-muted"
                 style={{ background: empty ? UNCOVERED : tier.fill }}
                 aria-hidden="true"
               />
               <span className="min-w-0 leading-snug">
-                <span className="block font-semibold text-white">{tier.label}</span>
-                <span className="block text-blue-200">{empty ? "No employers yet" : employerLabel(summary.employers)}</span>
+                <span className="block font-semibold text-ss-text">{tier.label}</span>
+                <span className="block text-ss-muted">{empty ? "No employers yet" : employerLabel(summary.employers)}</span>
               </span>
             </li>
           );
         })}
       </ul>
 
-      <p className="mt-3 text-[11px] leading-relaxed text-blue-200">
+      <p className="mt-3 text-[11px] leading-relaxed text-ss-muted">
         Hover or focus a highlighted country to see its name and employer count.
         On a phone, tap once to read it and again to open the list. Arrow keys move between highlighted countries.
         Small islands are marked with a dot.
       </p>
 
-      <h3 className="mt-4 text-xs font-semibold uppercase tracking-wider text-blue-200">
+      <h3 className="mt-4 text-xs font-semibold uppercase tracking-wider text-ss-muted">
         Country list
       </h3>
       <nav
         aria-label="Countries with employers"
-        className="mt-2 max-h-56 overflow-y-auto rounded-xl border border-white/10 bg-black/25 p-3"
+        className="mt-2 max-h-56 overflow-y-auto rounded-xl border border-ss-border bg-ss-surface p-3"
       >
         {grouped.map((tier) => (
           <div key={tier.id} className="mb-3 last:mb-0">
-            <p className="mb-1 flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-blue-200">
+            <p className="mb-1 flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-ss-muted">
               <span className="h-2 w-2 rounded-sm" style={{ background: tier.fill }} aria-hidden="true" />
               {tier.label}
             </p>
@@ -330,14 +329,14 @@ export default function CoverageWorldMap({ countries }: { countries: MapCountry[
                 <li key={country.name}>
                   <a
                     href={employerHref(country.name)}
-                    className="flex items-baseline justify-between gap-2 rounded-lg px-2 py-1 text-sm text-white hover:bg-white/10"
+                    className="flex items-baseline justify-between gap-2 rounded-lg px-2 py-1 text-sm text-ss-text hover:bg-ss-primary-soft"
                     style={{ boxShadow: `inset 2px 0 0 ${tier.fill}` }}
                   >
                     <span className="min-w-0 truncate">
                       {country.flag ? <span aria-hidden="true">{country.flag} </span> : null}
                       {country.name}
                     </span>
-                    <span className="shrink-0 text-xs font-semibold text-[#ffe08a]">{country.count.toLocaleString()}</span>
+                    <span className="shrink-0 text-xs font-semibold text-ss-primary">{country.count.toLocaleString()}</span>
                   </a>
                 </li>
               ))}
@@ -345,7 +344,7 @@ export default function CoverageWorldMap({ countries }: { countries: MapCountry[
           </div>
         ))}
       </nav>
-      <p className="mt-2 text-[10px] text-blue-300">
+      <p className="mt-2 text-[10px] text-ss-muted">
         Country shapes from Natural Earth, public domain. Antarctica is left off so the other countries stay readable.
       </p>
     </div>

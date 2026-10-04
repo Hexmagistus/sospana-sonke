@@ -46,11 +46,11 @@ export function GreetingLine() {
 
   const greet = GREETINGS[index];
   return (
-    <p className="mb-3 text-center text-sm text-blue-100" aria-live="polite">
-      <span className="font-semibold text-white">{hello}</span>
+    <p className="mb-3 text-center text-sm text-ss-muted" aria-live="polite">
+      <span className="font-semibold text-ss-text">{hello}</span>
       {" — "}
-      <span className="font-semibold text-[#ffcf5a]">{greet.word}</span>
-      <span className="mt-0.5 block text-xs text-blue-200">{greet.note}</span>
+      <span className="font-semibold text-ss-primary">{greet.word}</span>
+      <span className="mt-0.5 block text-xs text-ss-muted">{greet.note}</span>
     </p>
   );
 }
@@ -105,7 +105,7 @@ export function LitCircuits({ lit, total }: { lit: number; total: number }) {
         <span
           key={i}
           className="h-1.5 w-8 rounded-full transition-colors duration-200 motion-reduce:transition-none"
-          style={{ background: i < on ? "#f5b301" : "rgba(255,255,255,0.22)" }}
+          style={{ background: i < on ? "#f5b301" : "var(--ss-border)" }}
         />
       ))}
     </div>

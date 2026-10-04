@@ -134,8 +134,8 @@ export default function LoginPage() {
       <div className="pointer-events-none absolute inset-0 bg-noise opacity-20 mix-blend-overlay" />
       <div className="relative mx-auto max-w-md">
       {authing && <AuthLoader />}
-      <CircuitOverlay className="-z-10 opacity-40" opacity={0.12} stroke="#f5b301" dotColor="#f5b301" />
-      <p className="mb-3 text-center text-xs font-semibold uppercase tracking-[0.18em] text-[#ffcf5a]">Born in SADC, built for the world</p>
+      <CircuitOverlay className="-z-10 opacity-40" opacity={0.12} stroke="#0b2447" dotColor="#f5b301" />
+      <p className="mb-3 text-center text-xs font-semibold uppercase tracking-[0.18em] text-ss-primary">Born in SADC, built for the world</p>
       <GreetingLine />
       <div className="mb-4 flex items-center justify-center gap-4">
         <div className="auth-float">
@@ -150,8 +150,8 @@ export default function LoginPage() {
         lit={(email.trim() ? 1 : 0) + (password ? 1 : 0) + (needsOtp && otp.trim() ? 1 : 0)}
         total={needsOtp ? 3 : 2}
       />
-      <h1 className="animate-gradient-text mb-1 bg-gradient-to-r from-[#22d3ee] via-[#f5b301] to-[#a78bfa] bg-clip-text text-center text-4xl font-extrabold text-transparent [filter:drop-shadow(0_0_16px_rgba(245,179,1,0.45))]">Sospana Sonke</h1>
-      <p className="mb-4 text-center text-base font-medium text-blue-100">
+      <h1 className="animate-gradient-text mb-1 bg-gradient-to-r from-[#0b2447] via-[#8a5a00] to-[#5b3fd6] bg-clip-text text-center text-4xl font-extrabold text-transparent ">Sospana Sonke</h1>
+      <p className="mb-4 text-center text-base font-medium text-ss-muted">
         We find the opportunities. You apply direct. <span className="font-bold text-ss-tech">No middle-man, no fees, no nonsense.</span> 😎
       </p>
       <div className="mb-6">
@@ -161,7 +161,7 @@ export default function LoginPage() {
         </Alert>
       </div>
       {celebrate && (
-        <p className="mb-3 text-center text-sm font-semibold text-[#ffcf5a]" role="status">
+        <p className="mb-3 text-center text-sm font-semibold text-ss-primary" role="status">
           You&apos;re in. Opening the directory…
         </p>
       )}

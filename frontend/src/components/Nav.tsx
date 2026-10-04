@@ -41,7 +41,7 @@ function ThemeToggle({ className = "" }: { className?: string }) {
       onClick={toggleTheme}
       aria-label={hint}
       title={hint}
-      className={`flex min-h-11 w-9 shrink-0 flex-col items-center justify-center gap-0.5 rounded-md px-0.5 py-0.5 text-gold min-[380px]:w-[4.5rem] min-[430px]:w-[5.25rem] transition hover:bg-white/10 hover:text-gold-light ${className}`}
+      className={`flex min-h-11 w-9 shrink-0 flex-col items-center justify-center gap-0.5 rounded-md px-0.5 py-0.5 text-ss-primary min-[380px]:w-[4.5rem] min-[430px]:w-[5.25rem] transition hover:bg-ss-primary-soft hover:text-ss-text ${className}`}
     >
       <span className="flex h-7 w-7 items-center justify-center" aria-hidden="true">
         {theme === "dark" ? (
@@ -55,7 +55,7 @@ function ThemeToggle({ className = "" }: { className?: string }) {
           </svg>
         )}
       </span>
-      <span className="hidden w-full whitespace-normal text-center text-[11px] min-[380px]:block font-semibold leading-tight tracking-tight text-gold">
+      <span className="hidden w-full whitespace-normal text-center text-[11px] min-[380px]:block font-semibold leading-tight tracking-tight text-ss-primary">
         Adjust brightness
       </span>
     </button>
@@ -133,7 +133,7 @@ export default function Nav() {
 
   const linkClass = (active: boolean) =>
     `rounded-md px-2 py-1.5 text-sm whitespace-nowrap transition xl:px-3 ${
-      active ? "bg-gold font-semibold text-navy shadow-sm" : "text-blue-100 hover:bg-white/10 hover:text-white"
+      active ? "bg-gold font-semibold text-navy shadow-sm" : "text-ss-text hover:bg-ss-primary-soft"
     }`;
 
   const renderLink = (l: (typeof LINKS)[number], onClick?: () => void) => (
@@ -141,7 +141,7 @@ export default function Nav() {
       {(l.href === "/notifications" && unread > 0) || (l.href === "/messages" && unreadMsgs > 0) ? (
         <span className="inline-flex items-center gap-1.5">
           {l.label}
-          <span className="inline-flex h-4 min-w-[1rem] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold leading-none text-white">
+          <span className="inline-flex h-4 min-w-[1rem] items-center justify-center rounded-full bg-red-700 px-1 text-[10px] font-bold leading-none text-white">
             {(() => { const n = l.href === "/messages" ? unreadMsgs : unread; return n > 9 ? "9+" : n; })()}
           </span>
         </span>
@@ -153,12 +153,12 @@ export default function Nav() {
 
   return (
     <>
-    <nav className={`sticky top-0 z-30 border-b border-white/10 bg-gradient-to-r from-[#071528]/95 via-navy/92 to-brand-dark/90 shadow-[0_16px_40px_-24px_rgba(0,0,0,0.8)] backdrop-blur-xl ${explorer ? "lg:hidden" : ""}`}>
+    <nav className={`sticky top-0 z-30 border-b-2 border-gold bg-ss-surface shadow-[0_8px_24px_-18px_rgba(11,36,71,0.5)] ${explorer ? "lg:hidden" : ""}`}>
       <div className="mx-auto flex w-full max-w-6xl items-center gap-1 px-3 py-2.5 min-[360px]:px-4">
         <Link href="/companies" className="mr-1 flex shrink-0 items-center gap-1.5 whitespace-nowrap min-[360px]:gap-2 sm:mr-3">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logo-mark.png" alt="Sospana Sonke" className="block h-8 w-8 max-w-none shrink-0 aspect-square rounded-xl min-[360px]:h-9 min-[360px]:w-9 object-cover shadow-[0_0_22px_-2px_var(--ss-primary-glow)] ring-1 ring-gold/50" />
-          <span className="text-[0.9rem] font-bold text-white min-[360px]:text-base">Sospana&nbsp;Sonke</span>
+          <span className="text-[0.9rem] font-bold text-ss-text min-[360px]:text-base">Sospana&nbsp;Sonke</span>
         </Link>
 
         {/* Desktop / tablet: full link row */}
@@ -172,13 +172,13 @@ export default function Nav() {
           <div className="ml-auto flex shrink-0 items-center gap-3 whitespace-nowrap pl-2">
             <NotificationBell unread={unread} />
             <ThemeToggle />
-            <span className="hidden max-w-[9rem] truncate text-xs text-blue-200 xl:inline" title={user.email}>{user.email}</span>
+            <span className="hidden max-w-[9rem] truncate text-xs text-ss-muted xl:inline" title={user.email}>{user.email}</span>
             <button
               onClick={() => {
                 logout();
                 router.push("/login");
               }}
-              className="text-sm text-blue-100 hover:text-white"
+              className="text-sm font-semibold text-ss-text underline-offset-2 hover:underline"
             >
               Sign out
             </button>
@@ -194,7 +194,7 @@ export default function Nav() {
             aria-label={menuOpen ? "Close menu" : "Open menu"}
             aria-expanded={menuOpen}
             onClick={() => setMenuOpen((v) => !v)}
-            className="flex h-11 w-11 items-center justify-center rounded-md text-white hover:bg-white/10 lg:h-9 lg:w-9"
+            className="flex h-11 w-11 items-center justify-center rounded-md text-ss-text hover:bg-ss-primary-soft lg:h-9 lg:w-9"
           >
             {menuOpen ? (
               <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="2">
@@ -211,7 +211,7 @@ export default function Nav() {
 
       {/* Mobile: stacked dropdown panel */}
       {menuOpen && (
-        <div className="border-t border-white/10 px-4 pb-3 pt-2 lg:hidden">
+        <div className="border-t border-ss-border px-4 pb-3 pt-2 lg:hidden">
           <div className="flex flex-col gap-1">
             {LINKS.map((l) => renderLink(l, () => setMenuOpen(false)))}
             {user.role === "admin" && (
@@ -224,14 +224,14 @@ export default function Nav() {
               </Link>
             )}
           </div>
-          <div className="mt-3 flex items-center justify-between border-t border-white/10 pt-3">
-            <span className="truncate text-xs text-blue-200">{user.email}</span>
+          <div className="mt-3 flex items-center justify-between border-t border-ss-border pt-3">
+            <span className="truncate text-xs text-ss-muted">{user.email}</span>
             <button
               onClick={() => {
                 logout();
                 router.push("/login");
               }}
-              className="text-sm text-blue-100 hover:text-white"
+              className="text-sm font-semibold text-ss-text underline-offset-2 hover:underline"
             >
               Sign out
             </button>
@@ -243,15 +243,15 @@ export default function Nav() {
     {/* Desktop explorer pages: the same links, in a drawer opened by the Menu button beside the logo. */}
     {explorer && drawerOpen && (
       <div className="fixed inset-0 z-50 hidden lg:block" onMouseDown={(e) => { if (e.target === e.currentTarget) setDrawerOpen(false); }}>
-        <div className="absolute inset-0 bg-black/50" aria-hidden="true" onMouseDown={() => setDrawerOpen(false)} />
+        <div className="absolute inset-0 bg-slate-900/40" aria-hidden="true" onMouseDown={() => setDrawerOpen(false)} />
         <aside
           role="dialog"
           aria-modal="true"
           aria-label="Site menu"
-          className="absolute left-0 top-0 flex h-full w-72 flex-col overflow-y-auto border-r border-white/10 bg-gradient-to-b from-[#071528] to-navy p-4 shadow-2xl"
+          className="absolute left-0 top-0 flex h-full w-72 flex-col overflow-y-auto border-r border-ss-border bg-ss-surface p-4 shadow-2xl"
         >
           <div className="mb-3 flex items-center justify-between">
-            <span className="flex items-center gap-2 font-bold text-white">
+            <span className="flex items-center gap-2 font-bold text-ss-text">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/logo-mark.png" alt="" className="h-8 w-8 rounded-lg object-cover ring-1 ring-gold/50" />
               Sospana&nbsp;Sonke
@@ -261,7 +261,7 @@ export default function Nav() {
               autoFocus
               aria-label="Close menu"
               onClick={() => setDrawerOpen(false)}
-              className="flex h-8 w-8 items-center justify-center rounded-md text-white hover:bg-white/10"
+              className="flex h-8 w-8 items-center justify-center rounded-md text-ss-text hover:bg-ss-primary-soft"
             >
               <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M6 6l12 12M18 6L6 18" /></svg>
             </button>
@@ -274,18 +274,18 @@ export default function Nav() {
               </Link>
             )}
           </div>
-          <div className="mt-4 flex items-center gap-3 border-t border-white/10 pt-3">
+          <div className="mt-4 flex items-center gap-3 border-t border-ss-border pt-3">
             <NotificationBell unread={unread} />
             <ThemeToggle />
           </div>
           <div className="mt-3 flex items-center justify-between gap-2">
-            <span className="min-w-0 truncate text-xs text-blue-200" title={user.email}>{user.email}</span>
+            <span className="min-w-0 truncate text-xs text-ss-muted" title={user.email}>{user.email}</span>
             <button
               onClick={() => {
                 logout();
                 router.push("/login");
               }}
-              className="shrink-0 text-sm text-blue-100 hover:text-white"
+              className="shrink-0 text-sm font-semibold text-ss-text underline-offset-2 hover:underline"
             >
               Sign out
             </button>

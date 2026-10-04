@@ -148,8 +148,8 @@ function CollegesDirectoryInner() {
             subtitle={
               <>
                 Browse technical and vocational college openings and apply on each institution&apos;s own careers page.{" "}
-                <strong className="text-white"><AnimatedNumber value={colleges.length} /></strong> colleges ·{" "}
-                <strong className="text-white"><AnimatedNumber value={withLinks} /></strong> with direct careers links.
+                <strong className="text-ss-text"><AnimatedNumber value={colleges.length} /></strong> colleges ·{" "}
+                <strong className="text-ss-text"><AnimatedNumber value={withLinks} /></strong> with direct careers links.
               </>
             }
           >
@@ -183,7 +183,7 @@ function CollegesDirectoryInner() {
                   >
                     <span>{COUNTRY_FLAGS[cn] || "🌍"} {cn}</span>
                     <span className={`rounded-full px-1.5 py-0.5 text-[11px] font-bold tabular-nums ${
-                      active ? "bg-white/20 text-white" : "bg-ss-surface text-ss-muted"
+                      active ? "bg-navy/15 text-navy" : "bg-ss-surface text-ss-muted"
                     }`}>{countryCounts[cn] ?? 0}</span>
                   </button>
                 );
@@ -191,12 +191,12 @@ function CollegesDirectoryInner() {
               <button
                 onClick={() => setShortlistOnly((v) => !v)}
                 className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-semibold transition ${
-                  shortlistOnly ? "bg-gold text-white shadow-sm" : "bg-ss-border text-ss-muted hover:bg-ss-primary-soft hover:text-ss-text"
+                  shortlistOnly ? "bg-gold text-navy shadow-sm" : "bg-ss-border text-ss-muted hover:bg-ss-primary-soft hover:text-ss-text"
                 }`}
               >
                 ⭐ My shortlist
                 <span className={`rounded-full px-1.5 py-0.5 text-[11px] font-bold tabular-nums ${
-                  shortlistOnly ? "bg-white/20 text-white" : "bg-ss-surface text-ss-muted"
+                  shortlistOnly ? "bg-navy/15 text-navy" : "bg-ss-surface text-ss-muted"
                 }`}>{shortlistIds.size}</span>
               </button>
             </div>

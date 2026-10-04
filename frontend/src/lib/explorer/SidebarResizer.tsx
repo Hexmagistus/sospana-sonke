@@ -65,11 +65,11 @@ export function SidebarResizer({ width, onChange, containerRef, controls, label 
       onPointerCancel={up}
       onDoubleClick={() => onChange(SIDEBAR_DEFAULT, true)}
       onKeyDown={key}
-      className="group relative z-10 hidden w-2 shrink-0 cursor-col-resize touch-none select-none bg-white/10 outline-none transition-colors hover:bg-gold/40 focus-visible:bg-gold/60 lg:block"
+      className="group relative z-10 hidden w-2 shrink-0 cursor-col-resize touch-none select-none bg-ss-primary-soft outline-none transition-colors hover:bg-gold/40 focus-visible:bg-gold/60 lg:block"
     >
       <span
         aria-hidden
-        className="absolute left-1/2 top-1/2 flex h-9 w-5 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-md border border-white/25 bg-[#0a1a30] text-[11px] font-bold leading-none text-[#ffe08a] shadow group-hover:border-gold group-focus-visible:border-gold"
+        className="absolute left-1/2 top-1/2 flex h-9 w-5 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-md border border-ss-border bg-ss-surface text-[11px] font-bold leading-none text-ss-primary shadow group-hover:border-gold group-focus-visible:border-gold"
       >
         ⇔
       </span>

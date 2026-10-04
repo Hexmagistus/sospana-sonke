@@ -45,8 +45,8 @@ export default function ForgotPasswordPage() {
         <div className="mb-4 flex justify-center">
           <CircuitMascot coverEyes={false} celebrate={Boolean(sent)} />
         </div>
-        <h1 className="mb-2 text-center text-3xl font-extrabold text-white">Reset your password</h1>
-        <p className="mb-5 text-center text-sm text-blue-100">
+        <h1 className="mb-2 text-center text-3xl font-extrabold text-ss-text">Reset your password</h1>
+        <p className="mb-5 text-center text-sm text-ss-muted">
           We&apos;ll send a token if that email is registered. The reply looks the same either way, so nobody can use this to check who has an account.
         </p>
         <GlowFrame>

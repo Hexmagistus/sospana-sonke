@@ -371,8 +371,8 @@ function CompaniesDirectoryInner() {
             subtitle={
               <>
                 Browse the full directory and apply on each employer&apos;s official careers page.{" "}
-                <strong className="text-white"><AnimatedNumber value={facets.total} /></strong> companies in the directory ·{" "}
-                <strong className="text-white"><AnimatedNumber value={withLinks} /></strong> with direct careers links.
+                <strong className="text-ss-text"><AnimatedNumber value={facets.total} /></strong> companies in the directory ·{" "}
+                <strong className="text-ss-text"><AnimatedNumber value={withLinks} /></strong> with direct careers links.
               </>
             }
           >
@@ -421,11 +421,11 @@ function CompaniesDirectoryInner() {
               <button
                 onClick={() => setShortlistOnly((v) => !v)}
                 className={`flex shrink-0 flex-col items-center rounded-xl px-3.5 py-1.5 leading-tight transition ${
-                  shortlistOnly ? "bg-gold text-white shadow-sm" : "bg-ss-border text-ss-muted hover:bg-ss-primary-soft hover:text-ss-text"
+                  shortlistOnly ? "bg-gold text-navy shadow-sm" : "bg-ss-border text-ss-muted hover:bg-ss-primary-soft hover:text-ss-text"
                 }`}
               >
                 <span className="text-sm font-semibold">⭐ My shortlist</span>
-                <span className={`text-[11px] font-bold tabular-nums ${shortlistOnly ? "text-white/85" : "text-ss-muted"}`}>
+                <span className={`text-[11px] font-bold tabular-nums ${shortlistOnly ? "text-navy" : "text-ss-muted"}`}>
                   {shortlistIds.size} saved
                 </span>
               </button>

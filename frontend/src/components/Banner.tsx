@@ -30,7 +30,7 @@ export function Banner({
 }) {
   const photo = PHOTO[variant];
   return (
-    <div className="banner relative isolate overflow-hidden rounded-[1.6rem] text-white shadow-[0_24px_60px_-28px_rgba(7,21,40,0.75)] ring-1 ring-white/15">
+    <div className="banner relative isolate overflow-hidden rounded-[1.6rem] text-ss-text shadow-[0_18px_44px_-26px_rgba(11,36,71,0.45)] ring-1 ring-ss-border">
       <Image
         src={photo.src}
         alt=""
@@ -40,13 +40,7 @@ export function Banner({
         className="object-cover"
         style={{ objectPosition: photo.position }}
       />
-      <div
-        className="absolute inset-0"
-        style={{
-          background:
-            "linear-gradient(105deg, rgba(7,21,40,0.92) 0%, rgba(11,31,58,0.78) 46%, rgba(11,31,58,0.42) 100%)",
-        }}
-      />
+      <div className="banner-scrim absolute inset-0" />
       <div className="pointer-events-none absolute inset-0 bg-noise opacity-[0.16] mix-blend-overlay" />
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-gold/80 to-transparent" />
       <div className="pointer-events-none absolute -right-8 -top-16 h-48 w-48 rounded-full bg-gold/25 blur-3xl" />
@@ -55,13 +49,13 @@ export function Banner({
         <div className="flex items-center justify-between gap-6 xl:contents">
           <div className="max-w-xl xl:order-1">
             {eyebrow && (
-              <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-gold">{eyebrow}</p>
+              <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-ss-primary">{eyebrow}</p>
             )}
             <h1 className="text-2xl font-extrabold leading-tight sm:text-3xl">{title}</h1>
-            {subtitle && <p className="mt-2 max-w-lg text-sm leading-relaxed text-blue-100 sm:text-base">{subtitle}</p>}
+            {subtitle && <p className="mt-2 max-w-lg text-sm leading-relaxed text-ss-muted sm:text-base">{subtitle}</p>}
             {children && <div className="mt-4">{children}</div>}
           </div>
-          <div className="hidden h-28 w-28 shrink-0 overflow-hidden rounded-2xl shadow-lg ring-1 ring-white/30 sm:block xl:order-3">
+          <div className="hidden h-28 w-28 shrink-0 overflow-hidden rounded-2xl shadow-lg ring-1 ring-ss-border sm:block xl:order-3">
             <Image src={photo.src} alt="" width={224} height={224} className="h-full w-full object-cover" style={{ objectPosition: photo.position }} />
           </div>
         </div>

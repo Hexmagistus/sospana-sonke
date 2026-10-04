@@ -25,6 +25,7 @@ const config: Config = {
           surface: "var(--ss-surface)",
           elevated: "var(--ss-surface-elevated)",
           glass: "var(--ss-glass)",
+          panel: "var(--ss-panel)",
           border: "var(--ss-border)",
           text: "var(--ss-text)",
           muted: "var(--ss-text-muted)",
@@ -60,6 +61,9 @@ const config: Config = {
       // Fluid type scale (tokens live in globals.css). Existing text-sm / text-xl...
       // utilities are unchanged so no layout shifts; new work can use text-step-*.
       fontSize: {
+        // Bright theme legibility: html is 17.5px, so sm is 16px and xs is 14px.
+        xs: ["0.8rem", { lineHeight: "1.25rem" }],
+        sm: ["0.92rem", { lineHeight: "1.45rem" }],
         "step--1": ["var(--ss-step--1)", { lineHeight: "1.5" }],
         "step-0": ["var(--ss-step-0)", { lineHeight: "1.6" }],
         "step-1": ["var(--ss-step-1)", { lineHeight: "1.4" }],

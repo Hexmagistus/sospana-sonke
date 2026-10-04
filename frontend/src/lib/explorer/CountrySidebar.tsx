@@ -95,7 +95,7 @@ export function CountrySidebar({
   }, [selected, rows, expanded]);
 
   return (
-    <div className="flex h-full min-h-0 flex-col gap-3 text-white">
+    <div className="flex h-full min-h-0 flex-col gap-3 text-ss-text">
       <div className="relative">
         <label htmlFor={`${uid}-search`} className="sr-only">Search countries</label>
         <input
@@ -106,20 +106,20 @@ export function CountrySidebar({
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Browse from…"
           autoComplete="off"
-          className="w-full rounded-lg border border-white/15 bg-black/30 py-2 pl-3 pr-10 text-sm text-white placeholder:text-blue-300/80 focus:border-gold"
+          className="w-full rounded-lg border border-ss-border bg-ss-surface py-2 pl-3 pr-10 text-sm text-ss-text placeholder:text-ss-muted focus:border-gold"
         />
-        <kbd aria-hidden className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 rounded border border-white/20 px-1.5 py-0.5 text-[10px] font-semibold text-blue-200">/</kbd>
+        <kbd aria-hidden className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 rounded border border-ss-border px-1.5 py-0.5 text-[10px] font-semibold text-ss-muted">/</kbd>
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col">
           <div className="mb-1 flex items-center justify-between px-1">
-            <h3 className="text-[11px] font-bold uppercase tracking-wider text-blue-200">Countries ({total})</h3>
+            <h3 className="text-[11px] font-bold uppercase tracking-wider text-ss-muted">Countries ({total})</h3>
             {allowAll && (
               <button
                 type="button"
                 onClick={() => onSelect("")}
                 aria-pressed={selected === ""}
-                className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${selected === "" ? "bg-gold text-navy" : "text-[#ffe08a] hover:bg-white/10"}`}
+                className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${selected === "" ? "bg-gold text-navy" : "text-ss-primary hover:bg-ss-primary-soft"}`}
               >
                 All countries
               </button>
@@ -127,7 +127,7 @@ export function CountrySidebar({
           </div>
           <div ref={listRef} className="relative max-h-[22rem] min-h-0 flex-1 space-y-2 overflow-y-auto pr-1 lg:max-h-none" data-testid="country-list">
             {groups.length === 0 && (
-              <p className="px-2 py-4 text-sm text-blue-200">No country matches “{query.trim()}”.</p>
+              <p className="px-2 py-4 text-sm text-ss-muted">No country matches “{query.trim()}”.</p>
             )}
             {groups.map((g) => {
               const open = searching || !collapsed.has(g.id);
@@ -140,7 +140,7 @@ export function CountrySidebar({
                       aria-expanded={open}
                       aria-controls={listId}
                       onClick={() => toggle(g.id)}
-                      className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-[11px] font-bold uppercase tracking-wider text-blue-200 hover:bg-white/5"
+                      className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-[11px] font-bold uppercase tracking-wider text-ss-muted hover:bg-ss-primary-soft"
                     >
                       <span aria-hidden className={`inline-block transition-transform ${open ? "rotate-90" : ""}`}>▸</span>
                       <span className="flex-1">
@@ -152,7 +152,7 @@ export function CountrySidebar({
                           </>
                         )}
                       </span>
-                      <span className="rounded-full bg-white/10 px-1.5 text-[10px] tabular-nums">{g.rows.length}</span>
+                      <span className="rounded-full bg-ss-primary-soft px-1.5 text-[10px] tabular-nums">{g.rows.length}</span>
                     </button>
                   </h4>
                   {open && (
@@ -181,21 +181,21 @@ export function CountrySidebar({
                               } else moveFocus(e, r.name);
                             }}
                             className={`relative flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm outline-none transition-colors ${
-                              r.selectable ? "cursor-pointer hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-gold" : "cursor-not-allowed opacity-45"
-                            } ${isSelected ? "bg-white/10" : ""}`}
+                              r.selectable ? "cursor-pointer hover:bg-ss-primary-soft focus-visible:ring-2 focus-visible:ring-gold" : "cursor-not-allowed opacity-45"
+                            } ${isSelected ? "bg-ss-primary-soft" : ""}`}
                           >
                             {isSelected && <span aria-hidden className="absolute inset-y-1.5 left-0 w-1 rounded-full bg-gold" />}
                             <span aria-hidden className="w-6 shrink-0 text-center text-xl leading-none">{r.flag}</span>
                             <span className="min-w-0 flex-1">
-                              <span className="block truncate font-semibold text-white">{r.name}</span>
-                              <span className="block text-[11px] text-blue-200">
+                              <span className="block truncate font-semibold text-ss-text">{r.name}</span>
+                              <span className="block text-[11px] text-ss-muted">
                                 {r.selectable ? `${r.employers.toLocaleString()} ${r.employers === 1 && noun === "employers" ? "employer" : noun}` : "No employers yet"}
                               </span>
                             </span>
                             {r.selectable && r.counted > 0 && (
                               <span
                                 title={`${r.counted} of ${r.employers} have a counted vacancy result. The rest say “Not counted yet”.`}
-                                className="shrink-0 rounded-full border border-gold/60 bg-gold/15 px-1.5 py-0.5 text-[10px] font-bold tabular-nums text-[#ffe08a]"
+                                className="shrink-0 rounded-full border border-gold/60 bg-gold/15 px-1.5 py-0.5 text-[10px] font-bold tabular-nums text-ss-primary"
                               >
                                 {r.counted} counted
                               </span>
