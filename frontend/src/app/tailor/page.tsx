@@ -65,7 +65,7 @@ function StepBar({ step }: { step: Step }) {
         <div key={label} className="flex items-center gap-2">
           <span
             className={`flex h-6 w-6 flex-none items-center justify-center rounded-full text-xs font-bold ${
-              i < step ? "bg-brand text-white" : i === step ? "bg-gold text-ss-text" : "bg-ss-border text-ss-muted"
+              i < step ? "bg-[#0b5e58] text-white" : i === step ? "bg-gold text-ss-text" : "bg-ss-border text-ss-muted"
             }`}
           >
             {i < step ? "✓" : i + 1}

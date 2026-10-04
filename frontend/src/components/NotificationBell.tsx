@@ -65,7 +65,7 @@ export default function NotificationBell({ unread }: { unread: number }) {
       <button
         ref={buttonRef}
         type="button"
-        className="relative flex h-11 w-11 items-center justify-center rounded-full text-blue-100 transition hover:bg-white/10 hover:text-white"
+        className="relative flex h-11 w-11 items-center justify-center rounded-full text-ss-text transition hover:bg-ss-primary-soft"
         aria-label={label}
         aria-haspopup="dialog"
         aria-expanded={open}
@@ -74,7 +74,7 @@ export default function NotificationBell({ unread }: { unread: number }) {
       >
         <BellIcon />
         {unread > 0 && (
-          <span className="absolute right-1 top-1 inline-flex h-4 min-w-[1rem] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold leading-none text-white">
+          <span className="absolute right-1 top-1 inline-flex h-4 min-w-[1rem] items-center justify-center rounded-full bg-red-700 px-1 text-[10px] font-bold leading-none text-white">
             {unread > 9 ? "9+" : unread}
           </span>
         )}

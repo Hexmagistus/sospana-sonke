@@ -74,10 +74,11 @@ describe("HowToUseCard (hero banner)", () => {
     assert.match(open, />Hide</);
   });
 
-  it("is always a dark card with light text, so it reads over the photo in either theme", () => {
-    assert.match(open, /bg-\[#071528\]/);
-    assert.match(open, /text-white/);
-    assert.ok(!open.includes("text-ss-text"));
+  it("uses the theme tokens (bright card, dark text by default), never fixed navy or white", () => {
+    assert.match(open, /bg-ss-panel/);
+    assert.match(open, /text-ss-text/);
+    assert.ok(!open.includes("bg-[#071528]"));
+    assert.ok(!open.includes("text-white"));
   });
 
   it("when hidden, only a small How to use button remains", () => {

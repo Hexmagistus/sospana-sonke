@@ -21,6 +21,8 @@ import "./explorer/CountrySidebar.test.js";
 import "./explorer/sidebarWidth.test.js";
 import "./explorer/ExplorerControls.test.js";
 import "./explorer/adSlots.test.js";
+import "./themeContrast.test.js";
+import "./mapView.test.js";
 import "./mobileFit.test.js";
 
 describe("directory country stays when the category changes", () => {

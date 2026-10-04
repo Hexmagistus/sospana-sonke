@@ -138,10 +138,10 @@ export function Button({
   glow?: boolean;
 } & ButtonHTMLAttributes<HTMLButtonElement>) {
   const styles = {
-    primary: "bg-gradient-to-br from-[#163e73] to-[#0b1f3a] text-white shadow-[0_12px_28px_-14px_rgba(11,31,58,0.85)] ring-1 ring-[#f5b301]/45 hover:brightness-110 focus-visible:ring-gold",
+    primary: "bg-gold font-semibold text-navy shadow-[0_8px_20px_-12px_rgba(11,36,71,0.55)] ring-1 ring-navy/30 hover:brightness-105 focus-visible:ring-navy dark:focus-visible:ring-gold",
     secondary: "bg-ss-primary-soft text-ss-text shadow-sm ring-1 ring-ss-primary-border-soft hover:bg-ss-primary-soft-strong focus-visible:ring-navy dark:focus-visible:ring-gold",
-    ghost: "border border-ss-border bg-ss-glass text-ss-text shadow-sm backdrop-blur-md hover:border-brand hover:bg-brand/5 hover:text-brand-dark focus-visible:ring-brand/30",
-    danger: "bg-ss-danger text-white hover:brightness-110 focus-visible:ring-ss-danger",
+    ghost: "border border-ss-border bg-ss-glass text-ss-text shadow-sm backdrop-blur-md hover:border-navy hover:bg-ss-primary-soft hover:text-ss-text focus-visible:ring-brand/30",
+    danger: "bg-ss-danger text-white hover:brightness-110 focus-visible:ring-ss-danger dark:text-slate-900",
   }[variant];
   const sizes = {
     sm: "px-3 py-1.5 text-xs",
@@ -152,7 +152,7 @@ export function Button({
     <button
       {...props}
       disabled={props.disabled || loading}
-      className={`group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-lg font-medium transition-all duration-150 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${sizes} ${styles} ${props.className || ""}`}
+      className={`group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-lg font-medium transition-all duration-150 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-70 disabled:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${sizes} ${styles} ${props.className || ""}`}
     >
       {loading && (
         <svg className="h-3.5 w-3.5 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -244,13 +244,11 @@ const ALERT_STYLE: Record<"info" | "error" | "success", { cls: string; icon: Rea
 };
 
 const PHOTO_INFO = {
-  // Sits on the dark login photograph. The default info alert is 5% sky
-  // over navy text, which disappears on that photo. This fill is opaque
-  // enough that #f4f8ff stays above WCAG AA (4.5:1) even if the photo
-  // behind the panel is white.
-  cls: "border-[rgba(126,200,255,0.75)] bg-[rgba(7,26,51,0.92)] text-[#f4f8ff]",
+  // Sits on the login photograph. Solid surface and full-strength text, so it
+  // reads on a bright or a dark photo (text 17:1 on white).
+  cls: "border-sky/60 bg-ss-surface text-ss-text",
   icon: (
-    <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 flex-none text-[#9ad7ff]" aria-hidden="true">
+    <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 flex-none text-sky" aria-hidden="true">
       <path fillRule="evenodd" d="M18 10A8 8 0 11 2 10a8 8 0 0116 0zM9 9a1 1 0 012 0v4a1 1 0 11-2 0V9zm1-4a1.25 1.25 0 100 2.5A1.25 1.25 0 0010 5z" clipRule="evenodd" />
     </svg>
   ),

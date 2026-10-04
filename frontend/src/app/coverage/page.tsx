@@ -57,10 +57,10 @@ function CoverageInner() {
           title="Coverage map"
           subtitle={
             <>
-              <strong className="text-white"><AnimatedNumber value={totals.verified_ok} /></strong> verified working ·{" "}
-              <strong className="text-white"><AnimatedNumber value={totals.pending_verification} /></strong> pending verification ·{" "}
-              <strong className="text-white"><AnimatedNumber value={totals.needs_attention} /></strong> need attention — out of{" "}
-              <strong className="text-white"><AnimatedNumber value={totals.total} /></strong> entries across every country and category.
+              <strong className="text-ss-text"><AnimatedNumber value={totals.verified_ok} /></strong> verified working ·{" "}
+              <strong className="text-ss-text"><AnimatedNumber value={totals.pending_verification} /></strong> pending verification ·{" "}
+              <strong className="text-ss-text"><AnimatedNumber value={totals.needs_attention} /></strong> need attention — out of{" "}
+              <strong className="text-ss-text"><AnimatedNumber value={totals.total} /></strong> entries across every country and category.
             </>
           }
         />

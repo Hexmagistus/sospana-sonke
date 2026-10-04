@@ -6,7 +6,7 @@ import { createContext, useCallback, useContext, useEffect, useState, type React
  *
  * The actual [data-theme] attribute on <html> is set twice, deliberately:
  *  1. Synchronously, before hydration, by the inline bootstrap script in
- *     layout.tsx (reads localStorage, falls back to prefers-color-scheme) --
+ *     layout.tsx (reads localStorage, falls back to light) --
  *     this is what prevents a flash of the wrong theme on load.
  *  2. By this provider's toggleTheme(), for the rest of the session.
  * This component's own state just mirrors whatever the bootstrap script
@@ -26,7 +26,7 @@ interface ThemeContextValue {
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setTheme] = useState<Theme>("dark");
+  const [theme, setTheme] = useState<Theme>("light");
 
   useEffect(() => {
     const current = document.documentElement.getAttribute("data-theme");
@@ -62,9 +62,10 @@ export const THEME_BOOTSTRAP_SCRIPT = `
 (function () {
   try {
     var stored = localStorage.getItem('${STORAGE_KEY}');
-    // Default everyone into the exciting Deep Space (neon) look; only an
-    // explicit user toggle (stored) opts back to light.
-    var theme = stored === 'dark' || stored === 'light' ? stored : 'dark';
+    // Bright is the default so text is easy to read from a distance. Dark is
+    // an option: only an explicit toggle (stored) turns it on. The OS
+    // colour-scheme setting is deliberately not consulted.
+    var theme = stored === 'dark' || stored === 'light' ? stored : 'light';
     document.documentElement.setAttribute('data-theme', theme);
   } catch (e) {}
 })();

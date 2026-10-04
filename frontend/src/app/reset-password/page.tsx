@@ -48,8 +48,8 @@ export default function ResetPasswordPage() {
         <div className="mb-4 flex justify-center">
           <CircuitMascot coverEyes={focused && !done} celebrate={done} />
         </div>
-        <h1 className="mb-2 text-center text-3xl font-extrabold text-white">Choose a new password</h1>
-        <p className="mb-5 text-center text-sm text-blue-100">
+        <h1 className="mb-2 text-center text-3xl font-extrabold text-ss-text">Choose a new password</h1>
+        <p className="mb-5 text-center text-sm text-ss-muted">
           Paste the token from the email. This signs out every other session on the account.
         </p>
         <GlowFrame>

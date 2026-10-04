@@ -22,7 +22,7 @@ export function CategorySelect({ options, value, onChange, scope }: Props) {
   const id = useId();
   return (
     <div className="mx-auto flex w-full max-w-md flex-col items-stretch gap-1 pb-3 sm:flex-row sm:items-center sm:justify-center sm:gap-2">
-      <label htmlFor={id} className="text-center text-[11px] font-bold uppercase tracking-wider text-blue-200 sm:text-left">
+      <label htmlFor={id} className="text-center text-[11px] font-bold uppercase tracking-wider text-ss-muted sm:text-left">
         Category
       </label>
       <select
@@ -30,7 +30,7 @@ export function CategorySelect({ options, value, onChange, scope }: Props) {
         value={value}
         onChange={(e) => onChange(e.target.value)}
         aria-describedby={`${id}-hint`}
-        className="min-w-0 flex-1 rounded-lg border border-white/20 bg-[#071528] px-3 py-2 text-sm font-semibold text-white focus:border-gold"
+        className="min-w-0 flex-1 rounded-lg border border-ss-border bg-ss-surface px-3 py-2 text-sm font-semibold text-ss-text focus:border-gold"
       >
         {options.map((o) => (
           <option key={o.id} value={o.id}>{categoryOptionText(o)}</option>

@@ -138,7 +138,7 @@ export function NotCountedBadge() {
           id={id}
           role="tooltip"
           style={{ position: "fixed", left: pos.left, top: pos.top, width: Math.min(288, window.innerWidth - 16) }}
-          className="z-[1000] rounded-xl border border-gold/60 bg-navy p-3 text-xs leading-snug text-white shadow-xl"
+          className="z-[1000] rounded-xl border-2 border-navy bg-ss-surface p-3 text-xs leading-snug text-ss-text shadow-xl"
         >
           {NOT_COUNTED_TOOLTIP}
         </span>,
@@ -198,7 +198,7 @@ export function ShortlistStar({ companyId }: { companyId: string }) {
       aria-pressed={on}
       title={on ? "In your shortlist" : "Add to shortlist"}
       className={`rounded-full p-1 text-xl leading-none transition ${
-        on ? "text-gold drop-shadow-sm" : "text-gray-300 hover:text-ss-muted"
+        on ? "text-gold drop-shadow-sm" : "text-ss-muted hover:text-navy"
       }`}
     >
       {on ? "★" : "☆"}

@@ -10,13 +10,14 @@
    deliberately-designed "Deep Space" theme, not an inverted palette --
    see lib/theme.tsx for the toggle that flips [data-theme] on <html>. */
 :root {
-  --ss-bg: #fbf8f1;
+  --ss-bg: #f7f5f0;
   --ss-surface: #ffffff;
   --ss-surface-elevated: #ffffff;
-  --ss-glass: rgba(255, 255, 255, 0.72);
-  --ss-border: rgba(11, 36, 71, 0.10);
-  --ss-text: #111827;
-  --ss-text-muted: #6b7280;
+  --ss-glass: rgba(255, 255, 255, 0.94);
+  --ss-panel: rgba(255, 255, 255, 0.95);
+  --ss-border: rgba(11, 36, 71, 0.20);
+  --ss-text: #0b1220;
+  --ss-text-muted: #3f4a5c;
   --ss-primary: #f5b301;
   --ss-primary-glow: rgba(245, 179, 1, 0.35);
   --ss-tech: #0f766e;
@@ -40,6 +41,7 @@
   --ss-surface: #0f1b30;
   --ss-surface-elevated: #16233d;
   --ss-glass: rgba(10, 18, 32, 0.72);
+  --ss-panel: rgba(7, 21, 40, 0.9);
   --ss-border: rgba(255, 255, 255, 0.10);
   --ss-text: #eef2f8;
   --ss-text-muted: #94a3b8;
@@ -312,7 +314,7 @@ body {
     radial-gradient(900px 520px at 100% -8%, rgba(245, 179, 1, 0.14), transparent 60%),
     radial-gradient(760px 520px at -12% 6%, rgba(15, 118, 110, 0.12), transparent 60%),
     radial-gradient(820px 620px at 50% 118%, rgba(124, 92, 255, 0.10), transparent 62%),
-    linear-gradient(180deg, rgba(251, 248, 241, 0.9), rgba(251, 248, 241, 0.94)),
+    linear-gradient(180deg, rgba(247, 245, 240, 0.96), rgba(247, 245, 240, 0.98)),
     url("/photos/mara-sunset.jpg");
   background-size: auto, auto, auto, auto, cover;
   background-attachment: fixed;
@@ -347,8 +349,8 @@ main#main-content {
 .photo-wash-scrim {
   background: linear-gradient(
     180deg,
-    rgba(251, 248, 241, 0.42) 0%,
-    rgba(251, 248, 241, 0.78) 42%,
+    rgba(247, 245, 240, 0.7) 0%,
+    rgba(247, 245, 240, 0.9) 42%,
     var(--ss-bg) 100%
   );
 }
@@ -377,6 +379,9 @@ main tbody tr {
 }
 
 .auth-stage-scrim {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.93) 0%, rgba(255, 255, 255, 0.86) 42%, var(--ss-bg) 100%);
+}
+:root[data-theme="dark"] .auth-stage-scrim {
   background: linear-gradient(180deg, rgba(7, 21, 40, 0.55) 0%, rgba(11, 31, 58, 0.32) 42%, var(--ss-bg) 100%);
 }
 
@@ -438,9 +443,12 @@ main tbody tr {
   --ss-dur-slow: 360ms;
 
   /* --- Contrast-corrected text tokens (WCAG AA on --ss-bg / --ss-surface). --- */
-  --ss-text-muted: #5b6472;      /* 5.6:1 on the page background (was 4.6:1) */
-  --ss-success: #15803d;         /* 5.0:1 on white (was 3.3:1) */
-  --ss-primary-text: #7a5200;    /* gold, but readable as TEXT on light surfaces */
+  --ss-text-muted: #3f4a5c;      /* 8.5:1 on white, 7.9:1 on the page background */
+  --ss-success: #166534;         /* 7.1:1 on white */
+  --ss-primary-text: #6b4700;    /* gold, but readable as TEXT on light surfaces (7.9:1 on white) */
+  --ss-tech: #0b5e58;            /* teal for text and rules on light surfaces */
+  --ss-danger: #b91c1c;
+  --ss-warning: #92400e;
 
   /* --- Focus: a dark ring with a gold halo is visible on light AND photo
         backgrounds; plain gold on white was only 1.8:1. --- */
@@ -453,6 +461,9 @@ main tbody tr {
 
 :root[data-theme="dark"] {
   --ss-text-muted: #a3b2c7;      /* 7.6:1 on dark surface */
+  --ss-tech: #22d3ee;
+  --ss-danger: #f87171;
+  --ss-warning: #fbbf24;
   --ss-success: #22c55e;
   --ss-primary-text: #f5b301;    /* 9.3:1 on --ss-surface */
   --ss-focus: #f5b301;
@@ -588,9 +599,70 @@ summary:focus-visible {
    Chips such as "Private company" and the JSE code use text-[#a9791a] on a gold wash
    (3.4:1) and "text-brand-dark" is unreadable on the dark theme (2.3:1). Re-pointing
    them here fixes every page at once without touching each component. */
-.text-\[\#a9791a\] { color: #7a5200; }
+.text-\[\#a9791a\] { color: #6b4700; }
 :root[data-theme="dark"] .text-\[\#a9791a\] { color: #ffd666; }
 :root[data-theme="dark"] .text-brand-dark { color: #5eead4; }
+
+/* ---- Accent colours used as TEXT: darker on light surfaces (7:1 on white), the
+   original bright values on dark. Fills and borders keep the brand colours. ---- */
+.text-coral { color: #a3281c; }
+.text-brand { color: #0b5e58; }
+.text-sky { color: #14568f; }
+.text-purple { color: #5b3fd6; }
+.text-gold-dark { color: #6b4700; }
+.text-gold { color: #6b4700; }
+.text-yellow-700 { color: #854d0e; }
+.text-green-700 { color: #166534; }
+:root[data-theme="dark"] .text-coral { color: #ff8a7d; }
+:root[data-theme="dark"] .text-brand { color: #5eead4; }
+:root[data-theme="dark"] .text-sky { color: #7cc4ff; }
+:root[data-theme="dark"] .text-purple { color: #b3a4ff; }
+:root[data-theme="dark"] .text-gold-dark, :root[data-theme="dark"] .text-gold { color: #f5b301; }
+:root[data-theme="dark"] .text-yellow-700 { color: #fde047; }
+:root[data-theme="dark"] .text-green-700 { color: #86efac; }
+/* Gold text that sits on a navy or gold fill is meant to stay bright. */
+.bg-navy .text-gold, .bg-navy.text-gold { color: #f5b301; }
+
+/* ---- Bright legibility floor ----
+   Captions were 9-13px. Nothing is smaller than 14px now, and the old 13px
+   small text is 15px. Body copy (text-sm and up) is 16px or larger, see
+   tailwind.config.ts. */
+.text-\[9px\], .text-\[10px\], .text-\[11px\], .text-\[12px\] { font-size: 0.8rem; line-height: 1.35; }
+.text-\[13px\] { font-size: 0.86rem; line-height: 1.4; }
+
+/* ---- Hero banner: bright by default, the photo shows through on the right ---- */
+.banner-scrim {
+  background: linear-gradient(105deg, rgba(255,255,255,0.98) 0%, rgba(255,255,255,0.94) 52%, rgba(255,255,255,0.62) 100%);
+}
+:root[data-theme="dark"] .banner-scrim {
+  background: linear-gradient(105deg, rgba(7,21,40,0.92) 0%, rgba(11,31,58,0.78) 46%, rgba(11,31,58,0.42) 100%);
+}
+
+/* ---- Explorer map: light land, navy outlines, gold highlight ---- */
+.ss-map {
+  --map-ocean: #dce9f6;
+  --map-land: #ffffff;
+  --map-land-stroke: #7d8fa8;
+  --map-covered-stroke: #3d5f8f;
+  --map-select-stroke: #0b2447;
+  --map-pin: #0b2447;
+  --map-circuit: #0b2447;
+  --map-circuit-opacity: 0.07;
+  --map-covered-opacity: 0.75;
+  --map-label-bg: rgba(255,255,255,0.96);
+}
+:root[data-theme="dark"] .ss-map {
+  --map-ocean: #071528;
+  --map-land: #13264a;
+  --map-land-stroke: #24406c;
+  --map-covered-stroke: #3a5f94;
+  --map-select-stroke: #fff8e1;
+  --map-pin: #fff8e1;
+  --map-circuit: #f5b301;
+  --map-circuit-opacity: 0.22;
+  --map-covered-opacity: 0.35;
+  --map-label-bg: rgba(7,21,40,0.92);
+}
 
 /* Split directory view: gold ripple on the selected country. The global
    prefers-reduced-motion guard above stops the animation. */

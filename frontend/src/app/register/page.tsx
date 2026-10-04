@@ -93,7 +93,7 @@ export default function RegisterPage() {
       <div className="auth-stage-scrim absolute inset-0" />
       <div className="pointer-events-none absolute inset-0 bg-noise opacity-20 mix-blend-overlay" />
       <div className="relative mx-auto max-w-md">
-      <CircuitOverlay className="-z-10 opacity-40" opacity={0.12} stroke="#f5b301" dotColor="#f5b301" />
+      <CircuitOverlay className="-z-10 opacity-40" opacity={0.12} stroke="#0b2447" dotColor="#f5b301" />
       <GreetingLine />
       <div className="mb-4 flex items-center justify-center gap-4">
         <LogoGlow>
@@ -103,9 +103,9 @@ export default function RegisterPage() {
         <CircuitMascot coverEyes={passwordFocused && !celebrate} celebrate={celebrate} />
       </div>
       <LitCircuits lit={filled + (consent ? 1 : 0)} total={6} />
-      <h1 className="animate-gradient-text mb-1 bg-gradient-to-r from-[#22d3ee] via-[#f5b301] to-[#a78bfa] bg-clip-text text-center text-4xl font-extrabold text-transparent [filter:drop-shadow(0_0_16px_rgba(245,179,1,0.45))]">Create your account</h1>
-      <p className="mb-2 text-center text-xs font-semibold uppercase tracking-[0.16em] text-[#ffcf5a]">Born in SADC, built for the world</p>
-      <p className="mb-5 text-center text-base font-medium text-blue-100">Free forever. Takes about 60 seconds. Your future self says thanks. 🚀</p>
+      <h1 className="animate-gradient-text mb-1 bg-gradient-to-r from-[#0b2447] via-[#8a5a00] to-[#5b3fd6] bg-clip-text text-center text-4xl font-extrabold text-transparent ">Create your account</h1>
+      <p className="mb-2 text-center text-xs font-semibold uppercase tracking-[0.16em] text-ss-primary">Born in SADC, built for the world</p>
+      <p className="mb-5 text-center text-base font-medium text-ss-muted">Free forever. Takes about 60 seconds. Your future self says thanks. 🚀</p>
       <div className="mb-6">
         <Alert kind="info" onPhoto>
           First sign-in taking a while? That&apos;s just our server being woken up (or occasionally updated)
@@ -113,7 +113,7 @@ export default function RegisterPage() {
         </Alert>
       </div>
       {celebrate && (
-        <p className="mb-3 text-center text-sm font-semibold text-[#ffcf5a]" role="status">
+        <p className="mb-3 text-center text-sm font-semibold text-ss-primary" role="status">
           Account&apos;s open. Taking you to the directory…
         </p>
       )}
