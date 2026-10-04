@@ -6,7 +6,7 @@ import { createContext, useCallback, useContext, useEffect, useState, type React
  *
  * The actual [data-theme] attribute on <html> is set twice, deliberately:
  *  1. Synchronously, before hydration, by the inline bootstrap script in
- *     layout.tsx (reads localStorage, falls back to prefers-color-scheme) --
+ *     layout.tsx (reads localStorage, falls back to light) --
  *     this is what prevents a flash of the wrong theme on load.
  *  2. By this provider's toggleTheme(), for the rest of the session.
  * This component's own state just mirrors whatever the bootstrap script
