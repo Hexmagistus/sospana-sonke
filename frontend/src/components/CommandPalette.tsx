@@ -28,13 +28,11 @@ function toAgent(text: string) {
 }
 
 const BASE_COMMANDS: CommandItem[] = [
-  { id: "apply", label: "Show jobs I can apply for", hint: "Career Agent", run: toAgent("Find jobs I can apply for") },
-  { id: "almost", label: "Show jobs I'm almost qualified for", hint: "Career Agent", run: toAgent("Show jobs I'm almost qualified for") },
+  { id: "apply", label: "Show where I can apply", hint: "Career Agent", run: toAgent("Find jobs I can apply for") },
   { id: "employers", label: "Employers in my field", hint: "Career Agent", run: toAgent("Show employers in my field I can apply to directly") },
   { id: "discover", label: "Discover related careers for me", hint: "Career Agent", run: toAgent("Discover related careers for me") },
   { id: "explorer", label: "Explore my qualification", hint: "Career Explorer", run: toAgent("career explorer") },
   { id: "applications", label: "Open my applications", hint: "Application tracker", run: (r) => r.push("/tailor/applications") },
-  { id: "matches", label: "My matches", hint: "Saved & scored", run: (r) => r.push("/matches") },
   { id: "cv", label: "Build my CV", hint: "CV Builder", run: (r) => r.push("/master-cv") },
   { id: "companies", label: "Browse the employer directory", hint: "Companies", run: (r) => r.push("/companies") },
   { id: "universities", label: "Browse universities", hint: "Universities", run: (r) => r.push("/universities") },

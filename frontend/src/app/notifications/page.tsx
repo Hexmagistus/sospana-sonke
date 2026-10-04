@@ -44,7 +44,7 @@ function NotificationsInner() {
         <EmptyState
           icon="🔔"
           title="No notifications yet"
-          message="You'll see updates here as your Career Agent finds matches, prepares applications and hears back from employers."
+          message="You'll see updates here about your applications, new openings and replies from employers."
         />
       ) : (
         <ul className="space-y-2">

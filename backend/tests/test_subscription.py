@@ -56,8 +56,8 @@ def test_access_always_granted_regardless_of_subscription_status(client, db_engi
         sub.status = "EXPIRED"; sub.trial_end = None; s.commit()
     finally:
         s.close()
-    # /matches/run used to 402 here; it no longer gates on subscription at all.
-    assert client.post("/api/v1/matches/run", headers=_auth(tokens)).status_code == 200
+    # Nothing gates on subscription any more (the old matches route is simply gone: 410, never 402).
+    assert client.post("/api/v1/matches/run", headers=_auth(tokens)).status_code == 410
 
 
 # ---- service-level ----------------------------------------------------------

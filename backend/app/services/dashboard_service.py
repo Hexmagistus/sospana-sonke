@@ -12,13 +12,11 @@ from app.core.config import settings
 from app.models.application import Application
 from app.models.company import Company
 from app.models.document import CVVersion, CoverLetter
-from app.models.match import CandidateMatch
 from app.models.profile import CandidateProfile, Education, Skill, WorkExperience
 from app.models.subscription import Subscription
 from app.models.user import User
 from app.models.vacancy import Vacancy, VacancySource
 
-_STRONG_BANDS = ("Strong", "Good")
 _AWAITING = ("AWAITING_APPROVAL", "CANDIDATE_ACTION_REQUIRED")
 
 
@@ -67,12 +65,6 @@ def candidate_dashboard(db: Session, user: User) -> dict:
     # Counts that used to be one SELECT each are folded into a single aggregate
     # per table, so a dashboard view is a handful of round trips instead of ~12.
 
-    match_total, strong, apply_n = db.query(
-        func.count(CandidateMatch.id),
-        func.coalesce(func.sum(case((CandidateMatch.band.in_(tuple(_STRONG_BANDS)), 1), else_=0)), 0),
-        func.coalesce(func.sum(case((CandidateMatch.decision == "APPLY", 1), else_=0)), 0),
-    ).filter(CandidateMatch.user_id == user.id).one()
-
     app_total, submitted, awaiting, interviews, offers = db.query(
         func.count(Application.id),
         func.coalesce(func.sum(case((Application.status == "SUBMITTED", 1), else_=0)), 0),
@@ -88,9 +80,6 @@ def candidate_dashboard(db: Session, user: User) -> dict:
 
     return {
         "vacancies_open": _as_int(open_n),
-        "total_matches": _as_int(match_total),
-        "strong_matches": _as_int(strong),
-        "apply_matches": _as_int(apply_n),
         "cvs_generated": _as_int(
             db.query(func.count(CVVersion.id)).filter(CVVersion.user_id == user.id).scalar()),
         "cover_letters_generated": _as_int(
@@ -111,15 +100,6 @@ def _rate(n: int, d: int) -> float:
 
 def admin_analytics(db: Session) -> dict:
     """Business-intelligence funnel + conversion rates (blueprint section 44)."""
-    from collections import Counter
-    from app.models.match import CandidateMatch
-
-    total_matches = db.query(func.count(CandidateMatch.id)).scalar() or 0
-    qualified = (db.query(func.count(CandidateMatch.id))
-                 .filter(CandidateMatch.decision.in_(("APPLY", "REVIEW"))).scalar() or 0)
-    rejected = (db.query(func.count(CandidateMatch.id))
-                .filter(CandidateMatch.decision == "DO_NOT_APPLY").scalar() or 0)
-
     applications_total = db.query(func.count(Application.id)).scalar() or 0
     submitted = (db.query(func.count(Application.id))
                  .filter(Application.submitted_at.isnot(None)).scalar() or 0)
@@ -128,40 +108,19 @@ def admin_analytics(db: Session) -> dict:
     offers = (db.query(func.count(Application.id))
               .filter(Application.status == "OFFER").scalar() or 0)
 
-    # Top companies by number of candidate matches.
-    top_rows = (db.query(Company.company_name, func.count(CandidateMatch.id).label("n"))
-                .join(Vacancy, Vacancy.company_id == Company.id)
-                .join(CandidateMatch, CandidateMatch.vacancy_id == Vacancy.id)
-                .group_by(Company.company_name)
-                .order_by(func.count(CandidateMatch.id).desc()).limit(5).all())
-    top_companies = [{"company": name, "matches": n} for name, n in top_rows]
-
-    # Most common rejection reasons (first gap of DO_NOT_APPLY matches).
-    rejected_matches = (db.query(CandidateMatch.gaps)
-                        .filter(CandidateMatch.decision == "DO_NOT_APPLY").limit(2000).all())
-    counter: Counter = Counter()
-    for (gaps,) in rejected_matches:
-        if gaps:
-            counter[gaps[0]] += 1
-    common_rejections = [{"reason": r, "count": c} for r, c in counter.most_common(5)]
-
     subs = {status: count for status, count in
             db.query(Subscription.status, func.count(Subscription.id)).group_by(Subscription.status).all()}
 
     return {
         "funnel": {
-            "matches": total_matches, "qualified": qualified, "rejected": rejected,
             "applications": applications_total, "submitted": submitted,
             "interviews": interviews, "offers": offers,
         },
         "rates": {
-            "qualified_rate": _rate(qualified, total_matches),
-            "submit_rate": _rate(submitted, qualified),
+            "submit_rate": _rate(submitted, applications_total),
             "interview_rate": _rate(interviews, submitted),
             "offer_rate": _rate(offers, submitted),
         },
-        "top_companies_by_matches": top_companies,
-        "common_rejection_reasons": common_rejections,
         "subscriptions_by_status": subs,
     }
 

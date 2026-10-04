@@ -1,7 +1,7 @@
 """Run a scheduled job by name (for cron / APScheduler / Celery beat to call).
 
 Usage:
-    python -m scripts.run_scheduled_job match_all_candidates
+    python -m scripts.run_scheduled_job close_expired_vacancies
     python -m scripts.run_scheduled_job scan_all_companies
 
 In production, point your scheduler at these commands using the cron intervals

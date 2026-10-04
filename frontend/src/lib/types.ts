@@ -29,9 +29,6 @@ export interface Tokens {
 
 export interface Dashboard {
   vacancies_open: number;
-  total_matches: number;
-  strong_matches: number;
-  apply_matches: number;
   cvs_generated: number;
   cover_letters_generated: number;
   applications_total: number;
@@ -44,45 +41,6 @@ export interface Dashboard {
   // candidate's own "Preferred post"/"Name of qualification" registration
   // answers -- null once they've engaged with their profile.
   profile_nudge: string | null;
-}
-
-export interface Match {
-  id: string;
-  vacancy_id: string;
-  vacancy_title: string | null;
-  company_name: string | null;
-  score: number;
-  band: string;
-  decision: string;
-  confidence: string;
-  hard_ok: boolean;
-  status: string;
-  created_at: string;
-}
-
-export interface MatchDetail extends Match {
-  sub_scores: Record<string, number>;
-  reasons: string[];
-  gaps: string[];
-  engine_version: string;
-}
-
-export interface GapItem {
-  text: string;
-  category: string;
-}
-
-export interface PathwayStep {
-  step: string;
-  category: string;
-}
-
-export interface GapAnalysis {
-  percent_requirements_met: number | null;
-  have: GapItem[];
-  missing: GapItem[];
-  unclear: GapItem[];
-  pathway: PathwayStep[];
 }
 
 export interface CareerOption {
@@ -146,13 +104,11 @@ export interface Application {
   authorised_at: string | null;
   created_at: string;
   // Enrichment -- filled in by the backend (routes_applications.py) so the
-  // list/detail pages can show a job title/company/match score without a
+  // list/detail pages can show a job title/company without a
   // second round-trip per row. Always present, may be null.
   vacancy_title: string | null;
   company_name: string | null;
   vacancy_location: string | null;
-  match_score: number | null;
-  match_band: string | null;
   answers?: AppAnswer[];
   events?: AppEvent[];
 }

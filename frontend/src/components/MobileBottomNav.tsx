@@ -14,7 +14,7 @@ type Item = {
   href: string;
   label: string;
   // Matches this tab as "active" for any path starting with `match`
-  // (falls back to `href`) so nested routes (e.g. /matches/[id]) still light
+  // (falls back to `href`) so nested routes (e.g. /tailor/applications/[id]) still light
   // up the right tab.
   match?: string;
   icon: (active: boolean) => React.ReactNode;
@@ -50,16 +50,6 @@ const ITEMS: Item[] = [
       <svg {...iconProps(a)} aria-hidden="true">
         <circle cx="11" cy="11" r="6.5" />
         <path d="m20 20-3.5-3.5" />
-      </svg>
-    ),
-  },
-  {
-    href: "/matches",
-    label: "Saved",
-    match: "/matches",
-    icon: (a) => (
-      <svg {...iconProps(a)} aria-hidden="true">
-        <path d="M6 3.5h12a1 1 0 0 1 1 1V21l-7-4-7 4V4.5a1 1 0 0 1 1-1Z" />
       </svg>
     ),
   },

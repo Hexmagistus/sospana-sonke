@@ -68,7 +68,7 @@ def test_dashboard_is_private_cache(client):
     # GZip middleware also adds Accept-Encoding. Authorization must be present
     # so a shared cache cannot reuse one person's dashboard for another.
     assert "Authorization" in r.headers["vary"]
-    assert r.json()["total_matches"] == 0
+    assert "total_matches" not in r.json()
 
 
 def test_scan_due_does_not_start_a_company_without_time(db, monkeypatch):

@@ -38,13 +38,13 @@ function DashboardInner() {
         title={`Welcome back, ${firstName} 👋`}
         subtitle={
           data
-            ? `${data.vacancies_open.toLocaleString()} open vacancies are being matched against your profile right now.${data.listings_updated_at ? ` Listings last confirmed ${data.listings_updated_at.slice(0, 16).replace("T", " ")} UTC.` : ""}`
-            : "Here's where things stand across your matches, CVs and applications."
+            ? `${data.vacancies_open.toLocaleString()} open vacancies are listed right now.${data.listings_updated_at ? ` Listings last confirmed ${data.listings_updated_at.slice(0, 16).replace("T", " ")} UTC.` : ""}`
+            : "Here's where things stand across your vacancies, CVs and applications."
         }
       >
         {data && (
           <div className="flex flex-wrap items-center gap-4">
-            <StatusBadge tone="live" pulse>Live matching</StatusBadge>
+            <StatusBadge tone="live" pulse>Live listings</StatusBadge>
             <StatusBadge tone="verified">Direct-to-employer sources</StatusBadge>
           </div>
         )}
@@ -75,25 +75,10 @@ function DashboardInner() {
         <>
           <div>
             <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-ss-muted">
-              Your matches
+              Vacancies
             </h2>
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
               <Stat label="Open vacancies" value={data.vacancies_open} accent="sky" href="/companies" />
-              <Stat label="Total matches" value={data.total_matches} accent="teal" href="/matches" />
-              <Stat
-                label="Strong matches"
-                value={data.strong_matches}
-                accent="gold"
-                hint="Bands: Strong / Good"
-                href="/matches"
-              />
-              <Stat
-                label="Worth applying to"
-                value={data.apply_matches}
-                accent="coral"
-                hint="Recommended decision: Apply"
-                href="/matches"
-              />
             </div>
           </div>
 

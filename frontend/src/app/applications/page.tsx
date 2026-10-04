@@ -63,9 +63,6 @@ function Row({ app }: { app: Application }) {
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          {app.match_score != null && (
-            <span className="text-sm text-ss-muted">Match {Math.round(app.match_score)}%</span>
-          )}
           <Badge>{STATUS_LABEL[app.status] || app.status}</Badge>
         </div>
       </div>
@@ -112,11 +109,11 @@ function ApplicationsInner() {
         <div>
           <h1 className="text-2xl font-bold text-ss-text">My applications</h1>
           <p className="text-ss-muted">
-            Every application your Career Agent has prepared or you&apos;ve started — nothing is ever sent
+            Every application you&apos;ve started or are tracking — nothing is ever sent
             without you reviewing and approving it first.
           </p>
         </div>
-        <Link href="/agent"><Button variant="ghost">Find more matches</Button></Link>
+        <Link href="/companies"><Button variant="ghost">Browse employers</Button></Link>
       </div>
 
       {err && <ErrorState message="We couldn't load your applications right now." detail={err} />}
@@ -127,8 +124,8 @@ function ApplicationsInner() {
         <EmptyState
           icon="🗂️"
           title="No applications yet"
-          message="Once your Career Agent finds a strong match, it'll draft a tailored CV and cover letter and queue a ready-to-review application here."
-          action={<Link href="/agent"><Button>Go to Career Agent</Button></Link>}
+          message="Applications you start or track will show up here, with their status and next steps."
+          action={<Link href="/tailor"><Button>Tailor a CV</Button></Link>}
         />
       ) : apps ? (
         <>

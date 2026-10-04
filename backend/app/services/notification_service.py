@@ -16,11 +16,16 @@ from app.notifications.email import get_email_provider
 
 logger = logging.getLogger(__name__)
 
-# Opportunity, alert and job-match notices. They are stored for the dashboard but
+# Opportunity and alert notices ("strong_match" / "daily_agent_briefing" rows are old,
+# from the removed job matching; the types stay listed so any leftover is never emailed). They are stored for the dashboard but
 # NEVER emailed one by one: the daily digest (app/services/daily_digest.py, cron job
 # send_daily_digest, 08:00 SAST) collects them and sends one email per user per day.
 # Enforced here, in the single place every email-capable notification passes through,
 # so a future caller cannot bring the per-event mail back by passing send_email=True.
+# Notification types from the removed job matching. Old rows stay in the table but are
+# never shown, counted or emailed.
+RETIRED_TYPES = ("strong_match", "daily_agent_briefing")
+
 DIGEST_ONLY_TYPES = frozenset({
     "strong_match", "new_jobs", "daily_agent_briefing", "admin_suggestion", "link_updated",
 })
@@ -137,17 +142,6 @@ def create_notification(db: Session, *, user_id: str, to_email: str | None, type
     return loaded
 
 
-def notify_strong_match(db, *, user, match, vacancy_title, company_name) -> Notification | None:
-    return create_notification(
-        db, user_id=user.id, to_email=user.email, type="strong_match",
-        title=f"New strong job match found ({int(match.score)}%)",
-        body=(f"{vacancy_title} at {company_name} — match {int(match.score)}% "
-              f"({match.band}). Your tailored CV can be generated in one click."),
-        related_type="match", related_id=match.id, to_phone=getattr(user, "mobile_number", None),
-        send_email=None if _alerts_email_opted_in(user) else False,
-    )
-
-
 def notify_action_required(db, *, user, application, vacancy_title, company_name) -> Notification | None:
     return create_notification(
         db, user_id=user.id, to_email=user.email, type="action_required",
@@ -158,59 +152,11 @@ def notify_action_required(db, *, user, application, vacancy_title, company_name
     )
 
 
-def notify_daily_agent_briefing(db, *, user, application_ids: list[str],
-                                job_run_id: str | None = None) -> Notification | None:
-    """Tell a candidate the Daily Agent drafted new ready-to-review applications
-    for them — CV + cover letter generated, application queued in an
-    awaiting-your-review state. Never implies anything was sent: the candidate
-    still has to open each one and approve/submit it themselves.
-
-    Idempotent per (user, job_run_id) when called from the scheduled job, same
-    pattern as notify_new_jobs_broadcast — a re-run of the same job never
-    re-notifies. Called with no job_run_id (e.g. an ad-hoc/manual run), it
-    always sends, since there's no run to key idempotency on.
-    """
-    if not application_ids:
-        return None
-    from app.models.application import Application
-    from app.models.company import Company
-    from app.models.vacancy import Vacancy
-
-    apps = db.query(Application).filter(Application.id.in_(application_ids)).all()
-    if not apps:
-        return None
-    vacancies = {v.id: v for v in
-                db.query(Vacancy).filter(Vacancy.id.in_({a.vacancy_id for a in apps})).all()}
-    companies = {
-        c.id: c.company_name
-        for c in db.query(Company).filter(Company.id.in_({v.company_id for v in vacancies.values()})).all()
-    }
-
-    count = len(apps)
-    named = [a for a in apps if a.vacancy_id in vacancies]
-    highlights = ", ".join(
-        f"{vacancies[a.vacancy_id].title} at {companies.get(vacancies[a.vacancy_id].company_id, 'a company')}"
-        for a in named[:3]
-    )
-    if count > 3:
-        highlights += f", and {count - 3} more"
-    title = f"Your daily agent found {count} new application{'s' if count != 1 else ''} to review"
-    body = (f"{highlights}. A tailored CV and cover letter were drafted for each one, and they're "
-            f"queued ready to review — nothing is ever sent without you.")
-
-    return create_notification(
-        db, user_id=user.id, to_email=user.email, type="daily_agent_briefing",
-        title=title, body=body, related_type="job_run", related_id=job_run_id,
-        to_phone=getattr(user, "mobile_number", None),
-        send_email=None if _alerts_email_opted_in(user) else False,
-    )
-
-
 def notify_new_jobs_broadcast(db, *, vacancy_ids: list[str], job_run_id: str) -> int:
     """Alert every active candidate that new vacancies were found in this scan run.
 
-    Broad (non-personalised) alert, distinct from notify_strong_match: this fires
-    for ANY newly discovered job, not just ones matching a candidate's profile.
+    Broad (non-personalised) alert: this fires for ANY newly discovered job, not just
+    ones matching a candidate's profile.
     Idempotent per (user, job_run_id) — one notification per candidate per scan
     run, however many jobs it found, so re-running the same job never spams.
     """
