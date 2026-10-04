@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { api } from "@/lib/api";
 import { useTheme } from "@/lib/theme";
+import ThemeToggleButton from "@/lib/ThemeToggleButton";
 import NotificationBell from "@/components/NotificationBell";
 import { isExplorerPath, OPEN_MENU_EVENT } from "@/lib/explorer/explorerPaths";
 
@@ -27,39 +28,10 @@ const LINKS = [
   { href: "/donate", label: "Donate" },
 ];
 
-/** Sun/moon toggle -- a real, functional light/dark switch (brief section 26),
- * not decoration. The gold caption sits under the icon on desktop and mobile.
- * aria-label and the tooltip keep the action ("switch to light/dark mode"). */
+/** Sun/moon toggle with its "Adjust brightness" caption under the icon (see lib/ThemeToggleButton). */
 function ThemeToggle({ className = "" }: { className?: string }) {
   const { theme, toggleTheme } = useTheme();
-  const hint = theme === "dark"
-    ? "Adjust brightness. Switch to light mode"
-    : "Adjust brightness. Switch to dark mode";
-  return (
-    <button
-      type="button"
-      onClick={toggleTheme}
-      aria-label={hint}
-      title={hint}
-      className={`flex min-h-11 w-9 shrink-0 flex-col items-center justify-center gap-0.5 rounded-md px-0.5 py-0.5 text-ss-primary min-[380px]:w-[4.5rem] min-[430px]:w-[5.25rem] transition hover:bg-ss-primary-soft hover:text-ss-text ${className}`}
-    >
-      <span className="flex h-7 w-7 items-center justify-center" aria-hidden="true">
-        {theme === "dark" ? (
-          <svg viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="none" stroke="currentColor" strokeWidth="2">
-            <circle cx="12" cy="12" r="4.5" />
-            <path strokeLinecap="round" d="M12 2.5v2M12 19.5v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M2.5 12h2M19.5 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4" />
-          </svg>
-        ) : (
-          <svg viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="none" stroke="currentColor" strokeWidth="2">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M20.5 14.5A8.5 8.5 0 019.5 3.5a8.5 8.5 0 1011 11z" />
-          </svg>
-        )}
-      </span>
-      <span className="hidden w-full whitespace-normal text-center text-[11px] min-[380px]:block font-semibold leading-tight tracking-tight text-ss-primary">
-        Adjust brightness
-      </span>
-    </button>
-  );
+  return <ThemeToggleButton theme={theme === "dark" ? "dark" : "light"} onToggle={toggleTheme} className={className} />;
 }
 
 export default function Nav() {
@@ -158,7 +130,7 @@ export default function Nav() {
         <Link href="/companies" className="mr-1 flex shrink-0 items-center gap-1.5 whitespace-nowrap min-[360px]:gap-2 sm:mr-3">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logo-mark.png" alt="Sospana Sonke" className="block h-8 w-8 max-w-none shrink-0 aspect-square rounded-xl min-[360px]:h-9 min-[360px]:w-9 object-cover shadow-[0_0_22px_-2px_var(--ss-primary-glow)] ring-1 ring-gold/50" />
-          <span className="text-[0.9rem] font-bold text-ss-text min-[360px]:text-base">Sospana&nbsp;Sonke</span>
+          <span className="text-[0.78rem] font-bold text-ss-text min-[360px]:text-[0.9rem] min-[400px]:text-base">Sospana&nbsp;Sonke</span>
         </Link>
 
         {/* Desktop / tablet: full link row */}
@@ -194,7 +166,7 @@ export default function Nav() {
             aria-label={menuOpen ? "Close menu" : "Open menu"}
             aria-expanded={menuOpen}
             onClick={() => setMenuOpen((v) => !v)}
-            className="flex h-11 w-11 items-center justify-center rounded-md text-ss-text hover:bg-ss-primary-soft lg:h-9 lg:w-9"
+            className="flex h-11 w-[2.3rem] items-center justify-center rounded-md text-ss-text hover:bg-ss-primary-soft min-[400px]:w-11 lg:h-9 lg:w-9"
           >
             {menuOpen ? (
               <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="2">
