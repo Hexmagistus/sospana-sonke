@@ -23,10 +23,10 @@ describe("phone fit guards", () => {
     assert.match(css, /min-height: 40px/);
   });
 
-  it("keeps the signed-in top bar compact below 380px (theme toggle is icon-only)", () => {
+  it("keeps the signed-in top bar compact below 380px (theme toggle keeps its caption, in a narrow box)", () => {
     const nav = read("components/Nav.tsx");
-    assert.match(nav, /min-\[380px\]:w-\[4\.5rem\]/);
     assert.match(nav, /px-3 py-2\.5 min-\[360px\]:px-4/);
+    assert.match(read("lib/ThemeToggleButton.tsx"), /w-\[3\.6rem\]/);
   });
 
   it("lets the landing hero column shrink instead of clipping", () => {

@@ -38,6 +38,8 @@
     "src/lib/entryFlow.ts",
     "src/lib/entryFlow.test.ts",
     "src/lib/themeBootstrap.ts",
-    "src/lib/entryPagesContrast.test.ts"
+    "src/lib/entryPagesContrast.test.ts",
+    "src/lib/ThemeToggleButton.tsx",
+    "src/lib/ThemeToggleButton.test.tsx"
   ]
 }
