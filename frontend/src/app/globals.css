@@ -492,6 +492,32 @@ p, li, dd, blockquote { text-wrap: pretty; }
 
 /* Long African-language words and URLs wrap instead of overflowing cards. */
 main p, main li, main a { overflow-wrap: break-word; }
+/* Phones: a long unbroken title, URL or name must wrap inside its box, never push the page
+ * wider than the screen. `anywhere` (unlike `break-word`) also lowers the min-content width,
+ * so flex and grid children can shrink instead of overflowing. Desktop is untouched. */
+@media (max-width: 767px) {
+  main, main *, main p, main li, main a { overflow-wrap: anywhere; }
+}
+/* Touch screens: small buttons get a finger-sized hit area (40px tall), checkboxes and
+ * radios are no longer 13px dots. Mouse and desktop layouts are untouched. */
+@media (max-width: 767px) and (pointer: coarse) {
+  main button:not(.absolute),
+  footer button:not(.absolute),
+  main summary,
+  main [role="button"]:not(.absolute),
+  main select {
+    min-height: 40px;
+  }
+  main button:not(.absolute),
+  footer button:not(.absolute) {
+    min-width: 36px;
+  }
+  main input[type="checkbox"],
+  main input[type="radio"] {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+}
 
 /* Numerals line up in stats and tables. */
 main table, .tabular { font-variant-numeric: tabular-nums; }

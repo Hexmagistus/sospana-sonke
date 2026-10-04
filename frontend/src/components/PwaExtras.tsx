@@ -148,7 +148,7 @@ export default function PwaExtras() {
         <button
           onClick={() => setDataSaver(!saver)}
           aria-pressed={saver}
-          className="rounded-full border border-ss-border px-3 py-1 text-[11px] text-ss-muted transition hover:text-ss-text"
+          className="rounded-full border border-ss-border px-3 py-2.5 text-[11px] text-ss-muted transition hover:text-ss-text md:py-1"
         >
           📶 Data saver: {saver ? "on (no logos)" : "off"}
         </button>

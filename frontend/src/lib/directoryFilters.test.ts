@@ -23,6 +23,7 @@ import "./explorer/ExplorerControls.test.js";
 import "./explorer/adSlots.test.js";
 import "./themeContrast.test.js";
 import "./mapView.test.js";
+import "./mobileFit.test.js";
 
 describe("directory country stays when the category changes", () => {
   it("keeps South Africa when a category is chosen", () => {

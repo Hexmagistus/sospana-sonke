@@ -31,6 +31,7 @@
     "src/lib/themeContrast.ts",
     "src/lib/themeContrast.test.ts",
     "src/lib/mapView.ts",
-    "src/lib/mapView.test.ts"
+    "src/lib/mapView.test.ts",
+    "src/lib/mobileFit.test.ts"
   ]
 }

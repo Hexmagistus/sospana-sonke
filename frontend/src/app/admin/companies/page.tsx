@@ -60,8 +60,8 @@ function CompaniesInner() {
 
       <Card>
         <h2 className="mb-2 font-semibold">Import companies (CSV)</h2>
-        <div className="flex items-center gap-3">
-          <input ref={fileRef} type="file" accept=".csv" className="text-sm" />
+        <div className="flex flex-wrap items-center gap-3">
+          <input ref={fileRef} type="file" accept=".csv" className="min-w-0 max-w-full text-sm" />
           <Button onClick={importCsv} disabled={busy}>{busy ? "Importing…" : "Import"}</Button>
         </div>
       </Card>

@@ -566,26 +566,26 @@ export default function Home() {
       >
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-3 py-3 sm:px-4 sm:py-4">
           <div className="flex items-center gap-2 sm:gap-3">
-            <div className="relative h-9 w-9 shrink-0 sm:h-10 sm:w-10">
+            <div className="relative h-8 w-8 shrink-0 min-[360px]:h-9 min-[360px]:w-9 sm:h-10 sm:w-10">
               <div
                 className="absolute inset-0 -z-10 animate-pulse-glow rounded-xl blur-md"
                 style={{ background: C.gold, opacity: 0.45 }}
                 aria-hidden="true"
               />
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/logo-mark.png" alt="" className="block h-9 w-9 max-w-none shrink-0 aspect-square rounded-xl object-cover shadow-md sm:h-10 sm:w-10" />
+              <img src="/logo-mark.png" alt="" className="block h-8 w-8 max-w-none shrink-0 aspect-square rounded-xl object-cover shadow-md min-[360px]:h-9 min-[360px]:w-9 sm:h-10 sm:w-10" />
             </div>
-            <span className="whitespace-nowrap font-display text-[0.95rem] font-bold tracking-tight sm:text-xl" style={{ color: C.navy }}>
+            <span className="whitespace-nowrap font-display text-[0.85rem] font-bold tracking-tight min-[360px]:text-[0.95rem] sm:text-xl" style={{ color: C.navy }}>
               Sospana&nbsp;<span style={{ color: C.goldText }}>Sonke</span>
             </span>
           </div>
           <div className="flex shrink-0 items-center gap-1 sm:gap-2">
-            <Link href="/login" className="rounded-xl px-2 py-2 text-[13px] font-semibold transition hover:bg-black/5 sm:px-4 sm:text-sm" style={{ color: C.navy }}>
+            <Link href="/login" className="rounded-xl px-1.5 py-2.5 text-[13px] font-semibold transition hover:bg-black/5 min-[360px]:px-2 sm:px-4 sm:text-sm" style={{ color: C.navy }}>
               Log in
             </Link>
             <Link
               href="/register"
-              className="whitespace-nowrap rounded-xl px-2.5 py-2 text-[13px] font-bold text-white shadow-sm transition hover:brightness-110 sm:px-4 sm:text-sm"
+              className="whitespace-nowrap rounded-xl px-2 py-2.5 text-[13px] font-bold text-white min-[360px]:px-2.5 shadow-sm transition hover:brightness-110 sm:px-4 sm:text-sm"
               style={{ background: C.navy }}
             >
               Get started
@@ -630,7 +630,7 @@ export default function Home() {
             className="pointer-events-none absolute inset-0 opacity-[0.06]"
             style={{ backgroundImage: "radial-gradient(#fff 1px, transparent 1px)", backgroundSize: "22px 22px" }}
           />
-          <div className="relative grid items-start gap-8 lg:grid-cols-2">
+          <div className="relative grid grid-cols-[minmax(0,1fr)] items-start gap-8 lg:grid-cols-2">
             <div className="min-w-0">
               <Reveal className="flex flex-wrap gap-2">
                 <span className="inline-flex items-center gap-2 rounded-full border border-ss-border bg-ss-surface px-4 py-1.5 text-xs font-semibold backdrop-blur-sm">
