@@ -121,4 +121,6 @@ describe("category chip counts follow the selected country", () => {
     assert.equal(categoryChipCount(null, "", "UNI"), 0);
   });
 });
+import "./entryFlow.test.js";
+import "./entryPagesContrast.test.js";
 import "./ThemeToggleButton.test.js";
