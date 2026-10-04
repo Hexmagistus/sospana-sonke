@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { BalungileWalker } from "./BalungileWalker";
 
 export const GUIDE_STORAGE_KEY = "ss-directory-guide";
 
@@ -8,13 +9,16 @@ type Props = {
   steps: readonly string[];
   /** Start state for tests / server markup. Real use reads localStorage after mount. */
   initialOpen?: boolean | null;
+  /** While true, Balungile walks to and fro just below the card (see BalungileWalker). */
+  loading?: boolean;
+  loadingLabel?: string;
 };
 
 /**
  * Compact "How to use" card for the hero banner: always dark, readable over the photo.
  * Hide/Show is remembered in localStorage (same key as before).
  */
-export function HowToUseCard({ steps, initialOpen = null }: Props) {
+export function HowToUseCard({ steps, initialOpen = null, loading = false, loadingLabel }: Props) {
   const [open, setOpen] = useState<boolean | null>(initialOpen);
 
   useEffect(() => {
@@ -24,8 +28,11 @@ export function HowToUseCard({ steps, initialOpen = null }: Props) {
 
   if (open === null) return null;
 
+  const walker = <BalungileWalker loading={loading} label={loadingLabel} />;
+
   if (!open) {
     return (
+      <>
       <button
         type="button"
         onClick={() => {
@@ -36,10 +43,13 @@ export function HowToUseCard({ steps, initialOpen = null }: Props) {
       >
         How to use
       </button>
+      {walker}
+      </>
     );
   }
 
   return (
+    <>
     <section
       aria-label="How to use"
       className="w-full rounded-xl border border-gold/50 bg-ss-panel p-3 text-ss-text shadow-lg backdrop-blur-sm"
@@ -68,5 +78,7 @@ export function HowToUseCard({ steps, initialOpen = null }: Props) {
         ))}
       </ol>
     </section>
+    {walker}
+    </>
   );
 }

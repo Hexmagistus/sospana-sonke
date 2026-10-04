@@ -32,6 +32,8 @@
     "src/lib/themeContrast.test.ts",
     "src/lib/mapView.ts",
     "src/lib/mapView.test.ts",
-    "src/lib/mobileFit.test.ts"
+    "src/lib/mobileFit.test.ts",
+    "src/lib/explorer/BalungileWalker.tsx",
+    "src/lib/explorer/BalungileWalker.test.tsx"
   ]
 }

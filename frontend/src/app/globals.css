@@ -672,3 +672,32 @@ summary:focus-visible {
 }
 .ss-ripple { transform-box: fill-box; transform-origin: center; animation: ss-ripple 2.6s ease-out infinite; }
 .ss-ripple-late { animation-delay: 1.1s; }
+
+/* Balungile walking while the explorer loads (lib/explorer/BalungileWalker.tsx).
+ * Her art is the eight-frame walk strip from the UKUVUKA game, 58x94 per frame, facing right.
+ * Always on a dark panel, so it reads the same in the bright and dark themes. */
+.ss-bal { --bw: 58px; --bh: 94px; }
+@media (max-width: 420px) { .ss-bal { --bw: 44px; --bh: 71px; } }
+.ss-bal-track { position: relative; height: var(--bh); overflow: hidden; }
+.ss-bal-pace { position: absolute; bottom: 0; left: 0; width: var(--bw); height: var(--bh); animation: ss-bal-pace 9s linear infinite; }
+.ss-bal-turn { width: 100%; height: 100%; animation: ss-bal-turn 9s step-end infinite; }
+.ss-bal-sprite {
+  width: var(--bw); height: var(--bh);
+  background: url("/balungile-walk.png") 0 0 / calc(var(--bw) * 8) var(--bh) no-repeat;
+  animation: ss-bal-frames 0.85s steps(8) infinite;
+}
+.ss-bal-ground { height: 0; border-top: 1px dashed rgba(243, 213, 138, 0.55); }
+@keyframes ss-bal-pace { 0%, 100% { left: 0; } 50% { left: calc(100% - var(--bw)); } }
+@keyframes ss-bal-turn { 0% { transform: scaleX(1); } 50% { transform: scaleX(-1); } }
+@keyframes ss-bal-frames { from { background-position-x: 0; } to { background-position-x: calc(var(--bw) * -8); } }
+/* Still pose (frame 3, standing) in the middle: from the OS setting, or the component's prop. */
+@media (prefers-reduced-motion: reduce) {
+  .ss-bal-pace, .ss-bal-turn, .ss-bal-sprite { animation: none !important; }
+  .ss-bal-pace { left: 50%; margin-left: calc(var(--bw) / -2); }
+  .ss-bal-sprite { background-position-x: calc(var(--bw) * -2); }
+}
+.ss-bal[data-motion="reduced"] .ss-bal-pace,
+.ss-bal[data-motion="reduced"] .ss-bal-turn,
+.ss-bal[data-motion="reduced"] .ss-bal-sprite { animation: none !important; }
+.ss-bal[data-motion="reduced"] .ss-bal-pace { left: 50%; margin-left: calc(var(--bw) / -2); }
+.ss-bal[data-motion="reduced"] .ss-bal-sprite { background-position-x: calc(var(--bw) * -2); }

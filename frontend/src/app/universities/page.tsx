@@ -165,7 +165,14 @@ function UniversitiesDirectoryInner() {
   };
 
   if (err) return <Alert kind="error">{err}</Alert>;
-  if (!universities.length) return <FunSpinner label="Loading universities…" />;
+  if (!universities.length) {
+    return (
+      <div className="mx-auto w-full max-w-xl space-y-4">
+        <HowToUseCard steps={guideStepsFor(false)} loading loadingLabel="Loading universities…" />
+        <FunSpinner label="Loading universities…" />
+      </div>
+    );
+  }
 
   return (
     <div className="relative">
