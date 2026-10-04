@@ -74,7 +74,8 @@ function pageForType(note: NoticeInput): NoticeTarget {
   const id = safeToken(note.related_id);
   switch (note.type) {
     case "strong_match":
-      return { kind: "internal", href: id ? `/matches/${id}` : "/matches" };
+      // Matching was removed; old notices just open the dashboard.
+      return { kind: "internal", href: "/dashboard" };
     case "action_required":
       return { kind: "internal", href: id ? `/applications/${id}` : "/applications" };
     case "daily_agent_briefing":

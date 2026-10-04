@@ -17,10 +17,8 @@ from sqlalchemy.orm import Session
 from app.core.config import settings
 
 from app.models.company import Company
-from app.models.user import User
 from app.models.vacancy import Vacancy
 from app.services.scan_service import scan_company
-from app.services.match_service import run_match_for_user
 
 logger = logging.getLogger(__name__)
 
@@ -330,7 +328,7 @@ def close_expired_vacancies(db: Session, job_run_id: str | None = None) -> dict:
     for days past its own closing date just because the company's careers
     page hasn't been re-scanned yet. This is a pure DB sweep -- no network
     calls -- so it keeps is_open accurate everywhere that filters on it
-    (listings, matching) without waiting on the scan rotation, and always
+    (listings) without waiting on the scan rotation, and always
     finishes well within any scheduler's timeout.
     """
     today = date.today()
@@ -345,29 +343,28 @@ def close_expired_vacancies(db: Session, job_run_id: str | None = None) -> dict:
     return {"vacancies_closed": len(stale)}
 
 
-def match_all_candidates(db: Session) -> dict:
-    """Run matching for every candidate; notifications fire inside. Sospana
-    Sonke is free forever, so this no longer skips anyone by subscription
-    status -- every active candidate gets matched, full stop."""
-    users = db.query(User).filter(User.role == "candidate", User.is_active.is_(True)).all()
-    ran = matched = 0
-    for user in users:
-        summary = run_match_for_user(db, user.id)
-        ran += 1
-        matched += summary.matched
-    return {"candidates_matched": ran, "total_matches": matched}
+DISABLED_MATCHING = {
+    "status": "disabled",
+    "detail": "Job matching has been removed; this job does nothing. "
+              "(Kept so an external scheduler that still calls it gets a harmless 200.)",
+}
+
+
+def match_all_candidates(db: Session, job_run_id: str | None = None) -> dict:
+    """Retired. Job matching was removed (it kept matching old posts), so this never
+    reads a profile or vacancy and never writes a match or a notification. It still
+    exists, returning a harmless 'disabled' summary, because cron-job.org (or any other
+    scheduler) may still call it by name and must not get an error back."""
+    return dict(DISABLED_MATCHING)
 
 
 def run_daily_agent(db: Session, job_run_id: str | None = None) -> dict:
-    """Proactive Daily Agent -- always human-approved.
-
-    For every active candidate: refreshes matches, then for the strongest new
-    ones auto-drafts a tailored CV + cover letter and prepares a ready-to-review
-    Application. Never submits anything -- the candidate always approves and
-    submits each application themselves. See app/services/agent_service.py.
-    """
-    from app.services.agent_service import run_daily_agent as _run_daily_agent
-    summary = _run_daily_agent(db, job_run_id=job_run_id)
+    """The matching Daily Agent is retired (it refreshed matches, then drafted a CV, a
+    cover letter and an application for the strongest ones). Nothing is matched, drafted
+    or notified any more. The job name stays valid because it carries the once-a-day
+    optional admin sign-in digest and an external scheduler may still call it."""
+    summary: dict = {**DISABLED_MATCHING, "detail": "The matching Daily Agent has been removed; "
+                     "only the optional admin sign-in digest still runs here."}
     # The optional admin sign-in digest rides on this once-a-day job (no extra
     # workflow). Off for every admin unless they switched it on.
     try:

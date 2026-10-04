@@ -5,9 +5,6 @@ from pydantic import BaseModel, ConfigDict
 
 class CandidateDashboardResponse(BaseModel):
     vacancies_open: int
-    total_matches: int
-    strong_matches: int
-    apply_matches: int
     cvs_generated: int
     cover_letters_generated: int
     applications_total: int

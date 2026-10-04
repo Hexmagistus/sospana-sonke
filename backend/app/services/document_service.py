@@ -6,7 +6,6 @@ and persists a record. Truthfulness validation runs on every document.
 """
 from __future__ import annotations
 
-from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.documents.builder import build_tailored_cv, safe_filename
@@ -14,13 +13,9 @@ from app.documents.cover_letter import build_cover_letter
 from app.documents.ats import score_ats
 from app.documents.render import render_cv_pdf, render_cv_docx, render_letter_pdf, render_letter_docx
 from app.documents.truthfulness import ProfileFacts, validate_cv
-from app.models.company import Company
 from app.models.document import CVVersion, CoverLetter
-from app.models.match import CandidateMatch
 from app.models.user import User
-from app.models.vacancy import Vacancy
 from app.matching.engine import VacancyData
-from app.services.match_service import build_vacancy_data
 from app.services.profile_service import get_full_profile_facts
 from app.services.storage import get_storage
 
@@ -30,81 +25,6 @@ def _facts_and_truth(db: Session, user: User) -> tuple[dict, ProfileFacts]:
     (get_full_profile_facts) so job_analysis_service.py and the Master CV
     endpoint use exactly the same "single source of truth" logic."""
     return get_full_profile_facts(db, user)
-
-
-def _match_context(db: Session, user: User, match_id: str) -> tuple[CandidateMatch, Vacancy, Company]:
-    match = db.get(CandidateMatch, match_id)
-    if match is None or match.user_id != user.id:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Match not found.")
-    vac = db.get(Vacancy, match.vacancy_id)
-    if vac is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Vacancy not found.")
-    company = db.get(Company, vac.company_id)
-    return match, vac, company
-
-
-def generate_cv_for_match(db: Session, user: User, match_id: str, template: str | None = None) -> CVVersion:
-    match, vac, company = _match_context(db, user, match_id)
-    facts, truth = _facts_and_truth(db, user)
-
-    vdata = build_vacancy_data(db, vac, company.sector if company else None)
-    skill_terms = vdata.skill_terms
-    cv_data = build_tailored_cv(facts, {"title": vac.title, "skill_terms": skill_terms})
-
-    truth_result = validate_cv(cv_data, truth)
-    ats, breakdown = score_ats(cv_data, skill_terms)
-    template = template or "classic"
-
-    label = safe_filename(facts["full_name"], vac.title, company.company_name if company else "") + "_CV"
-    version = CVVersion(
-        user_id=user.id, match_id=match.id, vacancy_id=vac.id, label=label, template=template,
-        content=cv_data, ats_score=ats, ats_breakdown=breakdown,
-        truthfulness_ok=truth_result.ok, truthfulness_violations=truth_result.violations or None,
-        generated_by="deterministic",
-    )
-    db.add(version)
-    db.flush()
-
-    storage = get_storage()
-    pdf_key = f"cv_versions/{user.id}/{version.id}.pdf"
-    docx_key = f"cv_versions/{user.id}/{version.id}.docx"
-    storage.put(pdf_key, render_cv_pdf(cv_data, template=template))
-    storage.put(docx_key, render_cv_docx(cv_data, template=template))
-    version.storage_key_pdf = pdf_key
-    version.storage_key_docx = docx_key
-
-    # Update tracking status (blueprint section 17): a CV now exists for this match.
-    if match.status in ("MATCHED",):
-        match.status = "CV_CREATED"
-    db.commit()
-    db.refresh(version)
-    return version
-
-
-def generate_cover_letter_for_match(db: Session, user: User, match_id: str) -> CoverLetter:
-    match, vac, company = _match_context(db, user, match_id)
-    facts, truth = _facts_and_truth(db, user)
-
-    text = build_cover_letter(facts, company.company_name if company else None, vac.title)
-    # Truthfulness: validate the letter's factual claims (years) against the profile.
-    truth_result = validate_cv({"summary": text, "skills": []}, truth)
-
-    label = safe_filename(facts["full_name"], vac.title, company.company_name if company else "") + "_CoverLetter"
-    letter = CoverLetter(user_id=user.id, match_id=match.id, vacancy_id=vac.id, label=label,
-                         body=text, truthfulness_ok=truth_result.ok, generated_by="deterministic")
-    db.add(letter)
-    db.flush()
-
-    storage = get_storage()
-    pdf_key = f"cover_letters/{user.id}/{letter.id}.pdf"
-    docx_key = f"cover_letters/{user.id}/{letter.id}.docx"
-    storage.put(pdf_key, render_letter_pdf(text))
-    storage.put(docx_key, render_letter_docx(text))
-    letter.storage_key_pdf = pdf_key
-    letter.storage_key_docx = docx_key
-    db.commit()
-    db.refresh(letter)
-    return letter
 
 
 # ---- Ad-hoc tailoring: generate against ANY job the candidate provides ------

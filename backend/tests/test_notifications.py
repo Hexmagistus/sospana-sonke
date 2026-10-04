@@ -40,50 +40,64 @@ def _enrich(client, tokens):
     client.post("/api/v1/profile/skills", headers=h, json={"name": "SQL", "category": "technical"})
 
 
-def test_strong_match_notification(client, db_engine):
-    _, tokens = register_and_login(client)
+def _new_jobs_note(client, db_engine, tokens, job_run_id="run-0"):
+    from app.services.notification_service import notify_new_jobs_broadcast
+    from sqlalchemy.orm import sessionmaker
+    vac_id = _seed_vacancy(db_engine)
+    db = sessionmaker(bind=db_engine)()
+    try:
+        notify_new_jobs_broadcast(db, vacancy_ids=[vac_id], job_run_id=job_run_id)
+        db.commit()
+    finally:
+        db.close()
+
+
+def test_no_match_notifications_and_old_ones_are_hidden(client, db_engine):
+    """Matching is gone: running it is 410, nothing is notified, and a leftover
+    strong_match / daily_agent_briefing row from before the removal is never shown or counted."""
+    from sqlalchemy.orm import sessionmaker
+    from app.models.notification import Notification
+    reg, tokens = register_and_login(client)
     _enrich(client, tokens)
     _seed_vacancy(db_engine)
-    client.post("/api/v1/matches/run", headers=_auth(tokens))
+    assert client.post("/api/v1/matches/run", headers=_auth(tokens)).status_code == 410
+    before = client.get("/api/v1/notifications", headers=_auth(tokens)).json()
+    assert not any(n["type"] in ("strong_match", "daily_agent_briefing") for n in before)
+    unread_before = client.get("/api/v1/notifications/unread-count", headers=_auth(tokens)).json()["unread"]
 
-    notes = client.get("/api/v1/notifications", headers=_auth(tokens)).json()
-    assert any(n["type"] == "strong_match" for n in notes)
-    assert client.get("/api/v1/notifications/unread-count", headers=_auth(tokens)).json()["unread"] >= 1
-
-
-def test_notification_idempotent_across_reruns(client, db_engine):
-    _, tokens = register_and_login(client)
-    _enrich(client, tokens)
-    _seed_vacancy(db_engine)
-    client.post("/api/v1/matches/run", headers=_auth(tokens))
-    client.post("/api/v1/matches/run", headers=_auth(tokens))  # rerun
-    notes = [n for n in client.get("/api/v1/notifications", headers=_auth(tokens)).json()
-             if n["type"] == "strong_match"]
-    assert len(notes) == 1  # not duplicated
+    db = sessionmaker(bind=db_engine)()
+    try:
+        for kind in ("strong_match", "daily_agent_briefing"):
+            db.add(Notification(user_id=reg["user"]["id"], type=kind, title="old", body="old"))
+        db.commit()
+        assert db.query(Notification).filter(
+            Notification.type.in_(("strong_match", "daily_agent_briefing"))).count() == 2   # untouched
+    finally:
+        db.close()
+    after = client.get("/api/v1/notifications", headers=_auth(tokens)).json()
+    assert [n["id"] for n in after] == [n["id"] for n in before]
+    assert client.get("/api/v1/notifications/unread-count", headers=_auth(tokens)).json()["unread"] == unread_before
 
 
 def test_mark_read_flow(client, db_engine):
     _, tokens = register_and_login(client)
-    _enrich(client, tokens)
-    _seed_vacancy(db_engine)
-    client.post("/api/v1/matches/run", headers=_auth(tokens))
+    _new_jobs_note(client, db_engine, tokens)
     note = client.get("/api/v1/notifications", headers=_auth(tokens)).json()[0]
+    assert client.get("/api/v1/notifications/unread-count", headers=_auth(tokens)).json()["unread"] >= 1
     assert client.post(f"/api/v1/notifications/{note['id']}/read", headers=_auth(tokens)).json()["is_read"] is True
     client.post("/api/v1/notifications/read-all", headers=_auth(tokens))
     assert client.get("/api/v1/notifications/unread-count", headers=_auth(tokens)).json()["unread"] == 0
 
 
 def test_action_required_notification(client, db_engine):
+    from tests.helpers_apps import make_application
     _, tokens = register_and_login(client)
-    _enrich(client, tokens)
-    _seed_vacancy(db_engine)
     client.put("/api/v1/preferences", headers=_auth(tokens), json={
         "application_mode": "assisted", "auto_apply_enabled": False, "min_match_score": 0,
         "max_applications_per_day": 5, "max_applications_per_week": 25,
         "excluded_companies": [], "excluded_roles": []})
-    client.post("/api/v1/matches/run", headers=_auth(tokens))
-    match_id = client.get("/api/v1/matches", headers=_auth(tokens)).json()[0]["id"]
-    client.post(f"/api/v1/matches/{match_id}/prepare-application", headers=_auth(tokens))
+    app_id = make_application(client, tokens, db_engine)
+    client.post(f"/api/v1/applications/{app_id}/approve", headers=_auth(tokens))
     notes = client.get("/api/v1/notifications", headers=_auth(tokens)).json()
     assert any(n["type"] == "action_required" for n in notes)
 
@@ -91,8 +105,6 @@ def test_action_required_notification(client, db_engine):
 def test_report_ready_notification(client, db_engine):
     _, tokens = register_and_login(client)
     _enrich(client, tokens)
-    _seed_vacancy(db_engine)
-    client.post("/api/v1/matches/run", headers=_auth(tokens))
     client.post("/api/v1/reports/generate", headers=_auth(tokens))
     notes = client.get("/api/v1/notifications", headers=_auth(tokens)).json()
     assert any(n["type"] == "report_ready" for n in notes)
@@ -208,7 +220,7 @@ def _admin(client, db_engine):
 def test_schedule_defaults_and_update(client, db_engine):
     admin = _admin(client, db_engine)
     got = client.get("/api/v1/admin/schedule", headers=_auth(admin)).json()["schedule"]
-    assert "scan_all_companies" in got and "match_all_candidates" in got
+    assert "scan_all_companies" in got and "match_all_candidates" not in got
 
     upd = client.put("/api/v1/admin/schedule", headers=_auth(admin),
                      json={"schedule": {"scan_all_companies": "0 */12 * * *"}}).json()["schedule"]
@@ -222,10 +234,33 @@ def test_schedule_requires_admin(client):
 
 def test_trigger_job_and_run_log(client, db_engine):
     admin = _admin(client, db_engine)
-    run = client.post("/api/v1/admin/jobs/match_all_candidates/run", headers=_auth(admin))
+    run = client.post("/api/v1/admin/jobs/close_expired_vacancies/run", headers=_auth(admin))
     assert run.status_code == 200 and run.json()["status"] == "success"
     runs = client.get("/api/v1/admin/jobs/runs", headers=_auth(admin)).json()
-    assert any(r["job_name"] == "match_all_candidates" for r in runs)
+    assert any(r["job_name"] == "close_expired_vacancies" for r in runs)
+
+
+def test_retired_matching_jobs_still_answer_harmlessly(client, db_engine):
+    """cron-job.org may still call match_all_candidates / run_daily_agent by name: both answer
+    200 'disabled', create no match or notification, and need no data."""
+    from sqlalchemy.orm import sessionmaker
+    from app.models.match import CandidateMatch
+    from app.models.notification import Notification
+    admin = _admin(client, db_engine)
+    _, tokens = register_and_login(client, email="cand-disabled@example.com")
+    _enrich(client, tokens)
+    _seed_vacancy(db_engine)
+    for name in ("match_all_candidates", "run_daily_agent"):
+        r = client.post(f"/api/v1/admin/jobs/{name}/run", headers=_auth(admin))
+        assert r.status_code == 200 and r.json()["status"] == "success", name
+        assert json.loads(r.json()["detail"])["status"] == "disabled", name
+    db = sessionmaker(bind=db_engine)()
+    try:
+        assert db.query(CandidateMatch).count() == 0
+        assert db.query(Notification).filter(Notification.type.in_(
+            ("strong_match", "daily_agent_briefing"))).count() == 0
+    finally:
+        db.close()
 
 
 def test_trigger_unknown_job(client, db_engine):
@@ -461,3 +496,12 @@ def test_tagging_with_a_link_sends_one_notice(client, db_engine):
     notes = [n for n in client.get("/api/v1/notifications", headers=_auth(tokens)).json()
              if n["type"] == "admin_suggestion"]
     assert len(notes) == 1
+
+
+def test_cron_endpoint_for_retired_matching_job_returns_disabled_not_error(client, monkeypatch):
+    from app.core.config import settings
+    monkeypatch.setattr(settings, "CRON_SECRET", "s3cret")
+    for name in ("match_all_candidates", "run_daily_agent"):
+        r = client.post(f"/api/v1/cron/run/{name}", headers={"X-Cron-Secret": "s3cret"})
+        assert r.status_code == 200, (name, r.text)
+        assert r.json()["status"] == "success" and json.loads(r.json()["detail"])["status"] == "disabled"

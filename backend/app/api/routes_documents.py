@@ -1,6 +1,6 @@
 """Document generation routes (blueprint Steps 7, 11, 12).
 
-Candidates generate a tailored CV / cover letter from one of their matches, then
+Candidates generate a tailored CV / cover letter for a job they name or paste, then
 list and download them. All endpoints are ownership-scoped.
 """
 from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
@@ -12,30 +12,13 @@ from app.models.document import CVVersion, CoverLetter
 from app.models.user import User
 from app.schemas.document import CVVersionResponse, CoverLetterResponse
 from pydantic import BaseModel
-from app.services.document_service import (
-    generate_cv_for_match, generate_cover_letter_for_match,
-    generate_cv_for_target, generate_cover_letter_for_target,
-)
+from app.services.document_service import generate_cv_for_target, generate_cover_letter_for_target
 from app.services.storage import get_storage
 
 router = APIRouter(tags=["documents"])
 
 _PDF = "application/pdf"
 _DOCX = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-
-
-@router.post("/matches/{match_id}/generate-cv", response_model=CVVersionResponse,
-             status_code=status.HTTP_201_CREATED)
-def generate_cv(match_id: str, db: Session = Depends(get_db),
-                user: User = Depends(get_current_user)):
-    return CVVersionResponse.model_validate(generate_cv_for_match(db, user, match_id))
-
-
-@router.post("/matches/{match_id}/generate-cover-letter", response_model=CoverLetterResponse,
-             status_code=status.HTTP_201_CREATED)
-def generate_cover_letter(match_id: str, db: Session = Depends(get_db),
-                          user: User = Depends(get_current_user)):
-    return CoverLetterResponse.model_validate(generate_cover_letter_for_match(db, user, match_id))
 
 
 class TailorRequest(BaseModel):

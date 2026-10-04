@@ -49,12 +49,11 @@ function ApplicationDetailInner() {
           <h1 className="text-2xl font-bold">{app.vacancy_title || "Application"}</h1>
           <Badge>{app.status}</Badge>
         </div>
-        {(app.company_name || app.vacancy_location || app.match_score != null) && (
+        {(app.company_name || app.vacancy_location) && (
           <p className="mt-1 text-sm text-ss-muted">
             {app.company_name}
             {app.company_name && app.vacancy_location && " · "}
             {app.vacancy_location}
-            {app.match_score != null && <> · Match {Math.round(app.match_score)}%</>}
           </p>
         )}
       </div>

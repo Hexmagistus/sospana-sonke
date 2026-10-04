@@ -6,7 +6,6 @@ from app.core.deps import get_current_user
 from app.db.session import get_db
 from app.models.application import Application
 from app.models.company import Company
-from app.models.match import CandidateMatch
 from app.models.user import User
 from app.models.vacancy import Vacancy
 from app.schemas.application import (
@@ -14,7 +13,7 @@ from app.schemas.application import (
     StatusUpdateRequest, AnswerUpdateRequest, AnswerResponse,
 )
 from app.services.application_service import (
-    get_or_create_settings, prepare_application, approve_application, mark_submitted,
+    get_or_create_settings, approve_application, mark_submitted,
     update_status, answer_question,
 )
 
@@ -22,9 +21,8 @@ router = APIRouter(tags=["applications"])
 
 
 def _enrichment(db: Session, apps: list[Application]) -> dict[str, dict]:
-    """Batch-fetch vacancy/company/match display data for a set of
-    applications -- id -> {vacancy_title, company_name, vacancy_location,
-    match_score, match_band}. Avoids an N+1 query per row on the list page."""
+    """Batch-fetch vacancy/company display data for a set of
+    applications -- id -> {vacancy_title, company_name, vacancy_location}. Avoids an N+1 query per row on the list page."""
     if not apps:
         return {}
     vacancies = {v.id: v for v in
@@ -33,20 +31,14 @@ def _enrichment(db: Session, apps: list[Application]) -> dict[str, dict]:
         c.id: c.company_name
         for c in db.query(Company).filter(Company.id.in_({v.company_id for v in vacancies.values()})).all()
     }
-    match_ids = {a.match_id for a in apps if a.match_id}
-    matches = ({m.id: m for m in db.query(CandidateMatch).filter(CandidateMatch.id.in_(match_ids)).all()}
-               if match_ids else {})
 
     out: dict[str, dict] = {}
     for a in apps:
         vac = vacancies.get(a.vacancy_id)
-        m = matches.get(a.match_id) if a.match_id else None
         out[a.id] = {
             "vacancy_title": vac.title if vac else None,
             "company_name": companies.get(vac.company_id) if vac else None,
             "vacancy_location": vac.location if vac else None,
-            "match_score": m.score if m else None,
-            "match_band": m.band if m else None,
         }
     return out
 
@@ -70,13 +62,6 @@ def update_preferences(body: SettingsSchema, db: Session = Depends(get_db),
     db.commit()
     db.refresh(s)
     return SettingsSchema.model_validate(s)
-
-
-@router.post("/matches/{match_id}/prepare-application", response_model=ApplicationDetailResponse,
-             status_code=status.HTTP_201_CREATED)
-def prepare(match_id: str, db: Session = Depends(get_db),
-            user: User = Depends(get_current_user)):
-    return _enriched(db, prepare_application(db, user, match_id), ApplicationDetailResponse)
 
 
 @router.get("/applications", response_model=list[ApplicationResponse])

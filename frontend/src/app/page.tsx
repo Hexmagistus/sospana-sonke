@@ -489,8 +489,7 @@ function HeroSearchConsole() {
 
       <div className="mt-3 flex flex-wrap gap-2">
         {[
-          ["Jobs I can apply for", "Find jobs I can apply for"],
-          ["Almost qualified for", "Show jobs I'm almost qualified for"],
+          ["Where I can apply", "Find jobs I can apply for"],
           ["Employers in my field", "Show employers in my field I can apply to directly"],
         ].map(([label, phrase]) => (
           <button
@@ -742,7 +741,7 @@ export default function Home() {
         {[
           ["🎯", "Straight to employers", `Direct links to ${shownEmployers.toLocaleString("en-US")} employers' official careers pages. You apply on their site. We don't invent listings.`, C.red],
           ["🏛️", "State-owned employers too", "SOEs are in the same directory, each with a link we could verify. South Africa has the most. Other countries are added the same way.", C.gold],
-          ["🤖", "A daily agent, still your call", "When the daily agent runs, it refreshes matches and drafts a CV and cover letter for the strongest new ones. Nothing is sent until you say so.", C.sky],
+          ["🤖", "A daily digest, still your call", "Opt in and get one short email a day with the openings that are genuinely new. Nothing is ever sent for you.", C.sky],
           ["📈", "Track & rise", "Every application in one place. Stay organised, stay ready, and keep moving forward.", C.teal],
         ].map(([ic, t, d, col], i) => (
           <Reveal key={t as string} delay={i * 120}>
@@ -998,8 +997,8 @@ export default function Home() {
         <div className="mt-8 grid gap-5 sm:grid-cols-4">
           {[
             ["1", "Create your profile", "Add your details and upload your CV — once.", C.red],
-            ["2", "Your agent gets to work", "Every day it finds new matches and drafts a tailored CV + cover letter for the strongest ones.", C.sun],
-            ["3", "Review & approve", "Nothing is ever sent without you — review what your agent prepared, then apply on the employer's official page.", C.green],
+            ["2", "Find the right openings", "Browse employers and new vacancies, and build a tailored CV + cover letter for any role you choose.", C.sun],
+            ["3", "Review & approve", "Nothing is ever sent without you — review what you prepared, then apply on the employer's official page.", C.green],
             ["4", "Track & win", "Follow every application in one place.", C.sky],
           ].map(([n, t, d, col], i) => (
             <Reveal key={n as string} delay={i * 100}>

@@ -262,35 +262,73 @@ def test_watch_only_user_gets_page_change_notice(db):
     assert c.careers_url in rec.sent[0]["body"]
 
 
-def test_daily_agent_briefing_and_strong_match_notices_are_collected_not_mailed(db):
+def test_legacy_match_and_agent_notices_are_not_mailed_and_no_matches_section(db):
+    """Matching is gone: old strong_match / daily_agent_briefing rows and old CandidateMatch rows
+    stay in the DB but never reach the digest, which has no match or agent section."""
+    from app.models.match import CandidateMatch
     u = _user(db)
+    c = _company(db)
+    v = _vac(db, c, "Strong fit role")
+    db.add(CandidateMatch(user_id=u.id, vacancy_id=v.id, score=88.0, band="Strong",
+                          created_at=NOW - timedelta(hours=3)))
     db.add(Notification(user_id=u.id, type="daily_agent_briefing",
                         title="Your daily agent found 3 new applications to review", body="x",
+                        created_at=NOW - timedelta(hours=4)))
+    db.add(Notification(user_id=u.id, type="strong_match", title="Strong match: Old Role", body="x",
                         created_at=NOW - timedelta(hours=4)))
     db.commit()
     rec = Recorder()
     run_daily_digest(db, now=NOW, provider=rec)
     assert len(rec.sent) == 1
-    assert "PREPARED BY YOUR DAILY AGENT" in rec.sent[0]["body"]
-    assert "found 3 new applications" in rec.sent[0]["body"]
+    body = rec.sent[0]["body"]
+    assert body.count("Strong fit role") == 1          # a plain new opening, listed once
+    assert "% match" not in body and "STRONG MATCHES" not in body.upper()
+    assert "PREPARED BY YOUR DAILY AGENT" not in body.upper()
+    assert "found 3 new applications" not in body and "Old Role" not in body
+    assert db.query(CandidateMatch).count() == 1        # stored data untouched
 
 
-def test_strong_match_appears_once_in_the_digest(db):
-    from app.models.match import CandidateMatch
+def test_digest_only_lists_vacancies_first_seen_in_the_last_24h(db):
     u = _user(db)
     c = _company(db)
-    v = _vac(db, c, "Strong fit role")
-    weak = _vac(db, c, "Weak fit role", link="https://acme.example/apply/w")
-    db.add(CandidateMatch(user_id=u.id, vacancy_id=v.id, score=88.0, band="Strong",
-                          created_at=NOW - timedelta(hours=3)))
-    db.add(CandidateMatch(user_id=u.id, vacancy_id=weak.id, score=20.0, band="Weak",
-                          created_at=NOW - timedelta(hours=3)))
+    _vac(db, c, "Fresh Role", hours_old=3)
+    _vac(db, c, "Last Week Role", hours_old=24 * 7, link="https://acme.example/apply/old")
+    body = render_digest(u, build_content(db, u, since=NOW - timedelta(days=30), until=NOW),
+                         now=NOW, max_items=25)[1]
+    assert "Fresh Role" in body and "Last Week Role" not in body   # even a wide window is clamped
+
+
+def test_digest_window_never_reaches_back_over_24h(db):
+    """A user whose previous digest was 40h ago (missed run) still only gets the last 24h."""
+    u = _user(db)
+    c = _company(db)
+    _vac(db, c, "Fresh Role", hours_old=5)
+    _vac(db, c, "Missed Yesterday", hours_old=30, link="https://acme.example/apply/m")
+    db.add(DigestLog(user_id=u.id, digest_date="2026-10-01", status="sent",
+                     window_start=NOW - timedelta(hours=64), window_end=NOW - timedelta(hours=40),
+                     sent_at=NOW - timedelta(hours=40)))
     db.commit()
+    rec = Recorder()
+    run_daily_digest(db, now=NOW, provider=rec)
+    assert len(rec.sent) == 1
+    assert "Fresh Role" in rec.sent[0]["body"] and "Missed Yesterday" not in rec.sent[0]["body"]
+
+
+def test_digest_skips_reposted_old_posts_and_closed_ones(db):
+    """Re-discovered old adverts (posting date days ago) or already-closed ones are not "new"."""
+    u = _user(db)
+    c = _company(db)
+    today = NOW.date()
+    _vac(db, c, "Genuinely New", posting_date=today)
+    _vac(db, c, "Undated New", link="https://acme.example/apply/u")
+    _vac(db, c, "Old Post Rediscovered", posting_date=today - timedelta(days=30),
+         link="https://acme.example/apply/o")
+    _vac(db, c, "Already Closed", closing_date=today - timedelta(days=1),
+         link="https://acme.example/apply/c")
     body = render_digest(u, build_content(db, u, since=NOW - timedelta(hours=24), until=NOW),
                          now=NOW, max_items=25)[1]
-    assert body.count("Strong fit role") == 1 and "88% match" in body
-    assert "STRONG MATCHES FOR YOUR PROFILE" in body
-    assert body.count("Weak fit role") == 1      # listed once, as an ordinary opening
+    assert "Genuinely New" in body and "Undated New" in body
+    assert "Old Post Rediscovered" not in body and "Already Closed" not in body
 
 
 def test_every_digest_has_unsubscribe_and_preferences_links(db):

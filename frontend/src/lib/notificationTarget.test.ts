@@ -66,7 +66,7 @@ describe("notification targets", () => {
   it("routes each other notice to its page", () => {
     assert.deepEqual(
       notificationTarget({ type: "strong_match", related_id: "match-1" }),
-      { kind: "internal", href: "/matches/match-1" },
+      { kind: "internal", href: "/dashboard" },   // matching was removed; old notices open the dashboard
     );
     assert.deepEqual(
       notificationTarget({ type: "action_required", related_id: "app-9" }),
@@ -93,7 +93,7 @@ describe("notification targets", () => {
     assert.equal(notificationTarget({ type: "client_login" }).href, "/admin");
     assert.equal(
       notificationTarget({ type: "strong_match", related_id: "../admin" }).href,
-      "/matches",
+      "/dashboard",
     );
   });
 

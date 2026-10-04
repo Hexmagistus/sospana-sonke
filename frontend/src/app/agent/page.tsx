@@ -5,8 +5,8 @@
  *
  * A conversational front door over the platform's real data — nothing here is
  * invented. It draws on two live sources:
- *   1. The candidate's deterministic match results (`/matches/run`, `/matches`,
- *      `/matches/{id}`) and any scraped vacancy listings (`/vacancies`).
+ *   1. Any scraped vacancy listings (`/vacancies`). Job matching/scoring was
+ *      removed: the agent no longer computes or shows match scores.
  *   2. The employer directory (`/companies`) — thousands of verified careers
  *      pages across Africa. This is the platform's core: "we find the
  *      opportunities, you apply direct."
@@ -15,9 +15,7 @@
  * central feed, the vacancy index is often thin. So when there are no live
  * listings for a search, the agent does NOT dead-end — it surfaces matching
  * employers from the directory and links straight to their careers pages. It
- * never claims a vacancy, employer, salary or closing date that isn't real, and
- * never tells a candidate they're eligible when the engine flags a hard
- * requirement as unmet.
+ * never claims a vacancy, employer, salary or closing date that isn't real.
  *
  * The "understanding" is deterministic keyword/intent parsing in the browser
  * (no hidden LLM claim) — it maps plain English to the same structured search
@@ -29,10 +27,10 @@ import Link from "next/link";
 import Guard from "@/components/Guard";
 import { api, ApiError } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
-import { Card, Button, Badge, Alert, Spinner, Input, StatusBadge } from "@/components/ui";
+import { Card, Button, Alert, Spinner, Input, StatusBadge } from "@/components/ui";
 import { NotCountedNotice, OpenVacancyCount } from "@/components/CompanyActions";
 import { consumeAgentCommand } from "@/lib/agentHandoff";
-import type { Match, MatchDetail, Vacancy, Company, GapAnalysis, CareerExplorerResult } from "@/lib/types";
+import type { Vacancy, Company, CareerExplorerResult } from "@/lib/types";
 
 /* ------------------------------------------------------------------ */
 /* Domain vocab (mirrors backend app/common/vocab.py, kept in sync by  */
@@ -212,7 +210,7 @@ function filterEmployers(
 /* Intent parsing                                                      */
 /* ------------------------------------------------------------------ */
 
-type Mode = "apply" | "almost" | "discovery" | "employers" | "explorer" | "search";
+type Mode = "apply" | "discovery" | "employers" | "explorer" | "search";
 
 interface ParsedFilters {
   location?: string;
@@ -286,9 +284,7 @@ function classifyIntent(raw: string): ParsedQuery {
   }
 
   let mode: Mode = "search";
-  if (/\balmost\b|\bnearly\b|close to qualif|stretch|develop into|grow into/.test(text)) {
-    mode = "almost";
-  } else if (/can i apply|jobs i can apply|apply for|eligible|i qualify|qualify for/.test(text)) {
+  if (/can i apply|jobs i can apply|apply for|eligible|i qualify|qualify for/.test(text)) {
     mode = "apply";
   } else if (/companies hiring|apply direct|careers page|who is hiring|who'?s hiring|employers (i|near|in|for|hiring)/.test(text)) {
     mode = "employers";
@@ -335,65 +331,6 @@ function isNewListing(firstSeenAt: string): boolean {
 }
 
 /* ------------------------------------------------------------------ */
-/* Eligibility phrasing (blueprint sections 9 & 10 — never overclaim)  */
-/* ------------------------------------------------------------------ */
-
-function eligibility(m: Match): { label: string; cls: string } {
-  if (!m.hard_ok) return { label: "Requirement not confirmed", cls: "text-coral" };
-  if (m.decision === "APPLY") return { label: "You appear to meet the key requirements", cls: "text-green-700" };
-  if (m.decision === "REVIEW") return { label: "Likely match — worth reviewing", cls: "text-[#8a6d00]" };
-  return { label: "Does not appear to meet the requirements", cls: "text-ss-muted" };
-}
-
-function scoreColor(score: number): string {
-  if (score >= 85) return "text-ss-success";
-  if (score >= 75) return "text-ss-tech";
-  if (score >= 65) return "text-ss-warning";
-  return "text-ss-muted";
-}
-
-/** Compact SVG ring visualization of the real, already-computed match score --
- * the "sophisticated match visualization" the brief asks for (section 6),
- * replacing a bare percentage. Nothing here is invented: `score` is the same
- * number the plain-text version showed, just drawn instead of only printed. */
-function MatchRing({ score, colorCls }: { score: number; colorCls: string }) {
-  const r = 21;
-  const c = 2 * Math.PI * r;
-  const pct = Math.max(0, Math.min(100, score));
-  const dash = (pct / 100) * c;
-  return (
-    <div className={`relative flex h-16 w-16 flex-none items-center justify-center ${colorCls}`}>
-      <svg viewBox="0 0 52 52" className="h-16 w-16 -rotate-90" aria-hidden="true">
-        <circle cx="26" cy="26" r={r} fill="none" stroke="currentColor" strokeWidth="4" opacity="0.15" />
-        <circle
-          cx="26" cy="26" r={r} fill="none" stroke="currentColor" strokeWidth="4"
-          strokeDasharray={`${dash} ${c - dash}`} strokeLinecap="round"
-          className="transition-[stroke-dasharray] duration-700 ease-out"
-        />
-      </svg>
-      <span className="absolute text-sm font-bold leading-none text-ss-text">{Math.round(pct)}%</span>
-    </div>
-  );
-}
-
-/** One row of the "WHY THIS MATCH?" breakdown -- a labelled bar per real
- * sub-score returned by the matching engine (brief section 6). */
-function SubScoreBar({ label, value }: { label: string; value: number }) {
-  const pct = Math.max(0, Math.min(100, value));
-  return (
-    <div>
-      <div className="flex items-center justify-between text-[11px]">
-        <span className="capitalize text-ss-muted">{label.replace(/_/g, " ")}</span>
-        <span className="font-semibold text-ss-text">{Math.round(pct)}%</span>
-      </div>
-      <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-ss-border">
-        <div className="h-full rounded-full bg-gradient-to-r from-ss-tech to-ss-primary transition-[width] duration-700 ease-out" style={{ width: `${pct}%` }} />
-      </div>
-    </div>
-  );
-}
-
-/* ------------------------------------------------------------------ */
 /* Chat message model                                                  */
 /* ------------------------------------------------------------------ */
 
@@ -401,7 +338,6 @@ interface AgentTurn {
   id: string;
   role: "user" | "agent";
   text: string;
-  matches?: Match[];
   vacancies?: VacancyCardData[];
   employers?: Company[];
   roleChips?: string[];
@@ -429,29 +365,12 @@ function AgentInner() {
 
   // Caches
   const companyMap = useRef<Map<string, Company> | null>(null);
-  const matchDetailCache = useRef<Map<string, MatchDetail>>(new Map());
   const profile = useRef<ProfileLite | null>(null);
-  const ranAllMatches = useRef(false);
-
-  // Compare + save trays
-  const [compare, setCompare] = useState<Match[]>([]);
-  const [saved, setSaved] = useState<Record<string, Match>>({});
-  const [showCompare, setShowCompare] = useState(false);
 
   const scrollRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [turns, busy]);
-
-  useEffect(() => {
-    try {
-      const raw = window.localStorage.getItem("sospana_agent_saved");
-      if (raw) setSaved(JSON.parse(raw));
-    } catch { /* ignore */ }
-  }, []);
-  useEffect(() => {
-    try { window.localStorage.setItem("sospana_agent_saved", JSON.stringify(saved)); } catch { /* ignore */ }
-  }, [saved]);
 
   // Handoff from the public homepage's search console (via PendingSearchBanner,
   // after login) or the Ctrl+K command palette -- runs the queued search once,
@@ -511,14 +430,6 @@ function AgentInner() {
     return p;
   }
 
-  async function runAndGetMatches(): Promise<Match[]> {
-    if (!ranAllMatches.current) {
-      try { await api.post("/matches/run"); } catch { /* non-fatal: read whatever exists */ }
-      ranAllMatches.current = true;
-    }
-    return api.get<Match[]>("/matches?limit=200");
-  }
-
   // Employers relevant to the candidate's own profile (field + location).
   async function employersFromProfile(limitN: number): Promise<{ employers: Company[]; country: string; seed: string }> {
     const p = await ensureProfile();
@@ -533,44 +444,15 @@ function AgentInner() {
   /* ---- handlers ---- */
 
   async function handleApply() {
-    const matches = await runAndGetMatches();
-    const eligible = matches
-      .filter((m) => m.hard_ok && (m.decision === "APPLY" || m.decision === "REVIEW"))
-      .sort((a, b) => b.score - a.score);
-    if (eligible.length > 0) {
-      pushAgent({
-        text: `I scored the open vacancy index against your profile and found ${eligible.length} you appear to meet the key requirements for. Ranked strongest first:`,
-        matches: eligible.slice(0, 20),
-      });
-      return;
-    }
-    // No scored listings yet — pivot to employers the candidate can approach directly.
+    // Job matching was removed: point to employers' own careers pages instead of scoring listings.
     const { employers, country } = await employersFromProfile(6);
     pushAgent({
-      text: `There are no scored vacancy listings for your profile in the index yet — most employers here advertise on their own careers pages rather than a shared feed. Based on your profile, here are employers in ${country} whose careers pages are worth checking directly:`,
+      text: `I no longer score vacancies against your profile. Based on your profile, here are employers in ${country} whose careers pages are worth checking directly:`,
       employers: employers.length ? employers : undefined,
       cta: [
         { label: `Browse all employers in ${country} →`, href: directoryHref(country) },
         { label: "Sharpen my profile →", href: "/profile" },
       ],
-    });
-  }
-
-  async function handleAlmost() {
-    const matches = await runAndGetMatches();
-    const almost = matches
-      .filter((m) => (!m.hard_ok || m.band === "Possible" || m.band === "Weak") && m.score >= 45 && m.decision !== "DO_NOT_APPLY")
-      .sort((a, b) => b.score - a.score);
-    if (almost.length > 0) {
-      pushAgent({
-        text: `These ${almost.length} roles are close matches where you're missing only one or two things — useful for career development. Expand 'Why' on any card to see what's needed:`,
-        matches: almost.slice(0, 15),
-      });
-      return;
-    }
-    pushAgent({
-      text: "There aren't scored 'almost qualified' listings in the index yet. As vacancies get indexed this will fill in — for now, browsing employers directly is the surest route.",
-      cta: [{ label: "Browse employers →", href: "/companies" }],
     });
   }
 
@@ -701,7 +583,7 @@ function AgentInner() {
       });
     } else if (vacs.length > 0) {
       pushAgent({
-        text: `Found ${vacs.length} live listing${vacs.length === 1 ? "" : "s"} for "${label}"${where}. These are directory listings, not yet scored against your profile:`,
+        text: `Found ${vacs.length} live listing${vacs.length === 1 ? "" : "s"} for "${label}"${where}. These are directory listings straight from employers:`,
         vacancies: vacCards, cta,
       });
     } else if (employers.length > 0) {
@@ -728,7 +610,6 @@ function AgentInner() {
     try {
       const parsed = classifyIntent(text);
       if (parsed.mode === "apply") await handleApply();
-      else if (parsed.mode === "almost") await handleAlmost();
       else if (parsed.mode === "employers") await handleEmployers();
       else if (parsed.mode === "explorer") await handleExplorer();
       else if (parsed.mode === "discovery") await handleDiscovery();
@@ -755,27 +636,6 @@ function AgentInner() {
     );
   }
 
-  async function loadDetail(id: string): Promise<MatchDetail> {
-    const cached = matchDetailCache.current.get(id);
-    if (cached) return cached;
-    const d = await api.get<MatchDetail>(`/matches/${id}`);
-    matchDetailCache.current.set(id, d);
-    return d;
-  }
-
-  const toggleCompare = (m: Match) =>
-    setCompare((prev) =>
-      prev.find((x) => x.id === m.id)
-        ? prev.filter((x) => x.id !== m.id)
-        : prev.length >= 5 ? prev : [...prev, m]
-    );
-  const toggleSave = (m: Match) =>
-    setSaved((prev) => {
-      const n = { ...prev };
-      if (n[m.id]) delete n[m.id]; else n[m.id] = m;
-      return n;
-    });
-
   return (
     <div className="space-y-5">
       <header>
@@ -789,9 +649,8 @@ function AgentInner() {
       {err && <Alert kind="error">{err}</Alert>}
 
       <div className="flex flex-wrap gap-2">
-        {quick("💼 Jobs I can apply for", "Find jobs I can apply for")}
+        {quick("💼 Where I can apply", "Find jobs I can apply for")}
         {quick("🏢 Employers in my field", "Show employers in my field I can apply to directly")}
-        {quick("📈 Almost qualified", "Show jobs I'm almost qualified for")}
         {quick("🧭 Discover careers for me", "Discover related careers for me")}
         {quick("🎓 Explore my qualification", "career explorer")}
         {quick("💧 Water treatment", "water treatment jobs")}
@@ -821,11 +680,6 @@ function AgentInner() {
                   key={t.id}
                   turn={t}
                   onChip={(role) => submit(role)}
-                  loadDetail={loadDetail}
-                  compareIds={compare.map((c) => c.id)}
-                  savedIds={Object.keys(saved)}
-                  onCompare={toggleCompare}
-                  onSave={toggleSave}
                 />
               )
             )}
@@ -852,27 +706,9 @@ function AgentInner() {
         </div>
       </Card>
 
-      {(compare.length > 0 || Object.keys(saved).length > 0) && (
-        <div className="flex flex-wrap items-center gap-3 rounded-xl border border-ss-border bg-ss-surface px-4 py-3 text-sm shadow-sm">
-          {Object.keys(saved).length > 0 && (
-            <span className="text-ss-muted">⭐ {Object.keys(saved).length} saved</span>
-          )}
-          {compare.length > 0 && (
-            <>
-              <span className="text-ss-muted">⚖️ {compare.length} to compare</span>
-              <Button size="sm" onClick={() => setShowCompare(true)}>Compare now</Button>
-              <button onClick={() => setCompare([])} className="text-xs text-ss-muted hover:text-ss-muted">clear</button>
-            </>
-          )}
-          <Link href="/matches" className="ml-auto text-xs font-medium text-brand hover:underline">See all matches →</Link>
-        </div>
-      )}
-
-      {showCompare && <CompareModal items={compare} onClose={() => setShowCompare(false)} loadDetail={loadDetail} />}
-
       <p className="text-center text-xs text-ss-muted">
-        Match scores are guidance to help you prioritise — they are not hiring decisions, and every requirement
-        is the employer&rsquo;s own. Always confirm details on the original vacancy before applying.
+        Listings come from employers&rsquo; own careers pages. Always confirm details on the original
+        vacancy before applying.
       </p>
     </div>
   );
@@ -883,15 +719,10 @@ function AgentInner() {
 /* ------------------------------------------------------------------ */
 
 function AgentBubble({
-  turn, onChip, loadDetail, compareIds, savedIds, onCompare, onSave,
+  turn, onChip,
 }: {
   turn: AgentTurn;
   onChip: (role: string) => void;
-  loadDetail: (id: string) => Promise<MatchDetail>;
-  compareIds: string[];
-  savedIds: string[];
-  onCompare: (m: Match) => void;
-  onSave: (m: Match) => void;
 }) {
   return (
     <div className="space-y-3">
@@ -912,22 +743,6 @@ function AgentBubble({
             >
               {r} →
             </button>
-          ))}
-        </div>
-      )}
-
-      {turn.matches && turn.matches.length > 0 && (
-        <div className="ml-0 grid gap-3 sm:ml-9">
-          {turn.matches.map((m) => (
-            <MatchCard
-              key={m.id}
-              m={m}
-              loadDetail={loadDetail}
-              inCompare={compareIds.includes(m.id)}
-              inSaved={savedIds.includes(m.id)}
-              onCompare={onCompare}
-              onSave={onSave}
-            />
           ))}
         </div>
       )}
@@ -976,162 +791,6 @@ function AgentBubble({
         </div>
       )}
     </div>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-/* Personalized (scored) match card                                    */
-/* ------------------------------------------------------------------ */
-
-function MatchCard({
-  m, loadDetail, inCompare, inSaved, onCompare, onSave,
-}: {
-  m: Match;
-  loadDetail: (id: string) => Promise<MatchDetail>;
-  inCompare: boolean;
-  inSaved: boolean;
-  onCompare: (m: Match) => void;
-  onSave: (m: Match) => void;
-}) {
-  const [detail, setDetail] = useState<MatchDetail | null>(null);
-  const [open, setOpen] = useState(false);
-  const [loadingD, setLoadingD] = useState(false);
-  const [gap, setGap] = useState<GapAnalysis | null>(null);
-  const [loadingGap, setLoadingGap] = useState(false);
-  const elig = eligibility(m);
-
-  async function toggleWhy() {
-    setOpen((v) => !v);
-    if (!detail && !loadingD) {
-      setLoadingD(true);
-      try { setDetail(await loadDetail(m.id)); } catch { /* ignore */ } finally { setLoadingD(false); }
-    }
-    if (!gap && !loadingGap) {
-      setLoadingGap(true);
-      try { setGap(await api.get<GapAnalysis>(`/matches/${m.id}/gap-analysis`)); }
-      catch { /* ignore -- the reasons/gaps above still show without it */ }
-      finally { setLoadingGap(false); }
-    }
-  }
-
-  return (
-    <Card className="!p-4" accent={m.band === "Strong" ? "teal" : m.band === "Good" ? "sky" : "gold"} interactive>
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <div className="truncate font-semibold text-ss-text">{m.vacancy_title || "Vacancy"}</div>
-          <div className="truncate text-sm text-ss-muted">{m.company_name || "Employer"}</div>
-          <div className={`mt-1 text-xs font-medium ${elig.cls}`}>
-            {!m.hard_ok && "⚠ "}{elig.label}
-          </div>
-          <div className="mt-1.5"><Badge>{m.band}</Badge></div>
-        </div>
-        <MatchRing score={m.score} colorCls={scoreColor(m.score)} />
-      </div>
-
-      {open && (
-        <div className="mt-3 border-t border-ss-border pt-3">
-          {loadingD && <div className="text-xs text-ss-muted">Loading breakdown…</div>}
-          {detail && (
-            <div className="space-y-3">
-              {Object.keys(detail.sub_scores).length > 0 && (
-                <div>
-                  <div className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-ss-muted">Why this match?</div>
-                  <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
-                    {Object.entries(detail.sub_scores).map(([k, v]) => (
-                      <SubScoreBar key={k} label={k} value={v} />
-                    ))}
-                  </div>
-                </div>
-              )}
-              {detail.reasons.length > 0 && (
-                <div>
-                  <div className="mb-1 text-xs font-semibold uppercase tracking-wide text-ss-success">Why this matches you</div>
-                  <ul className="space-y-1 text-sm text-ss-text">
-                    {detail.reasons.map((r, i) => <li key={i}>✓ {r}</li>)}
-                  </ul>
-                </div>
-              )}
-              {detail.gaps.length > 0 && (
-                <div>
-                  <div className="mb-1 text-xs font-semibold uppercase tracking-wide text-ss-danger">Gaps to be aware of</div>
-                  <ul className="space-y-1 text-sm text-ss-text">
-                    {detail.gaps.map((g, i) => <li key={i}>⚠ {g}</li>)}
-                  </ul>
-                </div>
-              )}
-            </div>
-          )}
-          {loadingGap && <div className="mt-2 text-xs text-ss-muted">Loading gap analysis…</div>}
-          {gap && (gap.have.length > 0 || gap.missing.length > 0 || gap.pathway.length > 0) && (
-            <div className="mt-3 space-y-3 border-t border-ss-border pt-3">
-              <div className="flex items-center justify-between">
-                <div className="text-xs font-semibold uppercase tracking-wide text-ss-muted">Your next move</div>
-                {gap.percent_requirements_met != null && (
-                  <span className="rounded-full bg-ss-primary-soft px-2 py-0.5 text-[11px] font-semibold text-ss-text">
-                    Meets {gap.percent_requirements_met}% of checkable requirements
-                  </span>
-                )}
-              </div>
-              {gap.have.length > 0 && (
-                <div>
-                  <div className="mb-1 text-xs font-semibold text-ss-success">You already have</div>
-                  <ul className="space-y-1 text-sm text-ss-text">
-                    {gap.have.map((h, i) => <li key={i}>✓ {h.text}</li>)}
-                  </ul>
-                </div>
-              )}
-              {gap.missing.length > 0 && (
-                <div>
-                  <div className="mb-1 text-xs font-semibold text-ss-danger">You are missing</div>
-                  <ul className="space-y-1 text-sm text-ss-text">
-                    {gap.missing.map((g2, i) => <li key={i}>✗ {g2.text}</li>)}
-                  </ul>
-                </div>
-              )}
-              {gap.pathway.length > 0 && (
-                <div>
-                  <div className="mb-1 text-xs font-semibold text-sky">Suggested pathway</div>
-                  <ol className="list-decimal space-y-1 pl-4 text-sm text-ss-text">
-                    {gap.pathway.map((p, i) => <li key={i}>{p.step}</li>)}
-                  </ol>
-                </div>
-              )}
-              {gap.unclear.length > 0 && (
-                <div className="text-xs text-ss-muted">
-                  {gap.unclear.length} requirement{gap.unclear.length === 1 ? "" : "s"} couldn&apos;t be checked from
-                  your profile — add more detail on your <Link href="/profile" className="underline">Profile</Link> for
-                  a more precise reading.
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-      )}
-
-      <div className="mt-3 flex flex-wrap items-center gap-2">
-        <button onClick={toggleWhy} className="text-xs font-medium text-brand hover:underline">
-          {open ? "Hide breakdown" : "Why this match? →"}
-        </button>
-        <span className="text-ss-border">·</span>
-        <Link href={`/matches/${m.id}`} className="text-xs font-medium text-brand hover:underline">View &amp; apply →</Link>
-        <span className="text-ss-border">·</span>
-        <Link href={`/matches/${m.id}`} className="text-xs font-medium text-brand hover:underline">Tailor my CV</Link>
-        <div className="ml-auto flex items-center gap-2">
-          <button
-            onClick={() => onSave(m)}
-            className={`rounded-md px-2 py-1 text-xs font-medium transition ${inSaved ? "bg-ss-primary-soft text-ss-text" : "text-ss-muted hover:bg-ss-primary-soft"}`}
-          >
-            {inSaved ? "★ Saved" : "☆ Save"}
-          </button>
-          <button
-            onClick={() => onCompare(m)}
-            className={`rounded-md px-2 py-1 text-xs font-medium transition ${inCompare ? "bg-brand/10 text-brand-dark" : "text-ss-muted hover:bg-ss-primary-soft"}`}
-          >
-            {inCompare ? "In compare" : "Compare"}
-          </button>
-        </div>
-      </div>
-    </Card>
   );
 }
 
@@ -1281,99 +940,6 @@ function EmployerCard({ c }: { c: Company }) {
         <span className="ml-auto self-center text-[11px] text-ss-muted">Source: Sospana Sonke directory</span>
       </div>
     </Card>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-/* Compare modal (blueprint section 20)                                */
-/* ------------------------------------------------------------------ */
-
-function CompareModal({
-  items, onClose, loadDetail,
-}: {
-  items: Match[];
-  onClose: () => void;
-  loadDetail: (id: string) => Promise<MatchDetail>;
-}) {
-  const [details, setDetails] = useState<Record<string, MatchDetail>>({});
-  useEffect(() => {
-    let live = true;
-    Promise.all(items.map((m) => loadDetail(m.id).then((d) => [m.id, d] as const).catch(() => null)))
-      .then((pairs) => {
-        if (!live) return;
-        const map: Record<string, MatchDetail> = {};
-        pairs.forEach((p) => { if (p) map[p[0]] = p[1]; });
-        setDetails(map);
-      });
-    return () => { live = false; };
-  }, [items, loadDetail]);
-
-  const subKeys = Array.from(
-    new Set(Object.values(details).flatMap((d) => Object.keys(d.sub_scores)))
-  );
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 p-0 sm:items-center sm:p-4" onClick={onClose}>
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="compare-vacancies-heading"
-        className="max-h-[85vh] w-full max-w-3xl overflow-auto rounded-t-2xl bg-ss-surface p-5 shadow-xl sm:rounded-2xl"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="mb-4 flex items-center justify-between">
-          <h2 id="compare-vacancies-heading" className="text-lg font-bold">Compare vacancies</h2>
-          <button onClick={onClose} className="rounded-md px-2 py-1 text-sm text-ss-muted hover:bg-ss-primary-soft">Close ✕</button>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse text-sm">
-            <thead>
-              <tr>
-                <th className="p-2 text-left font-medium text-ss-muted"></th>
-                {items.map((m) => (
-                  <th key={m.id} className="min-w-[9rem] p-2 text-left align-top">
-                    <div className="font-semibold text-ss-text">{m.vacancy_title}</div>
-                    <div className="text-xs font-normal text-ss-muted">{m.company_name}</div>
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              <Row label="Match score" cells={items.map((m) => `${Math.round(m.score)}%`)} />
-              <Row label="Band" cells={items.map((m) => m.band)} />
-              <Row label="Decision" cells={items.map((m) => m.decision.replace(/_/g, " "))} />
-              <Row label="Hard requirements" cells={items.map((m) => (m.hard_ok ? "Met" : "Not confirmed"))} />
-              {subKeys.map((k) => (
-                <Row
-                  key={k}
-                  label={k.replace(/_/g, " ")}
-                  cells={items.map((m) => {
-                    const v = details[m.id]?.sub_scores?.[k];
-                    return v == null ? "—" : `${Math.round(v)}%`;
-                  })}
-                />
-              ))}
-            </tbody>
-          </table>
-        </div>
-        <div className="mt-4 flex flex-wrap gap-2">
-          {items.map((m) => (
-            <Link key={m.id} href={`/matches/${m.id}`}>
-              <Button size="sm" variant="ghost">Open {m.vacancy_title?.slice(0, 20)} →</Button>
-            </Link>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function Row({ label, cells }: { label: string; cells: string[] }) {
-  return (
-    <tr className="border-t border-gray-100">
-      <td className="p-2 align-top text-xs font-medium capitalize text-ss-muted">{label}</td>
-      {cells.map((c, i) => <td key={i} className="p-2 align-top text-ss-text">{c}</td>)}
-    </tr>
   );
 }
 

@@ -17,7 +17,6 @@ def render_report_pdf(stats: dict) -> bytes:
                             leftMargin=1.8 * cm, rightMargin=1.8 * cm, title="Job Application Report")
     styles = getSampleStyleSheet()
     title = ParagraphStyle("T", parent=styles["Title"], fontSize=18)
-    h = ParagraphStyle("H", parent=styles["Heading2"], fontSize=12, spaceBefore=12, spaceAfter=4)
     body = ParagraphStyle("B", parent=styles["Normal"], fontSize=10, leading=14)
 
     story = [Paragraph("Job Application Intelligence Report", title),
@@ -25,9 +24,6 @@ def render_report_pdf(stats: dict) -> bytes:
              Paragraph(f"Date: {escape(str(stats.get('date','')))}", body), Spacer(1, 8)]
 
     summary = [
-        ["Vacancies analysed", stats.get("vacancies_analyzed", 0)],
-        ["Qualified (apply/review)", stats.get("qualified", 0)],
-        ["Rejected", stats.get("rejected", 0)],
         ["CVs generated", stats.get("cvs_generated", 0)],
         ["Cover letters generated", stats.get("cover_letters_generated", 0)],
         ["Applications submitted", stats.get("applications_submitted", 0)],
@@ -43,22 +39,8 @@ def render_report_pdf(stats: dict) -> bytes:
     ]))
     story += [t, Spacer(1, 6)]
 
-    top = stats.get("top_applications") or []
-    if top:
-        story.append(Paragraph("Top matches", h))
-        for i, m in enumerate(top, 1):
-            line = f"{i}. {m.get('title','')} — {m.get('company','')}  ·  Match: {m.get('score','')}%  ·  {m.get('status','')}"
-            story.append(Paragraph(escape(line), body))
-
-    rejected = stats.get("rejected_examples") or []
-    if rejected:
-        story.append(Paragraph("Examples of rejected vacancies (and why)", h))
-        for m in rejected:
-            line = f"{m.get('title','')} — {m.get('company','')}: {m.get('reason','No specific reason recorded.')}"
-            story.append(Paragraph(escape(line), body))
-
     story += [Spacer(1, 10), Paragraph(
-        "This report is advisory. Matching is a guide, not a guarantee of interviews or employment; "
+        "This report is advisory. It is not a guarantee of interviews or employment; "
         "employers make all hiring decisions.", ParagraphStyle("F", parent=body, fontSize=8,
                                                                textColor=colors.HexColor("#6b7280")))]
     doc.build(story)
