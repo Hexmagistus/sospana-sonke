@@ -23,11 +23,11 @@ JOBS = {
     "scan_due_companies": scan_due_companies,   # fast rotating batch (external cron)
     "close_expired_vacancies": close_expired_vacancies,  # DB-only sweep: is_open=False past closing_date
     "discover_company_icons": discover_company_icons,  # polite fetch-once icon store (robots.txt, rate-limited, small batch)
-    "match_all_candidates": match_all_candidates,
+    "match_all_candidates": match_all_candidates,  # RETIRED: harmless "disabled" reply so a scheduler that still calls it gets a 200
     "check_link_changes": check_link_changes,   # fast rotating batch: page-hash "did it change" check
     "test_all_urls": test_all_urls,             # rotating, time-bounded careers-URL health check + status downgrade
     "purge_expired_messages": purge_expired_messages,  # hourly: delete expired temporary messages (POPIA storage limitation)
-    "run_daily_agent": run_daily_agent,         # proactive daily agent: match -> draft CV/cover letter -> queue
+    "run_daily_agent": run_daily_agent,         # matching agent RETIRED; only runs the optional admin sign-in digest
     "send_admin_login_digest": send_admin_login_digest,  # optional (per-admin, off by default) client sign-in digest
     "send_daily_digest": send_daily_digest,     # ONE "Your daily updates" email per opted-in user per day
 }
@@ -35,13 +35,12 @@ JOBS = {
 DEFAULT_SCHEDULE = {
     "scan_due_companies": "*/15 * * * *",        # every 15 min via GitHub Actions (best-effort)
     "scan_all_companies": "0 */6 * * *",         # every 6 hours
-    "close_expired_vacancies": "0 1 * * *",      # nightly at 01:00, before matching — keeps is_open accurate
+    "close_expired_vacancies": "0 1 * * *",      # nightly at 01:00 — keeps is_open accurate
     "discover_company_icons": "*/30 * * * *",      # ~12 companies per run, spaced out; never on a page view
-    "match_all_candidates": "0 2 * * *",         # nightly at 02:00
     "check_link_changes": "0 */4 * * *",         # every 4 hours — rotates through the list
     "test_all_urls": "0 4 * * *",                # daily 04:00 — rotating careers-URL health check
     "purge_expired_messages": "15 * * * *",      # hourly at :15
-    "run_daily_agent": "0 3 * * *",              # nightly at 03:00 — after expiry cleanup, before URL health check
+    "run_daily_agent": "0 3 * * *",              # nightly at 03:00 — admin sign-in digest only
     "send_daily_digest": "0 6 * * *",            # 06:00 UTC = 08:00 SAST, once a day (idempotent per user per day)
     "send_admin_login_digest": "30 5 * * *",     # daily 05:30; also runs at the end of run_daily_agent
 }

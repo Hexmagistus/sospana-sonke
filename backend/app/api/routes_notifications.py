@@ -24,7 +24,7 @@ from app.schemas.notification import (
 )
 from app.scheduler.registry import get_schedule, set_schedule, JOBS
 from app.scheduler.runner import run_job, UnknownJob
-from app.services.notification_service import notify_admin_suggestion
+from app.services.notification_service import notify_admin_suggestion, RETIRED_TYPES
 from app.services.preference_mail import send_preference_emails
 from app.services.admin_login_alerts import send_login_digest
 
@@ -88,7 +88,8 @@ def digest_unsubscribe(token: str = Query(default="", max_length=2000), db: Sess
 def list_notifications(db: Session = Depends(get_db), user: User = Depends(get_current_user),
                        unread_only: bool = Query(default=False),
                        limit: int = Query(default=50, le=200)):
-    q = db.query(Notification).filter(Notification.user_id == user.id)
+    q = db.query(Notification).filter(Notification.user_id == user.id,
+                                      Notification.type.notin_(RETIRED_TYPES))
     if unread_only:
         q = q.filter(Notification.is_read.is_(False))
     q = q.order_by(Notification.created_at.desc()).limit(limit)
@@ -98,7 +99,8 @@ def list_notifications(db: Session = Depends(get_db), user: User = Depends(get_c
 @router.get("/notifications/unread-count", response_model=UnreadCountResponse)
 def unread_count(db: Session = Depends(get_db), user: User = Depends(get_current_user)):
     n = (db.query(func.count(Notification.id))
-         .filter(Notification.user_id == user.id, Notification.is_read.is_(False)).scalar() or 0)
+         .filter(Notification.user_id == user.id, Notification.is_read.is_(False),
+                 Notification.type.notin_(RETIRED_TYPES)).scalar() or 0)
     return UnreadCountResponse(unread=n)
 
 

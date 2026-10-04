@@ -48,7 +48,10 @@ users not yet done (a run stops after about 90 seconds and the next call continu
 * Never empty: a user with nothing new is skipped, no log row.
 * Opt-in: active candidate, verified email, not deleted, not unsubscribed, and an explicit yes.
   Alerts yes -> new openings (profile country, or everywhere when willing to relocate, plus the
-  user's watches; preferred post type), strong matches and daily-agent briefings. Tagging yes ->
+  user's watches; preferred post type); only vacancies first seen in the last 24h (the window
+  never reaches back further, even after a missed day) and not old re-posts (posting date more
+  than 3 days ago) or already closed. Job matching was removed: there is no strong-matches
+  or daily-agent section. Tagging yes ->
   posts tagged by the team. An active page watch -> "careers page changed" notices.
 * Every email carries a preferences link, a one-click unsubscribe link (GET shows a confirm
   page, POST unsubscribes) and the privacy link. Unsubscribing sets `notify_opportunity_alerts`
@@ -68,9 +71,9 @@ users not yet done (a run stops after about 90 seconds and the next call continu
 | Preference service notice | `preference_mail.send_preference_emails` | admin button, <=50 per click, once per user, 250/24h cap | unchanged |
 | Application needs action | `notify_action_required` | when an application needs the candidate | unchanged (NOTIFY_EMAILS) |
 | Report ready | `notify_report_ready` | when a report is generated | unchanged (NOTIFY_EMAILS) |
-| Strong job match | `notify_strong_match` | each match from "run matching", nightly `match_all_candidates`, `run_daily_agent` | in-app only; in the digest |
+| ~~Strong job match~~ | removed (matching was removed) | `match_all_candidates` and `run_daily_agent` now return "disabled"; old rows are hidden, not deleted | none |
 | New jobs broadcast | `notify_new_jobs_broadcast` | after `scan_all_companies` / `scan_south_africa` | in-app only; openings in the digest |
-| Daily agent briefing | `notify_daily_agent_briefing` | `run_daily_agent` 03:00 UTC | in-app only; in the digest |
+| ~~Daily agent briefing~~ | removed | `run_daily_agent` only runs the admin sign-in digest now | none |
 | Admin tag / suggestion | `notify_admin_suggestion` | admin sends a tag | in-app only; in the digest (tagging yes) |
 | Watched page changed | `notify_watchers_of_change` | job `check_link_changes` every 6h | in-app only; in the digest |
 

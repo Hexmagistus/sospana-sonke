@@ -77,7 +77,7 @@ function ProfileInner() {
     <div>
       <h1 className="text-2xl font-bold text-ss-text">My profile</h1>
       <p className="mt-1 text-sm text-ss-muted">
-        Kept up to date, this is what powers stronger job matches and tailored applications.{" "}
+        Kept up to date, this is what powers your tailored CVs and applications.{" "}
         <Link href="/master-cv" className="font-medium text-brand hover:underline">View my Master CV →</Link>
       </p>
     </div>

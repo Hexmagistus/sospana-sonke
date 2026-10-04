@@ -488,9 +488,6 @@ function AdminInner() {
           <Button variant="ghost" disabled={!!job} loading={job === "scan_all_companies"} onClick={() => runJob("scan_all_companies")}>
             {job === "scan_all_companies" ? "Scanning…" : "Run scan-all-companies (all regions)"}
           </Button>
-          <Button variant="ghost" disabled={!!job} loading={job === "match_all_candidates"} onClick={() => runJob("match_all_candidates")}>
-            {job === "match_all_candidates" ? "Matching…" : "Run match-all-candidates"}
-          </Button>
         </div>
       </Card>
 

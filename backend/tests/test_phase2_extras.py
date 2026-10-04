@@ -1,6 +1,4 @@
 """Tests for source-change admin alerts and interview preparation."""
-from datetime import datetime, timezone
-
 import httpx
 
 from tests.conftest import register_and_login
@@ -8,7 +6,6 @@ from app.core import security
 from app.models.user import User
 from app.models.company import Company
 from app.models.notification import Notification
-from app.models.vacancy import Vacancy, VacancyRequirement
 from app.services.scan_service import ensure_source, scan_source
 
 
@@ -74,52 +71,8 @@ def _auth(t):
     return {"Authorization": f"Bearer {t['access_token']}"}
 
 
-def _seed_and_match(client, tokens, db_engine):
-    from sqlalchemy.orm import sessionmaker
-    S = sessionmaker(bind=db_engine); s = S()
-    try:
-        c = Company(company_name="Acme Logistics", sector="Logistics",
-                    careers_url="https://boards.greenhouse.io/acme")
-        s.add(c); s.commit(); s.refresh(c)
-        now = datetime.now(timezone.utc)
-        v = Vacancy(company_id=c.id, source_id="s1", title="Operations Manager", location="Johannesburg",
-                    description="SQL needed.", content_hash="h1", is_open=True,
-                    first_seen_at=now, last_seen_at=now)
-        s.add(v); s.commit(); s.refresh(v)
-        s.add(VacancyRequirement(vacancy_id=v.id, text="Minimum of 5 years experience required",
-                                 kind="hard", category="experience"))
-        s.commit()
-    finally:
-        s.close()
-    h = _auth(tokens)
-    client.put("/api/v1/profile", headers=h, json={"years_experience": 6,
-               "desired_occupations": ["Operations Manager"], "industries": ["logistics"],
-               "preferred_locations": ["Johannesburg"]})
-    client.post("/api/v1/profile/skills", headers=h, json={"name": "SQL", "category": "technical"})
-    client.post("/api/v1/matches/run", headers=h)
-    return client.get("/api/v1/matches", headers=h).json()[0]["id"]
-
-
-def test_interview_prep_generation(client, db_engine):
+def test_interview_prep_from_a_match_is_gone(client):
     _, tokens = register_and_login(client)
-    match_id = _seed_and_match(client, tokens, db_engine)
-
-    gen = client.post(f"/api/v1/matches/{match_id}/interview-prep", headers=_auth(tokens))
-    assert gen.status_code == 201, gen.text
-    content = gen.json()["content"]
-    assert any("Operations Manager" in q for q in content["questions"])
-    assert any("5 years experience" in q for q in content["questions"])   # from the requirement
-    assert content["talking_points"] and content["tips"]
-
-    got = client.get(f"/api/v1/matches/{match_id}/interview-prep", headers=_auth(tokens))
-    assert got.status_code == 200 and got.json()["id"] == gen.json()["id"]
-
-
-def test_interview_prep_ownership(client, db_engine):
-    _, ta = register_and_login(client, email="a@example.com")
-    _, tb = register_and_login(client, email="b@example.com")
-    match_id = _seed_and_match(client, ta, db_engine)
-    client.post(f"/api/v1/matches/{match_id}/interview-prep", headers=_auth(ta))
-    # B cannot generate from A's match nor read A's prep
-    assert client.post(f"/api/v1/matches/{match_id}/interview-prep", headers=_auth(tb)).status_code == 404
-    assert client.get(f"/api/v1/matches/{match_id}/interview-prep", headers=_auth(tb)).status_code == 404
+    for method in (client.post, client.get):
+        r = method("/api/v1/matches/some-id/interview-prep", headers=_auth(tokens))
+        assert r.status_code == 410

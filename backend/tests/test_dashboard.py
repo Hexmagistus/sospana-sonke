@@ -31,27 +31,28 @@ def _seed_vacancy(db_engine, title="Operations Manager"):
 
 
 def _prep(client, tokens, db_engine):
+    """Profile + one prepared application (created directly: there is no matching any more)."""
+    from tests.helpers_apps import make_application
     h = _auth(tokens)
     client.put("/api/v1/profile", headers=h, json={
         "years_experience": 6, "current_occupation": "Operations Supervisor",
         "desired_occupations": ["Operations Manager"], "industries": ["logistics"],
         "preferred_locations": ["Johannesburg"]})
     client.post("/api/v1/profile/skills", headers=h, json={"name": "SQL", "category": "technical"})
-    _seed_vacancy(db_engine)
-    client.post("/api/v1/matches/run", headers=h)
-    return client.get("/api/v1/matches", headers=h).json()[0]["id"]
+    return make_application(client, tokens, db_engine)
 
 
 def test_candidate_dashboard(client, db_engine):
     _, tokens = register_and_login(client)
-    match_id = _prep(client, tokens, db_engine)
-    client.post(f"/api/v1/matches/{match_id}/generate-cv", headers=_auth(tokens))
-    client.post(f"/api/v1/matches/{match_id}/prepare-application", headers=_auth(tokens))
+    _prep(client, tokens, db_engine)
+    client.post("/api/v1/tailor", headers=_auth(tokens), json={
+        "job_title": "Operations Manager", "company_name": "Acme Logistics",
+        "job_description": "SQL and Excel needed."})
 
     d = client.get("/api/v1/dashboard", headers=_auth(tokens))
     assert d.status_code == 200
     body = d.json()
-    assert body["total_matches"] == 1
+    assert not any(k in body for k in ("total_matches", "strong_matches", "apply_matches"))
     assert body["vacancies_open"] == 1
     assert body["cvs_generated"] == 1
     assert body["applications_total"] == 1
@@ -142,7 +143,7 @@ def test_report_generate_and_download(client, db_engine):
     gen = client.post("/api/v1/reports/generate", headers=_auth(tokens))
     assert gen.status_code == 201, gen.text
     body = gen.json()
-    assert body["stats"]["vacancies_analyzed"] == 1
+    assert "vacancies_analyzed" not in body["stats"] and "qualified" not in body["stats"]
     assert "candidate_name" in body["stats"]
 
     dl = client.get(f"/api/v1/reports/{body['id']}/download", headers=_auth(tokens))

@@ -2,9 +2,8 @@
 Enhancement & Job-Aligned CV Builder), for a job the candidate pastes in
 directly rather than one scraped from a company's careers page.
 
-Pipeline (mirrors the scraped-vacancy matching pipeline in match_service.py /
-document_service.py, reusing the same deterministic engine rather than a
-parallel one):
+Pipeline (the deterministic engine here scores ONE pasted ad on request; it is
+not job matching against scraped vacancies, which has been removed):
 
     pasted job text
       -> app.jobintel.parser.analyze_description   (requirement extraction)

@@ -1,6 +1,6 @@
 """The daily digest: ONE email per opted-in user per day, "Your daily updates".
 
-Every opportunity, alert and job-match notice is stored for the dashboard but is
+Every opportunity and alert notice is stored for the dashboard but is
 never emailed on its own (see DIGEST_ONLY_TYPES in notification_service). This
 module collects them, and the real new openings from the last 24 hours, into a
 single morning email. Cron: ``POST /api/v1/cron/run/send_daily_digest`` at
@@ -12,15 +12,19 @@ Rules, all enforced here and covered by tests:
   *before* the send. A second call the same day finds the claim and skips.
 * No empty emails. A user with nothing new in the window is skipped, no claim.
 * POPIA / opt-in. Verified email, active, not deleted, and an explicit yes:
-  opportunity alerts (openings and matches), tagging (admin-tagged posts) or an
+  opportunity alerts (new openings), tagging (admin-tagged posts) or an
   active page watch (page-changed notices). Each section follows its own yes. A
   user who used the digest's unsubscribe link stays off until they choose again.
 * Safety. Global cap ``DIGEST_DAILY_SEND_CAP`` (default 250) over a rolling 24h
   that also counts notification and preference mail. ``DIGEST_DRY_RUN`` reports
   what would go out and sends / records nothing. Stops at the first provider
   failure (quota / auth) instead of hammering the API.
-* Content is real data: vacancies first seen in the window that are still open,
-  with the vacancy's own apply/source link or else the employer's careers link.
+* Content is real data: vacancies FIRST SEEN in the last 24 hours that are still open
+  (never older: the window start is clamped to 24h, and a post whose own posting date
+  is more than ``MAX_POSTING_AGE_DAYS`` old is skipped), with the vacancy's own
+  apply/source link or else the employer's careers link. There is no matching and no
+  "strong matches" section: new openings are only filtered by the person's profile
+  country, watches and preferred post type.
   Longest email: ``DIGEST_MAX_ITEMS`` items (default 25) plus a "see more" link.
 * Order: South Africa, rest of SADC, rest of Africa, then other regions.
 
@@ -32,9 +36,9 @@ from __future__ import annotations
 import logging
 import time
 from dataclasses import dataclass, field
-from datetime import date, datetime, timedelta, timezone
+from datetime import datetime, timedelta, timezone
 
-from sqlalchemy import and_, func, or_
+from sqlalchemy import func, or_
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -42,7 +46,6 @@ from app.core import security
 from app.core.config import settings
 from app.models.company import Company
 from app.models.digest import DigestLog
-from app.models.match import CandidateMatch
 from app.models.notification import Notification
 from app.models.profile import CandidateProfile
 from app.models.user import User
@@ -59,6 +62,11 @@ UNSUBSCRIBE_TOKEN_DAYS = 365
 BAND_LABELS = {0: "South Africa", 1: "Rest of SADC", 2: "Rest of Africa", 3: "Other regions"}
 # Hard ceiling for one run. A single request must not run past the cron caller's timeout.
 MAX_USERS_PER_RUN = 400
+# Only genuinely new vacancies: first seen in the window (never older than this many hours)
+# and not carrying their own posting date from long ago (an employer's old post that we
+# only just discovered is not "new").
+MAX_WINDOW_HOURS = 24
+MAX_POSTING_AGE_DAYS = 3
 # Wall-clock budget for one call. Whoever is left is picked up by the next call the
 # same day (idempotent), so a slow provider cannot run a request past the caller's timeout.
 MAX_RUN_SECONDS = 90.0
@@ -141,14 +149,11 @@ class Item:
 class DigestContent:
     tagged: list[Item] = field(default_factory=list)
     watched: list[Item] = field(default_factory=list)
-    agent: list[Item] = field(default_factory=list)
-    matches: list[Item] = field(default_factory=list)
     openings: list[Item] = field(default_factory=list)
 
     @property
     def total(self) -> int:
-        return (len(self.tagged) + len(self.watched) + len(self.agent)
-                + len(self.matches) + len(self.openings))
+        return len(self.tagged) + len(self.watched) + len(self.openings)
 
 
 def _kinds_in(text: str) -> set[str]:
@@ -179,11 +184,15 @@ def _band(country: str | None) -> int:
 
 
 def _open_vacancy_rows(db: Session, since: datetime, until: datetime):
+    since = max(_aware(since), _aware(until) - timedelta(hours=MAX_WINDOW_HOURS))
+    oldest_post = (_aware(until) - timedelta(days=MAX_POSTING_AGE_DAYS)).date()
     return (db.query(Vacancy, Company)
             .join(Company, Company.id == Vacancy.company_id)
             .filter(Vacancy.deleted_at.is_(None), Company.deleted_at.is_(None),
                     Vacancy.is_open.is_(True), Vacancy.duplicate_of_id.is_(None),
                     or_(Vacancy.lifecycle_status.is_(None), Vacancy.lifecycle_status == "ACTIVE"),
+                    or_(Vacancy.posting_date.is_(None), Vacancy.posting_date >= oldest_post),
+                    or_(Vacancy.closing_date.is_(None), Vacancy.closing_date >= _aware(until).date()),
                     Vacancy.first_seen_at > since, Vacancy.first_seen_at <= until))
 
 
@@ -236,33 +245,9 @@ def build_content(db: Session, user: User, *, since: datetime, until: datetime) 
         content.watched.append(Item(title=n.title, employer="", url=n.link_url))
 
     if _alerts_yes(user):
-        for n in (db.query(Notification)
-                  .filter(Notification.user_id == user.id, Notification.type == "daily_agent_briefing",
-                          Notification.created_at > since, Notification.created_at <= until)
-                  .order_by(Notification.created_at.desc()).all()):
-            content.agent.append(Item(title=n.title, employer="", url=f"{_app_url()}/agent"))
         seen: set[str] = set()
         preferred = user.preferred_post_type if user.preferred_post_state == "chosen" else None
         if preferred != "none":
-            for m, vac, comp in (db.query(CandidateMatch, Vacancy, Company)
-                                 .join(Vacancy, Vacancy.id == CandidateMatch.vacancy_id)
-                                 .join(Company, Company.id == Vacancy.company_id)
-                                 .filter(CandidateMatch.user_id == user.id,
-                                         CandidateMatch.band.in_(("Strong", "Good")),
-                                         CandidateMatch.created_at > since,
-                                         CandidateMatch.created_at <= until,
-                                         Vacancy.deleted_at.is_(None), Vacancy.is_open.is_(True),
-                                         Company.deleted_at.is_(None))
-                                 .order_by(CandidateMatch.score.desc()).all()):
-                if vac.id in seen:
-                    continue
-                seen.add(vac.id)
-                country = vac.country or comp.country or ""
-                content.matches.append(Item(
-                    title=vac.title, employer=comp.company_name, url=_link_for(vac, comp),
-                    band=_band(country), country=country, place=vac.city or vac.location or "",
-                    note=f"{int(m.score)}% match",
-                ))
             countries, company_ids, pairs = _scope(db, user, profile)
             for vac, comp in _open_vacancy_rows(db, since, until).all():
                 if vac.id in seen:
@@ -280,8 +265,7 @@ def build_content(db: Session, user: User, *, since: datetime, until: datetime) 
                     band=_band(country), country=country, place=vac.city or vac.location or "",
                 ))
 
-    for group in (content.matches, content.openings):
-        group.sort(key=lambda i: (i.band, i.country, i.employer.lower(), i.title.lower()))
+    content.openings.sort(key=lambda i: (i.band, i.country, i.employer.lower(), i.title.lower()))
     return content
 
 
@@ -331,8 +315,6 @@ def render_digest(user: User, content: DigestContent, *, now: datetime, max_item
 
     section("Tagged for you by our team", content.tagged)
     section("Careers pages you are watching have changed", content.watched)
-    section("Prepared by your daily agent", content.agent)
-    section("Strong matches for your profile", content.matches)
     # Openings grouped by region band, South Africa first.
     for band in (0, 1, 2, 3):
         section(f"New openings: {BAND_LABELS[band]}", [i for i in content.openings if i.band == band])
@@ -416,7 +398,7 @@ def run_daily_digest(db: Session, *, now: datetime | None = None, dry_run: bool 
     dry = settings.DIGEST_DRY_RUN if dry_run is None else bool(dry_run)
     cap = max(0, int(settings.DIGEST_DAILY_SEND_CAP))
     day = digest_day(now)
-    lookback = timedelta(hours=max(1, int(settings.DIGEST_LOOKBACK_HOURS)))
+    lookback = timedelta(hours=min(MAX_WINDOW_HOURS, max(1, int(settings.DIGEST_LOOKBACK_HOURS))))
 
     summary = {"date": day, "dry_run": dry, "cap": cap, "considered": 0, "empty": 0,
                "would_send": 0, "sent": 0, "failed": 0, "capped": 0, "already_sent_today": 0}
@@ -434,7 +416,9 @@ def run_daily_digest(db: Session, *, now: datetime | None = None, dry_run: bool 
             break
         summary["considered"] += 1
         prev_end = _previous_window_end(db, user.id, now)
-        since = prev_end or (now - lookback)
+        # Never reach back further than the lookback (24h at most): a user who got no email
+        # yesterday must not be sent yesterday's openings today.
+        since = max(prev_end, now - lookback) if prev_end else now - lookback
         content = build_content(db, user, since=since, until=now)
         if content.total == 0:
             summary["empty"] += 1
