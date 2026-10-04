@@ -146,7 +146,7 @@ export default function DailySpark() {
           <button
             type="button"
             onClick={reveal}
-            className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-br from-[#163e73] to-[#0b1f3a] px-4 py-2 text-sm font-semibold text-white shadow-[0_12px_28px_-14px_rgba(11,31,58,0.85)] ring-1 ring-[#f5b301]/45 transition-all duration-ss hover:brightness-110 active:scale-[0.98]"
+            className="inline-flex items-center gap-2 rounded-lg bg-gold px-4 py-2 text-sm font-semibold text-navy shadow-md ring-1 ring-navy/30 transition-all duration-ss hover:brightness-110 active:scale-[0.98]"
           >
             <span aria-hidden="true">✨</span> Reveal today’s spark
           </button>

@@ -23,14 +23,15 @@ const CoverageWorldMap = dynamic(() => import("@/components/CoverageWorldMap"), 
 function WorldMapSkeleton() {
   return (
     <div className="w-full" aria-hidden="true">
-      <div className="h-7 w-56 rounded-lg bg-white/10" />
-      <div className="mt-3 aspect-[960/500] w-full rounded-2xl border border-white/15 bg-[#071528] motion-safe:animate-pulse" />
-      <div className="mt-3 h-40 rounded-xl bg-white/5" />
+      <div className="h-7 w-56 rounded-lg bg-ss-surface" />
+      <div className="mt-3 aspect-[960/500] w-full rounded-2xl border border-ss-border bg-[#071528] motion-safe:animate-pulse" />
+      <div className="mt-3 h-40 rounded-xl bg-ss-surface" />
     </div>
   );
 }
 
 const C = {
+  goldText: "#6b4700",
   navy: "#0b1f3a", ink: "#071528", gold: "#f5b301", amber: "#ff9e2c",
   teal: "#0f9d8f", mint: "#5fe0d0", red: "#e4322b", green: "#1a9e5f",
   sky: "#2f9bf6", plum: "#7c3aed", sun: "#ff7a1a", cream: "#faf6ee",
@@ -286,7 +287,7 @@ function GreetingsMarquee() {
     >
       <div className="flex w-max gap-2 animate-marquee">
         {items.map(([word, bg], i) => (
-          <span key={`${word}-${i}`} className="whitespace-nowrap rounded-full px-3 py-1 text-xs font-bold" style={{ background: bg, color: bg === C.gold ? "#4a3600" : "#fff" }}>
+          <span key={`${word}-${i}`} className="whitespace-nowrap rounded-full px-3 py-1 text-xs font-bold" style={{ background: "#fff", color: "#0b1220", border: `2px solid ${bg}`, boxShadow: `inset 0 -3px 0 ${bg}` }}>
             {word}
           </span>
         ))}
@@ -438,16 +439,16 @@ function HeroSearchConsole() {
   }
 
   return (
-    <div className="relative mt-8 max-w-xl rounded-2xl border border-white/15 bg-white/[0.06] p-4 shadow-2xl backdrop-blur-md sm:p-5">
+    <div className="relative mt-8 max-w-xl rounded-2xl border border-ss-border bg-ss-surface p-4 shadow-2xl backdrop-blur-md sm:p-5">
       <div className="flex items-center justify-between">
-        <span className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-blue-200">
+        <span className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-ss-muted">
           <span className="relative flex h-1.5 w-1.5">
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-75" style={{ background: C.mint }} />
             <span className="relative inline-flex h-1.5 w-1.5 rounded-full" style={{ background: C.mint }} />
           </span>
           Sospana Command
         </span>
-        <span className="font-mono text-[10px] tracking-wider text-blue-300">SEARCH · LIVE</span>
+        <span className="font-mono text-[10px] tracking-wider text-ss-muted">SEARCH · LIVE</span>
       </div>
 
       <form onSubmit={runSearch} className="mt-3 grid gap-2 sm:grid-cols-[1.2fr_1fr_0.9fr_auto]">
@@ -456,20 +457,20 @@ function HeroSearchConsole() {
           onChange={(e) => setWhat(e.target.value)}
           placeholder="What role? e.g. warehouse assistant"
           aria-label="What role are you looking for?"
-          className="w-full rounded-xl border border-white/15 bg-white/10 px-3.5 py-2.5 text-sm text-white placeholder:text-blue-200/60 focus:border-white/40 focus:outline-none"
+          className="w-full rounded-xl border border-ss-border bg-ss-surface px-3.5 py-2.5 text-sm text-ss-text placeholder:text-ss-muted focus:border-navy focus:outline-none"
         />
         <input
           value={where}
           onChange={(e) => setWhere(e.target.value)}
           placeholder="Where? e.g. Gauteng"
           aria-label="Where are you looking?"
-          className="w-full rounded-xl border border-white/15 bg-white/10 px-3.5 py-2.5 text-sm text-white placeholder:text-blue-200/60 focus:border-white/40 focus:outline-none"
+          className="w-full rounded-xl border border-ss-border bg-ss-surface px-3.5 py-2.5 text-sm text-ss-text placeholder:text-ss-muted focus:border-navy focus:outline-none"
         />
         <select
           value={type}
           onChange={(e) => setType(e.target.value)}
           aria-label="Employment type"
-          className="w-full rounded-xl border border-white/15 bg-white/10 px-3 py-2.5 text-sm text-white focus:border-white/40 focus:outline-none [&>option]:text-black"
+          className="w-full rounded-xl border border-ss-border bg-ss-surface px-3 py-2.5 text-sm text-ss-text focus:border-navy focus:outline-none [&>option]:text-slate-900"
         >
           <option value="">Any type</option>
           <option value="permanent">Permanent</option>
@@ -497,7 +498,7 @@ function HeroSearchConsole() {
             key={label}
             type="button"
             onClick={() => runQuickCommand(phrase)}
-            className="rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-xs font-medium text-blue-100 transition hover:border-white/30 hover:bg-white/10"
+            className="rounded-full border border-ss-border bg-ss-surface px-3 py-1.5 text-xs font-medium text-ss-muted transition hover:border-ss-border hover:bg-ss-surface"
           >
             {label}
           </button>
@@ -575,7 +576,7 @@ export default function Home() {
               <img src="/logo-mark.png" alt="" className="block h-9 w-9 max-w-none shrink-0 aspect-square rounded-xl object-cover shadow-md sm:h-10 sm:w-10" />
             </div>
             <span className="whitespace-nowrap font-display text-[0.95rem] font-bold tracking-tight sm:text-xl" style={{ color: C.navy }}>
-              Sospana&nbsp;<span style={{ color: C.gold }}>Sonke</span>
+              Sospana&nbsp;<span style={{ color: C.goldText }}>Sonke</span>
             </span>
           </div>
           <div className="flex shrink-0 items-center gap-1 sm:gap-2">
@@ -595,7 +596,7 @@ export default function Home() {
 
       {/* Hero */}
       <section className="mx-auto max-w-6xl px-4 pt-2">
-        <div className="relative overflow-hidden rounded-[2rem] px-6 py-14 text-white shadow-[0_30px_80px_-36px_rgba(7,21,40,0.85)] ring-1 ring-white/10 sm:px-14 sm:py-20">
+        <div className="relative overflow-hidden rounded-[2rem] px-6 py-14 text-ss-text shadow-[0_24px_60px_-34px_rgba(11,36,71,0.5)] ring-1 ring-ss-border sm:px-14 sm:py-20">
           <Image
             src="/photos/cape-town-mountain.jpg"
             alt="Table Mountain above the Cape Town city bowl, seen from Signal Hill"
@@ -606,7 +607,7 @@ export default function Home() {
           />
           <div
             className="absolute inset-0"
-            style={{ background: "linear-gradient(105deg, rgba(7,21,40,0.72) 0%, rgba(11,31,58,0.38) 46%, rgba(11,31,58,0.12) 100%)" }}
+            style={{ background: "linear-gradient(105deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.88) 48%, rgba(255,255,255,0.4) 100%)" }}
           />
           <CircuitOverlay className="opacity-25" opacity={0.08} />
           <div
@@ -632,14 +633,14 @@ export default function Home() {
           <div className="relative grid items-start gap-8 lg:grid-cols-2">
             <div className="min-w-0">
               <Reveal className="flex flex-wrap gap-2">
-                <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-semibold backdrop-blur-sm">
+                <span className="inline-flex items-center gap-2 rounded-full border border-ss-border bg-ss-surface px-4 py-1.5 text-xs font-semibold backdrop-blur-sm">
                   <span className="relative flex h-2 w-2">
                     <span className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-75" style={{ background: C.mint }} />
                     <span className="relative inline-flex h-2 w-2 rounded-full" style={{ background: C.mint }} />
                   </span>
                   Live across {coverage}
                 </span>
-                <span className="inline-flex items-center rounded-full border border-[#f5b301]/50 bg-[#f5b301]/15 px-3 py-1 text-xs font-semibold text-[#ffcf5a]">
+                <span className="inline-flex items-center rounded-full border border-[#f5b301]/50 bg-[#f5b301]/15 px-3 py-1 text-xs font-semibold text-[#6b4700]">
                   Born in SADC, built for the world
                 </span>
               </Reveal>
@@ -649,16 +650,16 @@ export default function Home() {
               </Reveal>
 
               <Reveal delay={160}>
-                <h1 className="mt-6 font-display text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-6xl" style={{ textShadow: "0 2px 24px rgba(7,21,40,0.55)" }}>
+                <h1 className="mt-6 font-display text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-6xl" style={{ textShadow: "none" }}>
                   Where talent meets
                   <br />
-                  <span className="animate-gradient-text bg-clip-text text-transparent" style={{ backgroundImage: `linear-gradient(90deg,${C.gold},${C.sun},${C.amber},${C.gold})` }}>
+                  <span className="animate-gradient-text bg-clip-text text-transparent" style={{ backgroundImage: `linear-gradient(90deg,#8a5a00,#b45309,#8a5a00)` }}>
                     opportunity.
                   </span>
                 </h1>
               </Reveal>
               <Reveal delay={240}>
-                <p className="mt-6 max-w-xl text-lg leading-relaxed text-blue-100">
+                <p className="mt-6 max-w-xl text-lg leading-relaxed text-ss-muted">
                   First made for the SADC region, now listing employers across {coverage}. Each card is a direct link to that employer&apos;s own careers page. We do not host every vacancy, and we do not promise you the job. A card that says &ldquo;Not counted yet&rdquo; does not mean the employer has no vacancies: check their careers page directly.
                 </p>
               </Reveal>
@@ -670,10 +671,10 @@ export default function Home() {
               {/* Words to grow by */}
               <Reveal delay={320}>
                 <blockquote className="mt-7 max-w-xl rounded-r-xl border-l-4 pl-4" style={{ borderColor: C.gold }}>
-                  <p className="text-base italic leading-relaxed text-white sm:text-lg">
+                  <p className="text-base italic leading-relaxed text-ss-text sm:text-lg">
                     &ldquo;Education is the most powerful weapon which you can use to change the world.&rdquo;
                   </p>
-                  <footer className="mt-1.5 text-sm font-semibold" style={{ color: C.gold }}>
+                  <footer className="mt-1.5 text-sm font-semibold" style={{ color: C.goldText }}>
                     — Nelson Mandela, former President of South Africa
                   </footer>
                 </blockquote>
@@ -689,15 +690,15 @@ export default function Home() {
                     <span className="relative z-10">Create your free account →</span>
                     <span className="pointer-events-none absolute inset-0 -translate-x-full skew-x-[-20deg] bg-white/40 opacity-0 transition-all duration-700 group-hover:translate-x-full group-hover:opacity-100" />
                   </Link>
-                  <Link href="/companies" className="rounded-xl px-6 py-3.5 font-bold text-white shadow-lg transition hover:-translate-y-0.5 hover:brightness-110" style={{ background: C.teal }}>
+                  <Link href="/companies" className="rounded-xl px-6 py-3.5 font-bold text-white shadow-lg transition hover:-translate-y-0.5 hover:brightness-110" style={{ background: C.navy }}>
                     Browse companies →
                   </Link>
-                  <Link href="/companies?type=SOE" className="rounded-xl border border-white/40 bg-white/5 px-6 py-3.5 font-semibold text-white backdrop-blur-sm transition hover:-translate-y-0.5 hover:bg-white/10">
+                  <Link href="/companies?type=SOE" className="rounded-xl border border-ss-border bg-ss-surface px-6 py-3.5 font-semibold text-ss-text backdrop-blur-sm transition hover:-translate-y-0.5 hover:bg-ss-surface">
                     🏛️ State-owned employers
                   </Link>
                 </div>
-                <p className="mt-6 text-sm text-blue-200">
-                  <b style={{ color: C.gold }}>Free to use</b> · Direct employer links, application tracking, and a daily agent that drafts — you still press send.
+                <p className="mt-6 text-sm text-ss-muted">
+                  <b style={{ color: C.goldText }}>Free to use</b> · Direct employer links, application tracking, and a daily agent that drafts — you still press send.
                 </p>
               </Reveal>
             </div>
@@ -712,24 +713,24 @@ export default function Home() {
       {/* Trust strip — HUD-style readout panel */}
       <section className="mx-auto max-w-6xl px-4">
         <Reveal delay={80}>
-          <div className="relative -mt-6 overflow-hidden rounded-2xl p-4 shadow-lg" style={{ background: `linear-gradient(120deg,${C.ink},${C.navy})` }}>
+          <div className="relative -mt-6 overflow-hidden rounded-2xl border border-ss-border p-4 shadow-lg" style={{ background: "linear-gradient(135deg,#ffffff,#f3eee2)" }}>
             <CircuitOverlay className="opacity-40" opacity={0.14} />
             <div className="pointer-events-none absolute inset-0 bg-noise opacity-[0.04]" />
             <div className="relative grid grid-cols-2 gap-3 sm:grid-cols-4">
               {[
-                [shownEmployers, "", isLive ? "Employers with a direct careers link, live" : "Employers with a direct careers link", C.gold],
-                [null, "Direct", "To official careers pages", C.mint],
-                [null, "SOE", "State-owned employers, linked", C.green],
-                [null, "Free", "Full access, no charge", C.sky],
+                [shownEmployers, "", isLive ? "Employers with a direct careers link, live" : "Employers with a direct careers link", "#6b4700"],
+                [null, "Direct", "To official careers pages", "#0b5e58"],
+                [null, "SOE", "State-owned employers, linked", "#166534"],
+                [null, "Free", "Full access, no charge", "#14568f"],
               ].map(([n, suffixOrLabel, l, col], i) => (
-                <div key={l as string} className="rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-center backdrop-blur-sm">
+                <div key={l as string} className="rounded-xl border border-ss-border bg-ss-bg px-3 py-3 text-center">
                   <div
                     className="font-mono text-2xl font-extrabold tracking-tight"
-                    style={{ color: col as string, textShadow: `0 0 14px ${col as string}66` }}
+                    style={{ color: col as string }}
                   >
                     {n === null ? (suffixOrLabel as string) : <CountUp target={n as number} suffix={suffixOrLabel as string} duration={1200 + i * 150} />}
                   </div>
-                  <div className="mt-0.5 text-[11px] font-medium uppercase tracking-wider text-blue-200">{l as string}</div>
+                  <div className="mt-0.5 text-[11px] font-medium uppercase tracking-wider text-ss-muted">{l as string}</div>
                 </div>
               ))}
             </div>
@@ -799,33 +800,28 @@ export default function Home() {
               <TiltCard>
                 <Link
                   href={cat.href}
-                  className="group relative block overflow-hidden rounded-2xl border border-white/10 p-5 text-white shadow-xl transition-all duration-300 hover:-translate-y-1"
-                  style={{ background: `linear-gradient(150deg,${C.ink},${C.navy})`, boxShadow: `0 12px 40px -18px ${cat.col}cc` }}
+                  className="group relative block overflow-hidden rounded-2xl border border-ss-border bg-ss-surface text-ss-text shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+                  style={{ borderTop: `5px solid ${cat.col}` }}
                 >
-                  <Image src={cat.photo} alt="" fill sizes="(max-width: 640px) 50vw, 30vw" className="object-cover transition duration-700 motion-safe:group-hover:scale-105" />
-                  <div className="absolute inset-0" style={{ background: `linear-gradient(180deg, rgba(7,21,40,0.2) 0%, ${C.ink}c4 72%)` }} />
-                  <CircuitOverlay className="opacity-30" opacity={0.1} />
-                  <span aria-hidden="true" className="pointer-events-none absolute -right-8 -top-8 h-28 w-28 rounded-full opacity-40 blur-2xl transition-opacity duration-300 group-hover:opacity-90" style={{ background: `radial-gradient(circle,${cat.col},transparent 70%)` }} />
-                  <span aria-hidden="true" className="absolute inset-x-0 top-0 h-[2px]" style={{ background: `linear-gradient(90deg,transparent,${cat.col},transparent)` }} />
-                  <div className="relative flex items-start justify-between">
-                    <div
-                      className="flex h-14 w-14 items-center justify-center rounded-xl text-3xl transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-110"
-                      style={{ background: `${cat.col}22`, boxShadow: `inset 0 0 0 1px ${cat.col}55, 0 0 18px ${cat.col}55` }}
-                    >
-                      {cat.icon}
-                    </div>
+                  <div className="relative h-24 w-full overflow-hidden">
+                    <Image src={cat.photo} alt="" fill sizes="(max-width: 640px) 50vw, 30vw" className="object-cover transition duration-700 motion-safe:group-hover:scale-105" />
                     {cat.badge && (
-                      <span className="rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider" style={{ background: `${cat.col}22`, color: cat.col, boxShadow: `0 0 12px ${cat.col}55` }}>
+                      <span className="absolute right-2 top-2 rounded-full bg-gold px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-navy shadow">
                         {cat.badge}
                       </span>
                     )}
                   </div>
-                  <h3 className="relative mt-4 font-display text-lg font-extrabold tracking-tight" style={{ textShadow: `0 0 18px ${cat.col}66` }}>
-                    {cat.label}
-                  </h3>
-                  <p className="relative mt-1 text-xs text-blue-100/80">{cat.desc}</p>
-                  <div className="relative mt-4 inline-flex items-center gap-1 text-xs font-bold" style={{ color: cat.col }}>
-                    Explore <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
+                  <div className="relative p-4">
+                    <div className="absolute -top-7 left-4 flex h-12 w-12 items-center justify-center rounded-xl border border-ss-border bg-ss-surface text-2xl shadow transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-110">
+                      {cat.icon}
+                    </div>
+                    <h3 className="mt-6 font-display text-lg font-extrabold tracking-tight text-ss-text">
+                      {cat.label}
+                    </h3>
+                    <p className="mt-1 text-sm text-ss-muted">{cat.desc}</p>
+                    <div className="mt-3 inline-flex items-center gap-1 text-sm font-bold text-navy underline-offset-2 group-hover:underline">
+                      Explore <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
+                    </div>
                   </div>
                 </Link>
               </TiltCard>
@@ -836,7 +832,7 @@ export default function Home() {
 
       {/* Wonders of Africa */}
       <section className="mx-auto max-w-6xl px-4">
-        <div className="relative overflow-hidden rounded-[2rem] px-6 py-12 text-white shadow-xl sm:px-12" style={{ background: `linear-gradient(135deg,${C.ink},#123a2b 60%,#1d5a3a)` }}>
+        <div className="relative overflow-hidden rounded-[2rem] px-6 py-12 text-ss-text shadow-xl sm:px-12" style={{ background: "linear-gradient(135deg,#ffffff,#f3eee2)" }}>
           <div className="pointer-events-none absolute inset-0 bg-noise opacity-[0.05]" />
           <CircuitOverlay className="opacity-50" opacity={0.12} />
           <div
@@ -844,9 +840,9 @@ export default function Home() {
             style={{ background: `radial-gradient(circle,${C.sun},transparent 70%)`, opacity: 0.35 }}
           />
           <Reveal className="relative text-center">
-            <span className="inline-block rounded-full bg-white/10 px-4 py-1.5 text-xs font-semibold backdrop-blur-sm">✨ Proudly African</span>
+            <span className="inline-block rounded-full bg-ss-surface px-4 py-1.5 text-xs font-semibold backdrop-blur-sm">✨ Proudly African</span>
             <h2 className="mt-4 font-display text-2xl font-extrabold sm:text-4xl">The wonders of a continent behind you.</h2>
-            <p className="mx-auto mt-3 max-w-2xl text-blue-100">
+            <p className="mx-auto mt-3 max-w-2xl text-ss-muted">
               From the Cape to the Rift Valley, Africa has always built the extraordinary. Your career is the next great thing this continent creates.
             </p>
           </Reveal>
@@ -854,7 +850,7 @@ export default function Home() {
             {WONDERS.map((w, i) => (
               <Reveal key={w.name} delay={(i % 6) * 70}>
                 <TiltCard>
-                  <div className="group relative h-44 overflow-hidden rounded-2xl border border-white/15 text-left shadow-lg sm:h-52">
+                  <div className="group relative h-44 overflow-hidden rounded-2xl border border-ss-border text-left shadow-lg sm:h-52">
                     {w.photo ? (
                       <Image
                         src={w.photo}
@@ -864,7 +860,7 @@ export default function Home() {
                         className="object-cover transition duration-700 motion-safe:group-hover:scale-105"
                       />
                     ) : (
-                      <div className="flex h-full flex-col items-center justify-center bg-white/5 px-3 pt-4 backdrop-blur-sm">
+                      <div className="flex h-full flex-col items-center justify-center bg-ss-surface px-3 pt-4 backdrop-blur-sm">
                         <svg viewBox="0 0 72 52" className="h-14 w-full" aria-hidden="true">{w.art}</svg>
                       </div>
                     )}
@@ -875,8 +871,8 @@ export default function Home() {
                       aria-hidden="true"
                     />
                     <div className="absolute inset-x-0 bottom-0 p-3">
-                      <div className="text-sm font-bold text-white">{w.name}</div>
-                      <div className="text-[11px] text-blue-100">{w.place}</div>
+                      <div className="text-sm font-bold text-white [text-shadow:0_1px_3px_rgba(0,0,0,.7)]">{w.name}</div>
+                      <div className="text-[11px] text-white [text-shadow:0_1px_3px_rgba(0,0,0,.7)]">{w.place}</div>
                     </div>
                   </div>
                 </TiltCard>
@@ -891,7 +887,7 @@ export default function Home() {
 
       {/* SADC region */}
       <section className="mx-auto max-w-6xl px-4 pt-12">
-        <div className="relative overflow-hidden rounded-[2rem] px-6 py-12 text-white shadow-xl sm:px-12" style={{ background: `linear-gradient(135deg,${C.ink},${C.navy} 55%,#155e45)` }}>
+        <div className="relative overflow-hidden rounded-[2rem] px-6 py-12 text-ss-text shadow-xl sm:px-12" style={{ background: "linear-gradient(135deg,#ffffff,#f3eee2)" }}>
           <div className="pointer-events-none absolute inset-0 bg-noise opacity-[0.05]" />
           <CircuitOverlay className="opacity-45" opacity={0.12} />
           <div
@@ -900,9 +896,9 @@ export default function Home() {
           />
           <div className="relative">
             <Reveal>
-              <span className="inline-block rounded-full bg-white/10 px-4 py-1.5 text-xs font-semibold backdrop-blur-sm">🌍 Opportunity map</span>
+              <span className="inline-block rounded-full bg-ss-surface px-4 py-1.5 text-xs font-semibold backdrop-blur-sm">🌍 Opportunity map</span>
               <h2 className="mt-4 font-display text-2xl font-extrabold sm:text-4xl">Born in SADC. Live across {coverage}.</h2>
-              <p className="mt-3 max-w-3xl text-blue-100">
+              <p className="mt-3 max-w-3xl text-ss-muted">
                 We&apos;re live across {coverage}. A country is listed once a direct careers page is verified.{" "}
                 {isLive
                   ? "The counts below come from the live directory."
@@ -914,7 +910,7 @@ export default function Home() {
 
             {/* Live now */}
             <div className="mt-8">
-              <p className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-blue-200">
+              <p className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-ss-muted">
                 <span className="relative flex h-2 w-2">
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-75" style={{ background: C.mint }} />
                   <span className="relative inline-flex h-2 w-2 rounded-full" style={{ background: C.mint }} />
@@ -932,15 +928,15 @@ export default function Home() {
               <CountryJumpSelect live={countries} coverage={coverage} />
             </div>
 
-            <p className="mt-5 text-sm font-semibold text-blue-100">
+            <p className="mt-5 text-sm font-semibold text-ss-muted">
               🎉 Live across {coverage} — direct careers links, one platform.
             </p>
 
             {/* Contribution ranking — which country is powering the most opportunities */}
             <Reveal delay={100}>
-              <div className="mt-8 rounded-2xl border border-white/10 bg-black/20 p-5">
-                <p className="text-xs font-semibold uppercase tracking-wider text-blue-200">Who&apos;s powering the directory</p>
-                <p className="mt-1 text-sm text-blue-100">Verified employers on Sospana Sonke by country — a live picture of where the region&apos;s opportunities are opening up.</p>
+              <div className="mt-8 rounded-2xl border border-ss-border bg-ss-surface p-5">
+                <p className="text-xs font-semibold uppercase tracking-wider text-ss-muted">Who&apos;s powering the directory</p>
+                <p className="mt-1 text-sm text-ss-muted">Verified employers on Sospana Sonke by country — a live picture of where the region&apos;s opportunities are opening up.</p>
                 <div className="mt-4 space-y-2.5">
                   {ranked.slice(0, RANKING_PREVIEW).map((c, i) => {
                     const max = ranked[0]?.count || 1;
@@ -953,7 +949,7 @@ export default function Home() {
                   })}
                 </div>
 
-                <p className="mt-3 text-[11px] text-blue-200">
+                <p className="mt-3 text-[11px] text-ss-muted">
                   South Africa leads today and is listed first, then the rest of SADC, the rest of Africa and the other regions. As we verify more employers across each market, this picture will keep shifting.
                   Use the country picker above to look up any of the {countries.length} countries.
                 </p>
@@ -993,7 +989,7 @@ export default function Home() {
       <section className="mx-auto max-w-6xl px-4 pb-4">
         <Reveal>
           <h2 className="text-center font-display text-2xl font-extrabold sm:text-3xl" style={{ color: C.navy }}>How it works</h2>
-          <p className="mt-2 text-center text-gray-500">Four simple steps from profile to progress.</p>
+          <p className="mt-2 text-center text-ss-muted">Four simple steps from profile to progress.</p>
         </Reveal>
         <div className="mt-8 grid gap-5 sm:grid-cols-4">
           {[
@@ -1047,11 +1043,11 @@ export default function Home() {
         </Reveal>
       </section>
 
-      <footer className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-4 py-8 text-sm text-gray-500">
+      <footer className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-4 py-8 text-sm text-ss-muted">
         <span>© 2026 Sospana Sonke · Southern Africa</span>
         <div className="flex items-center gap-4">
-          <Link href="/donate" className="hover:text-gray-800">Donate</Link>
-          <a href="/privacy" className="hover:text-gray-800">Privacy Policy</a>
+          <Link href="/donate" className="hover:text-ss-text">Donate</Link>
+          <a href="/privacy" className="hover:text-ss-text">Privacy Policy</a>
         </div>
       </footer>
     </div>
@@ -1069,7 +1065,7 @@ function HeritageCard({ site, i }: { site: HeritageSite; i: number }) {
   return (
     <li className="min-w-0">
       <Reveal delay={(i % 4) * 70} className="h-full">
-      <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-white/15 bg-white/[0.06] shadow-lg backdrop-blur-sm">
+      <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-ss-border bg-ss-surface shadow-lg backdrop-blur-sm">
         <div className="relative aspect-[4/3] w-full overflow-hidden">
           {img ? (
             <Image
@@ -1082,18 +1078,18 @@ function HeritageCard({ site, i }: { site: HeritageSite; i: number }) {
           ) : (
             <div
               className="flex h-full w-full flex-col items-center justify-center gap-2 px-4 text-center"
-              style={{ background: `linear-gradient(135deg,${C.ink},${C.navy} 60%,#10305a)` }}
+              style={{ background: "linear-gradient(135deg,#fff7df,#ffe9a8)" }}
             >
               <CircuitOverlay className="opacity-60" opacity={0.18} />
               <svg viewBox="0 0 48 48" className="relative h-14 w-14" aria-hidden="true">
-                <rect x="9" y="9" width="30" height="30" rx="3" transform="rotate(45 24 24)" fill="none" stroke={C.gold} strokeWidth="2.5" />
+                <rect x="9" y="9" width="30" height="30" rx="3" transform="rotate(45 24 24)" fill="none" stroke="#0b2447" strokeWidth="2.5" />
                 <rect x="17" y="17" width="14" height="14" rx="2" transform="rotate(45 24 24)" fill="none" stroke={C.gold} strokeWidth="1.5" opacity="0.7" />
                 <circle cx="24" cy="24" r="3" fill={C.gold} />
               </svg>
-              <span className="relative text-[11px] font-semibold uppercase tracking-wider text-blue-200">{site.place}</span>
+              <span className="relative text-[11px] font-semibold uppercase tracking-wider text-navy">{site.place}</span>
             </div>
           )}
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#071528]/70 via-transparent to-transparent" />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/15 via-transparent to-transparent" />
           <div className="absolute inset-x-0 top-0 h-1" style={{ backgroundImage: `linear-gradient(90deg,${C.gold},${C.amber},${C.gold})` }} aria-hidden="true" />
           <span
             className="absolute right-2 top-3 rounded-full px-2.5 py-1 font-mono text-[11px] font-bold shadow"
@@ -1104,14 +1100,14 @@ function HeritageCard({ site, i }: { site: HeritageSite; i: number }) {
           </span>
         </div>
         <div className="flex flex-1 flex-col p-3.5">
-          <h4 className="font-display text-sm font-extrabold leading-snug text-white">{site.name}</h4>
-          <p className="mt-0.5 text-xs font-semibold" style={{ color: C.gold }}>{site.place}</p>
+          <h4 className="font-display text-sm font-extrabold leading-snug text-ss-text">{site.name}</h4>
+          <p className="mt-0.5 text-xs font-semibold" style={{ color: C.goldText }}>{site.place}</p>
           {img && (
-            <p className="mt-auto pt-2 text-[10px] leading-snug text-blue-200">
-              Photo: <a href={img.sourceUrl} target="_blank" rel="noopener noreferrer" className="underline decoration-white/30 underline-offset-2 hover:text-white">{img.author}</a>
+            <p className="mt-auto pt-2 text-[10px] leading-snug text-ss-muted">
+              Photo: <a href={img.sourceUrl} target="_blank" rel="noopener noreferrer" className="underline decoration-ss-muted underline-offset-2 hover:text-ss-text">{img.author}</a>
               {" · "}
               {img.licenceUrl ? (
-                <a href={img.licenceUrl} target="_blank" rel="noopener noreferrer" className="underline decoration-white/30 underline-offset-2 hover:text-white">{img.licence}</a>
+                <a href={img.licenceUrl} target="_blank" rel="noopener noreferrer" className="underline decoration-ss-muted underline-offset-2 hover:text-ss-text">{img.licence}</a>
               ) : (
                 img.licence
               )}
@@ -1129,7 +1125,7 @@ function HeritageSection() {
   let n = 0;
   return (
     <section className="mx-auto max-w-6xl px-4 pt-12" aria-labelledby="heritage-heading">
-      <div className="relative overflow-hidden rounded-[2rem] px-6 py-12 text-white shadow-xl sm:px-12" style={{ background: `linear-gradient(135deg,${C.ink},${C.navy} 60%,#13294b)` }}>
+      <div className="relative overflow-hidden rounded-[2rem] px-6 py-12 text-ss-text shadow-xl sm:px-12" style={{ background: "linear-gradient(135deg,#ffffff,#f3eee2)" }}>
         <div className="pointer-events-none absolute inset-0 bg-noise opacity-[0.05]" />
         <CircuitOverlay className="opacity-50" opacity={0.12} />
         <div
@@ -1137,9 +1133,9 @@ function HeritageSection() {
           style={{ background: `radial-gradient(circle,${C.gold},transparent 70%)`, opacity: 0.35 }}
         />
         <Reveal className="relative text-center">
-          <span className="inline-block rounded-full bg-white/10 px-4 py-1.5 text-xs font-semibold backdrop-blur-sm">🏛️ UNESCO World Heritage</span>
+          <span className="inline-block rounded-full bg-ss-surface px-4 py-1.5 text-xs font-semibold backdrop-blur-sm">🏛️ UNESCO World Heritage</span>
           <h2 id="heritage-heading" className="mt-4 font-display text-2xl font-extrabold sm:text-4xl">Places the world agrees are worth keeping.</h2>
-          <p className="mx-auto mt-3 max-w-2xl text-blue-100">
+          <p className="mx-auto mt-3 max-w-2xl text-ss-muted">
             Every site below is on the UNESCO World Heritage List, with the year it was inscribed. We start at home in South Africa, move through the rest of SADC and the rest of Africa, then look at a few from the other regions our employers are in.
           </p>
         </Reveal>
@@ -1149,7 +1145,7 @@ function HeritageSection() {
             if (sites.length === 0) return null;
             return (
               <div key={group.id}>
-                <h3 className="mb-4 flex items-center gap-3 text-xs font-bold uppercase tracking-wider" style={{ color: C.gold }}>
+                <h3 className="mb-4 flex items-center gap-3 text-xs font-bold uppercase tracking-wider" style={{ color: C.goldText }}>
                   <span className="h-px w-8" style={{ background: C.gold }} aria-hidden="true" />
                   {group.label}
                 </h3>
@@ -1162,9 +1158,9 @@ function HeritageSection() {
             );
           })}
         </div>
-        <p className="relative mt-8 text-[11px] leading-relaxed text-blue-200">
+        <p className="relative mt-8 text-[11px] leading-relaxed text-ss-muted">
           Names, countries and inscription years follow the{" "}
-          <a href="https://whc.unesco.org/en/list/" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-white">UNESCO World Heritage List</a>
+          <a href="https://whc.unesco.org/en/list/" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-ss-text">UNESCO World Heritage List</a>
           . Sospana Sonke is not affiliated with or endorsed by UNESCO. Photos are from Wikimedia Commons under the licences shown, resized for this page; a card without a photo means we have not found a free one we can use.
         </p>
       </div>
@@ -1178,7 +1174,7 @@ function LiveCountryCard({ c, i }: { c: CountryCard; i: number }) {
   return (
     <Reveal delay={(i % 4) * 70}>
       <div
-        className="relative flex min-w-0 flex-col gap-1 rounded-2xl border border-white/15 bg-white/10 p-3 backdrop-blur-sm transition-colors hover:border-white/30 hover:bg-white/[0.15] sm:flex-row sm:items-center sm:gap-3 sm:p-4"
+        className="relative flex min-w-0 flex-col gap-1 rounded-2xl border border-ss-border bg-ss-surface p-3 backdrop-blur-sm transition-colors hover:border-ss-border hover:bg-white/[0.15] sm:flex-row sm:items-center sm:gap-3 sm:p-4"
         style={{ borderLeft: `3px solid ${nodeCol}` }}
       >
         <span className="text-2xl leading-none sm:text-4xl">{c.flag}</span>
@@ -1215,7 +1211,7 @@ function CountryJumpSelect({ live, coverage }: { live: CountryCard[]; coverage: 
 
   return (
     <div className="mt-4">
-      <label className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-blue-200">
+      <label className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-ss-muted">
         <span className="relative flex h-2 w-2">
           <span className="absolute inline-flex h-full w-full animate-node-pulse rounded-full bg-white/60" />
           <span className="relative inline-flex h-2 w-2 rounded-full bg-white" />
@@ -1226,7 +1222,7 @@ function CountryJumpSelect({ live, coverage }: { live: CountryCard[]; coverage: 
         <select
           value={selected}
           onChange={(e) => setSelected(e.target.value)}
-          className="w-full appearance-none rounded-xl border border-white/20 bg-white/10 py-3 pl-4 pr-10 text-sm font-bold text-white backdrop-blur-sm transition hover:border-white/40 hover:bg-white/20 focus:border-white/50 focus:outline-none"
+          className="w-full appearance-none rounded-xl border border-ss-border bg-ss-surface py-3 pl-4 pr-10 text-sm font-bold text-ss-text backdrop-blur-sm transition hover:border-ss-border hover:bg-white/20 focus:border-white/50 focus:outline-none"
         >
           <option value="" className="text-navy">Choose a country in {coverage}</option>
           {options.map((o) => (
@@ -1235,7 +1231,7 @@ function CountryJumpSelect({ live, coverage }: { live: CountryCard[]; coverage: 
             </option>
           ))}
         </select>
-        <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-sm text-white">▾</span>
+        <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-sm text-ss-text">▾</span>
       </div>
 
       {chosen && (
@@ -1255,7 +1251,7 @@ function BarRow({ name, flag, pct, count, color, delay }: { name: string; flag: 
       <div className="flex w-32 shrink-0 items-start gap-1.5 text-sm font-semibold sm:w-40">
         <span className="shrink-0">{flag}</span><span className="min-w-0 break-words leading-tight">{name}</span>
       </div>
-      <div className="relative h-6 flex-1 overflow-hidden rounded-full bg-white/10">
+      <div className="relative h-6 flex-1 overflow-hidden rounded-full bg-ss-surface">
         <div
           className="relative h-full overflow-hidden rounded-full transition-[width] duration-1000 ease-out"
           style={{ width: visible ? `${pct}%` : "0%", background: color, transitionDelay: `${delay}ms` }}

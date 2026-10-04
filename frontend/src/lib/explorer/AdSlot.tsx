@@ -9,17 +9,17 @@ export function AdSlot({ slotKey, ad, onApply }: SlotProps) {
     return (
       <li
         data-slot={slotKey}
-        className="flex min-h-[4.25rem] min-w-0 flex-col justify-between rounded-lg border border-gold/50 bg-[#0a1a30] p-1.5 text-white"
+        className="flex min-h-[4.25rem] min-w-0 flex-col justify-between rounded-lg border border-gold/50 bg-ss-surface p-1.5 text-ss-text"
       >
-        <span className="text-[9px] font-bold uppercase tracking-wider text-[#ffe08a]">Sponsored</span>
+        <span className="text-[9px] font-bold uppercase tracking-wider text-ss-primary">Sponsored</span>
         <a
           href={href}
           target="_blank"
           rel="sponsored noopener"
-          className="min-w-0 break-words text-[11px] font-semibold leading-tight text-white underline-offset-2 hover:underline"
+          className="min-w-0 break-words text-[11px] font-semibold leading-tight text-ss-text underline-offset-2 hover:underline"
         >
           <span className="block truncate">{ad.business_name}</span>
-          <span className="line-clamp-2 font-normal text-blue-100">{ad.ad_text}</span>
+          <span className="line-clamp-2 font-normal text-ss-muted">{ad.ad_text}</span>
         </a>
       </li>
     );
@@ -27,9 +27,9 @@ export function AdSlot({ slotKey, ad, onApply }: SlotProps) {
   return (
     <li
       data-slot={slotKey}
-      className="flex min-h-[4.25rem] min-w-0 flex-col items-center justify-center gap-1 rounded-lg border border-dashed border-gold/40 bg-[#0a1a30] p-1.5 text-center"
+      className="flex min-h-[4.25rem] min-w-0 flex-col items-center justify-center gap-1 rounded-lg border border-dashed border-gold/40 bg-ss-surface p-1.5 text-center"
     >
-      <span className="text-[11px] font-semibold text-blue-100">Your ad here</span>
+      <span className="text-[11px] font-semibold text-ss-muted">Your ad here</span>
       <button
         type="button"
         onClick={() => onApply(slotKey)}

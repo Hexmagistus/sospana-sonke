@@ -100,3 +100,60 @@ export function mixViews(a: View, b: View, t: number): View {
 }
 
 export const viewBoxString = (v: View) => `${v.x.toFixed(2)} ${v.y.toFixed(2)} ${v.w.toFixed(2)} ${v.h.toFixed(2)}`;
+
+/* ---- Interactive pan / zoom (drag, wheel, pinch, buttons, keyboard) ---- */
+
+/** Closest the user can zoom in: a view this wide is ~24x the world. */
+export const MAX_ZOOM_VIEW_W = 40;
+const ASPECT = WORLD_W / WORLD_H;
+
+/** Keep a view inside the world and within the allowed zoom range, with the map's aspect ratio. */
+export function clampView(v: View): View {
+  const w = Math.min(WORLD_W, Math.max(MAX_ZOOM_VIEW_W, v.w));
+  const h = w / ASPECT;
+  const x = Math.min(Math.max(v.x, 0), WORLD_W - w);
+  const y = Math.min(Math.max(v.y, 0), WORLD_H - h);
+  return { x, y, w, h };
+}
+
+/**
+ * Zoom by `factor` (> 1 zooms in) keeping the point under (fx, fy) fixed. fx and fy are
+ * fractions 0..1 of the view, so the cursor / pinch centre stays where the user put it.
+ */
+export function zoomView(v: View, factor: number, fx = 0.5, fy = 0.5): View {
+  const w = Math.min(WORLD_W, Math.max(MAX_ZOOM_VIEW_W, v.w / factor));
+  const h = w / ASPECT;
+  const px = v.x + v.w * fx;
+  const py = v.y + v.h * fy;
+  return clampView({ x: px - w * fx, y: py - h * fy, w, h });
+}
+
+/** Move the view by (dx, dy) map units. */
+export function panView(v: View, dx: number, dy: number): View {
+  return clampView({ ...v, x: v.x + dx, y: v.y + dy });
+}
+
+/** How far zoomed in a view is (1 = whole world). */
+export const zoomLevel = (v: View) => WORLD_W / v.w;
+
+export type MapKeyAction =
+  | { kind: "pan"; dx: number; dy: number }
+  | { kind: "zoom"; factor: number }
+  | { kind: "reset" };
+
+/** Keyboard map: arrows pan by 15% of the view, + / - zoom, 0 or Home resets. */
+export function keyAction(key: string): MapKeyAction | null {
+  switch (key) {
+    case "ArrowLeft": return { kind: "pan", dx: -0.15, dy: 0 };
+    case "ArrowRight": return { kind: "pan", dx: 0.15, dy: 0 };
+    case "ArrowUp": return { kind: "pan", dx: 0, dy: -0.15 };
+    case "ArrowDown": return { kind: "pan", dx: 0, dy: 0.15 };
+    case "+": case "=": return { kind: "zoom", factor: 1.5 };
+    case "-": case "_": return { kind: "zoom", factor: 1 / 1.5 };
+    case "0": case "Home": return { kind: "reset" };
+    default: return null;
+  }
+}
+
+/** Wheel zoom factor for a wheel event's deltaY (negative scrolls up = zoom in). */
+export const wheelFactor = (deltaY: number) => Math.exp(-Math.max(-120, Math.min(120, deltaY)) * 0.0022);

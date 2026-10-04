@@ -14,14 +14,14 @@ export default function DailySparkTease() {
 
   return (
     <section aria-labelledby="spark-tease-title" className="mx-auto max-w-6xl px-4 py-10">
-      <div className="ss-card-neon relative overflow-hidden rounded-[1.6rem] border border-[#f5b301]/40 bg-gradient-to-br from-[#0b2447] to-[#12355b] p-6 text-white shadow-[0_24px_60px_-28px_rgba(7,21,40,0.75)] sm:p-8">
+      <div className="ss-card-neon relative overflow-hidden rounded-[1.6rem] border-2 border-gold bg-gradient-to-br from-[#fffaf0] to-[#ffefc2] p-6 text-ss-text shadow-[0_18px_44px_-28px_rgba(11,36,71,0.5)] sm:p-8">
         <div className="grid gap-6 md:grid-cols-[1.2fr_1fr] md:items-center">
           <div>
-            <p className="ss-hud-tag text-xs font-semibold text-[#ffd666]">New every day</p>
+            <p className="ss-hud-tag text-xs font-semibold text-ss-primary">New every day</p>
             <h2 id="spark-tease-title" className="mt-1 font-display text-step-3 font-extrabold">
               Daily Spark ✨
             </h2>
-            <p className="mt-2 max-w-prose text-step-0 text-white/90">
+            <p className="mt-2 max-w-prose text-step-0 text-ss-text">
               A clean joke and a line of wisdom to start the job-hunt day, from African proverbs to Mandela, Maathai and Achebe. Free for members.
             </p>
             <div className="mt-5 flex flex-wrap gap-3">
@@ -33,20 +33,20 @@ export default function DailySparkTease() {
               </Link>
               <Link
                 href="/login"
-                className="rounded-lg px-4 py-2 text-sm font-semibold text-white ring-1 ring-white/40 transition-all duration-ss hover:bg-white/10"
+                className="rounded-lg px-4 py-2 text-sm font-semibold text-navy ring-2 ring-navy/60 transition-all duration-ss hover:bg-white"
               >
                 I already have an account
               </Link>
             </div>
           </div>
           <div className="space-y-3">
-            <div className="rounded-xl bg-white/10 p-4 ring-1 ring-white/20">
-              <h3 className="ss-hud-tag text-xs font-semibold text-[#ffd666]">Today’s joke, on the house</h3>
+            <div className="rounded-xl bg-ss-surface p-4 ring-1 ring-ss-border">
+              <h3 className="ss-hud-tag text-xs font-semibold text-ss-primary">Today’s joke, on the house</h3>
               <p className="mt-2 min-h-[3.5rem] text-step-0 leading-relaxed" aria-live="polite">
                 {joke ?? "…"}
               </p>
             </div>
-            <div className="rounded-xl border border-dashed border-[#f5b301]/60 p-4 text-sm text-white/85">
+            <div className="rounded-xl border border-dashed border-gold p-4 text-sm text-ss-text">
               Today’s wisdom is waiting inside. Members can also keep a gentle streak of the days they open it. No reminders, ever.
             </div>
           </div>

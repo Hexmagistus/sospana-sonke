@@ -19,7 +19,7 @@ import { OPEN_MENU_EVENT } from "@/lib/explorer/explorerPaths";
 const ExplorerMap = dynamic(() => import("@/components/ExplorerMap"), {
   ssr: false,
   loading: () => (
-    <div className="flex aspect-[960/500] w-full items-center justify-center rounded-2xl border border-white/10 bg-[#071528] text-sm text-blue-200">
+    <div className="flex aspect-[960/500] w-full items-center justify-center rounded-2xl border border-ss-border bg-ss-surface text-sm text-ss-muted">
       Loading the map…
     </div>
   ),
@@ -61,10 +61,10 @@ type Props = {
 
 function Stat({ label, value, sub }: { label: string; value: string; sub?: string }) {
   return (
-    <div className="min-w-0 rounded-xl border border-white/10 bg-white/5 px-3 py-2">
-      <div className="text-[10px] font-bold uppercase tracking-wider text-blue-200">{label}</div>
-      <div className="text-lg font-extrabold tabular-nums text-white">{value}</div>
-      {sub && <div className="text-[11px] text-blue-200">{sub}</div>}
+    <div className="min-w-0 rounded-xl border border-ss-border bg-ss-primary-soft px-3 py-2">
+      <div className="text-[10px] font-bold uppercase tracking-wider text-ss-muted">{label}</div>
+      <div className="text-lg font-extrabold tabular-nums text-ss-text">{value}</div>
+      {sub && <div className="text-[11px] text-ss-muted">{sub}</div>}
     </div>
   );
 }
@@ -111,14 +111,14 @@ export function CountryExplorer({
     <AdColumn side="L" ads={ads} onApply={setApplyFor} />
     <section
       aria-label={`Browse ${noun} by country`}
-      className="overflow-hidden rounded-2xl border border-[#1d3a63] bg-[#0a1a30] text-white shadow-lg"
+      className="overflow-hidden rounded-2xl border border-ss-border bg-ss-surface text-ss-text shadow-lg"
     >
       <div
         ref={splitRef}
         style={{ "--sbw": `${sbw}px` } as CSSProperties}
         className="grid lg:grid-cols-[var(--sbw)_auto_minmax(0,1fr)]"
       >
-        <div id={sidebarId} className="order-2 min-w-0 border-t border-white/10 p-3 lg:order-1 lg:max-h-[46rem] lg:border-t-0">
+        <div id={sidebarId} className="order-2 min-w-0 border-t border-ss-border p-3 lg:order-1 lg:max-h-[46rem] lg:border-t-0">
           <CountrySidebar
             rows={rows}
             selected={selected}
@@ -139,7 +139,7 @@ export function CountryExplorer({
               type="button"
               onClick={() => window.dispatchEvent(new Event(OPEN_MENU_EVENT))}
               aria-label="Open menu"
-              className="flex items-center gap-1.5 rounded-full border border-white/25 px-3 py-1.5 text-sm font-semibold text-white hover:bg-white/10"
+              className="flex items-center gap-1.5 rounded-full border border-ss-border px-3 py-1.5 text-sm font-semibold text-ss-text hover:bg-ss-primary-soft"
             >
               <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" d="M4 7h16M4 12h16M4 17h16" /></svg>
               Menu
@@ -147,15 +147,15 @@ export function CountryExplorer({
             <Link href="/companies" className="flex items-center gap-2 whitespace-nowrap">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/logo-mark.png" alt="Sospana Sonke" className="block h-9 w-9 max-w-none shrink-0 aspect-square rounded-xl object-cover shadow-[0_0_22px_-2px_var(--ss-primary-glow)] ring-1 ring-gold/50" />
-              <span className="text-lg font-bold text-white">Sospana&nbsp;Sonke</span>
+              <span className="text-lg font-bold text-ss-text">Sospana&nbsp;Sonke</span>
             </Link>
           </div>
           {notice && <div className="mb-3 hidden lg:block lg:empty:hidden">{notice}</div>}
           {howTo && <div className="mb-3 hidden lg:block lg:empty:hidden">{howTo}</div>}
           <header className="flex flex-col items-center gap-1 pb-3 text-center" aria-live="polite">
             <span aria-hidden className="text-6xl leading-none drop-shadow-lg">{flag}</span>
-            <h2 className="text-2xl font-extrabold text-white sm:text-3xl">{title}</h2>
-            <p className="text-sm text-blue-200">{sub}</p>
+            <h2 className="text-2xl font-extrabold text-ss-text sm:text-3xl">{title}</h2>
+            <p className="text-sm text-ss-muted">{sub}</p>
             <div className="mt-2 flex flex-wrap items-center justify-center gap-2">
               {onView && (
                 <button
@@ -171,7 +171,7 @@ export function CountryExplorer({
                   type="button"
                   onClick={() => onSelect("")}
                   disabled={!selected}
-                  className="rounded-full border border-white/25 px-4 py-1.5 text-sm font-semibold text-white hover:bg-white/10 disabled:cursor-default disabled:opacity-40 disabled:hover:bg-transparent"
+                  className="rounded-full border border-ss-border px-4 py-1.5 text-sm font-semibold text-ss-text hover:bg-ss-primary-soft disabled:cursor-default disabled:opacity-40 disabled:hover:bg-transparent"
                 >
                   Clear selection
                 </button>
@@ -195,9 +195,9 @@ export function CountryExplorer({
           </div>
 
           {selected && row && !row.selectable && (
-            <p className="mt-2 text-sm text-blue-200">No {noun} yet in {selected}.</p>
+            <p className="mt-2 text-sm text-ss-muted">No {noun} yet in {selected}.</p>
           )}
-          {!selected && allHint && <p className="mt-2 text-sm text-blue-200">{allHint}</p>}
+          {!selected && allHint && <p className="mt-2 text-sm text-ss-muted">{allHint}</p>}
 
           {stats && (
             <dl aria-label={`${selected || "All countries"} figures`} className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
