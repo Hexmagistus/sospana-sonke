@@ -354,7 +354,8 @@ function CompaniesDirectoryInner() {
 
       <div className="relative z-10 space-y-6">
         <PendingSearchBanner />
-        <div className="overflow-hidden rounded-2xl shadow-sm">
+        {/* Desktop (lg+) drops this hero: the logo, notice, How to use card and Surprise me move into the explorer. */}
+        <div className="overflow-hidden rounded-2xl shadow-sm lg:hidden">
           <Banner
             variant="companies"
             eyebrow="Direct to employers"
@@ -373,6 +374,9 @@ function CompaniesDirectoryInner() {
         </div>
 
         <CountryExplorer
+          notice={<NotCountedNotice companies={shownCompanies} />}
+          howTo={<HowToUseCard steps={guideStepsFor(true)} />}
+          extraActions={<Button variant="secondary" glow onClick={surpriseMe}>🎲 Surprise me</Button>}
           rows={explorerRows}
           selected={shortlistOnly ? "" : country}
           onSelect={chooseCountry}
@@ -461,7 +465,7 @@ function CompaniesDirectoryInner() {
         </div>
 
         <div id="explorer-results" className="scroll-mt-24" />
-        <NotCountedNotice companies={shownCompanies} />
+        <div className="empty:hidden lg:hidden"><NotCountedNotice companies={shownCompanies} /></div>
 
         <div className="grid gap-3 md:grid-cols-2">
           {shownCompanies.map((c) => {

@@ -73,6 +73,68 @@ function MessageReports() {
   );
 }
 
+interface AdApp {
+  id: string; business_name: string; contact_email: string; website: string; ad_text: string;
+  amount_usd_per_day: string; days: number; requested_slot: string | null; status: string;
+  slot_key: string | null; ends_at: string | null; admin_note: string | null; created_at: string;
+}
+
+function AdApplications() {
+  const [rows, setRows] = useState<AdApp[]>([]);
+  const [slot, setSlot] = useState<Record<string, string>>({});
+  const [err, setErr] = useState("");
+  const load = () => api.get<AdApp[]>("/ads/admin/applications").then(setRows).catch((e) => setErr(e.message));
+  useEffect(() => { load(); }, []);
+  async function decide(a: AdApp, status: "approved" | "rejected" | "pending") {
+    setErr("");
+    try {
+      await api.patch(`/ads/admin/applications/${a.id}`, {
+        status,
+        slot_key: status === "approved" ? (slot[a.id] || a.requested_slot || a.slot_key || null) : null,
+      });
+      await load();
+    } catch (e) { setErr(e instanceof Error ? e.message : "Failed"); }
+  }
+  return (
+    <Card>
+      <h2 className="mb-1 text-lg font-semibold text-ss-text">Advertiser spot applications</h2>
+      <p className="mb-3 text-sm text-ss-muted">
+        Nothing is charged or emailed automatically. Approving puts the ad in its spot (L1-L10 left, R1-R10 right) for the
+        number of days asked. Email the advertiser the payment instructions yourself.
+      </p>
+      {err && <Alert kind="error">{err}</Alert>}
+      {rows.length === 0 && <p className="text-sm text-ss-muted">No applications.</p>}
+      <div className="space-y-3">
+        {rows.map((a) => (
+          <div key={a.id} className="rounded-xl border border-ss-border p-3 text-sm">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <span className="font-semibold text-ss-text">{a.business_name} · {a.contact_email}</span>
+              <span className="text-xs text-ss-muted">
+                {a.status}{a.slot_key ? ` · ${a.slot_key}` : ""} · ${a.amount_usd_per_day}/day × {a.days} · asked {a.requested_slot || "any spot"} · {a.created_at.slice(0, 10)}
+              </span>
+            </div>
+            <p className="mt-2 break-words text-ss-text">{a.ad_text}</p>
+            <p className="mt-1 break-all text-xs text-ss-muted">{a.website}</p>
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <input
+                value={slot[a.id] ?? ""}
+                onChange={(e) => setSlot((d) => ({ ...d, [a.id]: e.target.value.toUpperCase() }))}
+                placeholder={a.requested_slot || "L1"}
+                maxLength={3}
+                aria-label={`Slot for ${a.business_name}`}
+                className="w-16 rounded border border-ss-border bg-ss-surface px-2 py-1 text-xs"
+              />
+              {a.status !== "approved" && <Button onClick={() => decide(a, "approved")}>Approve</Button>}
+              {a.status !== "rejected" && <Button variant="danger" onClick={() => decide(a, "rejected")}>Reject</Button>}
+              {a.status === "approved" && <Button variant="ghost" onClick={() => decide(a, "pending")}>Take down</Button>}
+            </div>
+          </div>
+        ))}
+      </div>
+    </Card>
+  );
+}
+
 interface SourceHealth {
   sources: number;
   employers?: number;
@@ -596,6 +658,8 @@ function AdminInner() {
           </table>
         </div>
       </Card>
+
+      <AdApplications />
 
       <MessageReports />
     </div>

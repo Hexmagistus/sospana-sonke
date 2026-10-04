@@ -67,6 +67,9 @@ Lungani, 2026-10-03: in every country dropdown, list, and work order, put **Sout
 
 ## Session Log
 
+### 2026-10-03 — Cursor (Grok Bot) — Explorer: no top bar on desktop, advertiser spots
+On `/companies`, `/universities` and `/hospitals`, from `lg` up the top bar and the hero banner are gone. Mobile and `/colleges` are unchanged. The logo and name now sit at the top of the central area with a **Menu** button; the button opens a left drawer with every link (badges, bell, brightness, email, sign out, Admin). The "Not counted yet" notice, the How to use card and Surprise me moved into the central area on desktop (the old copies stay on small screens, hidden from `lg`). From `xl`, ten advertiser spots sit on each side (`L1`-`L10`, `R1`-`R10`). An empty spot says "Your ad here" with "Apply for this spot", which opens a form (minimum $1/day checked in the browser and in `backend/app/schemas/ad.py`). Applications go to `POST /ads/applications` (5 per hour per IP, 3 waiting per email, 500 waiting overall) and are stored `pending` in `ad_applications`, created by `create_all` like the other tables. Nothing is charged, no email is sent, nothing is published. An admin approves in the new "Advertiser spot applications" card on `/admin` (picks the slot, 409 if the slot is taken); `GET /ads/slots` returns only approved ads inside their run window, drawn with a Sponsored label and `rel="sponsored noopener"`. No ads are seeded. The form says "roughly what it costs", with no exact figure. Next: the payment step is manual (admin emails the advertiser), and CI only runs the frontend tests that `directoryFilters.test.ts` imports.
+
 ### 2026-10-03 — Cursor (Grok 4.7) — Country picker order
 The `/companies` country dropdown now follows the standing order: South Africa, the other SADC states, the rest of Africa, then other regions, alphabetical inside each band. A category click still does not change the selected country.
 
