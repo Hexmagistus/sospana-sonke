@@ -41,7 +41,7 @@ function ThemeToggle({ className = "" }: { className?: string }) {
       onClick={toggleTheme}
       aria-label={hint}
       title={hint}
-      className={`flex w-[5.25rem] shrink-0 flex-col items-center gap-0.5 rounded-md px-0.5 py-0.5 text-gold transition hover:bg-white/10 hover:text-gold-light ${className}`}
+      className={`flex min-h-11 w-9 shrink-0 flex-col items-center justify-center gap-0.5 rounded-md px-0.5 py-0.5 text-gold min-[380px]:w-[4.5rem] min-[430px]:w-[5.25rem] transition hover:bg-white/10 hover:text-gold-light ${className}`}
     >
       <span className="flex h-7 w-7 items-center justify-center" aria-hidden="true">
         {theme === "dark" ? (
@@ -55,7 +55,7 @@ function ThemeToggle({ className = "" }: { className?: string }) {
           </svg>
         )}
       </span>
-      <span className="block w-full whitespace-normal text-center text-[11px] font-semibold leading-tight tracking-tight text-gold">
+      <span className="hidden w-full whitespace-normal text-center text-[11px] min-[380px]:block font-semibold leading-tight tracking-tight text-gold">
         Adjust brightness
       </span>
     </button>
@@ -154,11 +154,11 @@ export default function Nav() {
   return (
     <>
     <nav className={`sticky top-0 z-30 border-b border-white/10 bg-gradient-to-r from-[#071528]/95 via-navy/92 to-brand-dark/90 shadow-[0_16px_40px_-24px_rgba(0,0,0,0.8)] backdrop-blur-xl ${explorer ? "lg:hidden" : ""}`}>
-      <div className="mx-auto flex w-full max-w-6xl items-center gap-1 px-4 py-2.5">
-        <Link href="/companies" className="mr-3 flex shrink-0 items-center gap-2 whitespace-nowrap">
+      <div className="mx-auto flex w-full max-w-6xl items-center gap-1 px-3 py-2.5 min-[360px]:px-4">
+        <Link href="/companies" className="mr-1 flex shrink-0 items-center gap-1.5 whitespace-nowrap min-[360px]:gap-2 sm:mr-3">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo-mark.png" alt="Sospana Sonke" className="block h-9 w-9 max-w-none shrink-0 aspect-square rounded-xl object-cover shadow-[0_0_22px_-2px_var(--ss-primary-glow)] ring-1 ring-gold/50" />
-          <span className="font-bold text-white">Sospana&nbsp;Sonke</span>
+          <img src="/logo-mark.png" alt="Sospana Sonke" className="block h-8 w-8 max-w-none shrink-0 aspect-square rounded-xl min-[360px]:h-9 min-[360px]:w-9 object-cover shadow-[0_0_22px_-2px_var(--ss-primary-glow)] ring-1 ring-gold/50" />
+          <span className="text-[0.9rem] font-bold text-white min-[360px]:text-base">Sospana&nbsp;Sonke</span>
         </Link>
 
         {/* Desktop / tablet: full link row */}
@@ -186,7 +186,7 @@ export default function Nav() {
         </div>
 
         {/* Mobile: theme toggle + hamburger, pushed to the right */}
-        <div className="ml-auto flex items-center gap-1 lg:hidden">
+        <div className="ml-auto flex items-center gap-0 min-[360px]:gap-1 lg:hidden">
           <NotificationBell unread={unread} />
           <ThemeToggle />
           <button
@@ -194,7 +194,7 @@ export default function Nav() {
             aria-label={menuOpen ? "Close menu" : "Open menu"}
             aria-expanded={menuOpen}
             onClick={() => setMenuOpen((v) => !v)}
-            className="flex h-9 w-9 items-center justify-center rounded-md text-white hover:bg-white/10"
+            className="flex h-11 w-11 items-center justify-center rounded-md text-white hover:bg-white/10 lg:h-9 lg:w-9"
           >
             {menuOpen ? (
               <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="2">
