@@ -28,6 +28,8 @@
     "src/lib/explorer/adSlots.test.tsx",
     "src/lib/explorer/explorerPaths.ts",
     "src/lib/explorer/testPaths.ts",
-    "src/lib/mobileFit.test.ts"
+    "src/lib/mobileFit.test.ts",
+    "src/lib/explorer/BalungileWalker.tsx",
+    "src/lib/explorer/BalungileWalker.test.tsx"
   ]
 }

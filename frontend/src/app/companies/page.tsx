@@ -323,7 +323,14 @@ function CompaniesDirectoryInner() {
     : (facets?.country_with_links?.[country] ?? 0);
 
   if (err) return <Alert kind="error">{err}</Alert>;
-  if (!facets) return <FunSpinner label="Loading the directory…" />;
+  if (!facets) {
+    return (
+      <div className="mx-auto w-full max-w-xl space-y-4">
+        <HowToUseCard steps={guideStepsFor(true)} loading />
+        <FunSpinner label="Loading the directory…" />
+      </div>
+    );
+  }
 
   const filterLabel: Record<DirectoryFilter, string> = {
     all: "All", listed: "Listed", SOE: "State-owned", Municipality: "Municipalities",
@@ -359,7 +366,7 @@ function CompaniesDirectoryInner() {
           <Banner
             variant="companies"
             eyebrow="Direct to employers"
-            aside={<HowToUseCard steps={guideStepsFor(true)} />}
+            aside={<HowToUseCard steps={guideStepsFor(true)} loading={sliceLoading} />}
             title="Companies & opportunities"
             subtitle={
               <>
@@ -375,7 +382,7 @@ function CompaniesDirectoryInner() {
 
         <CountryExplorer
           notice={<NotCountedNotice companies={shownCompanies} />}
-          howTo={<HowToUseCard steps={guideStepsFor(true)} />}
+          howTo={<HowToUseCard steps={guideStepsFor(true)} loading={sliceLoading} />}
           extraActions={<Button variant="secondary" glow onClick={surpriseMe}>🎲 Surprise me</Button>}
           rows={explorerRows}
           selected={shortlistOnly ? "" : country}

@@ -165,7 +165,14 @@ function HospitalsDirectoryInner() {
   };
 
   if (err) return <Alert kind="error">{err}</Alert>;
-  if (!hospitals.length) return <FunSpinner label="Loading hospitals…" />;
+  if (!hospitals.length) {
+    return (
+      <div className="mx-auto w-full max-w-xl space-y-4">
+        <HowToUseCard steps={guideStepsFor(false)} loading loadingLabel="Loading hospitals…" />
+        <FunSpinner label="Loading hospitals…" />
+      </div>
+    );
+  }
 
   return (
     <div className="relative">
