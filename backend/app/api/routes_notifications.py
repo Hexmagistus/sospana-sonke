@@ -269,7 +269,7 @@ def source_health(db: Session = Depends(get_db)):
     prevented = db.query(func.coalesce(func.sum(VacancySource.duplicates_prevented), 0)).scalar() or 0
     review_states = (
         "REQUIRES_REVIEW", "INVALID_URL", "SITE_CHANGED", "JAVASCRIPT_REQUIRED",
-        "BLOCKED", "PARSER_ERROR",
+        "BLOCKED", "PARSER_ERROR", "NEEDS_REVIEW",
     )
     needs_review = (db.query(func.count(VacancySource.id))
                     .filter(VacancySource.scraper_status.in_(review_states)).scalar() or 0)

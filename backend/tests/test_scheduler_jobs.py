@@ -47,6 +47,9 @@ def test_close_expired_vacancies_registered_in_scheduler():
 
 def test_scan_due_companies_advances_after_a_database_error(db, monkeypatch):
     """A failed insert must not abort the cron request or pin that employer first."""
+    from app.services import scan_batch
+    from app.services.scan_service import FetchOutcome, apply_fetch as real_apply
+
     now = datetime.now(timezone.utc)
     bad = Company(
         company_name="Absa", country="South Africa", active=True,
@@ -61,21 +64,29 @@ def test_scan_due_companies_advances_after_a_database_error(db, monkeypatch):
     db.commit()
     seen: list[str] = []
 
-    def _scan(session, company, client=None, check_robots=True):
-        seen.append(company.company_name)
-        if company.company_name == "Absa":
+    def _fetch(snapshot, client, now=None):
+        seen.append(snapshot.url)
+        return FetchOutcome(kind="ok", started=0.0, now=now, ats_type="static_html",
+                            parser_used="static_html", raw_list=[])
+
+    def _apply(session, source, outcome):
+        if "absa" in source.url:
             session.execute(text("SELECT * FROM table_that_does_not_exist"))
-        return []
+        return real_apply(session, source, outcome)
 
-    monkeypatch.setattr("app.scheduler.jobs.scan_company", _scan)
-    out = scan_due_companies(db, limit=10, max_seconds=55)
+    monkeypatch.setattr(scan_batch, "_default_fetch", _fetch)
+    monkeypatch.setattr(scan_batch, "apply_fetch", _apply)
+    out = scan_due_companies(db, limit=10, max_seconds=20)
 
-    assert seen[0] == "Absa"
-    assert "Clinic" in seen
-    assert out["sources_failed"] >= 1
+    assert sorted(seen) == sorted([bad.careers_url, good.careers_url])
+    assert out["companies_scanned"] == 2
+    assert out["sources_failed"] == 1
     db.expire_all()
     absa = db.query(Company).filter(Company.company_name == "Absa").one()
     assert absa.last_checked is not None
+    from app.models.vacancy import VacancySource
+    src = db.query(VacancySource).filter(VacancySource.company_id == absa.id).one()
+    assert src.consecutive_failures == 1 and src.last_checked is not None
 
 
 def test_run_job_records_an_error_when_the_statement_fails(db, monkeypatch):

@@ -73,114 +73,34 @@ def scan_south_africa(db: Session, job_run_id: str | None = None) -> dict:
     return scan_all_companies(db, job_run_id=job_run_id, country="South Africa")
 
 
-def scan_due_companies(db: Session, limit: int = 40, job_run_id: str | None = None,
-                       max_seconds: float = 55.0) -> dict:
-    """Scan the next due batch, then stamp them so the next run moves on.
+def scan_due_companies(db: Session, limit: int = 60, job_run_id: str | None = None,
+                       max_seconds: float = 22.0, workers: int | None = None) -> dict:
+    """Scan the next due batch inside the cron's request, then return.
 
-    Who is due is chosen by select_due_company_ids: South Africa, then the
-    rest of SADC, then the rest of Africa, then other regions. Inside a
-    region, a supported board that has never been parsed successfully
-    (including ci.hr) comes before the oldest check. The wall-clock budget
-    below is what keeps a run inside the free-tier gateway.
+    Called every 15 minutes by an external cron whose request timeout is 30
+    seconds (cron-job.org; the GitHub workflow allows 100). The work happens
+    in the request and the call returns after about ``max_seconds`` (22 s),
+    so the caller sees the JobRun summary instead of a timeout and nothing
+    keeps running unsupervised after the response.
 
-    Keeps each run bounded (a few minutes, not hours) so a free external
-    scheduler can call it reliably every few hours; the whole database still
-    cycles through in under a week rather than 15+ days.
+    The loop is app.services.scan_batch.run_scan_batch:
 
-    Batch size ALONE turned out not to bound the run's wall-clock time: 25
-    companies took ~1.5 min, but the "due" batch is dominated by companies
-    that have NEVER been checked -- many of those URLs are slow, unreachable
-    or block robots.txt, and each one can burn close to the full per-request
-    timeout (robots.txt + page fetch, ~10s each -> up to ~20s of dead weight
-    per bad company) before scan_service gives up on it. limit=100 hit an
-    HTTP 502 at 9m13s and limit=50 still took 7m53s -- both cut off by
-    Render's free-tier gateway before finishing, because a handful of slow
-    companies dominated the batch regardless of its size.
+    * queue: never-scanned sources first, then the oldest scan, with South
+      Africa, SADC and Africa given a bounded head start (no region starves);
+    * every source is claimed (compare-and-set on last_checked) right before
+      it is fetched, so overlapping cron calls never scan the same source;
+    * up to 5 fetches at once (6 per process at most), one per host, with
+      4 s connect / 6 s read timeouts and a single attempt per request;
+    * failing sources back off by kind; dead ones become NEEDS_REVIEW and
+      are retried weekly instead of every cycle (scan_runner.backoff_hours).
 
-    So this now bails out of the loop once max_seconds of wall-clock time has
-    passed, whatever count it has reached -- every run is bounded by TIME, not
-    by how many of the batch happen to be slow, so it always returns well
-    inside the calling workflow's timeout (curl --max-time 100). A company is
-    not started unless about 20 seconds remain, HTTP retries are capped at one
-    attempt, and each request times out at 8 seconds. That keeps one dead host
-    from running past the workflow limit after the loop has already decided
-    there is time left. limit is now just an upper cap for a lucky all-fast
-    batch, not the throttle.
-
-    The scan uses the request's single DB session (one checkout from the
-    pool of 5 + 2 overflow). It does not open a thread pool of sessions, so
-    user requests still have connections left.
-
-    Deliberately skips the "N new jobs" candidate broadcast that
-    scan_all_companies/scan_south_africa send: NOTIFY_EMAILS is on in
-    production, and notify_new_jobs_broadcast emails every active candidate
-    synchronously, one HTTP call per candidate, inside this same request --
-    with even a couple hundred candidates that alone can run minutes past the
-    scan loop's own time budget (this is what was actually causing runs to
-    blow well past 240s even after the loop itself was bounded). A partial
-    rotating batch finding a handful of jobs every 3 hours isn't the right
-    trigger for a mass email anyway; a full/manual sweep (scan_all_companies)
-    is a more sensible place for that broadcast.
+    ``limit`` caps how many due sources are read for one call. Deliberately
+    skips the "N new jobs" candidate broadcast: a partial rotating batch is
+    not the trigger for a mass email (scan_all_companies is).
     """
-    # Same priority as the parallel runner. Failing URLs still back off.
-    from app.services.scan_runner import _stamp_failure, select_due_company_ids
-    now = datetime.now(timezone.utc)
-    ids = select_due_company_ids(db, limit, now)
-    companies = [c for cid in ids if (c := db.get(Company, cid)) is not None]
-    scanned = created = failed = 0
-    new_vacancy_ids: list[str] = []
-    started = time.monotonic()
-    timed_out = False
-    # Don't begin a company that cannot finish inside the remaining budget.
-    # robots.txt + one page, one attempt each, 8s timeout, plus a little slack.
-    _MIN_START_SECONDS = 20.0
-    from app.scraper.politeness import backoff_retry_cap
-    client = httpx.Client(
-        timeout=httpx.Timeout(8.0, connect=5.0),
-        follow_redirects=True,
-        headers={"User-Agent": settings.URL_TEST_USER_AGENT},
-    )
-    try:
-        with backoff_retry_cap(1):
-            for company in companies:
-                if max_seconds - (time.monotonic() - started) < _MIN_START_SECONDS:
-                    timed_out = True
-                    break
-                company_id = company.id
-                company_name = company.company_name
-                try:
-                    reports = scan_company(db, company, client=client)
-                    scanned += 1
-                    created += sum(r.created for r in reports)
-                    failed += sum(1 for r in reports if r.status not in ("ok", "empty"))
-                    for r in reports:
-                        new_vacancy_ids.extend(r.created_vacancy_ids)
-                    company.last_checked = now
-                    db.add(company)
-                    db.commit()
-                except Exception:
-                    # A failed INSERT aborts the transaction. Reading the company
-                    # after that, or committing it, raises again and the cron
-                    # returns a bare 500. Roll back, stamp last_checked, continue.
-                    logger.warning("scan_due_companies: failed to scan %s (%s)",
-                                   company_name, company_id, exc_info=True)
-                    failed += 1
-                    try:
-                        _stamp_failure(db, company_id, now)
-                    except Exception:
-                        logger.warning(
-                            "scan_due_companies: could not stamp failure for %s",
-                            company_id, exc_info=True,
-                        )
-                        db.rollback()
-    finally:
-        client.close()
-    # No candidate broadcast here -- see the docstring; it's the one uncapped,
-    # potentially-per-candidate-email step and doesn't belong in a job whose
-    # whole point is to return within a tight time budget every few hours.
-    return {"batch_limit": limit, "companies_scanned": scanned,
-            "vacancies_created": created, "sources_failed": failed,
-            "candidates_alerted": 0, "stopped_early_on_time_budget": timed_out}
+    from app.services.scan_batch import DEFAULT_WORKERS, run_scan_batch
+    return run_scan_batch(db, limit=limit, max_seconds=max_seconds,
+                          workers=workers or DEFAULT_WORKERS)
 
 
 def check_link_changes(db: Session, limit: int = 25, job_run_id: str | None = None) -> dict:
