@@ -2,8 +2,8 @@
 
 import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import {
-  AD_TEXT_MAX, EMPTY_FORM, MAX_DAYS, MIN_NOTE, MIN_USD_PER_DAY, NO_PAYMENT_NOTE,
-  toPayload, totalUsd, validateAdForm, type AdErrors, type AdForm,
+  AD_TEXT_MAX, EMPTY_FORM, LOGIN_SLOT_KEYS, MAX_DAYS, MIN_NOTE, MIN_USD_PER_DAY, NO_PAYMENT_NOTE, SLOT_LABELS,
+  isLoginSlotKey, toPayload, totalUsd, validateAdForm, type AdErrors, type AdForm,
 } from "./adSlots";
 
 export type Receipt = { id: string; status: string; total_usd: string; message: string };
@@ -39,6 +39,8 @@ export function AdApplyForm({ slotKey, onClose, initial, submit }: FormProps) {
   const [busy, setBusy] = useState(false);
   const [failure, setFailure] = useState("");
   const [receipt, setReceipt] = useState<Receipt | null>(null);
+  // Which of the four login-page spots; "" = any free spot.
+  const [spot, setSpot] = useState<string>(isLoginSlotKey(slotKey) ? slotKey : "");
   const uid = useId();
   const set = (k: keyof AdForm) => (e: { target: { value: string } }) => setF((p) => ({ ...p, [k]: e.target.value }));
   const total = totalUsd(f);
@@ -51,7 +53,7 @@ export function AdApplyForm({ slotKey, onClose, initial, submit }: FormProps) {
     setBusy(true);
     setFailure("");
     try {
-      const body = toPayload(f, slotKey);
+      const body = toPayload(f, spot || null);
       setReceipt(await submit(body));
     } catch (e) {
       setFailure(serverMessage(e));
@@ -92,8 +94,17 @@ export function AdApplyForm({ slotKey, onClose, initial, submit }: FormProps) {
   return (
     <form onSubmit={onSubmit} noValidate className="space-y-3">
       <p className="text-xs text-ss-muted">
-        {slotKey ? `You are asking for spot ${slotKey}. ` : ""}{MIN_NOTE}
+        Ads appear on the sign-in page, in one of four spots. {MIN_NOTE}
       </p>
+      <div>
+        <label htmlFor={`${uid}-spot`} className="block text-sm font-semibold text-ss-text">Spot</label>
+        <select id={`${uid}-spot`} value={spot} onChange={(e) => setSpot(e.target.value)} className={inputCls}>
+          <option value="">Any free spot</option>
+          {LOGIN_SLOT_KEYS.map((k) => (
+            <option key={k} value={k}>{SLOT_LABELS[k]}</option>
+          ))}
+        </select>
+      </div>
       {field("businessName", "Business name", { maxLength: 120, autoComplete: "organization" })}
       {field("email", "Contact email", { type: "email", maxLength: 254, autoComplete: "email" })}
       {field("website", "Website", { type: "text", inputMode: "url", maxLength: 500, placeholder: "https://example.com" })}

@@ -2,17 +2,13 @@
 
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { useCallback, useEffect, useId, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { useEffect, useId, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { CountrySidebar } from "@/lib/explorer/CountrySidebar";
 import { CategorySelect, type CategoryOption } from "@/lib/explorer/CategorySelect";
 import { SidebarResizer } from "@/lib/explorer/SidebarResizer";
 import { SIDEBAR_DEFAULT, readStoredWidth, storeWidth } from "@/lib/explorer/sidebarWidth";
 import { regionLabel, type CountryRow } from "@/lib/countryExplorer";
 import { countryFlag } from "@/lib/countryCodes";
-import { api } from "@/lib/api";
-import { AdColumn } from "@/lib/explorer/AdSlot";
-import { AdApplyDialog } from "@/lib/explorer/AdApplyDialog";
-import type { PublicAd } from "@/lib/explorer/adSlots";
 import { OPEN_MENU_EVENT } from "@/lib/explorer/explorerPaths";
 
 // The map (about 125 KB of country outlines) loads only when this view is on screen.
@@ -95,20 +91,10 @@ export function CountryExplorer({
     if (persist) storeWidth(px);
   }
 
-  // Advertiser spots: approved ads only. Empty when none are approved (none are seeded).
-  const [ads, setAds] = useState<PublicAd[]>([]);
-  const [applyFor, setApplyFor] = useState<string | null | undefined>(undefined);
-  const closeApply = useCallback(() => setApplyFor(undefined), []);
-  useEffect(() => {
-    let cancelled = false;
-    api.get<PublicAd[]>("/ads/slots").then((r) => { if (!cancelled) setAds(r); }).catch(() => { /* empty spots still show */ });
-    return () => { cancelled = true; };
-  }, []);
-
   return (
     <>
-    <div className="xl:mx-[calc(50%_-_min(48vw,44rem))] xl:grid xl:grid-cols-[7.5rem_minmax(0,1fr)_7.5rem] xl:gap-3">
-    <AdColumn side="L" ads={ads} onApply={setApplyFor} />
+    {/* Wider than the page column from xl so the map and lists get the room (ads moved to /login). */}
+    <div className="xl:mx-[calc(50%_-_min(48vw,40rem))]">
     <section
       aria-label={`Browse ${noun} by country`}
       className="overflow-hidden rounded-2xl border border-ss-border bg-ss-surface text-ss-text shadow-lg"
@@ -210,9 +196,7 @@ export function CountryExplorer({
         </div>
       </div>
     </section>
-    <AdColumn side="R" ads={ads} onApply={setApplyFor} />
     </div>
-    {applyFor !== undefined && <AdApplyDialog slotKey={applyFor} onClose={closeApply} />}
     </>
   );
 }

@@ -9,13 +9,21 @@ from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 MIN_USD_PER_DAY = Decimal("1.00")
 MAX_USD_PER_DAY = Decimal("10000.00")
 MAX_DAYS = 365
-SLOTS_PER_SIDE = 10
-SLOT_KEY = re.compile(r"^[LR](?:10|[1-9])$")
+# Ads now show only on the login page, in four spots. Keys fit the existing
+# varchar(4) columns, so no migration is needed.
+SLOT_KEYS = ("LG1", "LG2", "LG3", "LG4")
+# Keys from the old explorer rails (L1-L10, R1-R10). Still understood so nothing
+# stored or cached under them breaks: they are mapped onto a free login spot.
+LEGACY_SLOT_KEY = re.compile(r"^[LR](?:10|[1-9])$")
 _CONTROL = re.compile(r"[\x00-\x1f\x7f]")
 
 
-def valid_slot_key(value: str) -> bool:
-    return bool(SLOT_KEY.match(value))
+def valid_slot_key(value: str | None) -> bool:
+    return value in SLOT_KEYS
+
+
+def is_legacy_slot_key(value: str | None) -> bool:
+    return bool(value) and bool(LEGACY_SLOT_KEY.match(value))
 
 
 def clean_text(value: str) -> str:
@@ -68,6 +76,8 @@ class AdApplicationCreate(BaseModel):
     def _slot(cls, v: str | None) -> str | None:
         if v in (None, ""):
             return None
+        if is_legacy_slot_key(v):
+            return None  # an old explorer spot: any free login spot will do
         if not valid_slot_key(v):
             raise ValueError("Unknown spot.")
         return v
