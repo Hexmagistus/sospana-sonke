@@ -42,7 +42,7 @@ def _ok(snapshot, client, now=None):
 
 
 class _NoClient:
-    def __init__(self, verify=None, read_timeout=None):
+    def __init__(self, verify=None, read_timeout=None, budget=None):
         pass
 
     def __enter__(self):
@@ -158,10 +158,10 @@ def test_incomplete_chain_is_retried_once_with_the_aia_context(db):
         return _ok(snapshot, client, now)
 
     class Client(_NoClient):
-        def __init__(self, verify=None, read_timeout=None):
+        def __init__(self, verify=None, read_timeout=None, budget=None):
             self.verify = verify
 
-    out = _run(db, fetch_fn=fetch, client_factory=Client, aia_fn=lambda h, p: "ctx")
+    out = _run(db, fetch_fn=fetch, client_factory=Client, aia_fn=lambda h, p, timeout=None: "ctx")
     assert calls == [None, "ctx"]
     assert out["companies_scanned"] == 1 and out["sources_failed"] == 0
 
@@ -229,18 +229,23 @@ def test_abandoned_fetches_give_their_place_back(db, monkeypatch):
     old = NOW - timedelta(days=4)
     slow = [_company(db, f"Slow{i}", last=old) for i in range(2)]
     fresh = _company(db, "NeverSeen")
-    monkeypatch.setattr(scan_batch, "SUBMIT_RESERVE_SECONDS", 0.3)
+    for name, value in (("WRAPUP_RESERVE_SECONDS", 0.3), ("FETCH_GRACE_SECONDS", 0.1),
+                        ("RELEASE_RESERVE_SECONDS", 0.1), ("SUBMIT_RESERVE_SECONDS", 0.3)):
+        monkeypatch.setattr(scan_batch, name, value)
     release = threading.Event()
 
-    def hang(snapshot, client, now=None):
+    def hang(snapshot, client, now=None):   # ignores the client, so the budget cannot cut it
         release.wait(5)
         return _ok(snapshot, client, now)
 
+    t0 = time.monotonic()
     try:
-        out = _run(db, fetch_fn=hang, max_seconds=0.6)
+        out = _run(db, fetch_fn=hang, max_seconds=1.0)
     finally:
         release.set()
+    assert time.monotonic() - t0 < 1.0 + 0.3
     assert out["abandoned_in_flight"] == 3 and out["companies_scanned"] == 0
+    assert out["released_unfinished"] == 3
     assert out["stopped_early_on_time_budget"] is True
     time.sleep(0.2)
     db.expire_all()
@@ -377,7 +382,7 @@ def test_slow_sources_get_the_longer_read_timeout_early_in_the_run(db, monkeypat
     used = {}
 
     class Client(_NoClient):
-        def __init__(self, verify=None, read_timeout=None):
+        def __init__(self, verify=None, read_timeout=None, budget=None):
             self.read_timeout = read_timeout
 
     def fetch(snapshot, client, now=None):
@@ -404,8 +409,8 @@ def test_slow_sources_get_the_longer_read_timeout_early_in_the_run(db, monkeypat
 
 
 def test_cron_default_budget_returns_well_before_the_30s_timeout():
+    """The batch budget includes wrap-up; see test_scan_budget for the timing."""
     import inspect
     from app.scheduler.jobs import scan_due_companies
-    sig = inspect.signature(scan_due_companies)
-    budget = sig.parameters["max_seconds"].default
-    assert budget + scan_batch.APPLY_GRACE_SECONDS < 30
+    budget = inspect.signature(scan_due_companies).parameters["max_seconds"].default
+    assert budget <= 19

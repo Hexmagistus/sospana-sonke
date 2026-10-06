@@ -74,14 +74,16 @@ def scan_south_africa(db: Session, job_run_id: str | None = None) -> dict:
 
 
 def scan_due_companies(db: Session, limit: int = 60, job_run_id: str | None = None,
-                       max_seconds: float = 22.0, workers: int | None = None) -> dict:
+                       max_seconds: float = 18.0, workers: int | None = None) -> dict:
     """Scan the next due batch inside the cron's request, then return.
 
     Called every 15 minutes by an external cron whose request timeout is 30
     seconds (cron-job.org; the GitHub workflow allows 100). The work happens
-    in the request and the call returns after about ``max_seconds`` (22 s),
-    so the caller sees the JobRun summary instead of a timeout and nothing
-    keeps running unsupervised after the response.
+    in the request. ``max_seconds`` (18 s) bounds the whole batch, wrap-up
+    included: in-flight fetches are cut off 1.5 s before it and leftovers are
+    un-claimed in one commit (see run_scan_batch), so with the JobRun write
+    the response leaves well under the 30 s timeout. At 22 s plus an
+    unbounded wrap-up it once took 25.6 s.
 
     The loop is app.services.scan_batch.run_scan_batch:
 
@@ -89,7 +91,7 @@ def scan_due_companies(db: Session, limit: int = 60, job_run_id: str | None = No
       Africa, SADC and Africa given a bounded head start (no region starves);
     * every source is claimed (compare-and-set on last_checked) right before
       it is fetched, so overlapping cron calls never scan the same source;
-    * up to 5 fetches at once (6 per process at most), one per host, with
+    * up to 6 fetches at once (6 per process at most), one per host, with
       4 s connect / 6 s read timeouts and a single attempt per request;
     * failing sources back off by kind; dead ones become NEEDS_REVIEW and
       are retried weekly instead of every cycle (scan_runner.backoff_hours).

@@ -296,6 +296,17 @@ def release_claim(db: Session, source_id: str, claimed_at: datetime,
     db.commit()
 
 
+def release_claims(db: Session, items: list[tuple[str, datetime | None]],
+                   claimed_at: datetime) -> None:
+    """release_claim for several sources, in one transaction (one commit)."""
+    for source_id, previous in items:
+        db.execute(update(VacancySource)
+                   .where(VacancySource.id == source_id, VacancySource.last_checked == claimed_at)
+                   .values(last_checked=previous)
+                   .execution_options(synchronize_session=False))
+    db.commit()
+
+
 def _stamp_failure(db: Session, company_id: str, now: datetime) -> None:
     """A scan raised before scan_source could record anything: still stamp the company
     and bump its source's failure counter so back-off grows and it isn't retried at once."""
