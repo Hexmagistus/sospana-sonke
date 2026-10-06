@@ -1,4 +1,5 @@
-"""Advertiser spot applications: minimum amount, validation, rate limit, admin approval."""
+"""Advertiser spot applications: minimum amount, validation, rate limit, admin approval.
+Ads show only on the login page, in four spots LG1-LG4."""
 from tests.conftest import make_admin, register_and_login
 
 URL = "/api/v1/ads/applications"
@@ -62,6 +63,8 @@ def test_validation(client):
         {"days": 400},
         {"requested_slot": "L11"},
         {"requested_slot": "X1"},
+        {"requested_slot": "LG5"},
+        {"requested_slot": "LG0"},
         {"amount_usd_per_day": "abc"},
         {"amount_usd_per_day": "10001"},
     ]
@@ -71,12 +74,12 @@ def test_validation(client):
 
 
 def test_website_without_scheme_gets_https_and_text_is_one_line(client, db_engine):
-    r = client.post(URL, json={**GOOD, "website": "mabena.example", "ad_text": "Line one\nline   two", "requested_slot": "R3"})
+    r = client.post(URL, json={**GOOD, "website": "mabena.example", "ad_text": "Line one\nline   two", "requested_slot": "LG3"})
     assert r.status_code == 201
     row = client.get("/api/v1/ads/admin/applications", headers=_admin(client, db_engine)).json()[0]
     assert row["website"] == "https://mabena.example"
     assert row["ad_text"] == "Line one line two"
-    assert row["requested_slot"] == "R3"
+    assert row["requested_slot"] == "LG3"
 
 
 def test_pending_cap_per_email_holds_without_the_ip_limiter(client):
@@ -109,21 +112,22 @@ def test_admin_endpoints_need_an_admin(client):
 
 def test_approval_publishes_in_the_slot_and_reject_does_not(client, db_engine):
     h = _admin(client, db_engine)
-    a = client.post(URL, json={**GOOD, "requested_slot": "L2"}).json()["id"]
+    a = client.post(URL, json={**GOOD, "requested_slot": "LG2"}).json()["id"]
     b = client.post(URL, json={**GOOD, "contact_email": "b@x.example", "business_name": "Bee Co"}).json()["id"]
 
-    # approving with no slot at all is refused
-    r = client.patch(f"/api/v1/ads/admin/applications/{b}", json={"status": "approved"}, headers=h)
-    assert r.status_code == 422
+    # an explorer-era or unknown spot is refused when the admin names it
+    for bad in ("L2", "R10", "LG9"):
+        r = client.patch(f"/api/v1/ads/admin/applications/{b}", json={"status": "approved", "slot_key": bad}, headers=h)
+        assert r.status_code == 422, bad
 
     r = client.patch(f"/api/v1/ads/admin/applications/{a}", json={"status": "approved"}, headers=h)
-    assert r.status_code == 200 and r.json()["slot_key"] == "L2" and r.json()["ends_at"]
+    assert r.status_code == 200 and r.json()["slot_key"] == "LG2" and r.json()["ends_at"]
     shown = client.get("/api/v1/ads/slots").json()
-    assert shown == [{"slot_key": "L2", "business_name": "Mabena Plumbing",
+    assert shown == [{"slot_key": "LG2", "business_name": "Mabena Plumbing",
                       "ad_text": "Plumbing across Gauteng", "website": "https://mabena.example"}]
 
     # a second ad cannot take a running slot
-    r = client.patch(f"/api/v1/ads/admin/applications/{b}", json={"status": "approved", "slot_key": "L2"}, headers=h)
+    r = client.patch(f"/api/v1/ads/admin/applications/{b}", json={"status": "approved", "slot_key": "LG2"}, headers=h)
     assert r.status_code == 409
     r = client.patch(f"/api/v1/ads/admin/applications/{b}", json={"status": "rejected", "admin_note": "off topic"}, headers=h)
     assert r.status_code == 200 and r.json()["status"] == "rejected"
@@ -134,13 +138,53 @@ def test_approval_publishes_in_the_slot_and_reject_does_not(client, db_engine):
     assert client.get("/api/v1/ads/slots").json() == []
 
 
+def test_only_four_login_spots_exist_and_approval_fills_free_ones(client, db_engine):
+    h = _admin(client, db_engine)
+    ids = [
+        client.post(URL, json={**GOOD, "contact_email": f"o{i}@x.example", "business_name": f"Biz {i}"}).json()["id"]
+        for i in range(5)
+    ]
+    slots = []
+    for i in ids[:4]:
+        r = client.patch(f"/api/v1/ads/admin/applications/{i}", json={"status": "approved"}, headers=h)
+        assert r.status_code == 200
+        slots.append(r.json()["slot_key"])
+    assert slots == ["LG1", "LG2", "LG3", "LG4"]
+    # a fifth cannot be placed while all four run
+    r = client.patch(f"/api/v1/ads/admin/applications/{ids[4]}", json={"status": "approved"}, headers=h)
+    assert r.status_code == 409
+    assert [a["slot_key"] for a in client.get("/api/v1/ads/slots").json()] == ["LG1", "LG2", "LG3", "LG4"]
+
+
+def test_old_explorer_spot_keys_still_work(client, db_engine):
+    """A cached old page may still send L1-L10/R1-R10; rows stored with them are placed on login."""
+    from datetime import datetime, timedelta, timezone
+    from sqlalchemy.orm import sessionmaker
+    from app.models.ad import AdApplication
+    r = client.post(URL, json={**GOOD, "requested_slot": "L7"})
+    assert r.status_code == 201
+    h = _admin(client, db_engine)
+    row = client.get("/api/v1/ads/admin/applications", headers=h).json()[0]
+    assert row["requested_slot"] is None  # any login spot
+    # an ad approved in the explorer era (legacy slot_key) is shown in a free login spot
+    S = sessionmaker(bind=db_engine)
+    s = S()
+    legacy = s.get(AdApplication, row["id"])
+    legacy.status, legacy.slot_key = "approved", "R3"
+    legacy.starts_at = datetime.now(timezone.utc) - timedelta(days=1)
+    legacy.ends_at = datetime.now(timezone.utc) + timedelta(days=1)
+    s.commit()
+    s.close()
+    assert [a["slot_key"] for a in client.get("/api/v1/ads/slots").json()] == ["LG1"]
+
+
 def test_an_ad_past_its_end_date_is_not_shown(client, db_engine):
     from datetime import datetime, timedelta, timezone
     from sqlalchemy.orm import sessionmaker
     from app.models.ad import AdApplication
     h = _admin(client, db_engine)
     a = client.post(URL, json=GOOD).json()["id"]
-    client.patch(f"/api/v1/ads/admin/applications/{a}", json={"status": "approved", "slot_key": "R1"}, headers=h)
+    client.patch(f"/api/v1/ads/admin/applications/{a}", json={"status": "approved", "slot_key": "LG1"}, headers=h)
     assert len(client.get("/api/v1/ads/slots").json()) == 1
     S = sessionmaker(bind=db_engine)
     s = S()

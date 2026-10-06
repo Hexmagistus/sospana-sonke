@@ -90,7 +90,8 @@ function AdApplications() {
     try {
       await api.patch(`/ads/admin/applications/${a.id}`, {
         status,
-        slot_key: status === "approved" ? (slot[a.id] || a.requested_slot || a.slot_key || null) : null,
+        // Only LG1-LG4 are valid; leave it to the server to pick the asked-for or first free spot otherwise.
+        slot_key: status === "approved" ? (/^LG[1-4]$/.test(slot[a.id] ?? "") ? slot[a.id] : null) : null,
       });
       await load();
     } catch (e) { setErr(e instanceof Error ? e.message : "Failed"); }
@@ -99,8 +100,10 @@ function AdApplications() {
     <Card>
       <h2 className="mb-1 text-lg font-semibold text-ss-text">Advertiser spot applications</h2>
       <p className="mb-3 text-sm text-ss-muted">
-        Nothing is charged or emailed automatically. Approving puts the ad in its spot (L1-L10 left, R1-R10 right) for the
-        number of days asked. Email the advertiser the payment instructions yourself.
+        Nothing is charged or emailed automatically. Ads show only on the sign-in page, in four spots: LG1 and LG2 left of
+        the form, LG3 and LG4 right of it (stacked under the form on phones). Approving puts the ad in the spot you type, else
+        the one asked for, else the first free one, for the number of days asked. Older requests for an explorer spot
+        (L1-R10) go to any free login spot. Email the advertiser the payment instructions yourself.
       </p>
       {err && <Alert kind="error">{err}</Alert>}
       {rows.length === 0 && <p className="text-sm text-ss-muted">No applications.</p>}
@@ -119,7 +122,7 @@ function AdApplications() {
               <input
                 value={slot[a.id] ?? ""}
                 onChange={(e) => setSlot((d) => ({ ...d, [a.id]: e.target.value.toUpperCase() }))}
-                placeholder={a.requested_slot || "L1"}
+                placeholder={/^LG[1-4]$/.test(a.requested_slot ?? "") ? a.requested_slot! : "LG1-4"}
                 maxLength={3}
                 aria-label={`Slot for ${a.business_name}`}
                 className="w-16 rounded border border-ss-border bg-ss-surface px-2 py-1 text-xs"

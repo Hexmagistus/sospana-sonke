@@ -26,6 +26,7 @@
     "src/lib/explorer/ExplorerControls.test.tsx",
     "src/lib/explorer/adSlots.ts",
     "src/lib/explorer/adSlots.test.tsx",
+    "src/lib/explorer/loginAds.test.tsx",
     "src/lib/explorer/explorerPaths.ts",
     "src/lib/explorer/testPaths.ts",
     "src/lib/themeContrast.ts",

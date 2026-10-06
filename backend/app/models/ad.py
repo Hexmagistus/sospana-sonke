@@ -1,4 +1,4 @@
-"""Advertiser spot applications for the explorer pages.
+"""Advertiser spot applications (ads show on the login page, spots LG1-LG4).
 
 An application is only a request. Nothing here takes a payment, sends an email
 or publishes anything: an administrator reads the application, sets the status
@@ -23,7 +23,8 @@ class AdApplication(UUIDMixin, TimestampMixin, Base):
     # What the advertiser chose to give per day, in US dollars. At least 1.00.
     amount_usd_per_day: Mapped[float] = mapped_column(Numeric(10, 2), nullable=False)
     days: Mapped[int] = mapped_column(Integer, nullable=False)
-    # Spot the advertiser asked for, e.g. "L3" or "R7". The admin may assign another.
+    # Spot the advertiser asked for, "LG1".."LG4" (older rows may hold an explorer key
+    # such as "L3"; those are mapped onto a free login spot). The admin may assign another.
     requested_slot: Mapped[str | None] = mapped_column(String(4), nullable=True)
     # pending | approved | rejected
     status: Mapped[str] = mapped_column(String(12), default="pending", index=True, nullable=False)

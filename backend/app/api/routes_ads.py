@@ -1,4 +1,4 @@
-"""Advertiser spots on the explorer pages.
+"""Advertiser spots, shown on the login page (four spots, LG1-LG4).
 
 Public: read the approved ads, and apply for a spot. Admin: list applications
 and approve or reject them. Applying stores a pending row and nothing else: no
@@ -19,7 +19,8 @@ from app.models.ad import AdApplication
 from app.models.admin_ops import AdminAuditLog
 from app.models.user import User
 from app.schemas.ad import (
-    AdApplicationAdmin, AdApplicationCreate, AdApplicationReceipt, AdDecision, PublicAd, valid_slot_key,
+    AdApplicationAdmin, AdApplicationCreate, AdApplicationReceipt, AdDecision, PublicAd, SLOT_KEYS,
+    is_legacy_slot_key, valid_slot_key,
 )
 
 router = APIRouter(prefix="/ads", tags=["ads"])
@@ -51,14 +52,36 @@ def public_slots(request: Request, db: Session = Depends(get_db)):
         .order_by(AdApplication.starts_at.asc())
         .all()
     )
-    seen: set[str] = set()
-    out: list[PublicAd] = []
-    for r in rows:  # one ad per slot
-        if r.slot_key in seen:
-            continue
-        seen.add(r.slot_key)
-        out.append(PublicAd(slot_key=r.slot_key, business_name=r.business_name, ad_text=r.ad_text, website=r.website))
-    return out
+    taken: dict[str, AdApplication] = {}
+    legacy: list[AdApplication] = []
+    for r in rows:  # one ad per slot, earliest start wins
+        if valid_slot_key(r.slot_key):
+            taken.setdefault(r.slot_key, r)
+        elif is_legacy_slot_key(r.slot_key):
+            legacy.append(r)
+    # Ads approved for the old explorer rails (none exist today) fill free login spots in order.
+    for key in SLOT_KEYS:
+        if key not in taken and legacy:
+            taken[key] = legacy.pop(0)
+    return [
+        PublicAd(slot_key=k, business_name=taken[k].business_name, ad_text=taken[k].ad_text, website=taken[k].website)
+        for k in SLOT_KEYS if k in taken
+    ]
+
+
+def _running_slots(db: Session, exclude_id: str, now: datetime) -> set[str]:
+    rows = (
+        db.query(AdApplication.slot_key)
+        .filter(
+            AdApplication.id != exclude_id,
+            AdApplication.status == "approved",
+            AdApplication.slot_key.isnot(None),
+            AdApplication.deleted_at.is_(None),
+            or_(AdApplication.ends_at.is_(None), AdApplication.ends_at > now),
+        )
+        .all()
+    )
+    return {r[0] for r in rows}
 
 
 @router.post("/applications", response_model=AdApplicationReceipt, status_code=status.HTTP_201_CREATED)
@@ -110,22 +133,22 @@ def admin_decide(app_id: str, body: AdDecision, db: Session = Depends(get_db), a
     if row is None or row.deleted_at is not None:
         raise HTTPException(status_code=404, detail="Application not found.")
     if body.status == "approved":
-        slot = body.slot_key or row.slot_key or row.requested_slot
-        if not slot or not valid_slot_key(slot):
-            raise HTTPException(status_code=422, detail="Choose a valid slot (L1-L10 or R1-R10) to approve.")
         now = _now()
-        clash = (
-            db.query(AdApplication)
-            .filter(
-                AdApplication.id != row.id,
-                AdApplication.status == "approved",
-                AdApplication.slot_key == slot,
-                AdApplication.deleted_at.is_(None),
-                or_(AdApplication.ends_at.is_(None), AdApplication.ends_at > now),
-            )
-            .first()
-        )
-        if clash is not None:
+        busy = _running_slots(db, row.id, now)
+        if body.slot_key and not valid_slot_key(body.slot_key):
+            raise HTTPException(status_code=422, detail="Choose a login spot: LG1, LG2, LG3 or LG4.")
+        slot = body.slot_key
+        if not slot:
+            # The advertiser's choice if it is a login spot and free, else the first free one.
+            for cand in (row.slot_key, row.requested_slot):
+                if valid_slot_key(cand) and cand not in busy:
+                    slot = cand
+                    break
+            else:
+                slot = next((k for k in SLOT_KEYS if k not in busy), None)
+            if slot is None:
+                raise HTTPException(status_code=409, detail="All four login spots have a running ad.")
+        if slot in busy:
             raise HTTPException(status_code=409, detail=f"Slot {slot} already has a running ad.")
         row.slot_key = slot
         row.starts_at = now

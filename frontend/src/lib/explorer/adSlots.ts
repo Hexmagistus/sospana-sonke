@@ -1,19 +1,33 @@
-/** Advertiser spots on the explorer pages: slot keys, form rules, the honest note.
+/** Advertiser spots (on the login page only): slot keys, form rules, the honest note.
 Pure functions, so the minimum-amount rule is tested without a browser. The server
 enforces the same rules (backend/app/schemas/ad.py); this only gives quick feedback. */
 
-export const SLOTS_PER_SIDE = 10;
+/** The only four spots. Two sit each side of the sign-in form on wide screens and
+stack under the form on phones and tablets. Keys fit the backend's varchar(4). */
+export const LOGIN_SLOT_KEYS = ["LG1", "LG2", "LG3", "LG4"] as const;
+export type LoginSlotKey = (typeof LOGIN_SLOT_KEYS)[number];
+export const SLOT_COUNT = LOGIN_SLOT_KEYS.length;
+export const SLOT_LABELS: Record<LoginSlotKey, string> = {
+  LG1: "Spot 1: left of the form, top (first under the form on phones)",
+  LG2: "Spot 2: left of the form, bottom",
+  LG3: "Spot 3: right of the form, top",
+  LG4: "Spot 4: right of the form, bottom",
+};
 export const MIN_USD_PER_DAY = 1;
 export const MAX_USD_PER_DAY = 10000;
 export const MAX_DAYS = 365;
 export const AD_TEXT_MAX = 120;
 
-export type Side = "L" | "R";
+export type Side = "left" | "right";
 export type PublicAd = { slot_key: string; business_name: string; ad_text: string; website: string };
 
-/** "L1".."L10" for the left column, "R1".."R10" for the right. */
-export function slotKeys(side: Side): string[] {
-  return Array.from({ length: SLOTS_PER_SIDE }, (_, i) => `${side}${i + 1}`);
+/** Spots for one side of the form: LG1-LG2 on the left, LG3-LG4 on the right. */
+export function slotKeys(side: Side): LoginSlotKey[] {
+  return side === "left" ? ["LG1", "LG2"] : ["LG3", "LG4"];
+}
+
+export function isLoginSlotKey(k: string | null | undefined): k is LoginSlotKey {
+  return (LOGIN_SLOT_KEYS as readonly string[]).includes(k ?? "");
 }
 
 export const MIN_NOTE =

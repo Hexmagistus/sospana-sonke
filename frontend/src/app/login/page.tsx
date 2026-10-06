@@ -8,6 +8,10 @@ import { useAuth } from "@/lib/auth";
 import { Card, Field, Input, Button, Alert } from "@/components/ui";
 import { CircuitOverlay, GlowFrame, LogoGlow } from "@/components/HighTech";
 import { CircuitMascot, GreetingLine, LitCircuits, friendlyAuthError, successPause } from "@/components/AuthDelight";
+import { api } from "@/lib/api";
+import { LoginAdRail } from "@/lib/explorer/AdSlot";
+import { AdApplyDialog } from "@/lib/explorer/AdApplyDialog";
+import type { PublicAd } from "@/lib/explorer/adSlots";
 
 const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
 
@@ -59,6 +63,14 @@ export default function LoginPage() {
   const [authing, setAuthing] = useState(false);
   const [passwordFocused, setPasswordFocused] = useState(false);
   const [celebrate, setCelebrate] = useState(false);
+  // The four advertiser spots: approved ads only (none are seeded); empty spots invite advertisers.
+  const [ads, setAds] = useState<PublicAd[]>([]);
+  const [applyFor, setApplyFor] = useState<string | null | undefined>(undefined);
+  useEffect(() => {
+    let cancelled = false;
+    api.get<PublicAd[]>("/ads/slots").then((r) => { if (!cancelled) setAds(r); }).catch(() => { /* empty spots still show */ });
+    return () => { cancelled = true; };
+  }, []);
 
   // Load Google Identity Services and render the "Sign in with Google" button,
   // only when a client ID is configured (otherwise the feature stays hidden).
@@ -132,7 +144,9 @@ export default function LoginPage() {
       />
       <div className="auth-stage-scrim absolute inset-0" />
       <div className="pointer-events-none absolute inset-0 bg-noise opacity-20 mix-blend-overlay" />
-      <div className="relative mx-auto max-w-md">
+      {/* Form column in the middle; on xl two ad spots sit each side of it, below xl they follow the form. */}
+      <div className="relative mx-auto grid max-w-md gap-6 xl:max-w-none xl:grid-cols-[minmax(0,15rem)_minmax(0,28rem)_minmax(0,15rem)] xl:justify-center xl:gap-10">
+      <div className="min-w-0 xl:col-start-2 xl:row-start-1">
       {authing && <AuthLoader />}
       <CircuitOverlay className="-z-10 opacity-40" opacity={0.12} stroke="#0b2447" dotColor="#f5b301" />
       <p className="mb-3 text-center text-xs font-semibold uppercase tracking-[0.18em] text-ss-primary">Born in SADC, built for the world</p>
@@ -222,6 +236,10 @@ export default function LoginPage() {
         </Card>
       </GlowFrame>
       </div>
+      <LoginAdRail side="left" ads={ads} onApply={setApplyFor} className="xl:col-start-1 xl:row-start-1 xl:self-center" />
+      <LoginAdRail side="right" ads={ads} onApply={setApplyFor} className="xl:col-start-3 xl:row-start-1 xl:self-center" />
+      </div>
+      {applyFor !== undefined && <AdApplyDialog slotKey={applyFor} onClose={() => setApplyFor(undefined)} />}
     </div>
   );
 }
