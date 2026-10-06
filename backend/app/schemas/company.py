@@ -40,6 +40,9 @@ class CompanyResponse(BaseModel):
     # True only when a favicon URL is already stored. The directory uses this
     # so a card does not call GET /companies/{id}/icon just to learn there is none.
     has_icon: bool = False
+    # Goes in the icon URL as ?v=. Changes when the stored icon is re-checked,
+    # so the icon response can be cached as immutable for a year.
+    icon_version: int | None = None
 
 
 class CompanyImportResult(BaseModel):

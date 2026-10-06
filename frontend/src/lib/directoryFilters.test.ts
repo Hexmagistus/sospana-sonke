@@ -125,3 +125,4 @@ describe("category chip counts follow the selected country", () => {
 import "./entryFlow.test.js";
 import "./entryPagesContrast.test.js";
 import "./ThemeToggleButton.test.js";
+import "./companyIcon.test.js";

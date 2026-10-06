@@ -8,6 +8,7 @@ from datetime import datetime, timezone
 
 from sqlalchemy.orm import Session
 
+from app.core.memory import trim_heap
 from app.models.notification import JobRun
 from app.scheduler.registry import JOBS
 
@@ -50,4 +51,7 @@ def run_job(db: Session, name: str) -> JobRun:
     run.finished_at = datetime.now(timezone.utc)
     db.commit()
     db.refresh(run)
+    # Jobs run inside the web process (cron hits /cron/run/{name}) and parse a
+    # lot of HTML. Give the freed heap back to the OS so RSS doesn't ratchet up.
+    trim_heap()
     return run

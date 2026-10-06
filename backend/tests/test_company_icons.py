@@ -174,7 +174,8 @@ def test_route_serves_stored_bytes_with_long_cache(client, db):
     r = client.get(f"/api/v1/companies/{cid}/icon", follow_redirects=False)
     assert r.status_code == 200 and r.content == PNG
     assert r.headers["content-type"] == "image/png"
-    assert r.headers["cache-control"] == "public, max-age=604800"
+    assert r.headers["cache-control"] == "public, max-age=604800, stale-while-revalidate=86400"
+    assert r.headers["etag"].startswith('"')
     assert r.headers["x-content-type-options"] == "nosniff"
 
 

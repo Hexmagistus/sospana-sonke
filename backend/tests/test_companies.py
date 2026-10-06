@@ -97,6 +97,10 @@ def test_icon_miss_is_a_cacheable_204_and_never_fetches(client, db_engine, monke
     db = sessionmaker(bind=db_engine)()
     db.get(Company, company_id).favicon_url = "https://careers.goldfields.com/logo.png"
     db.commit()
+    # Icons are served from an in-process index; the icon job invalidates it
+    # after storing. A raw DB edit like this one has to do the same.
+    from app.services.icon_cache import invalidate_icons
+    invalidate_icons()
     r = client.get(f"/api/v1/companies/{company_id}/icon", follow_redirects=False)
     assert r.status_code == 302
     assert r.headers["location"] == "https://careers.goldfields.com/logo.png"

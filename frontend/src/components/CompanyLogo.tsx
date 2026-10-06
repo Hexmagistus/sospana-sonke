@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { API_BASE } from "@/lib/api";
+import { companyIconSrc } from "@/lib/companyIcon";
 import { DATA_SAVER_EVENT, isDataSaver } from "@/lib/dataSaver";
 import { monogramColours, monogramInitials } from "@/lib/monogram";
 
@@ -55,6 +56,7 @@ export function CompanyLogo({
   logoUrl,
   id,
   hasIcon = false,
+  iconVersion,
 }: {
   name: string;
   website?: string | null;
@@ -70,6 +72,9 @@ export function CompanyLogo({
   // every employer and the misses came back as uncached 404s.
   id?: string | null;
   hasIcon?: boolean;
+  // From the API (icon_version). Sent as ?v= so the icon URL changes when the
+  // icon does, which lets the API mark the response immutable for a year.
+  iconVersion?: number | null;
 }) {
   // Order: a manually-verified logo first, then the icon OUR API stores for this
   // company (fetched once, server-side, from the company's own site), then the
@@ -78,9 +83,10 @@ export function CompanyLogo({
   const sources = useMemo(() => {
     const chain: string[] = [];
     if (logoUrl) chain.push(logoUrl);
-    if (id && hasIcon) chain.push(`${API_BASE}/companies/${id}/icon`);
+    const stored = companyIconSrc(API_BASE, id, hasIcon, iconVersion);
+    if (stored) chain.push(stored);
     return chain;
-  }, [logoUrl, id, hasIcon]);
+  }, [logoUrl, id, hasIcon, iconVersion]);
 
   const [idx, setIdx] = useState(0);
   const [saver, setSaver] = useState(false);
@@ -114,6 +120,12 @@ export function CompanyLogo({
     <img
       src={sources[idx]}
       alt={`${name} logo`}
+      // Only cards scrolled into (or near) view request their icon, so a long
+      // directory page no longer fires 100+ icon requests at once.
+      loading="lazy"
+      decoding="async"
+      width={44}
+      height={44}
       onError={() => setIdx((i) => i + 1)}
       className="h-11 w-11 shrink-0 rounded-xl bg-ss-surface object-contain p-1 shadow-sm ring-1 ring-gray-100"
     />

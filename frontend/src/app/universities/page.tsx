@@ -273,6 +273,7 @@ function UniversitiesDirectoryInner() {
                     <CompanyLogo
                       id={c.id}
                       hasIcon={!!c.has_icon}
+                      iconVersion={c.icon_version}
                       name={c.company_name}
                       website={c.official_website}
                       careersUrl={c.careers_url}

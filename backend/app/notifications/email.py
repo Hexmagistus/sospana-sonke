@@ -47,11 +47,16 @@ class EmailProvider(ABC):
 
 class ConsoleEmailProvider(EmailProvider):
     name = "console"
-    #: In-memory outbox, useful for local inspection and tests.
+    #: In-memory outbox, useful for local inspection and tests. Capped: it is
+    #: class-level, so on a long-running console-mode server it would otherwise
+    #: keep every email body ever "sent" for the life of the process.
     outbox: list[dict] = []
+    OUTBOX_MAX = 200
 
     def send(self, to: str, subject: str, body: str) -> bool:
         self.outbox.append({"to": to, "subject": subject, "body": body})
+        if len(self.outbox) > self.OUTBOX_MAX:
+            del self.outbox[:-self.OUTBOX_MAX]
         print(f"[email:console] to={to} subject={subject!r}")
         return True
 

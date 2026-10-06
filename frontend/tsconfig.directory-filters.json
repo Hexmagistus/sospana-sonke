@@ -41,6 +41,8 @@
     "src/lib/themeBootstrap.ts",
     "src/lib/entryPagesContrast.test.ts",
     "src/lib/ThemeToggleButton.tsx",
-    "src/lib/ThemeToggleButton.test.tsx"
+    "src/lib/ThemeToggleButton.test.tsx",
+    "src/lib/companyIcon.ts",
+    "src/lib/companyIcon.test.ts"
   ]
 }

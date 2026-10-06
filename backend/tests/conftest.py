@@ -29,6 +29,15 @@ def _isolated_storage(tmp_path):
     yield
 
 
+@pytest.fixture(autouse=True)
+def _fresh_icon_cache():
+    """The icon index/bytes caches are process-wide; each test gets its own DB."""
+    from app.services.icon_cache import invalidate_icons
+    invalidate_icons()
+    yield
+    invalidate_icons()
+
+
 @pytest.fixture()
 def db_engine():
     engine = create_engine(settings.DATABASE_URL, connect_args={"check_same_thread": False})
