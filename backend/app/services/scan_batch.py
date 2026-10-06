@@ -18,9 +18,18 @@ external cron with a 30 second request timeout).
   host is in flight, and a request for another source on a host that was
   just used waits HOST_MIN_INTERVAL_SECONDS (see HostGate). One attempt per request (no retry loop).
 * Fail fast: 4 s connect / 6 s read (10 s read for a source that was slow
-  or timed out last time, started only while 16 s remain). No fetch starts with less than
-  SUBMIT_RESERVE_SECONDS left; the call returns at ``max_seconds`` and abandons
-  (and un-claims) whatever is still in flight.
+  or timed out last time, started only while SLOW_SUBMIT_RESERVE_SECONDS
+  remain before the fetch deadline).
+* Bounded time, wrap-up included: ``max_seconds`` is the whole call, from
+  choosing the batch to the last commit. Every HTTP request of every fetch is
+  cut off at the fetch deadline (``max_seconds - WRAPUP_RESERVE_SECONDS``):
+  its connect/read/write timeouts are shortened to the time left (see
+  FetchBudget), so in-flight fetches end by then whatever their own
+  timeouts. New fetches start only while SUBMIT_RESERVE_SECONDS remain. A
+  result is written only if its estimated write time (ApplyClock, which
+  learns from the run's own writes) still fits; anything cut
+  short or left over is un-claimed in one commit and keeps its place at the
+  front of the queue (it is not counted as a failure).
 * Certificates: a missing intermediate is fetched once via AIA
   (``scraper.aia``) with verification left fully on; otherwise the failure is
   recorded as SSL_INCOMPLETE_CHAIN / SSL_EXPIRED / SSL_INVALID.
@@ -45,7 +54,7 @@ from app.models.vacancy import VacancySource
 from app.scraper import aia
 from app.scraper.politeness import backoff_retry_cap
 from app.services.scan_runner import (
-    DueItem, _stamp_failure, claim_source, release_claim, select_due,
+    DueItem, _stamp_failure, claim_source, release_claims, select_due,
 )
 from app.services.scan_service import (
     FetchOutcome, SourceSnapshot, apply_fetch, ensure_source, fetch_source, snapshot_of,
@@ -61,9 +70,18 @@ READ_TIMEOUT_SECONDS = 6.0
 # timeout, so a site that needs 6-10 s to answer is still read. It is only
 # started while SLOW_SUBMIT_RESERVE_SECONDS remain.
 SLOW_READ_TIMEOUT_SECONDS = 10.0
-SLOW_SUBMIT_RESERVE_SECONDS = 16.0
-SUBMIT_RESERVE_SECONDS = 9.0     # a fetch is robots.txt + one page; leave room for both
-APPLY_GRACE_SECONDS = 2.0        # finish writing results that are already in
+# Time budget, measured back from the end of the call (max_seconds):
+WRAPUP_RESERVE_SECONDS = 1.5     # fetch deadline: every request is cut off this long before the end
+FETCH_GRACE_SECONDS = 0.5        # wait this long past the fetch deadline for cut-off fetches to return
+RELEASE_RESERVE_SECONDS = 0.5    # the last writes (un-claiming leftovers) must start by then
+SUBMIT_RESERVE_SECONDS = 5.0     # start a fetch only with this long left before the fetch deadline
+SLOW_SUBMIT_RESERVE_SECONDS = 11.0
+# Estimated time to write one result (apply_fetch + commit) on the remote
+# database; a result whose estimate does not fit before the release reserve
+# is un-claimed instead of half-written past the budget.
+APPLY_BASE_SECONDS = 0.4
+APPLY_PER_VACANCY_SECONDS = 0.07
+AIA_MIN_SECONDS = 3.0            # only try AIA chain completion with this long left
 HOST_MIN_INTERVAL_SECONDS = 1.0
 
 _FETCH_SLOTS = threading.BoundedSemaphore(MAX_CONCURRENT_FETCHES)
@@ -87,9 +105,11 @@ class HostGate:
         self._sleep = sleep
         self._local = threading.local()
 
-    def set_owner(self, owner: object) -> None:
-        """Mark the requests that follow on this thread as one source's."""
+    def set_owner(self, owner: object, budget: "FetchBudget | None" = None) -> None:
+        """Mark the requests that follow on this thread as one source's
+        (and, with ``budget``, never wait past its deadline)."""
         self._local.owner = owner
+        self._local.budget = budget
 
     def reserve(self, host: str, owner: object = None) -> float:
         """Book the next request to host; return how long to wait for it."""
@@ -107,6 +127,10 @@ class HostGate:
 
     def before_request(self, request: httpx.Request) -> None:
         delay = self.reserve(request.url.host or "", getattr(self._local, "owner", None))
+        budget = getattr(self._local, "budget", None)
+        if budget is not None and budget.left() - delay <= 0.05:
+            budget.capped = True
+            raise httpx.ConnectTimeout("scan time budget used up", request=request)
         if delay > 0:
             self._sleep(delay)
 
@@ -125,42 +149,149 @@ def _default_verify():
         return _ssl_ctx
 
 
-def make_scan_client(verify=None, read_timeout: float | None = None) -> httpx.Client:
+class FetchBudget:
+    """A deadline shared by every request one fetch makes.
+
+    Each request's connect/read/write/pool timeouts are shortened to the time
+    left before ``deadline``, and no request starts after it, so a fetch
+    cannot run past the deadline because of robots.txt (5 s), a 10 s slow-lane
+    read or a redirect chain. ``capped`` records that the budget, not the
+    site, set a timeout: a fetch cut short that way is retried next run
+    instead of being recorded as a TIMEOUT failure.
+    """
+
+    def __init__(self, deadline: float, clock=time.monotonic) -> None:
+        self.deadline = deadline
+        self.capped = False
+        self._clock = clock
+
+    def left(self) -> float:
+        return self.deadline - self._clock()
+
+    def cap(self, request: httpx.Request) -> None:
+        left = self.left()
+        if left <= 0.05:
+            self.capped = True
+            raise httpx.ConnectTimeout("scan time budget used up", request=request)
+        timeout = dict(request.extensions.get("timeout") or {})
+        for key in ("connect", "read", "write", "pool"):
+            value = timeout.get(key)
+            if value is None or value > left:
+                timeout[key] = left
+                self.capped = True
+        request.extensions["timeout"] = timeout
+
+    def cut_short(self, outcome) -> bool:
+        """Did the budget (not the site) end this fetch?"""
+        if not self.capped:
+            return False
+        exc = getattr(outcome, "exc", None)
+        return isinstance(exc, httpx.TimeoutException) or self.left() <= 0.25
+
+
+class _BudgetTransport(httpx.BaseTransport):
+    def __init__(self, inner: httpx.BaseTransport, budget: FetchBudget) -> None:
+        self._inner = inner
+        self._budget = budget
+
+    def handle_request(self, request: httpx.Request) -> httpx.Response:
+        self._budget.cap(request)
+        return self._inner.handle_request(request)
+
+    def close(self) -> None:
+        self._inner.close()
+
+
+def make_scan_client(verify=None, read_timeout: float | None = None,
+                     budget: FetchBudget | None = None) -> httpx.Client:
+    transport: httpx.BaseTransport = httpx.HTTPTransport(
+        verify=verify if verify is not None else _default_verify())
+    if budget is not None:
+        transport = _BudgetTransport(transport, budget)
     return httpx.Client(
         timeout=httpx.Timeout(read_timeout or READ_TIMEOUT_SECONDS,
                               connect=CONNECT_TIMEOUT_SECONDS),
         follow_redirects=True,
         headers={"User-Agent": settings.URL_TEST_USER_AGENT},
-        verify=verify if verify is not None else _default_verify(),
+        transport=transport,
         event_hooks={"request": [HOST_GATE.before_request]},
     )
+
+
+def _rows(payload) -> int:
+    return len(getattr(payload, "raw_list", None) or [])
+
+
+class ApplyClock:
+    """Estimates how long writing one result takes, learning from this run.
+
+    Until the run has written something it assumes APPLY_BASE_SECONDS plus
+    APPLY_PER_VACANCY_SECONDS per vacancy (conservative: about 10 ms per
+    statement). After that it uses the slowest write seen in this run, so
+    the estimate follows the real database and CPU speed.
+    """
+
+    def __init__(self) -> None:
+        self._base: float | None = None
+        self._per_row: float | None = None
+
+    @property
+    def base(self) -> float:
+        return APPLY_BASE_SECONDS if self._base is None else self._base
+
+    @property
+    def per_row(self) -> float:
+        return APPLY_PER_VACANCY_SECONDS if self._per_row is None else self._per_row
+
+    def estimate(self, payload) -> float:
+        return self.base + self.per_row * _rows(payload)
+
+    def observe(self, payload, seconds: float) -> None:
+        rows = _rows(payload)
+        if rows:
+            self._per_row = max(self._per_row or 0.0, seconds / rows)
+        else:
+            self._base = max(self._base or 0.0, seconds)
 
 
 def host_of(url: str | None) -> str:
     return (urlparse(url or "").hostname or "").lower()
 
 
-def _fetch_task(snapshot: SourceSnapshot, deadline: float, fetch_fn, client_factory,
+def _fetch_task(snapshot: SourceSnapshot, fetch_deadline: float, fetch_fn, client_factory,
                 now: datetime, aia_fn, slow: bool = False) -> tuple[str, object]:
-    """Runs on a worker thread. No database access here."""
+    """Runs on a worker thread. No database access here.
+
+    Returns ("ok", outcome), ("crash", exc), ("no_slot", None) or
+    ("no_time", None) when the time budget, not the site, ended the fetch.
+    """
     extra = {"read_timeout": SLOW_READ_TIMEOUT_SECONDS} if slow else {}
-    if not _FETCH_SLOTS.acquire(timeout=max(0.0, deadline - SUBMIT_RESERVE_SECONDS - time.monotonic())):
+    wait_for_slot = fetch_deadline - SUBMIT_RESERVE_SECONDS - time.monotonic()
+    if not _FETCH_SLOTS.acquire(timeout=max(0.0, wait_for_slot)):
         return "no_slot", None
-    HOST_GATE.set_owner(snapshot.id)
+    budget = FetchBudget(fetch_deadline)
+    HOST_GATE.set_owner(snapshot.id, budget)
     try:
         with backoff_retry_cap(1):
-            with client_factory(**extra) as client:
+            with client_factory(budget=budget, **extra) as client:
                 outcome = fetch_fn(snapshot, client, now=now)
+            if budget.cut_short(outcome):
+                return "no_time", None
             target = aia.incomplete_chain_target(outcome.exc) if outcome.kind == "error" else None
-            if target is not None and time.monotonic() < deadline - SUBMIT_RESERVE_SECONDS / 2:
-                ctx = aia_fn(*target)
-                if ctx is not None:
-                    with client_factory(verify=ctx, **extra) as client:
+            if target is not None and budget.left() >= AIA_MIN_SECONDS:
+                # Each AIA step (leaf, up to three intermediates) gets a fifth of what is left.
+                ctx = aia_fn(*target, timeout=min(4.0, budget.left() / 5))
+                if ctx is not None and budget.left() > 1.0:
+                    with client_factory(verify=ctx, budget=budget, **extra) as client:
                         retry = fetch_fn(snapshot, client, now=now)
+                    if budget.cut_short(retry):
+                        return "no_time", None
                     retry.started = outcome.started
                     outcome = retry
         return "ok", outcome
     except Exception as exc:  # an adapter bug: the main thread stamps a failure
+        if budget.capped and budget.left() <= 0.25:
+            return "no_time", None
         return "crash", exc
     finally:
         HOST_GATE.set_owner(None)
@@ -171,12 +302,20 @@ def _default_fetch(snapshot, client, now=None) -> FetchOutcome:
     return fetch_source(snapshot, client, check_robots=True, now=now)
 
 
-def run_scan_batch(db: Session, limit: int = 60, max_seconds: float = 22.0,
+def run_scan_batch(db: Session, limit: int = 60, max_seconds: float = 18.0,
                    workers: int = DEFAULT_WORKERS, now: datetime | None = None,
                    fetch_fn: Callable | None = None,
                    client_factory: Callable | None = None,
                    aia_fn: Callable | None = None) -> dict:
-    """Scan due sources until ``max_seconds``; return the JobRun summary.
+    """Scan due sources; return the JobRun summary within ``max_seconds``.
+
+    ``max_seconds`` covers the whole call: choosing the batch, fetching,
+    writing results and un-claiming leftovers. Timeline, counted back from
+    the end: requests are cut off WRAPUP_RESERVE_SECONDS before it (the fetch
+    deadline); new fetches start only while SUBMIT_RESERVE_SECONDS remain
+    before the fetch deadline; results are written only while their estimated
+    write time fits before RELEASE_RESERVE_SECONDS; then one commit un-claims
+    whatever was not written.
 
     ``fetch_fn(snapshot, client, now=...)`` runs on worker threads and must
     not touch the database; it defaults to fetch_source with robots.txt on.
@@ -185,19 +324,22 @@ def run_scan_batch(db: Session, limit: int = 60, max_seconds: float = 22.0,
     client_factory = client_factory or make_scan_client
     aia_fn = aia_fn or aia.context_for
     started = time.monotonic()
-    deadline = started + max_seconds
-    submit_until = deadline - SUBMIT_RESERVE_SECONDS
+    end = started + max_seconds
+    fetch_deadline = end - WRAPUP_RESERVE_SECONDS
+    submit_until = fetch_deadline - SUBMIT_RESERVE_SECONDS
+    write_until = end - RELEASE_RESERVE_SECONDS
     now = now or datetime.now(timezone.utc)
     queue: deque[DueItem] = deque(select_due(db, limit, now))
     selected = len(queue)
     inflight: dict = {}             # future -> (item, source_id, previous)
     inflight_hosts: set[str] = set()
+    to_release: list[tuple[str, datetime | None]] = []
     scanned = created = failed = skipped_claimed = 0
     stopped_early = False
     executor = ThreadPoolExecutor(max_workers=max(1, workers), thread_name_prefix="scan")
 
     def next_item() -> DueItem | None:
-        left = deadline - time.monotonic()
+        left = fetch_deadline - time.monotonic()
         for i, item in enumerate(queue):
             if item.slow and left < SLOW_SUBMIT_RESERVE_SECONDS:
                 continue
@@ -255,6 +397,8 @@ def run_scan_batch(db: Session, limit: int = 60, max_seconds: float = 22.0,
                                item.company_id, exc_info=True)
                 db.rollback()
 
+    cut_short = 0
+    apply_clock = ApplyClock()
     try:
         while True:
             while queue and len(inflight) < workers and time.monotonic() < submit_until:
@@ -265,7 +409,7 @@ def run_scan_batch(db: Session, limit: int = 60, max_seconds: float = 22.0,
                 if source is None:
                     skipped_claimed += 1
                     continue
-                fut = executor.submit(_fetch_task, snapshot_of(source), deadline, fetch_fn,
+                fut = executor.submit(_fetch_task, snapshot_of(source), fetch_deadline, fetch_fn,
                                       client_factory, now, aia_fn, item.slow)
                 inflight[fut] = (item, source.id, item.claim_token)
                 inflight_hosts.add(host_of(item.url))
@@ -275,7 +419,7 @@ def run_scan_batch(db: Session, limit: int = 60, max_seconds: float = 22.0,
                 if queue:
                     stopped_early = True   # only slow sources left, too late to start them
                 break
-            remaining = deadline - time.monotonic()
+            remaining = min(fetch_deadline + FETCH_GRACE_SECONDS, write_until) - time.monotonic()
             if remaining <= 0:
                 stopped_early = True
                 break
@@ -284,30 +428,39 @@ def run_scan_batch(db: Session, limit: int = 60, max_seconds: float = 22.0,
                 item, source_id, previous = inflight.pop(fut)
                 inflight_hosts.discard(host_of(item.url))
                 status, payload = fut.result()
-                if status == "no_slot":
-                    release_claim(db, source_id, now, previous)
-                    queue.appendleft(item)
-                    continue
-                if time.monotonic() > deadline + APPLY_GRACE_SECONDS:
-                    release_claim(db, source_id, now, previous)
+                if status in ("no_slot", "no_time"):
+                    cut_short += status == "no_time"
+                    to_release.append((source_id, previous))
                     stopped_early = True
                     continue
+                if time.monotonic() + apply_clock.estimate(payload) > write_until:
+                    to_release.append((source_id, previous))
+                    stopped_early = True
+                    continue
+                t_apply = time.monotonic()
                 apply(item, source_id, status, payload)
+                apply_clock.observe(payload, time.monotonic() - t_apply)
     finally:
         abandoned = len(inflight)
-        for fut, (item, source_id, previous) in list(inflight.items()):
-            try:
-                release_claim(db, source_id, now, previous)
-            except Exception:
-                logger.warning("scan_due_companies: could not release %s", source_id, exc_info=True)
-                db.rollback()
+        to_release.extend((source_id, previous) for item, source_id, previous in inflight.values())
         if abandoned:
             stopped_early = True
         executor.shutdown(wait=False, cancel_futures=True)
+        if to_release:
+            try:
+                release_claims(db, to_release, now)
+            except Exception:
+                logger.warning("scan_due_companies: could not release %d claims", len(to_release),
+                               exc_info=True)
+                db.rollback()
     return {
         "batch_limit": limit, "due_selected": selected, "companies_scanned": scanned,
         "vacancies_created": created, "sources_failed": failed,
         "skipped_already_claimed": skipped_claimed, "abandoned_in_flight": abandoned,
+        "released_unfinished": len(to_release), "cut_short_by_budget": cut_short,
         "candidates_alerted": 0, "stopped_early_on_time_budget": stopped_early,
-        "elapsed_seconds": round(time.monotonic() - started, 1), "workers": workers,
+        "elapsed_seconds": round(time.monotonic() - started, 1), "budget_seconds": max_seconds,
+        "write_seconds_base": round(apply_clock.base, 3),
+        "write_seconds_per_vacancy": round(apply_clock.per_row, 4),
+        "workers": workers,
     }
