@@ -12,7 +12,8 @@ from slowapi.middleware import SlowAPIMiddleware
 from starlette.middleware.gzip import GZipMiddleware
 
 from app.core.config import settings
-from app.core.logging import configure_logging
+from app.core.logging import configure_logging, install_uvicorn_scrubbers
+from app.core.memory import limit_malloc_arenas
 from app.core.origins import VERCEL_ORIGIN_REGEX
 from app.core.rate_limit import limiter
 from app.db.session import describe_database, init_db
@@ -26,10 +27,15 @@ from app.api import (
 # runs, so startup itself — and every request/job after it — is observable.
 configure_logging()
 logger = logging.getLogger(__name__)
+# Before uvicorn starts any threadpool thread: cap glibc malloc arenas so
+# memory freed after a burst is reused instead of parked per thread.
+limit_malloc_arenas()
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # Again here, in case the server configured its loggers after import.
+    install_uvicorn_scrubbers()
     init_db()
     # First-boot bootstrap (seed companies + create admin) when configured.
     try:
@@ -146,9 +152,11 @@ def create_app() -> FastAPI:
                       "storage was made permanent. Please re-upload your CV or generate the document again."})
 
     @app.get("/health", tags=["system"])
-    def health(response: Response) -> dict:
+    async def health(response: Response) -> dict:
         # no-store: a redeploy must show the new RENDER_GIT_COMMIT immediately.
         # db_pooled / db_region come from the hostname only (no credentials).
+        # async + no I/O: answered on the event loop, so it never waits for a
+        # threadpool thread or a DB connection while other routes are busy.
         response.headers["Cache-Control"] = "no-store"
         db = describe_database()
         return {

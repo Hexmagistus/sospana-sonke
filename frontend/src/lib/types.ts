@@ -178,6 +178,8 @@ export interface Company {
   open_vacancies_known?: boolean;
   // True when the API already has a favicon. Absent or false: do not call /icon.
   has_icon?: boolean;
+  // Cache-buster for the icon URL (?v=). Changes when the stored icon does.
+  icon_version?: number | null;
 }
 
 // One row of the "popular this week" ranking (GET /companies/trending).

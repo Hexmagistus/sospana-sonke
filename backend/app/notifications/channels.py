@@ -16,11 +16,23 @@ class SMSProvider(ABC):
     def send(self, to: str, body: str) -> bool: ...
 
 
+# Console providers are the production default when no SMS/push service is
+# configured, and their outbox is class-level, so it lives as long as the
+# process. Keep only the most recent entries.
+OUTBOX_MAX = 200
+
+
+def _append_capped(outbox: list[dict], item: dict) -> None:
+    outbox.append(item)
+    if len(outbox) > OUTBOX_MAX:
+        del outbox[:-OUTBOX_MAX]
+
+
 class ConsoleSMSProvider(SMSProvider):
     outbox: list[dict] = []
 
     def send(self, to: str, body: str) -> bool:
-        self.outbox.append({"to": to, "body": body})
+        _append_capped(self.outbox, {"to": to, "body": body})
         return True
 
 
@@ -46,7 +58,7 @@ class ConsolePushProvider(PushProvider):
     outbox: list[dict] = []
 
     def send(self, token: str, title: str, body: str) -> bool:
-        self.outbox.append({"token": token, "title": title, "body": body})
+        _append_capped(self.outbox, {"token": token, "title": title, "body": body})
         return True
 
 

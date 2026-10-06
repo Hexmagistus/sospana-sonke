@@ -7,7 +7,8 @@ import time
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, UploadFile, File, Query, status
-from fastapi.responses import RedirectResponse
+from fastapi.concurrency import run_in_threadpool
+from fastapi.responses import JSONResponse, RedirectResponse
 from sqlalchemy import and_, case, func, or_
 from sqlalchemy.orm import Session, defer
 
@@ -25,6 +26,7 @@ from app.schemas.company import (
 )
 from app.schemas.link_report import LinkReportCreateRequest, LinkReportResponse
 from app.services.country_names import canonical_country, is_country, spellings_for
+from app.services import icon_cache
 from app.services.csv_import import import_companies_from_csv
 from app.services.link_report_service import create_link_report
 from app.services.url_tester import test_url, status_from_result
@@ -56,10 +58,11 @@ def _with_open_counts(db: Session, companies: list[Company]) -> list[CompanyResp
     ids = [c.id for c in companies]
     counts = open_vacancy_counts(db, ids)
     known = companies_with_known_vacancy_count(db, ids)
-    have_icons: set[str] = set()
+    have_icons: dict[str, int] = {}
     if ids:
         have_icons = {
-            cid for (cid,) in db.query(Company.id).filter(
+            cid: icon_cache.icon_version(checked)
+            for cid, checked in db.query(Company.id, Company.favicon_checked_at).filter(
                 Company.id.in_(ids),
                 or_(
                     and_(Company.favicon_url.isnot(None), Company.favicon_url != ""),
@@ -74,6 +77,7 @@ def _with_open_counts(db: Session, companies: list[Company]) -> list[CompanyResp
         row.open_vacancies = n
         row.open_vacancies_known = n > 0 or company.id in known
         row.has_icon = company.id in have_icons
+        row.icon_version = have_icons.get(company.id)
         out.append(row)
     return out
 
@@ -361,44 +365,83 @@ def list_link_reports(db: Session = Depends(get_db),
     return [LinkReportResponse.model_validate(r) for r in q.all()]
 
 
-def _icon_missing() -> Response:
-    """A known company with no stored icon.
+_ICON_404_CACHE = "public, max-age=3600"
+_ICON_NONE_CACHE = "public, max-age=86400"
+_ICON_REDIRECT_CACHE = "public, max-age=86400"
+_ICON_REDIRECT_VERSIONED_CACHE = "public, max-age=604800"
+_ICON_BYTES_CACHE = "public, max-age=604800, stale-while-revalidate=86400"
+# Only when the URL carries the current ?v= (see CompanyResponse.icon_version):
+# a new icon gets a new URL, so this exact URL can never change.
+_ICON_BYTES_IMMUTABLE = "public, max-age=31536000, immutable"
 
-    204 is cacheable. A 404 is not, so a directory of cards refetched every
-    icon on each visit and filled uvicorn's concurrency limit.
-    """
+
+def _icon_response(request: Request, facts, icon, want: int | None) -> Response:
+    """Build the icon reply. Every outcome, including "not found", is cacheable,
+    so a browser or CDN asks again at most once per lifetime, not once per visit."""
+    if facts is None:
+        return JSONResponse({"detail": "Company not found."}, status_code=status.HTTP_404_NOT_FOUND,
+                            headers={"Cache-Control": _ICON_404_CACHE})
+    versioned = want is not None and want == facts.version
+    if icon is not None:
+        headers = {
+            "Cache-Control": _ICON_BYTES_IMMUTABLE if versioned else _ICON_BYTES_CACHE,
+            "ETag": icon.etag,
+            "X-Content-Type-Options": "nosniff",
+        }
+        inm = request.headers.get("if-none-match")
+        if inm and (inm.strip() == "*" or icon.etag in [p.strip().removeprefix("W/") for p in inm.split(",")]):
+            return Response(status_code=status.HTTP_304_NOT_MODIFIED, headers=headers)
+        return Response(content=icon.data, media_type=icon.mime, headers=headers)
+    if facts.url:
+        redirect = RedirectResponse(facts.url, status_code=status.HTTP_302_FOUND)
+        redirect.headers["Cache-Control"] = (_ICON_REDIRECT_VERSIONED_CACHE if versioned
+                                             else _ICON_REDIRECT_CACHE)
+        return redirect
+    # A known company with no icon. 204 (not 404) and cached for a day: a
+    # directory of cards used to refetch every miss on each visit.
     return Response(status_code=status.HTTP_204_NO_CONTENT,
-                    headers={"Cache-Control": "public, max-age=86400"})
+                    headers={"Cache-Control": _ICON_NONE_CACHE})
+
+
+def _resolve_icon(company_id: str, session_factory, want: int | None):
+    facts = icon_cache.facts_for(company_id, session_factory, want)
+    icon = None
+    if facts is not None and facts.has_data:
+        icon = icon_cache.bytes_for(company_id, facts, session_factory)
+    return facts, icon
 
 
 @router.get("/{company_id}/icon")
-def company_icon(company_id: str, db: Session = Depends(get_db)):
+async def company_icon(request: Request, company_id: str,
+                       v: str | None = Query(default=None, max_length=20)):
     """Serve the company's own icon from OUR storage.
 
     The icon is fetched once, politely, by the ``discover_company_icons`` job
     (robots.txt honoured, rate-limited, size-capped) and stored on the company
-    row. A page view therefore never makes a request to the company's website
-    or any third party: this only reads our database and is cacheable by the
-    browser for a week. Rows from before the job existed may still carry just
-    a URL; those redirect until the job has stored their bytes.
+    row. A page view never makes a request to the company's website or any
+    third party from here. Rows from before the job existed may still carry
+    just a URL; those redirect until the job has stored their bytes.
+
+    async on purpose: a cache hit (the normal case, see app/services/icon_cache.py)
+    is answered on the event loop with no threadpool thread and no DB
+    connection, so a page of 100+ cards finishes in milliseconds instead of
+    queueing behind the 5+2 DB pool and filling uvicorn's concurrency limit.
+    Only a miss goes to a thread, and at most 3 of those touch the DB at once.
 
     Intentionally unauthenticated: a plain <img src> can't send an Authorization
     header, and this only ever exposes a company's own already-public favicon.
     """
-    company = db.get(Company, company_id)
-    if company is None or company.deleted_at is not None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Company not found.")
-    if company.favicon_data:
-        return Response(
-            content=company.favicon_data,
-            media_type=company.favicon_mime or "image/png",
-            headers={"Cache-Control": "public, max-age=604800", "X-Content-Type-Options": "nosniff"},
-        )
-    if company.favicon_url:
-        redirect = RedirectResponse(company.favicon_url, status_code=status.HTTP_302_FOUND)
-        redirect.headers["Cache-Control"] = "public, max-age=86400"
-        return redirect
-    return _icon_missing()
+    want = icon_cache.parse_version(v)
+    if len(company_id) > 64:
+        return _icon_response(request, None, None, want)
+    hit = icon_cache.cached_without_db(company_id, want)
+    if hit is not None:
+        return _icon_response(request, hit[0], hit[1], want)
+    # Tests swap get_db for a per-test database; honour that here too.
+    dependency = request.app.dependency_overrides.get(get_db, get_db)
+    factory = lambda: icon_cache.session_from_dependency(dependency)  # noqa: E731
+    facts, icon = await run_in_threadpool(_resolve_icon, company_id, factory, want)
+    return _icon_response(request, facts, icon, want)
 
 
 _MAX_IMPORT_MB = 25  # admin-only, but still capped -- see app/api/routes_cv.py's
