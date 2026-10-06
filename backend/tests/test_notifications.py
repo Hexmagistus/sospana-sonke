@@ -188,12 +188,16 @@ def test_scan_due_companies_does_not_broadcast_to_candidates(client, db_engine, 
 
     from app.services import scan_service as scan_service_module
 
-    def _fake_scan_company(db, company, client=None, check_robots=True):
-        report = scan_service_module.ScanReport(source_id="fake-source", status="ok", created=1)
-        report.created_vacancy_ids = [vac_id]
-        return [report]
+    def _fake_fetch(snapshot, client, now=None):
+        return scan_service_module.FetchOutcome(kind="ok", started=0.0, now=now)
 
-    monkeypatch.setattr("app.scheduler.jobs.scan_company", _fake_scan_company)
+    def _fake_apply(db, source, outcome):
+        report = scan_service_module.ScanReport(source_id=source.id, status="ok", created=1)
+        report.created_vacancy_ids = [vac_id]
+        return report
+
+    monkeypatch.setattr("app.services.scan_batch._default_fetch", _fake_fetch)
+    monkeypatch.setattr("app.services.scan_batch.apply_fetch", _fake_apply)
 
     db = S()
     try:

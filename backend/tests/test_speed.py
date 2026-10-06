@@ -79,11 +79,11 @@ def test_scan_due_does_not_start_a_company_without_time(db, monkeypatch):
     db.commit()
     calls = []
 
-    def _fake(db, company, client=None, check_robots=True):
-        calls.append(company.id)
-        return []
+    def _fake(snapshot, client, now=None):
+        calls.append(snapshot.url)
+        raise AssertionError("no fetch should start without time")
 
-    monkeypatch.setattr("app.scheduler.jobs.scan_company", _fake)
+    monkeypatch.setattr("app.services.scan_batch._default_fetch", _fake)
     out = scan_due_companies(db, limit=5, max_seconds=0)
     assert calls == []
     assert out["companies_scanned"] == 0

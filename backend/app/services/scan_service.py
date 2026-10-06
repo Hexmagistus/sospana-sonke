@@ -25,7 +25,7 @@ from app.models.scan_log import ScanLog
 from app.models.vacancy import VacancySource, Vacancy, VacancyRequirement
 from app.scraper.adapter import adapter_for
 from app.scraper.base import detect_ats
-from app.scraper.errors import classify_fetch_error, http_status_of
+from app.scraper.errors import NEEDS_REVIEW_AFTER, classify_fetch_error, http_status_of, is_permanent
 from app.scraper.static_html import BotChallengeError
 from app.scraper.ssrf import SsrfBlocked, assert_safe_fetch_url
 from app.services.trust_service import scan_for_trust_flags
@@ -62,7 +62,8 @@ class ScanReport:
 
 def ensure_source(db: Session, company: Company) -> VacancySource | None:
     """Return the company's default vacancy source, creating one from its careers URL."""
-    source = db.query(VacancySource).filter(VacancySource.company_id == company.id).first()
+    source = (db.query(VacancySource).filter(VacancySource.company_id == company.id)
+              .order_by(VacancySource.created_at.asc(), VacancySource.id.asc()).first())
     if source is not None:
         return source
     if not company.careers_url:
@@ -103,6 +104,78 @@ def _write_log(db: Session, source: VacancySource, report: ScanReport, started: 
     ))
 
 
+@dataclass
+class FetchOutcome:
+    """What the network half of a scan found. Built without a DB session, so
+    the batch runner can fetch several sources on worker threads and write the
+    results on the request's own session afterwards."""
+    kind: str                      # ok | robots_disallowed | javascript_required | blocked | error
+    started: float
+    now: datetime
+    robots_allowed: bool | None = None
+    ats_type: str | None = None
+    config: dict | None = None
+    parser_used: str | None = None
+    raw_list: list = field(default_factory=list)
+    exc: BaseException | None = None
+
+
+@dataclass
+class SourceSnapshot:
+    """The fields an adapter reads (``url``, ``config``), copied off the ORM row
+    so a worker thread never touches the session."""
+    id: str
+    url: str
+    config: dict | None = None
+    ats_type: str | None = None
+
+
+def snapshot_of(source: VacancySource) -> SourceSnapshot:
+    return SourceSnapshot(id=source.id, url=source.url, config=dict(source.config or {}) or None,
+                          ats_type=source.ats_type)
+
+
+def fetch_source(source, client: httpx.Client, check_robots: bool = True,
+                 now: datetime | None = None, started: float | None = None) -> FetchOutcome:
+    """robots.txt, ATS detection and the page/API fetch. No database access.
+
+    ``source`` only needs ``url`` (and ``config``, which is recomputed here).
+    Expected fetch failures come back as ``kind="error"`` with the exception;
+    anything else propagates, as it did when this lived inside scan_source.
+    """
+    out = FetchOutcome(kind="ok", started=time.monotonic() if started is None else started,
+                       now=now or datetime.now(timezone.utc))
+    if check_robots:
+        allowed = RobotsChecker(client).is_allowed(source.url)
+        out.robots_allowed = allowed
+        if not allowed:
+            out.kind = "robots_disallowed"
+            out.parser_used = getattr(source, "ats_type", None)
+            return out
+
+    # Re-classify on every scan so a URL that moved onto a public JSON
+    # feed (Workday, Oracle, Breezy, …) is not stuck on an old "js" or
+    # "static" label from the day the source row was created.
+    ats_type, config = detect_ats(source.url)
+    out.ats_type, out.config, out.parser_used = ats_type, config, ats_type
+    if ats_type == "js" and not settings.JS_RENDER_ENABLED:
+        out.kind = "javascript_required"
+        return out
+    probe = SourceSnapshot(id=getattr(source, "id", ""), url=source.url, config=config,
+                           ats_type=ats_type)
+    try:
+        assert_safe_fetch_url(source.url)
+        adapter = adapter_for(ats_type)
+        out.parser_used = adapter.name
+        out.raw_list = adapter.discover(probe, client)
+    except BotChallengeError:
+        out.kind = "blocked"
+    except (httpx.HTTPStatusError, httpx.TransportError, ValueError, SsrfBlocked) as exc:
+        out.kind = "error"
+        out.exc = exc
+    return out
+
+
 def scan_source(db: Session, source: VacancySource, client: httpx.Client | None = None,
                 check_robots: bool = True) -> ScanReport:
     report = ScanReport(source_id=source.id, status="ok")
@@ -120,163 +193,162 @@ def scan_source(db: Session, source: VacancySource, client: httpx.Client | None 
             _write_log(db, source, report, started, error_category="DISABLED")
             db.commit()
             return report
-
-        if check_robots:
-            allowed = RobotsChecker(client).is_allowed(source.url)
-            source.robots_allowed = allowed
-            if not allowed:
-                source.last_status = "robots_disallowed"
-                source.scraper_status = "REQUIRES_REVIEW"
-                source.error_category = "ROBOTS_DISALLOWED"
-                source.last_checked = now
-                source.parser_used = source.ats_type
-                report.status = "robots_disallowed"
-                _write_log(db, source, report, started, error_category="ROBOTS_DISALLOWED")
-                db.commit()
-                return report
-
-        # Re-classify on every scan so a URL that moved onto a public JSON
-        # feed (Workday, Oracle, Breezy, …) is not stuck on an old "js" or
-        # "static" label from the day the source row was created.
-        ats_type, config = detect_ats(source.url)
-        source.ats_type = ats_type
-        source.config = config
-        source.parser_used = ats_type
-        if ats_type == "js" and not settings.JS_RENDER_ENABLED:
-            source.last_checked = now
-            source.last_status = "javascript_required"
-            source.scraper_status = "JAVASCRIPT_REQUIRED"
-            source.error_category = "JAVASCRIPT_REQUIRED"
-            source.last_error = "This board needs a browser. Rendering is off on the free host."
-            report.status = "javascript_required"
-            report.warnings.append(source.last_error)
-            _write_log(db, source, report, started, error_category="JAVASCRIPT_REQUIRED")
-            db.commit()
-            return report
-
-        try:
-            assert_safe_fetch_url(source.url)
-            adapter = adapter_for(source.ats_type)
-            source.parser_used = adapter.name
-            raw_list = adapter.discover(source, client)
-        except BotChallengeError:
-            # A WAF challenge is not an empty board and not a dead link.
-            # Leave the failure streak alone so the URL is not marked broken.
-            source.last_checked = now
-            source.last_status = "blocked"
-            source.scraper_status = "BLOCKED"
-            source.error_category = "BLOCKED"
-            source.last_error = None
-            report.status = "blocked"
-            report.warnings.append("Host returned a bot challenge; link left unchanged.")
-            _write_log(db, source, report, started, error_category="BLOCKED")
-            db.commit()
-            return report
-        except (httpx.HTTPStatusError, httpx.TransportError, ValueError, SsrfBlocked) as exc:
-            return _record_failure(db, source, report, now, exc, started)
-
-        company = db.get(Company, source.company_id)
-        company_name = company.company_name if company else None
-        company_country = company.country if company else None
-        seen_ids: set[str] = set()
-        for raw in raw_list:
-            raw = adapter.extract(raw)
-            if not raw.title:
-                continue
-            fields = adapter.normalize(
-                raw, company_id=source.company_id, company_name=company_name,
-                company_country=company_country, source_url=source.url,
-            )
-            if "title" in adapter.validate(fields):
-                continue
-            existing = _find_existing(db, source, fields)
-            if existing:
-                was_open = existing.is_open
-                _apply_fields(existing, fields, now)
-                _replace_requirements(db, existing, fields["requirement_rows"])
-                existing.last_seen_at = now
-                seen_ids.add(existing.id)
-                report.updated += 1
-                report.duplicates_prevented += 1
-                if fields["lifecycle_status"] == "CLOSED" and was_open:
-                    report.closed += 1
-            else:
-                trust_flags = scan_for_trust_flags(
-                    title=fields["title"], description=fields["description"],
-                    salary_min=fields["salary_min"], salary_max=fields["salary_max"],
-                    application_url=fields["application_url"], source_url=fields["source_url"],
-                )
-                vac = Vacancy(
-                    company_id=source.company_id, source_id=source.id,
-                    raw_content=fields["raw_content"], trust_flags=trust_flags,
-                    is_open=fields["is_open"], lifecycle_status=fields["lifecycle_status"],
-                    verification_state="DISCOVERED", consecutive_misses=0,
-                    first_seen_at=now, last_seen_at=now,
-                )
-                _apply_fields(vac, fields, now)
-                db.add(vac)
-                db.flush()
-                for row in fields["requirement_rows"]:
-                    db.add(VacancyRequirement(vacancy_id=vac.id, **row))
-                seen_ids.add(vac.id)
-                report.created += 1
-                report.created_vacancy_ids.append(vac.id)
-                if fields["lifecycle_status"] == "CLOSED":
-                    report.closed += 1
-
-        # Missing from a successful, non-empty scan increments a counter.
-        # The row is closed only after MISS_CLOSE_AFTER such scans. An empty
-        # result is "couldn't read the page", not "every role closed".
-        if raw_list:
-            stale = (db.query(Vacancy)
-                     .filter(Vacancy.source_id == source.id, Vacancy.is_open.is_(True))
-                     .all())
-            for vac in stale:
-                if vac.id in seen_ids:
-                    continue
-                vac.consecutive_misses = (vac.consecutive_misses or 0) + 1
-                if vac.consecutive_misses >= MISS_CLOSE_AFTER:
-                    vac.is_open = False
-                    vac.lifecycle_status = "REMOVED"
-                    report.closed += 1
-
-        prev_count = source.last_vacancy_count
-        report.total_seen = len(raw_list)
-        source.last_checked = now
-        source.last_success_at = now
-        source.last_vacancy_count = len(raw_list)
-        source.consecutive_failures = 0
-        source.last_error = None
-        source.error_category = None
-        source.http_status = None
-        source.response_time_ms = int((time.monotonic() - started) * 1000)
-        source.duplicates_prevented = (source.duplicates_prevented or 0) + report.duplicates_prevented
-        source.last_status = "ok" if raw_list else "empty"
-        if raw_list:
-            source.empty_streak = 0
-            source.last_vacancy_found_at = now
-            source.scraper_status = "SUCCESS"
-        else:
-            source.empty_streak = (source.empty_streak or 0) + 1
-            if prev_count and prev_count > 0:
-                source.scraper_status = "SITE_CHANGED"
-                source.error_category = "SITE_STRUCTURE_CHANGED"
-                report.status = "empty"
-                report.warnings.append("Source returned no vacancies; may indicate a structure change.")
-                _alert_admins(db, source, "structure_changed",
-                              "Careers page may have changed",
-                              f"Source '{source.url}' returned 0 vacancies but previously had "
-                              f"{prev_count}. It may have changed structure or moved.")
-            else:
-                source.scraper_status = "NO_VACANCIES"
-                report.status = "empty"
-                report.warnings.append("Source returned no vacancies.")
-        _write_log(db, source, report, started)
-        db.commit()
-        return report
+        outcome = fetch_source(source, client, check_robots=check_robots, now=now, started=started)
+        return apply_fetch(db, source, outcome)
     finally:
         if owns_client:
             client.close()
+
+
+def apply_fetch(db: Session, source: VacancySource, outcome: FetchOutcome) -> ScanReport:
+    """Write one fetch's result: vacancies, misses, source status and the scan log."""
+    report = ScanReport(source_id=source.id, status="ok")
+    now = outcome.now
+    started = outcome.started
+    if outcome.robots_allowed is not None:
+        source.robots_allowed = outcome.robots_allowed
+    if outcome.kind == "robots_disallowed":
+        source.last_status = "robots_disallowed"
+        source.scraper_status = "REQUIRES_REVIEW"
+        source.error_category = "ROBOTS_DISALLOWED"
+        source.last_checked = now
+        source.parser_used = source.ats_type
+        report.status = "robots_disallowed"
+        _write_log(db, source, report, started, error_category="ROBOTS_DISALLOWED")
+        db.commit()
+        return report
+
+    source.ats_type = outcome.ats_type
+    source.config = outcome.config
+    source.parser_used = outcome.parser_used
+    if outcome.kind == "javascript_required":
+        source.last_checked = now
+        source.last_status = "javascript_required"
+        source.scraper_status = "JAVASCRIPT_REQUIRED"
+        source.error_category = "JAVASCRIPT_REQUIRED"
+        source.last_error = "This board needs a browser. Rendering is off on the free host."
+        report.status = "javascript_required"
+        report.warnings.append(source.last_error)
+        _write_log(db, source, report, started, error_category="JAVASCRIPT_REQUIRED")
+        db.commit()
+        return report
+    if outcome.kind == "blocked":
+        # A WAF challenge is not an empty board and not a dead link.
+        # Leave the failure streak alone so the URL is not marked broken.
+        source.last_checked = now
+        source.last_status = "blocked"
+        source.scraper_status = "BLOCKED"
+        source.error_category = "BLOCKED"
+        source.last_error = None
+        report.status = "blocked"
+        report.warnings.append("Host returned a bot challenge; link left unchanged.")
+        _write_log(db, source, report, started, error_category="BLOCKED")
+        db.commit()
+        return report
+    if outcome.kind == "error":
+        return _record_failure(db, source, report, now, outcome.exc, started)
+
+    adapter = adapter_for(source.ats_type)
+    raw_list = outcome.raw_list
+    company = db.get(Company, source.company_id)
+    company_name = company.company_name if company else None
+    company_country = company.country if company else None
+    seen_ids: set[str] = set()
+    for raw in raw_list:
+        raw = adapter.extract(raw)
+        if not raw.title:
+            continue
+        fields = adapter.normalize(
+            raw, company_id=source.company_id, company_name=company_name,
+            company_country=company_country, source_url=source.url,
+        )
+        if "title" in adapter.validate(fields):
+            continue
+        existing = _find_existing(db, source, fields)
+        if existing:
+            was_open = existing.is_open
+            _apply_fields(existing, fields, now)
+            _replace_requirements(db, existing, fields["requirement_rows"])
+            existing.last_seen_at = now
+            seen_ids.add(existing.id)
+            report.updated += 1
+            report.duplicates_prevented += 1
+            if fields["lifecycle_status"] == "CLOSED" and was_open:
+                report.closed += 1
+        else:
+            trust_flags = scan_for_trust_flags(
+                title=fields["title"], description=fields["description"],
+                salary_min=fields["salary_min"], salary_max=fields["salary_max"],
+                application_url=fields["application_url"], source_url=fields["source_url"],
+            )
+            vac = Vacancy(
+                company_id=source.company_id, source_id=source.id,
+                raw_content=fields["raw_content"], trust_flags=trust_flags,
+                is_open=fields["is_open"], lifecycle_status=fields["lifecycle_status"],
+                verification_state="DISCOVERED", consecutive_misses=0,
+                first_seen_at=now, last_seen_at=now,
+            )
+            _apply_fields(vac, fields, now)
+            db.add(vac)
+            db.flush()
+            for row in fields["requirement_rows"]:
+                db.add(VacancyRequirement(vacancy_id=vac.id, **row))
+            seen_ids.add(vac.id)
+            report.created += 1
+            report.created_vacancy_ids.append(vac.id)
+            if fields["lifecycle_status"] == "CLOSED":
+                report.closed += 1
+
+    # Missing from a successful, non-empty scan increments a counter.
+    # The row is closed only after MISS_CLOSE_AFTER such scans. An empty
+    # result is "couldn't read the page", not "every role closed".
+    if raw_list:
+        stale = (db.query(Vacancy)
+                 .filter(Vacancy.source_id == source.id, Vacancy.is_open.is_(True))
+                 .all())
+        for vac in stale:
+            if vac.id in seen_ids:
+                continue
+            vac.consecutive_misses = (vac.consecutive_misses or 0) + 1
+            if vac.consecutive_misses >= MISS_CLOSE_AFTER:
+                vac.is_open = False
+                vac.lifecycle_status = "REMOVED"
+                report.closed += 1
+
+    prev_count = source.last_vacancy_count
+    report.total_seen = len(raw_list)
+    source.last_checked = now
+    source.last_success_at = now
+    source.last_vacancy_count = len(raw_list)
+    source.consecutive_failures = 0
+    source.last_error = None
+    source.error_category = None
+    source.http_status = None
+    source.response_time_ms = int((time.monotonic() - started) * 1000)
+    source.duplicates_prevented = (source.duplicates_prevented or 0) + report.duplicates_prevented
+    source.last_status = "ok" if raw_list else "empty"
+    if raw_list:
+        source.empty_streak = 0
+        source.last_vacancy_found_at = now
+        source.scraper_status = "SUCCESS"
+    else:
+        source.empty_streak = (source.empty_streak or 0) + 1
+        if prev_count and prev_count > 0:
+            source.scraper_status = "SITE_CHANGED"
+            source.error_category = "SITE_STRUCTURE_CHANGED"
+            report.status = "empty"
+            report.warnings.append("Source returned no vacancies; may indicate a structure change.")
+            _alert_admins(db, source, "structure_changed",
+                          "Careers page may have changed",
+                          f"Source '{source.url}' returned 0 vacancies but previously had "
+                          f"{prev_count}. It may have changed structure or moved.")
+        else:
+            source.scraper_status = "NO_VACANCIES"
+            report.status = "empty"
+            report.warnings.append("Source returned no vacancies.")
+    _write_log(db, source, report, started)
+    db.commit()
+    return report
 
 
 def _find_existing(db: Session, source: VacancySource, fields: dict) -> Vacancy | None:
@@ -345,6 +417,10 @@ def _record_failure(db, source, report, now, exc: BaseException, started: float)
     source.failure_count = (source.failure_count or 0) + 1
     source.last_error = str(exc)[:1000]
     source.response_time_ms = int((time.monotonic() - started) * 1000)
+    if is_permanent(category) and source.consecutive_failures >= NEEDS_REVIEW_AFTER:
+        # Same dead answer several scans in a row: park it for a person to look at.
+        # The queue retries it weekly (scan_runner.due_after_hours), not every cycle.
+        source.scraper_status = "NEEDS_REVIEW"
     report.status = last_status
     report.error = str(exc)
     # Edge-triggered alert: fire once when failures reach the threshold.

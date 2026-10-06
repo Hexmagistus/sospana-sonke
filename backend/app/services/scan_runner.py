@@ -2,8 +2,9 @@
 
 Designed to run OUTSIDE the web request path (e.g. from a GitHub Actions job
 talking straight to the database), where there is no gateway timeout and a
-headless browser can be installed. The API's own ``scan_due_companies`` job is
-unchanged and still works for small manual/cron batches.
+headless browser can be installed (scripts/run_scan.py). The queue order,
+back-off and claims defined here are shared with the API's own
+``scan_due_companies`` cron job, which runs app.services.scan_batch.
 
 Why this exists: scanning companies one after another inside a single HTTP
 request capped throughput at ~35 companies per 3-hour cycle, because a handful
@@ -14,9 +15,9 @@ of dead or slow sites (each up to ~20s) ate the whole time budget. Here:
 * dead/failing sources back off exponentially instead of being retried every
   cycle, so bad links stop costing time;
 * healthy sources are not re-scanned more often than MIN_RESCAN_HOURS;
-* due companies are ordered South Africa, then the rest of SADC, then the
-  rest of Africa, then other regions. Inside a region, a supported board
-  that has never been parsed successfully comes before older checks.
+* due sources are ordered never-scanned first, then by the oldest scan, with
+  South Africa, the rest of SADC and the rest of Africa given a bounded head
+  start (BAND_LEAD_HOURS) so no region is starved; see select_due.
 
 Deliberately does NOT send the "N new jobs" candidate broadcast (same reasoning
 as ``scan_due_companies``); a full deliberate sweep is the place for that.
@@ -29,10 +30,14 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timedelta, timezone
 from typing import Callable
 
+from dataclasses import dataclass
+
+from sqlalchemy import update
 from sqlalchemy.orm import Session, load_only
 
 from app.models.company import Company
 from app.models.vacancy import VacancySource
+from app.scraper.errors import NEEDS_REVIEW_AFTER, is_permanent
 from app.services.scan_service import scan_company
 
 logger = logging.getLogger(__name__)
@@ -46,17 +51,34 @@ _FAST_ATS_MARKERS = ("greenhouse.io", "lever.co", "smartrecruiters.com",
                      "pinpointhq.com", "ci.hr")
 
 
+TRANSIENT_BACKOFF_CAP_HOURS = 72.0   # timeouts, 5xx, 403/429: still tried twice a week
+# Not failures, but asking again soon gets the same answer.
+STATUS_RECHECK_HOURS = {
+    "robots_disallowed": 24.0 * 7,
+    "javascript_required": 24.0 * 7,
+    "blocked": 72.0,
+}
+
+
 def due_after_hours(url: str | None, consecutive_failures: int,
-                    empty_streak: int = 0) -> float:
+                    empty_streak: int = 0, error_category: str | None = None,
+                    last_status: str | None = None) -> float:
     """How long to wait before scanning this company again.
 
-    Failures back off. A healthy public JSON board is due after an hour;
-    a healthy HTML page waits six. A board that keeps returning no roles
-    waits longer: 12 hours, then a day, then a week. That cuts traffic to
-    careers pages that are consistently empty.
+    Failures back off (by kind, see backoff_hours). A healthy public JSON
+    board is due after an hour; a healthy HTML page waits six. A board that
+    keeps returning no roles waits longer: 12 hours, then a day, then a week.
+    A robots.txt refusal or a page that needs a browser is asked again
+    weekly, a bot challenge after three days.
+
+    These gaps are only a floor. The queue itself is ordered by the oldest
+    scan (select_due), so a recently scanned source is never picked ahead of
+    one that has waited longer.
     """
     if consecutive_failures > 0:
-        return backoff_hours(consecutive_failures)
+        return backoff_hours(consecutive_failures, error_category)
+    if last_status in STATUS_RECHECK_HOURS:
+        return STATUS_RECHECK_HOURS[last_status]
     base = FAST_RESCAN_HOURS if _is_fast_ats(url) else MIN_RESCAN_HOURS
     streak = empty_streak or 0
     if streak >= 8:
@@ -68,15 +90,27 @@ def due_after_hours(url: str | None, consecutive_failures: int,
     return base
 
 
-def backoff_hours(consecutive_failures: int) -> float:
+def backoff_hours(consecutive_failures: int, error_category: str | None = None) -> float:
     """Minimum gap before a source with N consecutive failures is scanned again.
 
-    0 failures -> MIN_RESCAN_HOURS; then 2h-per-failure doubling, capped at a week:
-    1 -> 6h (floor), 3 -> 8h, 5 -> 32h, 7 -> 128h, 8+ -> 168h.
+    Without a category (older rows): 2h-per-failure doubling, floor
+    MIN_RESCAN_HOURS, cap a week: 1 -> 6h, 3 -> 8h, 5 -> 32h, 7 -> 128h, 8+ -> 168h.
+
+    Permanent failures (404, DNS, invalid URL, broken certificate) do not fix
+    themselves between scans: 1 -> 24h, 2 -> 72h, 3+ -> a week (the source is
+    NEEDS_REVIEW by then). Transient ones (timeout, connection reset, 5xx,
+    403/429) follow the doubling but are capped at three days.
     """
     if consecutive_failures <= 0:
         return MIN_RESCAN_HOURS
-    return min(max(MIN_RESCAN_HOURS, 2.0 ** consecutive_failures), BACKOFF_CAP_HOURS)
+    if is_permanent(error_category):
+        if consecutive_failures >= NEEDS_REVIEW_AFTER:
+            return BACKOFF_CAP_HOURS
+        return 24.0 if consecutive_failures == 1 else 72.0
+    hours = min(max(MIN_RESCAN_HOURS, 2.0 ** consecutive_failures), BACKOFF_CAP_HOURS)
+    if error_category:
+        hours = min(hours, TRANSIENT_BACKOFF_CAP_HOURS)
+    return hours
 
 
 def _aware(dt: datetime | None) -> datetime | None:
@@ -123,57 +157,143 @@ def country_band(country: str | None) -> int:
     return 3
 
 
-def select_due_company_ids(db: Session, limit: int, now: datetime | None = None) -> list[str]:
-    """Pick up to `limit` companies that are due, in priority order.
+# How much "older" a region's sources count when the queue is sorted. South
+# Africa goes first, then the rest of SADC, the rest of Africa, then other
+# regions, but only by this many hours: a source elsewhere that has waited a
+# day and a half longer still comes first, so no region is starved.
+BAND_LEAD_HOURS = {0: 36.0, 1: 24.0, 2: 12.0, 3: 0.0}
+UNPARSED_BOARD_LEAD_HOURS = 24.0
+SLOW_SOURCE_MS = 4500
 
-    Order is South Africa, then the rest of SADC, then the rest of Africa,
-    then other regions. Inside a region, a supported board (Greenhouse, ci.hr,
-    and the other fast adapters) that has never been parsed successfully
-    comes first, and the oldest check comes first after that. The scan's
-    time budget is unchanged: this only chooses who is in the batch.
 
-    The choice is read from the whole due set. An earlier version only looked
-    at the 200 oldest checks, so a ci.hr board the URL tester had already
-    touched waited behind every never-checked HTML page.
+@dataclass(frozen=True)
+class DueItem:
+    company_id: str
+    source_id: str | None      # None: no source row yet, so never scanned
+    last_scanned: datetime | None
+    band: int
+    url: str
+    # last_checked exactly as read from the database, for claim_source's
+    # compare-and-set (SQLite hands back naive datetimes).
+    claim_token: datetime | None = None
+    # Took SLOW_SOURCE_MS or more last time, or timed out: fetched with the
+    # longer read timeout (scan_batch) so a slow but working site is not lost.
+    slow: bool = False
+
+
+def select_due(db: Session, limit: int, now: datetime | None = None) -> list[DueItem]:
+    """Up to `limit` due sources, the most overdue first.
+
+    "When was this scanned" is the vacancy source's own last_checked. The
+    company's last_checked is also stamped by the daily URL health check
+    (test_all_urls), so using it made a company look freshly scanned when
+    only its link had been pinged.
+
+    Order: never scanned first (South Africa, SADC, Africa, others; inside a
+    region a supported board before plain HTML), then by the oldest scan,
+    where each region gets the head start in BAND_LEAD_HOURS and a board that
+    has never parsed successfully another UNPARSED_BOARD_LEAD_HOURS.
+    The old order put every due South African source ahead of any other
+    region; with six-hour rescans that kept re-scanning the same South
+    African pages while 60% of sources went a week without a check.
+    Disabled sources are skipped.
     """
     now = now or datetime.now(timezone.utc)
     companies = (db.query(Company)
-                 .options(load_only(Company.id, Company.country, Company.careers_url,
-                                    Company.last_checked))
+                 .options(load_only(Company.id, Company.country, Company.careers_url))
                  .filter(Company.active.is_(True), Company.deleted_at.is_(None),
                          Company.careers_url.isnot(None))
                  .all())
-    fails: dict[str, int] = {}
-    streaks: dict[str, int] = {}
-    parsed: set[str] = set()
-    for cid, n, streak, success_at in (
-        db.query(VacancySource.company_id, VacancySource.consecutive_failures,
-                 VacancySource.empty_streak, VacancySource.last_success_at)
-        .all()
-    ):
-        fails[cid] = max(fails.get(cid, 0), n or 0)
-        streaks[cid] = max(streaks.get(cid, 0), streak or 0)
-        if success_at is not None:
-            parsed.add(cid)
+    sources: dict[str, tuple] = {}
+    for row in (db.query(VacancySource.company_id, VacancySource.id, VacancySource.last_checked,
+                         VacancySource.consecutive_failures, VacancySource.empty_streak,
+                         VacancySource.error_category, VacancySource.last_status,
+                         VacancySource.active, VacancySource.created_at,
+                         VacancySource.last_success_at, VacancySource.response_time_ms)
+                .order_by(VacancySource.created_at.asc(), VacancySource.id.asc())
+                .all()):
+        # scan_company scans the company's first source; mirror that.
+        sources.setdefault(row[0], row)
 
-    due: list[Company] = []
+    due: list[tuple] = []
     for c in companies:
-        last = _aware(c.last_checked)
-        gap = due_after_hours(c.careers_url, fails.get(c.id, 0), streaks.get(c.id, 0))
-        if last is None or now - last >= timedelta(hours=gap):
-            due.append(c)
+        row = sources.get(c.id)
+        if row is not None and row[7] is False:
+            continue
+        last = _aware(row[2]) if row is not None else None
+        band = country_band(c.country)
+        if last is not None:
+            gap = due_after_hours(c.careers_url, row[3] or 0, row[4] or 0, row[5], row[6])
+            if now - last < timedelta(hours=gap):
+                continue
+        item = DueItem(company_id=c.id, source_id=row[1] if row is not None else None,
+                       last_scanned=last, band=band, url=c.careers_url or "",
+                       claim_token=row[2] if row is not None else None,
+                       slow=_is_slow(row))
+        # A supported board (Greenhouse, ci.hr, ...) that has never parsed
+        # successfully goes ahead of plain HTML pages: first inside its
+        # region when never scanned, otherwise with UNPARSED_BOARD_LEAD_HOURS.
+        unparsed_board = _is_fast_ats(c.careers_url) and (row is None or row[9] is None)
+        if last is None:
+            key = (0, band, 0 if unparsed_board else 1, _EPOCH, c.id)
+        else:
+            lead = BAND_LEAD_HOURS[band] + (UNPARSED_BOARD_LEAD_HOURS if unparsed_board else 0.0)
+            key = (1, 0, 0, last - timedelta(hours=lead), c.id)
+        due.append((key, item))
+    due.sort(key=lambda kv: kv[0])
+    return [item for _, item in due[:limit]]
 
-    def key(c: Company):
-        last = _aware(c.last_checked)
-        unparsed_adapter = c.id not in parsed and _is_fast_ats(c.careers_url)
-        return (country_band(c.country),
-                0 if unparsed_adapter else 1,
-                last is not None,
-                last or _EPOCH,
-                c.id)
 
-    due.sort(key=key)
-    return [c.id for c in due[:limit]]
+def _is_slow(row) -> bool:
+    """Fetch with the longer read timeout? (row from select_due's source query)
+
+    Yes after a slow answer (SLOW_SOURCE_MS or more) or a timeout, so a slow
+    but working site is read on the next try. Not once a source has timed
+    out twice in a row: that host is most likely dead, and the long timeout
+    would only cost time.
+    """
+    if row is None:
+        return False
+    fails, category, elapsed_ms = row[3] or 0, row[5], row[10] or 0
+    if category == "TIMEOUT" and fails >= 2:
+        return False
+    return elapsed_ms >= SLOW_SOURCE_MS or category == "TIMEOUT"
+
+
+def select_due_company_ids(db: Session, limit: int, now: datetime | None = None) -> list[str]:
+    """Company ids of select_due, in the same order."""
+    return [item.company_id for item in select_due(db, limit, now)]
+
+
+def claim_source(db: Session, source_id: str, previous: datetime | None, now: datetime) -> bool:
+    """Stamp a source as being scanned, unless someone else already did.
+
+    Compare-and-set on last_checked: only succeeds if nobody stamped the row
+    after we read it (still NULL, or not newer than the value we read). Two
+    overlapping cron calls (the GitHub workflow and cron-job.org both call
+    this job) therefore never scan the same source twice; the loser skips it
+    and moves on. "Not newer" rather than "equal" so a value written by
+    another tool with a different precision still matches on SQLite.
+    """
+    cond = (VacancySource.last_checked.is_(None) if previous is None
+            else VacancySource.last_checked <= previous)
+    res = db.execute(update(VacancySource)
+                     .where(VacancySource.id == source_id, cond)
+                     .values(last_checked=now)
+                     .execution_options(synchronize_session=False))
+    db.commit()
+    return (res.rowcount or 0) == 1
+
+
+def release_claim(db: Session, source_id: str, claimed_at: datetime,
+                  previous: datetime | None) -> None:
+    """Put back the old last_checked of a source we claimed but did not scan
+    (the run ran out of time), so it keeps its place at the front of the queue."""
+    db.execute(update(VacancySource)
+               .where(VacancySource.id == source_id, VacancySource.last_checked == claimed_at)
+               .values(last_checked=previous)
+               .execution_options(synchronize_session=False))
+    db.commit()
 
 
 def _stamp_failure(db: Session, company_id: str, now: datetime) -> None:
