@@ -11,6 +11,7 @@ from app.scraper.extract import (
 def test_normalize_date():
     assert normalize_date("2026-08-01") == date(2026, 8, 1)
     assert normalize_date("2026-08-01T10:00:00Z") == date(2026, 8, 1)
+    assert normalize_date("7 Oct 2026") == date(2026, 10, 7)
     assert normalize_date(None) is None
     assert normalize_date("not a date") is None
 

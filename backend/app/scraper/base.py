@@ -120,6 +120,12 @@ def detect_ats(url: str) -> tuple[str, dict]:
     # simplify.hr company career sites ({company}.simplify.hr).
     if host.endswith(".simplify.hr") and host != "www.simplify.hr":
         return "simplify", {"host": host}
+    # iCIMS portals: /go/<name>/<id>, a *.icims.com host, or the search
+    # bookmark that carries createNewAlert. Checked before the static fallback
+    # so a multi-page board is not stored from its first page alone.
+    from app.scraper.icims import is_icims_url
+    if is_icims_url(url):
+        return "icims", {"host": host}
     # PeopleSoft HCM "Careers" guest search (candidate.csir.co.za).
     from app.scraper.peoplesoft import is_peoplesoft_careers
     if is_peoplesoft_careers(url):
@@ -193,6 +199,7 @@ def get_strategy(ats_type: str) -> ScrapeStrategy:
     from app.scraper.mci import MciStrategy
     from app.scraper.peoplesoft import PeopleSoftStrategy
     from app.scraper.simplify import SimplifyStrategy
+    from app.scraper.icims import IcimsStrategy
     from app.scraper.static_html import StaticHTMLStrategy
     from app.scraper.rendered_html import RenderedHTMLStrategy
     return {
@@ -210,6 +217,7 @@ def get_strategy(ats_type: str) -> ScrapeStrategy:
         "mci": MciStrategy(),
         "peoplesoft": PeopleSoftStrategy(),
         "simplify": SimplifyStrategy(),
+        "icims": IcimsStrategy(),
         "static": StaticHTMLStrategy(),
         "js": RenderedHTMLStrategy(),
     }.get(ats_type, StaticHTMLStrategy())

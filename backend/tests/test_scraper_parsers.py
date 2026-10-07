@@ -71,6 +71,14 @@ def test_detect_ats():
     assert detect_ats("https://assmang.ci.hr")[0] == "cihr"
     assert detect_ats("https://careers.unilever.com/ci.hr")[0] == "static"
     assert get_strategy("cihr").ats_type == "cihr"
+    assert detect_ats("https://careers.discovery.co.za/go/All-Jobs/4509301")[0] == "icims"
+    assert detect_ats("https://careers.mediclinic.com/SouthernAfrica/go/Search-By-Keyword-MCSA/5071601/")[0] == "icims"
+    assert detect_ats("https://jobs.aeciworld.com/search/?createNewAlert=false&q=")[0] == "icims"
+    assert detect_ats("https://careers-acme.icims.com/jobs/intro")[0] == "icims"
+    # A /go/ path without the portal id, and a government e-recruitment site, stay static.
+    assert detect_ats("https://example.com/go/home")[0] == "static"
+    assert detect_ats("https://erecruitment.saps.gov.za/SAPS-Vacancies/")[0] == "static"
+    assert get_strategy("icims").ats_type == "icims"
 
 
 def test_html_to_text_preserves_bullets():
