@@ -150,3 +150,16 @@ def test_seed_carries_africa_batches_5_to_9_and_the_later_neon_employers():
     assert rows[("Canva", "Australia")]["careers_url"] == "https://www.lifeatcanva.com/en/jobs/"
     assert rows[("Leiden University Medical Center (LUMC)", "Netherlands")]["source_type"] == "HOSPITAL"
     assert all(r["careers_url"].startswith("http") for r in _rows() if r["active"] == "true" and r["careers_url"])
+
+
+def test_seed_carries_cat_sa_ngo_and_government_batches():
+    rows = {(r["company_name"], r["country"]): r for r in _rows()}
+    for key, kind in [(("Cotlands", "South Africa"), "NGO"), (("UNFPA South Africa", "South Africa"), "NGO"),
+                      (("National Prosecuting Authority (NPA)", "South Africa"), "DEPT"),
+                      (("KwaZulu-Natal Department of Health", "South Africa"), "DEPT"),
+                      (("Iziko Museums of South Africa", "South Africa"), "SOE")]:
+        assert key in rows, key
+        assert rows[key]["source_type"] == kind, key
+    assert rows[("NACOSA", "South Africa")]["careers_url"] == "https://nacosajobs.mcidirecthire.com/Vacancy"
+    tagged = [r for r in _rows() if "[CAT-" in r["relevance_note"]]
+    assert tagged and all(r["careers_url"].startswith("https://") and r["active"] == "true" for r in tagged)
