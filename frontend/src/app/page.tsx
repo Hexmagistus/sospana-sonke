@@ -798,12 +798,13 @@ export default function Home() {
 
         <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-3">
           {[
+            // Same order as the menu (lib/explorer/categoryGroups.ts EXPLORER_NAV).
             { icon: "🏢", label: "Companies", desc: "JSE-listed & private employers", href: "/companies", col: C.teal, photo: "/photos/cape-town-waterfront.jpg" },
-            { icon: "🏛️", label: "State-owned", desc: "SOEs & parastatals hiring now", href: "/companies?type=SOE", col: C.plum, photo: "/photos/lagos.jpg" },
             { icon: "🎓", label: "Universities", desc: "Academic & research posts", href: "/universities", col: C.sky, photo: "/photos/marrakech.jpg" },
-            { icon: "🏫", label: "Colleges", desc: "TVET & tertiary colleges", href: "/colleges", col: C.green, badge: "Featured", photo: "/photos/nairobi.jpg" },
+            { icon: "🏫", label: "Colleges & SETAs", desc: "TVET & private colleges, SETAs", href: "/colleges", col: C.green, badge: "Featured", photo: "/photos/nairobi.jpg" },
             { icon: "🏥", label: "Hospitals", desc: "Healthcare & clinical roles", href: "/hospitals", col: C.red, photo: "/photos/cape-town-coast.jpg" },
-            { icon: "🛠️", label: "SETAs & training", desc: "Skills authorities across Africa", href: "/companies?type=SETA", col: C.gold, badge: "New", photo: "/photos/team.jpg" },
+            { icon: "🤝", label: "NGOs", desc: "NGOs, charities & UN agencies", href: "/ngos", col: C.gold, badge: "New", photo: "/photos/team.jpg" },
+            { icon: "🏛️", label: "Government", desc: "Departments, municipalities & SOEs", href: "/government", col: C.plum, badge: "New", photo: "/photos/lagos.jpg" },
           ].map((cat, i) => (
             <Reveal key={cat.label} delay={i * 80}>
               <TiltCard>

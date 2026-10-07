@@ -1,6 +1,6 @@
 /** Pages that use the split country explorer. On desktop these drop the top bar:
 the logo and menu button sit in the explorer, and the links open in a side drawer. */
-const EXPLORER_PATHS = ["/companies", "/universities", "/hospitals"] as const;
+const EXPLORER_PATHS = ["/companies", "/universities", "/colleges", "/hospitals", "/ngos", "/government"] as const;
 
 export function isExplorerPath(pathname: string | null | undefined): boolean {
   if (!pathname) return false;

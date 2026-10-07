@@ -1,5 +1,5 @@
 /** Rows, groups and URL state for the country explorer (the split view on
-/companies, /universities and /hospitals).
+/companies and the group pages: /universities, /colleges, /hospitals, /ngos, /government).
 
 Order is the standing rule, always: South Africa, the rest of SADC, the rest of
 Africa, then every other region. Counts are whatever the API sent; this file

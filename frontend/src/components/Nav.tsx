@@ -9,16 +9,14 @@ import { useTheme } from "@/lib/theme";
 import ThemeToggleButton from "@/lib/ThemeToggleButton";
 import NotificationBell from "@/components/NotificationBell";
 import { isExplorerPath, OPEN_MENU_EVENT } from "@/lib/explorer/explorerPaths";
+import { EXPLORER_NAV } from "@/lib/explorer/categoryGroups";
 
 const LINKS = [
   { href: "/dashboard", label: "Dashboard" },
   { href: "/agent", label: "Career Agent" },
   { href: "/applications", label: "My Applications" },
-  { href: "/companies", label: "Companies" },
-  { href: "/universities", label: "Universities" },
-  { href: "/colleges", label: "Colleges" },
-  { href: "/hospitals", label: "Hospitals" },
-  { href: "/companies?type=SETA", label: "SETAs" },
+  // Companies, Universities, Colleges & SETAs, Hospitals, NGOs, Government (lib/explorer/categoryGroups.ts).
+  ...EXPLORER_NAV,
   { href: "/tailor", label: "CV Builder" },
   { href: "/profile", label: "Profile" },
   { href: "/preferences", label: "Preferences" },

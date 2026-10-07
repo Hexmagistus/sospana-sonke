@@ -16,6 +16,8 @@ const SCENES: { test: (path: string) => boolean; scene: Scene }[] = [
   { test: (p) => p.startsWith("/companies") || p.startsWith("/coverage"), scene: { src: "/photos/cape-town-waterfront.jpg", position: "center" } },
   { test: (p) => p.startsWith("/universities") || p.startsWith("/colleges"), scene: { src: "/photos/marrakech.jpg", position: "center" } },
   { test: (p) => p.startsWith("/hospitals"), scene: { src: "/photos/cape-town-coast.jpg", position: "center" } },
+  { test: (p) => p.startsWith("/ngos"), scene: { src: "/photos/team.jpg", position: "center" } },
+  { test: (p) => p.startsWith("/government"), scene: { src: "/photos/lagos.jpg", position: "center" } },
   { test: (p) => p.startsWith("/profile") || p.startsWith("/master-cv") || p.startsWith("/tailor") || p.startsWith("/security"), scene: { src: "/photos/professional.jpg", position: "center 15%" } },
   { test: (p) => p.startsWith("/applications"), scene: { src: "/photos/office.jpg", position: "center" } },
   { test: (p) => p.startsWith("/admin"), scene: { src: "/photos/lagos.jpg", position: "center" } },

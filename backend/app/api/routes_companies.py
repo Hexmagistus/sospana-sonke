@@ -25,6 +25,7 @@ from app.schemas.company import (
     TrendingCompany,
 )
 from app.schemas.link_report import LinkReportCreateRequest, LinkReportResponse
+from app.services.category_groups import CATEGORY_GROUPS, canonical_type, stored_values_for, types_for_group
 from app.services.country_names import canonical_country, is_country, spellings_for
 from app.services import icon_cache
 from app.services.csv_import import import_companies_from_csv
@@ -98,6 +99,8 @@ def list_companies(
     db: Session = Depends(get_db),
     user: User = Depends(get_current_user),
     source_type: str | None = Query(default=None, max_length=20, description="Category, e.g. SOE, UNI, COLLEGE"),
+    group: str | None = Query(default=None, max_length=20,
+                              description="Explorer page group: universities, colleges, hospitals, ngos, government"),
     country: str | None = Query(default=None, max_length=80),
     q: str | None = Query(default=None, max_length=100, description="Search in name / JSE code"),
     ids: str | None = Query(default=None, max_length=8000, description="Comma-separated company ids"),
@@ -108,7 +111,14 @@ def list_companies(
     private_short_cache(response)
     query = db.query(Company).options(*_LIST_DEFER).filter(Company.deleted_at.is_(None))
     if source_type:
-        query = query.filter(Company.source_type == source_type.upper())
+        # The code plus its aliases (category_groups.ALIASES), e.g. SOE also finds PARASTATAL.
+        query = query.filter(func.upper(Company.source_type).in_(stored_values_for(source_type)))
+    if group:
+        group_types = types_for_group(group)
+        if group_types is None:
+            raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                                detail=f"Unknown group. Use one of: {', '.join(CATEGORY_GROUPS)}.")
+        query = query.filter(func.upper(Company.source_type).in_(group_types))
     if country:
         query = query.filter(Company.country.in_(spellings_for(country)))
     if q and q.strip():
@@ -123,7 +133,7 @@ def list_companies(
     if active is not None:
         query = query.filter(Company.active == active)
     if user.role != "admin":
-        scoped = bool(source_type or country or (q and q.strip()) or ids)
+        scoped = bool(source_type or group or country or (q and q.strip()) or ids)
         limit = min(limit, _USER_MAX_ROWS if scoped else _UNSCOPED_USER_MAX_ROWS)
     query = query.order_by(Company.company_name).offset(offset).limit(limit)
     return _with_open_counts(db, query.all())
@@ -233,7 +243,8 @@ def company_facets(db: Session = Depends(get_db), _: User = Depends(get_current_
     country_type_with_links: dict[str, dict[str, int]] = {}
     total = with_links = 0
     for country, st, n, n_links in rows:
-        key = (st or "").upper()
+        # Aliases count under their canonical code, as GET /companies?source_type= lists them.
+        key = canonical_type(st)
         if country:
             name = canonical_country(country)
             country_counts[name] = country_counts.get(name, 0) + n

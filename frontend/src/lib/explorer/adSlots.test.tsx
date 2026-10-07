@@ -148,8 +148,8 @@ describe("application form", () => {
 });
 
 describe("explorer paths", () => {
-  it("only the three explorer pages drop the desktop top bar", () => {
-    for (const p of ["/companies", "/universities", "/hospitals", "/companies/"]) assert.equal(isExplorerPath(p), true, p);
-    for (const p of ["/colleges", "/dashboard", "/", "/admin", "/companies/x", null, undefined]) assert.equal(isExplorerPath(p as string), false, String(p));
+  it("only the six explorer pages drop the desktop top bar", () => {
+    for (const p of ["/companies", "/universities", "/colleges", "/hospitals", "/ngos", "/government", "/companies/"]) assert.equal(isExplorerPath(p), true, p);
+    for (const p of ["/dashboard", "/", "/admin", "/companies/x", "/coverage", null, undefined]) assert.equal(isExplorerPath(p as string), false, String(p));
   });
 });

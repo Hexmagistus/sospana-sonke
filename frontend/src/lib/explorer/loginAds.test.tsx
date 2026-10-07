@@ -45,7 +45,11 @@ describe("login is the only page with ads", () => {
       ["app", "companies", "page.tsx"],
       ["app", "companies", "layout.tsx"],
       ["app", "universities", "page.tsx"],
+      ["app", "colleges", "page.tsx"],
       ["app", "hospitals", "page.tsx"],
+      ["app", "ngos", "page.tsx"],
+      ["app", "government", "page.tsx"],
+      ["components", "GroupDirectory.tsx"],
     ];
     for (const f of files) assert.doesNotMatch(src(...f), AD_MARKERS, f.join("/"));
   });
