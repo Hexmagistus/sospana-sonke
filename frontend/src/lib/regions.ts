@@ -44,6 +44,7 @@ export const OTHER_AFRICA = new Set([
 
 const OCEANIA = new Set([
   "Australia", "New Zealand", "Fiji", "Papua New Guinea", "Samoa", "Tonga", "Solomon Islands", "Vanuatu",
+  "Kiribati", "Marshall Islands", "Micronesia", "Nauru", "Palau", "Tuvalu",
 ]);
 const EUROPE = new Set([
   "United Kingdom", "Germany", "France", "Netherlands", "Switzerland", "Sweden", "Denmark",
@@ -51,7 +52,7 @@ const EUROPE = new Set([
   "Portugal", "Greece", "Czechia", "Czech Republic", "Hungary", "Romania", "Norway", "Ukraine",
   "Luxembourg", "Malta", "Cyprus", "Latvia", "Lithuania", "Iceland", "Slovakia", "Slovenia",
   "Bulgaria", "Croatia", "Serbia", "Albania", "Bosnia and Herzegovina", "North Macedonia",
-  "Montenegro", "Kosovo", "Moldova", "Belarus",
+  "Montenegro", "Kosovo", "Moldova", "Belarus", "Andorra", "Holy See", "Liechtenstein",
 ]);
 const SOUTH_AMERICA = new Set([
   "Argentina", "Bolivia", "Brazil", "Chile", "Colombia", "Ecuador", "Guyana",
@@ -62,6 +63,8 @@ const NORTH_AMERICA = new Set([
   "Guatemala", "Belize", "Honduras", "El Salvador", "Nicaragua", "Costa Rica", "Panama",
   "Cuba", "Jamaica", "Haiti", "Dominican Republic", "Bahamas", "The Bahamas",
   "Trinidad and Tobago", "Barbados", "Puerto Rico",
+  "Antigua and Barbuda", "Dominica", "Grenada", "Saint Kitts and Nevis", "Saint Lucia",
+  "Saint Vincent and the Grenadines",
 ]);
 // Russia and Turkey are shaded with Asia: most of each country is on that continent.
 const ASIA = new Set([
@@ -72,6 +75,7 @@ const ASIA = new Set([
   "Lebanon", "Syria", "Turkey", "Kazakhstan", "Uzbekistan", "Turkmenistan",
   "Kyrgyzstan", "Tajikistan", "Afghanistan", "Mongolia", "Taiwan", "Cambodia", "Laos",
   "Hong Kong", "Armenia", "Georgia", "Azerbaijan",
+  "Bahrain", "Bhutan", "Brunei", "Maldives", "Palestine", "Timor-Leste",
 ]);
 
 /** A directory name that is a bucket, not a country. */

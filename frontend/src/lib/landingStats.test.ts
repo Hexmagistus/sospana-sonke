@@ -20,7 +20,9 @@ describe("landing stats", () => {
     const sum = Object.values(snap.byCountry).reduce((a, b) => a + b, 0);
     assert.equal(sum, snap.total);
     assert.equal(snap.source, "snapshot");
-    assert.ok(snap.total > 2000 && snap.total < 3200);
+    // Ceiling stays under the all-rows employer count (5,800 on 2026-10-07),
+    // so a payload that also counts employers with no careers link still fails.
+    assert.ok(snap.total > 3000 && snap.total < 5000, `snapshot total ${snap.total}`);
   });
 
   it("every snapshot country has a flag and a region (nothing falls into Africa by default)", () => {
