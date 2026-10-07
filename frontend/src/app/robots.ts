@@ -28,6 +28,8 @@ export default function robots(): MetadataRoute.Robots {
           "/universities",
           "/colleges",
           "/hospitals",
+          "/ngos",
+          "/government",
           "/applications",
           "/api/",
         ],

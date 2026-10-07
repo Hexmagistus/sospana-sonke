@@ -37,7 +37,7 @@ const WIDTHS = (process.env.WIDTHS || "320,360,375,390,414").split(",").map(Numb
 const PUBLIC_PAGES = ["/", "/login", "/register", "/forgot-password", "/reset-password", "/terms", "/privacy", "/donate", "/donate/thanks"];
 const AUTH_PAGES = [
   "/dashboard", "/agent", "/applications", "/companies", "/companies?country=ZA", "/universities", "/colleges",
-  "/hospitals", "/coverage", "/master-cv", "/profile", "/preferences", "/messages", "/notifications",
+  "/hospitals", "/ngos", "/government", "/coverage", "/master-cv", "/profile", "/preferences", "/messages", "/notifications",
   "/security", "/subscription", "/matches", "/tailor", "/tailor/applications",
 ];
 

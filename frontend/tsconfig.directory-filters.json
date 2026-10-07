@@ -28,6 +28,8 @@
     "src/lib/explorer/adSlots.test.tsx",
     "src/lib/explorer/loginAds.test.tsx",
     "src/lib/explorer/explorerPaths.ts",
+    "src/lib/explorer/categoryGroups.ts",
+    "src/lib/explorer/categoryGroups.test.ts",
     "src/lib/explorer/testPaths.ts",
     "src/lib/themeContrast.ts",
     "src/lib/themeContrast.test.ts",

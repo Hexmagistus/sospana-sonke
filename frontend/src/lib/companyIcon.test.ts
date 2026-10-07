@@ -36,10 +36,12 @@ describe("company icon requests", () => {
     assert.match(logo, /companyIconSrc\(/);
     assert.match(logo, /onError=\{/);
     assert.match(logo, /ss-monogram/);
-    for (const page of ["companies", "universities", "hospitals", "colleges"]) {
-      const src = readFileSync(join(process.cwd(), "src", "app", page, "page.tsx"), "utf8");
-      assert.match(src, /hasIcon=\{!!c\.has_icon\}/, page);
-      assert.match(src, /iconVersion=\{c\.icon_version\}/, page);
+    // /companies has its own cards; the group pages (universities, colleges, hospitals,
+    // ngos, government) all render components/GroupDirectory.tsx.
+    for (const file of [["app", "companies", "page.tsx"], ["components", "GroupDirectory.tsx"]]) {
+      const src = readFileSync(join(process.cwd(), "src", ...file), "utf8");
+      assert.match(src, /hasIcon=\{!!c\.has_icon\}/, file.join("/"));
+      assert.match(src, /iconVersion=\{c\.icon_version\}/, file.join("/"));
     }
   });
 });

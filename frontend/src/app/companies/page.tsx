@@ -36,6 +36,7 @@ import {
   directorySliceKey,
   isDirectoryFilter,
 } from "@/lib/directoryFilters";
+import { canonicalType } from "@/lib/explorer/categoryGroups";
 import { getShortlist, SHORTLIST_EVENT } from "@/lib/shortlist";
 import type { Company, TrendingCompany } from "@/lib/types";
 
@@ -97,7 +98,8 @@ const TYPE_BADGE: Record<string, { label: string; cls: string }> = {
 };
 
 function typeBadge(sourceType: string | null | undefined) {
-  const st = (sourceType || "").toUpperCase();
+  // An alias (e.g. PARASTATAL) shows its canonical code's badge (lib/explorer/categoryGroups.ts).
+  const st = canonicalType(sourceType);
   return TYPE_BADGE[st] || { label: sourceType ? `${st}-listed` : "Listed", cls: "bg-brand/10 text-brand-dark" };
 }
 
