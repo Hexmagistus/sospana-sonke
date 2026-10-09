@@ -35,7 +35,7 @@ def test_new_employers_keep_the_direct_link_rule():
     added = _batch(rows)
     assert len(added) >= 140
     linked = [row for row in added if row["careers_url"]]
-    assert len(linked) >= 40
+    assert len(linked) >= 50
     for row in added:
         assert row["country"] not in SOUTH_AMERICA
         assert len(row["source_type"]) <= 10
@@ -64,6 +64,17 @@ def test_notable_south_african_employers_and_existing_rows_stay_put():
     assert rows[("Ozow", "South Africa")]["careers_url"] == "https://job-boards.greenhouse.io/ozow"
     assert rows[("Woolworths Holdings", "South Africa")]["careers_url"] == ""
     assert rows[("Woolworths Holdings", "South Africa")]["jse_code"] == "WHL"
+    assert rows[("Tongaat Hulett", "South Africa")]["careers_url"] == ""
+    assert rows[("Astron Energy", "South Africa")]["careers_url"] == "https://glencore.wd3.myworkdayjobs.com/astronenergy"
+    assert rows[("Frogfoot", "South Africa")]["careers_url"] == "https://frogfootcom.simplify.hr/"
+    assert rows[("Carry1st", "South Africa")]["careers_url"] == "https://apply.workable.com/carry1st/"
+    assert rows[("WPP Scangroup", "Kenya")]["careers_url"] == "https://job-boards.greenhouse.io/scangroup"
+    assert rows[("Kenya Re-Insurance Corporation", "Kenya")]["careers_url"] == "https://www.kenyare.co.ke/about-us/careers"
+    assert rows[("Gamma Civic", "Mauritius")]["careers_url"] == "https://gamma.mu/vacancies/"
+    assert rows[("Swan General", "Mauritius")]["careers_url"].startswith("https://epin.fa.em2.oraclecloud.com/")
+    assert rows[("Swan Life", "Mauritius")]["careers_url"] == ""
+    assert rows[("ICON Properties", "Malawi")]["careers_url"] == "https://iconproperties.mw/careers/"
+    assert rows[("Metal Fabricators Of Zambia", "Zambia")]["careers_url"] == "https://www.zamefa.com/careers/"
     assert rows[("Woolworths Holdings", "South Africa")]["official_website"].startswith("https://www.woolworths.co.za")
     assert rows[("One Acre Fund", "Kenya")]["careers_url"].startswith("https://oneacrefund.org/careers/")
     assert rows[("Bell Equipment", "South Africa")]["careers_url"].startswith("https://global.bellequipment.com/")
