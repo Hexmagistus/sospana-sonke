@@ -2,7 +2,7 @@
 import uuid
 
 from app.api import routes_companies
-from tests.conftest import register_and_login, make_admin
+from tests.conftest import register_and_login, make_admin, admin_login
 
 
 def _seed(db_engine, n_sa=5, n_bw=3):
@@ -51,7 +51,7 @@ def test_admin_keeps_full_listing(client, db_engine, monkeypatch):
     _seed(db_engine)
     monkeypatch.setattr(routes_companies, "_UNSCOPED_USER_MAX_ROWS", 2)
     email, pw = make_admin(db_engine)
-    tok = client.post("/api/v1/auth/login", json={"email": email, "password": pw}).json()["access_token"]
+    tok = admin_login(client, email, pw).json()["access_token"]
     rows = client.get("/api/v1/companies?limit=5000", headers={"Authorization": f"Bearer {tok}"}).json()
     assert len(rows) == 8
 

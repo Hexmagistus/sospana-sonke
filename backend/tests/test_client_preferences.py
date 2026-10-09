@@ -12,7 +12,7 @@ from app.models.user import POST_TYPES, User
 from app.notifications.email import ConsoleEmailProvider
 from app.services import preference_mail
 from app.services.preference_mail import _FORBIDDEN, preferences_url, service_email_body
-from tests.conftest import make_admin, register_and_login
+from tests.conftest import make_admin, register_and_login, admin_login
 
 PW = "Password123!"
 
@@ -23,7 +23,7 @@ def _auth(tokens):
 
 def _admin(client, db_engine):
     email, password = make_admin(db_engine)
-    return client.post("/api/v1/auth/login", json={"email": email, "password": password}).json()
+    return admin_login(client, email, password).json()
 
 
 def _all(tagging: bool, post: str, alerts: bool) -> dict:

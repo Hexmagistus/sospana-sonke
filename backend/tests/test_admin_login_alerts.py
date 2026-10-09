@@ -8,7 +8,7 @@ from app.models.notification import Notification
 from app.models.user import User
 from app.notifications.email import ConsoleEmailProvider
 from app.services.admin_login_alerts import send_login_digest
-from tests.conftest import make_admin, register_and_login
+from tests.conftest import make_admin, register_and_login, admin_login
 
 PW = "Password123!"
 
@@ -19,7 +19,7 @@ def _auth(tokens):
 
 def _admin(client, db_engine, email="admin@example.com"):
     e, p = make_admin(db_engine, email=email)
-    return client.post("/api/v1/auth/login", json={"email": e, "password": p}).json()
+    return admin_login(client, e, p).json()
 
 
 def _notes(client, tokens, kind="client_login"):
@@ -54,7 +54,7 @@ def test_one_notice_per_client_per_day_and_admin_logins_are_ignored(client, db_e
     # register_and_login already logged in once; all four are the same day.
     assert len(_notes(client, admin)) == 1
     before = len(_notes(client, admin))
-    client.post("/api/v1/auth/login", json={"email": "admin@example.com", "password": "AdminPass123!"})
+    admin_login(client, "admin@example.com", "AdminPass123!")
     assert len(_notes(client, admin)) == before
 
 

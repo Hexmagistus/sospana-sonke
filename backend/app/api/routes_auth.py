@@ -234,6 +234,23 @@ def google_login(request: Request, body: GoogleLoginRequest, background_tasks: B
         db.add(user)
         db.commit()
         db.refresh(user)
+    elif not user.email_verified:
+        # Google has just proved this mailbox. Drop the password, sessions, and
+        # any authenticator a pre-registration could have set, so that row cannot
+        # keep access after the real owner arrives.
+        user.email_verified = True
+        user.password_hash = security.hash_password(secrets.token_urlsafe(32))
+        user.token_version = (user.token_version or 0) + 1
+        user.mfa_enabled = False
+        user.mfa_secret = None
+        user.failed_login_count = 0
+        user.locked_until = None
+        db.commit()
+        db.refresh(user)
+    elif user.mfa_enabled:
+        if not security.verify_totp(user.mfa_secret, body.otp_code):
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                                detail="MFA code required or invalid.")
     if not user.is_active or user.deleted_at is not None:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Account is disabled.")
     queue_login_alert(background_tasks, request, user, method="Google", new_account=new_account)
@@ -320,6 +337,11 @@ def mfa_enable(request: Request, body: MFACodeRequest, db: Session = Depends(get
 @router.post("/mfa/disable", response_model=UserResponse)
 @limiter.limit("10/minute")
 def mfa_disable(request: Request, body: MFACodeRequest, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    if user.role == "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Administrator accounts must keep two-factor authentication on.",
+        )
     if not user.mfa_enabled:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="MFA is not enabled.")
     if not security.verify_totp(user.mfa_secret, body.code):

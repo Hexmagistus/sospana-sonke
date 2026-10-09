@@ -1,7 +1,7 @@
 """Tests for candidate dashboard, admin dashboard, and report generation."""
 from datetime import datetime, timezone
 
-from tests.conftest import register_and_login, make_admin
+from tests.conftest import confirm_registered_email, register_and_login, make_admin, admin_login
 from app.models.company import Company
 from app.models.vacancy import Vacancy, VacancyRequirement
 
@@ -69,6 +69,7 @@ def test_dashboard_nudges_toward_profile_using_registration_answers(client):
         "preferred_position": "Warehouse Supervisor", "qualification_name": "National Diploma: Logistics",
     })
     assert reg.status_code == 201, reg.text
+    confirm_registered_email(client, reg)
     tokens = client.post("/api/v1/auth/login", json={"email": email, "password": "Password123!"}).json()
 
     body = client.get("/api/v1/dashboard", headers=_auth(tokens)).json()
@@ -79,11 +80,12 @@ def test_dashboard_nudges_toward_profile_using_registration_answers(client):
 
 def test_dashboard_nudge_clears_once_candidate_confirms_profile_data(client):
     email = "nudge2@example.com"
-    client.post("/api/v1/auth/register", json={
+    reg = client.post("/api/v1/auth/register", json={
         "email": email, "password": "Password123!",
         "first_name": "Palesa", "last_name": "M", "mobile_number": "0821234567",
         "preferred_position": "Warehouse Supervisor",
     })
+    confirm_registered_email(client, reg)
     tokens = client.post("/api/v1/auth/login", json={"email": email, "password": "Password123!"}).json()
     h = _auth(tokens)
 
@@ -127,7 +129,7 @@ def test_admin_dashboard_mrr(client, db_engine):
         s.close()
 
     email, password = make_admin(db_engine)
-    admin = client.post("/api/v1/auth/login", json={"email": email, "password": password}).json()
+    admin = admin_login(client, email, password).json()
     d = client.get("/api/v1/admin/dashboard", headers=_auth(admin))
     assert d.status_code == 200
     body = d.json()
@@ -161,7 +163,7 @@ def test_admin_users_list_includes_preferred_post_and_qualification(client, db_e
         "qualification_name": "National Diploma in Biotechnology",
     })
     email, password = make_admin(db_engine)
-    admin = client.post("/api/v1/auth/login", json={"email": email, "password": password}).json()
+    admin = admin_login(client, email, password).json()
 
     r = client.get("/api/v1/admin/users", headers=_auth(admin))
     assert r.status_code == 200

@@ -4,7 +4,7 @@ import logging
 from app.core.config import settings
 from app.core.logging import RedactEmailFilter
 from app.models.admin_ops import AdminAuditLog
-from tests.conftest import make_admin, register_and_login
+from tests.conftest import make_admin, register_and_login, admin_login
 
 
 def _auth(tokens):
@@ -62,7 +62,7 @@ def test_log_filter_redacts_email_addresses():
 
 def test_admin_tag_needs_an_explicit_tagging_yes_and_is_audited(client, db_engine):
     email, password = make_admin(db_engine)
-    admin = client.post("/api/v1/auth/login", json={"email": email, "password": password}).json()
+    admin = admin_login(client, email, password).json()
     quiet, quiet_tokens = register_and_login(client, email="notags@example.com", preferred_position="Chef")
     refused = client.post(
         f"/api/v1/admin/users/{quiet['user']['id']}/tags",

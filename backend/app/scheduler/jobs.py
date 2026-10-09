@@ -344,7 +344,7 @@ def test_all_urls(db: Session, limit: int = 200, job_run_id: str | None = None,
     if owns_client:
         client = httpx.Client(
             timeout=settings.URL_TEST_TIMEOUT_SECONDS,
-            follow_redirects=True,
+            follow_redirects=False,
             headers={"User-Agent": settings.URL_TEST_USER_AGENT},
         )
     try:

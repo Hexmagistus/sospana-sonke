@@ -88,6 +88,14 @@ function SecurityInner() {
 
       <Card>
         <h2 className="mb-2 text-lg font-semibold text-ss-text">Two-factor authentication (TOTP)</h2>
+        {user?.role === "admin" && !user.mfa_enabled && (
+          <div className="mb-4">
+            <Alert kind="info">
+              Administrator tools stay closed until this is on. Sign in with your password,
+              add the authenticator below, then open Admin again. An administrator cannot turn it off afterwards.
+            </Alert>
+          </div>
+        )}
         <p className="mb-4 text-sm text-ss-muted">
           Status: {user?.mfa_enabled ? <b className="text-ss-success">Enabled</b> : <b className="text-ss-text">Disabled</b>}
         </p>
@@ -110,13 +118,16 @@ function SecurityInner() {
           </div>
         )}
 
-        {user?.mfa_enabled && (
+        {user?.mfa_enabled && user.role !== "admin" && (
           <div className="flex items-end gap-2">
             <Field label="Authenticator code to disable">
               <Input value={code} onChange={(e) => setCode(e.target.value)} inputMode="numeric" placeholder="6-digit" />
             </Field>
             <Button variant="danger" onClick={disable} disabled={!code}>Disable MFA</Button>
           </div>
+        )}
+        {user?.mfa_enabled && user.role === "admin" && (
+          <p className="text-sm text-ss-muted">Two-factor authentication stays on for administrator accounts.</p>
         )}
       </Card>
 

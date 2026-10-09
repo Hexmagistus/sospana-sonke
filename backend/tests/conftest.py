@@ -80,6 +80,16 @@ def client(db_engine):
     app.dependency_overrides.clear()
 
 
+def confirm_registered_email(client, response):
+    """Mark the mailbox verified using the token from a register response."""
+    body = response.json()
+    token = body.get("email_verification_token")
+    assert token, body
+    verified = client.get("/api/v1/auth/verify", params={"token": token})
+    assert verified.status_code == 200, verified.text
+    return body
+
+
 def register_and_login(client, email="thandi@example.com", password="Password123!", **extra):
     payload = {
         "email": email, "password": password,
@@ -88,8 +98,26 @@ def register_and_login(client, email="thandi@example.com", password="Password123
     payload.update(extra)
     reg = client.post("/api/v1/auth/register", json=payload)
     assert reg.status_code == 201, reg.text
+    # The register response stays unverified. Confirm the mailbox before login so
+    # the rest of the suite can call data routes (those refuse an unverified token).
+    body = confirm_registered_email(client, reg)
     tokens = client.post("/api/v1/auth/login", json={"email": email, "password": password}).json()
-    return reg.json(), tokens
+    return body, tokens
+
+
+# Shared authenticator secret for test admins. Login must send the current code.
+ADMIN_TEST_MFA_SECRET = "JBSWY3DPEHPK3PXP"
+
+
+def admin_otp() -> str:
+    import pyotp
+    return pyotp.TOTP(ADMIN_TEST_MFA_SECRET).now()
+
+
+def admin_login(client, email, password):
+    return client.post("/api/v1/auth/login", json={
+        "email": email, "password": password, "otp_code": admin_otp(),
+    })
 
 
 def make_admin(db_engine, email="admin@example.com", password="AdminPass123!"):
@@ -100,7 +128,8 @@ def make_admin(db_engine, email="admin@example.com", password="AdminPass123!"):
     db = S()
     try:
         u = User(email=email, password_hash=security.hash_password(password),
-                 first_name="Admin", last_name="User", role="admin", email_verified=True)
+                 first_name="Admin", last_name="User", role="admin", email_verified=True,
+                 mfa_enabled=True, mfa_secret=ADMIN_TEST_MFA_SECRET)
         db.add(u)
         db.commit()
     finally:

@@ -1,6 +1,6 @@
 """Tests for SMS/push notification channels and admin analytics."""
 
-from tests.conftest import register_and_login, make_admin
+from tests.conftest import register_and_login, make_admin, admin_login
 from app.core.config import settings
 from app.notifications.channels import ConsoleSMSProvider, ConsolePushProvider
 
@@ -76,7 +76,7 @@ def test_admin_analytics_funnel(client, db_engine):
     client.post(f"/api/v1/applications/{app_id}/status", headers=_auth(tokens), json={"status": "INTERVIEW"})
 
     email, password = make_admin(db_engine)
-    admin = client.post("/api/v1/auth/login", json={"email": email, "password": password}).json()
+    admin = admin_login(client, email, password).json()
     a = client.get("/api/v1/admin/analytics", headers=_auth(admin))
     assert a.status_code == 200
     body = a.json()

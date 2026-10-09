@@ -38,6 +38,12 @@ def get_current_user(
 def require_admin(user: User = Depends(get_current_user)) -> User:
     if user.role != "admin":
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Administrator access required")
+    # Sign-in itself stays open so an admin can enrol. Tools stay closed until then.
+    if not user.mfa_enabled:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Set up two-factor authentication before using administrator tools.",
+        )
     return user
 
 

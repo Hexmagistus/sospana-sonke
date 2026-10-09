@@ -11,7 +11,7 @@
     "test:landing": "tsc -p tsconfig.landing.json && node --test /tmp/landing-test/lib/landingStats.test.js"
   },
   "dependencies": {
-    "next": "15.5.26",
+    "next": "15.5.27",
     "react": "19.3.0",
     "react-dom": "19.3.0"
   },
@@ -21,14 +21,15 @@
     "@types/react-dom": "19.3.0",
     "autoprefixer": "10.4.19",
     "braces": "file:vendor/braces",
-    "postcss": "8.5.28",
+    "postcss": "8.5.29",
     "tailwindcss": "3.4.7",
     "typescript": "5.5.3"
   },
   "overrides": {
     "braces": "$braces",
+    "postcss-selector-parser": "7.1.6",
     "next": {
-      "postcss": "8.5.28"
+      "postcss": "8.5.29"
     }
   }
 }
