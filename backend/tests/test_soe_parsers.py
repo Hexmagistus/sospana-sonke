@@ -223,6 +223,28 @@ def test_peoplesoft_reads_csir_results():
         "https://candidate.csir.co.za/psc/hr/EMPLOYEE/HRMS/c/HRS_HRAM_FL.HRS_CG_SEARCH_FL.GBL?Page=HRS_APP_JBPST_FL")
 
 
+CSIR_JOB_SEARCH = (
+    "https://candidate.csir.co.za/psc/hr/EMPLOYEE/HRMS/c/HRS_HRAM_FL.HRS_CG_SEARCH_FL.GBL"
+    "?Page=HRS_APP_SCHJOB_FL&Action=U"
+)
+
+
+def test_peoplesoft_reads_the_csir_job_search_url():
+    """The stored CSIR link is the PeopleSoft job-search page, and the strategy starts there."""
+    assert detect_ats(CSIR_JOB_SEARCH)[0] == "peoplesoft"
+    seen: list[httpx.Request] = []
+    with _client(_csir_handler(_fx("peoplesoft_csir_results.html"), seen)) as c:
+        vacs = PeopleSoftStrategy().fetch(_Src(CSIR_JOB_SEARCH, "peoplesoft", {}), c)
+    assert [v.title for v in vacs] == [
+        "Researcher (One-year contract)",
+        "Technologist: Cosmetics Lab",
+        "Manager: Hosted National Programmes (Five -Year Contract)",
+    ]
+    assert seen[0].method == "GET"
+    assert "Page=HRS_APP_SCHJOB_FL" in str(seen[0].url)
+    assert "Action=U" in str(seen[0].url)
+
+
 def test_peoplesoft_count_must_match_rows():
     results = _fx("peoplesoft_csir_results.html")
     with _client(_csir_handler(results.replace("<b>3</b> jobs found", "<b>7</b> jobs found"), [])) as c:
