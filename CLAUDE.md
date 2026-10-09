@@ -67,6 +67,10 @@ Lungani, 2026-10-03: in every country dropdown, list, and work order, put **Sout
 
 ## Session Log
 
+### 2026-10-09 — Cursor (Grok 4.7) — South African employer gap, then the blank JSE links
+Off `main` (`3c3ad18`), separate from PR #67. Added **91** South African employers from the gap list (4 with a direct jobs link, 87 blank). Skipped African & Overseas, Rex Trueform, and Amazon South Africa because they were already in the seed, and Grindrod Bank because that bank was sold into African Bank. Stored a careers URL only after a fresh fetch as SospanaSonkeBot: Allan Gray, Prescient (`prescient.simplify.hr`), Postbank, and Wesizwe (the page says there are no openings, which is a real zero). The earlier "yes" list lost Tsebo and Pikitup (robots.txt blocks the bot), Assupol (the vacancies path is a 404), Lactalis and Macsteel (the jobs sit on eRecruit), McCain (a 2023 list that links to the global board), Petra Diamonds (the job search is a login), and Deneb (a CV drop-box, not a vacancy list). The same pass filled **3** of the 110 blank JSE rows: Balwin, Finbond (a real zero), and Eastern Platinum (a real zero). Those 110 are now 107 blank and 161 linked. Woolworths Holdings stays blank.
+Next: the Frankfurt import picks the new rows up on the next boot. The blocked hosts (BCX, KFC, McDonald's, TCS, De Beers) are in the seed without a link.
+
 ### 2026-10-09 — Cursor (Grok 4.7) — Direct jobs links for the new blank employers
 Same branch as the 153-row batch. Crawled each blank homepage for careers, vacancies, and jobs links, then probed Greenhouse, Lever, Workable, simplify.hr, Breezy, SmartRecruiters, Recruitee, CareerInHR, MCI, iCIMS, Pinpoint, Workday, Oracle Candidate Experience, PeopleSoft, Taleo, and SuccessFactors. A URL was stored only when robots.txt allowed SospanaSonkeBot, the response was HTTP 200, and the page was that employer's own jobs page or board. Nine rows gained a link. Culture pages, eRecruit, empty Breezy templates, and boards for a different company were left blank. `careers.woolworths.co.za` still fails TLS from this network, so Woolworths Holdings stays blank.
 
