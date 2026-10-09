@@ -116,6 +116,9 @@ def test_seed_carries_the_url_fixes_made_in_the_database():
     assert urls[("North-West University (NWU)", "South Africa")] == "https://nwu.ci.hr/applicant/index.php"
     assert urls[("Walter Sisulu University (WSU)", "South Africa")] == "https://waltersisulucareers.ci.hr/applicant/index.php"
     assert urls[("Brand South Africa", "South Africa")] == "https://www.brandsouthafrica.com/vacancies/"
+    assert urls[("Bell Equipment", "South Africa")] == (
+        "https://global.bellequipment.com/live/extranet/hr/Careers3.nsf/ViewCareers?OpenAgent&CareerType=JobOpportunity"
+    )
     assert urls[("Microsoft", "United States")] == "https://careers.microsoft.com/v2/global/en/home.html"
 
 

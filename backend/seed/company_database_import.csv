@@ -31,7 +31,7 @@ Attacq,ATT,https://vacancies.attacq.co.za/,green_verified,fixed was email now di
 Aveng,AEG,https://aveng.erecruit.co/candidateapp/Jobs/Browse.aspx,green_verified,direct eRecruit browse,true,pending,South Africa,JSE,
 AVI,AVI,https://avi.simplify.hr/,green_verified,direct recruitment portal,true,pending,South Africa,JSE,
 Balwin Properties,BWN,,amber_company_route,,false,no_url,South Africa,JSE,
-Bell Equipment,BEL,https://www.bellequipment.com/bell-equipment/careers/,green_verified,,true,pending,South Africa,JSE,
+Bell Equipment,BEL,https://global.bellequipment.com/live/extranet/hr/Careers3.nsf/ViewCareers?OpenAgent&CareerType=JobOpportunity,green_verified,"Fetched 2026-10-09 as SospanaSonkeBot; robots.txt on global.bellequipment.com returned HTTP 404 and is treated as allowed. HTTP 200. Bell's own Lotus Domino vacancy list, linked from its careers page. Open roles included Chief Information Officer (Richards Bay/Johannesburg, closing 16 October 2026), Full Stack Developer Intern (Richards Bay, closing 20 October 2026) and Parts Counter Salesman (Kuruman, closing 13 October 2026).",true,pending,South Africa,JSE,https://www.bellequipment.com/
 BHP,BHG,https://careers.bhp.com/viewalljobs/,green_verified,direct view-all-jobs list,true,pending,South Africa,JSE,
 Bidcorp,BID,,amber_company_route,,false,no_url,South Africa,JSE,
 Bidvest,BVT,https://www.bidvest.com/careers/,green_verified,,true,pending,South Africa,JSE,
