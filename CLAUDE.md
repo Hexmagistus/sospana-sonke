@@ -67,6 +67,11 @@ Lungani, 2026-10-03: in every country dropdown, list, and work order, put **Sout
 
 ## Session Log
 
+### 2026-10-09 — Cursor (Grok 4.7) — More private and listed employers
+Rebased onto main after PR #65 merged. Did not edit South American rows, Bell Equipment, or CSIR. Appended **153** employers to `backend/seed/company_database_import.csv`: **43** with a direct jobs link and **110** with the blank-link convention (homepage only where a fetch returned HTTP 200 and named the employer). A link was stored only when robots.txt allowed SospanaSonkeBot, the response was HTTP 200, and the page was that employer's own jobs page or its own ATS board (Greenhouse, Workable, simplify.hr, MCI Direct Hire, CareerInHR, Breezy). Homepages, LinkedIn, aggregators, eRecruit (Clientele's board disallows the bot), US-filtered multinational boards, and ATS accounts whose name did not match the employer were left blank or dropped. The directory snapshot was not rewritten; these rows are seed-only until the next boot import.
+
+With a link / without: South Africa 32/16, Kenya 5/15, Nigeria 3/4, Ghana 2/12, Mauritius 1/20, Botswana 0/5, Malawi 0/3, Tanzania 0/10, Zambia 0/12, Zimbabwe 0/13. Notable links: Vodacom Group, Hulamin, Reunert, Valterra Platinum, WBHO, York Timber, Adcock Ingram, Barloworld, Goldrush, Stefanutti Stocks, Cape Union Mart, Ozow, Yoco, Lula, SweepSouth, OfferZen, CHEP, Clickatell, One Acre Fund, Kakuzi, Presco, PalmPay, Interswitch, Republic Bank Ghana, Omnicane. Notable blanks (no verified jobs URL): Woolworths Holdings, We Buy Cars, Curro, Tongaat Hulett, Clientele, Huge Group, Nictus, CAFCA.
+
 ### 2026-10-09 — Cursor (Grok 4.7) — Direct careers links for blank South America rows
 A second pass filled careers URLs only where a fetch as SospanaSonkeBot was allowed by robots.txt, returned HTTP 200, and the page was that employer's own jobs board or application page. Homepages, LinkedIn, shop catalogs, scholarship calls, student-admission pages, empty boards, and boards for a different country were left blank. 34 rows gained a link.
 
