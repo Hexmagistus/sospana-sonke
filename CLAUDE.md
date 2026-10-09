@@ -67,6 +67,9 @@ Lungani, 2026-10-03: in every country dropdown, list, and work order, put **Sout
 
 ## Session Log
 
+### 2026-10-09 — Cursor (Grok 4.7) — How-to video, jazz bed, no voiceover
+A 2:14 screen recording of the live site (1280×720, H.264, AAC, 4.5 MB) is in `docs/tutorial/sospana-sonke-how-to-use.mp4`, with the step list in `docs/tutorial/storyboard.md`. No app code changed. Captions and title cards stay. There is no voiceover. The bed is an original instrumental loop from `docs/tutorial/jazz-bed.py` (sine, harmonics, and noise only), dedicated under CC0 1.0, mixed at about −18 LUFS with a 2s fade-in and a 3s fade-out. The walkthrough covers the homepage, sign-in, free registration, the directory (search, country, Private), Colleges and SETAs, NGOs, Government, Absa’s own Workday page (nothing submitted), preferences left off, the CV builder without Analyse, the Career Agent, an empty tracker, donate without paying, and signing in again. The throwaway candidate account was deleted (`POST /account/delete` returned 204; a later login returned 401).
+
 ### 2026-10-09 — Cursor (Grok 4.7) — Direct jobs links for the new blank employers
 Same branch as the 153-row batch. Crawled each blank homepage for careers, vacancies, and jobs links, then probed Greenhouse, Lever, Workable, simplify.hr, Breezy, SmartRecruiters, Recruitee, CareerInHR, MCI, iCIMS, Pinpoint, Workday, Oracle Candidate Experience, PeopleSoft, Taleo, and SuccessFactors. A URL was stored only when robots.txt allowed SospanaSonkeBot, the response was HTTP 200, and the page was that employer's own jobs page or board. Nine rows gained a link. Culture pages, eRecruit, empty Breezy templates, and boards for a different company were left blank. `careers.woolworths.co.za` still fails TLS from this network, so Woolworths Holdings stays blank.
 
