@@ -9,8 +9,8 @@ export default function DonateThanksPage() {
       <Card>
         <h1 className="text-2xl font-bold text-ss-text">Thank you 🙏</h1>
         <p className="mt-2 text-sm text-ss-muted">
-          Your support helps keep Sospana Sonke free for jobseekers across Southern Africa. A
-          receipt has been sent to the email address you provided.
+          Your support helps keep Sospana Sonke free. It started in the SADC region and lists employers
+          further afield as well. A receipt has been sent to the email address you provided.
         </p>
         <div className="mt-4">
           <Link href="/companies">

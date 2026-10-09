@@ -9,7 +9,7 @@ export default function TermsPage() {
     <div className="mx-auto mt-8 max-w-3xl">
       <Card>
         <h1 className="mb-1 text-2xl font-bold text-brand">Terms of Service</h1>
-        <p className="mb-6 text-sm text-ss-muted">Last updated: 20 September 2026</p>
+        <p className="mb-6 text-sm text-ss-muted">Last updated: 9 October 2026</p>
         <div className="space-y-4 text-sm leading-relaxed text-ss-text">
           <p>
             These terms govern your use of Sospana Sonke (the &quot;Service&quot;). By creating an
@@ -18,9 +18,11 @@ export default function TermsPage() {
 
           <h2 className="pt-2 text-lg font-semibold text-ss-text">What the Service does</h2>
           <p>
-            Sospana Sonke helps you discover job vacancies across Southern Africa and apply directly
-            to employers. We are a discovery and application tool — we are not an employer, agency,
-            or recruiter, and we do not guarantee any job, interview, or outcome.
+            Sospana Sonke helps you find employers that have a direct careers link, and vacancies we
+            have been able to read from those pages, across Africa, Oceania, Europe, South America,
+            North America and Asia. It started in the SADC region. You apply on the employer&apos;s own
+            site. We are not an employer, agency, or recruiter, and we do not guarantee any job,
+            interview, or outcome. We do not score you against vacancies.
           </p>
 
           <h2 className="pt-2 text-lg font-semibold text-ss-text">Your account</h2>
@@ -68,9 +70,8 @@ export default function TermsPage() {
           <p>
             Employer, university, college, hospital and public-body names, logos and trade marks belong
             to their owners and are used only to identify them. Sospana Sonke is independent and is not
-            affiliated with, sponsored by or endorsed by any listed organisation, including those grouped
-            under &quot;BRICS partners&quot;. We link to vacancy pages rather than copying job adverts, and
-            we do not permit bulk copying (scraping) of our curated directory.
+            affiliated with, sponsored by or endorsed by any listed organisation. We link to vacancy pages
+            rather than copying job adverts, and we do not permit bulk copying of our curated directory.
           </p>
 
           <h2 className="pt-2 text-lg font-semibold text-ss-text">Availability and changes</h2>

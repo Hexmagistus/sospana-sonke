@@ -6,6 +6,8 @@ import {
   NOT_COUNTED_NOTICE_BODY,
   NOT_COUNTED_NOTICE_TITLE,
   NOT_COUNTED_TOOLTIP,
+  READABLE_CAREERS_FEEDS,
+  READABLE_CAREERS_NOTE,
   anyNotCounted,
   isNotCounted,
 } from "./notCounted.js";
@@ -51,5 +53,12 @@ describe("disclaimer wording", () => {
     assert.match(NOT_COUNTED_TOOLTIP, /does not mean/);
     assert.match(NOT_COUNTED_NOTICE_TITLE, /does not mean/);
     assert.match(NOT_COUNTED_INLINE, /Check their site/);
+  });
+
+  it("names the public feeds the scanner can read, including iCIMS", () => {
+    assert.match(READABLE_CAREERS_FEEDS, /iCIMS/);
+    assert.match(READABLE_CAREERS_FEEDS, /Greenhouse/);
+    assert.match(READABLE_CAREERS_NOTE, /Not counted yet/);
+    assert.doesNotMatch(READABLE_CAREERS_FEEDS, /SuccessFactors/);
   });
 });

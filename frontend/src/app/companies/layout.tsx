@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
+import { snapshotDirectoryDescription } from "@/lib/landingStats";
+
+const description = snapshotDirectoryDescription();
 
 export const metadata: Metadata = {
-  title: "Verified employers across Africa",
-  description: "Browse 2,400+ verified employers across 26 African markets — companies, state-owned enterprises, government departments and municipalities — and apply directly on their official careers pages.",
+  title: "Employers with a direct careers link",
+  description,
   alternates: { canonical: "/companies" },
-  openGraph: { title: "Verified employers across Africa · Sospana Sonke", description: "Browse 2,400+ verified employers across 26 African markets — companies, state-owned enterprises, government departments and municipalities — and apply directly on their official careers pages.", url: "/companies" },
+  openGraph: { title: "Employers with a direct careers link · Sospana Sonke", description, url: "/companies" },
 };
 
 export default function Layout({ children }: { children: React.ReactNode }) {

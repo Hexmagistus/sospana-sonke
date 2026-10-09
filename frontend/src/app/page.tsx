@@ -9,6 +9,7 @@ import { useAuth } from "@/lib/auth";
 import { setPendingSearch } from "@/lib/agentHandoff";
 import { API_BASE } from "@/lib/api";
 import { HERITAGE_GROUPS, HERITAGE_SITES, type HeritageSite } from "@/data/heritageSites";
+import { READABLE_CAREERS_NOTE } from "@/lib/notCounted";
 import { coverageText, tierOf, TIERS, TIER_RANK } from "@/lib/regions";
 import {
   countryRows, parseStats, readCachedStats, snapshotStats, SNAPSHOT_AS_OF, writeCachedStats,
@@ -707,7 +708,7 @@ export default function Home() {
                   </Link>
                 </div>
                 <p className="mt-6 text-sm text-ss-muted">
-                  <b style={{ color: C.goldText }}>Free to use</b> · Direct employer links, application tracking, and a daily agent that drafts — you still press send.
+                  <b style={{ color: C.goldText }}>Free to use</b> · Direct employer links, a CV you tailor yourself, and a tracker for the roles you choose. Nothing is sent to an employer for you.
                 </p>
               </Reveal>
             </div>
@@ -751,8 +752,8 @@ export default function Home() {
       <section className="mx-auto grid max-w-6xl gap-5 px-4 py-12 sm:grid-cols-2 lg:grid-cols-4">
         {[
           ["🎯", "Straight to employers", `Direct links to ${shownEmployers.toLocaleString("en-US")} employers' official careers pages. You apply on their site. We don't invent listings.`, C.red],
-          ["🏛️", "State-owned employers too", "SOEs are in the same directory, each with a link we could verify. South Africa has the most. Other countries are added the same way.", C.gold],
-          ["🤖", "A daily digest, still your call", "Opt in and get one short email a day with the openings that are genuinely new. Nothing is ever sent for you.", C.sky],
+          ["🏛️", "State-owned employers too", "State-owned employers sit in the same directory. A careers link is shown only when we have one. Many still have none, and those cards do not pretend otherwise.", C.gold],
+          ["🤖", "A daily email, still your call", "If you opt in, one email a day can list vacancies first seen in the last 24 hours. It does not draft an application, and nothing is sent to an employer for you.", C.sky],
           ["📈", "Track & rise", "Every application in one place. Stay organised, stay ready, and keep moving forward.", C.teal],
         ].map(([ic, t, d, col], i) => (
           <Reveal key={t as string} delay={i * 120}>
@@ -799,12 +800,12 @@ export default function Home() {
         <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-3">
           {[
             // Same order as the menu (lib/explorer/categoryGroups.ts EXPLORER_NAV).
-            { icon: "🏢", label: "Companies", desc: "JSE-listed & private employers", href: "/companies", col: C.teal, photo: "/photos/cape-town-waterfront.jpg" },
+            { icon: "🏢", label: "Companies", desc: "Private employers and the full directory", href: "/companies", col: C.teal, photo: "/photos/cape-town-waterfront.jpg" },
             { icon: "🎓", label: "Universities", desc: "Academic & research posts", href: "/universities", col: C.sky, photo: "/photos/marrakech.jpg" },
-            { icon: "🏫", label: "Colleges & SETAs", desc: "TVET & private colleges, SETAs", href: "/colleges", col: C.green, badge: "Featured", photo: "/photos/nairobi.jpg" },
+            { icon: "🏫", label: "Colleges & SETAs", desc: "Colleges, and South African SETAs", href: "/colleges", col: C.green, photo: "/photos/nairobi.jpg" },
             { icon: "🏥", label: "Hospitals", desc: "Healthcare & clinical roles", href: "/hospitals", col: C.red, photo: "/photos/cape-town-coast.jpg" },
-            { icon: "🤝", label: "NGOs", desc: "NGOs, charities & UN agencies", href: "/ngos", col: C.gold, badge: "New", photo: "/photos/team.jpg" },
-            { icon: "🏛️", label: "Government", desc: "Departments, municipalities & SOEs", href: "/government", col: C.plum, badge: "New", photo: "/photos/lagos.jpg" },
+            { icon: "🤝", label: "NGOs", desc: "NGOs, charities & UN agencies", href: "/ngos", col: C.gold, photo: "/photos/team.jpg" },
+            { icon: "🏛️", label: "Government", desc: "Departments, municipalities & SOEs", href: "/government", col: C.plum, photo: "/photos/lagos.jpg" },
           ].map((cat, i) => (
             <Reveal key={cat.label} delay={i * 80}>
               <TiltCard>
@@ -815,11 +816,6 @@ export default function Home() {
                 >
                   <div className="relative h-24 w-full overflow-hidden">
                     <Image src={cat.photo} alt="" fill sizes="(max-width: 640px) 50vw, 30vw" className="object-cover transition duration-700 motion-safe:group-hover:scale-105" />
-                    {cat.badge && (
-                      <span className="absolute right-2 top-2 rounded-full bg-gold px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-navy shadow">
-                        {cat.badge}
-                      </span>
-                    )}
                   </div>
                   <div className="relative p-4">
                     <div className="absolute -top-7 left-4 flex h-12 w-12 items-center justify-center rounded-xl border border-ss-border bg-ss-surface text-2xl shadow transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-110">
@@ -909,7 +905,7 @@ export default function Home() {
               <span className="inline-block rounded-full bg-ss-surface px-4 py-1.5 text-xs font-semibold backdrop-blur-sm">🌍 Opportunity map</span>
               <h2 className="mt-4 font-display text-2xl font-extrabold sm:text-4xl">Born in SADC. Live across {coverage}.</h2>
               <p className="mt-3 max-w-3xl text-ss-muted">
-                We&apos;re live across {coverage}. A country is listed once a direct careers page is verified.{" "}
+                We&apos;re live across {coverage}. A country appears here when at least one employer has a direct careers link.{" "}
                 {isLive
                   ? "The counts below come from the live directory."
                   : `The counts below are from the directory on ${new Date(SNAPSHOT_AS_OF + "T12:00:00Z").toLocaleDateString("en-ZA", { day: "numeric", month: "long", year: "numeric" })}, and update as soon as the live directory answers.`}{" "}
@@ -946,7 +942,7 @@ export default function Home() {
             <Reveal delay={100}>
               <div className="mt-8 rounded-2xl border border-ss-border bg-ss-surface p-5">
                 <p className="text-xs font-semibold uppercase tracking-wider text-ss-muted">Who&apos;s powering the directory</p>
-                <p className="mt-1 text-sm text-ss-muted">Verified employers on Sospana Sonke by country — a live picture of where the region&apos;s opportunities are opening up.</p>
+                <p className="mt-1 text-sm text-ss-muted">Employers with a direct careers link, by country. The longest bar is whoever has the most of those links right now.</p>
                 <div className="mt-4 space-y-2.5">
                   {ranked.slice(0, RANKING_PREVIEW).map((c, i) => {
                     const max = ranked[0]?.count || 1;
@@ -960,7 +956,7 @@ export default function Home() {
                 </div>
 
                 <p className="mt-3 text-[11px] text-ss-muted">
-                  South Africa leads today and is listed first, then the rest of SADC, the rest of Africa and the other regions. As we verify more employers across each market, this picture will keep shifting.
+                  The country picker lists South Africa first, then the rest of SADC, the rest of Africa, and the other regions. The bars above follow the counts, so the order can differ. As more careers links are confirmed, this picture will keep shifting.
                   Use the country picker above to look up any of the {countries.length} countries.
                 </p>
               </div>
@@ -974,11 +970,10 @@ export default function Home() {
       <section className="mx-auto max-w-6xl px-4 py-12">
         <Reveal>
           <div className="rounded-3xl bg-white px-6 py-9 shadow-sm ring-1 ring-black/5 sm:px-10">
-            <h2 className="font-display text-2xl font-extrabold sm:text-3xl" style={{ color: C.navy }}>Built for every young African. 🌍</h2>
+            <h2 className="font-display text-2xl font-extrabold sm:text-3xl" style={{ color: C.navy }}>Started in SADC. The directory goes further. 🌍</h2>
             <p className="mt-3 max-w-3xl text-gray-600">
-              Wherever you come from and whatever you dream in, your ambition speaks a language every employer
-              understands: skill, effort, and the will to rise. One continent, one generation ready to work —
-              and one platform standing behind you every step of the way.
+              Sospana Sonke was made for job seekers in Africa. The employer list now covers {coverage}.
+              You still apply on the employer&apos;s own careers page. We do not promise a job.
             </p>
             <div className="mt-5 flex flex-wrap gap-2">
               {VALUES.map((l, i) => {
@@ -999,14 +994,14 @@ export default function Home() {
       <section className="mx-auto max-w-6xl px-4 pb-4">
         <Reveal>
           <h2 className="text-center font-display text-2xl font-extrabold sm:text-3xl" style={{ color: C.navy }}>How it works</h2>
-          <p className="mt-2 text-center text-ss-muted">Four simple steps from profile to progress.</p>
+          <p className="mt-2 text-center text-ss-muted">Four steps. You apply on the employer&apos;s site.</p>
         </Reveal>
         <div className="mt-8 grid gap-5 sm:grid-cols-4">
           {[
             ["1", "Create your profile", "Add your details and upload your CV — once.", C.red],
-            ["2", "Find the right openings", "Browse employers and new vacancies, and build a tailored CV + cover letter for any role you choose.", C.sun],
-            ["3", "Review & approve", "Nothing is ever sent without you — review what you prepared, then apply on the employer's official page.", C.green],
-            ["4", "Track & win", "Follow every application in one place.", C.sky],
+            ["2", "Find the right openings", "Browse employers and any vacancies we have been able to read. Paste a role if you want a tailored CV and cover letter.", C.sun],
+            ["3", "Review, then apply there", "Nothing is sent to an employer for you. Review what you prepared, then apply on the employer's own page.", C.green],
+            ["4", "Keep a record", "Roles you tailor are kept in one list. The list does not apply for you.", C.sky],
           ].map(([n, t, d, col], i) => (
             <Reveal key={n as string} delay={i * 100}>
               <div
@@ -1024,6 +1019,7 @@ export default function Home() {
             </Reveal>
           ))}
         </div>
+        <p className="mx-auto mt-6 max-w-3xl text-center text-sm leading-relaxed text-ss-muted">{READABLE_CAREERS_NOTE}</p>
       </section>
 
       <DailySparkTease />
@@ -1054,7 +1050,7 @@ export default function Home() {
       </section>
 
       <footer className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-4 py-8 text-sm text-ss-muted">
-        <span>© 2026 Sospana Sonke · Southern Africa</span>
+        <span>© 2026 Sospana Sonke · Born in SADC</span>
         <div className="flex items-center gap-4">
           <Link href="/donate" className="hover:text-ss-text">Donate</Link>
           <a href="/privacy" className="hover:text-ss-text">Privacy Policy</a>

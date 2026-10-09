@@ -167,8 +167,8 @@ function PreferencesInner() {
             </StatusPill>
           </legend>
           <p className="mt-1 text-sm text-ss-muted">
-            May we send you alerts about posts that match you? Alerts are off unless you say yes, and you can
-            switch them off here whenever you like.
+            May an administrator email you about a post that fits a role you named? This is off unless you say yes.
+            The site does not score you against vacancies. You can switch this off here.
           </p>
           <div className="mt-3 flex gap-5 text-sm text-ss-text">
             <label className="flex min-h-11 items-center gap-2">

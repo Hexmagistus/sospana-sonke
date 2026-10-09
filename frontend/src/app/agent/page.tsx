@@ -7,8 +7,8 @@
  * invented. It draws on two live sources:
  *   1. Any scraped vacancy listings (`/vacancies`). Job matching/scoring was
  *      removed: the agent no longer computes or shows match scores.
- *   2. The employer directory (`/companies`) — thousands of verified careers
- *      pages across Africa. This is the platform's core: "we find the
+ *   2. The employer directory (`/companies`) — employers with a direct careers
+ *      link across Africa and the other regions in the directory. This is the platform's core: "we find the
  *      opportunities, you apply direct."
  *
  * Because most employers here advertise on their own careers pages rather than a
@@ -641,8 +641,8 @@ function AgentInner() {
       <header>
         <h1 className="text-2xl font-bold">Sospana Sonke Career Agent</h1>
         <p className="mt-1 text-sm text-ss-muted">
-          Ask in plain English. I search the live employer directory and any indexed vacancies, rank real
-          opportunities, and link you straight to employers&rsquo; own careers pages — no invented jobs, no false promises.
+          Ask in plain English. I search the live employer directory and any vacancies we have indexed, and I
+          link you to the employer&rsquo;s own careers page. I do not score you against a job, and I do not invent listings.
         </p>
       </header>
 

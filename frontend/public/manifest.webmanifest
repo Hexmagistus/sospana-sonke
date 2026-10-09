@@ -1,7 +1,7 @@
 {
   "name": "Sospana Sonke",
   "short_name": "Sospana Sonke",
-  "description": "Find verified employers across Africa, tailor your CV, and apply directly on their official careers pages.",
+  "description": "Find employers with a direct careers link across Africa, Oceania, Europe, South America, North America and Asia. Tailor your CV, and apply on the employer's own page.",
   "start_url": "/dashboard",
   "scope": "/",
   "display": "standalone",

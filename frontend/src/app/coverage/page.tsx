@@ -9,6 +9,7 @@ import { Banner } from "@/components/Banner";
 import { FunSpinner } from "@/components/FunSpinner";
 import { AnimatedNumber } from "@/components/AnimatedNumber";
 import { COUNTRY_FLAGS } from "@/lib/countryFlags";
+import { READABLE_CAREERS_NOTE } from "@/lib/notCounted";
 import type { CoverageRow } from "@/lib/types";
 
 function CoverageInner() {
@@ -67,9 +68,9 @@ function CoverageInner() {
       </div>
 
       <Alert kind="info">
-        &quot;Verified working&quot; means the URL tester or a scan run has actually loaded the page and it looks
-        like a careers page. &quot;Pending verification&quot; rows were added from research but not yet fetched
-        live — most new university entries fall here first. This is the same data we use internally to decide
+        &quot;Verified working&quot; means the URL tester or a scan has loaded the page and it looks
+        like a careers page. &quot;Pending verification&quot; means the row was added from research and has not
+        been fetched yet. {READABLE_CAREERS_NOTE} This is the same data we use internally to decide
         what to check next, not a marketing number.
       </Alert>
 

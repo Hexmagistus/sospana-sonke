@@ -57,6 +57,8 @@ const EUROPE = new Set([
 const SOUTH_AMERICA = new Set([
   "Argentina", "Bolivia", "Brazil", "Chile", "Colombia", "Ecuador", "Guyana",
   "Paraguay", "Peru", "Suriname", "Uruguay", "Venezuela",
+  // Overseas department of France. The directory lists it on its own; the map has no separate outline.
+  "French Guiana",
 ]);
 const NORTH_AMERICA = new Set([
   "Canada", "United States", "United States of America", "Mexico", "Greenland",
