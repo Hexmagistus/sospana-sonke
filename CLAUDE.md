@@ -67,6 +67,10 @@ Lungani, 2026-10-03: in every country dropdown, list, and work order, put **Sout
 
 ## Session Log
 
+### 2026-10-09 — Cursor (Grok 4.7) — Parallel scan test no longer shares one session across threads
+CI on the South African gap branch failed one test: both companies counted as a failed scan. The worker compared `company.id` with `bad.id`, and `bad` belonged to the test session. After commit that attribute is expired, so both threads tried to refresh it on the same SQLite connection (`InterfaceError`, then `ObjectDeletedError`). The test now keeps the ids as strings before the pool starts. The seed rows are unchanged.
+Next: the same as the entry below — Frankfurt import on the next boot.
+
 ### 2026-10-09 — Cursor (Grok 4.7) — South African employer gap, then the blank JSE links
 Off `main` (`3c3ad18`), separate from PR #67. Added **91** South African employers from the gap list (4 with a direct jobs link, 87 blank). Skipped African & Overseas, Rex Trueform, and Amazon South Africa because they were already in the seed, and Grindrod Bank because that bank was sold into African Bank. Stored a careers URL only after a fresh fetch as SospanaSonkeBot: Allan Gray, Prescient (`prescient.simplify.hr`), Postbank, and Wesizwe (the page says there are no openings, which is a real zero). The earlier "yes" list lost Tsebo and Pikitup (robots.txt blocks the bot), Assupol (the vacancies path is a 404), Lactalis and Macsteel (the jobs sit on eRecruit), McCain (a 2023 list that links to the global board), Petra Diamonds (the job search is a login), and Deneb (a CV drop-box, not a vacancy list). The same pass filled **3** of the 110 blank JSE rows: Balwin, Finbond (a real zero), and Eastern Platinum (a real zero). Those 110 are now 107 blank and 161 linked. Woolworths Holdings stays blank.
 Next: the Frankfurt import picks the new rows up on the next boot. The blocked hosts (BCX, KFC, McDonald's, TCS, De Beers) are in the seed without a link.
