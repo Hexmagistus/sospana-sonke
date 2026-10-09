@@ -67,6 +67,15 @@ Lungani, 2026-10-03: in every country dropdown, list, and work order, put **Sout
 
 ## Session Log
 
+### 2026-10-09 — Cursor (Grok 4.7) — Direct careers links for blank South America rows
+A second pass filled careers URLs only where a fetch as SospanaSonkeBot was allowed by robots.txt, returned HTTP 200, and the page was that employer's own jobs board or application page. Homepages, LinkedIn, shop catalogs, scholarship calls, student-admission pages, empty boards, and boards for a different country were left blank. 34 rows gained a link.
+
+With-link counts (before → after): Brazil 432 → 435 (34 still blank), Argentina 68 → 82 (170 blank), Chile 37 → 45 (157 blank), Colombia 20 → 21 (100 blank), Peru 15 → 23 (52 blank). Bolivia, Ecuador, Paraguay, Uruguay, Venezuela, Guyana, Suriname, and French Guiana were unchanged.
+
+Notable fills: Grupo Globo `globo.gupy.io` (26 roles, Analista de Dados Pleno); Centro Paula Souza and Prefeitura de Belo Horizonte contest pages; HiringRoom boards for Ferrovías (20), Adecoagro (24), Prüne (30), Frigorífico Rioplatense (10), Sinteplast (6), Aceitera General Deheza (3), Banco Patagonia (5), Universidad Torcuato Di Tella (4), AFP Habitat (2), Farmacias Ahumada (31), and Topitop (6); Carozzi `empleos.carozzicorp.com/jobs` (31 roles, including Mecánico Planta Lontué) on both blank Chile rows; Betterfly Teamtailor (4 roles); Coca-Cola Embonor evaluar board (9 roles, Viña del Mar and Concón); Universidad del Quindío administrative contest (18 posts); Universidad de Valparaíso cargos; UNAC, UNSAAC, UNCP, UNT, UARM, Universidad de Lima, and Universidad Nacional de Música staff calls.
+
+Left blank on purpose: Eletrobras Gupy (0 vagas), Caixa (HTTP 403), Colbún SuccessFactors (`career19.sapsf.com` robots `Disallow: /`), Celsia on Grupo Argos (HTTP 403), Pacífico Seguros (LinkedIn only), Arcor do Brasil and Busscar Joinville boards (wrong country), Universidad de Chile, UMSA, and UNA Paraguay (pinned blanks), and pages that were news, franchises, or product catalogs.
+
 ### 2026-10-09 — Cursor (Grok 4.7) — CSIR careers URL is the PeopleSoft job search
 The only CSIR seed row is Council for Scientific and Industrial Research (CSIR), South Africa, SOE. Its stored URL was `https://candidate.csir.co.za/psc/hr/EMPLOYEE/HRMS/c/HRS_HRAM_FL.HRS_CG_SEARCH_FL.GBL?FOCUS=Applicant`. It is now `https://candidate.csir.co.za/psc/hr/EMPLOYEE/HRMS/c/HRS_HRAM_FL.HRS_CG_SEARCH_FL.GBL?Page=HRS_APP_SCHJOB_FL&Action=U`. Fetched 2026-10-09 as SospanaSonkeBot: `candidate.csir.co.za/robots.txt` is HTTP 404, which the scanner treats as allowed. With the session cookie the board returns HTTP 200 and listed 7 jobs (Engineer: CSIR Equipment and Machinery, Scientia, Pretoria, closing 30 October 2026, through Technologist: Cosmetics Lab). `detect_ats` classifies that URL as `peoplesoft`, and `PeopleSoftStrategy` read the same 7 titles from the live page.
 
