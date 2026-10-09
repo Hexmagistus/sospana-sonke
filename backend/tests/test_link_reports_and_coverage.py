@@ -2,7 +2,7 @@
 GET /companies/coverage rollup."""
 import io
 
-from tests.conftest import register_and_login, make_admin
+from tests.conftest import register_and_login, make_admin, admin_login
 
 CSV = (
     "company_name,jse_code,careers_url,source_type,scraping_status,active,relevance_note,country\n"
@@ -19,7 +19,7 @@ def _auth_header(tokens):
 
 def _seed(client, db_engine):
     email, password = make_admin(db_engine)
-    tokens = client.post("/api/v1/auth/login", json={"email": email, "password": password}).json()
+    tokens = admin_login(client, email, password).json()
     files = {"file": ("companies.csv", io.BytesIO(CSV.encode()), "text/csv")}
     client.post("/api/v1/companies/import", files=files, headers=_auth_header(tokens))
     listed = client.get("/api/v1/companies", headers=_auth_header(tokens)).json()

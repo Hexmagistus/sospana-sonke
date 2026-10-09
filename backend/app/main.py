@@ -108,6 +108,47 @@ def create_app() -> FastAPI:
                 pass
         return await call_next(request)
 
+    # An unverified password account can be a pre-registration of someone else's
+    # email. Until that person opens the verification link, the token may only
+    # reach sign-in, verification, and the account export/delete routes.
+    _unverified_ok = (
+        "/health",
+        f"{settings.API_V1_PREFIX}/auth/",
+        f"{settings.API_V1_PREFIX}/account/",
+    )
+
+    @app.middleware("http")
+    async def limit_unverified_accounts(request, call_next):
+        auth = request.headers.get("authorization") or ""
+        path = request.url.path
+        allowed = path == "/health" or any(path.startswith(prefix) for prefix in _unverified_ok if prefix != "/health")
+        if auth.lower().startswith("bearer ") and not allowed:
+            from fastapi.responses import JSONResponse
+
+            from app.core.security import decode_token, token_is_current
+            from app.db.session import SessionLocal
+            from app.models.user import User
+
+            token = auth.split(" ", 1)[1].strip()
+            try:
+                payload = decode_token(token, expected_type="access")
+            except Exception:
+                return await call_next(request)
+            user_id = payload.get("sub")
+            if user_id:
+                db = SessionLocal()
+                try:
+                    user = db.get(User, user_id)
+                    if (user is not None and not user.email_verified
+                            and token_is_current(payload, user)):
+                        return JSONResponse(
+                            status_code=403,
+                            content={"detail": "Verify your email before using this account."},
+                        )
+                finally:
+                    db.close()
+        return await call_next(request)
+
     @app.middleware("http")
     async def log_unhandled_exceptions(request, call_next):
         # Outermost middleware (registered after add_security_headers, so it

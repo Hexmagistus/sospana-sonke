@@ -1,6 +1,6 @@
 """Advertiser spot applications: minimum amount, validation, rate limit, admin approval.
 Ads show only on the login page, in four spots LG1-LG4."""
-from tests.conftest import make_admin, register_and_login
+from tests.conftest import make_admin, register_and_login, admin_login
 
 URL = "/api/v1/ads/applications"
 GOOD = {
@@ -15,7 +15,7 @@ GOOD = {
 
 def _admin(client, db_engine):
     email, password = make_admin(db_engine)
-    t = client.post("/api/v1/auth/login", json={"email": email, "password": password}).json()
+    t = admin_login(client, email, password).json()
     return {"Authorization": f"Bearer {t['access_token']}"}
 
 

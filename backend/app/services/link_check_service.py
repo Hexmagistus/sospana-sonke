@@ -24,6 +24,7 @@ from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.models.company import Company
+from app.scraper.safe_fetch import checked_get
 
 logger = logging.getLogger(__name__)
 
@@ -43,7 +44,7 @@ def hash_page_content(html: str) -> str:
 
 
 def make_client() -> httpx.Client:
-    return httpx.Client(timeout=settings.URL_TEST_TIMEOUT_SECONDS, follow_redirects=True,
+    return httpx.Client(timeout=settings.URL_TEST_TIMEOUT_SECONDS, follow_redirects=False,
                         headers={"User-Agent": settings.URL_TEST_USER_AGENT})
 
 
@@ -61,7 +62,7 @@ def check_company_content(company: Company, client: httpx.Client | None = None) 
     if owns_client:
         client = make_client()
     try:
-        resp = client.get(company.careers_url)
+        resp = checked_get(client, company.careers_url)
         if resp.status_code >= 400:
             return False
         new_hash = hash_page_content(resp.text)

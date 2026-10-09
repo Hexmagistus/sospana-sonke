@@ -1,7 +1,7 @@
 """Tests for trust/scam flagging, duplicate detection, and vacancy reporting."""
 from datetime import datetime, timedelta, timezone
 
-from tests.conftest import register_and_login, make_admin
+from tests.conftest import register_and_login, make_admin, admin_login
 from app.models.company import Company
 from app.models.vacancy import Vacancy
 from app.services.trust_service import scan_for_trust_flags
@@ -150,7 +150,7 @@ def test_report_vacancy_and_admin_listing(client, db_engine):
     assert bad.status_code == 422
 
     email, password = make_admin(db_engine)
-    admin_tokens = client.post("/api/v1/auth/login", json={"email": email, "password": password}).json()
+    admin_tokens = admin_login(client, email, password).json()
     listed = client.get("/api/v1/admin/vacancy-reports", headers=_auth(admin_tokens))
     assert listed.status_code == 200
     assert any(x["category"] == "scam" for x in listed.json())
@@ -162,7 +162,7 @@ def test_report_vacancy_and_admin_listing(client, db_engine):
 def test_admin_duplicate_endpoints(client, db_engine):
     _, keep_id, dup_id = _seed_two_near_identical(db_engine)
     email, password = make_admin(db_engine)
-    admin_tokens = client.post("/api/v1/auth/login", json={"email": email, "password": password}).json()
+    admin_tokens = admin_login(client, email, password).json()
 
     groups = client.get("/api/v1/admin/vacancies/duplicates", headers=_auth(admin_tokens))
     assert groups.status_code == 200
