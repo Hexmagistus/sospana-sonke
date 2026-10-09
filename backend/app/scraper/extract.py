@@ -20,7 +20,8 @@ def normalize_date(value: str | None) -> date | None:
         return None
     value = value.strip()
     for fmt in ("%Y-%m-%d", "%Y-%m-%dT%H:%M:%S", "%Y-%m-%dT%H:%M:%SZ",
-                "%Y-%m-%dT%H:%M:%S.%fZ", "%d/%m/%Y", "%d %B %Y", "%B %d, %Y"):
+                "%Y-%m-%dT%H:%M:%S.%fZ", "%d/%m/%Y", "%d %B %Y", "%d %b %Y",
+                "%B %d, %Y"):
         # Whole value first: the slice below cuts "16 October 2026" to
         # "16 October 202" and the format then fails on the year.
         for candidate in (value, value[:len(fmt) + 6]):

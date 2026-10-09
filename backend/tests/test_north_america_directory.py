@@ -36,7 +36,7 @@ EXPECTED = {
     "Hootsuite": ("Canada", "static"),
     "Kavak": ("Mexico", "workday"),
     "Clara": ("Mexico", "greenhouse"),
-    "Digicel": ("Jamaica", "static"),
+    "Digicel": ("Jamaica", "icims"),
     "Copa Airlines": ("Panama", "oracle"),
 }
 

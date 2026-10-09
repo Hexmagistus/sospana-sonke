@@ -21,7 +21,7 @@ EXPECTED = [
     ("University of British Columbia", "Canada", "static"),
     ("McGill University", "Canada", "static"),
     ("University of Waterloo", "Canada", "static"),
-    ("University of Toronto", "Canada", "static"),
+    ("University of Toronto", "Canada", "icims"),
     ("Public Health Ontario", "Canada", "static"),
     ("Spin (FEMSA)", "Mexico", "greenhouse"),
     ("Rappi", "Colombia", "workday"),

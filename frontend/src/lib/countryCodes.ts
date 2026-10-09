@@ -8,27 +8,12 @@ Nothing here calls a service.
 
 import { COUNTRY_FLAGS } from "./countryFlags";
 
-/** Directory spellings the flag table does not have. ISO 3166-1 alpha-2 (XK = Kosovo, user-assigned). */
+/** Directory spellings the flag table does not have yet. ISO 3166-1 alpha-2.
+These are not in the directory; they are listed so a new country lands in its region. */
 const EXTRA_CODES: Record<string, string> = {
-  "Afghanistan": "AF", "Albania": "AL", "Andorra": "AD", "Antigua and Barbuda": "AG",
-  "Azerbaijan": "AZ", "Bahamas": "BS", "Bahrain": "BH", "Bangladesh": "BD",
-  "Belarus": "BY", "Belize": "BZ", "Bhutan": "BT", "Bolivia": "BO",
-  "Bosnia and Herzegovina": "BA", "Brunei": "BN", "Cambodia": "KH", "Costa Rica": "CR",
-  "Dominica": "DM", "Dominican Republic": "DO", "El Salvador": "SV", "Grenada": "GD",
-  "Guyana": "GY", "Haiti": "HT", "Holy See": "VA", "Honduras": "HN", "Iceland": "IS",
-  "Iraq": "IQ", "Jordan": "JO", "Kazakhstan": "KZ", "Kiribati": "KI", "Kosovo": "XK",
-  "Kuwait": "KW", "Kyrgyzstan": "KG", "Laos": "LA", "Latvia": "LV", "Lebanon": "LB",
-  "Liechtenstein": "LI", "Maldives": "MV", "Malta": "MT", "Marshall Islands": "MH",
-  "Micronesia": "FM", "Moldova": "MD", "Mongolia": "MN", "Montenegro": "ME",
-  "Nauru": "NR", "Nicaragua": "NI", "Oman": "OM", "Pakistan": "PK", "Palau": "PW",
-  "Palestine": "PS", "Paraguay": "PY", "Peru": "PE", "Qatar": "QA",
-  "Saint Kitts and Nevis": "KN", "Saint Lucia": "LC", "Saint Vincent and the Grenadines": "VC",
-  "Slovakia": "SK", "Sri Lanka": "LK", "Suriname": "SR", "Timor-Leste": "TL",
-  "Tuvalu": "TV", "Uzbekistan": "UZ", "Yemen": "YE",
-  // Not in the directory yet; listed so a new country lands in its region, not in "Other".
-  "Bermuda": "BM", "Cuba": "CU", "Greenland": "GL", "Macau": "MO", "Monaco": "MC",
-  "Myanmar": "MM", "North Korea": "KP", "North Macedonia": "MK", "Puerto Rico": "PR",
-  "San Marino": "SM", "Syria": "SY", "Tajikistan": "TJ", "Turkmenistan": "TM",
+  "Bermuda": "BM", "Cuba": "CU", "Greenland": "GL", "Macau": "MO",
+  "Monaco": "MC", "Myanmar": "MM", "North Korea": "KP", "North Macedonia": "MK",
+  "Puerto Rico": "PR", "San Marino": "SM", "Syria": "SY", "Tajikistan": "TJ", "Turkmenistan": "TM",
 };
 
 /** Directory buckets that are not one country. Codes are longer than two letters on purpose. */

@@ -1,6 +1,7 @@
 """State-owned-entity career sites: Cornerstone (Transnet), PeopleSoft (CSIR),
-MCI Direct Hire (ARC, SACAA, Magalies...), simplify.hr (HWSETA, NAMC, SANBI...)
-and the generic JobPosting JSON-LD reader.
+MCI Direct Hire (ARC, SACAA, Magalies...), simplify.hr (HWSETA, NAMC, SANBI...),
+iCIMS portals (Discovery, Toyota, Mediclinic...) and the generic JobPosting
+JSON-LD reader.
 
 Everything runs offline. The fixtures under ``fixtures/scraper`` are real
 responses fetched on 2026-10-03, with session ids and the anonymous Cornerstone
@@ -22,6 +23,7 @@ from app.scraper.extract import normalize_date
 from app.scraper.jsonld import parse_job_postings
 from app.scraper.mci import MciStrategy
 from app.scraper.peoplesoft import PeopleSoftStrategy
+from app.scraper.icims import IcimsStrategy
 from app.scraper.simplify import SimplifyStrategy
 from app.scraper.static_html import StaticHTMLStrategy
 from app.services.scan_service import ensure_source, scan_source
@@ -580,4 +582,123 @@ def test_normalize_date_reads_long_month_names():
     assert normalize_date("16 October 2026").isoformat() == "2026-10-16"
     assert normalize_date("30 September 2026").isoformat() == "2026-09-30"
     assert normalize_date("7 October 2026").isoformat() == "2026-10-07"
+    assert normalize_date("7 Oct 2026").isoformat() == "2026-10-07"
     assert normalize_date("2026-08-30T10:00:00+02:00").isoformat() == "2026-08-30"
+
+
+# ---- iCIMS -------------------------------------------------------------------
+
+_ICIMS = "https://careers.discovery.co.za/go/All-Jobs/4509301"
+
+
+def _icims_handler(seen=None):
+    def handler(request: httpx.Request):
+        if seen is not None:
+            seen.append(str(request.url))
+        path = request.url.path
+        if path.startswith("/go/All-Jobs/4509301/2"):
+            return httpx.Response(200, text=_fx("icims_page2.html"))
+        if path.startswith("/go/All-Jobs/4509301"):
+            return httpx.Response(200, text=_fx("icims_page1.html"))
+        return httpx.Response(404)
+    return handler
+
+
+def test_icims_reads_every_page_and_ignores_the_phone_duplicate():
+    seen: list[str] = []
+    with _client(_icims_handler(seen)) as c:
+        vacs = IcimsStrategy().fetch(_Src(_ICIMS, "icims", {}), c)
+    assert [(v.external_id, v.title) for v in vacs] == [
+        ("1434681833", "Problem Analyst (Senior)"),
+        ("1434342233", "Learnership: Long-Term Insurance"),
+        ("1443193333", "Junior Registered Nurse"),
+    ]
+    assert vacs[0].location == "GP, ZA, 2196"
+    assert vacs[0].department == "Discovery Central Services"
+    assert normalize_date(vacs[0].posting_date).isoformat() == "2026-10-07"
+    assert vacs[0].closing_date is None
+    assert vacs[0].application_url == "https://careers.discovery.co.za/job/Matlala-Problem-Analyst-GP-2196/1434681833/"
+    assert any("/go/All-Jobs/4509301/2/" in url for url in seen)
+    assert all(r.startswith("https://careers.discovery.co.za/") for r in seen)
+
+
+def test_icims_real_zero_is_empty_and_a_short_list_is_not():
+    with _client(lambda r: httpx.Response(200, text=_fx("icims_empty.html"))) as c:
+        assert IcimsStrategy().fetch(_Src(_ICIMS, "icims", {}), c) == []
+    # A filtered search with no hits still prints other roles and counts them.
+    # Those are not the result (Volkswagen's South Africa search does this).
+    convenience = _fx("icims_page2.html").replace(
+        "</body>",
+        "<p>There are currently no open positions matching \"south africa\". "
+        "The 1 most recent jobs are listed below for your convenience.</p></body>",
+    )
+    with _client(lambda r: httpx.Response(200, text=convenience)) as c:
+        assert IcimsStrategy().fetch(_Src(
+            "https://jobs.volkswagen-group.com/search/?createNewAlert=false&q=&locationsearch=south+africa",
+            "icims", {}), c) == []
+    # The page names 3 roles but only renders one, and offers no further page.
+    short = _fx("icims_page2.html").replace("of <b>3</b>", "of <b>9</b>")
+    with _client(lambda r: httpx.Response(200, text=short)) as c:
+        with pytest.raises(ValueError, match="did not match"):
+            IcimsStrategy().fetch(_Src(_ICIMS, "icims", {}), c)
+    with _client(lambda r: httpx.Response(200, text="<html>Server busy</html>")) as c:
+        with pytest.raises(ValueError, match="not readable"):
+            IcimsStrategy().fetch(_Src(_ICIMS, "icims", {}), c)
+
+
+def test_icims_reads_facility_columns_and_job_tiles():
+    # Toyota's table has no Location column: the place is Facility and the
+    # category is a shift-type column. The date sits only in the phone block.
+    table = """
+    <span class="paginationLabel">Results <b>1 – 1</b> of <b>1</b></span>
+    <table><tr class="data-row">
+      <td class="colTitle"><span class="jobTitle hidden-phone">
+        <a href="/job/Johannesburg-Inventory-Control/1402724233/" class="jobTitle-link">Inventory Control</a>
+      </span>
+      <span class="jobDate">6 Oct 2026</span></td>
+      <td class="colShifttype hidden-phone"><span class="jobShifttype">Supply Chain - Logistics</span></td>
+      <td class="colFacility hidden-phone"><span class="jobFacility">Atlas, Johannesburg</span></td>
+    </tr></table>
+    """
+    with _client(lambda r: httpx.Response(200, text=table)) as c:
+        vacs = IcimsStrategy().fetch(_Src("https://jobs.toyota.co.za/go/PROFESSIONAL-JOBS/4077701/", "icims", {}), c)
+    assert vacs[0].location == "Atlas, Johannesburg"
+    assert vacs[0].department == "Supply Chain - Logistics"
+    assert normalize_date(vacs[0].posting_date).isoformat() == "2026-10-06"
+
+    tile = """
+    <ul class="job-list" data-record-returned="1">
+      <li class="job-tile" data-url="/SouthernAfrica/job/Kimberley-Enrolled-Nursing-Auxiliary/1426402833/">
+        <div class="sub-section-desktop">
+          <a class="jobTitle-link" href="/SouthernAfrica/job/Kimberley-Enrolled-Nursing-Auxiliary/1426402833/">
+            Enrolled Nursing Auxiliary - Paediatrics
+          </a>
+          <span class="section-label">Facility</span>
+          <div id="job-1426402833-desktop-section-facility-value">Mediclinic Kimberley</div>
+          <span class="section-label">City</span>
+          <div id="job-1426402833-desktop-section-customfield5-value">Kimberley</div>
+        </div>
+      </li>
+    </ul>
+    """
+    with _client(lambda r: httpx.Response(200, text=tile)) as c:
+        vacs = IcimsStrategy().fetch(_Src(
+            "https://careers.mediclinic.com/SouthernAfrica/go/Search-By-Keyword-MCSA/5071601/", "icims", {}), c)
+    assert len(vacs) == 1
+    assert vacs[0].title == "Enrolled Nursing Auxiliary - Paediatrics"
+    assert vacs[0].location == "Kimberley"
+    assert vacs[0].department == "Mediclinic Kimberley"
+    assert vacs[0].external_id == "1426402833"
+    assert vacs[0].application_url.startswith("https://careers.mediclinic.com/SouthernAfrica/job/")
+
+
+def test_icims_refuses_another_host_and_a_non_portal_url():
+    def handler(request: httpx.Request):
+        if request.url.host == "careers.discovery.co.za":
+            return httpx.Response(302, headers={"location": "https://other.example/jobs"})
+        return httpx.Response(200, text=_fx("icims_page1.html"))
+    with _client(handler) as c:
+        with pytest.raises(ValueError, match="different host"):
+            IcimsStrategy().fetch(_Src(_ICIMS, "icims", {}), c)
+    with pytest.raises(ValueError, match="https portal"):
+        IcimsStrategy().fetch(_Src("https://example.com/careers", "icims", {}), _client(lambda r: None))
