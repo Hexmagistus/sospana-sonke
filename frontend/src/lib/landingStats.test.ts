@@ -3,7 +3,7 @@ import { describe, it } from "node:test";
 import { COUNTRY_FLAGS } from "./countryFlags";
 import { compareCountries } from "./directoryFilters";
 import {
-  countryRows, parseStats, readCachedStats, snapshotStats, writeCachedStats,
+  countryRows, parseStats, readCachedStats, snapshotDirectoryDescription, snapshotStats, writeCachedStats,
 } from "./landingStats";
 import { coverageText, tierOf, tierTotals, TIERS } from "./regions";
 
@@ -23,6 +23,15 @@ describe("landing stats", () => {
     // Ceiling stays under the all-rows employer count (5,800 on 2026-10-07),
     // so a payload that also counts employers with no careers link still fails.
     assert.ok(snap.total > 3000 && snap.total < 5000, `snapshot total ${snap.total}`);
+  });
+
+  it("directory metadata uses the snapshot, not an old Africa-only count", () => {
+    const text = snapshotDirectoryDescription();
+    assert.match(text, /3,439 employers/);
+    assert.match(text, /South America/);
+    assert.match(text, /7 October 2026/);
+    assert.doesNotMatch(text, /2,400/);
+    assert.doesNotMatch(text, /26 African/);
   });
 
   it("every snapshot country has a flag and a region (nothing falls into Africa by default)", () => {

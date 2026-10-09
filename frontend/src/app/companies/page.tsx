@@ -373,7 +373,7 @@ function CompaniesDirectoryInner() {
             subtitle={
               <>
                 Browse the full directory and apply on each employer&apos;s official careers page.{" "}
-                <strong className="text-ss-text"><AnimatedNumber value={facets.total} /></strong> companies in the directory ·{" "}
+                <strong className="text-ss-text"><AnimatedNumber value={facets.total} /></strong> employers in the directory ·{" "}
                 <strong className="text-ss-text"><AnimatedNumber value={withLinks} /></strong> with direct careers links.
               </>
             }
@@ -435,7 +435,7 @@ function CompaniesDirectoryInner() {
 
           <div className="min-w-[14rem]">
             <Input
-              placeholder="Search company or JSE code…"
+              placeholder="Search by employer name…"
               value={q}
               onChange={(e) => setQ(e.target.value)}
             />

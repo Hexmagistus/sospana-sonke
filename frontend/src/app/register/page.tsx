@@ -201,7 +201,7 @@ export default function RegisterPage() {
               </label>
               <YesNo
                 name="alerts"
-                label="May we send you alerts about posts that match you?"
+                label="May an administrator email me about a post that fits a role I named? This is off unless I say yes. The site does not score me against vacancies."
                 value={alerts}
                 onChange={setAlerts}
               />

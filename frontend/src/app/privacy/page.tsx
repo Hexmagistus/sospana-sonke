@@ -9,7 +9,7 @@ export default function PrivacyPage() {
     <div className="mx-auto mt-8 max-w-3xl">
       <Card>
         <h1 className="mb-1 text-2xl font-bold text-ss-text">Privacy Policy</h1>
-        <p className="mb-6 text-sm text-ss-muted">Last updated: 28 September 2026</p>
+        <p className="mb-6 text-sm text-ss-muted">Last updated: 9 October 2026</p>
         <div className="space-y-4 text-sm leading-relaxed text-ss-text">
           <p>
             Sospana Sonke (&quot;we&quot;, &quot;us&quot;) started in the SADC region and lists employers
@@ -27,25 +27,25 @@ export default function PrivacyPage() {
               not store Google access tokens.
             </li>
             <li>
-              Profile and job-matching information you add — your skills, experience, preferences,
-              and any CV or documents you upload.
+              Profile information you add — your skills, experience, preferences, and any CV or documents you upload.
             </li>
-            <li>Records of the jobs you view and the applications you submit through the platform.</li>
+            <li>Applications you record in the tracker, and the job text you paste when you ask for a tailored CV.</li>
             <li>If you press “Reveal today’s spark” on your dashboard, the date of that day, so we can show your streak. We send no reminders about it. It is included in your data export and deleted with your account.</li>
           </ul>
 
           <h2 className="pt-2 text-lg font-semibold text-ss-text">How we use your information</h2>
           <p>
-            We use it to match you to relevant vacancies, let you apply to employers, maintain
-            and secure your account, and send you service messages such as email verification and
-            job notifications. We do not use it for unrelated advertising.
+            We use it to run your account, show the employer directory and the vacancies we have indexed,
+            tailor a CV when you paste a role, and send service messages such as email verification and
+            the daily updates you opted into. We do not score you against vacancies. We do not use your
+            information for unrelated advertising.
           </p>
 
           <h2 className="pt-2 text-lg font-semibold text-ss-text">When we share it</h2>
           <p>
-            When you apply to an employer, the information needed for that application is shared
-            with that employer. We use Google only to verify your identity when you sign in. We do
-            not sell your personal information.
+            You apply on the employer&apos;s own site. We do not send an application to an employer unless
+            you use a send step on an application you already have. We use Google only to verify your
+            identity when you sign in. We do not sell your personal information.
           </p>
 
           <h2 className="pt-2 text-lg font-semibold text-ss-text">Storage and security</h2>
@@ -71,7 +71,7 @@ export default function PrivacyPage() {
           <h2 className="pt-2 text-lg font-semibold text-ss-text">Why we process your information</h2>
           <p>
             We collect only what we need for a specific purpose: creating and securing your account,
-            matching you to vacancies, tailoring your CV, tracking the applications you choose to make,
+            showing the employer directory and indexed vacancies, tailoring a CV when you ask, tracking the applications you record,
             and sending service messages. We process it because you gave consent when you registered
             and because it is needed to provide the service you asked for. You may withdraw consent at
             any time by deleting your account, which does not affect processing done before then.
@@ -101,11 +101,10 @@ export default function PrivacyPage() {
 
           <h2 className="pt-2 text-lg font-semibold text-ss-text">Opportunity alerts (a separate choice)</h2>
           <p>
-            Matching you to vacancies inside the product is part of the service you sign up for. A
-            different choice, off unless you tick it, lets an administrator notify you about a post
-            that matches a preferred role you saved. That opt-in is not bundled into the privacy
-            checkbox. You can switch it off on the Security page. People who leave it off are not
-            tagged or notified for this.
+            The product does not score you against vacancies. A separate choice, off unless you tick it,
+            lets an administrator notify you about a post that fits a preferred role you saved. That
+            opt-in is not bundled into the privacy checkbox. You can switch it off on the Security page.
+            People who leave it off are not tagged or notified for this.
           </p>
 
           <h2 className="pt-2 text-lg font-semibold text-ss-text">Temporary messages between members</h2>
@@ -150,8 +149,7 @@ export default function PrivacyPage() {
             The company, university, college, hospital and public-body names and careers links on the
             platform come from publicly available sources. They are business information, not information
             about candidates. Names, logos and marks belong to their owners; their appearance here does not
-            mean the organisation partners with, sponsors or endorses Sospana Sonke. Labels such as
-            &quot;BRICS partner&quot; describe the country&apos;s relationship to South Africa only. If you
+            mean the organisation partners with, sponsors or endorses Sospana Sonke. If you
             represent an organisation and want a listing corrected or removed, email us.
           </p>
           <p>

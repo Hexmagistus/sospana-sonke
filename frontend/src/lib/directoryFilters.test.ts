@@ -14,6 +14,7 @@ import {
 } from "./directoryFilters.js";
 
 // The CI step runs this one file. These register the split-view tests with it.
+import "./notCounted.test.js";
 import "./countryExplorer.test.js";
 import "./worldRegions.test.js";
 import "./explorer/categoryList.test.js";

@@ -28,6 +28,16 @@ export const NOT_COUNTED_NOTICE_BODY =
   "Open the employer's careers link and check that employer directly, and keep checking such " +
   "employers yourself from time to time.";
 
+/** Public careers feeds the scanner has a strategy for. JavaScript-only boards are not listed. */
+export const READABLE_CAREERS_FEEDS =
+  "Greenhouse, Lever, SmartRecruiters, Workable, Recruitee, Workday (its public jobs feed), " +
+  "Oracle Candidate Experience, Breezy, Pinpoint, CareerInHR, Cornerstone, MCI, PeopleSoft, simplify.hr, and iCIMS";
+
+export const READABLE_CAREERS_NOTE =
+  "Open roles can be counted when the careers page is ordinary HTML we can read, or one of these public feeds: " +
+  READABLE_CAREERS_FEEDS +
+  ". A board we cannot read stays “Not counted yet”. That is not a count of zero.";
+
 /** A vacancy count exists (a real zero included) or vacancies are held. */
 export function hasCountedResult(company: Pick<Company, "open_vacancies" | "open_vacancies_known">): boolean {
   return company.open_vacancies_known === true || (company.open_vacancies ?? 0) > 0;

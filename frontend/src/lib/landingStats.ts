@@ -13,7 +13,7 @@
  */
 import snapshot from "../data/directory-snapshot.json";
 import { COUNTRY_FLAGS } from "./countryFlags";
-import { NON_COUNTRY } from "./regions";
+import { NON_COUNTRY, coverageText } from "./regions";
 
 export type CountryRow = { name: string; flag: string; count: number };
 
@@ -25,6 +25,39 @@ export type LandingStats = {
 };
 
 export const SNAPSHOT_AS_OF: string = snapshot.as_of;
+
+const SNAPSHOT_MONTHS = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December",
+];
+
+/** "7 October 2026" from the snapshot's YYYY-MM-DD, without a locale lookup. */
+export function snapshotAsOfLabel(iso = SNAPSHOT_AS_OF): string {
+  const [y, m, d] = iso.split("-").map((part) => Number(part));
+  const month = SNAPSHOT_MONTHS[(m || 1) - 1] ?? "";
+  return `${d} ${month} ${y}`;
+}
+
+/** Countries in the built-in snapshot that are not the International or Africa buckets. */
+export function snapshotCountryRows(): { name: string; count: number }[] {
+  return Object.entries(snapshot.by_country_with_link as Record<string, number>)
+    .filter(([name, n]) => n > 0 && !NON_COUNTRY.has(name))
+    .map(([name, count]) => ({ name, count }));
+}
+
+/**
+ * Metadata sentence for the directory. Uses the built-in snapshot, which is
+ * the last live with-link extract, not a guessed total.
+ */
+export function snapshotDirectoryDescription(): string {
+  const rows = snapshotCountryRows();
+  const total = snapshot.with_link.toLocaleString("en-US");
+  return (
+    `Browse ${total} employers with a direct careers link across ${rows.length} countries ` +
+    `(${coverageText(rows)}). The built-in figure is the directory on ${snapshotAsOfLabel()} ` +
+    "and updates when the live directory answers. Apply on each employer's own careers page."
+  );
+}
 
 export function snapshotStats(): LandingStats {
   return {

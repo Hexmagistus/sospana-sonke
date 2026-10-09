@@ -66,8 +66,8 @@ export const CATEGORY_GROUPS: readonly CategoryGroup[] = [
     searchNoun: "college or SETA",
     eyebrow: "Direct to institutions",
     title: "Colleges & SETAs",
-    blurb: "TVET, public and private colleges and the Sector Education and Training Authorities. Apply on each one's own careers page.",
-    desc: "TVET & private colleges, SETAs",
+    blurb: "TVET, public and private colleges, plus South Africa's Sector Education and Training Authorities (SETAs). Apply on each one's own careers page.",
+    desc: "Colleges, and South African SETAs",
     icon: "🏫",
     types: [
       { code: "COLLEGE", label: "Colleges (TVET, public & private)", noun: "colleges", badge: "🏫 College", badgeCls: "bg-teal/10 text-teal" },
