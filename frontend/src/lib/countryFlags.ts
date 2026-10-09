@@ -130,4 +130,6 @@ export const COUNTRY_FLAGS: Record<string, string> = {
   "Panama": "🇵🇦",
   "Ecuador": "🇪🇨",
   "Uruguay": "🇺🇾",
+  "Venezuela": "🇻🇪",
+  "French Guiana": "🇬🇫",
 };
