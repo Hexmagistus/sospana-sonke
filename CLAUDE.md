@@ -67,6 +67,9 @@ Lungani, 2026-10-03: in every country dropdown, list, and work order, put **Sout
 
 ## Session Log
 
+### 2026-10-09 — Cursor (Grok 4.7) — Read-only security review
+Wrote `SECURITY_REVIEW.md` (no application code changed). No live secret turned up in the tree or the history, so nothing from the repo needs rotating on that basis. Highest gaps: Google sign-in skips the password and TOTP and attaches by email; unverified accounts are fully usable; admin MFA is optional; the scheduled URL tester and page hasher follow redirects without the scraper's SSRF check; the GitHub repo is public, Dependabot alerts are disabled, and there is no `dependabot.yml`. Live checks: Vercel CSP is still report-only, API docs are 404, `/health` is production on Neon `eu-central-1`, Google sign-in and the cron endpoint are both switched on.
+
 ### 2026-10-09 — Cursor (Grok 4.7) — Direct careers links for blank South America rows
 A second pass filled careers URLs only where a fetch as SospanaSonkeBot was allowed by robots.txt, returned HTTP 200, and the page was that employer's own jobs board or application page. Homepages, LinkedIn, shop catalogs, scholarship calls, student-admission pages, empty boards, and boards for a different country were left blank. 34 rows gained a link.
 
