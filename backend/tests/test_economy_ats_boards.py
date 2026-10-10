@@ -29,12 +29,13 @@ EXPECTED = {
     "Aldar Properties": ("United Arab Emirates", "https://jobs.lever.co/aldar", "lever"),
 }
 
-# Linked employers (active, non-empty careers URL) after this batch.
+# Linked employers (active, non-empty careers URL) after this batch is
+# combined with the major-economy rows already on main.
 LINKED = {
-    "Germany": 8,
-    "France": 13,
-    "Japan": 4,
-    "Spain": 6,
+    "Germany": 12,
+    "France": 14,
+    "Japan": 5,
+    "Spain": 7,
     "Italy": 6,
     "South Korea": 5,
     "United Arab Emirates": 21,

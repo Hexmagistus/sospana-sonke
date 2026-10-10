@@ -34,8 +34,8 @@ export const OTHER_AFRICA = new Set([
   "Algeria", "Benin", "Burkina Faso", "Burundi", "Cabo Verde", "Cameroon",
   "Central African Republic", "Chad", "Congo", "Côte d'Ivoire", "Djibouti",
   "Egypt", "Equatorial Guinea", "Eritrea", "Ethiopia", "Gabon", "Gambia",
-  "Ghana", "Guinea", "Guinea-Bissau", "Kenya", "Liberia", "Libya", "Mali",
-  "Mauritania", "Morocco", "Niger", "Nigeria", "Réunion", "Rwanda", "Sao Tome and Principe",
+  "Ghana", "Guinea", "Guinea-Bissau", "Kenya", "Liberia", "Libya", "Mali", "Mayotte",
+  "Mauritania", "Morocco", "Niger", "Nigeria", "Réunion", "Rwanda", "Saint Helena", "Sao Tome and Principe",
   "Senegal", "Sierra Leone", "Somalia", "South Sudan", "Sudan", "Togo", "Tunisia",
   "Uganda",
   // Directory buckets that are Africa-wide rather than one country.
@@ -45,12 +45,14 @@ export const OTHER_AFRICA = new Set([
 const OCEANIA = new Set([
   "Australia", "New Zealand", "Fiji", "Papua New Guinea", "Samoa", "Tonga", "Solomon Islands", "Vanuatu",
   "Kiribati", "Marshall Islands", "Micronesia", "Nauru", "New Caledonia", "Palau", "Tuvalu",
+  "American Samoa", "Cook Islands", "French Polynesia", "Guam", "Niue",
+  "Northern Mariana Islands", "Wallis and Futuna",
 ]);
 const EUROPE = new Set([
   "United Kingdom", "Germany", "France", "Netherlands", "Switzerland", "Sweden", "Denmark",
-  "Finland", "Estonia", "Ireland", "Spain", "Belgium", "Italy", "Poland", "Austria",
+  "Finland", "Faroe Islands", "Estonia", "Ireland", "Spain", "Belgium", "Italy", "Poland", "Austria",
   "Portugal", "Greece", "Czechia", "Czech Republic", "Hungary", "Romania", "Norway", "Ukraine",
-  "Luxembourg", "Malta", "Cyprus", "Latvia", "Lithuania", "Iceland", "Slovakia", "Slovenia",
+  "Luxembourg", "Malta", "Gibraltar", "Cyprus", "Latvia", "Lithuania", "Iceland", "Slovakia", "Slovenia",
   "Bulgaria", "Croatia", "Serbia", "Albania", "Bosnia and Herzegovina", "North Macedonia",
   "Montenegro", "Kosovo", "Moldova", "Monaco", "Belarus", "Andorra", "Holy See", "Liechtenstein",
   "San Marino",
@@ -58,8 +60,8 @@ const EUROPE = new Set([
 const SOUTH_AMERICA = new Set([
   "Argentina", "Bolivia", "Brazil", "Chile", "Colombia", "Ecuador", "Guyana",
   "Paraguay", "Peru", "Suriname", "Uruguay", "Venezuela",
-  // Overseas department of France. The directory lists it on its own; the map has no separate outline.
-  "French Guiana",
+  // Overseas department of France, and the Falkland Islands. The directory lists each on its own.
+  "French Guiana", "Falkland Islands",
 ]);
 const NORTH_AMERICA = new Set([
   "Canada", "United States", "United States of America", "Mexico", "Greenland",
@@ -68,6 +70,11 @@ const NORTH_AMERICA = new Set([
   "Trinidad and Tobago", "Barbados", "Puerto Rico",
   "Antigua and Barbuda", "Dominica", "Grenada", "Saint Kitts and Nevis", "Saint Lucia",
   "Saint Vincent and the Grenadines",
+  // Atlantic and Caribbean territories. The landing map shades them with North America.
+  "Bermuda", "Saint Pierre and Miquelon",
+  "Anguilla", "Aruba", "British Virgin Islands", "Caribbean Netherlands", "Cayman Islands",
+  "Curaçao", "Guadeloupe", "Martinique", "Montserrat", "Saint Barthélemy", "Saint-Martin",
+  "Sint Maarten", "Turks and Caicos Islands", "US Virgin Islands",
 ]);
 // Russia and Turkey are shaded with Asia: most of each country is on that continent.
 const ASIA = new Set([

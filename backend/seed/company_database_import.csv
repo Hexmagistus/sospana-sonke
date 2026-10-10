@@ -2068,7 +2068,7 @@ Université Félix Houphouët-Boigny,,https://w.univ-fhb.edu.ci/,pending verific
 Université d'Abomey-Calavi,,https://www.uac.bj/,pending verification,"Benin's largest public university, Abomey-Calavi/Cotonou. No dedicated careers page found; recruitment notices are announced via the university's own site.",true,pending,Benin,UNI,https://www.uac.bj
 Université Joseph Ki-Zerbo,,https://www.ujkz.bf/recrutement/,pending verification,"Burkina Faso's oldest public university, Ouagadougou. Dedicated Recrutement page on the university's own site.",true,pending,Burkina Faso,UNI,https://www.ujkz.bf
 "Université des Sciences, des Techniques et des Technologies de Bamako (USTTB)",,https://usttb-edu.org/,pending verification,"Major public university, Bamako, Mali. No dedicated careers page found; recruitment notices are announced via the university's own site.",true,pending,Mali,UNI,https://usttb-edu.org
-Université Gamal Abdel Nasser de Conakry (UGANC),,https://uganc.edu.gn/,pending verification,"Guinea's largest public university, Conakry. No dedicated careers page found; recruitment notices are announced via the university's own site.",true,pending,Guinea,UNI,https://uganc.edu.gn
+Université Gamal Abdel Nasser de Conakry (UGANC),,https://uganc.edu.gn/category/recrutement/,green_verified,"Guinea's largest public university, Conakry. No dedicated careers page found; recruitment notices are announced via the university's own site. | 2026-10-10 africa-gap. The recruitment list names an assistant administratif and an informaticien.",true,pending,Guinea,UNI,https://uganc.edu.gn
 Université du Burundi,,https://www.ub.edu.bi/?page_id=16902,pending verification,"Burundi's main public university, Bujumbura. Recruitment notices (avis de recrutement) are posted directly on the university's own site.",true,pending,Burundi,UNI,https://www.ub.edu.bi
 Université de Lomé,,https://www.univ-lome.tg/index.php/accueil,pending verification,"Togo's largest public university, Lomé. No dedicated careers page found; recruitment notices are announced via the university's own site.",true,pending,Togo,UNI,https://www.univ-lome.tg
 Université Omar Bongo,,https://univuob.org/,pending verification,"Gabon's main public university, Libreville. No dedicated careers page found; recruitment notices are announced via the university's own site.",true,pending,Gabon,UNI,https://univuob.org
@@ -3346,7 +3346,7 @@ World Food Programme Algeria,,https://www.wfp.org/careers,amber_company_route,Sa
 Croissant-Rouge Algerien,,https://www.croissant-rouge.dz/carrieres,grey_none_verified,Algerian Red Crescent society,false,pending,Algeria,NGO,https://www.croissant-rouge.dz
 Norwegian Refugee Council Algeria,,https://www.nrc.no/careers,grey_none_verified,Humanitarian NGO supporting Sahrawi refugee operations,false,pending,Algeria,NGO,https://www.nrc.no
 Ministère de l'Économie et des Finances,,https://finances.bj,grey_none_verified,Finance ministry public sector employer,false,pending,Benin,DEPT,https://finances.bj
-Ministère des Enseignements Maternel et Primaire,,https://memp.gouv.bj,grey_none_verified,Primary education ministry,false,pending,Benin,DEPT,https://memp.gouv.bj
+Ministère des Enseignements Maternel et Primaire,,https://memp.gouv.bj/opportunites/recrutements,green_verified,Primary education ministry | 2026-10-10 africa-gap. The ministry recruitment list names the Secrétaire général(e) de la CONFEMEN post.,true,pending,Benin,DEPT,https://memp.gouv.bj
 Ministère de l'Agriculture de l'Élevage et de la Pêche,,https://agriculture.gouv.bj,grey_none_verified,Agriculture livestock and fisheries ministry,false,pending,Benin,DEPT,https://agriculture.gouv.bj
 Ministère de l'Énergie de l'Eau et des Mines,,https://energie.gouv.bj,grey_none_verified,Energy water and mines ministry,false,pending,Benin,DEPT,https://energie.gouv.bj
 Ministère du Cadre de Vie et du Développement Durable,,https://cadredevie.gouv.bj,grey_none_verified,Environment and sustainable development ministry,false,pending,Benin,DEPT,https://cadredevie.gouv.bj
@@ -3356,13 +3356,13 @@ Ministère de l'Intérieur et de la Sécurité Publique,,https://interieur.gouv.
 Ministère de la Justice et de la Législation,,https://justice.gouv.bj,grey_none_verified,Justice ministry public sector,false,pending,Benin,DEPT,https://justice.gouv.bj
 Ministère du Numérique et de la Digitalisation,,https://numerique.gouv.bj,grey_none_verified,Digital transformation ministry,false,pending,Benin,DEPT,https://numerique.gouv.bj
 Ministère du Tourisme de la Culture et des Arts,,https://tourisme.gouv.bj,grey_none_verified,Tourism culture and arts ministry,false,pending,Benin,DEPT,https://tourisme.gouv.bj
-Ministère des Affaires Sociales et de la Microfinance,,https://social.gouv.bj,grey_none_verified,Social affairs and microfinance ministry,false,pending,Benin,DEPT,https://social.gouv.bj
+Ministère des Affaires Sociales et de la Microfinance,,https://social.gouv.bj/actualites/recrutements,green_verified,Social affairs and microfinance ministry | 2026-10-10 africa-gap. The ministry recruitment list names 117 agents contractuels du droit public.,true,pending,Benin,DEPT,https://social.gouv.bj
 Ministère des Enseignements Secondaire Technique et de la Formation Professionnelle,,https://enseignementsecondaire.gouv.bj,grey_none_verified,Secondary and technical education ministry,false,pending,Benin,DEPT,https://enseignementsecondaire.gouv.bj
 Ministère de la Décentralisation et de la Gouvernance Locale,,https://decentralisation.gouv.bj,grey_none_verified,Decentralisation and local governance ministry,false,pending,Benin,DEPT,https://decentralisation.gouv.bj
 Secrétariat Général du Gouvernement,,https://sgg.gouv.bj,grey_none_verified,Government general secretariat,false,pending,Benin,DEPT,https://sgg.gouv.bj
-Société Béninoise d'Énergie Électrique,,https://sbee.bj,grey_none_verified,National electricity utility,false,pending,Benin,SOE,https://sbee.bj
+Société Béninoise d'Énergie Électrique,,https://recrutement.sbee.bj/,green_verified,National electricity utility | 2026-10-10 africa-gap. The SBEE jobs page says there are no openings at the moment.,true,pending,Benin,SOE,https://sbee.bj
 Société Nationale des Eaux du Bénin,,https://web.soneb.bj,grey_none_verified,National water utility,false,pending,Benin,SOE,https://web.soneb.bj
-Port Autonome de Cotonou,,https://portdecotonou.bj,grey_none_verified,Main national seaport authority,false,pending,Benin,SOE,https://portdecotonou.bj
+Port Autonome de Cotonou,,https://portdecotonou.bj/offres-demplois/,green_verified,Main national seaport authority | 2026-10-10 africa-gap. The port's own jobs page names Lamaneurs.,true,pending,Benin,SOE,https://portdecotonou.bj
 La Poste du Bénin,,https://laposte.bj,grey_none_verified,National postal operator,false,pending,Benin,SOE,https://laposte.bj
 Office de Radiodiffusion et Télévision du Bénin,,https://ortb.bj,grey_none_verified,National public broadcaster,false,pending,Benin,SOE,https://ortb.bj
 Société Nationale de Commercialisation des Produits Pétroliers,,https://sonacopsa.com,grey_none_verified,State petroleum products distributor,false,pending,Benin,SOE,https://sonacopsa.com
@@ -3372,7 +3372,7 @@ Agence de Promotion des Investissements et des Exportations,,https://apiex.bj,gr
 Caisse Nationale de Sécurité Sociale,,https://cnss.bj,grey_none_verified,National social security fund,false,pending,Benin,SOE,https://cnss.bj
 Mairie de Cotonou,,https://decentralisation.gouv.bj/commune/48/cotonou/,grey_none_verified,Economic capital city council,false,pending,Benin,MUNI,https://decentralisation.gouv.bj/commune/48/cotonou/
 Mairie de Porto-Novo,,https://decentralisation.gouv.bj/commune/62/porto-novo/,grey_none_verified,Capital city council,false,pending,Benin,MUNI,https://decentralisation.gouv.bj/commune/62/porto-novo/
-Mairie de Parakou,,https://parakou.bj,grey_none_verified,Northern regional city council,false,pending,Benin,MUNI,https://parakou.bj
+Mairie de Parakou,,https://parakou.bj/publications/recrutement-de-cinquante-50-jeunes-vulnerables,green_verified,Northern regional city council | 2026-10-10 africa-gap. The mairie notice recruits 50 young people.,true,pending,Benin,MUNI,https://parakou.bj
 Mairie d'Abomey-Calavi,,https://decentralisation.gouv.bj/commune/16/abomey-calavi/,grey_none_verified,Second largest city council,false,pending,Benin,MUNI,https://decentralisation.gouv.bj/commune/16/abomey-calavi/
 Mairie de Bohicon,,https://decentralisation.gouv.bj/commune/71/bohicon/,grey_none_verified,Central hub city council,false,pending,Benin,MUNI,https://decentralisation.gouv.bj/commune/71/bohicon/
 Mairie de Djougou,,https://decentralisation.gouv.bj/commune/46/djougou/,grey_none_verified,Northwest city council,false,pending,Benin,MUNI,https://decentralisation.gouv.bj/commune/46/djougou/
@@ -3426,7 +3426,7 @@ UBA Burkina Faso,,https://www.ubagroup.com/careers/,amber_company_route,Pan-Afri
 Orange Burkina Faso,,https://www.orange.bf/fr/offres-de-recrutements.html,green_verified,Major telecom and mobile money operator,true,pending,Burkina Faso,PRIVATE,https://www.orange.bf
 Onatel / Moov Africa Burkina Faso,,https://www.onatel.bf,grey_none_verified,National telecom operator,false,no_url,Burkina Faso,PRIVATE,https://www.onatel.bf
 Endeavour Mining Burkina Faso (Houndé/Mana),,https://www.endeavourmining.com/careers/,green_verified,Major gold mining company,true,pending,Burkina Faso,PRIVATE,https://www.endeavourmining.com
-IAMGOLD Essakane SA,,https://www.iamgoldessakane.com/,grey_none_verified,Major gold mining company,false,no_url,Burkina Faso,PRIVATE,https://www.iamgoldessakane.com/
+IAMGOLD Essakane SA,,https://www.iamgoldessakane.com/offres-emplois,green_verified,"2026-10-10 fill-blanks: jobs page states no offer is open at the moment, a real zero.",true,pending,Burkina Faso,PRIVATE,https://www.iamgoldessakane.com/
 Brasseries du Burkina (Brakina),,https://www.brakina-bf.com/,grey_none_verified,Leading brewery and beverage company,false,no_url,Burkina Faso,PRIVATE,https://www.brakina-bf.com/
 Société Nationale d'Électricité du Burkina (SONABEL),,https://recrutements.sonabel.bf/fr/,green_verified,State-owned national electricity utility,true,pending,Burkina Faso,SOE,https://www.sonabel.bf
 Office National de l'Eau et de l'Assainissement (ONEA),,https://recrutement.onea.bf/,green_verified,State-owned water and sanitation utility,true,pending,Burkina Faso,SOE,https://onea.bf/
@@ -3651,7 +3651,7 @@ District Autonome d'Abidjan,,https://abidjan.district.gouv.ci,grey_none_verified
 Mairie de Cocody,,https://mairiecocody.com,grey_none_verified,Cocody commune municipality,false,pending,Côte d'Ivoire,MUNI,https://mairiecocody.com
 Mairie du Plateau,,https://mairieplateau.net,grey_none_verified,Plateau commune municipality,false,pending,Côte d'Ivoire,MUNI,https://mairieplateau.net
 Mairie de Yopougon,,https://portail.yopougon.ci,grey_none_verified,Yopougon commune municipality,false,pending,Côte d'Ivoire,MUNI,https://portail.yopougon.ci
-Mairie de Marcory,,https://www.marcory.ci,grey_none_verified,Marcory commune municipality,false,pending,Côte d'Ivoire,MUNI,https://www.marcory.ci
+Mairie de Marcory,,https://www.marcory.ci/emploi,green_verified,Marcory commune municipality | 2026-10-10 africa-gap. The jobs page says no offer has been published.,true,pending,Côte d'Ivoire,MUNI,https://www.marcory.ci
 District Autonome de Yamoussoukro,,https://districtyakro.ci,grey_none_verified,Yamoussoukro district authority,false,pending,Côte d'Ivoire,MUNI,https://districtyakro.ci
 Mairie de San-Pédro,,https://mairiedesanpedro.net,grey_none_verified,San-Pédro municipality,false,pending,Côte d'Ivoire,MUNI,https://mairiedesanpedro.net
 Orange Côte d'Ivoire,,https://www.orange.ci/fr/assistance/recrutement.html,amber_company_route,Leading mobile telecom operator,true,pending,Côte d'Ivoire,PRIVATE,https://www.orange.ci
@@ -3662,11 +3662,11 @@ NSIA Banque Côte d'Ivoire,,https://www.nsiabanque.ci,grey_none_verified,Major c
 Ecobank Côte d'Ivoire,,https://www.ecobank.com/ci,grey_none_verified,Pan-African commercial bank,false,pending,Côte d'Ivoire,PRIVATE,https://www.ecobank.com/ci
 SOLIBRA,,https://www.solibra.ci,grey_none_verified,Leading brewery and beverages,false,pending,Côte d'Ivoire,PRIVATE,https://www.solibra.ci
 Groupe SIFCA,,https://groupesifca.com,grey_none_verified,Leading West African agribusiness,false,pending,Côte d'Ivoire,PRIVATE,https://groupesifca.com
-SAPH,,https://www.saph.ci,grey_none_verified,Natural rubber producer,false,pending,Côte d'Ivoire,PRIVATE,https://www.saph.ci
+SAPH,,https://www.saph.ci/carriere/offres-d-emploi,green_verified,Natural rubber producer | 2026-10-10 africa-gap. The jobs page names assistant de direction bilingue and responsable exploitation scierie.,true,pending,Côte d'Ivoire,PRIVATE,https://www.saph.ci
 CFAO,,https://www.cfaogroup.com,grey_none_verified,Automotive and distribution group,false,pending,Côte d'Ivoire,PRIVATE,https://www.cfaogroup.com
 Groupe Prosuma,,https://groupeprosuma.com,grey_none_verified,Leading retail distribution group,false,pending,Côte d'Ivoire,PRIVATE,https://groupeprosuma.com
 LafargeHolcim Côte d'Ivoire,,https://www.lafargeholcim.ci,grey_none_verified,Leading cement manufacturer,false,pending,Côte d'Ivoire,PRIVATE,https://www.lafargeholcim.ci
-PALMCI,,https://palmci.ci,grey_none_verified,Leading palm oil producer,false,pending,Côte d'Ivoire,PRIVATE,https://palmci.ci
+PALMCI,,https://palmci.ci/carriere/offres-d-emploi,green_verified,"Leading palm oil producer | 2026-10-10 africa-gap. The jobs page names assistant frais médicaux, agent administratif and ingénieur projet maintenance junior.",true,pending,Côte d'Ivoire,PRIVATE,https://palmci.ci
 Nestlé Côte d'Ivoire,,https://www.nestle-cwa.com,grey_none_verified,Food and beverage manufacturer,false,pending,Côte d'Ivoire,PRIVATE,https://www.nestle-cwa.com
 UNICEF Côte d'Ivoire,,https://www.unicef.org/cotedivoire,grey_none_verified,UN children agency country office,false,pending,Côte d'Ivoire,NGO,https://www.unicef.org/cotedivoire
 Programme Alimentaire Mondial Côte d'Ivoire,,https://www.wfp.org/countries/cote-divoire,grey_none_verified,UN World Food Programme office,false,pending,Côte d'Ivoire,NGO,https://www.wfp.org/countries/cote-divoire
@@ -3808,7 +3808,7 @@ Ethiopian Insurance Corporation,,https://eic.et/careers,grey_none_verified,State
 Ethiopian Investment Holdings,,https://eih.gov.et/careers,grey_none_verified,Sovereign wealth fund overseeing state enterprises,false,pending,Ethiopia,SOE,https://eih.gov.et
 Ethiopian Sugar Corporation,,,grey_none_verified,State sugar producer,false,pending,Ethiopia,SOE,
 MIDROC Ethiopia,,https://midroc-ethiopia.com/careers,grey_none_verified,"Major private conglomerate (mining, agriculture, hospitality)",false,pending,Ethiopia,PRIVATE,https://midroc-ethiopia.com
-Dashen Bank,,https://dashenbanksc.com/careers,grey_none_verified,Major private commercial bank,false,pending,Ethiopia,PRIVATE,https://dashenbanksc.com
+Dashen Bank,,https://dashenbanksc.com/careers,green_verified,2026-10-10 fill-blanks: careers page lists Branch Business Relationship Manager and Cash Service Attendant posts dated September and October 2026.,true,pending,Ethiopia,PRIVATE,https://dashenbanksc.com
 Awash Bank,,https://www.awashbank.com/careers,grey_none_verified,Largest private commercial bank,false,pending,Ethiopia,PRIVATE,https://www.awashbank.com
 Zemen Bank,,https://zemenbank.com/careers,grey_none_verified,Private commercial bank,false,pending,Ethiopia,PRIVATE,https://zemenbank.com
 BGI Ethiopia,,,grey_none_verified,Brewer (St. George/Castel Group-affiliated),false,pending,Ethiopia,PRIVATE,
@@ -3862,7 +3862,7 @@ Assala Energy Gabon,,https://www.assalaenergy.com/careers/,amber_company_route,O
 Olam Gabon,,https://www.olamgroup.com/careers.html,amber_company_route,Palm rubber and agri-business,true,pending,Gabon,PRIVATE,https://www.olamgroup.com
 SETRAG,,https://setrag.eramet.com,grey_none_verified,Transgabonais railway operator,false,pending,Gabon,PRIVATE,https://setrag.eramet.com
 Comilog,,https://comilog.eramet.com,grey_none_verified,Manganese mining company Moanda,false,pending,Gabon,PRIVATE,https://comilog.eramet.com
-Ceca-Gadis,,https://cecagadis.com,grey_none_verified,Food retail and distribution,false,pending,Gabon,PRIVATE,https://cecagadis.com
+Ceca-Gadis,,https://cecagadis.com/offres/,green_verified,Food retail and distribution | 2026-10-10 africa-gap. The jobs page says the company is recruiting gérants.,true,pending,Gabon,PRIVATE,https://cecagadis.com
 Sobraga,,https://sobraga.com,grey_none_verified,Brewery and beverages company,false,pending,Gabon,PRIVATE,https://sobraga.com
 UNICEF Gabon,,https://www.unicef.org/gabon,grey_none_verified,UN children agency office,false,pending,Gabon,NGO,https://www.unicef.org/gabon
 WWF Gabon,,https://www.wwfgabon.org,grey_none_verified,Conservation NGO Gabon office,false,pending,Gabon,NGO,https://www.wwfgabon.org
@@ -3945,7 +3945,7 @@ World Vision Ghana,,https://careers.wvi.org/job-opportunities-in-ghana,amber_com
 Plan International Ghana,,https://plan-international.org/careers,grey_none_verified,Child rights and development NGO,false,pending,Ghana,NGO,https://plan-international.org/ghana
 CARE Ghana,,https://www.care.org/careers,grey_none_verified,Humanitarian and development NGO,false,pending,Ghana,NGO,https://www.care.org
 Save the Children Ghana,,https://ghana.savethechildren.net/jobs,grey_none_verified,Child-focused humanitarian NGO,false,pending,Ghana,NGO,https://ghana.savethechildren.net
-Ministere de l'Economie et des Finances,,https://www.mef.gov.gn,grey_none_verified,Ministere finances et economie nationale,false,pending,Guinea,DEPT,https://www.mef.gov.gn
+Ministere de l'Economie et des Finances,,https://www.mef.gov.gn/publication-mefb-avis-de-recrutement-7-postes-a-pourvoir-au-sein-de-la-mefb/,green_verified,Ministere finances et economie nationale | 2026-10-10 africa-gap. The ministry notice names Responsable Suivi-Évaluation de la CEPS among seven posts.,true,pending,Guinea,DEPT,https://www.mef.gov.gn
 Ministere du Budget,,https://mbudget.gov.gn,grey_none_verified,Ministere du budget national,false,pending,Guinea,DEPT,https://mbudget.gov.gn
 Ministere de la Sante et de l'Hygiene Publique,,https://sante.gov.gn,grey_none_verified,Ministere sante et hygiene publique,false,pending,Guinea,DEPT,https://sante.gov.gn
 Ministere de l'Enseignement Pre-Universitaire et de l'Alphabetisation,,https://mepua.gov.gn,grey_none_verified,Ministere education de base,false,pending,Guinea,DEPT,https://mepua.gov.gn
@@ -3964,7 +3964,7 @@ Ministere de l'Environnement et du Developpement Durable,,https://medd.gov.gn,gr
 Ministere de la Peche et de l'Economie Maritime,,https://peches.gov.gn,grey_none_verified,Ministere peche et economie maritime,false,pending,Guinea,DEPT,https://peches.gov.gn
 Ministere des Postes des Telecommunications et de l'Economie Numerique,,https://www.mpten.gov.gn,grey_none_verified,Ministere postes telecoms economie numerique,false,pending,Guinea,DEPT,https://www.mpten.gov.gn
 Ministere du Plan et de la Cooperation Internationale,,https://mpcid.gov.gn,grey_none_verified,Ministere du plan et cooperation,false,pending,Guinea,DEPT,https://mpcid.gov.gn
-Electricite de Guinee EDG,,https://edg.com.gn,grey_none_verified,Compagnie nationale d'electricite,false,pending,Guinea,SOE,https://edg.com.gn
+Electricite de Guinee EDG,,https://edg.com.gn/carrieres/,green_verified,"Compagnie nationale d'electricite | 2026-10-10 africa-gap. The careers page names a coordinateur, network technicians, works supervisors and an auditeur junior.",true,pending,Guinea,SOE,https://edg.com.gn
 Societe des Eaux de Guinee SEG,,https://segguinee.com,grey_none_verified,Societe nationale des eaux,false,pending,Guinea,SOE,https://segguinee.com
 Port Autonome de Conakry,,https://portconakry.gov.gn,grey_none_verified,Port maritime national,false,pending,Guinea,SOE,https://portconakry.gov.gn
 SOGUIPAMI,,https://soguipami.net,grey_none_verified,Societe guineenne du patrimoine minier,false,pending,Guinea,SOE,https://soguipami.net
@@ -3972,10 +3972,10 @@ ANAIM,,https://www.anaimguinee.com,grey_none_verified,Agence nationale infrastru
 SOGEAC Aeroport de Conakry,,https://aeroportdeconakry.com,grey_none_verified,Gestionnaire aeroport de Conakry,false,pending,Guinea,SOE,https://aeroportdeconakry.com
 La Poste Guineenne,,https://www.laposte.gn,grey_none_verified,Operateur postal national,false,pending,Guinea,SOE,https://www.laposte.gn
 GUILAB,,https://guilab.com.gn,grey_none_verified,Operateur national fibre optique,false,pending,Guinea,SOE,https://guilab.com.gn
-LONAGUI,,https://www.lonagui.com.gn,grey_none_verified,Loterie nationale de Guinee,false,pending,Guinea,SOE,https://www.lonagui.com.gn
+LONAGUI,,https://www.lonagui.com.gn/offres-d-emploi/,green_verified,Loterie nationale de Guinee | 2026-10-10 africa-gap. The jobs page says no vacancy is available at the moment.,true,pending,Guinea,SOE,https://www.lonagui.com.gn
 Commune de Matoto,,https://mairiedematoto.org,grey_none_verified,Commune urbaine de Conakry,false,pending,Guinea,MUNI,https://mairiedematoto.org
 Commune de Ratoma,,https://ratoma.website,grey_none_verified,Commune urbaine de Conakry,false,pending,Guinea,MUNI,https://ratoma.website
-Ville de Nzerekore,,https://ville-nzerekore.com,grey_none_verified,Commune urbaine region forestiere,false,pending,Guinea,MUNI,https://ville-nzerekore.com
+Ville de Nzerekore,,https://ville-nzerekore.com/emploi,green_verified,Commune urbaine region forestiere | 2026-10-10 africa-gap. The municipal jobs page says no offer is available.,true,pending,Guinea,MUNI,https://ville-nzerekore.com
 Commune Urbaine de Kindia,,https://cukindia.org,grey_none_verified,Commune urbaine Basse-Guinee,false,pending,Guinea,MUNI,https://cukindia.org
 Ville de Labe,,https://www.communelabe.org,grey_none_verified,Commune urbaine Fouta-Djallon,false,pending,Guinea,MUNI,https://www.communelabe.org
 Mairie de Kankan,,https://sekoukaba2009.wixsite.com/mairiedekankan,grey_none_verified,Commune urbaine Haute-Guinee,false,pending,Guinea,MUNI,https://sekoukaba2009.wixsite.com/mairiedekankan
@@ -3990,7 +3990,7 @@ Ecobank Guinee,,https://www.ecobank.com,grey_none_verified,Banque panafricaine,f
 UBA Guinee,,https://www.ubagroup.com/guinea,grey_none_verified,Banque panafricaine nigeriane,false,pending,Guinea,PRIVATE,https://www.ubagroup.com/guinea
 Orabank Guinee,,https://www.orabank.net,grey_none_verified,Banque panafricaine,false,pending,Guinea,PRIVATE,https://www.orabank.net
 Orange Guinee,,https://jobs.orange-guinee.com,amber_company_route,Operateur telecom mobile leader,true,pending,Guinea,PRIVATE,https://www.orange-guinee.com
-SOBRAGUI,,https://www.sobragui.com,grey_none_verified,Brasserie et boissons Castel,false,pending,Guinea,PRIVATE,https://www.sobragui.com
+SOBRAGUI,,https://sobragui.com/blog/news/avis-de-recrutement-grutier/,green_verified,"Brasserie et boissons Castel | 2026-10-10 africa-gap. The notice names a grutier, a cariste and a technicien services généraux.",true,pending,Guinea,PRIVATE,https://www.sobragui.com
 UNICEF Guinee,,https://www.unicef.org/guinea,grey_none_verified,Agence ONU pour enfance,false,pending,Guinea,NGO,https://www.unicef.org/guinea
 PAM Guinee,,https://www.wfp.org/countries/guinea,grey_none_verified,Programme alimentaire mondial ONU,false,pending,Guinea,NGO,https://www.wfp.org/countries/guinea
 OMS Guinee,,https://www.afro.who.int/countries/guinea,grey_none_verified,Organisation mondiale de la sante,false,pending,Guinea,NGO,https://www.afro.who.int/countries/guinea
@@ -4108,7 +4108,7 @@ Liberia Electricity Corporation,,https://lecliberia.com/about-us/careers/,green_
 Liberia Water and Sewer Corporation,,https://lwsc.gov.lr/,grey_none_verified,State-owned water utility,false,no_url,Liberia,SOE,https://lwsc.gov.lr/
 Ministry of Foreign Affairs and International Cooperation,,http://www.foreign.gov.ly/,green_verified,"GNU ministry, Tripoli-based",false,no_url,Libya,DEPT,http://www.foreign.gov.ly/
 Ministry of Labor and Rehabilitation,,http://www.labour.gov.ly/,green_verified,"GNU ministry, Tripoli-based",false,no_url,Libya,DEPT,http://www.labour.gov.ly/
-Ministry of Economy and Trade,,https://economy.gov.ly/,green_verified,"GNU ministry, Tripoli-based",false,no_url,Libya,DEPT,https://economy.gov.ly/
+Ministry of Economy and Trade,,https://economy.gov.ly/jobs/,green_verified,"GNU ministry, Tripoli-based | 2026-10-10 africa-gap. The ministry jobs page says there are no vacant positions at the moment.",true,pending,Libya,DEPT,https://economy.gov.ly/
 Ministry of Education and Teaching,,https://moe.gov.ly/,green_verified,"GNU ministry, Tripoli-based",false,no_url,Libya,DEPT,https://moe.gov.ly/
 Ministry of Oil and Gas,,https://www.facebook.com/Ministry.oil.gas/,grey_none_verified,"GNU ministry, Facebook page only, Tripoli",false,no_url,Libya,DEPT,https://www.facebook.com/Ministry.oil.gas/
 Ministry of Transportation,,https://www.facebook.com/mot.gov.ly/,grey_none_verified,"GNU ministry, Facebook page only, Tripoli",false,no_url,Libya,DEPT,https://www.facebook.com/mot.gov.ly/
@@ -4255,7 +4255,7 @@ Ministère de la Justice et des Droits Humains,,https://www.gouv.ne/,grey_none_v
 Ministère de l'Agriculture et de l'Élevage,,https://agriculture.gouv.ne/,grey_none_verified,National government ministry,false,no_url,Niger,DEPT,https://agriculture.gouv.ne/
 Ministère du Pétrole,,https://petrole.gouv.ne/,grey_none_verified,National government ministry,false,no_url,Niger,DEPT,https://petrole.gouv.ne/
 "Ministère de l'Enseignement Supérieur, de la Recherche et de l'Innovation Technologique",,https://www.gouv.ne/index.php/les-ministeres/139-ministere-de-l-enseignement-superieur-de-la-recherche-et-de-l-innovation-technologique,grey_none_verified,National government ministry,false,no_url,Niger,DEPT,https://www.gouv.ne/index.php/les-ministeres/139-ministere-de-l-enseignement-superieur-de-la-recherche-et-de-l-innovation-technologique
-"Ministère de la Fonction Publique, du Travail et de l'Emploi",,https://mfpte.gouv.ne/,amber_company_route,National government ministry,true,pending,Niger,DEPT,https://mfpte.gouv.ne/
+"Ministère de la Fonction Publique, du Travail et de l'Emploi",,https://mfpte.gouv.ne/recrutements/,green_verified,National government ministry | 2026-10-10 africa-gap. The recruitment list names civil-service contests for the economy and oil ministries and an avis for agents auxiliaires.,true,pending,Niger,DEPT,https://mfpte.gouv.ne/
 Ministère de l'Énergie,,https://www.energie.gouv.ne/,grey_none_verified,National government ministry,false,no_url,Niger,DEPT,https://www.energie.gouv.ne/
 "Ministère de la Refondation, de la Culture et de la Promotion des Valeurs Sociales",,https://www.gouv.ne/,grey_none_verified,National government ministry,false,no_url,Niger,DEPT,https://www.gouv.ne/
 "Ministère de la Population, de l'Action Sociale et de la Solidarité Nationale",,https://www.gouv.ne/index.php/les-ministeres/743-ministere-de-la-population-de-l-action-sociale-et-de-la-solidarite-nationale,grey_none_verified,National government ministry,false,no_url,Niger,DEPT,https://www.gouv.ne/index.php/les-ministeres/743-ministere-de-la-population-de-l-action-sociale-et-de-la-solidarite-nationale
@@ -4452,7 +4452,7 @@ Ministry of Basic and Senior Secondary Education,,https://mbsse.gov.sl/,grey_non
 Ministry of Information and Civic Education,,https://moice.gov.sl/adverts/,green_verified,National government ministry - information,true,pending,Sierra Leone,DEPT,https://moice.gov.sl/
 "Ministry of Communication, Technology and Innovation",,https://mocti.gov.sl/,grey_none_verified,National government ministry - tech innovation,false,no_url,Sierra Leone,DEPT,https://mocti.gov.sl/
 Ministry of Mines and Mineral Resources,,https://mommr.gov.sl/,grey_none_verified,National government ministry - mining,false,no_url,Sierra Leone,DEPT,https://mommr.gov.sl/
-"Ministry of Lands, Housing, and Country Planning",,https://molhcp.gov.sl/,grey_none_verified,National government ministry - lands,false,no_url,Sierra Leone,DEPT,https://molhcp.gov.sl/
+"Ministry of Lands, Housing, and Country Planning",,https://molhcp.gov.sl/jobs/,green_verified,2026-10-10 fill-blanks: current vacancies include Project Civil Engineer for the Sierra Leone Land Administration Project.,true,pending,Sierra Leone,DEPT,https://molhcp.gov.sl/
 Ministry of Transport and Aviation,,https://mota.gov.sl/,grey_none_verified,National government ministry - transport,false,no_url,Sierra Leone,DEPT,https://mota.gov.sl/
 Ministry of Public Administration and Political Affairs,,https://moppa.gov.sl/,grey_none_verified,National government ministry - public admin,false,no_url,Sierra Leone,DEPT,https://moppa.gov.sl/
 Ministry of Water Resources and Sanitation,,https://mwr.gov.sl/,grey_none_verified,National government ministry - water,false,no_url,Sierra Leone,DEPT,https://mwr.gov.sl/
@@ -6784,7 +6784,7 @@ Rex Trueform Group,RTO,,grey_none_verified,"2026-10-09 employer, no verified job
 Tongaat Hulett,TON,,grey_none_verified,"2026-10-09 employer, no verified jobs page",false,no_url,South Africa,JSE,https://www.tongaat.com/
 We Buy Cars Holdings,WBC,,grey_none_verified,"2026-10-09 employer, no verified jobs page",false,no_url,South Africa,JSE,https://www.webuycars.co.za/
 Curro Holdings,,,grey_none_verified,"2026-10-09 employer, no verified jobs page",false,no_url,South Africa,PRIVATE,https://www.curro.co.za/
-Biovac,,,grey_none_verified,"2026-10-09 employer, no verified jobs page",false,no_url,South Africa,PRIVATE,https://biovac.co.za/
+Biovac,,https://biovac.teamtailor.com/jobs,green_verified,2026-10-09 employer. 2026-10-10 fill-blanks: own Teamtailor board lists Network Engineer and AMD Scientist in Cape Town and Johannesburg.,true,pending,South Africa,PRIVATE,https://biovac.co.za/
 Astron Energy,,https://glencore.wd3.myworkdayjobs.com/astronenergy,green_verified,2026-10-09 verified direct jobs page,true,pending,South Africa,PRIVATE,https://www.astronenergy.co.za/
 Vumatel,,,grey_none_verified,"2026-10-09 employer, no verified jobs page",false,no_url,South Africa,PRIVATE,https://vumatel.co.za/
 Frogfoot,,https://frogfootcom.simplify.hr/,green_verified,2026-10-09 verified direct jobs page,true,pending,South Africa,PRIVATE,https://www.frogfoot.co.za/
@@ -7043,7 +7043,7 @@ Howden Africa Holdings,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs
 Baker McKenzie South Africa,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,PRIVATE,https://www.bakermckenzie.com/en/
 Fluxmans,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,PRIVATE,https://www.fluxmans.com/
 Kagiso Tiso Holdings,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,PRIVATE,https://www.kth.co.za/
-Adapt IT,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,PRIVATE,https://www.adaptit.com/
+Adapt IT,,https://adaptit.ci.hr/,green_verified,"2026-10-09 SA gap. 2026-10-10 fill-blanks: CareerInHR board lists Senior EPM Consultant (Midrand, closes 21 October 2026) and Hospitality Systems Consultant (Durban).",true,pending,South Africa,PRIVATE,https://www.adaptit.com/
 Datacentrix,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,PRIVATE,https://www.datacentrix.co.za/
 iKhokha,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,PRIVATE,https://www.ikhokha.com/
 Johannesburg Water,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,MUNI,
@@ -7122,7 +7122,7 @@ Province Nord,,,grey_none_verified,"2026-10-10 territory, no verified jobs page.
 Province Sud,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. Southern province. Its emploi page is a citizen job portal, not the province hiring itself.",false,no_url,New Caledonia,DEPT,https://www.province-sud.nc/
 Ville de Nouméa,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. Capital municipality. The recruitment page had no listings.",false,no_url,New Caledonia,MUNI,https://www.noumea.nc/
 Enercal,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. Electricity company. The recruitment page is a careers story, not a vacancy list.",false,no_url,New Caledonia,SOE,https://www.enercal.nc/
-OPT-NC,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. Posts and telecom office. The vacancy pages explain the process and name no post.",false,no_url,New Caledonia,SOE,https://office.opt.nc/
+OPT-NC,,https://office.opt.nc/fr/emploi-et-carriere/postuler-lopt-nc/offres-emploi,green_verified,"2026-10-10 territory. 2026-10-10 fill-blanks: the unfiltered jobs list says no offer matches for the moment, a real zero.",true,pending,New Caledonia,SOE,https://office.opt.nc/
 Aircalin,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. Government-owned international airline. No own jobs list confirmed.",false,no_url,New Caledonia,SOE,https://www.aircalin.com/
 Air Calédonie,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. Province-owned domestic airline. The offres page is flight deals, not jobs.",false,no_url,New Caledonia,SOE,https://www.air-caledonie.nc/
 Banque Calédonienne d'Investissement,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. Public investment bank. No own jobs list confirmed.",false,no_url,New Caledonia,SOE,https://www.bci.nc/
@@ -7195,6 +7195,104 @@ UNICEF Myanmar,,,grey_none_verified,"2026-10-10 six-country, no verified jobs pa
 University of Yangon,,,grey_none_verified,"2026-10-10 six-country, no verified jobs page. No own jobs list confirmed. Military-linked and sanctioned entities were not added.",false,no_url,Myanmar,UNI,https://www.uy.edu.mm/
 National Management Degree College,,,grey_none_verified,"2026-10-10 six-country, no verified jobs page. No own jobs list confirmed. Military-linked and sanctioned entities were not added.",false,no_url,Myanmar,COLLEGE,https://www.nmdc.edu.mm/
 Pun Hlaing Hospitals,,,grey_none_verified,"2026-10-10 six-country, no verified jobs page. Civilian private hospital. No own jobs list confirmed. Military-linked and sanctioned entities were not added.",false,no_url,Myanmar,HOSPITAL,https://punhlainghospitals.com/
+Gouvernement de la République du Bénin,,https://www.gouv.bj/opportunites/offres-emploi/,green_verified,"2026-10-10 africa-gap. The government jobs index names open recrutements, including specialists at the Présidence and agents of the police municipale.",true,pending,Benin,DEPT,https://www.gouv.bj/
+GITGE,,,grey_none_verified,2026-10-10 africa-gap. Gestor de Infraestructuras de Telecomunicaciones. Homepage verified. No jobs page the bot could read.,false,no_url,Equatorial Guinea,SOE,https://gitge.com/
+Banco Central de São Tomé e Príncipe,,,grey_none_verified,2026-10-10 africa-gap. Homepage verified. No jobs page the bot could read.,false,no_url,Sao Tome and Principe,SOE,https://www.bcstp.st/
+Commercial Bank of Eritrea,,,grey_none_verified,2026-10-10 africa-gap. State commercial bank. No homepage the bot was allowed to read.,false,no_url,Eritrea,SOE,
+EriTel,,,grey_none_verified,2026-10-10 africa-gap. State telecommunications operator. No homepage the bot was allowed to read.,false,no_url,Eritrea,SOE,
+Orotta National Referral Hospital,,,grey_none_verified,2026-10-10 africa-gap. National referral hospital in Asmara. No homepage the bot was allowed to read.,false,no_url,Eritrea,HOSPITAL,
+BMW Group,,https://www.bmwgroup.jobs/en.html,green_verified,2026-10-10 major-economy. The BMW Group job finder names Software Engineer BMW Car IT and IT Delivery Manager.,true,pending,Germany,PRIVATE,https://www.bmwgroup.com/en.html
+Volkswagen Group,,https://www.volkswagen-karriere.de/de.html,green_verified,2026-10-10 major-economy. The German careers page names Werkstudent posts.,true,pending,Germany,PRIVATE,https://www.volkswagen-group.com/en
+Deutsche Bahn,,https://db.jobs/de-de,green_verified,2026-10-10 major-economy. The jobs page names Industriemechaniker and Werkstudent posts.,true,pending,Germany,SOE,https://www.deutschebahn.com/de
+Deutsche Bank,,https://careers.db.com/professionals/search-roles/,green_verified,2026-10-10 major-economy. The role search names the school and vocational orientation internship.,true,pending,Germany,PRIVATE,https://www.db.com/
+Société Générale,,https://careers.societegenerale.com/,green_verified,2026-10-10 major-economy. The careers page names Data Analyst and Data Scientist.,true,pending,France,PRIVATE,https://www.societegenerale.com/fr
+Telefónica,,https://jobs.telefonica.com/search/,green_verified,2026-10-10 major-economy. The jobs search names Responsable comercial especialista seguridad electrónica.,true,pending,Spain,PRIVATE,https://www.telefonica.com/es/
+Saudi Aramco,,https://www.aramco.com/en/careers,green_verified,"2026-10-10 major-economy. The careers page names Account Manager, April 2026.",true,pending,Saudi Arabia,SOE,https://www.aramco.com/
+Panasonic Group,,https://recruit.jpn.panasonic.com/newgrads/job_description/,green_verified,"2026-10-10 major-economy. The graduate recruitment notice names sales, HR, accounting, R&D, design and systems-engineer roles. The corporate homepage blocked the bot; this is the verified Panasonic Group site.",true,pending,Japan,PRIVATE,https://recruit.jpn.panasonic.com/
+Électricité de Mayotte,,https://www.electricitedemayotte.com/lentreprise-edm/edm-recrute/,green_verified,"2026-10-10 remaining-territories, direct jobs page. Names Chargé de Professionnalisation and Technicien Comptages et Mesures.",true,pending,Mayotte,SOE,https://www.electricitedemayotte.com/
+Centre Hospitalier de Mayotte,,https://ch-mayotte-mamoudzou.mstaff.co/offers,green_verified,"2026-10-10 remaining-territories, direct jobs page. The hospital's own board names Infirmier and Médecin généraliste. The hospital homepage disallows this bot.",true,pending,Mayotte,HOSPITAL,
+St Helena Government,,https://www.sainthelena.gov.sh/st-helena/government/government-vacancies/,green_verified,"2026-10-10 remaining-territories, direct jobs page. Names Prison Officer, closing 14 October 2026.",true,pending,Saint Helena,DEPT,https://www.sainthelena.gov.sh/
+HM Government of Gibraltar,,https://www.gibraltar.gov.gi/press/job-opportunities,green_verified,"2026-10-10 remaining-territories, direct jobs page. Names Supply Cleaner in the Department of Education.",true,pending,Gibraltar,DEPT,https://www.gibraltar.gov.gi/
+Gibraltar Health Authority,,https://www.gha.gi/careers/,green_verified,"2026-10-10 remaining-territories, direct jobs page. Names Hospital Optometrist.",true,pending,Gibraltar,HOSPITAL,https://www.gha.gi/
+University of Gibraltar,,https://www.unigib.edu.gi/vacancies/,green_verified,"2026-10-10 remaining-territories, direct jobs page. Names Marketing and Communications Officer.",true,pending,Gibraltar,UNI,https://www.unigib.edu.gi/
+Direction des Talents et de l'Innovation,,https://www.service-public.pf/dti/concours-ph-chpf-fiches-de-poste-2/,green_verified,"2026-10-10 remaining-territories, direct concours page. Names addictologie and biochimie posts at the territorial hospital.",true,pending,French Polynesia,DEPT,https://www.service-public.pf/
+Centre hospitalier de la Polynésie française,,https://www.aravihi.gov.pf/offre-de-emploi/liste-toutes-offres.aspx?facet_Entity=123&lcid=1036,green_verified,"2026-10-10 remaining-territories, direct jobs page on the territory's own recruitment site. Names Infirmier généraliste and Secrétaire médical.",true,pending,French Polynesia,HOSPITAL,https://www.chpf.pf/
+Guam Power Authority,,https://www.guampowerauthority.com/how-do-i/find-job-openings,green_verified,"2026-10-10 remaining-territories, direct jobs page. Names Management Analyst II and Utility Safety Inspector I.",true,pending,Guam,SOE,https://www.guampowerauthority.com/
+Guam Memorial Hospital Authority,,https://www.gmha.org/employment/openings/,green_verified,"2026-10-10 remaining-territories, direct jobs page. Names Buyer I and Buyer II.",true,pending,Guam,HOSPITAL,https://www.gmha.org/
+University of Guam,,https://www.uog.edu/administration/administration-finance/human-resources/job-opportunities,green_verified,"2026-10-10 remaining-territories, direct jobs page. Names Research Assistant I. The PeopleAdmin host disallows this bot, so that address was not stored.",true,pending,Guam,UNI,https://www.uog.edu/
+American Samoa Government,,https://www.americansamoa.gov/jobs,green_verified,"2026-10-10 remaining-territories, direct jobs page. Names Compliance Officer at the Department of Treasury.",true,pending,American Samoa,DEPT,https://www.americansamoa.gov/
+National Environment Service,,https://environment.gov.ck/resources/careers/,green_verified,"2026-10-10 remaining-territories, direct jobs page. The page says there are currently no vacancies.",true,pending,Cook Islands,DEPT,https://environment.gov.ck/
+Government of Niue,,https://www.gov.nu/vacancies,green_verified,"2026-10-10 remaining-territories, direct jobs page. Names Office Manager at Niue Bulk Fuel.",true,pending,Niue,DEPT,https://www.gov.nu/
+Anguilla Electricity Company Limited,,https://www.anglec.com/vacancies.php,green_verified,"2026-10-10 remaining-territories, direct jobs page. The page says no vacancies are currently being advertised.",true,pending,Anguilla,SOE,https://www.anglec.com/
+British Virgin Islands Electricity Corporation,,https://bvielectricity.com/about-us/careers/,green_verified,"2026-10-10 remaining-territories, direct jobs page. Names Payroll Officer and Plant Operator.",true,pending,British Virgin Islands,SOE,https://bvielectricity.com/
+Centre Universitaire de Mayotte,,,grey_none_verified,"2026-10-10 remaining-territories, no verified jobs page. The recruitment page describes how to apply and does not name a post.",false,no_url,Mayotte,UNI,https://www.univ-mayotte.fr/
+Government of the Faroe Islands,,,grey_none_verified,"2026-10-10 remaining-territories, no verified jobs page. The government homepage answered and did not list a post.",false,no_url,Faroe Islands,DEPT,https://www.government.fo/
+University of the Faroe Islands,,,grey_none_verified,"2026-10-10 remaining-territories, no verified jobs page. The jobs page did not name a post.",false,no_url,Faroe Islands,UNI,https://www.setur.fo/
+SEV,,,grey_none_verified,"2026-10-10 remaining-territories, no verified jobs page. Power utility. The vacancies path did not name a post.",false,no_url,Faroe Islands,SOE,https://www.sev.fo/
+Sjúkrahúsverkið,,,grey_none_verified,"2026-10-10 remaining-territories, no verified jobs page. National hospital service. The vacancies path did not name a post.",false,no_url,Faroe Islands,HOSPITAL,https://www.sjukrahus.fo/
+Gibraltar Electricity Authority,,,grey_none_verified,"2026-10-10 remaining-territories, no verified jobs page. The homepage answered and did not list a post.",false,no_url,Gibraltar,SOE,https://www.gea.gi/
+Gouvernement de la Polynésie française,,,grey_none_verified,"2026-10-10 remaining-territories, no verified jobs page. The government homepage answered.",false,no_url,French Polynesia,DEPT,https://gouvernement.pf/fr/
+Université de la Polynésie française,,,grey_none_verified,"2026-10-10 remaining-territories, no verified jobs page. The homepage answered. The guessed recruitment path was not a jobs list.",false,no_url,French Polynesia,UNI,https://www.upf.pf/fr
+Government of the Virgin Islands,,,grey_none_verified,"2026-10-10 remaining-territories, no verified jobs page. The homepage answered. The vacancy-notices path was not found.",false,no_url,British Virgin Islands,DEPT,https://www.gov.vg/
+H. Lavity Stoutt Community College,,,grey_none_verified,"2026-10-10 remaining-territories, no verified jobs page. The college homepage answered.",false,no_url,British Virgin Islands,COLLEGE,https://hlscc.edu.vg/
+Government of the Cayman Islands,,,grey_none_verified,"2026-10-10 remaining-territories, no verified jobs page. The careers host redirected to a login.",false,no_url,Cayman Islands,DEPT,https://gov.ky/
+Cayman Islands Health Services Authority,,,grey_none_verified,"2026-10-10 remaining-territories, no verified jobs page. The careers page lists professions, not open posts.",false,no_url,Cayman Islands,HOSPITAL,https://www.hsa.ky/
+Utility Regulation and Competition Office,,,grey_none_verified,"2026-10-10 remaining-territories, no verified jobs page. The job-openings page did not name a post.",false,no_url,Cayman Islands,DEPT,https://www.ofreg.ky/
+Government of Anguilla,,,grey_none_verified,"2026-10-10 remaining-territories, no verified jobs page. The employment page is a hub and does not name a post.",false,no_url,Anguilla,DEPT,https://www.gov.ai/
+Government of Bermuda,,,grey_none_verified,"2026-10-10 remaining-territories, no verified jobs page. The homepage answered. The careers path was not found.",false,no_url,Bermuda,DEPT,https://www.gov.bm/
+Bermuda Hospitals Board,,,grey_none_verified,"2026-10-10 remaining-territories, no verified jobs page. The work-at page did not name a post.",false,no_url,Bermuda,HOSPITAL,https://bermudahospitals.bm/
+Bermuda Electric Light Company,,,grey_none_verified,"2026-10-10 remaining-territories, no verified jobs page. The careers path was not found.",false,no_url,Bermuda,SOE,https://belco.bm/
+Bermuda College,,,grey_none_verified,"2026-10-10 remaining-territories, no verified jobs page. The homepage answered. The employment path was not found.",false,no_url,Bermuda,COLLEGE,https://www.college.bm/
+Government of the United States Virgin Islands,,,grey_none_verified,"2026-10-10 remaining-territories, no verified jobs page. The homepage answered.",false,no_url,US Virgin Islands,DEPT,https://www.vi.gov/
+University of the Virgin Islands,,,grey_none_verified,"2026-10-10 remaining-territories, no verified jobs page. The homepage answered. The human-resources path was not found.",false,no_url,US Virgin Islands,UNI,https://www.uvi.edu/
+Virgin Islands Water and Power Authority,,,grey_none_verified,"2026-10-10 remaining-territories, no verified jobs page. The homepage answered. The careers path was not found.",false,no_url,US Virgin Islands,SOE,https://www.viwapa.vi/
+Government of Aruba,,,grey_none_verified,"2026-10-10 remaining-territories, no verified jobs page. The homepage answered.",false,no_url,Aruba,DEPT,https://www.gobierno.aw/
+WEB Aruba,,,grey_none_verified,"2026-10-10 remaining-territories, no verified jobs page. Water and power utility. The careers path was not found.",false,no_url,Aruba,SOE,https://webaruba.com/
+SETAR,,,grey_none_verified,"2026-10-10 remaining-territories, no verified jobs page. Telecommunications utility. The careers path was not found.",false,no_url,Aruba,SOE,https://www.setar.aw/
+Horacio Oduber Hospital,,,grey_none_verified,"2026-10-10 remaining-territories, no verified jobs page. The employer page did not name a post.",false,no_url,Aruba,HOSPITAL,https://www.arubahospital.com/
+University of Aruba,,,grey_none_verified,"2026-10-10 remaining-territories, no verified jobs page. The homepage answered.",false,no_url,Aruba,UNI,https://www.ua.aw/
+Gobièrnu di Kòrsou,,,grey_none_verified,"2026-10-10 remaining-territories, no verified jobs page. The government homepage answered.",false,no_url,Curaçao,DEPT,https://gobiernu.cw/
+Aqualectra,,,grey_none_verified,"2026-10-10 remaining-territories, no verified jobs page. Water and power utility. Its recruiting host returned no job titles.",false,no_url,Curaçao,SOE,https://www.aqualectra.com/
+Curaçao Medical Center,,,grey_none_verified,"2026-10-10 remaining-territories, no verified jobs page. The careers path was not found.",false,no_url,Curaçao,HOSPITAL,https://www.cmc.cw/
+Collectivité Territoriale de Martinique,,,grey_none_verified,"2026-10-10 remaining-territories, no verified jobs page. The homepage answered. The recruitment path was not found.",false,no_url,Martinique,DEPT,https://www.collectivitedemartinique.mq/
+Université des Antilles,,,grey_none_verified,"2026-10-10 remaining-territories, no verified jobs page. Public university for Guadeloupe and Martinique. Filed under Guadeloupe. The homepage answered.",false,no_url,Guadeloupe,UNI,https://www.univ-antilles.fr/
+Government of Montserrat,,,grey_none_verified,"2026-10-10 remaining-territories, no verified jobs page. The homepage answered. The vacancies path was not found.",false,no_url,Montserrat,DEPT,https://www.gov.ms/
+Turks and Caicos Islands Government,,,grey_none_verified,"2026-10-10 remaining-territories, no verified jobs page. The homepage answered.",false,no_url,Turks and Caicos Islands,DEPT,https://www.gov.tc/
+Collectivité de Saint-Martin,,,grey_none_verified,"2026-10-10 remaining-territories, no verified jobs page. The collectivity homepage answered.",false,no_url,Saint-Martin,DEPT,https://www.com-saint-martin.fr/
+Rijksdienst Caribisch Nederland,,,grey_none_verified,"2026-10-10 remaining-territories, no verified jobs page. The public-service homepage for Bonaire, Sint Eustatius and Saba answered.",false,no_url,Caribbean Netherlands,DEPT,https://www.rijksdienstcn.com/
+Government of Sint Maarten,,,grey_none_verified,"2026-10-10 remaining-territories, no verified jobs page. The homepage answered.",false,no_url,Sint Maarten,DEPT,https://www.sintmaartengov.org/
+Falkland Islands Government,,,grey_none_verified,"2026-10-10 remaining-territories, no verified jobs page. The homepage answered. The jobs path was not found.",false,no_url,Falkland Islands,DEPT,https://www.gov.fk/
+Préfecture de Mayotte,,,grey_none_verified,"2026-10-10 remaining-territories, no verified jobs page. The prefecture site did not answer.",false,no_url,Mayotte,DEPT,
+Connect Saint Helena,,,grey_none_verified,"2026-10-10 remaining-territories, no verified jobs page. The utility site failed the TLS handshake.",false,no_url,Saint Helena,SOE,
+Centre Hospitalier Universitaire de la Guadeloupe,,,grey_none_verified,"2026-10-10 remaining-territories, no verified jobs page. The hospital site disallows this bot.",false,no_url,Guadeloupe,HOSPITAL,
+Centre Hospitalier Universitaire de Martinique,,,grey_none_verified,"2026-10-10 remaining-territories, no verified jobs page. The hospital site did not return a readable page.",false,no_url,Martinique,HOSPITAL,
+Collectivité de Saint-Barthélemy,,,grey_none_verified,"2026-10-10 remaining-territories, no verified jobs page. The collectivity site returned an empty page.",false,no_url,Saint Barthélemy,DEPT,
+Préfecture de Saint-Pierre-et-Miquelon,,,grey_none_verified,"2026-10-10 remaining-territories, no verified jobs page. The prefecture site did not answer.",false,no_url,Saint Pierre and Miquelon,DEPT,
+Administration supérieure de Wallis-et-Futuna,,,grey_none_verified,"2026-10-10 remaining-territories, no verified jobs page. The administration site did not answer.",false,no_url,Wallis and Futuna,DEPT,
+Office of the Governor of the Northern Mariana Islands,,,grey_none_verified,"2026-10-10 remaining-territories, no verified jobs page. The government host did not resolve.",false,no_url,Northern Mariana Islands,DEPT,
+Universitat d'Andorra,,https://www.uda.ad/universitat/treballeu-amb-nosaltres/,green_verified,"2026-10-10 fewest-links: the jobs page says no selection process is open, a real zero.",true,pending,Andorra,UNI,https://www.uda.ad/
+Sir Lester Bird Medical Centre,,https://www.msjmc.org/careers,green_verified,2026-10-10 fewest-links: careers page lists a full-time Registered/Staff Nurse.,true,pending,Antigua and Barbuda,HOSPITAL,https://www.msjmc.org/
+University of Sarajevo,,https://www.unsa.ba/konkursi,green_verified,"2026-10-10 fewest-links: konkurs list includes academic-staff competitions, one dated 9 October 2026.",true,pending,Bosnia and Herzegovina,UNI,https://www.unsa.ba/
+Klinički centar Univerziteta u Sarajevu,,https://kcus.ba/kcus-raspisao-konkurs-za-prijem-120-novih-medicinskih-sestara-i-tehnicara/,green_verified,2026-10-10 fewest-links: 2 October 2026 notice recruits 120 nurses and technicians.,true,pending,Bosnia and Herzegovina,HOSPITAL,https://kcus.ba/
+Ministry of Health Brunei Darussalam,,https://moh.gov.bn/about-us/explore-career/,green_verified,2026-10-10 fewest-links: careers page recruits Medical Officers in primary care and emergency medicine.,true,pending,Brunei,DEPT,https://moh.gov.bn/
+Government of the Commonwealth of Dominica,,https://dominica.gov.dm/vacancies,green_verified,"2026-10-10 fewest-links: Project Engineer - DOMCREP, published 7 October 2026, closes 27 October 2026.",true,pending,Dominica,DEPT,https://dominica.gov.dm/
+Vilnius University,,https://www.vu.lt/karjera,green_verified,2026-10-10 fewest-links: lists a project manager open until 28 October 2026.,true,pending,Lithuania,UNI,https://www.vu.lt/
+National University of Samoa,,https://nus.edu.ws/vacancies/,green_verified,"2026-10-10 fewest-links: IT User Services Officer (Trainee), closing 19 October 2026.",true,pending,Samoa,UNI,https://nus.edu.ws/
+Andorra Telecom,,,grey_none_verified,2026-10-10 fewest-links: homepage verified. The jobs page did not return robots.txt.,false,no_url,Andorra,SOE,https://www.andorratelecom.ad/
+Servei Andorrà d'Atenció Sanitària,,,grey_none_verified,2026-10-10 fewest-links: homepage verified. The work-with-us page did not name a post.,false,no_url,Andorra,HOSPITAL,https://www.saas.ad/
+BH Telecom,,,grey_none_verified,2026-10-10 fewest-links: homepage verified. No jobs list was found.,false,no_url,Bosnia and Herzegovina,SOE,https://www.bhtelecom.ba/
+Universiti Brunei Darussalam,,,grey_none_verified,2026-10-10 fewest-links: homepage verified. The career page did not name a post.,false,no_url,Brunei,UNI,https://ubd.edu.bn/
+Universidad de Costa Rica,,,grey_none_verified,2026-10-10 fewest-links: homepage verified. The employment board returned no job titles.,false,no_url,Costa Rica,UNI,https://www.ucr.ac.cr/
+Instituto Costarricense de Electricidad,,,grey_none_verified,2026-10-10 fewest-links: homepage verified. No jobs list was found.,false,no_url,Costa Rica,SOE,https://www.grupoice.com/
+Charles University,,,grey_none_verified,2026-10-10 fewest-links: homepage verified. The career page describes benefits and names no post.,false,no_url,Czechia,UNI,https://cuni.cz/
+ČEZ,,,grey_none_verified,"2026-10-10 fewest-links: homepage verified. The career link is the jobs.cz board, which is not stored.",false,no_url,Czechia,SOE,https://www.cez.cz/
+Eesti Energia,,,grey_none_verified,2026-10-10 fewest-links: homepage verified (public brand Enefit). The come-work page names no post.,false,no_url,Estonia,SOE,https://www.enefit.ee/
+Government of Antigua and Barbuda,,,grey_none_verified,2026-10-10 fewest-links: homepage verified. No jobs list was found.,false,no_url,Antigua and Barbuda,DEPT,https://ab.gov.ag/
+Banco Central de la República Dominicana,,,grey_none_verified,2026-10-10 fewest-links: homepage verified. No jobs list was found.,false,no_url,Dominican Republic,SOE,https://www.bancentral.gov.do/
+University of Belgrade,,,grey_none_verified,"2026-10-10 fewest-links: homepage verified. The konkurs page is scholarships, not staff posts.",false,no_url,Serbia,UNI,https://www.bg.ac.rs/
+University of Ljubljana,,,grey_none_verified,2026-10-10 fewest-links: homepage verified. The career link is a student career centre.,false,no_url,Slovenia,UNI,https://www.uni-lj.si/
+Universidad de San Carlos de Guatemala,,,grey_none_verified,"2026-10-10 fewest-links: homepage verified. empleo.usac.edu.gt invites other employers to post, so it is not stored.",false,no_url,Guatemala,UNI,https://portal.usac.edu.gt/
+Yerevan State Medical University,,,grey_none_verified,2026-10-10 fewest-links: homepage verified. The career page did not name a post.,false,no_url,Armenia,UNI,https://ysmu.am/
 GetYourGuide,,https://boards.greenhouse.io/getyourguide,green_verified,"2026-10-10 economy-ats: Greenhouse board GetYourGuide. 27 of 40 sampled roles are in Berlin, including Account Executive (French Speaking).",true,pending,Germany,PRIVATE,
 Raisin,,https://boards.greenhouse.io/raisin,green_verified,"2026-10-10 economy-ats: Greenhouse board Raisin. 23 of 40 sampled roles are in Berlin, Germany, including AFC Operations Manager - KYC.",true,pending,Germany,PRIVATE,
 Solaris,,https://boards.greenhouse.io/solarisbank,green_verified,"2026-10-10 economy-ats: Greenhouse board Solaris (token solarisbank). 19 of 23 sampled roles are in Berlin or Frankfurt, including Credit Risk Manager.",true,pending,Germany,PRIVATE,
