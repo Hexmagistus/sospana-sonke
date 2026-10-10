@@ -67,6 +67,22 @@ Lungani, 2026-10-03: in every country dropdown, list, and work order, put **Sout
 
 ## Session Log
 
+### 2026-10-10 — Cursor (Grok 4.7) — Employers in the countries with the fewest careers links
+23 new employers across 15 countries that had one or two careers links (Armenia had two). Eight have a direct jobs page. The other 15 keep a verified homepage and a blank careers URL. Note prefix `2026-10-10 fewest-links`. No new country, so no flag or region change.
+
+Linked (name, country) → URL:
+- Universitat d'Andorra, Andorra, UNI → https://www.uda.ad/universitat/treballeu-amb-nosaltres/ (real zero: no selection process open)
+- Sir Lester Bird Medical Centre, Antigua and Barbuda, HOSPITAL → https://www.msjmc.org/careers (Registered/Staff Nurse)
+- University of Sarajevo, Bosnia and Herzegovina, UNI → https://www.unsa.ba/konkursi (academic-staff competitions, one dated 9 October 2026)
+- Klinički centar Univerziteta u Sarajevu, Bosnia and Herzegovina, HOSPITAL → https://kcus.ba/kcus-raspisao-konkurs-za-prijem-120-novih-medicinskih-sestara-i-tehnicara/ (120 nurses and technicians, published 2 October 2026)
+- Ministry of Health Brunei Darussalam, Brunei, DEPT → https://moh.gov.bn/about-us/explore-career/ (Medical Officer)
+- Government of the Commonwealth of Dominica, Dominica, DEPT → https://dominica.gov.dm/vacancies (Project Engineer - DOMCREP, closes 27 October 2026)
+- Vilnius University, Lithuania, UNI → https://www.vu.lt/karjera (project manager, open until 28 October 2026)
+- National University of Samoa, Samoa, UNI → https://nus.edu.ws/vacancies/ (IT User Services Officer, closing 19 October 2026)
+
+Links after this batch: Andorra 1 → 2, Antigua and Barbuda 1 → 2, Bosnia and Herzegovina 1 → 3, Brunei 1 → 2, Dominica 1 → 2, Lithuania 1 → 2, Samoa 1 → 2. Armenia, Costa Rica, Czechia, the Dominican Republic, Estonia, Guatemala, Serbia, and Slovenia stay at their previous link counts; the new rows there are blanks. 23 rows added, 8 linked.
+
+Left blank on purpose: Andorra Telecom (jobs host did not return robots.txt), SAAS (no named post), BH Telecom, Universiti Brunei Darussalam, Universidad de Costa Rica, ICE, Charles University, ČEZ (the career link is jobs.cz), Eesti Energia, the Government of Antigua and Barbuda, Banco Central de la República Dominicana, the University of Belgrade (scholarships, not staff posts), the University of Ljubljana (student career centre), Universidad de San Carlos (empleo.usac.edu.gt invites other employers to advertise), and Yerevan State Medical University.
 ### 2026-10-10 — Cursor (Grok 4.7) — Fill blank careers links on existing rows
 Six rows that already had a homepage, and no active jobs link, now point at a page fetched as SospanaSonkeBot. Robots allow the bot (or the host has no robots.txt), the response is HTTP 200, and the page names a post or says there are no openings. Note prefix `2026-10-10 fill-blanks`. Adapt IT, Biovac, and OPT-NC keep their earlier note prefixes so those batch counts still include them.
 

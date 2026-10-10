@@ -7270,3 +7270,26 @@ Collectivité de Saint-Barthélemy,,,grey_none_verified,"2026-10-10 remaining-te
 Préfecture de Saint-Pierre-et-Miquelon,,,grey_none_verified,"2026-10-10 remaining-territories, no verified jobs page. The prefecture site did not answer.",false,no_url,Saint Pierre and Miquelon,DEPT,
 Administration supérieure de Wallis-et-Futuna,,,grey_none_verified,"2026-10-10 remaining-territories, no verified jobs page. The administration site did not answer.",false,no_url,Wallis and Futuna,DEPT,
 Office of the Governor of the Northern Mariana Islands,,,grey_none_verified,"2026-10-10 remaining-territories, no verified jobs page. The government host did not resolve.",false,no_url,Northern Mariana Islands,DEPT,
+Universitat d'Andorra,,https://www.uda.ad/universitat/treballeu-amb-nosaltres/,green_verified,"2026-10-10 fewest-links: the jobs page says no selection process is open, a real zero.",true,pending,Andorra,UNI,https://www.uda.ad/
+Sir Lester Bird Medical Centre,,https://www.msjmc.org/careers,green_verified,2026-10-10 fewest-links: careers page lists a full-time Registered/Staff Nurse.,true,pending,Antigua and Barbuda,HOSPITAL,https://www.msjmc.org/
+University of Sarajevo,,https://www.unsa.ba/konkursi,green_verified,"2026-10-10 fewest-links: konkurs list includes academic-staff competitions, one dated 9 October 2026.",true,pending,Bosnia and Herzegovina,UNI,https://www.unsa.ba/
+Klinički centar Univerziteta u Sarajevu,,https://kcus.ba/kcus-raspisao-konkurs-za-prijem-120-novih-medicinskih-sestara-i-tehnicara/,green_verified,2026-10-10 fewest-links: 2 October 2026 notice recruits 120 nurses and technicians.,true,pending,Bosnia and Herzegovina,HOSPITAL,https://kcus.ba/
+Ministry of Health Brunei Darussalam,,https://moh.gov.bn/about-us/explore-career/,green_verified,2026-10-10 fewest-links: careers page recruits Medical Officers in primary care and emergency medicine.,true,pending,Brunei,DEPT,https://moh.gov.bn/
+Government of the Commonwealth of Dominica,,https://dominica.gov.dm/vacancies,green_verified,"2026-10-10 fewest-links: Project Engineer - DOMCREP, published 7 October 2026, closes 27 October 2026.",true,pending,Dominica,DEPT,https://dominica.gov.dm/
+Vilnius University,,https://www.vu.lt/karjera,green_verified,2026-10-10 fewest-links: lists a project manager open until 28 October 2026.,true,pending,Lithuania,UNI,https://www.vu.lt/
+National University of Samoa,,https://nus.edu.ws/vacancies/,green_verified,"2026-10-10 fewest-links: IT User Services Officer (Trainee), closing 19 October 2026.",true,pending,Samoa,UNI,https://nus.edu.ws/
+Andorra Telecom,,,grey_none_verified,2026-10-10 fewest-links: homepage verified. The jobs page did not return robots.txt.,false,no_url,Andorra,SOE,https://www.andorratelecom.ad/
+Servei Andorrà d'Atenció Sanitària,,,grey_none_verified,2026-10-10 fewest-links: homepage verified. The work-with-us page did not name a post.,false,no_url,Andorra,HOSPITAL,https://www.saas.ad/
+BH Telecom,,,grey_none_verified,2026-10-10 fewest-links: homepage verified. No jobs list was found.,false,no_url,Bosnia and Herzegovina,SOE,https://www.bhtelecom.ba/
+Universiti Brunei Darussalam,,,grey_none_verified,2026-10-10 fewest-links: homepage verified. The career page did not name a post.,false,no_url,Brunei,UNI,https://ubd.edu.bn/
+Universidad de Costa Rica,,,grey_none_verified,2026-10-10 fewest-links: homepage verified. The employment board returned no job titles.,false,no_url,Costa Rica,UNI,https://www.ucr.ac.cr/
+Instituto Costarricense de Electricidad,,,grey_none_verified,2026-10-10 fewest-links: homepage verified. No jobs list was found.,false,no_url,Costa Rica,SOE,https://www.grupoice.com/
+Charles University,,,grey_none_verified,2026-10-10 fewest-links: homepage verified. The career page describes benefits and names no post.,false,no_url,Czechia,UNI,https://cuni.cz/
+ČEZ,,,grey_none_verified,"2026-10-10 fewest-links: homepage verified. The career link is the jobs.cz board, which is not stored.",false,no_url,Czechia,SOE,https://www.cez.cz/
+Eesti Energia,,,grey_none_verified,2026-10-10 fewest-links: homepage verified (public brand Enefit). The come-work page names no post.,false,no_url,Estonia,SOE,https://www.enefit.ee/
+Government of Antigua and Barbuda,,,grey_none_verified,2026-10-10 fewest-links: homepage verified. No jobs list was found.,false,no_url,Antigua and Barbuda,DEPT,https://ab.gov.ag/
+Banco Central de la República Dominicana,,,grey_none_verified,2026-10-10 fewest-links: homepage verified. No jobs list was found.,false,no_url,Dominican Republic,SOE,https://www.bancentral.gov.do/
+University of Belgrade,,,grey_none_verified,"2026-10-10 fewest-links: homepage verified. The konkurs page is scholarships, not staff posts.",false,no_url,Serbia,UNI,https://www.bg.ac.rs/
+University of Ljubljana,,,grey_none_verified,2026-10-10 fewest-links: homepage verified. The career link is a student career centre.,false,no_url,Slovenia,UNI,https://www.uni-lj.si/
+Universidad de San Carlos de Guatemala,,,grey_none_verified,"2026-10-10 fewest-links: homepage verified. empleo.usac.edu.gt invites other employers to post, so it is not stored.",false,no_url,Guatemala,UNI,https://portal.usac.edu.gt/
+Yerevan State Medical University,,,grey_none_verified,2026-10-10 fewest-links: homepage verified. The career page did not name a post.,false,no_url,Armenia,UNI,https://ysmu.am/
