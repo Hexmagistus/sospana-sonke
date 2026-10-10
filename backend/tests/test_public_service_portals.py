@@ -24,9 +24,9 @@ LINKS = {
     ),
 }
 LINKED = {
-    "Belgium": 4,
+    "Belgium": 6,
     "Luxembourg": 4,
-    "Romania": 5,
+    "Romania": 6,
     "Caribbean Netherlands": 1,
     "Macau": 3,
 }
