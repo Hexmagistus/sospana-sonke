@@ -67,6 +67,11 @@ Lungani, 2026-10-03: in every country dropdown, list, and work order, put **Sout
 
 ## Session Log
 
+### 2026-10-10 — Cursor (Grok 4.7) — Thin African careers links
+Off current `main`. Filled direct jobs pages for the thin African countries where a fetch as SospanaSonkeBot was allowed, returned HTTP 200, and the page named a post or said there were no openings. 17 existing rows gained that kind of URL (15 of them were not links before; UGANC and the Niger civil-service ministry already counted and now point at the recruitment list). One new Benin government row is linked. Five new rows stay blank: GITGE and the São Tomé central bank keep a verified homepage; Commercial Bank of Eritrea, EriTel, and Orotta Hospital have no page the bot was allowed to read. Procurement pages, student exams, culture pages, JavaScript boards with no title in the HTML, and hosts whose robots.txt blocked the bot were not stored. Eritrea, Equatorial Guinea, and São Tomé stay at 2, 2, and 3 links.
+Linked counts now: Eritrea 2, Equatorial Guinea 2, Sao Tome and Principe 3, Benin 10, Guinea 9, Gabon 6, Côte d'Ivoire 8, Libya 7, Central African Republic 6, Togo 7, Niger 8.
+Next: major economies with five or fewer links, on a separate branch off main.
+
 ### 2026-10-09 — Cursor (Grok 4.7) — How-to video, jazz bed, no voiceover
 A 2:14 screen recording of the live site (1280×720, H.264, AAC, 4.5 MB) is in `docs/tutorial/sospana-sonke-how-to-use.mp4`, with the step list in `docs/tutorial/storyboard.md`. No app code changed. Captions and title cards stay. There is no voiceover. The bed is an original instrumental loop from `docs/tutorial/jazz-bed.py` (sine, harmonics, and noise only), dedicated under CC0 1.0, mixed at about −18 LUFS with a 2s fade-in and a 3s fade-out. The walkthrough covers the homepage, sign-in, free registration, the directory (search, country, Private), Colleges and SETAs, NGOs, Government, Absa’s own Workday page (nothing submitted), preferences left off, the CV builder without Analyse, the Career Agent, an empty tracker, donate without paying, and signing in again. The throwaway candidate account was deleted (`POST /account/delete` returned 204; a later login returned 401).
 
