@@ -3,7 +3,8 @@ import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { describe, it } from "node:test";
 import { groupOf } from "./countryExplorer";
-import { BUCKET_CODES, KNOWN_COUNTRY_NAMES, countryCode } from "./countryCodes";
+import { BUCKET_CODES, KNOWN_COUNTRY_NAMES, countryCode, countryFlag } from "./countryCodes";
+import { tierOf } from "./regions";
 import { REGION_BY_CODE, WORLD_REGIONS, worldRegionOf } from "./worldRegions";
 
 // Same canonical spellings as backend app/services/country_names.py.
@@ -100,8 +101,51 @@ describe("world regions", () => {
       "Saudi Arabia": "middle-east", Turkey: "middle-east", Israel: "middle-east", Iran: "middle-east",
       Australia: "oceania", Fiji: "oceania", Russia: "europe", Cyprus: "europe", Kosovo: "europe",
       "South Africa": "south-africa", Zimbabwe: "sadc", Kenya: "africa", Egypt: "africa",
+      Monaco: "europe", "North Macedonia": "europe", "San Marino": "europe",
+      Tajikistan: "asia", Turkmenistan: "asia", Myanmar: "asia",
+      "Puerto Rico": "central-america-caribbean", Greenland: "north-america",
+      Macau: "asia", "New Caledonia": "oceania", "Réunion": "africa",
     };
     for (const [name, group] of Object.entries(expect)) assert.equal(groupOf(name), group, name);
+  });
+
+  it("places Monaco, North Macedonia, San Marino, Tajikistan, Turkmenistan and Myanmar", () => {
+    const places: Record<string, { code: string; flag: string; tier: string; group: string }> = {
+      Monaco: { code: "MC", flag: "🇲🇨", tier: "europe", group: "europe" },
+      "North Macedonia": { code: "MK", flag: "🇲🇰", tier: "europe", group: "europe" },
+      "San Marino": { code: "SM", flag: "🇸🇲", tier: "europe", group: "europe" },
+      Tajikistan: { code: "TJ", flag: "🇹🇯", tier: "asia", group: "asia" },
+      Turkmenistan: { code: "TM", flag: "🇹🇲", tier: "asia", group: "asia" },
+      Myanmar: { code: "MM", flag: "🇲🇲", tier: "asia", group: "asia" },
+    };
+    for (const [name, place] of Object.entries(places)) {
+      assert.equal(countryCode(name), place.code, name);
+      assert.equal(countryFlag(name), place.flag, name);
+      assert.equal(tierOf(name), place.tier, name);
+      assert.equal(groupOf(name), place.group, name);
+    }
+  });
+
+  it("places the 2026-10-10 territories with a flag, a code and a landing tier", () => {
+    const places: Record<string, { code: string; flag: string; tier: string }> = {
+      "Puerto Rico": { code: "PR", flag: "🇵🇷", tier: "north-america" },
+      Greenland: { code: "GL", flag: "🇬🇱", tier: "north-america" },
+      Macau: { code: "MO", flag: "🇲🇴", tier: "asia" },
+      "New Caledonia": { code: "NC", flag: "🇳🇨", tier: "oceania" },
+      "Réunion": { code: "RE", flag: "🇷🇪", tier: "africa" },
+    };
+    for (const [name, place] of Object.entries(places)) {
+      assert.equal(countryCode(name), place.code, name);
+      assert.equal(countryFlag(name), place.flag, name);
+      assert.equal(tierOf(name), place.tier, name);
+      assert.notEqual(groupOf(name), "other", name);
+    }
+    // Réunion is an African territory, so it is not given a world-region code.
+    assert.equal(worldRegionOf("RE"), null);
+    assert.equal(worldRegionOf("NC"), "oceania");
+    assert.equal(worldRegionOf("PR"), "central-america-caribbean");
+    assert.equal(worldRegionOf("GL"), "north-america");
+    assert.equal(worldRegionOf("MO"), "asia");
   });
 
   it("Canada is one entry inside North America, not a group of its own", () => {

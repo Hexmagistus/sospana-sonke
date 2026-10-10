@@ -96,6 +96,17 @@ describe("regions", () => {
     assert.equal(tierOf("Botswana"), "sadc");
     assert.equal(tierOf("Kenya"), "africa");
     assert.equal(tierOf("Hong Kong"), "asia");
+    assert.equal(tierOf("Monaco"), "europe");
+    assert.equal(tierOf("San Marino"), "europe");
+    assert.equal(tierOf("North Macedonia"), "europe");
+    assert.equal(tierOf("Myanmar"), "asia");
+    assert.equal(tierOf("Tajikistan"), "asia");
+    assert.equal(tierOf("Turkmenistan"), "asia");
+    assert.equal(tierOf("Macau"), "asia");
+    assert.equal(tierOf("New Caledonia"), "oceania");
+    assert.equal(tierOf("Réunion"), "africa");
+    assert.equal(tierOf("Greenland"), "north-america");
+    assert.equal(tierOf("Puerto Rico"), "north-america");
     assert.equal(tierOf("Atlantis"), "other");
   });
 
