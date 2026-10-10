@@ -85,7 +85,7 @@ def test_south_african_gap_rows_and_the_jse_links_filled_with_them():
     gap = [row for row in _rows() if row["relevance_note"].startswith("2026-10-09 SA gap")]
     linked = [row for row in gap if row["careers_url"]]
     assert len(gap) == 91
-    assert len(linked) == 4
+    assert len(linked) == 5
     assert rows[("Allan Gray", "South Africa")]["careers_url"] == "https://www.allangray.co.za/careers/"
     assert rows[("Prescient", "South Africa")]["careers_url"] == "https://prescient.simplify.hr/"
     assert rows[("Postbank", "South Africa")]["careers_url"] == "https://www.postbank.co.za/careers.html"

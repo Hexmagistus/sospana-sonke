@@ -67,6 +67,21 @@ Lungani, 2026-10-03: in every country dropdown, list, and work order, put **Sout
 
 ## Session Log
 
+### 2026-10-10 — Cursor (Grok 4.7) — Fill blank careers links on existing rows
+Six rows that already had a homepage, and no active jobs link, now point at a page fetched as SospanaSonkeBot. Robots allow the bot (or the host has no robots.txt), the response is HTTP 200, and the page names a post or says there are no openings. Note prefix `2026-10-10 fill-blanks`. Adapt IT, Biovac, and OPT-NC keep their earlier note prefixes so those batch counts still include them.
+
+Linked (name, country) → URL:
+- Adapt IT, South Africa → https://adaptit.ci.hr/ (Senior EPM Consultant, Midrand, closes 21 October 2026; Hospitality Systems Consultant, Durban)
+- Biovac, South Africa → https://biovac.teamtailor.com/jobs (Network Engineer, AMD Scientist; Cape Town and Johannesburg)
+- Dashen Bank, Ethiopia → https://dashenbanksc.com/careers (Branch Business Relationship Manager and other posts dated September and October 2026)
+- IAMGOLD Essakane SA, Burkina Faso → https://www.iamgoldessakane.com/offres-emplois (real zero: no offer open)
+- OPT-NC, New Caledonia → https://office.opt.nc/fr/emploi-et-carriere/postuler-lopt-nc/offres-emploi (real zero: no offer matches)
+- Ministry of Lands, Housing, and Country Planning, Sierra Leone → https://molhcp.gov.sl/jobs/ (Project Civil Engineer for the Sierra Leone Land Administration Project)
+
+Links after this fill: South Africa 811 → 813, Ethiopia 17 → 18, Burkina Faso 19 → 20, New Caledonia 4 → 5, Sierra Leone 16 → 17. Six rows updated, six links filled, no new employers.
+
+Left blank on purpose: Woolworths careers host failed TLS; LUMA's Workday path is disallowed in robots.txt; Petra Diamonds' job search is a PNet frame; McCain's listed posts are dated June 2023 and the apply link lands on the US careers home; Cimencam's cards are dated 2025; Air Greenland, Nukissiorfiit, and Royal Arctic Line name no post; Gambia's tourism vacancies page did not return robots.txt.
+
 ### 2026-10-10 — Cursor (Grok 4.7) — Merge train for the employer and how-to pull requests
 Marked each ready, updated it with main, kept both sides of every session log, seed append, flag, and region (no duplicate import keys or flag names), waited for CI, then merged with a merge commit. Left #69 and #70 open.
 
