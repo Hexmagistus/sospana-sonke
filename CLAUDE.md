@@ -67,6 +67,12 @@ Lungani, 2026-10-03: in every country dropdown, list, and work order, put **Sout
 
 ## Session Log
 
+### 2026-10-10 — Cursor (Grok 4.7) — Country-specific ATS boards for the large economies
+Probed Greenhouse, Lever, SmartRecruiters, Workable, Recruitee, Teamtailor, Personio and Softgarden slugs, plus guessed Workday tenants, for major employers in Germany, France, Japan, Mexico, Spain, Italy, South Korea, Turkey, Saudi Arabia, the UAE and India. A board was stored only when the name matched, robots.txt allowed SospanaSonkeBot (or the host had no robots.txt), and at least half of the sampled roles were in that country. Mixed global boards (HelloFresh, Doctolib, Cabify, Typeform, Celonis, Fever, Jobandtalent and others) and wrong-company Teamtailor hosts (Swedish STC, Norwegian AXIS, Toyota Sweden) were left off.
+
+18 new linked rows, note prefix `2026-10-10 economy-ats`, all `PRIVATE`. Germany 5→8 (GetYourGuide, Raisin, Solaris). France 5→13 (BlaBlaCar, Qonto, Algolia, Mirakl, Vestiaire Collective, Swile, Scaleway, Malt). Spain 4→6 (Wallapop, Holded). Italy 5→6 (Musixmatch). South Korea 3→5 (Sendbird, Karrot). Japan 3→4 (Mercari). United Arab Emirates 20→21 (Aldar Properties). Mexico, Turkey, Saudi Arabia and India gained no board that was both theirs and mostly in-country. No existing row was retargeted.
+Next: JSE blanks and Argentina, Chile and Colombia homepage-only rows, same ATS method, separate PR.
+
 ### 2026-10-10 — Cursor (Grok 4.7) — Merge train for the employer and how-to pull requests
 Marked each ready, updated it with main, kept both sides of every session log, seed append, flag, and region (no duplicate import keys or flag names), waited for CI, then merged with a merge commit. Left #69 and #70 open.
 
