@@ -40,12 +40,13 @@ LINKS = {
     ("Government of Niue", "Niue"): "https://www.gov.nu/vacancies",
     ("Anguilla Electricity Company Limited", "Anguilla"): "https://www.anglec.com/vacancies.php",
     ("British Virgin Islands Electricity Corporation", "British Virgin Islands"): "https://bvielectricity.com/about-us/careers/",
+    ("Rijksdienst Caribisch Nederland", "Caribbean Netherlands"): "https://www.rijksdienstcn.com/werken-bij-rijksdienst-caribisch-nederland/vacatures",
 }
 LINKED = {
     "Mayotte": 2, "Saint Helena": 1, "Faroe Islands": 0, "Gibraltar": 3, "French Polynesia": 2,
     "Guam": 3, "American Samoa": 1, "Cook Islands": 1, "Niue": 1, "Northern Mariana Islands": 0,
     "Wallis and Futuna": 0, "Bermuda": 0, "Saint Pierre and Miquelon": 0, "Falkland Islands": 0,
-    "Anguilla": 1, "Aruba": 0, "British Virgin Islands": 1, "Caribbean Netherlands": 0,
+    "Anguilla": 1, "Aruba": 0, "British Virgin Islands": 1, "Caribbean Netherlands": 1,
     "Cayman Islands": 0, "Curaçao": 0, "Guadeloupe": 0, "Martinique": 0, "Montserrat": 0,
     "Saint Barthélemy": 0, "Saint-Martin": 0, "Sint Maarten": 0, "Turks and Caicos Islands": 0,
     "US Virgin Islands": 0,
