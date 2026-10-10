@@ -67,6 +67,11 @@ Lungani, 2026-10-03: in every country dropdown, list, and work order, put **Sout
 
 ## Session Log
 
+### 2026-10-10 — Cursor (Grok 4.7) — European ATS boards and three university pages
+Teamtailor, Personio, Softgarden, Join.com, Welcome to the Jungle, and Recruitee customer lists were filtered to employers headquartered in European countries that had five or fewer careers links. A board was stored only when robots.txt allowed SospanaSonkeBot (or the host had no robots.txt), the response was HTTP 200, the page named a post, and at least half of the located roles, at least two, were in that headquarters country. Headquarters in France, Germany, Ireland, Italy, the Netherlands, Spain, Sweden, and the United Kingdom stayed off, along with stale 2021 demo boards, volunteer-only pages, and boards whose open roles sit in another country.
+
+14 new linked rows, note prefix `2026-10-10 europe-boards`. Norway 3→7 (Schibsted, Itera, Veidekke, University of Oslo). Denmark 2→6 (Lunar, Matas, Power Danmark, Templafy). Finland 2→4 (Siili Solutions, Aalto University). Belgium 4→6 (Technord, Xylos). Romania 5→6 (RebelDot). Iceland 4→5 (University of Iceland). Xylos has no official website stored because the homepage answered with a checkpoint. Personio, Softgarden, Join.com, and Welcome to the Jungle added no row: their listed customers are headquartered in countries that already have more than five links, the page did not name a post, or the jobs page refused this bot.
+
 ### 2026-10-10 — Cursor (Grok 4.7) — Public-service portals merged
 #82 was already even with main. GitHub CI was green, then it was merged with a merge commit. No later seed pull request was open. #69 and #70 stayed open.
 
@@ -76,7 +81,7 @@ Merge commit on `main`: #82 `7519127853d091c318f30417868772a19acd1958`.
 Countries with five or fewer careers links were checked for a national civil-service or concours page, and for state-owned career pages that name a post. A URL was stored only when SospanaSonkeBot was allowed (or the host had no robots.txt), the response was HTTP 200, and the page named a post or an open exam. General job boards, login walls, JavaScript shells, and a vacancy count with no title were left off. Italy was already at six links after the economy-board merge, so inPA was out of scope.
 
 Three new departments, all linked: Werkenvoor.be (Belgium 3→4), GovJobs (Luxembourg 3→4), Posturi.gov.ro (Romania 4→5). Two existing blank rows now have a jobs page: Rijksdienst Caribisch Nederland (Caribbean Netherlands 0→1; the note still starts with `2026-10-10 remaining-territories`) and the Macau civil-service bureau (Macau 2→3; the note still starts with `2026-10-10 territory`). The Macau page is the bureau's own notice opening registration for the bachelor-level ability exam on 8 October 2026. Nukissiorfiit's Mindkey board names posts and disallows this bot, so it stays blank. Gibraltar Electricity Authority's media headline had no vacancy text.
-A follow-up pass for university staff pages in the same thin countries found three pages that name a post: Aalto University, the University of Iceland, and the University of Oslo. That is under five, so no second pull request was opened and the European ATS customer-list pass was not started. The other university sites were category hubs, JavaScript shells, student admissions, or homepages.
+A follow-up pass for university staff pages in the same thin countries found three pages that name a post: Aalto University, the University of Iceland, and the University of Oslo. Those three pages are stored with the European ATS boards in the entry above. The other university sites were category hubs, JavaScript shells, student admissions, or homepages.
 
 ### 2026-10-10 — Cursor (Grok 4.7) — Second merge train for the seed pull requests
 Marked each ready where it was still a draft, updated it with main, and kept both sides of every session log and seed change. No duplicate import keys. Where a later batch raised a country link total, the test that asserts that total was updated to the combined count. Left #69 and #70 open.
