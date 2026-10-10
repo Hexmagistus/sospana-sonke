@@ -67,6 +67,13 @@ Lungani, 2026-10-03: in every country dropdown, list, and work order, put **Sout
 
 ## Session Log
 
+### 2026-10-10 — Cursor (Grok 4.7) — Monaco, North Macedonia, San Marino, Tajikistan, Turkmenistan, Myanmar
+Added 66 employers on a branch off main, separate from the territory batch. A careers URL was stored only when robots.txt allowed SospanaSonkeBot (or the host published none), the page returned HTTP 200, and it was that organisation's own jobs page or a government recruitment page of that body. Myanmar leaves out the Ministry of Defence, MEHL, MEC, MOGE, Mytel, Myanma Foreign Trade Bank, Myanma Investment and Commercial Bank, and Myanma Five Star Line.
+
+Rows, with a link / without: Monaco 11 (2/9), North Macedonia 13 (3/10), San Marino 10 (3/7), Tajikistan 11 (3/8), Turkmenistan 10 (0/10), Myanmar 11 (0/11). Notable with a link: Centre Hospitalier Princesse Grace, the Monaco civil-service notice in the Journal de Monaco, Makedonski Telekom (the page says there are no current advertisements), the Agency for Administration, the Red Cross of North Macedonia, Ospedale di Stato through the ISS competitions, the University of San Marino, the San Marino civil-service competitions, Tcell, Alif Bank, and FINCA Tajikistan. San Marino and Turkmenistan have no separately listed company in this batch. Turkmenistan and Myanmar had no page that both allowed the bot and named a post.
+
+Flags and picker: Monaco, North Macedonia and San Marino are Europe. Tajikistan, Turkmenistan and Myanmar are Asia. Monaco and San Marino were already in the explorer and are now on the Europe landing tier as well. These rows reach the Frankfurt database on the next boot that imports the seed. Not merged.
+
 ### 2026-10-09 — Cursor (Grok 4.7) — Direct jobs links for the new blank employers
 Same branch as the 153-row batch. Crawled each blank homepage for careers, vacancies, and jobs links, then probed Greenhouse, Lever, Workable, simplify.hr, Breezy, SmartRecruiters, Recruitee, CareerInHR, MCI, iCIMS, Pinpoint, Workday, Oracle Candidate Experience, PeopleSoft, Taleo, and SuccessFactors. A URL was stored only when robots.txt allowed SospanaSonkeBot, the response was HTTP 200, and the page was that employer's own jobs page or board. Nine rows gained a link. Culture pages, eRecruit, empty Breezy templates, and boards for a different company were left blank. `careers.woolworths.co.za` still fails TLS from this network, so Woolworths Holdings stays blank.
 

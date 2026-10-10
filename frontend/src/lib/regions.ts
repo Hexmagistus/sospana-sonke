@@ -52,7 +52,8 @@ const EUROPE = new Set([
   "Portugal", "Greece", "Czechia", "Czech Republic", "Hungary", "Romania", "Norway", "Ukraine",
   "Luxembourg", "Malta", "Cyprus", "Latvia", "Lithuania", "Iceland", "Slovakia", "Slovenia",
   "Bulgaria", "Croatia", "Serbia", "Albania", "Bosnia and Herzegovina", "North Macedonia",
-  "Montenegro", "Kosovo", "Moldova", "Belarus", "Andorra", "Holy See", "Liechtenstein",
+  "Montenegro", "Kosovo", "Moldova", "Monaco", "Belarus", "Andorra", "Holy See", "Liechtenstein",
+  "San Marino",
 ]);
 const SOUTH_AMERICA = new Set([
   "Argentina", "Bolivia", "Brazil", "Chile", "Colombia", "Ecuador", "Guyana",
