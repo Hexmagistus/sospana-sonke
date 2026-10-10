@@ -3426,7 +3426,7 @@ UBA Burkina Faso,,https://www.ubagroup.com/careers/,amber_company_route,Pan-Afri
 Orange Burkina Faso,,https://www.orange.bf/fr/offres-de-recrutements.html,green_verified,Major telecom and mobile money operator,true,pending,Burkina Faso,PRIVATE,https://www.orange.bf
 Onatel / Moov Africa Burkina Faso,,https://www.onatel.bf,grey_none_verified,National telecom operator,false,no_url,Burkina Faso,PRIVATE,https://www.onatel.bf
 Endeavour Mining Burkina Faso (Houndé/Mana),,https://www.endeavourmining.com/careers/,green_verified,Major gold mining company,true,pending,Burkina Faso,PRIVATE,https://www.endeavourmining.com
-IAMGOLD Essakane SA,,https://www.iamgoldessakane.com/,grey_none_verified,Major gold mining company,false,no_url,Burkina Faso,PRIVATE,https://www.iamgoldessakane.com/
+IAMGOLD Essakane SA,,https://www.iamgoldessakane.com/offres-emplois,green_verified,"2026-10-10 fill-blanks: jobs page states no offer is open at the moment, a real zero.",true,pending,Burkina Faso,PRIVATE,https://www.iamgoldessakane.com/
 Brasseries du Burkina (Brakina),,https://www.brakina-bf.com/,grey_none_verified,Leading brewery and beverage company,false,no_url,Burkina Faso,PRIVATE,https://www.brakina-bf.com/
 Société Nationale d'Électricité du Burkina (SONABEL),,https://recrutements.sonabel.bf/fr/,green_verified,State-owned national electricity utility,true,pending,Burkina Faso,SOE,https://www.sonabel.bf
 Office National de l'Eau et de l'Assainissement (ONEA),,https://recrutement.onea.bf/,green_verified,State-owned water and sanitation utility,true,pending,Burkina Faso,SOE,https://onea.bf/
@@ -3808,7 +3808,7 @@ Ethiopian Insurance Corporation,,https://eic.et/careers,grey_none_verified,State
 Ethiopian Investment Holdings,,https://eih.gov.et/careers,grey_none_verified,Sovereign wealth fund overseeing state enterprises,false,pending,Ethiopia,SOE,https://eih.gov.et
 Ethiopian Sugar Corporation,,,grey_none_verified,State sugar producer,false,pending,Ethiopia,SOE,
 MIDROC Ethiopia,,https://midroc-ethiopia.com/careers,grey_none_verified,"Major private conglomerate (mining, agriculture, hospitality)",false,pending,Ethiopia,PRIVATE,https://midroc-ethiopia.com
-Dashen Bank,,https://dashenbanksc.com/careers,grey_none_verified,Major private commercial bank,false,pending,Ethiopia,PRIVATE,https://dashenbanksc.com
+Dashen Bank,,https://dashenbanksc.com/careers,green_verified,2026-10-10 fill-blanks: careers page lists Branch Business Relationship Manager and Cash Service Attendant posts dated September and October 2026.,true,pending,Ethiopia,PRIVATE,https://dashenbanksc.com
 Awash Bank,,https://www.awashbank.com/careers,grey_none_verified,Largest private commercial bank,false,pending,Ethiopia,PRIVATE,https://www.awashbank.com
 Zemen Bank,,https://zemenbank.com/careers,grey_none_verified,Private commercial bank,false,pending,Ethiopia,PRIVATE,https://zemenbank.com
 BGI Ethiopia,,,grey_none_verified,Brewer (St. George/Castel Group-affiliated),false,pending,Ethiopia,PRIVATE,
@@ -4452,7 +4452,7 @@ Ministry of Basic and Senior Secondary Education,,https://mbsse.gov.sl/,grey_non
 Ministry of Information and Civic Education,,https://moice.gov.sl/adverts/,green_verified,National government ministry - information,true,pending,Sierra Leone,DEPT,https://moice.gov.sl/
 "Ministry of Communication, Technology and Innovation",,https://mocti.gov.sl/,grey_none_verified,National government ministry - tech innovation,false,no_url,Sierra Leone,DEPT,https://mocti.gov.sl/
 Ministry of Mines and Mineral Resources,,https://mommr.gov.sl/,grey_none_verified,National government ministry - mining,false,no_url,Sierra Leone,DEPT,https://mommr.gov.sl/
-"Ministry of Lands, Housing, and Country Planning",,https://molhcp.gov.sl/,grey_none_verified,National government ministry - lands,false,no_url,Sierra Leone,DEPT,https://molhcp.gov.sl/
+"Ministry of Lands, Housing, and Country Planning",,https://molhcp.gov.sl/jobs/,green_verified,2026-10-10 fill-blanks: current vacancies include Project Civil Engineer for the Sierra Leone Land Administration Project.,true,pending,Sierra Leone,DEPT,https://molhcp.gov.sl/
 Ministry of Transport and Aviation,,https://mota.gov.sl/,grey_none_verified,National government ministry - transport,false,no_url,Sierra Leone,DEPT,https://mota.gov.sl/
 Ministry of Public Administration and Political Affairs,,https://moppa.gov.sl/,grey_none_verified,National government ministry - public admin,false,no_url,Sierra Leone,DEPT,https://moppa.gov.sl/
 Ministry of Water Resources and Sanitation,,https://mwr.gov.sl/,grey_none_verified,National government ministry - water,false,no_url,Sierra Leone,DEPT,https://mwr.gov.sl/
@@ -6784,7 +6784,7 @@ Rex Trueform Group,RTO,,grey_none_verified,"2026-10-09 employer, no verified job
 Tongaat Hulett,TON,,grey_none_verified,"2026-10-09 employer, no verified jobs page",false,no_url,South Africa,JSE,https://www.tongaat.com/
 We Buy Cars Holdings,WBC,,grey_none_verified,"2026-10-09 employer, no verified jobs page",false,no_url,South Africa,JSE,https://www.webuycars.co.za/
 Curro Holdings,,,grey_none_verified,"2026-10-09 employer, no verified jobs page",false,no_url,South Africa,PRIVATE,https://www.curro.co.za/
-Biovac,,,grey_none_verified,"2026-10-09 employer, no verified jobs page",false,no_url,South Africa,PRIVATE,https://biovac.co.za/
+Biovac,,https://biovac.teamtailor.com/jobs,green_verified,2026-10-09 employer. 2026-10-10 fill-blanks: own Teamtailor board lists Network Engineer and AMD Scientist in Cape Town and Johannesburg.,true,pending,South Africa,PRIVATE,https://biovac.co.za/
 Astron Energy,,https://glencore.wd3.myworkdayjobs.com/astronenergy,green_verified,2026-10-09 verified direct jobs page,true,pending,South Africa,PRIVATE,https://www.astronenergy.co.za/
 Vumatel,,,grey_none_verified,"2026-10-09 employer, no verified jobs page",false,no_url,South Africa,PRIVATE,https://vumatel.co.za/
 Frogfoot,,https://frogfootcom.simplify.hr/,green_verified,2026-10-09 verified direct jobs page,true,pending,South Africa,PRIVATE,https://www.frogfoot.co.za/
@@ -7043,7 +7043,7 @@ Howden Africa Holdings,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs
 Baker McKenzie South Africa,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,PRIVATE,https://www.bakermckenzie.com/en/
 Fluxmans,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,PRIVATE,https://www.fluxmans.com/
 Kagiso Tiso Holdings,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,PRIVATE,https://www.kth.co.za/
-Adapt IT,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,PRIVATE,https://www.adaptit.com/
+Adapt IT,,https://adaptit.ci.hr/,green_verified,"2026-10-09 SA gap. 2026-10-10 fill-blanks: CareerInHR board lists Senior EPM Consultant (Midrand, closes 21 October 2026) and Hospitality Systems Consultant (Durban).",true,pending,South Africa,PRIVATE,https://www.adaptit.com/
 Datacentrix,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,PRIVATE,https://www.datacentrix.co.za/
 iKhokha,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,PRIVATE,https://www.ikhokha.com/
 Johannesburg Water,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,MUNI,
@@ -7122,7 +7122,7 @@ Province Nord,,,grey_none_verified,"2026-10-10 territory, no verified jobs page.
 Province Sud,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. Southern province. Its emploi page is a citizen job portal, not the province hiring itself.",false,no_url,New Caledonia,DEPT,https://www.province-sud.nc/
 Ville de Nouméa,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. Capital municipality. The recruitment page had no listings.",false,no_url,New Caledonia,MUNI,https://www.noumea.nc/
 Enercal,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. Electricity company. The recruitment page is a careers story, not a vacancy list.",false,no_url,New Caledonia,SOE,https://www.enercal.nc/
-OPT-NC,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. Posts and telecom office. The vacancy pages explain the process and name no post.",false,no_url,New Caledonia,SOE,https://office.opt.nc/
+OPT-NC,,https://office.opt.nc/fr/emploi-et-carriere/postuler-lopt-nc/offres-emploi,green_verified,"2026-10-10 territory. 2026-10-10 fill-blanks: the unfiltered jobs list says no offer matches for the moment, a real zero.",true,pending,New Caledonia,SOE,https://office.opt.nc/
 Aircalin,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. Government-owned international airline. No own jobs list confirmed.",false,no_url,New Caledonia,SOE,https://www.aircalin.com/
 Air Calédonie,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. Province-owned domestic airline. The offres page is flight deals, not jobs.",false,no_url,New Caledonia,SOE,https://www.air-caledonie.nc/
 Banque Calédonienne d'Investissement,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. Public investment bank. No own jobs list confirmed.",false,no_url,New Caledonia,SOE,https://www.bci.nc/
