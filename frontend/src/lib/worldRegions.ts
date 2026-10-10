@@ -33,7 +33,7 @@ export const REGION_BY_CODE: Readonly<Record<string, WorldRegionId>> = Object.fr
   ...codes("south-america", "AR BO BR CL CO EC GF GY PY PE SR UY VE"),
   ...codes("asia", "AF AM AZ BD BT BN KH CN GE HK IN ID JP KZ KG LA MO MY MV MN MM NP KP PK PH SG KR LK TW TJ TH TL TM UZ VN"),
   ...codes("middle-east", "BH IR IQ IL JO KW LB OM PS QA SA SY TR AE YE"),
-  ...codes("oceania", "AU FJ KI MH FM NR NZ PW PG WS SB TO TV VU"),
+  ...codes("oceania", "AU FJ KI MH FM NR NZ PW PG WS SB TO TV VU NC"),
 ]);
 
 /** Region for an ISO code, or null when the table has no entry. */

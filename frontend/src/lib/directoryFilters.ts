@@ -20,7 +20,7 @@ const OTHER_AFRICAN_COUNTRIES = [
   "Central African Republic", "Chad", "Congo", "Côte d'Ivoire", "Djibouti",
   "Egypt", "Equatorial Guinea", "Eritrea", "Ethiopia", "Gabon", "Gambia",
   "Ghana", "Guinea", "Guinea-Bissau", "Kenya", "Liberia", "Libya", "Mali",
-  "Mauritania", "Morocco", "Niger", "Nigeria", "Rwanda", "Sao Tome and Principe",
+  "Mauritania", "Morocco", "Niger", "Nigeria", "Réunion", "Rwanda", "Sao Tome and Principe",
   "Senegal", "Sierra Leone", "Somalia", "South Sudan", "Sudan", "Togo", "Tunisia",
   "Uganda",
 ] as const;

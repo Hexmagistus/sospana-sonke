@@ -86,6 +86,8 @@ describe("directory country stays when the category changes", () => {
     assert.ok(compareCountries("Zimbabwe", "Nigeria") < 0);
     assert.ok(compareCountries("Egypt", "Brazil") < 0);
     assert.ok(compareCountries("United Kingdom", "Zambia") > 0);
+    assert.ok(compareCountries("Réunion", "Canada") < 0);
+    assert.ok(compareCountries("Egypt", "Réunion") < 0);
   });
 
   it("lists four how-to steps", () => {

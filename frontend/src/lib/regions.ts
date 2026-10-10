@@ -35,7 +35,7 @@ export const OTHER_AFRICA = new Set([
   "Central African Republic", "Chad", "Congo", "Côte d'Ivoire", "Djibouti",
   "Egypt", "Equatorial Guinea", "Eritrea", "Ethiopia", "Gabon", "Gambia",
   "Ghana", "Guinea", "Guinea-Bissau", "Kenya", "Liberia", "Libya", "Mali",
-  "Mauritania", "Morocco", "Niger", "Nigeria", "Rwanda", "Sao Tome and Principe",
+  "Mauritania", "Morocco", "Niger", "Nigeria", "Réunion", "Rwanda", "Sao Tome and Principe",
   "Senegal", "Sierra Leone", "Somalia", "South Sudan", "Sudan", "Togo", "Tunisia",
   "Uganda",
   // Directory buckets that are Africa-wide rather than one country.
@@ -44,7 +44,7 @@ export const OTHER_AFRICA = new Set([
 
 const OCEANIA = new Set([
   "Australia", "New Zealand", "Fiji", "Papua New Guinea", "Samoa", "Tonga", "Solomon Islands", "Vanuatu",
-  "Kiribati", "Marshall Islands", "Micronesia", "Nauru", "Palau", "Tuvalu",
+  "Kiribati", "Marshall Islands", "Micronesia", "Nauru", "New Caledonia", "Palau", "Tuvalu",
 ]);
 const EUROPE = new Set([
   "United Kingdom", "Germany", "France", "Netherlands", "Switzerland", "Sweden", "Denmark",
@@ -52,7 +52,8 @@ const EUROPE = new Set([
   "Portugal", "Greece", "Czechia", "Czech Republic", "Hungary", "Romania", "Norway", "Ukraine",
   "Luxembourg", "Malta", "Cyprus", "Latvia", "Lithuania", "Iceland", "Slovakia", "Slovenia",
   "Bulgaria", "Croatia", "Serbia", "Albania", "Bosnia and Herzegovina", "North Macedonia",
-  "Montenegro", "Kosovo", "Moldova", "Belarus", "Andorra", "Holy See", "Liechtenstein",
+  "Montenegro", "Kosovo", "Moldova", "Monaco", "Belarus", "Andorra", "Holy See", "Liechtenstein",
+  "San Marino",
 ]);
 const SOUTH_AMERICA = new Set([
   "Argentina", "Bolivia", "Brazil", "Chile", "Colombia", "Ecuador", "Guyana",
@@ -76,7 +77,7 @@ const ASIA = new Set([
   "Saudi Arabia", "Qatar", "Kuwait", "Oman", "Yemen", "Iraq", "Israel", "Jordan",
   "Lebanon", "Syria", "Turkey", "Kazakhstan", "Uzbekistan", "Turkmenistan",
   "Kyrgyzstan", "Tajikistan", "Afghanistan", "Mongolia", "Taiwan", "Cambodia", "Laos",
-  "Hong Kong", "Armenia", "Georgia", "Azerbaijan",
+  "Hong Kong", "Macau", "Armenia", "Georgia", "Azerbaijan",
   "Bahrain", "Bhutan", "Brunei", "Maldives", "Palestine", "Timor-Leste",
 ]);
 
