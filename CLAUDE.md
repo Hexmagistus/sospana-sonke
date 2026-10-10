@@ -67,6 +67,11 @@ Lungani, 2026-10-03: in every country dropdown, list, and work order, put **Sout
 
 ## Session Log
 
+### 2026-10-10 — Cursor (Grok 4.7) — Remaining zero-row territories
+Off current `main`, separate from the thin-Africa and major-economy branches. Added 28 territories that still had no seed rows: Mayotte and Saint Helena (Africa, same pattern as Réunion), Faroe Islands and Gibraltar (Europe), French Polynesia, Guam, American Samoa, the Cook Islands, Niue, the Northern Mariana Islands and Wallis and Futuna (Oceania), Bermuda and Saint Pierre and Miquelon (North America), the Falkland Islands (South America), and the remaining Caribbean territories. Each has a flag, a landing tier and a picker group. Puerto Rico, Réunion, Macau, Greenland and New Caledonia were already on main and were not added again.
+61 employers. 16 have a direct jobs link (a page that named a post, or said there were no openings): Mayotte 2, Saint Helena 1, Gibraltar 3, French Polynesia 2, Guam 3, American Samoa 1, Cook Islands 1, Niue 1, Anguilla 1, British Virgin Islands 1. The other 45 are blank. Faroe Islands, Aruba, Bermuda, Cayman Islands, Curaçao, Guadeloupe, Martinique, the US Virgin Islands and the smaller territories stay at zero links because no own-domain page both allowed the bot and named a post. Login walls, JavaScript boards and profession lists were not stored.
+Next: these rows import on the next boot. The thin-Africa and major-economy pull requests stay separate.
+
 ### 2026-10-10 — Cursor (Grok 4.7) — Merge train for the employer and how-to pull requests
 Marked each ready, updated it with main, kept both sides of every session log, seed append, flag, and region (no duplicate import keys or flag names), waited for CI, then merged with a merge commit. Left #69 and #70 open.
 
