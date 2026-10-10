@@ -67,6 +67,11 @@ Lungani, 2026-10-03: in every country dropdown, list, and work order, put **Sout
 
 ## Session Log
 
+### 2026-10-10 — Cursor (Grok 4.7) — Merge train for the employer and how-to pull requests
+Marked each ready, updated it with main, kept both sides of every session log, seed append, flag, and region (no duplicate import keys or flag names), waited for CI, then merged with a merge commit. Left #69 and #70 open.
+
+Merge commits on `main`: #67 `5d3e76901036f511657c4a53293de092a2dfe588`, #68 `551101f6a3ef5412c1707dde13bfddecaf59d04d`, #71 `10fbf4d2a0fa07491b09bcc0ded3a4cda4f35190`, #72 `9733f0300244078413ef4b4cf61b83535edabe6a`, #73 `15dc8600af90c6a6d77afd9ee83294b49b67b0c1`, #74 `c868e8869d674beef2e210d2624fe8661fd1f428`.
+
 ### 2026-10-10 — Cursor (Grok 4.7) — Monaco, North Macedonia, San Marino, Tajikistan, Turkmenistan, Myanmar
 Added 66 employers on a branch off main, separate from the territory batch. A careers URL was stored only when robots.txt allowed SospanaSonkeBot (or the host published none), the page returned HTTP 200, and it was that organisation's own jobs page or a government recruitment page of that body. Myanmar leaves out the Ministry of Defence, MEHL, MEC, MOGE, Mytel, Myanma Foreign Trade Bank, Myanma Investment and Commercial Bank, and Myanma Five Star Line.
 
