@@ -67,6 +67,13 @@ Lungani, 2026-10-03: in every country dropdown, list, and work order, put **Sout
 
 ## Session Log
 
+### 2026-10-09 — Cursor (Grok 4.7) — Thin SADC and African employer pass
+From `main` at `3c3ad18` (PR #66). Branch `cursor/thin-markets-employers-ad86`, draft PR #67, not merged. Added 69 employers across Botswana, Zambia, Zimbabwe, Tanzania, Ghana, Namibia, Mozambique, Malawi, Eswatini, Lesotho, Uganda, and Rwanda (14 with a direct jobs link, 55 blank). A careers URL was stored only when robots.txt allowed SospanaSonkeBot, the fetch returned HTTP 200, and the page was that employer's own jobs board. Homepages, aggregators, rental "vacancies", news posts, product pages, a parent-company SmartRecruiters board, a spam-injected careers host, and a US veterinary site that shared a name were not stored. Blank rows keep the homepage that named the employer. `directory-snapshot.json` was left alone (these rows are not imported yet).
+
+Whole-country seed counts, with a link / without, before → after: Botswana 134/21 → 134/23, Zambia 91/35 → 91/41, Zimbabwe 151/63 → 152/65, Tanzania 84/43 → 86/49, Ghana 86/28 → 87/34, Namibia 110/26 → 111/28, Mozambique 78/41 → 79/43, Malawi 75/18 → 76/24, Eswatini 76/52 → 77/55, Lesotho 73/12 → 75/14, Uganda 73/22 → 77/31, Rwanda 40/17 → 40/26.
+
+New links: Rainbow Tourism Group (`rtgafrica.com/careers`, live adverts), Geita Gold Mining (AngloGold Ashanti Tanzania iCIMS board, Geita requisitions), Enterprise Group (confirmed zero), TOL Gases (confirmed zero), Debmarine Namibia (own vacancies page; the De Beers SmartRecruiters parent board was not stored), Maputo Port Development Company (confirmed zero), Castel Malawi (confirmed zero), Eswatini Royal Insurance Corporation (open sales-agent advert), Matekane Group of Companies (drilling workshop supervisor), Kick4Life (confirmed zero), Uganda Clays (confirmed zero), Kakira Sugar (open advert), Tororo Cement (confirmed zero), Hima Cement (trainee adverts).
+
 ### 2026-10-09 — Cursor (Grok 4.7) — Direct jobs links for the new blank employers
 Same branch as the 153-row batch. Crawled each blank homepage for careers, vacancies, and jobs links, then probed Greenhouse, Lever, Workable, simplify.hr, Breezy, SmartRecruiters, Recruitee, CareerInHR, MCI, iCIMS, Pinpoint, Workday, Oracle Candidate Experience, PeopleSoft, Taleo, and SuccessFactors. A URL was stored only when robots.txt allowed SospanaSonkeBot, the response was HTTP 200, and the page was that employer's own jobs page or board. Nine rows gained a link. Culture pages, eRecruit, empty Breezy templates, and boards for a different company were left blank. `careers.woolworths.co.za` still fails TLS from this network, so Woolworths Holdings stays blank.
 
