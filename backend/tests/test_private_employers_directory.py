@@ -85,7 +85,7 @@ def test_south_african_gap_rows_and_the_jse_links_filled_with_them():
     gap = [row for row in _rows() if row["relevance_note"].startswith("2026-10-09 SA gap")]
     linked = [row for row in gap if row["careers_url"]]
     assert len(gap) == 91
-    assert len(linked) == 5
+    assert len(linked) == 7
     assert rows[("Allan Gray", "South Africa")]["careers_url"] == "https://www.allangray.co.za/careers/"
     assert rows[("Prescient", "South Africa")]["careers_url"] == "https://prescient.simplify.hr/"
     assert rows[("Postbank", "South Africa")]["careers_url"] == "https://www.postbank.co.za/careers.html"
@@ -93,6 +93,8 @@ def test_south_african_gap_rows_and_the_jse_links_filled_with_them():
     assert rows[("Balwin Properties", "South Africa")]["careers_url"] == "https://balwin.co.za/careers-at-balwin"
     assert rows[("Finbond Group", "South Africa")]["careers_url"] == "https://www.finbondgroup.com/vacancies/"
     assert rows[("Eastern Platinum", "South Africa")]["careers_url"] == "https://www.eastplats.com/careers/"
+    assert rows[("Sygnia", "South Africa")]["careers_url"] == "https://sygnia.simplify.hr/"
+    assert rows[("Weaver Fintech", "South Africa")]["careers_url"] == "https://weaverfintech.simplify.hr/"
     # Re-checked and not stored: robots block, a dead URL, eRecruit, a login wall, or a culture page.
     for name in (
         "Tsebo Solutions Group", "Pikitup", "Assupol", "Lactalis South Africa",

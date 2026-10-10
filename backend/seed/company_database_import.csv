@@ -6503,7 +6503,7 @@ Aguas Magallanes S.A.,,,grey_none_verified,Confirmed employer. Homepage HTTP 200
 Akucha Joyas - Platería Mapuche,,,grey_none_verified,Confirmed employer. Homepage HTTP 200 on 2026-10-09 and the title names the organisation. No direct careers URL confirmed.,false,no_url,Chile,PRIVATE,https://akucha.cl
 AntarChile,,,grey_none_verified,Confirmed employer. Homepage HTTP 200 on 2026-10-09 and the title names the organisation. No direct careers URL confirmed.,false,no_url,Chile,PRIVATE,http://www.antarchile.cl
 Antofagasta plc,,,grey_none_verified,Confirmed employer. Homepage HTTP 200 on 2026-10-09 and the title names the organisation. No direct careers URL confirmed.,false,no_url,Chile,PRIVATE,https://www.antofagasta.co.uk
-Arauco,,,grey_none_verified,Confirmed employer. Homepage HTTP 200 on 2026-10-09 and the title names the organisation. No direct careers URL confirmed.,false,no_url,Chile,PRIVATE,https://arauco.com
+Arauco,,https://jobs.arauco.com/Chile/search/?createNewAlert=false,green_verified,"2026-10-10 jse-latam: iCIMS search lists 40 roles in Chile, including Mantenedor/a Negocio Forestal - Zona Valdivia ARAUCO. robots.txt allows the search page.",true,pending,Chile,PRIVATE,https://arauco.com
 Aurvy,,,grey_none_verified,Confirmed employer. Homepage HTTP 200 on 2026-10-09 and the title names the organisation. No direct careers URL confirmed.,false,no_url,Chile,PRIVATE,https://aurvy.cl
 Banmédica,,,grey_none_verified,Confirmed employer. Homepage HTTP 200 on 2026-10-09 and the title names the organisation. No direct careers URL confirmed.,false,no_url,Chile,PRIVATE,https://www.empresasbanmedica.cl
 Banvida S.A.,,,grey_none_verified,Confirmed employer. Homepage HTTP 200 on 2026-10-09 and the title names the organisation. No direct careers URL confirmed.,false,no_url,Chile,PRIVATE,https://www.banvida.cl
@@ -6965,7 +6965,7 @@ Ampersand,,,grey_none_verified,"2026-10-09 thin-markets employer, no verified jo
 Africa Improved Foods,,,grey_none_verified,"2026-10-09 thin-markets employer, no verified jobs page",false,no_url,Rwanda,PRIVATE,https://africaimprovedfoods.com/
 University Teaching Hospital of Kigali (CHUK),,,grey_none_verified,"2026-10-09 thin-markets employer, no verified jobs page",false,no_url,Rwanda,HOSPITAL,https://www.chuk.rw/
 Airtel Rwanda,,,grey_none_verified,"2026-10-09 thin-markets employer, no verified jobs page",false,no_url,Rwanda,PRIVATE,https://www.airtel.co.rw/
-Sygnia,SYG,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,JSE,https://www.sygnia.co.za/
+Sygnia,SYG,https://sygnia.simplify.hr/,green_verified,2026-10-09 SA gap: simplify.hr board states there are currently no open jobs listed.,true,pending,South Africa,JSE,https://www.sygnia.co.za/
 Zeda,ZZD,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,JSE,
 iOCO,IOC,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,JSE,
 Hosken Consolidated Investments,HCI,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,JSE,
@@ -6978,7 +6978,7 @@ Zeder Investments,ZED,,grey_none_verified,"2026-10-09 SA gap, no verified jobs p
 Sabvest Capital,SBP,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,JSE,https://www.sabvestcapital.com/
 Heriot REIT,HET,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,JSE,https://www.heriotreit.com/
 Efora Energy,EEL,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,JSE,
-Weaver Fintech,WVR,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,JSE,https://www.weaverfintech.com/
+Weaver Fintech,WVR,https://weaverfintech.simplify.hr/,green_verified,"2026-10-09 SA gap: simplify.hr board lists 13 roles in Cape Town, including Talent Acquisition Specialist - Weaver Fintech.",true,pending,South Africa,JSE,https://www.weaverfintech.com/
 Numeral,XII,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,JSE,https://numeral.co.za/
 Sable Exploration and Mining,SXM,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,JSE,
 Visual International Holdings,VIS,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,JSE,https://www.visualinternational.co.za/

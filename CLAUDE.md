@@ -67,6 +67,11 @@ Lungani, 2026-10-03: in every country dropdown, list, and work order, put **Sout
 
 ## Session Log
 
+### 2026-10-10 — Cursor (Grok 4.7) — JSE and Chile boards the slug probe could verify
+Probed Greenhouse, Lever, Workable, Recruitee and SmartRecruiters slugs for 438 unlinked employers (120 JSE rows with no careers link, plus Argentina, Chile and Colombia private rows that only have a homepage). None of those tokens was both the employer's own board and mostly in that country. A second pass on simplify.hr and ci.hr, and on iCIMS search URLs for the large names, kept three.
+
+Updated, not added: Arauco (Chile) to its iCIMS search, 40 roles in Chile. Sygnia and Weaver Fintech (South Africa, JSE) to their simplify.hr boards. Sygnia's board states there are currently no open jobs. Weaver lists 13 roles in Cape Town. Notes for the two JSE rows still start with `2026-10-09 SA gap`, so that batch stays 91 rows and its linked count moves 4→6. South Africa linked 811→813. Chile linked 45→46. Parque Arauco is a different company and stays blank. Liberty Two Degrees was left alone: `liberty.simplify.hr` is Liberty's advisor talent pool, not the REIT. Cencosud's chatbot, Falabella's Aira portal, and Harmony's expired certificate were not stored.
+Next: nothing from this probe is waiting. Further blank rows need a page that names a post.
 ### 2026-10-10 — Cursor (Grok 4.7) — Country-specific ATS boards for the large economies
 Probed Greenhouse, Lever, SmartRecruiters, Workable, Recruitee, Teamtailor, Personio and Softgarden slugs, plus guessed Workday tenants, for major employers in Germany, France, Japan, Mexico, Spain, Italy, South Korea, Turkey, Saudi Arabia, the UAE and India. A board was stored only when the name matched, robots.txt allowed SospanaSonkeBot (or the host had no robots.txt), and at least half of the sampled roles were in that country. Mixed global boards (HelloFresh, Doctolib, Cabify, Typeform, Celonis, Fever, Jobandtalent and others) and wrong-company Teamtailor hosts (Swedish STC, Norwegian AXIS, Toyota Sweden) were left off.
 

@@ -19,7 +19,7 @@ LINKS = {
     ("Ministry of Lands, Housing, and Country Planning", "Sierra Leone"): "https://molhcp.gov.sl/jobs/",
 }
 LINKED = {
-    "South Africa": 813,
+    "South Africa": 815,
     "Ethiopia": 18,
     "Burkina Faso": 20,
     "New Caledonia": 5,
