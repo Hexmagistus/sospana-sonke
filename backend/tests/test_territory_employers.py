@@ -50,7 +50,7 @@ def test_each_territory_covers_every_category_and_keeps_the_direct_link_rule():
     added = _batch(_rows())
     assert len(added) == 73
     linked = [row for row in added if row["careers_url"]]
-    assert len(linked) == 14
+    assert len(linked) == 15
     by_country = {}
     for row in added:
         by_country.setdefault(row["country"], []).append(row)
