@@ -67,6 +67,9 @@ Lungani, 2026-10-03: in every country dropdown, list, and work order, put **Sout
 
 ## Session Log
 
+### 2026-10-09 — Cursor (Grok 4.7) — How-to video, jazz bed, no voiceover
+A 2:14 screen recording of the live site (1280×720, H.264, AAC, 4.5 MB) is in `docs/tutorial/sospana-sonke-how-to-use.mp4`, with the step list in `docs/tutorial/storyboard.md`. No app code changed. Captions and title cards stay. There is no voiceover. The bed is an original instrumental loop from `docs/tutorial/jazz-bed.py` (sine, harmonics, and noise only), dedicated under CC0 1.0, mixed at about −18 LUFS with a 2s fade-in and a 3s fade-out. The walkthrough covers the homepage, sign-in, free registration, the directory (search, country, Private), Colleges and SETAs, NGOs, Government, Absa’s own Workday page (nothing submitted), preferences left off, the CV builder without Analyse, the Career Agent, an empty tracker, donate without paying, and signing in again. The throwaway candidate account was deleted (`POST /account/delete` returned 204; a later login returned 401).
+
 ### 2026-10-09 — Cursor (Grok 4.7) — Parallel scan test no longer shares one session across threads
 CI on the South African gap branch failed one test: both companies counted as a failed scan. The worker compared `company.id` with `bad.id`, and `bad` belonged to the test session. After commit that attribute is expired, so both threads tried to refresh it on the same SQLite connection (`InterfaceError`, then `ObjectDeletedError`). The test now keeps the ids as strings before the pool starts. The seed rows are unchanged.
 Next: the same as the entry below — Frankfurt import on the next boot.
