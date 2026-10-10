@@ -199,6 +199,13 @@ export const COUNTRY_FLAGS: Record<string, string> = {
   "Nauru": "🇳🇷",
   "Palau": "🇵🇼",
   "Tuvalu": "🇹🇻",
+  // Countries added 2026-10-10. Codes come from the flag: MC, MK, SM, TJ, TM, MM.
+  "Monaco": "🇲🇨",
+  "North Macedonia": "🇲🇰",
+  "San Marino": "🇸🇲",
+  "Tajikistan": "🇹🇯",
+  "Turkmenistan": "🇹🇲",
+  "Myanmar": "🇲🇲",
   // Territories added 2026-10-10. Codes come from the flag: PR, RE, MO, GL, NC.
   "Puerto Rico": "🇵🇷",
   "Réunion": "🇷🇪",
