@@ -67,6 +67,11 @@ Lungani, 2026-10-03: in every country dropdown, list, and work order, put **Sout
 
 ## Session Log
 
+### 2026-10-10 — Cursor (Grok 4.7) — Major-economy careers pages
+Off current `main`. Added eight employers whose own careers page named a post when fetched as SospanaSonkeBot: BMW Group, Volkswagen Group, Deutsche Bahn, and Deutsche Bank in Germany; Société Générale in France; Telefónica in Spain; Saudi Aramco; Panasonic Group in Japan (graduate notice naming sales, accounting, R&D and systems-engineer roles). The Panasonic corporate homepage blocked the bot, so the official site stored is the verified Panasonic Group recruitment host. Culture pages, cookie banners, investor "analyst coverage", JavaScript boards with no title in the HTML, and hosts that disallow the bot were not stored. China stays at 3 links: Tencent's public feed names posts, but the search page HTML does not, and State Grid and China Mobile disallow the bot.
+Linked counts now: Germany 9, France 6, Japan 4, Mexico 3, Spain 5, Italy 5, China 3, South Korea 3, Turkey 4, Saudi Arabia 4.
+Next: the remaining zero-row territories, on a separate branch off main.
+
 ### 2026-10-09 — Cursor (Grok 4.7) — How-to video, jazz bed, no voiceover
 A 2:14 screen recording of the live site (1280×720, H.264, AAC, 4.5 MB) is in `docs/tutorial/sospana-sonke-how-to-use.mp4`, with the step list in `docs/tutorial/storyboard.md`. No app code changed. Captions and title cards stay. There is no voiceover. The bed is an original instrumental loop from `docs/tutorial/jazz-bed.py` (sine, harmonics, and noise only), dedicated under CC0 1.0, mixed at about −18 LUFS with a 2s fade-in and a 3s fade-out. The walkthrough covers the homepage, sign-in, free registration, the directory (search, country, Private), Colleges and SETAs, NGOs, Government, Absa’s own Workday page (nothing submitted), preferences left off, the CV builder without Analyse, the Career Agent, an empty tracker, donate without paying, and signing in again. The throwaway candidate account was deleted (`POST /account/delete` returned 204; a later login returned 401).
 
