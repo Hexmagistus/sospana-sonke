@@ -72,6 +72,56 @@ Probed Greenhouse, Lever, Workable, Recruitee and SmartRecruiters slugs for 438 
 
 Updated, not added: Arauco (Chile) to its iCIMS search, 40 roles in Chile. Sygnia and Weaver Fintech (South Africa, JSE) to their simplify.hr boards. Sygnia's board states there are currently no open jobs. Weaver lists 13 roles in Cape Town. Notes for the two JSE rows still start with `2026-10-09 SA gap`, so that batch stays 91 rows and its linked count moves 4→6. South Africa linked 811→813. Chile linked 45→46. Parque Arauco is a different company and stays blank. Liberty Two Degrees was left alone: `liberty.simplify.hr` is Liberty's advisor talent pool, not the REIT. Cencosud's chatbot, Falabella's Aira portal, and Harmony's expired certificate were not stored.
 Next: nothing from this probe is waiting. Further blank rows need a page that names a post.
+### 2026-10-10 — Cursor (Grok 4.7) — Country-specific ATS boards for the large economies
+Probed Greenhouse, Lever, SmartRecruiters, Workable, Recruitee, Teamtailor, Personio and Softgarden slugs, plus guessed Workday tenants, for major employers in Germany, France, Japan, Mexico, Spain, Italy, South Korea, Turkey, Saudi Arabia, the UAE and India. A board was stored only when the name matched, robots.txt allowed SospanaSonkeBot (or the host had no robots.txt), and at least half of the sampled roles were in that country. Mixed global boards (HelloFresh, Doctolib, Cabify, Typeform, Celonis, Fever, Jobandtalent and others) and wrong-company Teamtailor hosts (Swedish STC, Norwegian AXIS, Toyota Sweden) were left off.
+
+18 new linked rows, note prefix `2026-10-10 economy-ats`, all `PRIVATE`. Germany 5→8 (GetYourGuide, Raisin, Solaris). France 5→13 (BlaBlaCar, Qonto, Algolia, Mirakl, Vestiaire Collective, Swile, Scaleway, Malt). Spain 4→6 (Wallapop, Holded). Italy 5→6 (Musixmatch). South Korea 3→5 (Sendbird, Karrot). Japan 3→4 (Mercari). United Arab Emirates 20→21 (Aldar Properties). Mexico, Turkey, Saudi Arabia and India gained no board that was both theirs and mostly in-country. No existing row was retargeted.
+Next: JSE blanks and Argentina, Chile and Colombia homepage-only rows, same ATS method, separate PR.
+### 2026-10-10 — Cursor (Grok 4.7) — Employers in the countries with the fewest careers links
+23 new employers across 15 countries that had one or two careers links (Armenia had two). Eight have a direct jobs page. The other 15 keep a verified homepage and a blank careers URL. Note prefix `2026-10-10 fewest-links`. No new country, so no flag or region change.
+
+Linked (name, country) → URL:
+- Universitat d'Andorra, Andorra, UNI → https://www.uda.ad/universitat/treballeu-amb-nosaltres/ (real zero: no selection process open)
+- Sir Lester Bird Medical Centre, Antigua and Barbuda, HOSPITAL → https://www.msjmc.org/careers (Registered/Staff Nurse)
+- University of Sarajevo, Bosnia and Herzegovina, UNI → https://www.unsa.ba/konkursi (academic-staff competitions, one dated 9 October 2026)
+- Klinički centar Univerziteta u Sarajevu, Bosnia and Herzegovina, HOSPITAL → https://kcus.ba/kcus-raspisao-konkurs-za-prijem-120-novih-medicinskih-sestara-i-tehnicara/ (120 nurses and technicians, published 2 October 2026)
+- Ministry of Health Brunei Darussalam, Brunei, DEPT → https://moh.gov.bn/about-us/explore-career/ (Medical Officer)
+- Government of the Commonwealth of Dominica, Dominica, DEPT → https://dominica.gov.dm/vacancies (Project Engineer - DOMCREP, closes 27 October 2026)
+- Vilnius University, Lithuania, UNI → https://www.vu.lt/karjera (project manager, open until 28 October 2026)
+- National University of Samoa, Samoa, UNI → https://nus.edu.ws/vacancies/ (IT User Services Officer, closing 19 October 2026)
+
+Links after this batch: Andorra 1 → 2, Antigua and Barbuda 1 → 2, Bosnia and Herzegovina 1 → 3, Brunei 1 → 2, Dominica 1 → 2, Lithuania 1 → 2, Samoa 1 → 2. Armenia, Costa Rica, Czechia, the Dominican Republic, Estonia, Guatemala, Serbia, and Slovenia stay at their previous link counts; the new rows there are blanks. 23 rows added, 8 linked.
+
+Left blank on purpose: Andorra Telecom (jobs host did not return robots.txt), SAAS (no named post), BH Telecom, Universiti Brunei Darussalam, Universidad de Costa Rica, ICE, Charles University, ČEZ (the career link is jobs.cz), Eesti Energia, the Government of Antigua and Barbuda, Banco Central de la República Dominicana, the University of Belgrade (scholarships, not staff posts), the University of Ljubljana (student career centre), Universidad de San Carlos (empleo.usac.edu.gt invites other employers to advertise), and Yerevan State Medical University.
+### 2026-10-10 — Cursor (Grok 4.7) — Fill blank careers links on existing rows
+Six rows that already had a homepage, and no active jobs link, now point at a page fetched as SospanaSonkeBot. Robots allow the bot (or the host has no robots.txt), the response is HTTP 200, and the page names a post or says there are no openings. Note prefix `2026-10-10 fill-blanks`. Adapt IT, Biovac, and OPT-NC keep their earlier note prefixes so those batch counts still include them.
+
+Linked (name, country) → URL:
+- Adapt IT, South Africa → https://adaptit.ci.hr/ (Senior EPM Consultant, Midrand, closes 21 October 2026; Hospitality Systems Consultant, Durban)
+- Biovac, South Africa → https://biovac.teamtailor.com/jobs (Network Engineer, AMD Scientist; Cape Town and Johannesburg)
+- Dashen Bank, Ethiopia → https://dashenbanksc.com/careers (Branch Business Relationship Manager and other posts dated September and October 2026)
+- IAMGOLD Essakane SA, Burkina Faso → https://www.iamgoldessakane.com/offres-emplois (real zero: no offer open)
+- OPT-NC, New Caledonia → https://office.opt.nc/fr/emploi-et-carriere/postuler-lopt-nc/offres-emploi (real zero: no offer matches)
+- Ministry of Lands, Housing, and Country Planning, Sierra Leone → https://molhcp.gov.sl/jobs/ (Project Civil Engineer for the Sierra Leone Land Administration Project)
+
+Links after this fill: South Africa 811 → 813, Ethiopia 17 → 18, Burkina Faso 19 → 20, New Caledonia 4 → 5, Sierra Leone 16 → 17. Six rows updated, six links filled, no new employers.
+
+Left blank on purpose: Woolworths careers host failed TLS; LUMA's Workday path is disallowed in robots.txt; Petra Diamonds' job search is a PNet frame; McCain's listed posts are dated June 2023 and the apply link lands on the US careers home; Cimencam's cards are dated 2025; Air Greenland, Nukissiorfiit, and Royal Arctic Line name no post; Gambia's tourism vacancies page did not return robots.txt.
+
+### 2026-10-10 — Cursor (Grok 4.7) — Remaining zero-row territories
+Off current `main`, separate from the thin-Africa and major-economy branches. Added 28 territories that still had no seed rows: Mayotte and Saint Helena (Africa, same pattern as Réunion), Faroe Islands and Gibraltar (Europe), French Polynesia, Guam, American Samoa, the Cook Islands, Niue, the Northern Mariana Islands and Wallis and Futuna (Oceania), Bermuda and Saint Pierre and Miquelon (North America), the Falkland Islands (South America), and the remaining Caribbean territories. Each has a flag, a landing tier and a picker group. Puerto Rico, Réunion, Macau, Greenland and New Caledonia were already on main and were not added again.
+61 employers. 16 have a direct jobs link (a page that named a post, or said there were no openings): Mayotte 2, Saint Helena 1, Gibraltar 3, French Polynesia 2, Guam 3, American Samoa 1, Cook Islands 1, Niue 1, Anguilla 1, British Virgin Islands 1. The other 45 are blank. Faroe Islands, Aruba, Bermuda, Cayman Islands, Curaçao, Guadeloupe, Martinique, the US Virgin Islands and the smaller territories stay at zero links because no own-domain page both allowed the bot and named a post. Login walls, JavaScript boards and profession lists were not stored.
+Next: these rows import on the next boot. The thin-Africa and major-economy pull requests stay separate.
+
+### 2026-10-10 — Cursor (Grok 4.7) — Major-economy careers pages
+Off current `main`. Added eight employers whose own careers page named a post when fetched as SospanaSonkeBot: BMW Group, Volkswagen Group, Deutsche Bahn, and Deutsche Bank in Germany; Société Générale in France; Telefónica in Spain; Saudi Aramco; Panasonic Group in Japan (graduate notice naming sales, accounting, R&D and systems-engineer roles). The Panasonic corporate homepage blocked the bot, so the official site stored is the verified Panasonic Group recruitment host. Culture pages, cookie banners, investor "analyst coverage", JavaScript boards with no title in the HTML, and hosts that disallow the bot were not stored. China stays at 3 links: Tencent's public feed names posts, but the search page HTML does not, and State Grid and China Mobile disallow the bot.
+Linked counts now: Germany 9, France 6, Japan 4, Mexico 3, Spain 5, Italy 5, China 3, South Korea 3, Turkey 4, Saudi Arabia 4.
+Next: the remaining zero-row territories, on a separate branch off main.
+
+### 2026-10-10 — Cursor (Grok 4.7) — Thin African careers links
+Off current `main`. Filled direct jobs pages for the thin African countries where a fetch as SospanaSonkeBot was allowed, returned HTTP 200, and the page named a post or said there were no openings. 17 existing rows gained that kind of URL (15 of them were not links before; UGANC and the Niger civil-service ministry already counted and now point at the recruitment list). One new Benin government row is linked. Five new rows stay blank: GITGE and the São Tomé central bank keep a verified homepage; Commercial Bank of Eritrea, EriTel, and Orotta Hospital have no page the bot was allowed to read. Procurement pages, student exams, culture pages, JavaScript boards with no title in the HTML, and hosts whose robots.txt blocked the bot were not stored. Eritrea, Equatorial Guinea, and São Tomé stay at 2, 2, and 3 links.
+Linked counts now: Eritrea 2, Equatorial Guinea 2, Sao Tome and Principe 3, Benin 10, Guinea 9, Gabon 6, Côte d'Ivoire 8, Libya 7, Central African Republic 6, Togo 7, Niger 8.
+Next: major economies with five or fewer links, on a separate branch off main.
 
 ### 2026-10-10 — Cursor (Grok 4.7) — Merge train for the employer and how-to pull requests
 Marked each ready, updated it with main, kept both sides of every session log, seed append, flag, and region (no duplicate import keys or flag names), waited for CI, then merged with a merge commit. Left #69 and #70 open.

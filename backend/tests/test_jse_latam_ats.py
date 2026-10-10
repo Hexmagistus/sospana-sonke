@@ -24,7 +24,8 @@ EXPECTED = {
     ),
 }
 
-LINKED = {"South Africa": 813, "Chile": 46}
+# South Africa includes the two simplify.hr fills plus Adapt IT from the blank-link pass.
+LINKED = {"South Africa": 815, "Chile": 46}
 
 
 def _rows():

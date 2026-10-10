@@ -27,13 +27,13 @@ function codes(region: WorldRegionId, list: string): [string, WorldRegionId][] {
 }
 
 export const REGION_BY_CODE: Readonly<Record<string, WorldRegionId>> = Object.fromEntries([
-  ...codes("europe", "AL AD AT BY BE BA BG HR CY CZ DK EE FI FR DE GR VA HU IS IE IT XK LV LI LT LU MT MD MC ME NL MK NO PL PT RO RU SM RS SK SI ES SE CH UA GB"),
-  ...codes("north-america", "CA US MX GL BM"),
-  ...codes("central-america-caribbean", "BZ CR SV GT HN NI PA AG BS BB CU DM DO GD HT JM KN LC VC TT PR"),
-  ...codes("south-america", "AR BO BR CL CO EC GF GY PY PE SR UY VE"),
+  ...codes("europe", "AL AD AT BY BE BA BG HR CY CZ DK EE FI FO FR DE GI GR VA HU IS IE IT XK LV LI LT LU MT MD MC ME NL MK NO PL PT RO RU SM RS SK SI ES SE CH UA GB"),
+  ...codes("north-america", "CA US MX GL BM PM"),
+  ...codes("central-america-caribbean", "BZ CR SV GT HN NI PA AG AI AW BS BB BL BQ VG KY CW CU DM DO GP GD HT JM KN LC MQ MS SX MF VC TT TC VI PR"),
+  ...codes("south-america", "AR BO BR CL CO EC FK GF GY PY PE SR UY VE"),
   ...codes("asia", "AF AM AZ BD BT BN KH CN GE HK IN ID JP KZ KG LA MO MY MV MN MM NP KP PK PH SG KR LK TW TJ TH TL TM UZ VN"),
   ...codes("middle-east", "BH IR IQ IL JO KW LB OM PS QA SA SY TR AE YE"),
-  ...codes("oceania", "AU FJ KI MH FM NR NZ PW PG WS SB TO TV VU NC"),
+  ...codes("oceania", "AU AS CK FJ PF GU KI MH FM NR NU MP NZ PW PG WS SB TO TV VU WF NC"),
 ]);
 
 /** Region for an ISO code, or null when the table has no entry. */
