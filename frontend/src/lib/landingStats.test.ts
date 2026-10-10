@@ -107,6 +107,14 @@ describe("regions", () => {
     assert.equal(tierOf("Réunion"), "africa");
     assert.equal(tierOf("Greenland"), "north-america");
     assert.equal(tierOf("Puerto Rico"), "north-america");
+    assert.equal(tierOf("Mayotte"), "africa");
+    assert.equal(tierOf("Saint Helena"), "africa");
+    assert.equal(tierOf("Faroe Islands"), "europe");
+    assert.equal(tierOf("Gibraltar"), "europe");
+    assert.equal(tierOf("French Polynesia"), "oceania");
+    assert.equal(tierOf("Guam"), "oceania");
+    assert.equal(tierOf("Falkland Islands"), "south-america");
+    assert.equal(tierOf("Cayman Islands"), "north-america");
     assert.equal(tierOf("Atlantis"), "other");
   });
 
