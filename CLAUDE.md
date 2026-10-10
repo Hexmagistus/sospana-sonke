@@ -67,6 +67,9 @@ Lungani, 2026-10-03: in every country dropdown, list, and work order, put **Sout
 
 ## Session Log
 
+### 2026-10-09 — Cursor (Grok 4.7) — Admin dashboard reads horizontally on a phone
+On a phone, the admin page (`/admin`) stacked names, emails, dates, badges and buttons one letter per line. The site-wide phone rule `overflow-wrap: anywhere` lets a table column shrink to one character, and the users table has ten columns. The admin page now opts out of that break. Each table cell stays on one line and the table scrolls sideways. Stat cards stack in one column below 640px so "Registered candidates" stays one line. Button rows, chips and the page title do the same. Paragraphs still wrap on spaces. Desktop tables use the same one-line cells, inside the existing sideways scroll, so a wide row does not widen the page. Seed files were not touched. Checked at 360, 390, 430 and 1280px: no page-level sideways scroll, and no cell or button narrower than its words.
+
 ### 2026-10-09 — Cursor (Grok 4.7) — Thin SADC and African employer pass
 From `main` at `3c3ad18` (PR #66). Branch `cursor/thin-markets-employers-ad86`, draft PR #67, not merged. Added 69 employers across Botswana, Zambia, Zimbabwe, Tanzania, Ghana, Namibia, Mozambique, Malawi, Eswatini, Lesotho, Uganda, and Rwanda (14 with a direct jobs link, 55 blank). A careers URL was stored only when robots.txt allowed SospanaSonkeBot, the fetch returned HTTP 200, and the page was that employer's own jobs board. Homepages, aggregators, rental "vacancies", news posts, product pages, a parent-company SmartRecruiters board, a spam-injected careers host, and a US veterinary site that shared a name were not stored. Blank rows keep the homepage that named the employer. `directory-snapshot.json` was left alone (these rows are not imported yet).
 

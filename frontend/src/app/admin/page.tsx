@@ -54,16 +54,20 @@ function MessageReports() {
       <div className="space-y-3">
         {rows.map((r) => (
           <div key={r.id} className="rounded-xl border border-ss-border p-3 text-sm">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <span className="font-semibold text-ss-text">{r.sender_name} · {r.reason}</span>
-              <span className="text-xs text-ss-muted">{r.status}{r.sender_banned ? " · sender suspended" : ""} · purges {r.purge_after.slice(0, 10)}</span>
+            <div className="admin-scroll">
+              <div className="flex w-max min-w-full flex-nowrap items-center justify-between gap-2">
+                <span className="admin-oneline font-semibold text-ss-text">{r.sender_name} · {r.reason}</span>
+                <span className="admin-oneline text-xs text-ss-muted">{r.status}{r.sender_banned ? " · sender suspended" : ""} · purges {r.purge_after.slice(0, 10)}</span>
+              </div>
             </div>
-            <p className="mt-2 whitespace-pre-wrap break-words text-ss-text">{r.body_snapshot}</p>
+            <p className="mt-2 whitespace-pre-wrap text-ss-text">{r.body_snapshot}</p>
             {r.note && <p className="mt-1 text-xs text-ss-muted">Reporter note: {r.note}</p>}
             {r.status === "open" && (
-              <div className="mt-2 flex gap-2">
-                <Button variant="danger" onClick={() => resolve(r.id, "suspend_sender")}>Suspend sender&apos;s messaging</Button>
-                <Button variant="ghost" onClick={() => resolve(r.id, "dismiss")}>Dismiss</Button>
+              <div className="admin-scroll mt-2">
+                <div className="flex w-max min-w-full flex-nowrap gap-2">
+                  <Button variant="danger" onClick={() => resolve(r.id, "suspend_sender")}>Suspend sender&apos;s messaging</Button>
+                  <Button variant="ghost" onClick={() => resolve(r.id, "dismiss")}>Dismiss</Button>
+                </div>
               </div>
             )}
           </div>
@@ -110,15 +114,18 @@ function AdApplications() {
       <div className="space-y-3">
         {rows.map((a) => (
           <div key={a.id} className="rounded-xl border border-ss-border p-3 text-sm">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <span className="font-semibold text-ss-text">{a.business_name} · {a.contact_email}</span>
-              <span className="text-xs text-ss-muted">
-                {a.status}{a.slot_key ? ` · ${a.slot_key}` : ""} · ${a.amount_usd_per_day}/day × {a.days} · asked {a.requested_slot || "any spot"} · {a.created_at.slice(0, 10)}
-              </span>
+            <div className="admin-scroll">
+              <div className="flex w-max min-w-full flex-nowrap items-center justify-between gap-2">
+                <span className="admin-oneline font-semibold text-ss-text">{a.business_name} · {a.contact_email}</span>
+                <span className="admin-oneline text-xs text-ss-muted">
+                  {a.status}{a.slot_key ? ` · ${a.slot_key}` : ""} · ${a.amount_usd_per_day}/day × {a.days} · asked {a.requested_slot || "any spot"} · {a.created_at.slice(0, 10)}
+                </span>
+              </div>
             </div>
-            <p className="mt-2 break-words text-ss-text">{a.ad_text}</p>
-            <p className="mt-1 break-all text-xs text-ss-muted">{a.website}</p>
-            <div className="mt-2 flex flex-wrap items-center gap-2">
+            <p className="mt-2 text-ss-text">{a.ad_text}</p>
+            <p className="admin-scroll mt-1 whitespace-nowrap text-xs text-ss-muted">{a.website}</p>
+            <div className="admin-scroll mt-2">
+              <div className="flex w-max min-w-full flex-nowrap items-center gap-2">
               <input
                 value={slot[a.id] ?? ""}
                 onChange={(e) => setSlot((d) => ({ ...d, [a.id]: e.target.value.toUpperCase() }))}
@@ -130,6 +137,7 @@ function AdApplications() {
               {a.status !== "approved" && <Button onClick={() => decide(a, "approved")}>Approve</Button>}
               {a.status !== "rejected" && <Button variant="danger" onClick={() => decide(a, "rejected")}>Reject</Button>}
               {a.status === "approved" && <Button variant="ghost" onClick={() => decide(a, "pending")}>Take down</Button>}
+              </div>
             </div>
           </div>
         ))}
@@ -249,18 +257,18 @@ function SourceHealthCard() {
           </p>
           <div className="mb-3 flex flex-wrap gap-2">
             {Object.entries(health.by_scraper_status || {}).map(([k, v]) => (
-              <span key={`s-${k}`} className="rounded-lg bg-ss-border px-3 py-1 text-sm text-ss-text">{k}: <b>{v}</b></span>
+              <span key={`s-${k}`} className="admin-oneline rounded-lg bg-ss-border px-3 py-1 text-sm text-ss-text">{k}: <b>{v}</b></span>
             ))}
             {Object.entries(health.by_status).map(([k, v]) => (
-              <span key={k} className="rounded-lg bg-ss-border px-3 py-1 text-sm text-ss-text">{k}: <b>{v}</b></span>
+              <span key={k} className="admin-oneline rounded-lg bg-ss-border px-3 py-1 text-sm text-ss-text">{k}: <b>{v}</b></span>
             ))}
             {Object.entries(health.by_ats).map(([k, v]) => (
-              <span key={k} className="rounded-lg border border-ss-border px-3 py-1 text-sm text-ss-muted">{k}: <b className="text-ss-text">{v}</b></span>
+              <span key={k} className="admin-oneline rounded-lg border border-ss-border px-3 py-1 text-sm text-ss-muted">{k}: <b className="text-ss-text">{v}</b></span>
             ))}
             {health.sources === 0 && <span className="text-sm text-ss-muted">No sources scanned yet.</span>}
           </div>
           {health.recent.length > 0 && (
-            <div className="overflow-x-auto">
+            <div className="admin-scroll overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="text-left text-ss-muted">
@@ -281,7 +289,7 @@ function SourceHealthCard() {
                       <td className="py-2 pr-3">{row.scraper_status || row.last_status}{row.consecutive_failures ? ` · ${row.consecutive_failures} fails` : ""}{row.active === false ? " · paused" : ""}</td>
                       <td className="py-2 pr-3">{row.last_vacancy_count ?? "—"}</td>
                       <td className="py-2 pr-3 text-ss-muted">{row.last_checked ? row.last_checked.slice(0, 16).replace("T", " ") : "—"}</td>
-                      <td className="max-w-xs truncate py-2 pr-3 text-ss-muted" title={row.last_error || ""}>{row.last_error || "—"}</td>
+                      <td className="max-w-xs truncate py-2 pr-3 text-ss-muted max-md:max-w-none max-md:overflow-visible max-md:text-clip" title={row.last_error || ""}>{row.last_error || "—"}</td>
                       <td className="py-2 pr-3 whitespace-nowrap">
                         <button type="button" className="mr-2 text-xs font-medium text-ss-text underline" disabled={busyId !== ""} onClick={() => scanNow(row)}>Scan now</button>
                         <button type="button" className="text-xs font-medium text-ss-muted underline" disabled={busyId !== ""} onClick={() => pause(row, row.active === false)}>
@@ -295,18 +303,20 @@ function SourceHealthCard() {
             </div>
           )}
           <div className="mt-4">
-            <div className="mb-2 flex flex-wrap items-center gap-2">
-              <h3 className="text-sm font-semibold text-ss-text">Scan log</h3>
-              <label className="text-xs text-ss-muted">
-                Status{" "}
-                <input value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}
-                  className="ml-1 rounded border border-ss-border bg-transparent px-2 py-1 text-ss-text" placeholder="ok" />
-              </label>
-              <button type="button" className="text-xs font-medium text-ss-text underline" onClick={() => load(statusFilter)}>Filter</button>
+            <div className="admin-scroll mb-2">
+              <div className="flex w-max min-w-full flex-nowrap items-center gap-2">
+                <h3 className="admin-oneline text-sm font-semibold text-ss-text">Scan log</h3>
+                <label className="admin-oneline text-xs text-ss-muted">
+                  Status{" "}
+                  <input value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}
+                    className="ml-1 rounded border border-ss-border bg-transparent px-2 py-1 text-ss-text" placeholder="ok" />
+                </label>
+                <button type="button" className="text-xs font-medium text-ss-text underline" onClick={() => load(statusFilter)}>Filter</button>
+              </div>
             </div>
             {logs.length === 0 && <p className="text-sm text-ss-muted">No scan log rows yet.</p>}
             {logs.length > 0 && (
-              <div className="overflow-x-auto">
+              <div className="admin-scroll overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="text-left text-ss-muted">
@@ -456,14 +466,14 @@ function AdminInner() {
   if (!d) return <Spinner />;
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-ss-text">Admin dashboard</h1>
-        <Link href="/admin/companies"><Button variant="ghost">Manage companies</Button></Link>
+    <div className="admin-readable space-y-6">
+      <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <h1 className="whitespace-nowrap text-2xl font-bold text-ss-text">Admin dashboard</h1>
+        <Link href="/admin/companies" className="shrink-0"><Button variant="ghost" className="whitespace-nowrap">Manage companies</Button></Link>
       </div>
       {err && <Alert kind="error">{err}</Alert>}
 
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+      <div className="admin-stats grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
         <Stat label="Registered candidates" value={d.registered_candidates} />
         <Stat label="Companies" value={d.companies_total} hint={`${d.companies_active} active`} />
         <Stat label="Open vacancies" value={d.vacancies_open} hint={`${d.vacancies_total} total`} />
@@ -473,7 +483,7 @@ function AdminInner() {
         <h2 className="mb-3 font-semibold">Applications by status</h2>
         <div className="flex flex-wrap gap-2">
           {Object.entries(d.applications_by_status).map(([k, v]) => (
-            <span key={k} className="rounded-lg bg-ss-border px-3 py-1 text-sm text-ss-text">{k}: <b>{v}</b></span>
+            <span key={k} className="admin-oneline rounded-lg bg-ss-border px-3 py-1 text-sm text-ss-text">{k}: <b>{v}</b></span>
           ))}
           {Object.keys(d.applications_by_status).length === 0 && <span className="text-sm text-ss-muted">None yet.</span>}
         </div>
@@ -481,7 +491,8 @@ function AdminInner() {
 
       <Card>
         <h2 className="mb-3 font-semibold">Scheduled jobs</h2>
-        <div className="flex flex-wrap gap-3">
+        <div className="admin-scroll">
+          <div className="flex w-max min-w-full flex-nowrap gap-3">
           <Button variant="ghost" disabled={!!job} loading={job === "scan_due_companies"} onClick={() => runJob("scan_due_companies")}>
             {job === "scan_due_companies" ? "Scanning the next batch…" : "Scan the next batch"}
           </Button>
@@ -491,6 +502,7 @@ function AdminInner() {
           <Button variant="ghost" disabled={!!job} loading={job === "scan_all_companies"} onClick={() => runJob("scan_all_companies")}>
             {job === "scan_all_companies" ? "Scanning…" : "Run scan-all-companies (all regions)"}
           </Button>
+          </div>
         </div>
       </Card>
 
@@ -520,13 +532,15 @@ function AdminInner() {
           <Textarea value={suggestBody} onChange={(e) => setSuggestBody(e.target.value)}
                     placeholder="Why this is relevant to them" rows={3} maxLength={2000} />
         </Field>
-        <div className="mt-3 flex flex-wrap items-center gap-3">
-          <Button onClick={() => sendSuggestion(false)} disabled={suggestBusy} loading={suggestBusy}>
-            Send to selected ({selected.size})
-          </Button>
-          <Button variant="ghost" onClick={() => sendSuggestion(true)} disabled={suggestBusy}>
-            Send to everyone who opted in
-          </Button>
+        <div className="admin-scroll mt-3">
+          <div className="flex w-max min-w-full flex-nowrap items-center gap-3">
+            <Button onClick={() => sendSuggestion(false)} disabled={suggestBusy} loading={suggestBusy}>
+              Send to selected ({selected.size})
+            </Button>
+            <Button variant="ghost" onClick={() => sendSuggestion(true)} disabled={suggestBusy}>
+              Send to everyone who opted in
+            </Button>
+          </div>
         </div>
       </Card>
 
@@ -534,10 +548,11 @@ function AdminInner() {
       <LoginAlertsCard />
 
       <Card>
-        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-          <h2 className="font-semibold">Registered users ({users.length})</h2>
-          <div className="flex flex-wrap items-center gap-2">
-            <label className="flex items-center gap-2 text-sm text-ss-muted">
+        <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+          <h2 className="whitespace-nowrap font-semibold">Registered users ({users.length})</h2>
+          <div className="admin-scroll">
+            <div className="flex w-max min-w-full flex-nowrap items-center gap-2">
+            <label className="admin-oneline flex items-center gap-2 text-sm text-ss-muted">
               <input
                 type="checkbox"
                 checked={preferenceOnly}
@@ -554,9 +569,10 @@ function AdminInner() {
             <Button variant="ghost" onClick={copyEmails} disabled={users.length === 0}>
               {copied ? "Copied!" : "Copy all emails"}
             </Button>
+            </div>
           </div>
         </div>
-        <div className="overflow-x-auto">
+        <div className="admin-scroll overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="text-left text-ss-muted">
@@ -586,7 +602,7 @@ function AdminInner() {
                   <td className="py-2 pr-4">{u.mobile_number || "—"}</td>
                   <td className="py-2 pr-4">{u.preferred_position || "—"}</td>
                   <td className="py-2 pr-4">
-                    <span className="rounded-full bg-ss-border px-2 py-0.5 text-xs font-semibold text-ss-muted">
+                    <span className="admin-oneline rounded-full bg-ss-border px-2 py-0.5 text-xs font-semibold text-ss-muted">
                       {emailChoice(u)}
                     </span>
                   </td>
@@ -644,7 +660,7 @@ function AdminInner() {
                   </td>
                   <td className="py-2 pr-4">{u.qualification_name || "—"}</td>
                   <td className="py-2 pr-4">
-                    <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${u.has_profile ? "bg-brand/10 text-brand-dark" : "bg-ss-border text-ss-muted"}`}>
+                    <span className={`admin-oneline rounded-full px-2 py-0.5 text-xs font-semibold ${u.has_profile ? "bg-brand/10 text-brand-dark" : "bg-ss-border text-ss-muted"}`}>
                       {u.has_profile ? "Yes" : "No"}
                     </span>
                   </td>

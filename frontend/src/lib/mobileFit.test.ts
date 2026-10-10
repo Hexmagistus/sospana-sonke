@@ -36,4 +36,15 @@ describe("phone fit guards", () => {
   it("declares a device-width viewport", () => {
     assert.match(read("app/layout.tsx"), /width: "device-width"|width=device-width/);
   });
+
+  it("keeps the admin dashboard on horizontal lines on a phone", () => {
+    const css = read("app/globals.css");
+    assert.match(css, /\.admin-readable,\s*\.admin-readable \* \{\s*overflow-wrap: normal;\s*word-break: normal;/);
+    assert.match(css, /\.admin-readable th,\s*\.admin-readable td \{\s*white-space: nowrap;/);
+    const page = read("app/admin/page.tsx");
+    assert.match(page, /className="admin-readable space-y-6"/);
+    assert.match(page, /admin-stats grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3/);
+    assert.equal(page.includes("break-all"), false);
+    assert.equal(page.includes("break-words"), false);
+  });
 });
