@@ -63,13 +63,15 @@ export function PreferenceEmailCard() {
       </p>
       {err && <Alert kind="error">{err}</Alert>}
       {msg && <Alert kind="success">{msg}</Alert>}
-      <div className="mt-3 flex flex-wrap gap-3">
-        <Button onClick={() => run(true)} disabled={busy} loading={busy && res === null}>
-          Count who would get it
-        </Button>
-        <Button variant="ghost" onClick={() => run(false)} disabled={busy || !res || res.would_send === 0}>
-          Send next batch
-        </Button>
+      <div className="admin-scroll mt-3">
+        <div className="flex w-max min-w-full flex-nowrap gap-3">
+          <Button onClick={() => run(true)} disabled={busy} loading={busy && res === null}>
+            Count who would get it
+          </Button>
+          <Button variant="ghost" onClick={() => run(false)} disabled={busy || !res || res.would_send === 0}>
+            Send next batch
+          </Button>
+        </div>
       </div>
     </Card>
   );
@@ -110,12 +112,13 @@ export function LoginAlertsCard() {
       {msg && <Alert kind="success">{msg}</Alert>}
       <label className="mt-2 flex min-h-11 items-center gap-2 text-sm text-ss-text">
         <input
+          className="shrink-0"
           type="checkbox"
           checked={!!on}
           disabled={on === null}
           onChange={(e) => change(e.target.checked)}
         />
-        Email me a daily digest of client sign-ins
+        <span>Email me a daily digest of client sign-ins</span>
       </label>
     </Card>
   );

@@ -206,4 +206,10 @@ export const COUNTRY_FLAGS: Record<string, string> = {
   "Tajikistan": "🇹🇯",
   "Turkmenistan": "🇹🇲",
   "Myanmar": "🇲🇲",
+  // Territories added 2026-10-10. Codes come from the flag: PR, RE, MO, GL, NC.
+  "Puerto Rico": "🇵🇷",
+  "Réunion": "🇷🇪",
+  "Macau": "🇲🇴",
+  "Greenland": "🇬🇱",
+  "New Caledonia": "🇳🇨",
 };

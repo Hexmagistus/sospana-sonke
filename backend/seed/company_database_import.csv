@@ -30,7 +30,7 @@ Astral Foods,ARL,https://astral.ci.hr/index.php?controller=Page&name=jobsearch,g
 Attacq,ATT,https://vacancies.attacq.co.za/,green_verified,fixed was email now direct vacancy portal,true,pending,South Africa,JSE,
 Aveng,AEG,https://aveng.erecruit.co/candidateapp/Jobs/Browse.aspx,green_verified,direct eRecruit browse,true,pending,South Africa,JSE,
 AVI,AVI,https://avi.simplify.hr/,green_verified,direct recruitment portal,true,pending,South Africa,JSE,
-Balwin Properties,BWN,,amber_company_route,,false,no_url,South Africa,JSE,
+Balwin Properties,BWN,https://balwin.co.za/careers-at-balwin,green_verified,2026-10-09 direct jobs page,true,pending,South Africa,JSE,
 Bell Equipment,BEL,https://global.bellequipment.com/live/extranet/hr/Careers3.nsf/ViewCareers?OpenAgent&CareerType=JobOpportunity,green_verified,"Fetched 2026-10-09 as SospanaSonkeBot; robots.txt on global.bellequipment.com returned HTTP 404 and is treated as allowed. HTTP 200. Bell's own Lotus Domino vacancy list, linked from its careers page. Open roles included Chief Information Officer (Richards Bay/Johannesburg, closing 16 October 2026), Full Stack Developer Intern (Richards Bay, closing 20 October 2026) and Parts Counter Salesman (Kuruman, closing 13 October 2026).",true,pending,South Africa,JSE,https://www.bellequipment.com/
 BHP,BHG,https://careers.bhp.com/viewalljobs/,green_verified,direct view-all-jobs list,true,pending,South Africa,JSE,
 Bidcorp,BID,,amber_company_route,,false,no_url,South Africa,JSE,
@@ -82,7 +82,7 @@ Ethos Capital,ETO,,amber_company_route,Investment,false,no_url,South Africa,JSE,
 Exemplar REITail,EXP,,amber_company_route,Retail property,false,no_url,South Africa,JSE,
 Exxaro Resources,EXX,https://exxaro.erecruit.co/candidateapp/Jobs/Browse,green_verified,⭐⭐⭐ Mining / processing | direct eRecruit list,true,pending,South Africa,JSE,
 eMedia Holdings,EMH,,amber_company_route,Media,false,no_url,South Africa,JSE,
-Eastern Platinum,ELR,,amber_company_route,⭐ Mining,false,no_url,South Africa,JSE,
+Eastern Platinum,ELR,https://www.eastplats.com/careers/,green_verified,2026-10-09 direct jobs page | Mining,true,pending,South Africa,JSE,
 Ellies Holdings,ELI,,amber_company_route,Manufacturing / distribution,false,no_url,South Africa,JSE,
 enX Group,ENX,,amber_company_route,⭐ Industrial / energy,false,no_url,South Africa,JSE,
 Ethos Mid Market Fund,EMM,,amber_company_route,Investment,false,no_url,South Africa,JSE,
@@ -93,7 +93,7 @@ Foschini Group,TFG,https://careers.tfg.co.za/,green_verified,Operations / supply
 Fairvest,FFA,,amber_company_route,Property,false,no_url,South Africa,JSE,
 Freedom Property Fund,FDP,,amber_company_route,Property,false,no_url,South Africa,JSE,
 Frontier Transport Holdings,FTH,https://frontiertransport.co.za/,green_verified,⭐ Logistics / operations,true,pending,South Africa,JSE,
-Finbond Group,FGL,,amber_company_route,Financial services,false,no_url,South Africa,JSE,
+Finbond Group,FGL,https://www.finbondgroup.com/vacancies/,green_verified,2026-10-09 direct jobs page | Financial services,true,pending,South Africa,JSE,
 Fortress REIT,FFB,,amber_company_route,Logistics/property,false,no_url,South Africa,JSE,
 Fortress Income Fund,—,,amber_company_route,Property,false,no_url,South Africa,JSE,
 Glencore,GLN,https://www.glencore.com/careers,green_verified,⭐⭐⭐ Mining / processing,true,pending,South Africa,JSE,
@@ -6896,6 +6896,239 @@ Mauritius Oil Refineries,,,grey_none_verified,"2026-10-09 employer, no verified 
 United Bus Service,,,grey_none_verified,"2026-10-09 employer, no verified jobs page",false,no_url,Mauritius,PRIVATE,
 Blantyre Hotels,,,grey_none_verified,"2026-10-09 employer, no verified jobs page",false,no_url,Malawi,PRIVATE,
 ICON Properties,,https://iconproperties.mw/careers/,green_verified,2026-10-09 verified direct jobs page,true,pending,Malawi,PRIVATE,https://iconproperties.mw/
+Turnstar Holdings,,,grey_none_verified,"2026-10-09 thin-markets employer, no verified jobs page",false,no_url,Botswana,BSE,https://turnstar.co.bw/
+Diagnofirm Medical Laboratories,,,grey_none_verified,"2026-10-09 thin-markets employer, no verified jobs page",false,no_url,Botswana,PRIVATE,https://www.diagnofirm.co.bw/
+Standard Chartered Bank Zambia,,,grey_none_verified,"2026-10-09 thin-markets employer, no verified jobs page",false,no_url,Zambia,PRIVATE,https://www.sc.com/zm/
+Dot Com Zambia,,,grey_none_verified,"2026-10-09 thin-markets employer, no verified jobs page",false,no_url,Zambia,PRIVATE,https://dotcomzambia.com/
+Indo Zambia Bank,,,grey_none_verified,"2026-10-09 thin-markets employer, no verified jobs page",false,no_url,Zambia,PRIVATE,https://www.izb.co.zm/
+Access Bank Zambia,,,grey_none_verified,"2026-10-09 thin-markets employer, no verified jobs page",false,no_url,Zambia,PRIVATE,https://zambia.accessbankplc.com/
+Lusaka Trust Hospital,,,grey_none_verified,"2026-10-09 thin-markets employer, no verified jobs page",false,no_url,Zambia,HOSPITAL,https://www.lth.co.zm/
+Medland Hospital,,,grey_none_verified,"2026-10-09 thin-markets employer, no verified jobs page",false,no_url,Zambia,HOSPITAL,https://www.medlandhospital.com/
+African Sun,,,grey_none_verified,"2026-10-09 thin-markets employer, no verified jobs page",false,no_url,Zimbabwe,ZSE,https://africansun.com/
+Rainbow Tourism Group,,https://rtgafrica.com/careers/,green_verified,2026-10-09 thin-markets verified direct jobs page,true,pending,Zimbabwe,ZSE,https://rtgafrica.com/
+Art Corporation,,,grey_none_verified,"2026-10-09 thin-markets employer, no verified jobs page",false,no_url,Zimbabwe,ZSE,https://artcorp.co.zw/
+Vodacom Tanzania,,,grey_none_verified,"2026-10-09 thin-markets employer, no verified jobs page",false,no_url,Tanzania,PRIVATE,https://www.vodacom.co.tz/
+Standard Chartered Bank Tanzania,,,grey_none_verified,"2026-10-09 thin-markets employer, no verified jobs page",false,no_url,Tanzania,PRIVATE,https://www.sc.com/tz/
+Tanzania Breweries,,,grey_none_verified,"2026-10-09 thin-markets employer, no verified jobs page",false,no_url,Tanzania,PRIVATE,https://www.tanzaniabreweries.co.tz/
+Tanzania Commercial Bank,,,grey_none_verified,"2026-10-09 thin-markets employer, no verified jobs page",false,no_url,Tanzania,PRIVATE,https://www.tcbbank.co.tz/
+Absa Bank Tanzania,,,grey_none_verified,"2026-10-09 thin-markets employer, no verified jobs page",false,no_url,Tanzania,PRIVATE,https://www.absa.co.tz/personal/
+Azania Bank,,,grey_none_verified,"2026-10-09 thin-markets employer, no verified jobs page",false,no_url,Tanzania,PRIVATE,https://azaniabank.co.tz/
+Geita Gold Mining Company,,https://careers.anglogoldashanti.com/go/Tanzania/9004501/,green_verified,2026-10-09 thin-markets verified direct jobs page,true,pending,Tanzania,PRIVATE,https://www.geitamine.com/
+Ghana Oil Company,,,grey_none_verified,"2026-10-09 thin-markets employer, no verified jobs page",false,no_url,Ghana,PRIVATE,https://www.goil.com.gh/
+Enterprise Group,,https://myenterprisegroup.io/careers/,green_verified,2026-10-09 thin-markets verified direct jobs page,true,pending,Ghana,PRIVATE,https://myenterprisegroup.io/
+Standard Chartered Bank Ghana,,,grey_none_verified,"2026-10-09 thin-markets employer, no verified jobs page",false,no_url,Ghana,PRIVATE,https://www.sc.com/gh/
+Consolidated Bank Ghana,,,grey_none_verified,"2026-10-09 thin-markets employer, no verified jobs page",false,no_url,Ghana,PRIVATE,https://www.cbg.com.gh/
+Korle Bu Teaching Hospital,,,grey_none_verified,"2026-10-09 thin-markets employer, no verified jobs page",false,no_url,Ghana,HOSPITAL,https://kbth.gov.gh/
+Absa Bank Ghana,,,grey_none_verified,"2026-10-09 thin-markets employer, no verified jobs page",false,no_url,Ghana,PRIVATE,https://www.absa.com.gh/personal/
+Telecel Ghana,,,grey_none_verified,"2026-10-09 thin-markets employer, no verified jobs page",false,no_url,Ghana,PRIVATE,https://telecel.com.gh/
+TOL Gases,,https://www.tolgases.com/careers.html,green_verified,2026-10-09 thin-markets verified direct jobs page,true,pending,Tanzania,PRIVATE,https://www.tolgases.com/
+Debmarine Namibia,,https://debmarine.com/opportunities/vacancies,green_verified,2026-10-09 thin-markets verified direct jobs page,true,pending,Namibia,PRIVATE,https://debmarine.com/
+Woermann Brock,,,grey_none_verified,"2026-10-09 thin-markets employer, no verified jobs page",false,no_url,Namibia,PRIVATE,https://www.woermannbrock.com/
+Hangana Seafood,,,grey_none_verified,"2026-10-09 thin-markets employer, no verified jobs page",false,no_url,Namibia,PRIVATE,https://www.hangana.com/
+Moza Banco,,,grey_none_verified,"2026-10-09 thin-markets employer, no verified jobs page",false,no_url,Mozambique,PRIVATE,https://www.mozabanco.co.mz/pt/particulares
+Access Bank Mozambique,,,grey_none_verified,"2026-10-09 thin-markets employer, no verified jobs page",false,no_url,Mozambique,PRIVATE,https://mozambique.accessbankplc.com/pt
+Maputo Port Development Company,,https://www.portmaputo.com/who-we-are/join-our-team/,green_verified,2026-10-09 thin-markets verified direct jobs page,true,pending,Mozambique,PRIVATE,https://www.portmaputo.com/
+FDH Bank,,,grey_none_verified,"2026-10-09 thin-markets employer, no verified jobs page",false,no_url,Malawi,PRIVATE,https://www.fdh.co.mw/
+National Bank of Malawi,,,grey_none_verified,"2026-10-09 thin-markets employer, no verified jobs page",false,no_url,Malawi,PRIVATE,https://www.natbank.co.mw/
+Airtel Malawi,,,grey_none_verified,"2026-10-09 thin-markets employer, no verified jobs page",false,no_url,Malawi,PRIVATE,https://www.airtel.mw/
+Old Mutual Malawi,,,grey_none_verified,"2026-10-09 thin-markets employer, no verified jobs page",false,no_url,Malawi,PRIVATE,https://www.oldmutual.co.mw/
+Castel Malawi,,https://castelmalawi.com/careers-job-application/,green_verified,2026-10-09 thin-markets verified direct jobs page,true,pending,Malawi,PRIVATE,https://castelmalawi.com/
+NBS Bank,,,grey_none_verified,"2026-10-09 thin-markets employer, no verified jobs page",false,no_url,Malawi,PRIVATE,https://nbs.mw/
+Press Corporation,,,grey_none_verified,"2026-10-09 thin-markets employer, no verified jobs page",false,no_url,Malawi,PRIVATE,https://presscorp.com/
+Eswatini Royal Insurance Corporation,,https://www.esric.co.sz/corporate/vacancies/,green_verified,2026-10-09 thin-markets verified direct jobs page,true,pending,Eswatini,SOE,https://www.esric.co.sz/
+Montigny,,,grey_none_verified,"2026-10-09 thin-markets employer, no verified jobs page",false,no_url,Eswatini,PRIVATE,https://www.montigny.co.sz/
+Swaziland Building Society,,,grey_none_verified,"2026-10-09 thin-markets employer, no verified jobs page",false,no_url,Eswatini,PRIVATE,https://www.sbs.co.sz/
+Inyatsi Construction,,,grey_none_verified,"2026-10-09 thin-markets employer, no verified jobs page",false,no_url,Eswatini,PRIVATE,https://inyatsi.co.sz/
+Matekane Group of Companies,,https://www.mgc.co.ls/careers,green_verified,2026-10-09 thin-markets verified direct jobs page,true,pending,Lesotho,PRIVATE,https://www.mgc.co.ls/
+Sentebale,,,grey_none_verified,"2026-10-09 thin-markets employer, no verified jobs page",false,no_url,Lesotho,NGO,https://sentebale.org/
+Kick4Life,,https://www.kick4life.org/vacancies/,green_verified,2026-10-09 thin-markets verified direct jobs page,true,pending,Lesotho,NGO,https://www.kick4life.org/
+Lesotho PostBank,,,grey_none_verified,"2026-10-09 thin-markets employer, no verified jobs page",false,no_url,Lesotho,SOE,https://www.lpb.co.ls/
+New Vision Printing and Publishing,,,grey_none_verified,"2026-10-09 thin-markets employer, no verified jobs page",false,no_url,Uganda,PRIVATE,https://www.newvision.co.ug/
+Bank of Baroda Uganda,,,grey_none_verified,"2026-10-09 thin-markets employer, no verified jobs page",false,no_url,Uganda,PRIVATE,https://www.bankofbaroda.ug/
+Uganda Clays,,https://www.ugandaclays.co.ug/opportunities/careers/,green_verified,2026-10-09 thin-markets verified direct jobs page,true,pending,Uganda,PRIVATE,https://www.ugandaclays.co.ug/
+Standard Chartered Bank Uganda,,,grey_none_verified,"2026-10-09 thin-markets employer, no verified jobs page",false,no_url,Uganda,PRIVATE,https://www.sc.com/ug/
+KCB Bank Uganda,,,grey_none_verified,"2026-10-09 thin-markets employer, no verified jobs page",false,no_url,Uganda,PRIVATE,https://ug.kcbgroup.com/
+Absa Bank Uganda,,,grey_none_verified,"2026-10-09 thin-markets employer, no verified jobs page",false,no_url,Uganda,PRIVATE,https://www.absa.co.ug/personal/
+Kakira Sugar,,https://kakirasugar.com/jobs-listing/,green_verified,2026-10-09 thin-markets verified direct jobs page,true,pending,Uganda,PRIVATE,https://kakirasugar.com/
+Tororo Cement,,https://www.tororocement.com/careers/,green_verified,2026-10-09 thin-markets verified direct jobs page,true,pending,Uganda,PRIVATE,https://www.tororocement.com/
+Jubilee Insurance Uganda,,,grey_none_verified,"2026-10-09 thin-markets employer, no verified jobs page",false,no_url,Uganda,PRIVATE,https://jubileeinsurance.com/ug/
+Finance Trust Bank,,,grey_none_verified,"2026-10-09 thin-markets employer, no verified jobs page",false,no_url,Uganda,PRIVATE,https://www.financetrust.co.ug/
+St Francis Hospital Nsambya,,,grey_none_verified,"2026-10-09 thin-markets employer, no verified jobs page",false,no_url,Uganda,HOSPITAL,https://stfrancishospitalnsambya.org/wp/
+Movit Products,,,grey_none_verified,"2026-10-09 thin-markets employer, no verified jobs page",false,no_url,Uganda,PRIVATE,https://movitafrica.com/
+Hima Cement,,https://himacement.co.ug/job-opportunity/,green_verified,2026-10-09 thin-markets verified direct jobs page,true,pending,Uganda,PRIVATE,https://himacement.co.ug/
+SKOL Brewery,,,grey_none_verified,"2026-10-09 thin-markets employer, no verified jobs page",false,no_url,Rwanda,PRIVATE,https://www.skolbrewery.rw/
+Inyange Industries,,,grey_none_verified,"2026-10-09 thin-markets employer, no verified jobs page",false,no_url,Rwanda,PRIVATE,https://www.inyangeindustries.com/
+Radiant Insurance,,,grey_none_verified,"2026-10-09 thin-markets employer, no verified jobs page",false,no_url,Rwanda,PRIVATE,https://www.radiant.co.rw/
+Access Bank Rwanda,,,grey_none_verified,"2026-10-09 thin-markets employer, no verified jobs page",false,no_url,Rwanda,PRIVATE,https://rwanda.accessbankplc.com/
+Rwanda Biomedical Centre,,,grey_none_verified,"2026-10-09 thin-markets employer, no verified jobs page",false,no_url,Rwanda,SOE,https://www.rbc.gov.rw/
+Ampersand,,,grey_none_verified,"2026-10-09 thin-markets employer, no verified jobs page",false,no_url,Rwanda,PRIVATE,https://www.ampersand.energy/
+Africa Improved Foods,,,grey_none_verified,"2026-10-09 thin-markets employer, no verified jobs page",false,no_url,Rwanda,PRIVATE,https://africaimprovedfoods.com/
+University Teaching Hospital of Kigali (CHUK),,,grey_none_verified,"2026-10-09 thin-markets employer, no verified jobs page",false,no_url,Rwanda,HOSPITAL,https://www.chuk.rw/
+Airtel Rwanda,,,grey_none_verified,"2026-10-09 thin-markets employer, no verified jobs page",false,no_url,Rwanda,PRIVATE,https://www.airtel.co.rw/
+Sygnia,SYG,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,JSE,https://www.sygnia.co.za/
+Zeda,ZZD,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,JSE,
+iOCO,IOC,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,JSE,
+Hosken Consolidated Investments,HCI,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,JSE,
+Nutun,NTU,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,JSE,https://www.nutun.com/
+SA Corporate Real Estate,SAC,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,JSE,https://sacorporatefund.co.za/
+Deneb Investments,DNB,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,JSE,https://deneb.co.za/
+Vunani,VUN,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,JSE,
+Wesizwe Platinum,WEZ,https://wesizwe.co.za/vacancies/,green_verified,"2026-10-09 SA gap, direct jobs page",true,pending,South Africa,JSE,https://wesizwe.co.za/
+Zeder Investments,ZED,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,JSE,https://www.zeder.co.za/
+Sabvest Capital,SBP,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,JSE,https://www.sabvestcapital.com/
+Heriot REIT,HET,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,JSE,https://www.heriotreit.com/
+Efora Energy,EEL,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,JSE,
+Weaver Fintech,WVR,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,JSE,https://www.weaverfintech.com/
+Numeral,XII,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,JSE,https://numeral.co.za/
+Sable Exploration and Mining,SXM,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,JSE,
+Visual International Holdings,VIS,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,JSE,https://www.visualinternational.co.za/
+TeleMasters Holdings,TLM,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,JSE,https://www.telemasters.co.za/
+Randgold and Exploration,RNG,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,JSE,
+RMB Holdings,RMH,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,JSE,
+Allan Gray,,https://www.allangray.co.za/careers/,green_verified,"2026-10-09 SA gap, direct jobs page",true,pending,South Africa,PRIVATE,https://www.allangray.co.za/
+Prescient,,https://prescient.simplify.hr/,green_verified,"2026-10-09 SA gap, direct jobs page",true,pending,South Africa,PRIVATE,https://www.prescient.co.za/
+Assupol,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,PRIVATE,https://assupol.co.za/
+AVBOB,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,PRIVATE,https://www.avbob.co.za/
+Sasfin,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,PRIVATE,https://www.sasfin.com/
+Stanlib,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,PRIVATE,
+Postbank,,https://www.postbank.co.za/careers.html,green_verified,"2026-10-09 SA gap, direct jobs page",true,pending,South Africa,SOE,https://www.postbank.co.za/
+KFC South Africa,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,PRIVATE,
+McDonald's South Africa,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,PRIVATE,
+Hungry Lion,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,PRIVATE,https://www.hungrylion.co.za/
+McCain Foods South Africa,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,PRIVATE,https://www.mccain.co.za/
+Lactalis South Africa,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,PRIVATE,https://lactalis.co.za/
+Mondelēz South Africa,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,PRIVATE,https://www.mondelezinternational.com/
+Retailability,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,PRIVATE,https://retailability.co.za/
+Daimler Truck Southern Africa,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,PRIVATE,https://www.daimlertruck.com/en
+JTI South Africa,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,PRIVATE,
+Tsebo Solutions Group,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,PRIVATE,
+DHL Express South Africa,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,PRIVATE,
+BCX,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,PRIVATE,
+Tata Consultancy Services South Africa,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,PRIVATE,
+Genpact South Africa,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,PRIVATE,https://www.genpact.com/
+HCLTech South Africa,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,PRIVATE,https://www.hcltech.com/
+Infosys South Africa,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,PRIVATE,
+Wipro South Africa,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,PRIVATE,https://www.wipro.com/
+Capgemini South Africa,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,PRIVATE,https://www.capgemini.com/
+Cognizant South Africa,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,PRIVATE,https://www.cognizant.com/us/en
+IBM South Africa,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,PRIVATE,https://www.ibm.com/us-en
+Oracle South Africa,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,PRIVATE,
+SAP South Africa,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,PRIVATE,
+Huawei South Africa,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,PRIVATE,https://www.huawei.com/za/
+Schneider Electric South Africa,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,PRIVATE,https://www.se.com/za/en/
+Openserve,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,PRIVATE,
+Payfast,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,PRIVATE,https://payfast.io/
+SnapScan,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,PRIVATE,https://www.snapscan.co.za/
+Novartis South Africa,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,PRIVATE,https://www.novartis.com/
+Sanofi South Africa,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,PRIVATE,https://www.sanofi.com/en
+Stryker South Africa,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,PRIVATE,https://www.stryker.com/
+Medtronic South Africa,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,PRIVATE,https://www.medtronic.com/en-us/index.html
+AstraZeneca South Africa,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,PRIVATE,
+Bayer South Africa,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,PRIVATE,
+Boehringer Ingelheim South Africa,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,PRIVATE,https://www.boehringer-ingelheim.com/
+Roche South Africa,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,PRIVATE,https://www.roche.com/
+GSK South Africa,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,PRIVATE,https://www.gsk.com/en-gb/
+Kimberly-Clark South Africa,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,PRIVATE,
+Hilti South Africa,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,PRIVATE,https://www.hilti.co.za/
+De Beers,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,PRIVATE,
+Seriti Resources,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,PRIVATE,
+Petra Diamonds,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,PRIVATE,https://www.petradiamonds.com/
+Macsteel,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,PRIVATE,https://macsteel.co.za/
+Columbus Stainless,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,PRIVATE,
+Scaw Metals,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,PRIVATE,https://www.scaw.co.za/
+Paramount Group,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,PRIVATE,https://www.paramountgroup.com/
+Murray & Roberts,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,PRIVATE,https://www.murrob.com/
+Norton Rose Fulbright South Africa,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,PRIVATE,
+Howden Africa Holdings,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,PRIVATE,
+Baker McKenzie South Africa,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,PRIVATE,https://www.bakermckenzie.com/en/
+Fluxmans,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,PRIVATE,https://www.fluxmans.com/
+Kagiso Tiso Holdings,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,PRIVATE,https://www.kth.co.za/
+Adapt IT,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,PRIVATE,https://www.adaptit.com/
+Datacentrix,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,PRIVATE,https://www.datacentrix.co.za/
+iKhokha,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,PRIVATE,https://www.ikhokha.com/
+Johannesburg Water,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,MUNI,
+City Power Johannesburg,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,MUNI,
+Pikitup,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,MUNI,
+Joburg Market,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,MUNI,https://joburgmarket.co.za/
+Gautrain Management Agency,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,SOE,https://www.gautrain.co.za/
+Equal Education,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,NGO,
+OUTA,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,NGO,
+AfriForum,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,NGO,https://afriforum.co.za/
+Solidarity,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,NGO,
+Treatment Action Campaign,,,grey_none_verified,"2026-10-09 SA gap, no verified jobs page",false,no_url,South Africa,NGO,
+"Popular, Inc.",,https://jobs.popular.com/search/,green_verified,"2026-10-10 territory, direct jobs page. Nasdaq-listed bank. The search page lists San Juan roles.",true,pending,Puerto Rico,NASDAQ,https://www.popular.com/
+First BanCorp,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. NYSE-listed parent of FirstBank Puerto Rico. No own jobs list confirmed.",false,no_url,Puerto Rico,NYSE,https://www.1firstbank.com/
+Oriental Bank,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. Puerto Rico bank of NYSE-listed OFG Bancorp. Careers path returned 404.",false,no_url,Puerto Rico,NYSE,https://orientalbank.com/
+Evertec,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. Nasdaq-listed payments company. The careers path returned 404.",false,no_url,Puerto Rico,NASDAQ,https://evertecinc.com/
+Claro Puerto Rico,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. Local subsidiary of América Móvil. No own jobs list confirmed.",false,no_url,Puerto Rico,PRIVATE,https://www.claropr.com/
+LUMA Energy,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. Operator of the Puerto Rico electric grid. No own jobs list confirmed.",false,no_url,Puerto Rico,SOE,https://lumapr.com/
+Autoridad de Acueductos y Alcantarillados,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. Public water and sewer utility. The convocatorias page had no job titles.",false,no_url,Puerto Rico,SOE,https://www.acueductos.pr.gov/
+Puerto Rico Industrial Development Company,,https://www.pridco.pr.gov/announcement/convocatoria-interna-g001-2026---oficial-de-asuntos-gerenciales,green_verified,"2026-10-10 territory, direct jobs page. Public corporation. The notice is Convocatoria Interna G001-2026, Oficial de Asuntos Gerenciales.",true,pending,Puerto Rico,SOE,https://www.pridco.pr.gov/
+Departamento del Trabajo y Recursos Humanos,,https://www.trabajo.pr.gov/convocatorias.asp,green_verified,"2026-10-10 territory, direct jobs page. Labour department convocatorias, including Oficial de Servicios de Empleo.",true,pending,Puerto Rico,DEPT,https://www.trabajo.pr.gov/
+Oficina de Administración y Transformación de los Recursos Humanos,,https://empleos.pr.gov/,green_verified,"2026-10-10 territory, direct jobs page. Government convocatorias portal operated by OATRH.",true,pending,Puerto Rico,DEPT,
+Municipio de San Juan,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. Capital municipality. No own jobs list confirmed.",false,no_url,Puerto Rico,MUNI,https://www.sanjuan.pr/
+United Way of Puerto Rico,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. No own jobs list confirmed.",false,no_url,Puerto Rico,NGO,https://unitedwaypr.org/
+Universidad de Puerto Rico,,https://www.empleos.pr.gov/convocatorias/upr,green_verified,"2026-10-10 territory, direct jobs page. Public university convocatorias on the government employment portal.",true,pending,Puerto Rico,UNI,https://www.upr.edu/
+Polytechnic University of Puerto Rico,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. No own jobs list confirmed.",false,no_url,Puerto Rico,UNI,https://pupr.edu/
+Pontificia Universidad Católica de Puerto Rico,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. No own jobs list confirmed.",false,no_url,Puerto Rico,UNI,https://www.pucpr.edu/
+Huertas College,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. Private college in Caguas. No own jobs list confirmed.",false,no_url,Puerto Rico,COLLEGE,https://huertas.edu/hc/
+Hospital Auxilio Mutuo,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. Private hospital in San Juan. Homepage did not answer.",false,no_url,Puerto Rico,HOSPITAL,
+Université de La Réunion,,https://www.univ-reunion.fr/decouvrir-luniversite/nous-rejoindre/recrutements/,green_verified,"2026-10-10 territory, direct jobs page. University recruitment page with 2026 administrative and academic posts.",true,pending,Réunion,UNI,https://www.univ-reunion.fr/
+Centre Hospitalier Universitaire de La Réunion,,https://chu-reunion-sud.mstaff.co/offers,green_verified,"2026-10-10 territory, direct jobs page. The hospital's own Mstaff board lists its open posts.",true,pending,Réunion,HOSPITAL,https://www.chu-reunion.fr/
+Département de La Réunion,,https://recrutement.departement974.fr/search,green_verified,"2026-10-10 territory, direct jobs page. Department council job search.",true,pending,Réunion,DEPT,https://www.departement974.fr/
+Région Réunion,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. Regional council. The website did not answer.",false,no_url,Réunion,DEPT,
+EDF Réunion,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. EDF subsidiary. The jobs page did not answer.",false,no_url,Réunion,SOE,https://reunion.edf.fr/
+Communauté Intercommunale du Nord de La Réunion,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. Intermunicipal authority for the north of Réunion. No own jobs list confirmed.",false,no_url,Réunion,MUNI,https://www.cinor.re/
+Territoire de la Côte Ouest,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. Intermunicipal authority for the west of Réunion. No own jobs list confirmed.",false,no_url,Réunion,MUNI,https://www.tco.re/
+Orange Réunion,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. Local subsidiary of Orange. The page lists consumer offers, not jobs.",false,no_url,Réunion,PRIVATE,https://reunion.orange.fr/
+Air Austral,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. Réunion airline. The website did not answer.",false,no_url,Réunion,PRIVATE,
+CBo Territoria,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. Euronext Paris-listed property company based in Réunion. Homepage not confirmed.",false,no_url,Réunion,EURONEXT,
+Institut de l'Image de l'Océan Indien,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. Higher-education college in Le Port. No own jobs list confirmed.",false,no_url,Réunion,COLLEGE,https://www.iloi.fr/
+Croix-Rouge française de La Réunion,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. French Red Cross in Réunion. The website did not answer.",false,no_url,Réunion,NGO,
+Companhia de Electricidade de Macau,,https://www.cem-macau.com/zh/about-cem/working-at-cem/job-opportunities/,green_verified,"2026-10-10 territory, direct jobs page. Power utility. The Chinese jobs page names open posts.",true,pending,Macau,SOE,https://www.cem-macau.com/
+Macau University of Science and Technology,,https://hro.must.edu.mo/page/careers.html?locale=zh_MO,green_verified,"2026-10-10 territory, direct jobs page. University recruitment page with named posts.",true,pending,Macau,UNI,https://www.must.edu.mo/
+Macao University of Tourism,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. Public university. No own jobs list confirmed.",false,no_url,Macau,UNI,https://www.utm.edu.mo/
+SJM Holdings,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. Hong Kong-listed casino operator. No own jobs list confirmed.",false,no_url,Macau,HKEX,https://www.sjmholdings.com/
+Sands China,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. Hong Kong-listed casino operator. No own jobs list confirmed.",false,no_url,Macau,HKEX,https://www.sandschina.com/
+CTM,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. Macau telecom. No own jobs list confirmed.",false,no_url,Macau,PRIVATE,https://www.ctm.net/
+Air Macau,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. Local airline. No own jobs list confirmed.",false,no_url,Macau,PRIVATE,https://www.airmacau.com.mo/
+Macao Water,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. Water utility. No own jobs list confirmed.",false,no_url,Macau,SOE,https://www.macaowater.com/
+Kiang Wu Hospital,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. No own jobs list confirmed.",false,no_url,Macau,HOSPITAL,https://www.kwh.org.mo/
+Kiang Wu Nursing College of Macau,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. No verified homepage.",false,no_url,Macau,COLLEGE,
+Caritas Macau,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. No own jobs list confirmed.",false,no_url,Macau,NGO,https://www.caritas.org.mo/
+Public Administration and Civil Service Bureau,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. Civil service bureau (SAFP). No own jobs list confirmed.",false,no_url,Macau,DEPT,https://www.safp.gov.mo/
+Government of the Macao Special Administrative Region,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. SAR government portal. No own jobs list confirmed.",false,no_url,Macau,DEPT,https://www.gov.mo/
+Municipal Affairs Bureau,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. Instituto para os Assuntos Municipais. No verified homepage.",false,no_url,Macau,MUNI,
+GrønlandsBANKEN,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. Nasdaq Copenhagen-listed bank. The application link is a login, not a vacancy list.",false,no_url,Greenland,NASDAQ,https://www.banken.gl/
+Royal Greenland,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. Government-owned seafood company. The career pages do not list vacancies.",false,no_url,Greenland,SOE,https://www.royalgreenland.com/
+Air Greenland,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. Government-owned airline. Its recruiting host disallows this bot.",false,no_url,Greenland,SOE,https://www.airgreenland.com/
+KNI,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. Government-owned trading company. No vacancy list confirmed.",false,no_url,Greenland,SOE,https://kni.gl/
+Nukissiorfiit,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. National energy utility. Its recruiting host disallows this bot.",false,no_url,Greenland,SOE,https://nukissiorfiit.gl/
+Royal Arctic Line,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. Government-owned shipping line. The career page does not list vacancies.",false,no_url,Greenland,SOE,https://www.ral.gl/
+Naalakkersuisut,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. Government of Greenland. The vacancies page returned an empty body.",false,no_url,Greenland,DEPT,https://naalakkersuisut.gl/
+Qeqqata Kommunia,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. Municipality. No own jobs list confirmed.",false,no_url,Greenland,MUNI,https://qeqqata.gl/
+Avannaata Kommunia,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. Municipality in northwest Greenland. Homepage title was not the municipality name.",false,no_url,Greenland,MUNI,
+Ilisimatusarfik,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. University of Greenland. The job path is the study-programme menu, not staff vacancies.",false,no_url,Greenland,UNI,https://www.uni.gl/
+Inuili,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. Food college in Narsaq. No own jobs list confirmed.",false,no_url,Greenland,COLLEGE,https://inuili.gl/
+Dronning Ingrids Hospital,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. National hospital in Nuuk. No verified homepage.",false,no_url,Greenland,HOSPITAL,
+Kalaallit Røde Kors,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. Greenland Red Cross. No verified homepage.",false,no_url,Greenland,NGO,
+Polar Seafood,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. Private seafood company. No verified homepage.",false,no_url,Greenland,PRIVATE,
+Université de la Nouvelle-Calédonie,,https://www.unc.nc/utile/recrutement/recrutement-emplois-stages/,green_verified,"2026-10-10 territory, direct jobs page. University recruitment page with named posts.",true,pending,New Caledonia,UNI,https://www.unc.nc/
+Société Le Nickel,,https://sln.eramet.com/sln/nos-talents/offres-demploi/,green_verified,"2026-10-10 territory, direct jobs page. Eramet subsidiary. The jobs page lists posts based in New Caledonia.",true,pending,New Caledonia,PRIVATE,https://www.sln.nc/
+Centre Hospitalier Territorial Gaston-Bourret,,https://recrutement.cht.nc/,green_verified,"2026-10-10 territory, direct jobs page. Territorial hospital recruitment page, including operating-theatre nurses.",true,pending,New Caledonia,HOSPITAL,https://www.cht.nc/
+Direction des ressources humaines et de la fonction publique de Nouvelle-Calédonie,,https://drhfpnc.gouv.nc/avis-vacances-postes-AVP,green_verified,"2026-10-10 territory, direct jobs page. Civil-service vacancy notices (avis de vacance de poste).",true,pending,New Caledonia,DEPT,https://drhfpnc.gouv.nc/
+Gouvernement de la Nouvelle-Calédonie,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. Territorial government. No own jobs list confirmed.",false,no_url,New Caledonia,DEPT,https://gouv.nc/
+Province Nord,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. Northern province. No own jobs list confirmed.",false,no_url,New Caledonia,DEPT,https://www.province-nord.nc/
+Province Sud,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. Southern province. Its emploi page is a citizen job portal, not the province hiring itself.",false,no_url,New Caledonia,DEPT,https://www.province-sud.nc/
+Ville de Nouméa,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. Capital municipality. The recruitment page had no listings.",false,no_url,New Caledonia,MUNI,https://www.noumea.nc/
+Enercal,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. Electricity company. The recruitment page is a careers story, not a vacancy list.",false,no_url,New Caledonia,SOE,https://www.enercal.nc/
+OPT-NC,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. Posts and telecom office. The vacancy pages explain the process and name no post.",false,no_url,New Caledonia,SOE,https://office.opt.nc/
+Aircalin,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. Government-owned international airline. No own jobs list confirmed.",false,no_url,New Caledonia,SOE,https://www.aircalin.com/
+Air Calédonie,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. Province-owned domestic airline. The offres page is flight deals, not jobs.",false,no_url,New Caledonia,SOE,https://www.air-caledonie.nc/
+Banque Calédonienne d'Investissement,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. Public investment bank. No own jobs list confirmed.",false,no_url,New Caledonia,SOE,https://www.bci.nc/
+Croix-Rouge de Nouvelle-Calédonie,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. No verified homepage.",false,no_url,New Caledonia,NGO,
+Société Générale Calédonienne,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. Local banking subsidiary. No verified homepage.",false,no_url,New Caledonia,PRIVATE,
+Institut de Formation des Professions de Santé de Nouvelle-Calédonie,,,grey_none_verified,"2026-10-10 territory, no verified jobs page. Health-professions college. No verified homepage.",false,no_url,New Caledonia,COLLEGE,
 Centre Hospitalier Princesse Grace,,https://www.chpg.mc/carrieres/,green_verified,"2026-10-10 six-country, direct jobs page. The hospital careers page lists its own posts, including a hospital-pharmacy assistant.",true,pending,Monaco,HOSPITAL,https://www.chpg.mc/
 Direction des Ressources Humaines et de la Formation de la Fonction Publique,,https://journaldemonaco.gouv.mc/fr/Journaux/2026/Journal-8813/Avis-de-recrutement-n-2026-280-d-un-Attache-au-Journal-de-Monaco,green_verified,"2026-10-10 six-country, direct jobs page. Official Journal notice 2026-280 recruiting an Attaché for the Journal de Monaco.",true,pending,Monaco,DEPT,https://www.gouv.mc/
 Monte-Carlo Société des Bains de Mer,,,grey_none_verified,"2026-10-10 six-country, no verified jobs page. Euronext Paris-listed resort and casino company. Its jobs host did not clearly allow this bot.",false,no_url,Monaco,EURONEXT,https://www.montecarlosbm.com/

@@ -103,6 +103,8 @@ describe("world regions", () => {
       "South Africa": "south-africa", Zimbabwe: "sadc", Kenya: "africa", Egypt: "africa",
       Monaco: "europe", "North Macedonia": "europe", "San Marino": "europe",
       Tajikistan: "asia", Turkmenistan: "asia", Myanmar: "asia",
+      "Puerto Rico": "central-america-caribbean", Greenland: "north-america",
+      Macau: "asia", "New Caledonia": "oceania", "Réunion": "africa",
     };
     for (const [name, group] of Object.entries(expect)) assert.equal(groupOf(name), group, name);
   });
@@ -122,6 +124,28 @@ describe("world regions", () => {
       assert.equal(tierOf(name), place.tier, name);
       assert.equal(groupOf(name), place.group, name);
     }
+  });
+
+  it("places the 2026-10-10 territories with a flag, a code and a landing tier", () => {
+    const places: Record<string, { code: string; flag: string; tier: string }> = {
+      "Puerto Rico": { code: "PR", flag: "🇵🇷", tier: "north-america" },
+      Greenland: { code: "GL", flag: "🇬🇱", tier: "north-america" },
+      Macau: { code: "MO", flag: "🇲🇴", tier: "asia" },
+      "New Caledonia": { code: "NC", flag: "🇳🇨", tier: "oceania" },
+      "Réunion": { code: "RE", flag: "🇷🇪", tier: "africa" },
+    };
+    for (const [name, place] of Object.entries(places)) {
+      assert.equal(countryCode(name), place.code, name);
+      assert.equal(countryFlag(name), place.flag, name);
+      assert.equal(tierOf(name), place.tier, name);
+      assert.notEqual(groupOf(name), "other", name);
+    }
+    // Réunion is an African territory, so it is not given a world-region code.
+    assert.equal(worldRegionOf("RE"), null);
+    assert.equal(worldRegionOf("NC"), "oceania");
+    assert.equal(worldRegionOf("PR"), "central-america-caribbean");
+    assert.equal(worldRegionOf("GL"), "north-america");
+    assert.equal(worldRegionOf("MO"), "asia");
   });
 
   it("Canada is one entry inside North America, not a group of its own", () => {
