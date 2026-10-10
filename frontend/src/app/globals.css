@@ -498,6 +498,53 @@ main p, main li, main a { overflow-wrap: break-word; }
 @media (max-width: 767px) {
   main, main *, main p, main li, main a { overflow-wrap: anywhere; }
 }
+/* Admin dashboard on a phone. `overflow-wrap: anywhere` drops a cell's minimum
+   width to one character, so names, emails, dates, badges and buttons stack
+   vertically. Restore normal breaks here. Tables and tool rows stay one line
+   and scroll sideways. Paragraphs still wrap on spaces. Desktop is unchanged. */
+.admin-readable .admin-scroll {
+  display: block;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+}
+/* Every breakpoint: a cell is one line. The pane above scrolls instead of
+   squeezing a name or email into a column of letters. */
+.admin-readable table {
+  width: max-content;
+  min-width: 100%;
+}
+.admin-readable th,
+.admin-readable td {
+  white-space: nowrap;
+  min-width: max-content;
+  vertical-align: top;
+}
+@media (max-width: 767px) {
+  .admin-readable,
+  .admin-readable * {
+    overflow-wrap: normal;
+    word-break: normal;
+  }
+  .admin-readable .admin-oneline {
+    white-space: nowrap;
+    min-width: max-content;
+    flex-shrink: 0;
+  }
+  .admin-readable .admin-stats span {
+    white-space: nowrap;
+  }
+  .admin-readable label > span.flex {
+    flex-wrap: wrap;
+    column-gap: 0.75rem;
+    row-gap: 0.15rem;
+  }
+  .admin-readable label > span.flex > span {
+    white-space: nowrap;
+    min-width: max-content;
+    flex-shrink: 0;
+  }
+}
 /* Touch screens: small buttons get a finger-sized hit area (40px tall), checkboxes and
  * radios are no longer 13px dots. Mouse and desktop layouts are untouched. */
 @media (max-width: 767px) and (pointer: coarse) {
@@ -516,6 +563,15 @@ main p, main li, main a { overflow-wrap: break-word; }
   main input[type="radio"] {
     width: 1.25rem;
     height: 1.25rem;
+  }
+}
+/* After the coarse-pointer min-width, so an admin button stays as wide as its label. */
+@media (max-width: 767px) {
+  main .admin-readable button {
+    white-space: nowrap;
+    min-width: max-content;
+    flex-shrink: 0;
+    height: auto;
   }
 }
 
