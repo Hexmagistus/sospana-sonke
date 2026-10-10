@@ -67,6 +67,11 @@ Lungani, 2026-10-03: in every country dropdown, list, and work order, put **Sout
 
 ## Session Log
 
+### 2026-10-10 — Cursor (Grok 4.7) — Second merge train for the seed pull requests
+Marked each ready where it was still a draft, updated it with main, and kept both sides of every session log and seed change. No duplicate import keys. Where a later batch raised a country link total, the test that asserts that total was updated to the combined count. Left #69 and #70 open.
+
+Merge commits on `main`: #75 `6f1c622178dc14cc50b0bb6c6e38927c3fa43fc1`, #76 `3bb0a1358d8821b53893a0b4caa1f75db83884f9`, #77 `04ce95243af045613215231e0a1675fb6c9a5e67`, #78 `472d8f54f43b29f6a42b227e646232936b8f65c7`, #79 `9237fa10d0614f07bbddfcf69c5ce5b619d40d37`, #80 `78bda87a3de3302732e8811d61cfbddf1ce02c48`, #81 `c77bf1b614ec109e6c471341263dca5407fd90aa`.
+
 ### 2026-10-10 — Cursor (Grok 4.7) — JSE and Chile boards the slug probe could verify
 Probed Greenhouse, Lever, Workable, Recruitee and SmartRecruiters slugs for 438 unlinked employers (120 JSE rows with no careers link, plus Argentina, Chile and Colombia private rows that only have a homepage). None of those tokens was both the employer's own board and mostly in that country. A second pass on simplify.hr and ci.hr, and on iCIMS search URLs for the large names, kept three.
 
