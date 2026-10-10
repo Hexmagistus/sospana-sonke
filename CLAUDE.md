@@ -82,6 +82,21 @@ Links after this fill: South Africa 811 → 813, Ethiopia 17 → 18, Burkina Fas
 
 Left blank on purpose: Woolworths careers host failed TLS; LUMA's Workday path is disallowed in robots.txt; Petra Diamonds' job search is a PNet frame; McCain's listed posts are dated June 2023 and the apply link lands on the US careers home; Cimencam's cards are dated 2025; Air Greenland, Nukissiorfiit, and Royal Arctic Line name no post; Gambia's tourism vacancies page did not return robots.txt.
 
+### 2026-10-10 — Cursor (Grok 4.7) — Remaining zero-row territories
+Off current `main`, separate from the thin-Africa and major-economy branches. Added 28 territories that still had no seed rows: Mayotte and Saint Helena (Africa, same pattern as Réunion), Faroe Islands and Gibraltar (Europe), French Polynesia, Guam, American Samoa, the Cook Islands, Niue, the Northern Mariana Islands and Wallis and Futuna (Oceania), Bermuda and Saint Pierre and Miquelon (North America), the Falkland Islands (South America), and the remaining Caribbean territories. Each has a flag, a landing tier and a picker group. Puerto Rico, Réunion, Macau, Greenland and New Caledonia were already on main and were not added again.
+61 employers. 16 have a direct jobs link (a page that named a post, or said there were no openings): Mayotte 2, Saint Helena 1, Gibraltar 3, French Polynesia 2, Guam 3, American Samoa 1, Cook Islands 1, Niue 1, Anguilla 1, British Virgin Islands 1. The other 45 are blank. Faroe Islands, Aruba, Bermuda, Cayman Islands, Curaçao, Guadeloupe, Martinique, the US Virgin Islands and the smaller territories stay at zero links because no own-domain page both allowed the bot and named a post. Login walls, JavaScript boards and profession lists were not stored.
+Next: these rows import on the next boot. The thin-Africa and major-economy pull requests stay separate.
+
+### 2026-10-10 — Cursor (Grok 4.7) — Major-economy careers pages
+Off current `main`. Added eight employers whose own careers page named a post when fetched as SospanaSonkeBot: BMW Group, Volkswagen Group, Deutsche Bahn, and Deutsche Bank in Germany; Société Générale in France; Telefónica in Spain; Saudi Aramco; Panasonic Group in Japan (graduate notice naming sales, accounting, R&D and systems-engineer roles). The Panasonic corporate homepage blocked the bot, so the official site stored is the verified Panasonic Group recruitment host. Culture pages, cookie banners, investor "analyst coverage", JavaScript boards with no title in the HTML, and hosts that disallow the bot were not stored. China stays at 3 links: Tencent's public feed names posts, but the search page HTML does not, and State Grid and China Mobile disallow the bot.
+Linked counts now: Germany 9, France 6, Japan 4, Mexico 3, Spain 5, Italy 5, China 3, South Korea 3, Turkey 4, Saudi Arabia 4.
+Next: the remaining zero-row territories, on a separate branch off main.
+
+### 2026-10-10 — Cursor (Grok 4.7) — Thin African careers links
+Off current `main`. Filled direct jobs pages for the thin African countries where a fetch as SospanaSonkeBot was allowed, returned HTTP 200, and the page named a post or said there were no openings. 17 existing rows gained that kind of URL (15 of them were not links before; UGANC and the Niger civil-service ministry already counted and now point at the recruitment list). One new Benin government row is linked. Five new rows stay blank: GITGE and the São Tomé central bank keep a verified homepage; Commercial Bank of Eritrea, EriTel, and Orotta Hospital have no page the bot was allowed to read. Procurement pages, student exams, culture pages, JavaScript boards with no title in the HTML, and hosts whose robots.txt blocked the bot were not stored. Eritrea, Equatorial Guinea, and São Tomé stay at 2, 2, and 3 links.
+Linked counts now: Eritrea 2, Equatorial Guinea 2, Sao Tome and Principe 3, Benin 10, Guinea 9, Gabon 6, Côte d'Ivoire 8, Libya 7, Central African Republic 6, Togo 7, Niger 8.
+Next: major economies with five or fewer links, on a separate branch off main.
+
 ### 2026-10-10 — Cursor (Grok 4.7) — Merge train for the employer and how-to pull requests
 Marked each ready, updated it with main, kept both sides of every session log, seed append, flag, and region (no duplicate import keys or flag names), waited for CI, then merged with a merge commit. Left #69 and #70 open.
 
