@@ -67,6 +67,11 @@ Lungani, 2026-10-03: in every country dropdown, list, and work order, put **Sout
 
 ## Session Log
 
+### 2026-10-10 — Cursor (Grok 4.7) — Public-service portals merged
+#82 was already even with main. GitHub CI was green, then it was merged with a merge commit. No later seed pull request was open. #69 and #70 stayed open.
+
+Merge commit on `main`: #82 `7519127853d091c318f30417868772a19acd1958`.
+
 ### 2026-10-10 — Cursor (Grok 4.7) — Public-service recruitment portals
 Countries with five or fewer careers links were checked for a national civil-service or concours page, and for state-owned career pages that name a post. A URL was stored only when SospanaSonkeBot was allowed (or the host had no robots.txt), the response was HTTP 200, and the page named a post or an open exam. General job boards, login walls, JavaScript shells, and a vacancy count with no title were left off. Italy was already at six links after the economy-board merge, so inPA was out of scope.
 
