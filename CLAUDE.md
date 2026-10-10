@@ -67,6 +67,12 @@ Lungani, 2026-10-03: in every country dropdown, list, and work order, put **Sout
 
 ## Session Log
 
+### 2026-10-10 — Cursor (Grok 4.7) — JSE and Chile boards the slug probe could verify
+Probed Greenhouse, Lever, Workable, Recruitee and SmartRecruiters slugs for 438 unlinked employers (120 JSE rows with no careers link, plus Argentina, Chile and Colombia private rows that only have a homepage). None of those tokens was both the employer's own board and mostly in that country. A second pass on simplify.hr and ci.hr, and on iCIMS search URLs for the large names, kept three.
+
+Updated, not added: Arauco (Chile) to its iCIMS search, 40 roles in Chile. Sygnia and Weaver Fintech (South Africa, JSE) to their simplify.hr boards. Sygnia's board states there are currently no open jobs. Weaver lists 13 roles in Cape Town. Notes for the two JSE rows still start with `2026-10-09 SA gap`, so that batch stays 91 rows and its linked count moves 4→6. South Africa linked 811→813. Chile linked 45→46. Parque Arauco is a different company and stays blank. Liberty Two Degrees was left alone: `liberty.simplify.hr` is Liberty's advisor talent pool, not the REIT. Cencosud's chatbot, Falabella's Aira portal, and Harmony's expired certificate were not stored.
+Next: nothing from this probe is waiting. Further blank rows need a page that names a post.
+
 ### 2026-10-10 — Cursor (Grok 4.7) — Merge train for the employer and how-to pull requests
 Marked each ready, updated it with main, kept both sides of every session log, seed append, flag, and region (no duplicate import keys or flag names), waited for CI, then merged with a merge commit. Left #69 and #70 open.
 
