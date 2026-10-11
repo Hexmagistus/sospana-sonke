@@ -73,6 +73,11 @@ Multinationals and large groups are the exception. A row counts as one only when
 
 ## Session Log
 
+### 2026-10-11 — Cursor (Grok 4.7) — Asia-Pacific careers boards for listed large groups
+Alcoa stores its own Australia Workday filter (26 of 110 located roles). Charter Hall, Life360, Perpetual, Bridgestone, Sumitomo Heavy Industries, Terumo, and LG Electronics store their own global board, marked `careers_scope=global` with `careers_status` `global_group`. IndiGo, Titan, Sharp, SHIFT, and Vector matched a different organisation and stay blank. Trend Micro's Japan filter is unchanged.
+
+Careers links, before → after: Australia 32 → 36, Japan 6 → 9, South Korea 5 → 6. India, Singapore, New Zealand, Indonesia, Malaysia, Thailand, Vietnam, and the Philippines are unchanged.
+
 ### 2026-10-11 — Cursor (Grok 4.7) — Smith & Nephew global Workday board
 Smith & Nephew is a FTSE 100 employer. Its own Workday board has no United Kingdom facet with at least two roles, so the stored URL is the group's main board. The note is marked `careers_scope=global` and `careers_status` is `global_group`. Goodwin's Greenhouse board and Quilter's Ashby board are different organisations and stay blank. Aviva's country filter is unchanged.
 
