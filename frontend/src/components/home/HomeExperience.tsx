@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth";
-import { setPendingSearch } from "@/lib/agentHandoff";
 import { API_BASE } from "@/lib/api";
+import IntelligenceSearch from "@/components/home/IntelligenceSearch";
 import { HERITAGE_GROUPS, HERITAGE_SITES, type HeritageSite } from "@/data/heritageSites";
 import { READABLE_CAREERS_NOTE } from "@/lib/notCounted";
 import { coverageText, tierOf, TIERS, TIER_RANK } from "@/lib/regions";
@@ -428,102 +428,6 @@ function SavannaSilhouette() {
   );
 }
 
-/* SOSPANA COMMAND -- the hero's futuristic search console (brief section 4/10):
-   a genuine entry point into the real Career Agent search, not decoration.
-   Visitors here are always anonymous (Home redirects signed-in users to
-   /companies before this ever renders), so a search is queued via
-   lib/agentHandoff and picked up by PendingSearchBanner once they've
-   registered -- the same natural-language phrases the Career Agent's own
-   quick-action buttons use, so classifyIntent parses them identically. */
-function HeroSearchConsole() {
-  const router = useRouter();
-  const [what, setWhat] = useState("");
-  const [where, setWhere] = useState("");
-  const [type, setType] = useState("");
-
-  function runSearch(e: FormEvent) {
-    e.preventDefault();
-    const parts: string[] = [what.trim() ? `Find jobs for ${what.trim()}` : "Find jobs I can apply for"];
-    if (where.trim()) parts.push(`in ${where.trim()}`);
-    if (type) parts.push(type);
-    setPendingSearch(parts.join(" "));
-    router.push("/register");
-  }
-
-  function runQuickCommand(phrase: string) {
-    setPendingSearch(phrase);
-    router.push("/register");
-  }
-
-  return (
-    <div className="relative mt-8 max-w-xl rounded-2xl border border-ss-border bg-ss-surface p-4 shadow-2xl backdrop-blur-md sm:p-5">
-      <div className="flex items-center justify-between">
-        <span className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-ss-muted">
-          <span className="relative flex h-1.5 w-1.5">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-75" style={{ background: C.mint }} />
-            <span className="relative inline-flex h-1.5 w-1.5 rounded-full" style={{ background: C.mint }} />
-          </span>
-          Sospana Command
-        </span>
-        <span className="font-mono text-[10px] tracking-wider text-ss-muted">SEARCH · LIVE</span>
-      </div>
-
-      <form onSubmit={runSearch} className="mt-3 grid gap-2 sm:grid-cols-[1.2fr_1fr_0.9fr_auto]">
-        <input
-          value={what}
-          onChange={(e) => setWhat(e.target.value)}
-          placeholder="What role? e.g. warehouse assistant"
-          aria-label="What role are you looking for?"
-          className="w-full rounded-xl border border-ss-border bg-ss-surface px-3.5 py-2.5 text-sm text-ss-text placeholder:text-ss-muted focus:border-navy focus:outline-none"
-        />
-        <input
-          value={where}
-          onChange={(e) => setWhere(e.target.value)}
-          placeholder="Where? e.g. Gauteng"
-          aria-label="Where are you looking?"
-          className="w-full rounded-xl border border-ss-border bg-ss-surface px-3.5 py-2.5 text-sm text-ss-text placeholder:text-ss-muted focus:border-navy focus:outline-none"
-        />
-        <select
-          value={type}
-          onChange={(e) => setType(e.target.value)}
-          aria-label="Employment type"
-          className="w-full rounded-xl border border-ss-border bg-ss-surface px-3 py-2.5 text-sm text-ss-text focus:border-navy focus:outline-none [&>option]:text-slate-900"
-        >
-          <option value="">Any type</option>
-          <option value="permanent">Permanent</option>
-          <option value="contract">Contract</option>
-          <option value="internship">Internship</option>
-          <option value="learnership">Learnership</option>
-          <option value="remote">Remote</option>
-        </select>
-        <button
-          type="submit"
-          className="group relative overflow-hidden rounded-xl px-5 py-2.5 text-sm font-extrabold shadow-lg transition hover:brightness-105 hover:-translate-y-0.5"
-          style={{ background: `linear-gradient(120deg,${C.gold},${C.amber})`, color: "#3a2b00" }}
-        >
-          Search →
-        </button>
-      </form>
-
-      <div className="mt-3 flex flex-wrap gap-2">
-        {[
-          ["Where I can apply", "Find jobs I can apply for"],
-          ["Employers in my field", "Show employers in my field I can apply to directly"],
-        ].map(([label, phrase]) => (
-          <button
-            key={label}
-            type="button"
-            onClick={() => runQuickCommand(phrase)}
-            className="rounded-full border border-ss-border bg-ss-surface px-3 py-1.5 text-xs font-medium text-ss-muted transition hover:border-ss-border hover:bg-ss-surface"
-          >
-            {label}
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 export default function Home({ children }: { children?: ReactNode }) {
   const { user, loading } = useAuth();
   const router = useRouter();
@@ -615,19 +519,14 @@ export default function Home({ children }: { children?: ReactNode }) {
 
       {/* Hero. No photograph: the lead paragraph is the first paint. */}
       <section className="mx-auto max-w-6xl px-4 pt-2">
-        <div className="ss-hero ss-card px-6 py-10 sm:px-12 sm:py-14">
+        <div className="ss-hero ss-intel ss-card px-6 py-10 sm:px-12 sm:py-14">
           <div className="ss-lcp grid min-w-0 max-w-3xl grid-cols-[minmax(0,1fr)]">
               <Reveal className="flex flex-wrap gap-2">
-                <span className="inline-flex items-center gap-2 rounded-full border border-ss-border bg-ss-surface px-4 py-1.5 text-xs font-semibold backdrop-blur-sm">
-                  <span className="relative flex h-2 w-2">
-                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-75" style={{ background: C.mint }} />
-                    <span className="relative inline-flex h-2 w-2 rounded-full" style={{ background: C.mint }} />
-                  </span>
+                <span className="ss-intel-chip">
+                  <span className="ss-intel-dot" aria-hidden="true" />
                   Live across {coverage}
                 </span>
-                <span className="inline-flex items-center rounded-full border border-[#f5b301]/50 bg-[#f5b301]/15 px-3 py-1 text-xs font-semibold text-[#6b4700]">
-                  Born in SADC, built for the world
-                </span>
+                <span className="ss-intel-chip">Born in SADC, built for the world</span>
               </Reveal>
 
               <Reveal delay={80}>
@@ -636,24 +535,19 @@ export default function Home({ children }: { children?: ReactNode }) {
 
               {children}
 
-              <Reveal delay={280}>
-                <HeroSearchConsole />
-              </Reveal>
+              <IntelligenceSearch />
 
-              {/* Words to grow by */}
-              <Reveal delay={320}>
-                <blockquote className="mt-7 max-w-xl rounded-r-xl border-l-4 pl-4" style={{ borderColor: C.gold }}>
-                  <p className="text-base italic leading-relaxed text-ss-text sm:text-lg">
-                    &ldquo;Education is the most powerful weapon which you can use to change the world.&rdquo;
-                  </p>
-                  <footer className="mt-1.5 text-sm font-semibold" style={{ color: C.goldText }}>
-                    — Nelson Mandela, former President of South Africa
-                  </footer>
-                </blockquote>
-              </Reveal>
+              <blockquote className="ss-intel-quote">
+                <p className="text-base italic leading-relaxed sm:text-lg">
+                  &ldquo;Education is the most powerful weapon which you can use to change the world.&rdquo;
+                </p>
+                <footer className="ss-intel-accent mt-1.5 text-sm font-semibold">
+                  — Nelson Mandela, former President of South Africa
+                </footer>
+              </blockquote>
 
-              <p className="mt-6 text-sm text-ss-muted">
-                <b style={{ color: C.goldText }}>Free to use</b> · Direct employer links, a CV you tailor yourself, and a tracker for the roles you choose. Nothing is sent to an employer for you.
+              <p className="ss-intel-lead mt-6 text-sm">
+                <b className="ss-intel-accent">Free to use</b> · Direct employer links, a CV you tailor yourself, and a tracker for the roles you choose. Nothing is sent to an employer for you.
               </p>
           </div>
         </div>

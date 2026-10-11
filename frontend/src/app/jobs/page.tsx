@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PageHeader } from "@/components/PageHeader";
+import IntelligenceSearch from "@/components/home/IntelligenceSearch";
 import { jobPosting, jobSummary, type PublicJob } from "@/lib/jobPosting";
 import { SITE_NAME } from "@/lib/seo";
 
@@ -90,6 +91,8 @@ export default async function JobsPage({ searchParams }: { searchParams: Promise
           You apply there. {SITE_NAME} does not send an application for you.
         </p>
       </PageHeader>
+
+      <IntelligenceSearch showAccountLinks={false} />
 
       <form method="get" action="/jobs" className="ss-card grid gap-4 sm:grid-cols-2">
         <label className="block text-sm font-semibold text-ss-text">
