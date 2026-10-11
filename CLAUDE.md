@@ -65,12 +65,25 @@ What is running today, before the pipeline work below. This is the system the up
 
 Lungani, 2026-10-03: in every country dropdown, list, and work order, put **South Africa first, then the other SADC states, then the rest of Africa, then other regions**. Alphabetical inside each band. The directory picker uses `sortCountries` in `frontend/src/lib/directoryFilters.ts`. Homepage bars that are ranked by employer count are a separate display; new country pickers and work queues follow this order.
 
+## Standing rule (careers links)
+
+A careers URL is the employer's own careers or jobs page. robots.txt must allow SospanaSonkeBot (or the host publishes no robots.txt), and the fetch must be HTTP 200. A homepage, a LinkedIn page, or a job-board aggregator is not stored. Small and local employers still need an in-country list: at least two located roles, and at least half of those in the employer's country, or a stable country filter on the employer's own board that lists at least two roles there.
+
+Multinationals and large groups are the exception. A row counts as one only when its note names a large-cap list or `US hospital systems` (`is_large_group` in `backend/app/services/seed_board.py`). AIM issuers, local company lists, universities, municipalities, and NHS trusts do not. For those large groups, the official main careers page or job search on the employer's own domain or its own ATS tenant may be stored without an in-country filter. A country or language path is still preferred when one exists. The note then contains `careers_scope=global` and `careers_status` is `global_group`, so the directory and the scanner can tell a global board from an in-country list. `global_group` is not a live-verified status, so import leaves `scraping_status` as `pending`.
+
 ## Session Log
 
 ### 2026-10-11 — Cursor (Grok 4.7) — Smith & Nephew global Workday board
 Smith & Nephew is a FTSE 100 employer. Its own Workday board has no United Kingdom facet with at least two roles, so the stored URL is the group's main board. The note is marked `careers_scope=global` and `careers_status` is `global_group`. Goodwin's Greenhouse board and Quilter's Ashby board are different organisations and stay blank. Aviva's country filter is unchanged.
 
 United Kingdom careers links 24 → 25. Blank rows 915 → 914.
+### 2026-10-11 — Cursor (Grok 4.7) — Global careers boards for three United States groups
+Intel, Revvity, and Viatris are S&P 500 employers whose own Workday board has no United States facet with at least two roles. The stored URL is that board. The note is marked `careers_scope=global` and `careers_status` is `global_group`, so import leaves the row pending. Arch Capital Group's Ashby token `arch` and Universal Health Services' Greenhouse token `universal` are different organisations and stay blank.
+
+United States careers links 377 → 380. Blank rows 493 → 490.
+
+### 2026-10-11 — Cursor (Grok 4.7) — Global careers pages for large groups
+The in-country rule stays for small and local employers. A listed large group or a US hospital system may store its own global careers board when no country path is available. The note is marked `careers_scope=global`. Discovery for that set is `scripts/discover_seed_careers.py --large-groups`. A short token that only matches after generic words are dropped, such as `arch` for Arch Capital Group or `universal` for Universal Health Services, is rejected.
 
 ### 2026-10-11 — Cursor (Grok 4.7) — Japan Workday country filter for Trend Micro
 Blank Japan and South Korea rows were probed again. Trend Micro stores the board's own `locationCountry` filter. The rendered page shows "18 JOBS FOUND" with Japan applied, and the roles are in Tokyo. South Korea had no new board that met the in-country rule.
