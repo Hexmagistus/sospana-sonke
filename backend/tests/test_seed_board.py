@@ -78,9 +78,10 @@ def test_workday_country_facet_builds_a_stable_filter_url():
         ]
     }
     found = workday_country_facet(payload, "United States")
-    assert found == ("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", 3, 10)
+    assert found == ("locationCountry", "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", 3, 10)
     url = workday_filter_url(
         "https://acme.wd5.myworkdayjobs.com/External",
+        found[1],
         found[0],
     )
     assert url == (
@@ -88,3 +89,21 @@ def test_workday_country_facet_builds_a_stable_filter_url():
         "?locationCountry=bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
     )
     assert workday_country_facet({"facets": []}, "United States") is None
+
+
+def test_workday_location_country_facet_keeps_its_own_parameter():
+    payload = {
+        "facets": [
+            {
+                "facetParameter": "Location_Country",
+                "values": [
+                    {"descriptor": "Canada", "id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "count": 104},
+                    {"descriptor": "United Kingdom", "id": "cccccccccccccccccccccccccccccccc", "count": 8},
+                ],
+            }
+        ]
+    }
+    found = workday_country_facet(payload, "United Kingdom")
+    assert found == ("Location_Country", "cccccccccccccccccccccccccccccccc", 8, 112)
+    url = workday_filter_url("https://aviva.wd1.myworkdayjobs.com/External", found[1], found[0])
+    assert url.endswith("?Location_Country=cccccccccccccccccccccccccccccccc")

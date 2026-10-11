@@ -144,9 +144,17 @@ _SR_COUNTRY = {"south-africa": "za"}
 
 def _workday_facets(url: str) -> dict:
     """Country facet the career site already put on the URL. Sending it keeps
-    a Malawi board from importing the employer's whole global list."""
-    values = parse_qs(urlparse(url).query).get("locationCountry") or []
-    return {"locationCountry": values} if values else {}
+    a Malawi board from importing the employer's whole global list.
+
+    Some boards name the facet ``Location_Country``. The jobs POST has to use
+    that same key; ``locationCountry`` on those hosts is a 400.
+    """
+    query = parse_qs(urlparse(url).query)
+    for key in ("locationCountry", "Location_Country"):
+        values = query.get(key) or []
+        if values:
+            return {key: values}
+    return {}
 
 
 def _detect_workday(host: str, url: str) -> tuple[str, dict] | None:

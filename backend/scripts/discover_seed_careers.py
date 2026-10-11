@@ -3,7 +3,7 @@
 A hit is kept when robots.txt allows SospanaSonkeBot (or the host has no
 robots.txt), the page is HTTP 200, the board is that employer's, and either
 at least half of the located roles are in the employer's country or a stable
-Workday ``locationCountry`` filter lists at least two roles there.
+Workday country filter (``locationCountry`` or ``Location_Country``) lists at least two roles there.
 
     python scripts/discover_seed_careers.py --country "United States" --out /tmp/hits.json
 
@@ -19,7 +19,7 @@ import os
 import sys
 from collections import Counter
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from urllib.parse import urlparse
+from urllib.parse import parse_qsl, urlparse
 
 import httpx
 
@@ -79,7 +79,7 @@ def _confirm(client, url: str, titles: list[str], *, renderer, workday: bool, fi
     if workday:
         if "myworkdayjobs.com" not in host:
             return None
-        if filtered and "locationcountry=" not in final.lower():
+        if filtered and not _country_query(final):
             return None
         return final
     if not _titles_present(page.html, titles) and looks_like_js_shell(page.html) and renderer is not None:
@@ -90,6 +90,11 @@ def _confirm(client, url: str, titles: list[str], *, renderer, workday: bool, fi
     if not _titles_present(page.html, titles):
         return None
     return final
+
+
+def _country_query(url: str) -> bool:
+    keys = {key.lower() for key, _value in parse_qsl(urlparse(url).query, keep_blank_values=True)}
+    return "locationcountry" in keys or "location_country" in keys
 
 
 def probe_json(client, name: str, country: str, renderer) -> dict | None:
@@ -330,15 +335,15 @@ def _workday(client, name, country, slug, renderer):
             locations = [(post.get("locationsText") or "").strip() for post in posts]
             facet = workday_country_facet(payload, country)
             if facet:
-                facet_id, here, located = facet
+                parameter, facet_id, here, located = facet
                 decision = decide_counts(here, located)
                 if not decision.accept:
                     continue
-                url = workday_filter_url(page_url, facet_id) if decision.filtered else page_url
+                url = workday_filter_url(page_url, facet_id, parameter) if decision.filtered else page_url
                 if decision.filtered:
                     try:
                         filtered = _open(client, endpoint, method="POST", body={
-                            "appliedFacets": {"locationCountry": [facet_id]},
+                            "appliedFacets": {parameter: [facet_id]},
                             "limit": 5, "offset": 0, "searchText": "",
                         })
                         if filtered is None or filtered.status_code != 200:

@@ -173,27 +173,45 @@ def slug_variants(name: str) -> list[str]:
     return out
 
 
-def workday_country_facet(payload: dict, country: str) -> tuple[str, int, int] | None:
-    """Return ``(facet id, in-country count, all-country count)``.
+# Workday names this facet one of two ways. The public jobs POST has to send
+# the same key the board published, or it answers 400 and the filter is ignored.
+_COUNTRY_PARAMS = ("locationCountry", "Location_Country")
 
-    ``locationCountry`` is often nested under the locations group. Absent facet
-    returns None so the caller can fall back to the posting locations.
+
+def workday_country_facet(payload: dict, country: str) -> tuple[str, str, int, int] | None:
+    """Return ``(facet parameter, facet id, in-country count, all-country count)``.
+
+    The country facet is often nested under the locations group, and some boards
+    publish it as ``Location_Country`` rather than ``locationCountry``. Absent
+    facet returns None so the caller can fall back to the posting locations.
     """
     wanted = _DESCRIPTORS.get(country)
     if not wanted:
         return None
-    saw = False
+    grouped: dict[str, list] = {name: [] for name in _COUNTRY_PARAMS}
+    for facet in _iter_facets(payload.get("facets") or []):
+        param = facet.get("facetParameter") or ""
+        if param in grouped:
+            grouped[param].append(facet)
+    for param in _COUNTRY_PARAMS:
+        found = _facet_match(grouped[param], wanted)
+        if found is not None:
+            facet_id, here, located = found
+            return param, facet_id, here, located
+    return None
+
+
+def _facet_match(facets: list, wanted: set[str]) -> tuple[str, int, int] | None:
     best_id = ""
     best_count = -1
     here = 0
     located = 0
-    for facet in _iter_facets(payload.get("facets") or []):
-        if (facet.get("facetParameter") or "") != "locationCountry":
-            continue
-        saw = True
+    saw = False
+    for facet in facets:
         for value in facet.get("values") or []:
             if not isinstance(value, dict):
                 continue
+            saw = True
             count = int(value.get("count") or 0)
             located += count
             descriptor = (value.get("descriptor") or "").strip().lower()
@@ -219,11 +237,17 @@ def _iter_facets(node):
             yield from _iter_facets(item)
 
 
-def workday_filter_url(page_url: str, facet_id: str) -> str:
+def workday_filter_url(page_url: str, facet_id: str, parameter: str = "locationCountry") -> str:
     """Stable Workday URL that asks the board for one country."""
+    if parameter not in _COUNTRY_PARAMS:
+        raise ValueError("facet parameter")
     if not _FACET_ID.fullmatch(facet_id or ""):
         raise ValueError("facet id")
     parsed = urlparse(page_url)
-    query = [(key, value) for key, value in parse_qsl(parsed.query, keep_blank_values=True) if key != "locationCountry"]
-    query.append(("locationCountry", facet_id))
+    query = [
+        (key, value)
+        for key, value in parse_qsl(parsed.query, keep_blank_values=True)
+        if key not in _COUNTRY_PARAMS
+    ]
+    query.append((parameter, facet_id))
     return urlunparse(parsed._replace(query=urlencode(query), fragment=""))
