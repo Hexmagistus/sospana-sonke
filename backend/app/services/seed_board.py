@@ -32,6 +32,18 @@ _GENERIC_SLUG = _STOP | {
     "public", "flex", "applied", "parker", "mosaic", "quanta", "constellation",
     "waterworks", "digital", "first", "general", "royal", "standard",
 }
+# Named large-cap lists and large hospital systems. A row is a large group only
+# when its note names one of these. AIM, local "companies" lists, universities,
+# municipalities, and NHS trusts are not in this set.
+_LARGE_GROUP_LABELS = {
+    "S&P 500", "FTSE 100", "FTSE 250", "Nikkei 225", "KOSPI 200", "ASX 200",
+    "SDAX", "MDAX", "DAX", "S&P/TSX 60", "Dubai Financial Market", "TA-125",
+    "SET50", "NZX 50", "Nifty Next 50", "Nifty 50", "BSE Sensex", "LQ45",
+    "CAC 40", "IPC", "FTSE MIB", "Straits Times", "IBEX 35", "PSEi", "WIG30",
+    "FBM KLCI", "OMX Stockholm 30", "OMX Helsinki 25", "OBX", "SMIM",
+    "OMX Copenhagen 25", "SMI", "AMX", "AEX", "COLCAP", "Icelandic banks",
+    "ISEQ 20", "major companies", "US hospital systems",
+}
 _FACET_ID = re.compile(r"^[a-f0-9]{16,40}$", re.I)
 _DESCRIPTORS = {
     "United States": {"united states", "united states of america", "usa"},
@@ -98,6 +110,22 @@ def _from_counts(here: int, located: int, share: float) -> BoardDecision:
     return BoardDecision(False, False, here, located, share)
 
 
+def is_large_group(source_type: str, note: str) -> bool:
+    """True for a listed large-cap employer or a named large hospital system.
+
+    Small and local employers stay on the strict in-country rule. The marker
+    is the list name in the seed note, not a guess from the company name.
+    """
+    kind = (source_type or "").strip().upper()
+    if kind not in {"PRIVATE", "HOSPITAL"}:
+        return False
+    text = note or ""
+    if ":" not in text:
+        return False
+    label = text.split(":", 1)[1].split(".", 1)[0].strip()
+    return label in _LARGE_GROUP_LABELS
+
+
 def core_words(name: str) -> list[str]:
     words = re.findall(r"[a-z0-9]+", name.lower().replace("&", " and "))
     kept = [word for word in words if word not in _STOP and len(word) >= 2]
@@ -126,6 +154,56 @@ def names_match(candidate: str, board: str) -> bool:
     ):
         return True
     return False
+
+
+def ats_slug(url: str) -> str:
+    """The board token on a careers URL.
+
+    A Workday URL keeps the tenant in the host (``allegion.wd5``) and the site
+    name in the path (``Careers``). Other public boards keep the token in the
+    first path segment.
+    """
+    host = (urlparse(url).hostname or "").lower()
+    if host.endswith(".myworkdayjobs.com"):
+        return host.split(".")[0]
+    parts = [part for part in urlparse(url).path.split("/") if part]
+    return (parts[0] if parts else "").replace("-", "").lower()
+
+
+def slug_is_reliable(name: str, url: str) -> bool:
+    """True when the board token is this employer's name, not a short neighbour.
+
+    ``arch`` matches Arch Capital Group only after ``capital`` and ``group``
+    are ignored, and ``universal`` matches Universal Health Services only
+    after ``health`` and ``services`` are ignored. Those tokens are rejected.
+    ``abbott`` still fits Abbott Laboratories, and a full compact name such
+    as ``analogdevices`` is kept.
+    """
+    token = ats_slug(url)
+    if not tenant_fits(name, token):
+        return False
+    raw = re.findall(r"[a-z0-9]+", (name or "").lower().replace("&", " and "))
+    raw = [word for word in raw if word not in _LEGAL_SUFFIX and len(word) >= 2]
+    words = core_words(name)
+    compact = "".join(words)
+    full = "".join(raw)
+    dropped = [word for word in raw if word not in words]
+    # ``universal`` matches Universal Health Services only because health and
+    # services were ignored. The token has to carry those words, or be a
+    # generic suffix on an otherwise complete name (Abbott Laboratories).
+    if dropped and token != full:
+        return False
+    if token == compact and dropped and len(token) < 8:
+        return False
+    if words and token == words[0] and token != compact and len(token) < 6:
+        return False
+    return True
+
+
+_LEGAL_SUFFIX = {
+    "inc", "incorporated", "corp", "corporation", "plc", "ltd", "limited",
+    "llc", "lp", "company", "co", "the",
+}
 
 
 def tenant_fits(name: str, slug: str) -> bool:

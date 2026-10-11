@@ -4,6 +4,8 @@ from app.services.seed_board import (
     decide_counts,
     names_match,
     slug_variants,
+    is_large_group,
+    slug_is_reliable,
     tenant_fits,
     workday_country_facet,
     workday_filter_url,
@@ -39,7 +41,20 @@ def test_names_do_not_collapse_neighbours():
     assert "americanexpress" in {slug.replace("-", "") for slug in slug_variants("American Express")}
     assert tenant_fits("Williams-Sonoma, Inc", "williams") is False
     assert tenant_fits("Abbott Laboratories", "abbott") is True
+    assert slug_is_reliable("Abbott Laboratories", "https://abbott.wd5.myworkdayjobs.com/External")
+    assert slug_is_reliable("Analog Devices", "https://analogdevices.wd1.myworkdayjobs.com/External")
+    assert not slug_is_reliable("Arch Capital Group", "https://jobs.ashbyhq.com/arch")
+    assert not slug_is_reliable("Universal Health Services", "https://job-boards.greenhouse.io/universal")
+    assert not slug_is_reliable("Charles River Laboratories", "https://job-boards.greenhouse.io/charles")
+    assert not slug_is_reliable("Williams-Sonoma, Inc", "https://williams.wd5.myworkdayjobs.com/External")
     assert tenant_fits("Analog Devices", "analogdevices") is True
+    assert is_large_group("PRIVATE", "2026-10-11 europe-employers: ISEQ 20. No board.")
+    assert is_large_group("PRIVATE", "2026-10-11 usa-employers: S&P 500. No board.")
+    assert is_large_group("HOSPITAL", "2026-10-11 usa-employers: US hospital systems. No board.")
+    assert not is_large_group("PRIVATE", "2026-10-11 uk-employers: AIM. No board.")
+    assert not is_large_group("UNI", "2026-10-11 europe-employers: universities. No board.")
+    assert not is_large_group("HOSPITAL", "2026-10-11 uk-employers: NHS trusts. No board.")
+    assert not is_large_group("PRIVATE", "2026-10-11 mena-employers: companies. No board.")
     assert slug_variants("The Group") == []
 
 
