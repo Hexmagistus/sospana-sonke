@@ -329,7 +329,7 @@ function GroupDirectoryInner({ group }: { group: CategoryGroup }) {
                 key={c.id}
                 onClick={() => setPreviewCompany(c)}
                 style={{ borderLeftColor: accent }}
-                className="relative min-w-0 cursor-pointer rounded-2xl border border-ss-border border-l-4 bg-ss-surface p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_1px_3px_rgba(16,24,40,0.06)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+                className="ss-card relative min-w-0 cursor-pointer border-l-4 transition-shadow duration-200 hover:-translate-y-0.5"
               >
                 <div className="absolute right-3 top-3" onClick={(e) => e.stopPropagation()}>
                   <ShortlistStar companyId={c.id} />

@@ -67,6 +67,15 @@ Lungani, 2026-10-03: in every country dropdown, list, and work order, put **Sout
 
 ## Session Log
 
+### 2026-10-11 — Cursor (Grok 4.7) — Design system, live counts, mobile LCP, public jobs
+The homepage, directory cards, country pages, sign-in, CV builder, tracker and Career Agent now share one card, empty state and page title. The hero is a calm surface with no full-bleed photograph. Gold gradient text on the sign-in and registration titles is solid navy-on-paper text.
+
+`directory-snapshot.json` is the Frankfurt `GET /companies/stats` from 11 October 2026: 4,299 employers with a careers link across 207 countries, and 11,986 employers in the directory across 229 countries. The homepage and the companies metadata show both figures. A live stats response still replaces the snapshot, and an older payload that only has the all-rows total is still ignored. The browser cache key moved to `ss-landing-stats-v2` so a saved 7 October answer does not cover the new snapshot.
+
+`GET /api/v1/jobs` is public. It lists open roles the scanner has stored, filtered by title, country, employer and how recently the role was seen. It does not return the advert body. `/jobs` is the page, with those filters and JobPosting schema built only from stored fields. An empty index says so.
+
+The homepage headline is server HTML in a system face, and the display fonts are not preloaded. Lighthouse 12.8.2 on this production build: homepage mobile performance 93 (was 75 on the earlier build, 73 on the live site), accessibility 95, best practices 93, SEO 100, largest paint 3.1 s, speed index 1.7 s. Desktop performance 100, largest paint 0.7 s. Best practices stays 93 here because the page calls a local API that is not running. Seed files were not edited. Not merged.
+
 ### 2026-10-11 — Cursor (Grok 4.7) — Directory search, link scope, public country pages
 Reviewed GoToCareer, JobSpotter, Unlisted, JobLarper and ScoutJobs against the live homepage and wrote `docs/ROADMAP.md`. The seed file on this branch has 11,876 rows, 231 country names and 5,387 careers URLs. The public pages still use the 7 October snapshot (3,439 with a link, 187 countries) and say so. Seed files were not edited.
 

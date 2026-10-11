@@ -180,7 +180,7 @@ describe("category groups: pages and navigation", () => {
 
   it("the menu drawer, landing cards and robots list the new pages", () => {
     assert.match(src("components", "Nav.tsx"), /\.\.\.EXPLORER_NAV/);
-    const landing = src("app", "page.tsx");
+    const landing = src("components", "home", "HomeExperience.tsx");
     const hrefs = [...landing.matchAll(/label: "[^"]+", desc: "[^"]+", href: "([^"]+)"/g)].map((m) => m[1]);
     assert.deepEqual(hrefs, EXPLORER_NAV.map((l) => l.href));
     const robots = src("app", "robots.ts");

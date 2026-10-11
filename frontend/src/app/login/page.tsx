@@ -165,7 +165,7 @@ export default function LoginPage() {
         lit={(email.trim() ? 1 : 0) + (password ? 1 : 0) + (needsOtp && otp.trim() ? 1 : 0)}
         total={needsOtp ? 3 : 2}
       />
-      <h1 className="animate-gradient-text mb-1 bg-gradient-to-r from-[#0b2447] via-[#8a5a00] to-[#5b3fd6] bg-clip-text text-center text-4xl font-extrabold text-transparent ">Sospana Sonke</h1>
+      <h1 className="mb-1 text-center font-display text-4xl font-extrabold text-ss-text">Sospana Sonke</h1>
       <p className="mb-4 text-center text-base font-medium text-ss-muted">
         We find the opportunities. You apply direct. <span className="font-bold text-ss-tech">No middle-man, no fees, no nonsense.</span> 😎
       </p>

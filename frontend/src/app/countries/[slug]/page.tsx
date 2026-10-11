@@ -64,7 +64,7 @@ export default async function CountryPage({ params }: Props) {
           You apply there. We do not promise a job.
         </p>
       </header>
-      <p className="rounded-2xl border border-ss-border bg-ss-surface p-4 text-sm leading-relaxed text-ss-text">
+      <p className="ss-card text-sm leading-relaxed">
         Employers whose careers link is still being checked are in the signed-in directory and are not
         part of this number.
       </p>

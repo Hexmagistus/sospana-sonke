@@ -395,7 +395,8 @@ function CompaniesDirectoryInner() {
               <>
                 Browse the full directory and apply on each employer&apos;s official careers page.{" "}
                 <strong className="text-ss-text"><AnimatedNumber value={facets.total} /></strong> employers in the directory ·{" "}
-                <strong className="text-ss-text"><AnimatedNumber value={withLinks} /></strong> with direct careers links.
+                <strong className="text-ss-text"><AnimatedNumber value={withLinks} /></strong> with a careers link.
+                The two numbers are different: a row with no link is still in the directory.
               </>
             }
           >
@@ -475,26 +476,20 @@ function CompaniesDirectoryInner() {
         </Card>
         </GlowFrame>
 
-        <div className="ss-hud-card flex flex-wrap items-center gap-x-4 gap-y-2 rounded-2xl border border-ss-border bg-ss-glass px-4 py-3 backdrop-blur-sm">
-          <span aria-hidden className="ss-hud-scan !opacity-40 animate-scan-sweep" />
-          <span className="ss-hud-tag flex items-center gap-2 text-[11px] font-bold text-brand-dark">
-            <span className="ss-hud-status" /> Live scan
+        <div className="ss-card flex flex-wrap items-baseline gap-x-4 gap-y-2 !py-3">
+          <p className="text-sm text-ss-text">
+            <strong className="tabular-nums">{shownCompanies.length.toLocaleString("en-US")}</strong>
+            {" "}shown
+            {shortlistOnly
+              ? ` of ${shortlistIds.size.toLocaleString("en-US")} shortlisted`
+              : ` · ${countryWithLinks.toLocaleString("en-US")} with a careers link · ${countryTotal.toLocaleString("en-US")} in the directory`}
+          </p>
+          <span className="rounded-md border border-ss-border bg-ss-bg px-2 py-1 text-xs font-semibold text-ss-text">
+            {filterLabel[filter]}
           </span>
-          <span className="flex items-baseline gap-1.5">
-            <span className="bg-gradient-to-r from-brand to-gold bg-clip-text text-3xl font-black tabular-nums leading-none text-transparent">
-              <AnimatedNumber value={shownCompanies.length} />
-            </span>
-            <span className="ss-hud-tag text-xs text-ss-muted">
-              / {shortlistOnly ? shortlistIds.size : countryTotal} {shortlistOnly ? "shortlisted" : "in range"}
-            </span>
+          <span className="rounded-md border border-ss-border bg-ss-bg px-2 py-1 text-xs font-semibold text-ss-text">
+            {globalType ? (country ? `${flag} ${country}` : "All countries") : shortlistOnly ? "My shortlist" : `${flag} ${country}`}
           </span>
-          <span className="ss-hud-tag rounded-md border border-ss-border bg-ss-surface px-2 py-1 text-[11px] font-semibold text-ss-text">
-            Category · {filterLabel[filter]}
-          </span>
-          <span className="ss-hud-tag rounded-md border border-ss-border bg-ss-surface px-2 py-1 text-[11px] font-semibold text-ss-text">
-            Zone · {globalType ? (country ? `${flag} ${country}` : "🌍 All countries") : shortlistOnly ? "⭐ My shortlist" : `${flag} ${country}`}
-          </span>
-          <span className="ss-hud-tag text-[11px] text-ss-muted sm:ml-auto">Pick a card, any card 🃏</span>
         </div>
 
         <div id="explorer-results" className="scroll-mt-24" />
@@ -511,7 +506,7 @@ function CompaniesDirectoryInner() {
                 key={c.id}
                 onClick={() => setPreviewCompany(c)}
                 style={{ borderLeftColor: accent }}
-                className="ss-hud-card cursor-pointer rounded-2xl border border-ss-border border-l-4 bg-ss-surface p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_1px_3px_rgba(16,24,40,0.06)] hover:-translate-y-0.5"
+                className="ss-card cursor-pointer border-l-4 hover:-translate-y-0.5"
               >
                 <span aria-hidden className="ss-hud-scan" />
                 <div className="absolute right-3 top-3" onClick={(e) => e.stopPropagation()}>

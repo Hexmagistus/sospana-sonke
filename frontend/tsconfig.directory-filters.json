@@ -53,6 +53,8 @@
     "src/lib/countryPage.ts",
     "src/lib/countryPage.test.ts",
     "src/lib/returnPath.ts",
-    "src/lib/returnPath.test.ts"
+    "src/lib/returnPath.test.ts",
+    "src/lib/jobPosting.ts",
+    "src/lib/jobPosting.test.ts"
   ]
 }

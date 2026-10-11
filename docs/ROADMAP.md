@@ -73,17 +73,16 @@ Lighthouse 12.8.2. Before is the live homepage. After is this production build o
 | Page | Form | Performance | Accessibility | Best practices | SEO | Largest paint | Speed index |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | Live homepage, before | Mobile | 73 | 95 | 100 | 100 | 7.2 s | 4.6 s |
-| This build, homepage | Mobile | 75 | 95 | 93 | 100 | 7.4 s | 1.5 s |
-| This build, homepage | Desktop | 97 | 95 | 93 | 100 | 1.2 s | 0.6 s |
-| This build, `/countries/south-africa` | Mobile | 85 | 100 | 100 | 100 | 4.4 s | 1.1 s |
+| Earlier build this branch | Mobile | 75 | 95 | 93 | 100 | 7.4 s | 1.5 s |
+| This build, homepage | Mobile | 93 | 95 | 93 | 100 | 3.1 s | 1.7 s |
+| This build, homepage | Desktop | 100 | 95 | 93 | 100 | 0.7 s | 0.4 s |
+| Earlier `/countries/south-africa` | Mobile | 85 | 100 | 100 | 100 | 4.4 s | 1.1 s |
 
-The homepage speed index dropped from 4.6 s to 1.5 s after the hero text was included in the first HTML and the lower sections deferred their paint. The mobile performance score barely moved because the lead paragraph is still the largest element and Lighthouse still times most of that paint as render delay. Desktop largest paint is 1.2 s.
+The homepage headline is server HTML in a system face, with the display fonts not preloaded. Mobile performance moved from 75 to 93. The lead paragraph is still the largest element, and about 2.7 s of the 3.1 s paint is still render delay under the simulated slow phone. Best practices stays 93 on this machine because the page calls `127.0.0.1:8000`, which is not running here. The live site calls Frankfurt instead.
 
 ## Suggested order of the next sessions
 
-1. Vacancy search over rows the scanner already stored, signed-in first, with tests on the query.
-2. Refresh `directory-snapshot.json` from Frankfurt with-link counts, then the country pages follow.
-3. Public employer pages for rows that have a careers link.
-4. Daily alerts by country, category and keyword, reusing the notify-me mail path.
-5. Split the homepage client bundle and re-measure Lighthouse.
-6. French and Portuguese on `/countries`, then Arabic and Swahili.
+1. Public employer pages for rows that have a careers link.
+2. Daily alerts by country, category and keyword, reusing the notify-me mail path.
+3. French and Portuguese on `/countries` and `/jobs`, then Arabic and Swahili.
+4. Re-measure `/countries/south-africa` after the snapshot grew to 207 country pages.

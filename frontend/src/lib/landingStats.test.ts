@@ -20,16 +20,21 @@ describe("landing stats", () => {
     const sum = Object.values(snap.byCountry).reduce((a, b) => a + b, 0);
     assert.equal(sum, snap.total);
     assert.equal(snap.source, "snapshot");
-    // Ceiling stays under the all-rows employer count (5,800 on 2026-10-07),
-    // so a payload that also counts employers with no careers link still fails.
-    assert.ok(snap.total > 3000 && snap.total < 5000, `snapshot total ${snap.total}`);
+    // with_link stays under 5,000. The all-rows directory total is larger, so a
+    // payload that counts employers with no careers link cannot pass as `total`.
+    assert.ok(snap.total > 4000 && snap.total < 5000, `with-link total ${snap.total}`);
+    assert.ok(snap.directoryTotal != null && snap.directoryTotal > 10000, `directory total ${snap.directoryTotal}`);
+    assert.ok(snap.directoryTotal > snap.total);
+    assert.equal(snap.countriesWithLink, 207);
+    assert.equal(snap.directoryCountries, 229);
   });
 
   it("directory metadata uses the snapshot, not an old Africa-only count", () => {
     const text = snapshotDirectoryDescription();
-    assert.match(text, /3,439 employers/);
+    assert.match(text, /4,299 employers with a direct careers link/);
+    assert.match(text, /11,986 employers in total/);
     assert.match(text, /South America/);
-    assert.match(text, /7 October 2026/);
+    assert.match(text, /11 October 2026/);
     assert.doesNotMatch(text, /2,400/);
     assert.doesNotMatch(text, /26 African/);
   });
@@ -45,6 +50,9 @@ describe("landing stats", () => {
   it("uses the direct-link counts and refuses an older payload without them", () => {
     const parsed = parseStats(live);
     assert.equal(parsed?.total, 2700);
+    assert.equal(parsed?.directoryTotal, 5001);
+    assert.equal(parsed?.countriesWithLink, 4);
+    assert.equal(parsed?.directoryCountries, null);
     assert.equal(parsed?.source, "live");
     assert.equal(parseStats({ employers: 5001, by_country: { "South Africa": 996 } }), null);
     assert.equal(parseStats({ with_link: 0, by_country_with_link: { A: 1 } }), null);

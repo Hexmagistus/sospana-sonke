@@ -151,3 +151,69 @@ def test_list_vacancies_excludes_outdated_ads_by_default(client, db_engine):
 
     by_company_open = client.get(f"/api/v1/companies/{company_id}/vacancies", headers=_auth(tokens)).json()
     assert expired_id not in {v["id"] for v in by_company_open}
+
+
+def test_public_jobs_filters_stored_roles_without_auth(client, db_engine):
+    from sqlalchemy.orm import sessionmaker
+
+    yesterday = date.today() - timedelta(days=1)
+    _, open_id = _seed_vacancy(
+        db_engine, company_name="Acme Mines", content_hash="hash-public",
+        application_url="https://example.com/jobs/ops", location="Johannesburg",
+        salary="R20,000 a month", salary_min=20000, salary_currency="ZAR",
+    )
+    _, other_country_id = _seed_vacancy(
+        db_engine, company_name="Nairobi Works", content_hash="hash-ke",
+        location="Nairobi",
+    )
+    _, expired_id = _seed_vacancy(
+        db_engine, company_name="Acme Expired Public", content_hash="hash-exp-pub",
+        closing_date=yesterday,
+    )
+    _, stale_id = _seed_vacancy(
+        db_engine, company_name="Acme Stale", content_hash="hash-stale",
+    )
+    S = sessionmaker(bind=db_engine)
+    s = S()
+    try:
+        from app.models.company import Company
+        from app.models.vacancy import Vacancy
+        ke = s.query(Company).filter(Company.company_name == "Nairobi Works").one()
+        ke.country = "Kenya"
+        stale = s.get(Vacancy, stale_id)
+        stale.last_seen_at = datetime.now(timezone.utc) - timedelta(days=40)
+        s.commit()
+    finally:
+        s.close()
+
+    listed = client.get("/api/v1/jobs")
+    assert listed.status_code == 200, listed.text
+    body = listed.json()
+    ids = {job["id"] for job in body["jobs"]}
+    assert open_id in ids and other_country_id in ids
+    assert expired_id not in ids
+    assert body["matched"] == 3
+    open_job = next(job for job in body["jobs"] if job["id"] == open_id)
+    assert open_job["company_name"] == "Acme Mines"
+    assert open_job["company_country"] == "South Africa"
+    assert open_job["application_url"] == "https://example.com/jobs/ops"
+    assert open_job["salary_min"] == 20000
+    assert "description" not in open_job
+    assert "trust_flags" not in open_job
+
+    by_title = client.get("/api/v1/jobs", params={"q": "operations"}).json()
+    assert {job["id"] for job in by_title["jobs"]} == {open_id, other_country_id, stale_id}
+
+    by_country = client.get("/api/v1/jobs", params={"country": "Kenya"}).json()
+    assert {job["id"] for job in by_country["jobs"]} == {other_country_id}
+
+    by_employer = client.get("/api/v1/jobs", params={"employer": "Mines"}).json()
+    assert {job["id"] for job in by_employer["jobs"]} == {open_id}
+
+    fresh = client.get("/api/v1/jobs", params={"max_age_days": 7}).json()
+    assert stale_id not in {job["id"] for job in fresh["jobs"]}
+    assert open_id in {job["id"] for job in fresh["jobs"]}
+
+    none = client.get("/api/v1/jobs", params={"q": "no-such-role"}).json()
+    assert none["matched"] == 0
+    assert none["jobs"] == []

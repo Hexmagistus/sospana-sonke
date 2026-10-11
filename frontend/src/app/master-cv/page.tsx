@@ -29,8 +29,9 @@ function MasterCvInner() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-ss-text">My Master CV</h1>
-        <p className="text-ss-muted">
+        <p className="text-sm font-semibold uppercase tracking-wide text-ss-muted">CV builder</p>
+        <h1 className="mt-1 font-display text-3xl font-extrabold tracking-tight text-ss-text">My Master CV</h1>
+        <p className="mt-3 text-base leading-relaxed text-ss-muted">
           The complete, verified record every tailored CV is generated from. Nothing here is ever invented — it comes
           only from what you&apos;ve added to your <Link href="/profile" className="text-brand hover:underline">profile</Link>.
           Generating a tailored CV never changes this record.
