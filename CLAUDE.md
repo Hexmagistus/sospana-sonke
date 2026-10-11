@@ -75,6 +75,11 @@ A careers landing page is enough for that same set, even when the HTML lists no 
 
 ## Session Log
 
+### 2026-10-11 — Cursor (Grok 4.7) — Canada and Latin America careers landing pages
+S&P/TSX 60 employers and the other Americas large-cap rows that still had a blank careers URL now store the official careers page on the employer's own domain or its own applicant-system tenant. Saputo stores its Canada Workday board. A landing page counts even when the HTML lists no openings. The note is marked `careers_scope=global` and `careers_status` is `global_group`.
+
+Careers links: Canada 12 → 39, Colombia 21 → 23, Mexico 3 → 6.
+
 ### 2026-10-11 — Cursor (Grok 4.7) — African listed careers landing pages
 Kore Potash and We Buy Cars Holdings store their own careers pages. Lucara Diamond stores its Botswana careers page. Each note is marked `careers_scope=global` and `careers_status` is `global_group`. The other JSE and African-exchange blanks still have no page that passed the robots and careers-page checks.
 
