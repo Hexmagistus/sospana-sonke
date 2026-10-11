@@ -33,13 +33,13 @@ KINDS = {
     "Aalto University": "UNI",
     "University of Iceland": "UNI",
 }
-# Denmark includes Zealand Pharma and Finland includes Valmet, both global boards.
+# Denmark, Finland, and Norway include the Europe careers landing pages.
 LINKED = {
     "Belgium": 6,
-    "Denmark": 7,
-    "Finland": 5,
+    "Denmark": 14,
+    "Finland": 17,
     "Iceland": 5,
-    "Norway": 7,
+    "Norway": 15,
     "Romania": 6,
 }
 SITES = {
