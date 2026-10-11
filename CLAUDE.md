@@ -65,7 +65,18 @@ What is running today, before the pipeline work below. This is the system the up
 
 Lungani, 2026-10-03: in every country dropdown, list, and work order, put **South Africa first, then the other SADC states, then the rest of Africa, then other regions**. Alphabetical inside each band. The directory picker uses `sortCountries` in `frontend/src/lib/directoryFilters.ts`. Homepage bars that are ranked by employer count are a separate display; new country pickers and work queues follow this order.
 
+## Standing rule (careers links)
+
+A careers URL is the employer's own careers or jobs page. robots.txt must allow SospanaSonkeBot (or the host publishes no robots.txt), and the fetch must be HTTP 200. A homepage, a LinkedIn page, or a job-board aggregator is not stored. Small and local employers still need an in-country list: at least two located roles, and at least half of those in the employer's country, or a stable country filter on the employer's own board that lists at least two roles there.
+
+Multinationals and large groups are the exception. A row counts as one only when its note names a large-cap list or `US hospital systems` (`is_large_group` in `backend/app/services/seed_board.py`). AIM issuers, local company lists, universities, municipalities, and NHS trusts do not. For those large groups, the official main careers page or job search on the employer's own domain or its own ATS tenant may be stored without an in-country filter. A country or language path is still preferred when one exists. The note then contains `careers_scope=global` and `careers_status` is `global_group`, so the directory and the scanner can tell a global board from an in-country list. `global_group` is not a live-verified status, so import leaves `scraping_status` as `pending`.
+
+A careers landing page is enough for that same set, even when the HTML lists no openings and the page has no country filter. The same landing page is also enough for an African listed company: source type JSE, EGX, ZSE, BSE, BVM, ESE, NSX, or VFEX, the Indian NSE rows, or a note that says NGX-listed, NSE-listed, EGX-listed, CSE-listed, or names the Casablanca Stock Exchange. A note that says the employer is not listed stays on the strict rule. Saudi, Moroccan, Nigerian, and Kenyan private companies that are not already on a named large-cap list are included only when Wikidata records a listing on that country's exchange. Discovery (`scripts/discover_careers_landing.py`) starts from the Wikidata official website, then the homepage's careers link and common paths (`/careers`, `/jobs`, `/karriere`, `/carrieres`, `/saiyo`, `/recruit`). Required every time: robots.txt allows SospanaSonkeBot, HTTP 200 (a JavaScript shell may be rendered offline), the host is the employer's own domain or its own ATS tenant, and the host, path, title, or heading shows that the page is careers or jobs. The stored row is still `careers_scope=global` / `global_group`.
+
 ## Session Log
+
+### 2026-10-11 — Cursor (Grok 4.7) — Update #102 onto main
+Seed pull requests had landed on main, so this branch was merged with `origin/main` and the session log kept both sides. `backend/seed/company_database_import.csv` is main's file. `directory-snapshot.json` stays the 11 October Frankfurt extract (4,299 with a careers link, 11,986 in the directory): main's snapshot file was still the 7 October extract and was not part of those seed commits.
 
 ### 2026-10-11 — Cursor (Grok 4.7) — Design system, live counts, mobile LCP, public jobs
 The homepage, directory cards, country pages, sign-in, CV builder, tracker and Career Agent now share one card, empty state and page title. The hero is a calm surface with no full-bleed photograph. Gold gradient text on the sign-in and registration titles is solid navy-on-paper text.
@@ -82,6 +93,42 @@ Reviewed GoToCareer, JobSpotter, Unlisted, JobLarper and ScoutJobs against the l
 Shipped on the directory the candidate already has: name typeahead, filters for a careers link and for open roles we have counted, and a badge that reads the URL only (Workday `locationCountry` / `Location_Country`, an unfiltered applicant-system host, the employer's own site, or a third-party board). Public `/countries` pages are in the sitemap, with breadcrumb schema. Sign-in can return to that country's directory. The homepage hero text is in the first HTML, the wonders and heritage sections defer paint, and there is a country lookup. Card copy no longer calls a stored URL "live". Lighthouse mobile on the live homepage was performance 73, accessibility 95, best practices 100, SEO 100 (largest paint 7.2 s, speed index 4.6 s). This build: homepage mobile performance 75 and speed index 1.5 s, desktop performance 97, and `/countries/south-africa` mobile performance 85, accessibility 100, SEO 100.
 Next: vacancy search over rows the scanner already stored, then refresh the public snapshot from Frankfurt.
 
+### 2026-10-11 — Cursor (Grok 4.7) — Careers landing pages for large groups
+The ATS slug probe only found boards that publish a job feed, so a group's own careers landing page was still rejected. For a listed large group, and for an African listed company, the official careers page on the employer's own domain now counts even when the HTML has no openings and no country filter. Discovery reads the Wikidata official website, the homepage careers link, and common paths. robots.txt, HTTP 200, and a careers path, title, or heading are still required. Saudi, Moroccan, Nigerian, and Kenyan private companies need a Wikidata listing on the national exchange. The marker stays `careers_scope=global` / `global_group`.
+### 2026-10-11 — Cursor (Grok 4.7) — LivePerson and NICE global careers pages
+LivePerson's Greenhouse board and NICE's own careers page are stored for these TA-125 groups. Neither board is filtered to Israel. The note is marked `careers_scope=global` and `careers_status` is `global_group`. NICE's page names Actimize, which is NICE's product. The United Arab Emirates, Saudi Arabia, and Qatar lists had no new board that met the rule.
+
+Israel careers links 9 → 11. The United Arab Emirates stays at 21, Saudi Arabia at 4, and Qatar at 6.
+
+### 2026-10-11 — Cursor (Grok 4.7) — Asia-Pacific careers boards for listed large groups
+Alcoa stores its own Australia Workday filter (26 of 110 located roles). Charter Hall, Life360, Perpetual, Bridgestone, Sumitomo Heavy Industries, Terumo, and LG Electronics store their own global board, marked `careers_scope=global` with `careers_status` `global_group`. IndiGo, Titan, Sharp, SHIFT, and Vector matched a different organisation and stay blank. Trend Micro's Japan filter is unchanged.
+
+Careers links, before → after: Australia 32 → 36, Japan 6 → 9, South Korea 5 → 6. India, Singapore, New Zealand, Indonesia, Malaysia, Thailand, Vietnam, and the Philippines are unchanged.
+
+### 2026-10-11 — Cursor (Grok 4.7) — Global careers boards in Denmark, Finland, Germany, and Switzerland
+Zealand Pharma, Valmet, Jungheinrich, and Galderma are listed large groups. Their own boards have no country facet with at least two roles, so the stored URL is the group's main board. The note is marked `careers_scope=global` and `careers_status` is `global_group`. Vinci, Frontline, Julius Bär, and Sunrise matched a different organisation and stay blank. Thales and Fugro are unchanged.
+
+Careers links, before → after: Denmark 6 → 7, Finland 4 → 5, Germany 14 → 15, Switzerland 6 → 7. France, the Netherlands, Ireland, Norway, Sweden, Iceland, Spain, Italy, and Poland are unchanged.
+### 2026-10-11 — Cursor (Grok 4.7) — Smith & Nephew global Workday board
+Smith & Nephew is a FTSE 100 employer. Its own Workday board has no United Kingdom facet with at least two roles, so the stored URL is the group's main board. The note is marked `careers_scope=global` and `careers_status` is `global_group`. Goodwin's Greenhouse board and Quilter's Ashby board are different organisations and stay blank. Aviva's country filter is unchanged.
+
+United Kingdom careers links 24 → 25. Blank rows 915 → 914.
+### 2026-10-11 — Cursor (Grok 4.7) — Global careers boards for three United States groups
+Intel, Revvity, and Viatris are S&P 500 employers whose own Workday board has no United States facet with at least two roles. The stored URL is that board. The note is marked `careers_scope=global` and `careers_status` is `global_group`, so import leaves the row pending. Arch Capital Group's Ashby token `arch` and Universal Health Services' Greenhouse token `universal` are different organisations and stay blank.
+
+United States careers links 377 → 380. Blank rows 493 → 490.
+
+### 2026-10-11 — Cursor (Grok 4.7) — Global careers pages for large groups
+The in-country rule stays for small and local employers. A listed large group or a US hospital system may store its own global careers board when no country path is available. The note is marked `careers_scope=global`. Discovery for that set is `scripts/discover_seed_careers.py --large-groups`. A short token that only matches after generic words are dropped, such as `arch` for Arch Capital Group or `universal` for Universal Health Services, is rejected.
+
+### 2026-10-11 — Cursor (Grok 4.7) — Japan Workday country filter for Trend Micro
+Blank Japan and South Korea rows were probed again. Trend Micro stores the board's own `locationCountry` filter. The rendered page shows "18 JOBS FOUND" with Japan applied, and the roles are in Tokyo. South Korea had no new board that met the in-country rule.
+
+Careers links, before → after: Japan 5 → 6, South Korea 5 → 5. Blank rows: Japan 306 → 305, South Korea 178 → 178.
+### 2026-10-11 — Cursor (Grok 4.7) — Canada Workday country filters
+Blank Canada rows were probed again. Cenovus Energy and Waste Connections store the board's own `Location_Country` filter. Rendered pages show "20 JOBS FOUND" and "63 JOBS FOUND" with Canada applied. The roles are in Calgary, Lloydminster, Lethbridge, Saskatoon, and Kelowna. The scanner sends that facet key.
+
+Canada careers links 10 → 12. Blank rows 157 → 155. Mexico, Brazil, Argentina, Colombia, Uruguay, and Ecuador are unchanged.
 ### 2026-10-11 — Cursor (Grok 4.7) — France and Netherlands Workday country filters
 Blank European rows were probed again. Thales and Fugro store the board's own `locationCountry` filter. Rendered pages: Thales "1614 JOBS FOUND" with France applied; Fugro "26 JOBS FOUND" with Netherlands applied. Zeppelin University matched the Zeppelin construction-equipment tenant (workshop and CAT-dealer titles) and stays blank.
 

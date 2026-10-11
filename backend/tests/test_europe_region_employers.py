@@ -4,8 +4,10 @@ A careers URL is stored only when robots.txt allows SospanaSonkeBot (or the
 host publishes no robots.txt), the response is HTTP 200, the employer's own
 board names a post, and at least half of the located roles are in that country.
 Fugro and Thales are the exception added later: the stored URL is that board's
-own country filter, which lists the roles named in the note. Everyone else
-from the same lists is a blank row.
+own country filter, which lists the roles named in the note. Zealand Pharma,
+Valmet, Jungheinrich, and Galderma are large groups whose own board has no
+country filter. Those rows are `global_group` and the note contains
+`careers_scope=global`. Everyone else from the same lists is a blank row.
 """
 import csv
 from pathlib import Path
@@ -17,23 +19,27 @@ NOTE = '2026-10-11 europe-employers'
 LINKS = {
     'Boskalis': ('Netherlands', 'https://careers.smartrecruiters.com/boskalis', 'PRIVATE', 'smartrecruiters'),
     'Fugro': ('Netherlands', 'https://fugro.wd3.myworkdayjobs.com/Careers?locationCountry=9696868b09c64d52a62ee13b052383cc', 'PRIVATE', 'workday'),
+    'Galderma': ('Switzerland', 'https://galderma.wd3.myworkdayjobs.com/External', 'PRIVATE', 'workday'),
     'Gerresheimer': ('Germany', 'https://careers.smartrecruiters.com/gerresheimer', 'PRIVATE', 'smartrecruiters'),
+    'Jungheinrich': ('Germany', 'https://job-boards.greenhouse.io/jungheinrich', 'PRIVATE', 'greenhouse'),
     'Saint-Gobain': ('France', 'https://careers.smartrecruiters.com/saintgobain', 'PRIVATE', 'smartrecruiters'),
     'Scout24': ('Germany', 'https://www.scout24.com/en/career/jobs', 'PRIVATE', 'static'),
     'Swissquote': ('Switzerland', 'https://careers.smartrecruiters.com/swissquote', 'PRIVATE', 'smartrecruiters'),
     'Thales': ('France', 'https://thales.wd3.myworkdayjobs.com/Careers?locationCountry=54c5b6971ffb4bf0b116fe7651ec789a', 'PRIVATE', 'workday'),
+    'Valmet': ('Finland', 'https://valmet.wd103.myworkdayjobs.com/External', 'PRIVATE', 'workday'),
     'Vattenfall': ('Sweden', 'https://careers.vattenfall.com/', 'SOE', 'static'),
+    'Zealand Pharma': ('Denmark', 'https://zealandpharma.wd3.myworkdayjobs.com/External', 'PRIVATE', 'workday'),
 }
 BLANK = {
     ('Denmark', 'HOSPITAL'): 1,
     ('Denmark', 'MUNI'): 1,
     ('Denmark', 'NGO'): 1,
-    ('Denmark', 'PRIVATE'): 21,
+    ('Denmark', 'PRIVATE'): 20,
     ('Denmark', 'SOE'): 1,
     ('Denmark', 'UNI'): 6,
     ('Finland', 'HOSPITAL'): 1,
     ('Finland', 'NGO'): 1,
-    ('Finland', 'PRIVATE'): 23,
+    ('Finland', 'PRIVATE'): 22,
     ('Finland', 'UNI'): 12,
     ('France', 'DEPT'): 2,
     ('France', 'HOSPITAL'): 2,
@@ -46,7 +52,7 @@ BLANK = {
     ('Germany', 'HOSPITAL'): 3,
     ('Germany', 'MUNI'): 4,
     ('Germany', 'NGO'): 2,
-    ('Germany', 'PRIVATE'): 139,
+    ('Germany', 'PRIVATE'): 138,
     ('Germany', 'SOE'): 2,
     ('Germany', 'UNI'): 79,
     ('Iceland', 'HOSPITAL'): 1,
@@ -95,23 +101,23 @@ BLANK = {
     ('Switzerland', 'HOSPITAL'): 2,
     ('Switzerland', 'MUNI'): 2,
     ('Switzerland', 'NGO'): 1,
-    ('Switzerland', 'PRIVATE'): 43,
+    ('Switzerland', 'PRIVATE'): 42,
     ('Switzerland', 'SOE'): 1,
     ('Switzerland', 'UNI'): 11,
 }
 LINKED_TOTAL = {
-    'Germany': 14,
+    'Germany': 15,
     'France': 16,
     'Netherlands': 10,
     'Ireland': 6,
     'Norway': 7,
     'Sweden': 7,
-    'Denmark': 6,
-    'Finland': 4,
+    'Denmark': 7,
+    'Finland': 5,
     'Iceland': 5,
     'Spain': 7,
     'Italy': 6,
-    'Switzerland': 6,
+    'Switzerland': 7,
     'Poland': 5,
 }
 
@@ -141,7 +147,10 @@ def test_europe_region_employers_follow_the_direct_link_rule():
             assert row["careers_url"] == url
             assert row["source_type"] == kind
             assert row["active"] == "true"
-            assert row["careers_status"] == "green_verified"
+            if "careers_scope=global" in row["relevance_note"]:
+                assert row["careers_status"] == "global_group"
+            else:
+                assert row["careers_status"] == "green_verified"
             assert row["scraping_status"] == "pending"
             assert row["careers_url"].startswith("https://")
             assert detect_ats(row["careers_url"])[0] == ats

@@ -3,7 +3,12 @@
 A careers URL is stored only when robots.txt allows SospanaSonkeBot (or the
 host publishes no robots.txt), the response is HTTP 200, the employer's own
 board names a post, and at least half of the located roles are in that country.
-Everyone else from the same lists is a blank row.
+Trend Micro is the exception added later: the stored URL is that board's own
+Japan filter, which lists the roles named in the note. Alcoa stores its
+Australia filter. Charter Hall, Life360, Perpetual, Bridgestone, Sumitomo
+Heavy Industries, Terumo, and LG Electronics are large groups whose own board
+has no country filter. Those rows are `global_group` and the note contains
+`careers_scope=global`. Everyone else from the same lists is a blank row.
 """
 import csv
 from pathlib import Path
@@ -13,15 +18,24 @@ from app.scraper.base import detect_ats
 CSV = Path(__file__).resolve().parents[1] / "seed" / "company_database_import.csv"
 NOTE = '2026-10-11 apac-employers'
 LINKS = {
+    'Alcoa': ('Australia', 'https://alcoa.wd5.myworkdayjobs.com/Careers?Location_Country=d903bb3fedad45039383f6de334ad4db', 'PRIVATE', 'workday'),
     'Arvida Group Limited': ('New Zealand', 'https://careers.smartrecruiters.com/arvida', 'PRIVATE', 'smartrecruiters'),
+    'Bridgestone': ('Japan', 'https://bridgestone.wd5.myworkdayjobs.com/External', 'PRIVATE', 'workday'),
+    'Charter Hall': ('Australia', 'https://charterhall.wd3.myworkdayjobs.com/Careers', 'PRIVATE', 'workday'),
     'Contact Energy Limited': ('New Zealand', 'https://careers.smartrecruiters.com/contactenergy', 'PRIVATE', 'smartrecruiters'),
     'Griffith University': ('Australia', 'https://careers.smartrecruiters.com/griffithuniversity', 'UNI', 'smartrecruiters'),
+    'LG Electronics': ('South Korea', 'https://job-boards.greenhouse.io/lgelectronics', 'PRIVATE', 'greenhouse'),
+    'Life360': ('Australia', 'https://job-boards.greenhouse.io/life360', 'PRIVATE', 'greenhouse'),
     'NextDC': ('Australia', 'https://careers.smartrecruiters.com/nextdc', 'PRIVATE', 'smartrecruiters'),
+    'Perpetual': ('Australia', 'https://perpetual.wd3.myworkdayjobs.com/External', 'PRIVATE', 'workday'),
+    'Sumitomo Heavy Industries': ('Japan', 'https://sumitomoheavyindustries.wd103.myworkdayjobs.com/External', 'PRIVATE', 'workday'),
+    'Terumo': ('Japan', 'https://terumo.wd3.myworkdayjobs.com/External', 'PRIVATE', 'workday'),
+    'Trend Micro': ('Japan', 'https://trendmicro.wd3.myworkdayjobs.com/External?locationCountry=8b705da2becf43cfaccc091da0988ab2', 'PRIVATE', 'workday'),
 }
 BLANK = {
     ('Australia', 'HOSPITAL'): 1,
     ('Australia', 'NGO'): 1,
-    ('Australia', 'PRIVATE'): 111,
+    ('Australia', 'PRIVATE'): 107,
     ('Australia', 'UNI'): 39,
     ('India', 'DEPT'): 1,
     ('India', 'HOSPITAL'): 1,
@@ -35,7 +49,7 @@ BLANK = {
     ('Japan', 'HOSPITAL'): 1,
     ('Japan', 'MUNI'): 1,
     ('Japan', 'NGO'): 1,
-    ('Japan', 'PRIVATE'): 217,
+    ('Japan', 'PRIVATE'): 213,
     ('Japan', 'UNI'): 86,
     ('Malaysia', 'DEPT'): 1,
     ('Malaysia', 'MUNI'): 1,
@@ -57,7 +71,7 @@ BLANK = {
     ('South Korea', 'HOSPITAL'): 1,
     ('South Korea', 'MUNI'): 1,
     ('South Korea', 'NGO'): 1,
-    ('South Korea', 'PRIVATE'): 131,
+    ('South Korea', 'PRIVATE'): 130,
     ('South Korea', 'UNI'): 44,
     ('Thailand', 'HOSPITAL'): 1,
     ('Thailand', 'MUNI'): 1,
@@ -72,10 +86,10 @@ BLANK = {
 LINKED_TOTAL = {
     'India': 26,
     'Singapore': 9,
-    'Australia': 32,
+    'Australia': 36,
     'New Zealand': 11,
-    'Japan': 5,
-    'South Korea': 5,
+    'Japan': 9,
+    'South Korea': 6,
     'Indonesia': 9,
     'Malaysia': 3,
     'Thailand': 2,
@@ -109,7 +123,10 @@ def test_apac_employers_follow_the_direct_link_rule():
             assert row["careers_url"] == url
             assert row["source_type"] == kind
             assert row["active"] == "true"
-            assert row["careers_status"] == "green_verified"
+            if "careers_scope=global" in row["relevance_note"]:
+                assert row["careers_status"] == "global_group"
+            else:
+                assert row["careers_status"] == "green_verified"
             assert row["scraping_status"] == "pending"
             assert row["careers_url"].startswith("https://")
             assert detect_ats(row["careers_url"])[0] == ats
