@@ -61,4 +61,4 @@ def test_africa_employer_link_counts_and_south_africa_is_untouched():
         if row["country"] in counts and row["active"] == "true" and row["careers_url"].strip():
             counts[row["country"]] += 1
     assert counts == LINKED_TOTAL
-    assert sa == 815
+    assert sa == 817

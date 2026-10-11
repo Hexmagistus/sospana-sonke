@@ -131,7 +131,7 @@ KAL Group,KAL,https://kalgroup.simplify.hr/,green_verified,⭐ Operations / supp
 KAP Limited,KAP,https://www.kap.co.za/careers/,green_verified,⭐⭐⭐ Manufacturing / chemicals / logistics,true,pending,South Africa,JSE,
 Karooooo,KRO,https://careers.cartrack.co.za/applicant/index.php,green_verified,Technology / operations | direct Cartrack SA list,true,pending,South Africa,JSE,
 Kibo Energy,KBO,,amber_company_route,⭐ Energy,false,no_url,South Africa,JSE,
-Kore Potash,KP2,,amber_company_route,⭐ Mining / processing,false,no_url,South Africa,JSE,
+Kore Potash,KP2,https://korepotash.com/careers/vacancies/,global_group,⭐ Mining / processing. careers_scope=global. Official careers page.,true,pending,South Africa,JSE,
 Kumba Iron Ore,KIO,https://www.angloamericankumba.com/careers/,green_verified,⭐⭐⭐ Mining / processing,true,pending,South Africa,JSE,
 Kaap Agri,KAL,https://kalgroup.simplify.hr/,green_verified,⭐ Agriculture / operations | rebranded KAL Group direct ATS,true,pending,South Africa,JSE,
 Labat Africa,LAB,,amber_company_route,Healthcare / technology,false,no_url,South Africa,JSE,
@@ -427,7 +427,7 @@ Botswana Telecommunications Corporation (BTCL),,https://btc.bw/company/job-openi
 Sechaba Brewery Holdings,,,grey_none_verified,BSE-listed | Beverages holding | recruits offline,false,no_url,Botswana,BSE,
 Sefalana Holdings,,,grey_none_verified,BSE-listed | Retail / distribution | recruits via job boards,false,no_url,Botswana,BSE,
 Engen Botswana,,,grey_none_verified,BSE-listed | Fuel / energy | no Botswana vacancy page,false,no_url,Botswana,BSE,
-Lucara Diamond,,,grey_none_verified,BSE-listed | Mining | Karowe roles advertised in press,false,no_url,Botswana,BSE,
+Lucara Diamond,,https://lucaradiamond.com/contact/careers/,global_group,BSE-listed | Mining | Karowe roles advertised in press. careers_scope=global. Official careers page.,true,pending,Botswana,BSE,
 Minergy,,,grey_none_verified,BSE-listed | Coal / energy | recruits offline,false,no_url,Botswana,BSE,
 Shumba Energy,,,grey_none_verified,BSE-listed | Energy | recruits offline,false,no_url,Botswana,BSE,
 Tlou Energy,,,grey_none_verified,BSE-listed | Energy | recruits offline,false,no_url,Botswana,BSE,
@@ -6782,7 +6782,7 @@ Nictus,NCS,,grey_none_verified,"2026-10-09 employer, no verified jobs page",fals
 Trellidor Holdings,TRL,,grey_none_verified,"2026-10-09 employer, no verified jobs page",false,no_url,South Africa,JSE,https://trellidor.co.za/
 Rex Trueform Group,RTO,,grey_none_verified,"2026-10-09 employer, no verified jobs page",false,no_url,South Africa,JSE,https://rextrueform.com/
 Tongaat Hulett,TON,,grey_none_verified,"2026-10-09 employer, no verified jobs page",false,no_url,South Africa,JSE,https://www.tongaat.com/
-We Buy Cars Holdings,WBC,,grey_none_verified,"2026-10-09 employer, no verified jobs page",false,no_url,South Africa,JSE,https://www.webuycars.co.za/
+We Buy Cars Holdings,WBC,https://www.webuycars.co.za/careers,global_group,"2026-10-09 employer, no verified jobs page. careers_scope=global. Official careers page.",true,pending,South Africa,JSE,https://www.webuycars.co.za/
 Curro Holdings,,,grey_none_verified,"2026-10-09 employer, no verified jobs page",false,no_url,South Africa,PRIVATE,https://www.curro.co.za/
 Biovac,,https://biovac.teamtailor.com/jobs,green_verified,2026-10-09 employer. 2026-10-10 fill-blanks: own Teamtailor board lists Network Engineer and AMD Scientist in Cape Town and Johannesburg.,true,pending,South Africa,PRIVATE,https://biovac.co.za/
 Astron Energy,,https://glencore.wd3.myworkdayjobs.com/astronenergy,green_verified,2026-10-09 verified direct jobs page,true,pending,South Africa,PRIVATE,https://www.astronenergy.co.za/
