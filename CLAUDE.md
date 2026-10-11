@@ -67,6 +67,10 @@ Lungani, 2026-10-03: in every country dropdown, list, and work order, put **Sout
 
 ## Session Log
 
+### 2026-10-11 — Cursor (Grok 4.7) — United Kingdom Workday country filter for Aviva
+Blank United Kingdom rows were probed again. Aviva's Workday board is global (8 of 132 located roles are in the United Kingdom). The stored URL is the board's own `Location_Country` filter. The rendered page shows "8 JOBS FOUND" and "1 - 8 of 8 jobs" with United Kingdom applied. The scanner sends that facet key; posting `locationCountry` to this host returns HTTP 400.
+
+United Kingdom careers links 23 → 24. Blank rows 916 → 915.
 ### 2026-10-11 — Cursor (Grok 4.7) — Three more United States Workday boards
 The same blank-row probe, after it also read Workday's `Location_Country` facet. Allegion's own board is already mostly in the United States (255 of 332 located roles), so the URL has no filter. Ciena (49 of 164) and Equinix (119 of 337) store that facet. Rendered pages show "49 JOBS FOUND" and "119 JOBS FOUND" with United States of America applied. The scanner sends `Location_Country` when that is the query key, because posting `locationCountry` to those hosts returns HTTP 400.
 
