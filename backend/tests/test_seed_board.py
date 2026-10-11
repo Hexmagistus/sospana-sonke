@@ -47,6 +47,7 @@ def test_names_do_not_collapse_neighbours():
     assert not slug_is_reliable("Universal Health Services", "https://job-boards.greenhouse.io/universal")
     assert not slug_is_reliable("Charles River Laboratories", "https://job-boards.greenhouse.io/charles")
     assert slug_is_reliable("Smith & Nephew", "https://smithnephew.wd5.myworkdayjobs.com/External")
+    assert not slug_is_reliable("Julius Bär", "https://jobs.ashbyhq.com/julius")
     assert not slug_is_reliable("Williams-Sonoma, Inc", "https://williams.wd5.myworkdayjobs.com/External")
     assert tenant_fits("Analog Devices", "analogdevices") is True
     assert is_large_group("PRIVATE", "2026-10-11 europe-employers: ISEQ 20. No board.")
