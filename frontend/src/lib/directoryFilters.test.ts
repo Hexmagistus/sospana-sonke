@@ -28,6 +28,10 @@ import "./themeContrast.test.js";
 import "./mapView.test.js";
 import "./mobileFit.test.js";
 import "./explorer/BalungileWalker.test.js";
+import "./linkScope.test.js";
+import "./directoryQuery.test.js";
+import "./countryPage.test.js";
+import "./returnPath.test.js";
 
 describe("directory country stays when the category changes", () => {
   it("keeps South Africa when a category is chosen", () => {

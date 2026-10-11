@@ -16,6 +16,7 @@ import {
   type LandingStats,
 } from "@/lib/landingStats";
 import DailySparkTease from "@/components/DailySparkTease";
+import { CountryJump } from "@/components/CountryJump";
 
 const CoverageWorldMap = dynamic(() => import("@/components/CoverageWorldMap"), {
   loading: () => <WorldMapSkeleton />,
@@ -82,18 +83,22 @@ function Reveal({
   delay = 0,
   className = "",
   as: Tag = "div",
+  immediate = false,
 }: {
   children: ReactNode;
   delay?: number;
   className?: string;
   as?: "div" | "span";
+  /** Paint on the server. The hero uses this so the largest text is not invisible until hydration. */
+  immediate?: boolean;
 }) {
   const { ref, visible } = useReveal<HTMLDivElement>();
+  const shown = immediate || visible;
   return (
     <Tag
-      ref={ref as never}
-      className={`transition-all duration-700 ease-out ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"} ${className}`}
-      style={{ transitionDelay: `${delay}ms` }}
+      ref={immediate ? undefined : (ref as never)}
+      className={`transition-all duration-700 ease-out ${shown ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"} ${className}`}
+      style={{ transitionDelay: shown ? "0ms" : `${delay}ms` }}
     >
       {children}
     </Tag>
@@ -659,7 +664,7 @@ export default function Home() {
                 <GreetingsMarquee />
               </Reveal>
 
-              <Reveal delay={160}>
+              <Reveal delay={160} immediate>
                 <h1 className="mt-6 font-display text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-6xl" style={{ textShadow: "none" }}>
                   Where talent meets
                   <br />
@@ -668,7 +673,7 @@ export default function Home() {
                   </span>
                 </h1>
               </Reveal>
-              <Reveal delay={240}>
+              <Reveal delay={240} immediate>
                 <p className="mt-6 max-w-xl text-lg leading-relaxed text-ss-muted">
                   First made for the SADC region, now listing employers across {coverage}. Each card is a direct link to that employer&apos;s own careers page. We do not host every vacancy, and we do not promise you the job. A card that says &ldquo;Not counted yet&rdquo; does not mean the employer has no vacancies: check their careers page directly.
                 </p>
@@ -690,7 +695,7 @@ export default function Home() {
                 </blockquote>
               </Reveal>
 
-              <Reveal delay={400}>
+              <Reveal delay={400} immediate>
                 <div className="mt-8 flex flex-wrap gap-3">
                   <Link
                     href="/register"
@@ -718,6 +723,10 @@ export default function Home() {
             </Reveal>
           </div>
         </div>
+      </section>
+
+      <section className="mx-auto mt-6 max-w-6xl px-4" aria-label="Country lookup">
+        <CountryJump countries={countries} />
       </section>
 
       {/* Trust strip — HUD-style readout panel */}
@@ -837,7 +846,7 @@ export default function Home() {
       </section>
 
       {/* Wonders of Africa */}
-      <section className="mx-auto max-w-6xl px-4">
+      <section className="ss-defer-paint mx-auto max-w-6xl px-4">
         <div className="relative overflow-hidden rounded-[2rem] px-6 py-12 text-ss-text shadow-xl sm:px-12" style={{ background: "linear-gradient(135deg,#ffffff,#f3eee2)" }}>
           <div className="pointer-events-none absolute inset-0 bg-noise opacity-[0.05]" />
           <CircuitOverlay className="opacity-50" opacity={0.12} />
@@ -957,7 +966,10 @@ export default function Home() {
 
                 <p className="mt-3 text-[11px] text-ss-muted">
                   The country picker lists South Africa first, then the rest of SADC, the rest of Africa, and the other regions. The bars above follow the counts, so the order can differ. As more careers links are confirmed, this picture will keep shifting.
-                  Use the country picker above to look up any of the {countries.length} countries.
+                  Use the country picker above to look up any of the {countries.length} countries, or open the{" "}
+                  <Link href="/countries" className="font-semibold underline" style={{ color: C.navy }}>
+                    public country pages
+                  </Link>.
                 </p>
               </div>
             </Reveal>
@@ -1130,7 +1142,7 @@ function HeritageCard({ site, i }: { site: HeritageSite; i: number }) {
 function HeritageSection() {
   let n = 0;
   return (
-    <section className="mx-auto max-w-6xl px-4 pt-12" aria-labelledby="heritage-heading">
+    <section className="ss-defer-paint mx-auto max-w-6xl px-4 pt-12" aria-labelledby="heritage-heading">
       <div className="relative overflow-hidden rounded-[2rem] px-6 py-12 text-ss-text shadow-xl sm:px-12" style={{ background: "linear-gradient(135deg,#ffffff,#f3eee2)" }}>
         <div className="pointer-events-none absolute inset-0 bg-noise opacity-[0.05]" />
         <CircuitOverlay className="opacity-50" opacity={0.12} />

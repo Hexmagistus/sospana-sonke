@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { safeInternalPath } from "@/lib/returnPath";
 import { useAuth } from "@/lib/auth";
 import { Card, Field, Input, Button, Alert } from "@/components/ui";
 import { CircuitOverlay, GlowFrame, LogoGlow } from "@/components/HighTech";
@@ -93,7 +94,7 @@ export default function LoginPage() {
             setCelebrate(true);
             setAuthing(false);
             await successPause();
-            router.push("/companies");
+            router.push(safeInternalPath(new URLSearchParams(window.location.search).get("next")) ?? "/companies");
           } catch (err) {
             setAuthing(false);
             setError(err instanceof Error ? err.message : "Google sign-in failed.");
@@ -118,7 +119,7 @@ export default function LoginPage() {
       setAuthing(false);
       setBusy(false);
       await successPause();
-      router.push("/companies");
+      router.push(safeInternalPath(new URLSearchParams(window.location.search).get("next")) ?? "/companies");
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Login failed";
       setAuthing(false);

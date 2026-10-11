@@ -67,6 +67,12 @@ Lungani, 2026-10-03: in every country dropdown, list, and work order, put **Sout
 
 ## Session Log
 
+### 2026-10-11 — Cursor (Grok 4.7) — Directory search, link scope, public country pages
+Reviewed GoToCareer, JobSpotter, Unlisted, JobLarper and ScoutJobs against the live homepage and wrote `docs/ROADMAP.md`. The seed file on this branch has 11,876 rows, 231 country names and 5,387 careers URLs. The public pages still use the 7 October snapshot (3,439 with a link, 187 countries) and say so. Seed files were not edited.
+
+Shipped on the directory the candidate already has: name typeahead, filters for a careers link and for open roles we have counted, and a badge that reads the URL only (Workday `locationCountry` / `Location_Country`, an unfiltered applicant-system host, the employer's own site, or a third-party board). Public `/countries` pages are in the sitemap, with breadcrumb schema. Sign-in can return to that country's directory. The homepage hero text is in the first HTML, the wonders and heritage sections defer paint, and there is a country lookup. Card copy no longer calls a stored URL "live". Lighthouse mobile on the live homepage was performance 73, accessibility 95, best practices 100, SEO 100 (largest paint 7.2 s, speed index 4.6 s). This build: homepage mobile performance 75 and speed index 1.5 s, desktop performance 97, and `/countries/south-africa` mobile performance 85, accessibility 100, SEO 100.
+Next: vacancy search over rows the scanner already stored, then refresh the public snapshot from Frankfurt.
+
 ### 2026-10-11 — Cursor (Grok 4.7) — France and Netherlands Workday country filters
 Blank European rows were probed again. Thales and Fugro store the board's own `locationCountry` filter. Rendered pages: Thales "1614 JOBS FOUND" with France applied; Fugro "26 JOBS FOUND" with Netherlands applied. Zeppelin University matched the Zeppelin construction-equipment tenant (workshop and CAT-dealer titles) and stays blank.
 

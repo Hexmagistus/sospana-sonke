@@ -63,6 +63,13 @@
    reads small or timid. Tailwind's rem-based sizes/spacing scale with this. */
 html { font-size: 17.5px; }
 
+/* Below-the-fold homepage sections. The browser can skip painting them until
+   they are near the viewport. The intrinsic size keeps the scrollbar stable. */
+.ss-defer-paint {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 520px;
+}
+
 body {
   min-height: 100vh;
   color: var(--ss-text);

@@ -45,6 +45,14 @@
     "src/lib/ThemeToggleButton.tsx",
     "src/lib/ThemeToggleButton.test.tsx",
     "src/lib/companyIcon.ts",
-    "src/lib/companyIcon.test.ts"
+    "src/lib/companyIcon.test.ts",
+    "src/lib/linkScope.ts",
+    "src/lib/linkScope.test.ts",
+    "src/lib/directoryQuery.ts",
+    "src/lib/directoryQuery.test.ts",
+    "src/lib/countryPage.ts",
+    "src/lib/countryPage.test.ts",
+    "src/lib/returnPath.ts",
+    "src/lib/returnPath.test.ts"
   ]
 }
