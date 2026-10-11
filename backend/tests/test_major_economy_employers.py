@@ -22,8 +22,8 @@ LINKS = {
 }
 # Totals include the country-specific ATS boards merged with this batch.
 LINKED = {
-    "Germany": 12,
-    "France": 14,
+    "Germany": 14,
+    "France": 15,
     "Japan": 5,
     "Mexico": 3,
     "Spain": 7,
