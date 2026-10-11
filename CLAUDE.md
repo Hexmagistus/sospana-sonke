@@ -67,6 +67,11 @@ Lungani, 2026-10-03: in every country dropdown, list, and work order, put **Sout
 
 ## Session Log
 
+### 2026-10-11 — Cursor (Grok 4.7) — Three more United States Workday boards
+The same blank-row probe, after it also read Workday's `Location_Country` facet. Allegion's own board is already mostly in the United States (255 of 332 located roles), so the URL has no filter. Ciena (49 of 164) and Equinix (119 of 337) store that facet. Rendered pages show "49 JOBS FOUND" and "119 JOBS FOUND" with United States of America applied. The scanner sends `Location_Country` when that is the query key, because posting `locationCountry` to those hosts returns HTTP 400.
+
+United States careers links 374 → 377. Blank rows 496 → 493.
+
 ### 2026-10-11 — Cursor (Grok 4.7) — Two United States Workday country filters
 Blank United States rows were probed again. A global Workday board is stored when its own `locationCountry` filter lists the roles and the page keeps that filter. Both pages were rendered offline after robots.txt allowed the fetch: Analog Devices shows 332 jobs with United States of America applied (332 of 889 located roles), and Equifax shows 70 (70 of 215). Revvity's first page looked mostly American, but the full board is 29 of 74 located roles in the United States and publishes no country facet, so it stays blank. Williams-Sonoma matched the Williams tenant and was rejected.
 
