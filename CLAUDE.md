@@ -75,6 +75,10 @@ A careers landing page is enough for that same set, even when the HTML lists no 
 
 ## Session Log
 
+### 2026-10-11 — Cursor (Grok 4.7) — United Kingdom careers landing pages
+FTSE 100 and FTSE 250 employers that still had a blank careers URL now store the official careers page on the employer's own domain or its own applicant-system tenant. A landing page counts even when the HTML lists no openings. The note is marked `careers_scope=global` and `careers_status` is `global_group`.
+
+Careers links: United Kingdom 25 → 98.
 ### 2026-10-11 — Cursor (Grok 4.7) — Asia-Pacific careers landing pages
 Nikkei 225, KOSPI 200, ASX 200, and the other Asia-Pacific large-cap lists that still had a blank careers URL now store the official careers page on the employer's own domain or its own applicant-system tenant. Marubeni's Japanese recruit page is in this set. A landing page counts even when the HTML lists no openings. The note is marked `careers_scope=global` and `careers_status` is `global_group`.
 
