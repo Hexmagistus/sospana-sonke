@@ -4,6 +4,7 @@ from app.services.seed_board import (
     decide_counts,
     names_match,
     slug_variants,
+    tenant_fits,
     workday_country_facet,
     workday_filter_url,
 )
@@ -36,6 +37,9 @@ def test_names_do_not_collapse_neighbours():
     assert not names_match("University of Oxford", "Oxford Instruments")
     assert names_match("Goldman Sachs", "Goldman Sachs Group")
     assert "americanexpress" in {slug.replace("-", "") for slug in slug_variants("American Express")}
+    assert tenant_fits("Williams-Sonoma, Inc", "williams") is False
+    assert tenant_fits("Abbott Laboratories", "abbott") is True
+    assert tenant_fits("Analog Devices", "analogdevices") is True
     assert slug_variants("The Group") == []
 
 

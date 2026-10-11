@@ -128,6 +128,24 @@ def names_match(candidate: str, board: str) -> bool:
     return False
 
 
+def tenant_fits(name: str, slug: str) -> bool:
+    """True when a Workday tenant is this employer, not a shorter neighbour.
+
+    ``williams`` is the Williams board, not Williams-Sonoma. ``abbott`` still
+    fits Abbott Laboratories, because the leftover word is a generic suffix.
+    """
+    words = core_words(name)
+    compact = "".join(words)
+    token = (slug or "").replace("-", "").lower()
+    if len(token) < 4 or not compact:
+        return False
+    if token == compact:
+        return True
+    if words and token == words[0]:
+        return all(word in _GENERIC_EXTRA or word in _STOP or word in {"laboratories", "laboratory", "labs"} for word in words[1:])
+    return False
+
+
 def slug_variants(name: str) -> list[str]:
     """A few public-board tokens derived from the employer's name."""
     raw = name.lower().replace("&", " and ").replace("'", "").replace("’", "")

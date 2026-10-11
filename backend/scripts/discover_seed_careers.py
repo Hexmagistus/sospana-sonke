@@ -31,6 +31,7 @@ from app.services.seed_board import (
     decide_counts,
     names_match,
     slug_variants,
+    tenant_fits,
     workday_country_facet,
     workday_filter_url,
 )
@@ -290,7 +291,7 @@ def _workday_sites(text: str) -> list[str]:
 
 def _workday(client, name, country, slug, renderer):
     alnum = "".join(ch for ch in name.lower() if ch.isalnum())
-    if len(slug) < 5 or slug not in alnum:
+    if len(slug) < 5 or slug not in alnum or not tenant_fits(name, slug):
         return None
     for cluster in _WD_CLUSTERS:
         host = f"{slug}.wd{cluster}.myworkdayjobs.com"
@@ -349,6 +350,9 @@ def _workday(client, name, country, slug, renderer):
                     if len(titles) < 2:
                         continue
             else:
+                # A first page can be one country while the rest of the board is not.
+                if int(payload.get("total") or 0) > len(posts):
+                    continue
                 decision = decide_board(locations, country)
                 if not decision.accept or decision.filtered:
                     continue
