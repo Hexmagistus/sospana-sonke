@@ -20,9 +20,9 @@ LINKS = {
     ("Saudi Aramco", "Saudi Arabia"): "https://www.aramco.com/en/careers",
     ("Panasonic Group", "Japan"): "https://recruit.jpn.panasonic.com/newgrads/job_description/",
 }
-# Totals include the country-specific ATS boards, the Thales filter, and Trend Micro.
+# Totals include the country-specific ATS boards, the later country filters, and Jungheinrich.
 LINKED = {
-    "Germany": 14,
+    "Germany": 15,
     "France": 16,
     "Japan": 6,
     "Mexico": 3,

@@ -170,6 +170,15 @@ def ats_slug(url: str) -> str:
     return (parts[0] if parts else "").replace("-", "").lower()
 
 
+def _fold(text: str) -> str:
+    return (text or "").lower().translate(str.maketrans({
+        "ä": "a", "ö": "o", "ü": "u", "ß": "ss", "é": "e", "è": "e", "ê": "e",
+        "ë": "e", "á": "a", "à": "a", "â": "a", "ã": "a", "å": "a", "í": "i",
+        "ì": "i", "ó": "o", "ò": "o", "ô": "o", "õ": "o", "ú": "u", "ù": "u",
+        "ñ": "n", "ç": "c", "æ": "ae", "ø": "o",
+    }))
+
+
 def slug_is_reliable(name: str, url: str) -> bool:
     """True when the board token is this employer's name, not a short neighbour.
 
@@ -182,7 +191,7 @@ def slug_is_reliable(name: str, url: str) -> bool:
     token = ats_slug(url)
     if not tenant_fits(name, token):
         return False
-    raw = re.findall(r"[a-z0-9]+", (name or "").lower().replace("&", " and "))
+    raw = re.findall(r"[a-z0-9]+", _fold(name).replace("&", " and "))
     raw = [word for word in raw if word not in _LEGAL_SUFFIX and word not in {"and", "of", "for"} and len(word) >= 2]
     words = core_words(name)
     compact = "".join(words)
