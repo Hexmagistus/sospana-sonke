@@ -67,6 +67,11 @@ Lungani, 2026-10-03: in every country dropdown, list, and work order, put **Sout
 
 ## Session Log
 
+### 2026-10-11 — Cursor (Grok 4.7) — Two United States Workday country filters
+Blank United States rows were probed again. A global Workday board is stored when its own `locationCountry` filter lists the roles and the page keeps that filter. Both pages were rendered offline after robots.txt allowed the fetch: Analog Devices shows 332 jobs with United States of America applied (332 of 889 located roles), and Equifax shows 70 (70 of 215). Revvity's first page looked mostly American, but the full board is 29 of 74 located roles in the United States and publishes no country facet, so it stays blank. Williams-Sonoma matched the Williams tenant and was rejected.
+
+United States careers links 372 → 374. Blank rows 498 → 496.
+
 ### 2026-10-11 — Cursor (Grok 4.7) — Ready seed PRs merged while the owner was away
 Polled open pull requests for 90 minutes and merged each ready seed PR with a merge commit after updating it onto main (union of the seed CSV and the session log, no duplicate import keys) and waiting for green CI. #69 and #70 stayed open.
 
