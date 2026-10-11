@@ -75,6 +75,11 @@ A careers landing page is enough for that same set, even when the HTML lists no 
 
 ## Session Log
 
+### 2026-10-11 — Cursor (Grok 4.7) — African listed careers landing pages
+Kore Potash and We Buy Cars Holdings store their own careers pages. Lucara Diamond stores its Botswana careers page. Each note is marked `careers_scope=global` and `careers_status` is `global_group`. The other JSE and African-exchange blanks still have no page that passed the robots and careers-page checks.
+
+Careers links: South Africa 815 → 817, Botswana 119 → 120.
+
 ### 2026-10-11 — Cursor (Grok 4.7) — Middle East careers landing pages
 TA-125 groups and Saudi and Emirati companies that Wikidata lists on the national exchange now store the official careers page on the employer's own domain. Almarai and Al Rajhi Bank are in this set. A landing page counts even when the HTML lists no openings. The note is marked `careers_scope=global` and `careers_status` is `global_group`.
 
