@@ -1,5 +1,6 @@
 """Careers landing pages for large groups and listed companies."""
 from app.services.seed_landing import (
+    official_site_fits,
     WikiEmployer,
     choose_entity,
     clean_stored_url,
@@ -42,6 +43,8 @@ def test_landing_page_needs_no_job_list_in_the_html():
     assert not page_is_careers("https://www.linkedin.com/company/adidas/jobs", "<title>Jobs</title>")
     assert not page_is_careers("https://www.example.com/news/jobs-roundup", "<title>Jobs roundup</title>")
     assert not page_is_careers("https://www.airarabia.com/en/not-found", "<title>Careers</title>")
+    assert not page_is_careers("https://www.pearson.com/en-us/career-ready.html", "<title>Career ready</title>")
+    assert not page_is_careers("https://www.4imprint.com/search/careers", "<title>Search</title>")
     assert "utm_source" not in clean_stored_url(
         "https://saputo.wd5.myworkdayjobs.com/en-US/Saputo?locationCountry=abc&amp;utm_source=saputo-com"
     )
@@ -125,6 +128,11 @@ def test_wikidata_item_must_be_the_company_not_a_city_or_person():
         website="http://www.assura.ch/d", instance_of=frozenset({"Q4830453"}),
     )
     assert choose_entity("Assura", "South Africa", [swiss], require_listing=False) is None
+    assert official_site_fits("Oxford Nanopore Technologies", "http://nanoporetech.com")
+    assert not official_site_fits(
+        "Schiehallion Fund",
+        "https://www.bailliegifford.com/en/uk/individual-investors/funds/schiehallion-fund/",
+    )
 
 
 def test_parse_entity_and_candidate_order():

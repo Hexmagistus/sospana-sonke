@@ -32,6 +32,7 @@ from app.services.seed_landing import (
     hostname,
     landing_eligible,
     language_homes,
+    official_site_fits,
     needs_listing_proof,
     ordered_candidates,
     page_is_careers,
@@ -237,7 +238,7 @@ def _one(row: dict, renderer) -> dict | None:
         official = resolve_official(
             wiki, row["name"], row["country"], require_listing=row["require_listing"],
         )
-        if official is None:
+        if official is None or not official_site_fits(row["name"], official.website):
             return None
         url = probe_landing(web, row["name"], row["country"], official.website, renderer=renderer)
         if not url:

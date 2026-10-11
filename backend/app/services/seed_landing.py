@@ -481,6 +481,23 @@ def clean_stored_url(url: str) -> str:
     return urlunparse(parsed._replace(query=urlencode(query), fragment=""))
 
 
+def official_site_fits(name: str, official_url: str) -> bool:
+    """The Wikidata website's domain actually carries this employer's name.
+
+    A fund whose recorded website is its manager's domain is not that fund's
+    own site. ``nanoporetech.com`` still fits Oxford Nanopore.
+    """
+    label = registrable_domain(hostname(official_url)).split(".")[0].replace("-", "")
+    if len(label) < 3:
+        return False
+    token = compact_name(name)
+    if len(token) >= 3 and (token in label or label in token):
+        return True
+    words = re.findall(r"[a-z0-9]+", _fold(name))
+    words = [word for word in words if word not in _LEGAL_FORMS and len(word) >= 4]
+    return any(word in label for word in words)
+
+
 def url_belongs_to_employer(
     name: str,
     official_url: str,
@@ -537,7 +554,9 @@ def page_is_careers(url: str, html: str) -> bool:
     if host.startswith(_CAREERS_HOSTS):
         return True
     path = (urlparse(url).path or "").lower()
-    if any(part in path for part in ("/blog", "/news", "/press", "/article", "/media")):
+    if any(part in path for part in ("/blog", "/news", "/press", "/article", "/media", "/search/")):
+        return False
+    if any(part in path for part in ("career-ready", "career-advice", "careers-advice", "career-development", "career-guide")):
         return False
     if any(marker in path for marker in _PATH_MARKERS):
         return True
