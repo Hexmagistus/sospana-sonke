@@ -75,6 +75,10 @@ A careers landing page is enough for that same set, even when the HTML lists no 
 
 ## Session Log
 
+### 2026-10-11 — Cursor (Grok 4.7) — Asia-Pacific careers landing pages
+Nikkei 225, KOSPI 200, ASX 200, and the other Asia-Pacific large-cap lists that still had a blank careers URL now store the official careers page on the employer's own domain or its own applicant-system tenant. Marubeni's Japanese recruit page is in this set. A landing page counts even when the HTML lists no openings. The note is marked `careers_scope=global` and `careers_status` is `global_group`.
+
+Careers links: Australia 36 → 68, India 26 → 49, Japan 9 → 116, Malaysia 3 → 5, New Zealand 11 → 20, Philippines 5 → 11, Singapore 9 → 16, South Korea 6 → 36, Thailand 2 → 14.
 ### 2026-10-11 — Cursor (Grok 4.7) — Europe careers landing pages
 Listed large groups in continental Europe that still had a blank careers URL now store the official careers page on the employer's own domain or its own applicant-system tenant. Eni's Italian careers page and ASML's careers page are in this set. Adidas stayed blank because the host returned a bot challenge. A landing page counts even when the HTML lists no openings. The note is marked `careers_scope=global` and `careers_status` is `global_group`.
 
