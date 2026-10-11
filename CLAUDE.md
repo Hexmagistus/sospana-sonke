@@ -67,6 +67,19 @@ Lungani, 2026-10-03: in every country dropdown, list, and work order, put **Sout
 
 ## Session Log
 
+### 2026-10-11 — Cursor (Grok 4.7) — Ready seed PRs merged while the owner was away
+Polled open pull requests for 90 minutes and merged each ready seed PR with a merge commit after updating it onto main (union of the seed CSV and the session log, no duplicate import keys) and waiting for green CI. #69 and #70 stayed open.
+
+- #84 `9f88fee9161142310d560cafb3b6df66045f8aff` United Kingdom employers
+- #85 `6b1a32d6ca9a94221a10fba8a7771edca52d3478` United States employers
+- #86 `4c722e778ecb9dab5e1fbca398655371acb4d906` European index employers
+- #87 `a7bc5e6967296d74566a50f39b9f85859da4f22c` Asia-Pacific employers
+- #88 `c65cbafb8b6287413e98f928a507d5207a639ad9` Middle East employers
+- #89 `b921bee7f8de6803cdcbd780769e9dbfe1d6625e` Canada and Latin America employers
+- #90 `5e59bb7227f5655b0423f034985817e7c79a7925` employers in Africa beyond South Africa
+
+#83 was already on main before this window. No further ready seed PR was open at 12:06 UTC.
+
 ### 2026-10-11 — Cursor (Grok 4.7) — Employers in Africa beyond South Africa
 University lists for Nigeria, Kenya, Egypt and Ghana, and the published company and university lists for Morocco. Names already in the directory were skipped. Greenhouse, Lever, Ashby and SmartRecruiters were probed. No board had a majority of located roles in the headquarters country, so this batch stores no new careers URL. Heading labels ("Public universities", "Private universities") and the University of Wales were left out. South Africa was not expanded.
 330 blank rows, note prefix `2026-10-11 africa-employers`. Rows/links, before → after: Nigeria 187/93 → 327/93 (UNI 58 → 198). Kenya 184/133 → 211/133 (UNI 45 → 72). Egypt 96/34 → 140/34 (UNI 14 → 58). Morocco 53/13 → 126/13 (PRIVATE 10 → 71, UNI 11 → 23). Ghana 121/57 → 167/57 (UNI 34 → 80). South Africa stays 815 linked rows. Directory 8,801 rows / 4,206 linked → 9,131 rows / 4,206 linked. `directory-snapshot.json` was left as it is.
