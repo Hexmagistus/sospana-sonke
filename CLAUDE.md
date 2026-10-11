@@ -67,6 +67,11 @@ Lungani, 2026-10-03: in every country dropdown, list, and work order, put **Sout
 
 ## Session Log
 
+### 2026-10-11 — Cursor (Grok 4.7) — Global careers boards for three United States groups
+Intel, Revvity, and Viatris are S&P 500 employers whose own Workday board has no United States facet with at least two roles. The stored URL is that board. The note is marked `careers_scope=global` and `careers_status` is `global_group`, so import leaves the row pending. Arch Capital Group's Ashby token `arch` and Universal Health Services' Greenhouse token `universal` are different organisations and stay blank.
+
+United States careers links 377 → 380. Blank rows 493 → 490.
+
 ### 2026-10-11 — Cursor (Grok 4.7) — France and Netherlands Workday country filters
 Blank European rows were probed again. Thales and Fugro store the board's own `locationCountry` filter. Rendered pages: Thales "1614 JOBS FOUND" with France applied; Fugro "26 JOBS FOUND" with Netherlands applied. Zeppelin University matched the Zeppelin construction-equipment tenant (workshop and CAT-dealer titles) and stays blank.
 

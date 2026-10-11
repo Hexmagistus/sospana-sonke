@@ -7,7 +7,9 @@ Analog Devices, Ciena, Equifax, and Equinix are the exception added later:
 the unfiltered Workday board is global, and the stored URL is that board's own
 United States filter, which lists the roles named in the note. Allegion's own
 board is already mostly in the United States, so it is stored without a filter.
-Everyone else from the same lists is a blank row.
+Everyone else from the same lists is a blank row. Intel, Revvity, and Viatris
+are large groups whose own Workday board has no United States filter. Those
+rows are `global_group` and the note contains `careers_scope=global`.
 """
 import csv
 from pathlib import Path
@@ -45,6 +47,7 @@ LINKS = {
     'Hasbro': ('https://job-boards.greenhouse.io/hasbro', 'PRIVATE', 'greenhouse'),
     'Henry Schein': ('https://careers.smartrecruiters.com/henryschein', 'PRIVATE', 'smartrecruiters'),
     'Intuitive Surgical': ('https://careers.smartrecruiters.com/intuitive', 'PRIVATE', 'smartrecruiters'),
+    'Intel': ('https://intel.wd1.myworkdayjobs.com/External', 'PRIVATE', 'workday'),
     'Kenvue': ('https://careers.smartrecruiters.com/kenvue', 'PRIVATE', 'smartrecruiters'),
     'Labcorp': ('https://labcorp.wd1.myworkdayjobs.com/External', 'PRIVATE', 'workday'),
     'Leidos': ('https://leidos.wd5.myworkdayjobs.com/External', 'PRIVATE', 'workday'),
@@ -58,10 +61,12 @@ LINKS = {
     'Plaid': ('https://jobs.ashbyhq.com/plaid', 'PRIVATE', 'static'),
     'Regeneron Pharmaceuticals': ('https://regeneron.wd1.myworkdayjobs.com/Careers', 'PRIVATE', 'workday'),
     'ResMed': ('https://careers.smartrecruiters.com/resmed', 'PRIVATE', 'smartrecruiters'),
+    'Revvity': ('https://revvity.wd103.myworkdayjobs.com/External', 'PRIVATE', 'workday'),
     'SoFi': ('https://www.sofi.com/careers/', 'PRIVATE', 'static'),
     'The Travelers Companies': ('https://travelers.wd5.myworkdayjobs.com/External', 'PRIVATE', 'workday'),
     'Truist Financial': ('https://truist.wd1.myworkdayjobs.com/Careers', 'PRIVATE', 'workday'),
     'Verisign': ('https://job-boards.greenhouse.io/verisign', 'PRIVATE', 'greenhouse'),
+    'Viatris': ('https://viatris.wd5.myworkdayjobs.com/External', 'PRIVATE', 'workday'),
     'Wabtec': ('https://careers.smartrecruiters.com/wabtec', 'PRIVATE', 'smartrecruiters'),
     'Western Digital': ('https://careers.smartrecruiters.com/westerndigital', 'PRIVATE', 'smartrecruiters'),
     'Williams Companies': ('https://williams.wd5.myworkdayjobs.com/External', 'PRIVATE', 'workday'),
@@ -73,10 +78,10 @@ BLANK_KINDS = {
     'HOSPITAL': 10,
     'MUNI': 26,
     'NGO': 10,
-    'PRIVATE': 384,
+    'PRIVATE': 381,
     'UNI': 41,
 }
-LINKED_TOTAL = 377
+LINKED_TOTAL = 380
 
 
 def _rows():
@@ -104,7 +109,10 @@ def test_usa_employers_follow_the_direct_link_rule():
             assert row["careers_url"] == url
             assert row["source_type"] == kind
             assert row["active"] == "true"
-            assert row["careers_status"] == "green_verified"
+            if "careers_scope=global" in row["relevance_note"]:
+                assert row["careers_status"] == "global_group"
+            else:
+                assert row["careers_status"] == "green_verified"
             assert row["scraping_status"] == "pending"
             assert row["careers_url"].startswith("https://")
             assert detect_ats(row["careers_url"])[0] == ats
