@@ -32,6 +32,18 @@ _GENERIC_SLUG = _STOP | {
     "public", "flex", "applied", "parker", "mosaic", "quanta", "constellation",
     "waterworks", "digital", "first", "general", "royal", "standard",
 }
+# Named large-cap lists and large hospital systems. A row is a large group only
+# when its note names one of these. AIM, local "companies" lists, universities,
+# municipalities, and NHS trusts are not in this set.
+_LARGE_GROUP_LABELS = {
+    "S&P 500", "FTSE 100", "FTSE 250", "Nikkei 225", "KOSPI 200", "ASX 200",
+    "SDAX", "MDAX", "DAX", "S&P/TSX 60", "Dubai Financial Market", "TA-125",
+    "SET50", "NZX 50", "Nifty Next 50", "Nifty 50", "BSE Sensex", "LQ45",
+    "CAC 40", "IPC", "FTSE MIB", "Straits Times", "IBEX 35", "PSEi", "WIG30",
+    "FBM KLCI", "OMX Stockholm 30", "OMX Helsinki 25", "OBX", "SMIM",
+    "OMX Copenhagen 25", "SMI", "AMX", "AEX", "COLCAP", "Icelandic banks",
+    "ISEQ 20", "major companies", "US hospital systems",
+}
 _FACET_ID = re.compile(r"^[a-f0-9]{16,40}$", re.I)
 _DESCRIPTORS = {
     "United States": {"united states", "united states of america", "usa"},
@@ -96,6 +108,22 @@ def _from_counts(here: int, located: int, share: float) -> BoardDecision:
     if here >= MIN_ROLES:
         return BoardDecision(True, True, here, located, share)
     return BoardDecision(False, False, here, located, share)
+
+
+def is_large_group(source_type: str, note: str) -> bool:
+    """True for a listed large-cap employer or a named large hospital system.
+
+    Small and local employers stay on the strict in-country rule. The marker
+    is the list name in the seed note, not a guess from the company name.
+    """
+    kind = (source_type or "").strip().upper()
+    if kind not in {"PRIVATE", "HOSPITAL"}:
+        return False
+    text = note or ""
+    if ":" not in text:
+        return False
+    label = text.split(":", 1)[1].split(".", 1)[0].strip()
+    return label in _LARGE_GROUP_LABELS
 
 
 def core_words(name: str) -> list[str]:
