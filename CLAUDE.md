@@ -67,6 +67,11 @@ Lungani, 2026-10-03: in every country dropdown, list, and work order, put **Sout
 
 ## Session Log
 
+### 2026-10-11 — Cursor (Grok 4.7) — Middle East employers from exchange lists and universities
+Dubai Financial Market listings, published company lists for the United Arab Emirates, Saudi Arabia and Qatar, the TA-125, and university lists for those four countries, plus a short set of ministries, hospitals, cities and charities. Greenhouse, Lever, Ashby and SmartRecruiters were probed for every name. No board had a majority of located roles in the headquarters country, so this batch stores no new careers URL. Blank rows use `grey_none_verified` / `no_url`. Nav labels ("universities", "colleges") and foreign universities that are not a local campus were left out. Aramco was left out because Saudi Aramco is already in the directory.
+474 blank rows, note prefix `2026-10-11 mena-employers`. Rows/links, before → after: United Arab Emirates 51/21 → 213/21 (PRIVATE rows 6 → 115, UNI rows 4 → 56). Saudi Arabia 4/4 → 155/4 (PRIVATE rows 2 → 97, UNI rows 0 → 53). Qatar 6/6 → 45/6 (PRIVATE rows 0 → 27, UNI rows 2 → 12). Israel 9/9 → 131/9 (PRIVATE rows 9 → 60, UNI rows 0 → 67). Directory 8,801 rows / 4,206 linked → 9,275 rows / 4,206 linked. `directory-snapshot.json` was left as it is.
+Next: Canada and Latin America as its own ready PR off main.
+
 ### 2026-10-11 — Cursor (Grok 4.7) — United States employers from the S&P 500, hospitals, and ATS boards
 S&P 500 constituents, Association of American Universities members, large hospital systems, federal agencies, major cities, national charities, and community colleges, plus a short list of startups, were probed on Greenhouse, Lever, Ashby, Workable, SmartRecruiters, iCIMS, and Workday. A careers URL is stored only when robots.txt allows SospanaSonkeBot (or the host has no robots.txt), the page is HTTP 200, the employer's own board names a post, and at least half of the located roles are in the United States. The USAJOBS search page did not name posts in the HTML, so federal agencies stay blank. Wrong-company slugs (Public Storage, Flex, Applied Materials, and others) and global boards that are not mostly in the United States (Ciena, Analog Devices) were not stored. Williams-Sonoma was not given the Williams Companies Workday tenant.
 
