@@ -5,7 +5,9 @@ host publishes no robots.txt), the response is HTTP 200, the employer's own
 board names a post, and at least half of the located roles are in the United Kingdom.
 Aviva is the exception added later: the unfiltered Workday board is global,
 and the stored URL is that board's own United Kingdom filter, which lists the
-roles named in the note. Everyone else from the same lists is a blank row.
+roles named in the note. Smith & Nephew is a large group whose own Workday board
+has no United Kingdom filter. That row is `global_group` and the note contains
+`careers_scope=global`. Everyone else from the same lists is a blank row.
 """
 import csv
 from pathlib import Path
@@ -27,6 +29,7 @@ LINKS = {
     'National Trust': ('https://careers.smartrecruiters.com/nationaltrust', 'NGO', 'smartrecruiters'),
     'Rotork': ('https://careers.smartrecruiters.com/rotork', 'PRIVATE', 'smartrecruiters'),
     'Shawbrook Bank': ('https://careers.shawbrook.co.uk/en/jobs', 'PRIVATE', 'static'),
+    'Smith & Nephew': ('https://smithnephew.wd5.myworkdayjobs.com/External', 'PRIVATE', 'workday'),
     'TP ICAP': ('https://careers.smartrecruiters.com/tpicap', 'PRIVATE', 'smartrecruiters'),
     'Trainline': ('https://jobs.ashbyhq.com/trainline', 'PRIVATE', 'static'),
     'UK Atomic Energy Authority': ('https://careers.smartrecruiters.com/ukatomicenergyauthority', 'SOE', 'smartrecruiters'),
@@ -36,11 +39,11 @@ BLANK_KINDS = {
     'HOSPITAL': 271,
     'MUNI': 24,
     'NGO': 24,
-    'PRIVATE': 404,
+    'PRIVATE': 403,
     'SOE': 14,
     'UNI': 154,
 }
-LINKED_TOTAL = 24
+LINKED_TOTAL = 25
 
 
 def _rows():
@@ -68,7 +71,10 @@ def test_uk_employers_follow_the_direct_link_rule():
             assert row["careers_url"] == url
             assert row["source_type"] == kind
             assert row["active"] == "true"
-            assert row["careers_status"] == "green_verified"
+            if "careers_scope=global" in row["relevance_note"]:
+                assert row["careers_status"] == "global_group"
+            else:
+                assert row["careers_status"] == "green_verified"
             assert row["scraping_status"] == "pending"
             assert row["careers_url"].startswith("https://")
             assert detect_ats(row["careers_url"])[0] == ats
