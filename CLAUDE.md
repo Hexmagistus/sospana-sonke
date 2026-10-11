@@ -67,6 +67,11 @@ Lungani, 2026-10-03: in every country dropdown, list, and work order, put **Sout
 
 ## Session Log
 
+### 2026-10-11 — Cursor (Grok 4.7) — France and Netherlands Workday country filters
+Blank European rows were probed again. Thales and Fugro store the board's own `locationCountry` filter. Rendered pages: Thales "1614 JOBS FOUND" with France applied; Fugro "26 JOBS FOUND" with Netherlands applied. Zeppelin University matched the Zeppelin construction-equipment tenant (workshop and CAT-dealer titles) and stays blank.
+
+Careers links, before → after: France 15 → 16, Netherlands 9 → 10. Blank rows: France 114 → 113, Netherlands 78 → 77. Germany, Ireland, the Nordics, Spain, Italy, Switzerland, and Poland are unchanged.
+
 ### 2026-10-11 — Cursor (Grok 4.7) — Ready seed PRs merged while the owner was away
 Polled open pull requests for 90 minutes and merged each ready seed PR with a merge commit after updating it onto main (union of the seed CSV and the session log, no duplicate import keys) and waiting for green CI. #69 and #70 stayed open.
 
