@@ -75,6 +75,10 @@ A careers landing page is enough for that same set, even when the HTML lists no 
 
 ## Session Log
 
+### 2026-10-11 — Cursor (Grok 4.7) — Middle East careers landing pages
+TA-125 groups and Saudi and Emirati companies that Wikidata lists on the national exchange now store the official careers page on the employer's own domain. Almarai and Al Rajhi Bank are in this set. A landing page counts even when the HTML lists no openings. The note is marked `careers_scope=global` and `careers_status` is `global_group`.
+
+Careers links: Israel 11 → 28, Saudi Arabia 4 → 16, United Arab Emirates 21 → 23.
 ### 2026-10-11 — Cursor (Grok 4.7) — United States careers landing pages
 S&P 500 employers and the named US hospital systems that still had a blank careers URL now store the official careers page on the employer's own domain or its own applicant-system tenant. A landing page counts even when the HTML lists no openings. The note is marked `careers_scope=global` and `careers_status` is `global_group`. A parent-company board and a host that answered with a bot challenge stayed blank.
 
