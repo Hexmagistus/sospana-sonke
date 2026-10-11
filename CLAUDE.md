@@ -75,6 +75,26 @@ A careers landing page is enough for that same set, even when the HTML lists no 
 
 ## Session Log
 
+### 2026-10-11 — Cursor (Grok 4.7) — Country-filter and global-board seed PRs merged
+Merged the ready seed pull requests in order after updating each onto main (union of the session log and the seed file, no duplicate import keys) and waiting for green CI. #69 and #70 stayed open. #102 is the directory refresh; it was merged separately as `a48e99c1c1785dd2ff0c25b047b508dbaa0a8435`.
+
+- #91 `e03ad948c856f78cdc35d2e6216a12bf7456e1be` optional Playwright for offline careers checks
+- #92 `a1751e6e35074e3bb778a52453dd225174888c71` United States Workday country filters
+- #93 `78dc2273b322083bd8e09f5a071c9b586edf9056` Aviva's United Kingdom filter
+- #94 `dbc2f04bd76b077e807a539353a6e0b08ea27b70` Thales and Fugro
+- #95 `cce668cfba7afe75e9132fe484a6f71705e4d150` Cenovus and Waste Connections
+- #96 `d4e4d5ce7d81d4623b4a419833bb41211aac60da` Trend Micro's Japan filter
+- #97 `351cf247ecd5087ef87944be5562891892a4b8ea` large-group global boards
+- #98 `e28a2a9c6e884f840507fa12dc3077762e184ebd` Intel, Revvity, and Viatris
+- #99 `2d48b09240c78ea1d3cee87519c69f7496276246` Smith & Nephew
+- #100 `6d899fecc9be0e89bf98dfb3726d74e45c88e4f6` accent folding for board tokens
+- #101 `152a5978d1b7e08ce0b2a08ab3fb2dc7c075df39` four European global boards
+- #103 `91b15e5fa68619889411c9e7fc95eebb061b05e3` eight Asia-Pacific boards
+- #104 `8bf6e12ad27ff25cdfe02016b0c702bd76ddaf54` LivePerson and NICE
+- #105 `48ae9e59108d0b93cf3c4a26eef7af6069de04ff` careers landing pages for large groups
+
+Where a new link raised a country total that another test still asserted, that expected count was updated to the combined total. No further ready seed PR was open at 16:27 UTC.
+
 ### 2026-10-11 — Cursor (Grok 4.7) — Merged #102
 Updated the directory refresh onto main, kept both session logs, and merged with a merge commit `a48e99c1c1785dd2ff0c25b047b508dbaa0a8435`. CI on the updated branch was green (backend, frontend, and the Vercel preview). The seed CSV is main's. The public snapshot stays the 11 October Frankfurt extract.
 
