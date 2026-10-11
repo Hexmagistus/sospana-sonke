@@ -73,6 +73,11 @@ Multinationals and large groups are the exception. A row counts as one only when
 
 ## Session Log
 
+### 2026-10-11 — Cursor (Grok 4.7) — Global careers boards in Denmark, Finland, Germany, and Switzerland
+Zealand Pharma, Valmet, Jungheinrich, and Galderma are listed large groups. Their own boards have no country facet with at least two roles, so the stored URL is the group's main board. The note is marked `careers_scope=global` and `careers_status` is `global_group`. Vinci, Frontline, Julius Bär, and Sunrise matched a different organisation and stay blank. Thales and Fugro are unchanged.
+
+Careers links, before → after: Denmark 6 → 7, Finland 4 → 5, Germany 14 → 15, Switzerland 6 → 7. France, the Netherlands, Ireland, Norway, Sweden, Iceland, Spain, Italy, and Poland are unchanged.
+
 ### 2026-10-11 — Cursor (Grok 4.7) — Global careers pages for large groups
 The in-country rule stays for small and local employers. A listed large group or a US hospital system may store its own global careers board when no country path is available. The note is marked `careers_scope=global`. Discovery for that set is `scripts/discover_seed_careers.py --large-groups`. A short token that only matches after generic words are dropped, such as `arch` for Arch Capital Group or `universal` for Universal Health Services, is rejected.
 
