@@ -67,6 +67,10 @@ Lungani, 2026-10-03: in every country dropdown, list, and work order, put **Sout
 
 ## Session Log
 
+### 2026-10-11 — Cursor (Grok 4.7) — Optional Playwright for offline careers checks
+The daily URL check and the admin “test this URL” button stay on plain HTTP. Chromium does not fit the free scheduler, and a bot-challenge page is not executed. Offline seed work can pass a renderer into `fetch_seed_page` (`backend/app/services/seed_page.py`). It still refuses a private or loopback address, follows the SSRF checks on each redirect, and skips the page when robots.txt disallows SospanaSonkeBot. A renderer runs only when the caller supplied one and the HTTP body is an empty JavaScript shell. `scripts/verify_seed_careers.py --render` and `scripts/discover_seed_careers.py --render` are the two offline commands. Discovery still requires the employer’s own board, at least two located roles, and at least half of those roles in that country. A Workday `locationCountry` filter is the one extra case: the board’s own facet id, kept on the URL, when that country lists at least two roles and the unfiltered board does not.
+Next: rerun discovery on the blank rows, United States and United Kingdom first, and open one ready PR per region.
+
 ### 2026-10-11 — Cursor (Grok 4.7) — Ready seed PRs merged while the owner was away
 Polled open pull requests for 90 minutes and merged each ready seed PR with a merge commit after updating it onto main (union of the seed CSV and the session log, no duplicate import keys) and waiting for green CI. #69 and #70 stayed open.
 
