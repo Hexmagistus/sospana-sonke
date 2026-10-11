@@ -71,6 +71,36 @@ Lungani, 2026-10-03: in every country dropdown, list, and work order, put **Sout
 Blank Japan and South Korea rows were probed again. Trend Micro stores the board's own `locationCountry` filter. The rendered page shows "18 JOBS FOUND" with Japan applied, and the roles are in Tokyo. South Korea had no new board that met the in-country rule.
 
 Careers links, before → after: Japan 5 → 6, South Korea 5 → 5. Blank rows: Japan 306 → 305, South Korea 178 → 178.
+### 2026-10-11 — Cursor (Grok 4.7) — Canada Workday country filters
+Blank Canada rows were probed again. Cenovus Energy and Waste Connections store the board's own `Location_Country` filter. Rendered pages show "20 JOBS FOUND" and "63 JOBS FOUND" with Canada applied. The roles are in Calgary, Lloydminster, Lethbridge, Saskatoon, and Kelowna. The scanner sends that facet key.
+
+Canada careers links 10 → 12. Blank rows 157 → 155. Mexico, Brazil, Argentina, Colombia, Uruguay, and Ecuador are unchanged.
+### 2026-10-11 — Cursor (Grok 4.7) — France and Netherlands Workday country filters
+Blank European rows were probed again. Thales and Fugro store the board's own `locationCountry` filter. Rendered pages: Thales "1614 JOBS FOUND" with France applied; Fugro "26 JOBS FOUND" with Netherlands applied. Zeppelin University matched the Zeppelin construction-equipment tenant (workshop and CAT-dealer titles) and stays blank.
+
+Careers links, before → after: France 15 → 16, Netherlands 9 → 10. Blank rows: France 114 → 113, Netherlands 78 → 77. Germany, Ireland, the Nordics, Spain, Italy, Switzerland, and Poland are unchanged.
+### 2026-10-11 — Cursor (Grok 4.7) — United Kingdom Workday country filter for Aviva
+Blank United Kingdom rows were probed again. Aviva's Workday board is global (8 of 132 located roles are in the United Kingdom). The stored URL is the board's own `Location_Country` filter. The rendered page shows "8 JOBS FOUND" and "1 - 8 of 8 jobs" with United Kingdom applied. The scanner sends that facet key; posting `locationCountry` to this host returns HTTP 400.
+
+United Kingdom careers links 23 → 24. Blank rows 916 → 915.
+### 2026-10-11 — Cursor (Grok 4.7) — Three more United States Workday boards
+The same blank-row probe, after it also read Workday's `Location_Country` facet. Allegion's own board is already mostly in the United States (255 of 332 located roles), so the URL has no filter. Ciena (49 of 164) and Equinix (119 of 337) store that facet. Rendered pages show "49 JOBS FOUND" and "119 JOBS FOUND" with United States of America applied. The scanner sends `Location_Country` when that is the query key, because posting `locationCountry` to those hosts returns HTTP 400.
+
+United States careers links 374 → 377. Blank rows 496 → 493.
+
+### 2026-10-11 — Cursor (Grok 4.7) — Two United States Workday country filters
+Blank United States rows were probed again. A global Workday board is stored when its own `locationCountry` filter lists the roles and the page keeps that filter. Both pages were rendered offline after robots.txt allowed the fetch: Analog Devices shows 332 jobs with United States of America applied (332 of 889 located roles), and Equifax shows 70 (70 of 215). Revvity's first page looked mostly American, but the full board is 29 of 74 located roles in the United States and publishes no country facet, so it stays blank. Williams-Sonoma matched the Williams tenant and was rejected.
+
+United States careers links 372 → 374. Blank rows 498 → 496.
+### 2026-10-11 — Cursor (Grok 4.7) — Blank-row discovery for the priority countries
+Offline discovery ran over the blank careers rows in the United States, the United Kingdom, Europe, Japan, South Korea, Canada, the Middle East, and Nigeria, Kenya, Egypt, Morocco, and Ghana. New links are in separate ready PRs and were not merged: United States 372 → 377 (#92), United Kingdom 23 → 24 (#93), France 15 → 16 and Netherlands 9 → 10 (#94), Japan 5 → 6 with South Korea unchanged (#96), Canada 10 → 12 (#95). Germany, Ireland, the Nordics, Spain, Italy, Switzerland, Poland, the Middle East, and those five African countries stayed at the same link counts. Zeppelin University matched the Zeppelin equipment tenant and was left blank. The daily URL check still does not launch a browser.
+
+### 2026-10-11 — Cursor (Grok 4.7) — Workday discovery keeps the country filter
+When a Workday board publishes a country facet with at least two roles, offline discovery stores that filter even if the unfiltered board is already mostly in that country. The unfiltered feed can lead with other countries, and the scanner only reads the first pages. A tenant that is only the first word of a different organisation is still rejected. Zeppelin University matched the Zeppelin construction-equipment tenant and stays blank.
+
+### 2026-10-11 — Cursor (Grok 4.7) — Optional Playwright for offline careers checks
+The daily URL check and the admin “test this URL” button stay on plain HTTP. Chromium does not fit the free scheduler, and a bot-challenge page is not executed. Offline seed work can pass a renderer into `fetch_seed_page` (`backend/app/services/seed_page.py`). It still refuses a private or loopback address, follows the SSRF checks on each redirect, and skips the page when robots.txt disallows SospanaSonkeBot. A renderer runs only when the caller supplied one and the HTTP body is an empty JavaScript shell. `scripts/verify_seed_careers.py --render` and `scripts/discover_seed_careers.py --render` are the two offline commands. Discovery still requires the employer’s own board, at least two located roles, and at least half of those roles in that country. A Workday country filter is the one extra case: the board’s own facet id, kept on the URL as `locationCountry` or `Location_Country` (the jobs POST must use the same key the board published), when that country lists at least two roles and the unfiltered board does not. The scanner sends that key from the stored URL. A first page is not treated as the whole board, and a tenant slug has to be the employer’s name.
+Next: rerun discovery on the blank rows, United States and United Kingdom first, and open one ready PR per region.
 
 ### 2026-10-11 — Cursor (Grok 4.7) — Ready seed PRs merged while the owner was away
 Polled open pull requests for 90 minutes and merged each ready seed PR with a merge commit after updating it onto main (union of the seed CSV and the session log, no duplicate import keys) and waiting for green CI. #69 and #70 stayed open.

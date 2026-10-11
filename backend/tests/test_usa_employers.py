@@ -3,6 +3,10 @@
 A careers URL is stored only when robots.txt allows SospanaSonkeBot (or the
 host publishes no robots.txt), the response is HTTP 200, the employer's own
 board names a post, and at least half of the located roles are in the United States.
+Analog Devices, Ciena, Equifax, and Equinix are the exception added later:
+the unfiltered Workday board is global, and the stored URL is that board's own
+United States filter, which lists the roles named in the note. Allegion's own
+board is already mostly in the United States, so it is stored without a filter.
 Everyone else from the same lists is a blank row.
 """
 import csv
@@ -15,6 +19,8 @@ NOTE = '2026-10-11 usa-employers'
 LINKS = {
     'AbbVie': ('https://careers.smartrecruiters.com/abbvie', 'PRIVATE', 'smartrecruiters'),
     'Albemarle Corporation': ('https://albemarle.wd5.myworkdayjobs.com/External', 'PRIVATE', 'workday'),
+    'Allegion': ('https://allegion.wd5.myworkdayjobs.com/Careers', 'PRIVATE', 'workday'),
+    'Analog Devices': ('https://analogdevices.wd1.myworkdayjobs.com/External?locationCountry=bc33aa3152ec42d4995f4791a106ed09', 'PRIVATE', 'workday'),
     'Ameren': ('https://ameren.wd1.myworkdayjobs.com/External', 'PRIVATE', 'workday'),
     'Amgen': ('https://amgen.wd1.myworkdayjobs.com/Careers', 'PRIVATE', 'workday'),
     'Arista Networks': ('https://careers.smartrecruiters.com/aristanetworks', 'PRIVATE', 'smartrecruiters'),
@@ -24,10 +30,13 @@ LINKS = {
     'Brown & Brown': ('https://careers.smartrecruiters.com/brownbrown', 'PRIVATE', 'smartrecruiters'),
     'Cencora': ('https://careers.smartrecruiters.com/cencora', 'PRIVATE', 'smartrecruiters'),
     'CF Industries': ('https://cfindustries.wd1.myworkdayjobs.com/Careers', 'PRIVATE', 'workday'),
+    'Ciena': ('https://ciena.wd5.myworkdayjobs.com/Careers?Location_Country=bc33aa3152ec42d4995f4791a106ed09', 'PRIVATE', 'workday'),
     'City of San Antonio': ('https://careers.smartrecruiters.com/cityofsanantonio', 'MUNI', 'smartrecruiters'),
     'Confluent': ('https://jobs.ashbyhq.com/confluent', 'PRIVATE', 'static'),
     'Devon Energy': ('https://devonenergy.wd5.myworkdayjobs.com/Careers', 'PRIVATE', 'workday'),
     "Domino's": ('https://careers.smartrecruiters.com/dominos', 'PRIVATE', 'smartrecruiters'),
+    'Equifax': ('https://equifax.wd5.myworkdayjobs.com/External?locationCountry=bc33aa3152ec42d4995f4791a106ed09', 'PRIVATE', 'workday'),
+    'Equinix': ('https://equinix.wd1.myworkdayjobs.com/External?Location_Country=bc33aa3152ec42d4995f4791a106ed09', 'PRIVATE', 'workday'),
     'Expeditors International': ('https://careers.smartrecruiters.com/expeditors', 'PRIVATE', 'smartrecruiters'),
     'Figma': ('https://www.figma.com/careers/', 'PRIVATE', 'static'),
     'Gen Digital': ('https://jobs.ashbyhq.com/gen-digital', 'PRIVATE', 'static'),
@@ -64,10 +73,10 @@ BLANK_KINDS = {
     'HOSPITAL': 10,
     'MUNI': 26,
     'NGO': 10,
-    'PRIVATE': 389,
+    'PRIVATE': 384,
     'UNI': 41,
 }
-LINKED_TOTAL = 372
+LINKED_TOTAL = 377
 
 
 def _rows():
