@@ -43,7 +43,12 @@ def test_new_employers_keep_the_direct_link_rule():
         assert ":443" not in (row["careers_url"] or "")
         if row["careers_url"]:
             assert row["active"] == "true"
-            assert row["careers_status"] == "green_verified"
+            # We Buy Cars Holdings later stored its own careers page under the
+            # listed-company landing rule (careers_scope=global).
+            if "careers_scope=global" in row["relevance_note"]:
+                assert row["careers_status"] == "global_group"
+            else:
+                assert row["careers_status"] == "green_verified"
             assert row["scraping_status"] == "pending"
             assert row["careers_url"].startswith("https://")
             host = urlparse(row["careers_url"]).netloc.lower()
