@@ -33,10 +33,11 @@ KINDS = {
     "Aalto University": "UNI",
     "University of Iceland": "UNI",
 }
+# Denmark includes Zealand Pharma and Finland includes Valmet, both global boards.
 LINKED = {
     "Belgium": 6,
-    "Denmark": 6,
-    "Finland": 4,
+    "Denmark": 7,
+    "Finland": 5,
     "Iceland": 5,
     "Norway": 7,
     "Romania": 6,

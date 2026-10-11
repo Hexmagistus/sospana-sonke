@@ -30,9 +30,9 @@ EXPECTED = {
 }
 
 # Linked employers (active, non-empty careers URL) after this batch is
-# combined with the major-economy rows, the Thales filter, and Trend Micro.
+# combined with the major-economy rows, the later country filters, and Jungheinrich.
 LINKED = {
-    "Germany": 14,
+    "Germany": 15,
     "France": 16,
     "Japan": 6,
     "Spain": 7,
