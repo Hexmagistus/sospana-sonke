@@ -174,8 +174,10 @@ def slug_is_reliable(name: str, url: str) -> bool:
     """True when the board token is this employer's name, not a short neighbour.
 
     ``arch`` matches Arch Capital Group only after ``capital`` and ``group``
-    are ignored. That token is rejected. ``abbott`` still fits Abbott
-    Laboratories, and a full compact name such as ``analogdevices`` is kept.
+    are ignored, and ``universal`` matches Universal Health Services only
+    after ``health`` and ``services`` are ignored. Those tokens are rejected.
+    ``abbott`` still fits Abbott Laboratories, and a full compact name such
+    as ``analogdevices`` is kept.
     """
     token = ats_slug(url)
     if not tenant_fits(name, token):
@@ -184,7 +186,13 @@ def slug_is_reliable(name: str, url: str) -> bool:
     raw = [word for word in raw if word not in _LEGAL_SUFFIX and len(word) >= 2]
     words = core_words(name)
     compact = "".join(words)
+    full = "".join(raw)
     dropped = [word for word in raw if word not in words]
+    # ``universal`` matches Universal Health Services only because health and
+    # services were ignored. The token has to carry those words, or be a
+    # generic suffix on an otherwise complete name (Abbott Laboratories).
+    if dropped and token != full:
+        return False
     if token == compact and dropped and len(token) < 8:
         return False
     if words and token == words[0] and token != compact and len(token) < 6:

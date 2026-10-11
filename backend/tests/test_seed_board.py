@@ -44,6 +44,7 @@ def test_names_do_not_collapse_neighbours():
     assert slug_is_reliable("Abbott Laboratories", "https://abbott.wd5.myworkdayjobs.com/External")
     assert slug_is_reliable("Analog Devices", "https://analogdevices.wd1.myworkdayjobs.com/External")
     assert not slug_is_reliable("Arch Capital Group", "https://jobs.ashbyhq.com/arch")
+    assert not slug_is_reliable("Universal Health Services", "https://job-boards.greenhouse.io/universal")
     assert not slug_is_reliable("Charles River Laboratories", "https://job-boards.greenhouse.io/charles")
     assert not slug_is_reliable("Williams-Sonoma, Inc", "https://williams.wd5.myworkdayjobs.com/External")
     assert tenant_fits("Analog Devices", "analogdevices") is True
