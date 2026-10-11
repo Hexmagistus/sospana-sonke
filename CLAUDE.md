@@ -73,6 +73,11 @@ Multinationals and large groups are the exception. A row counts as one only when
 
 ## Session Log
 
+### 2026-10-11 — Cursor (Grok 4.7) — LivePerson and NICE global careers pages
+LivePerson's Greenhouse board and NICE's own careers page are stored for these TA-125 groups. Neither board is filtered to Israel. The note is marked `careers_scope=global` and `careers_status` is `global_group`. NICE's page names Actimize, which is NICE's product. The United Arab Emirates, Saudi Arabia, and Qatar lists had no new board that met the rule.
+
+Israel careers links 9 → 11. The United Arab Emirates stays at 21, Saudi Arabia at 4, and Qatar at 6.
+
 ### 2026-10-11 — Cursor (Grok 4.7) — Asia-Pacific careers boards for listed large groups
 Alcoa stores its own Australia Workday filter (26 of 110 located roles). Charter Hall, Life360, Perpetual, Bridgestone, Sumitomo Heavy Industries, Terumo, and LG Electronics store their own global board, marked `careers_scope=global` with `careers_status` `global_group`. IndiGo, Titan, Sharp, SHIFT, and Vector matched a different organisation and stay blank. Trend Micro's Japan filter is unchanged.
 
