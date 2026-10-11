@@ -183,7 +183,7 @@ def slug_is_reliable(name: str, url: str) -> bool:
     if not tenant_fits(name, token):
         return False
     raw = re.findall(r"[a-z0-9]+", (name or "").lower().replace("&", " and "))
-    raw = [word for word in raw if word not in _LEGAL_SUFFIX and len(word) >= 2]
+    raw = [word for word in raw if word not in _LEGAL_SUFFIX and word not in {"and", "of", "for"} and len(word) >= 2]
     words = core_words(name)
     compact = "".join(words)
     full = "".join(raw)
