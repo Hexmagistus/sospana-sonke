@@ -30,10 +30,10 @@ EXPECTED = {
 }
 
 # Linked employers (active, non-empty careers URL) after this batch is
-# combined with the major-economy rows already on main.
+# combined with the major-economy rows and the Thales country filter.
 LINKED = {
     "Germany": 14,
-    "France": 15,
+    "France": 16,
     "Japan": 5,
     "Spain": 7,
     "Italy": 6,

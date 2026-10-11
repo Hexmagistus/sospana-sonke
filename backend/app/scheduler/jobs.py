@@ -325,6 +325,10 @@ def test_all_urls(db: Session, limit: int = 200, job_run_id: str | None = None,
     it only verifies that a stored link still resolves and looks right, so it is
     cheap enough to run across the whole database on a schedule and is the
     on-demand "verify every careers URL now and flag the dead ones" pass.
+
+    This job stays on plain HTTP. A headless browser is too heavy for the free
+    scheduler, and a bot-challenge page must not be executed. Offline seed
+    checks are a separate script and are not called from here.
     """
     from app.services.url_tester import test_url_sync, status_from_result
 

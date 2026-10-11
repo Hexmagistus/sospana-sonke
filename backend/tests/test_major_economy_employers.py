@@ -20,10 +20,10 @@ LINKS = {
     ("Saudi Aramco", "Saudi Arabia"): "https://www.aramco.com/en/careers",
     ("Panasonic Group", "Japan"): "https://recruit.jpn.panasonic.com/newgrads/job_description/",
 }
-# Totals include the country-specific ATS boards merged with this batch.
+# Totals include the country-specific ATS boards and the Thales country filter.
 LINKED = {
     "Germany": 14,
-    "France": 15,
+    "France": 16,
     "Japan": 5,
     "Mexico": 3,
     "Spain": 7,
