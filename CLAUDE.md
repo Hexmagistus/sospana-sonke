@@ -67,6 +67,10 @@ Lungani, 2026-10-03: in every country dropdown, list, and work order, put **Sout
 
 ## Session Log
 
+### 2026-10-11 — Cursor (Grok 4.7) — Canada Workday country filters
+Blank Canada rows were probed again. Cenovus Energy and Waste Connections store the board's own `Location_Country` filter. Rendered pages show "20 JOBS FOUND" and "63 JOBS FOUND" with Canada applied. The roles are in Calgary, Lloydminster, Lethbridge, Saskatoon, and Kelowna. The scanner sends that facet key.
+
+Canada careers links 10 → 12. Blank rows 157 → 155. Mexico, Brazil, Argentina, Colombia, Uruguay, and Ecuador are unchanged.
 ### 2026-10-11 — Cursor (Grok 4.7) — France and Netherlands Workday country filters
 Blank European rows were probed again. Thales and Fugro store the board's own `locationCountry` filter. Rendered pages: Thales "1614 JOBS FOUND" with France applied; Fugro "26 JOBS FOUND" with Netherlands applied. Zeppelin University matched the Zeppelin construction-equipment tenant (workshop and CAT-dealer titles) and stays blank.
 
