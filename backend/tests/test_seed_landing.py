@@ -120,6 +120,11 @@ def test_wikidata_item_must_be_the_company_not_a_city_or_person():
     )
     assert choose_entity("Almarai", "Saudi Arabia", [listed, private], require_listing=True) == listed
     assert choose_entity("Al Baik", "Saudi Arabia", [private], require_listing=True) is None
+    swiss = _entity(
+        qid="Q745605", label="Assura", description="",
+        website="http://www.assura.ch/d", instance_of=frozenset({"Q4830453"}),
+    )
+    assert choose_entity("Assura", "South Africa", [swiss], require_listing=False) is None
 
 
 def test_parse_entity_and_candidate_order():

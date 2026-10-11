@@ -321,6 +321,34 @@ def country_matches(entity: WikiEmployer, country: str) -> bool | None:
     return qid in entity.country_qids
 
 
+# Country-code domains. Generic suffixes such as .com and .co are not a country.
+_CCTLD_COUNTRY = {
+    "za": "South Africa", "uk": "United Kingdom", "gb": "United Kingdom",
+    "bw": "Botswana", "zw": "Zimbabwe", "na": "Namibia", "mz": "Mozambique",
+    "ke": "Kenya", "ng": "Nigeria", "eg": "Egypt", "ma": "Morocco", "gh": "Ghana",
+    "ch": "Switzerland", "de": "Germany", "fr": "France", "jp": "Japan",
+    "au": "Australia", "nz": "New Zealand", "ca": "Canada", "in": "India",
+    "br": "Brazil", "sa": "Saudi Arabia", "ae": "United Arab Emirates",
+    "kr": "South Korea", "nl": "Netherlands", "it": "Italy", "es": "Spain",
+    "se": "Sweden", "no": "Norway", "dk": "Denmark", "fi": "Finland",
+    "ie": "Ireland", "il": "Israel", "be": "Belgium", "at": "Austria",
+    "pl": "Poland", "sg": "Singapore", "my": "Malaysia", "id": "Indonesia",
+    "th": "Thailand", "mx": "Mexico", "ar": "Argentina", "cl": "Chile",
+    "mu": "Mauritius", "sz": "Eswatini", "ls": "Lesotho",
+}
+
+
+def website_country(url: str) -> str | None:
+    """The country implied by a country-code domain, if the suffix is one."""
+    domain = registrable_domain(hostname(url))
+    parts = [part for part in domain.split(".") if part]
+    if len(parts) < 2:
+        return None
+    if parts[-1] in {"com", "org", "net", "group", "io", "co", "info", "biz"}:
+        return None
+    return _CCTLD_COUNTRY.get(parts[-1])
+
+
 def choose_entity(
     name: str,
     country: str,
@@ -335,6 +363,12 @@ def choose_entity(
     ]
     if require_listing:
         matches = [entity for entity in matches if is_listed_in(entity, country)]
+    # A .ch site with no Wikidata country is not a South African employer that
+    # happens to share the name. Generic domains (.com) stay eligible.
+    matches = [
+        entity for entity in matches
+        if website_country(entity.website) in (None, country)
+    ]
     if not matches:
         return None
     agreed = [entity for entity in matches if country_matches(entity, country) is True]

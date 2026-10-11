@@ -52,7 +52,7 @@ def _client() -> httpx.Client:
     return httpx.Client(
         headers={"User-Agent": UA, "Accept": "text/html,application/json"},
         follow_redirects=False,
-        timeout=httpx.Timeout(12.0, connect=4.0),
+        timeout=httpx.Timeout(8.0, connect=4.0),
     )
 
 
@@ -311,8 +311,12 @@ def main() -> None:
     with open(args.out, "a", encoding="utf-8") as handle:
         with ThreadPoolExecutor(max_workers=max(1, args.workers)) as pool:
             futures = [pool.submit(_one, row, renderer) for row in rows]
+            finished = 0
             for future in as_completed(futures):
                 result = future.result()
+                finished += 1
+                if finished % 25 == 0:
+                    print(f"progress {finished}/{len(rows)} hits {hits}", flush=True)
                 if not result:
                     continue
                 with lock:
