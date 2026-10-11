@@ -67,6 +67,9 @@ Lungani, 2026-10-03: in every country dropdown, list, and work order, put **Sout
 
 ## Session Log
 
+### 2026-10-11 — Cursor (Grok 4.7) — Blank-row discovery for the priority countries
+Offline discovery ran over the blank careers rows in the United States, the United Kingdom, Europe, Japan, South Korea, Canada, the Middle East, and Nigeria, Kenya, Egypt, Morocco, and Ghana. New links are in separate ready PRs and were not merged: United States 372 → 377 (#92), United Kingdom 23 → 24 (#93), France 15 → 16 and Netherlands 9 → 10 (#94), Japan 5 → 6 with South Korea unchanged (#96), Canada 10 → 12 (#95). Germany, Ireland, the Nordics, Spain, Italy, Switzerland, Poland, the Middle East, and those five African countries stayed at the same link counts. Zeppelin University matched the Zeppelin equipment tenant and was left blank. The daily URL check still does not launch a browser.
+
 ### 2026-10-11 — Cursor (Grok 4.7) — Workday discovery keeps the country filter
 When a Workday board publishes a country facet with at least two roles, offline discovery stores that filter even if the unfiltered board is already mostly in that country. The unfiltered feed can lead with other countries, and the scanner only reads the first pages. A tenant that is only the first word of a different organisation is still rejected. Zeppelin University matched the Zeppelin construction-equipment tenant and stays blank.
 
