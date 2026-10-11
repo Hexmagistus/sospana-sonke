@@ -67,6 +67,10 @@ Lungani, 2026-10-03: in every country dropdown, list, and work order, put **Sout
 
 ## Session Log
 
+### 2026-10-11 — Cursor (Grok 4.7) — Employers in Africa beyond South Africa
+University lists for Nigeria, Kenya, Egypt and Ghana, and the published company and university lists for Morocco. Names already in the directory were skipped. Greenhouse, Lever, Ashby and SmartRecruiters were probed. No board had a majority of located roles in the headquarters country, so this batch stores no new careers URL. Heading labels ("Public universities", "Private universities") and the University of Wales were left out. South Africa was not expanded.
+330 blank rows, note prefix `2026-10-11 africa-employers`. Rows/links, before → after: Nigeria 187/93 → 327/93 (UNI 58 → 198). Kenya 184/133 → 211/133 (UNI 45 → 72). Egypt 96/34 → 140/34 (UNI 14 → 58). Morocco 53/13 → 126/13 (PRIVATE 10 → 71, UNI 11 → 23). Ghana 121/57 → 167/57 (UNI 34 → 80). South Africa stays 815 linked rows. Directory 8,801 rows / 4,206 linked → 9,131 rows / 4,206 linked. `directory-snapshot.json` was left as it is.
+
 ### 2026-10-11 — Cursor (Grok 4.7) — United States employers from the S&P 500, hospitals, and ATS boards
 S&P 500 constituents, Association of American Universities members, large hospital systems, federal agencies, major cities, national charities, and community colleges, plus a short list of startups, were probed on Greenhouse, Lever, Ashby, Workable, SmartRecruiters, iCIMS, and Workday. A careers URL is stored only when robots.txt allows SospanaSonkeBot (or the host has no robots.txt), the page is HTTP 200, the employer's own board names a post, and at least half of the located roles are in the United States. The USAJOBS search page did not name posts in the HTML, so federal agencies stay blank. Wrong-company slugs (Public Storage, Flex, Applied Materials, and others) and global boards that are not mostly in the United States (Ciena, Analog Devices) were not stored. Williams-Sonoma was not given the Williams Companies Workday tenant.
 
