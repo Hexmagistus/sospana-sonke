@@ -3,7 +3,9 @@
 A careers URL is stored only when robots.txt allows SospanaSonkeBot (or the
 host publishes no robots.txt), the response is HTTP 200, the employer's own
 board names a post, and at least half of the located roles are in that country.
-Everyone else from the same lists is a blank row.
+Fugro and Thales are the exception added later: the stored URL is that board's
+own country filter, which lists the roles named in the note. Everyone else
+from the same lists is a blank row.
 """
 import csv
 from pathlib import Path
@@ -14,10 +16,12 @@ CSV = Path(__file__).resolve().parents[1] / "seed" / "company_database_import.cs
 NOTE = '2026-10-11 europe-employers'
 LINKS = {
     'Boskalis': ('Netherlands', 'https://careers.smartrecruiters.com/boskalis', 'PRIVATE', 'smartrecruiters'),
+    'Fugro': ('Netherlands', 'https://fugro.wd3.myworkdayjobs.com/Careers?locationCountry=9696868b09c64d52a62ee13b052383cc', 'PRIVATE', 'workday'),
     'Gerresheimer': ('Germany', 'https://careers.smartrecruiters.com/gerresheimer', 'PRIVATE', 'smartrecruiters'),
     'Saint-Gobain': ('France', 'https://careers.smartrecruiters.com/saintgobain', 'PRIVATE', 'smartrecruiters'),
     'Scout24': ('Germany', 'https://www.scout24.com/en/career/jobs', 'PRIVATE', 'static'),
     'Swissquote': ('Switzerland', 'https://careers.smartrecruiters.com/swissquote', 'PRIVATE', 'smartrecruiters'),
+    'Thales': ('France', 'https://thales.wd3.myworkdayjobs.com/Careers?locationCountry=54c5b6971ffb4bf0b116fe7651ec789a', 'PRIVATE', 'workday'),
     'Vattenfall': ('Sweden', 'https://careers.vattenfall.com/', 'SOE', 'static'),
 }
 BLANK = {
@@ -35,7 +39,7 @@ BLANK = {
     ('France', 'HOSPITAL'): 2,
     ('France', 'MUNI'): 3,
     ('France', 'NGO'): 2,
-    ('France', 'PRIVATE'): 33,
+    ('France', 'PRIVATE'): 32,
     ('France', 'SOE'): 4,
     ('France', 'UNI'): 68,
     ('Germany', 'DEPT'): 3,
@@ -63,7 +67,7 @@ BLANK = {
     ('Netherlands', 'HOSPITAL'): 7,
     ('Netherlands', 'MUNI'): 2,
     ('Netherlands', 'NGO'): 1,
-    ('Netherlands', 'PRIVATE'): 37,
+    ('Netherlands', 'PRIVATE'): 36,
     ('Netherlands', 'SOE'): 1,
     ('Netherlands', 'UNI'): 29,
     ('Norway', 'HOSPITAL'): 1,
@@ -97,8 +101,8 @@ BLANK = {
 }
 LINKED_TOTAL = {
     'Germany': 14,
-    'France': 15,
-    'Netherlands': 9,
+    'France': 16,
+    'Netherlands': 10,
     'Ireland': 6,
     'Norway': 7,
     'Sweden': 7,

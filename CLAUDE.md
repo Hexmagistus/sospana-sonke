@@ -67,6 +67,10 @@ Lungani, 2026-10-03: in every country dropdown, list, and work order, put **Sout
 
 ## Session Log
 
+### 2026-10-11 — Cursor (Grok 4.7) — France and Netherlands Workday country filters
+Blank European rows were probed again. Thales and Fugro store the board's own `locationCountry` filter. Rendered pages: Thales "1614 JOBS FOUND" with France applied; Fugro "26 JOBS FOUND" with Netherlands applied. Zeppelin University matched the Zeppelin construction-equipment tenant (workshop and CAT-dealer titles) and stays blank.
+
+Careers links, before → after: France 15 → 16, Netherlands 9 → 10. Blank rows: France 114 → 113, Netherlands 78 → 77. Germany, Ireland, the Nordics, Spain, Italy, Switzerland, and Poland are unchanged.
 ### 2026-10-11 — Cursor (Grok 4.7) — United Kingdom Workday country filter for Aviva
 Blank United Kingdom rows were probed again. Aviva's Workday board is global (8 of 132 located roles are in the United Kingdom). The stored URL is the board's own `Location_Country` filter. The rendered page shows "8 JOBS FOUND" and "1 - 8 of 8 jobs" with United Kingdom applied. The scanner sends that facet key; posting `locationCountry` to this host returns HTTP 400.
 
