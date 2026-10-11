@@ -32,8 +32,8 @@ EXPECTED = {
 # Linked employers (active, non-empty careers URL) after this batch is
 # combined with the major-economy rows already on main.
 LINKED = {
-    "Germany": 12,
-    "France": 14,
+    "Germany": 14,
+    "France": 15,
     "Japan": 5,
     "Spain": 7,
     "Italy": 6,
