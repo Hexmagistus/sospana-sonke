@@ -20,16 +20,16 @@ LINKS = {
     ("Saudi Aramco", "Saudi Arabia"): "https://www.aramco.com/en/careers",
     ("Panasonic Group", "Japan"): "https://recruit.jpn.panasonic.com/newgrads/job_description/",
 }
-# Totals include the later country filters, Jungheinrich, and the Asia-Pacific global boards.
+# Totals include the Europe and Asia-Pacific careers landing pages.
 LINKED = {
-    "Germany": 15,
-    "France": 16,
-    "Japan": 9,
+    "Germany": 77,
+    "France": 32,
+    "Japan": 116,
     "Mexico": 3,
-    "Spain": 7,
-    "Italy": 6,
+    "Spain": 11,
+    "Italy": 18,
     "China": 3,
-    "South Korea": 6,
+    "South Korea": 36,
     "Turkey": 4,
     "Saudi Arabia": 4,
 }
