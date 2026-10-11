@@ -30,14 +30,14 @@ EXPECTED = {
 }
 
 # Linked employers (active, non-empty careers URL) after this batch is
-# combined with the major-economy rows, the later country filters, and Jungheinrich.
+# combined with the later country filters, Jungheinrich, and the Asia-Pacific global boards.
 LINKED = {
     "Germany": 15,
     "France": 16,
-    "Japan": 6,
+    "Japan": 9,
     "Spain": 7,
     "Italy": 6,
-    "South Korea": 5,
+    "South Korea": 6,
     "United Arab Emirates": 21,
 }
 
