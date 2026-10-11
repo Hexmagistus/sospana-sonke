@@ -67,6 +67,11 @@ Lungani, 2026-10-03: in every country dropdown, list, and work order, put **Sout
 
 ## Session Log
 
+### 2026-10-11 — Cursor (Grok 4.7) — United Kingdom employers from the FTSE, AIM, NHS, and ATS boards
+Index lists (FTSE 100, FTSE 250, AIM, NHS trusts, UK universities, ministerial departments, city councils, charities, and public corporations) plus Greenhouse, Lever, Ashby, Workable, SmartRecruiters, iCIMS, and Workday slug probes. A careers URL is stored only when robots.txt allows SospanaSonkeBot (or the host has no robots.txt), the page is HTTP 200, the employer's own board names a post, and at least half of the located roles are in the United Kingdom. Civil Service Jobs returned a bot check, so no department uses that portal. Workday boards whose open roles sit mostly in another country (Aviva's sample was Canada-heavy) were left blank.
+
+United Kingdom rows 9 → 939. Careers links 9 → 23. By category, rows then links: PRIVATE 7 → 424 (19 linked), HOSPITAL 1 → 272 (1), UNI 1 → 155 (1), NGO 0 → 25 (1), SOE 0 → 15 (1), DEPT 0 → 24 (0), MUNI 0 → 24 (0). Note prefix `2026-10-11 uk-employers`. 14 new links: Autotrader Group, Brave Bison, Deliveroo, FRP Advisory, Frasers Group, Funding Circle, Man Group, Moonpig, National Trust, Rotork, Shawbrook Bank, TP ICAP, Trainline, UK Atomic Energy Authority. The other 916 new rows keep a blank careers URL.
+
 ### 2026-10-10 — Cursor (Grok 4.7) — European ATS boards and three university pages
 Teamtailor, Personio, Softgarden, Join.com, Welcome to the Jungle, and Recruitee customer lists were filtered to employers headquartered in European countries that had five or fewer careers links. A board was stored only when robots.txt allowed SospanaSonkeBot (or the host had no robots.txt), the response was HTTP 200, the page named a post, and at least half of the located roles, at least two, were in that headquarters country. Headquarters in France, Germany, Ireland, Italy, the Netherlands, Spain, Sweden, and the United Kingdom stayed off, along with stale 2021 demo boards, volunteer-only pages, and boards whose open roles sit in another country.
 
