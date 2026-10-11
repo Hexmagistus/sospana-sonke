@@ -3,7 +3,9 @@
 A careers URL is stored only when robots.txt allows SospanaSonkeBot (or the
 host publishes no robots.txt), the response is HTTP 200, the employer's own
 board names a post, and at least half of the located roles are in that country.
-Everyone else from the same lists is a blank row.
+Trend Micro is the exception added later: the stored URL is that board's own
+Japan filter, which lists the roles named in the note. Everyone else from the
+same lists is a blank row.
 """
 import csv
 from pathlib import Path
@@ -17,6 +19,7 @@ LINKS = {
     'Contact Energy Limited': ('New Zealand', 'https://careers.smartrecruiters.com/contactenergy', 'PRIVATE', 'smartrecruiters'),
     'Griffith University': ('Australia', 'https://careers.smartrecruiters.com/griffithuniversity', 'UNI', 'smartrecruiters'),
     'NextDC': ('Australia', 'https://careers.smartrecruiters.com/nextdc', 'PRIVATE', 'smartrecruiters'),
+    'Trend Micro': ('Japan', 'https://trendmicro.wd3.myworkdayjobs.com/External?locationCountry=8b705da2becf43cfaccc091da0988ab2', 'PRIVATE', 'workday'),
 }
 BLANK = {
     ('Australia', 'HOSPITAL'): 1,
@@ -35,7 +38,7 @@ BLANK = {
     ('Japan', 'HOSPITAL'): 1,
     ('Japan', 'MUNI'): 1,
     ('Japan', 'NGO'): 1,
-    ('Japan', 'PRIVATE'): 217,
+    ('Japan', 'PRIVATE'): 216,
     ('Japan', 'UNI'): 86,
     ('Malaysia', 'DEPT'): 1,
     ('Malaysia', 'MUNI'): 1,
@@ -74,7 +77,7 @@ LINKED_TOTAL = {
     'Singapore': 9,
     'Australia': 32,
     'New Zealand': 11,
-    'Japan': 5,
+    'Japan': 6,
     'South Korea': 5,
     'Indonesia': 9,
     'Malaysia': 3,

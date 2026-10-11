@@ -76,6 +76,22 @@ Multinationals and large groups are the exception. A row counts as one only when
 ### 2026-10-11 — Cursor (Grok 4.7) — Global careers pages for large groups
 The in-country rule stays for small and local employers. A listed large group or a US hospital system may store its own global careers board when no country path is available. The note is marked `careers_scope=global`. Discovery for that set is `scripts/discover_seed_careers.py --large-groups`. A short token that only matches after generic words are dropped, such as `arch` for Arch Capital Group or `universal` for Universal Health Services, is rejected.
 
+### 2026-10-11 — Cursor (Grok 4.7) — Japan Workday country filter for Trend Micro
+Blank Japan and South Korea rows were probed again. Trend Micro stores the board's own `locationCountry` filter. The rendered page shows "18 JOBS FOUND" with Japan applied, and the roles are in Tokyo. South Korea had no new board that met the in-country rule.
+
+Careers links, before → after: Japan 5 → 6, South Korea 5 → 5. Blank rows: Japan 306 → 305, South Korea 178 → 178.
+### 2026-10-11 — Cursor (Grok 4.7) — Canada Workday country filters
+Blank Canada rows were probed again. Cenovus Energy and Waste Connections store the board's own `Location_Country` filter. Rendered pages show "20 JOBS FOUND" and "63 JOBS FOUND" with Canada applied. The roles are in Calgary, Lloydminster, Lethbridge, Saskatoon, and Kelowna. The scanner sends that facet key.
+
+Canada careers links 10 → 12. Blank rows 157 → 155. Mexico, Brazil, Argentina, Colombia, Uruguay, and Ecuador are unchanged.
+### 2026-10-11 — Cursor (Grok 4.7) — France and Netherlands Workday country filters
+Blank European rows were probed again. Thales and Fugro store the board's own `locationCountry` filter. Rendered pages: Thales "1614 JOBS FOUND" with France applied; Fugro "26 JOBS FOUND" with Netherlands applied. Zeppelin University matched the Zeppelin construction-equipment tenant (workshop and CAT-dealer titles) and stays blank.
+
+Careers links, before → after: France 15 → 16, Netherlands 9 → 10. Blank rows: France 114 → 113, Netherlands 78 → 77. Germany, Ireland, the Nordics, Spain, Italy, Switzerland, and Poland are unchanged.
+### 2026-10-11 — Cursor (Grok 4.7) — United Kingdom Workday country filter for Aviva
+Blank United Kingdom rows were probed again. Aviva's Workday board is global (8 of 132 located roles are in the United Kingdom). The stored URL is the board's own `Location_Country` filter. The rendered page shows "8 JOBS FOUND" and "1 - 8 of 8 jobs" with United Kingdom applied. The scanner sends that facet key; posting `locationCountry` to this host returns HTTP 400.
+
+United Kingdom careers links 23 → 24. Blank rows 916 → 915.
 ### 2026-10-11 — Cursor (Grok 4.7) — Three more United States Workday boards
 The same blank-row probe, after it also read Workday's `Location_Country` facet. Allegion's own board is already mostly in the United States (255 of 332 located roles), so the URL has no filter. Ciena (49 of 164) and Equinix (119 of 337) store that facet. Rendered pages show "49 JOBS FOUND" and "119 JOBS FOUND" with United States of America applied. The scanner sends `Location_Country` when that is the query key, because posting `locationCountry` to those hosts returns HTTP 400.
 
