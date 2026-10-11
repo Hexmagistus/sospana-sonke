@@ -11,7 +11,7 @@ import { contrastRatio } from "./themeContrast.js";
  * text on cream/white (that is what made the page unreadable), and so white text only ever sits
  * on dark fills or dark scrims. Run from frontend/ (as CI does).
  */
-const src = readFileSync(resolve(process.cwd(), "src/app/page.tsx"), "utf8");
+const src = readFileSync(resolve(process.cwd(), "src/components/home/HomeExperience.tsx"), "utf8");
 const palette = /const C = \{([\s\S]*?)\n\};/.exec(src);
 assert.ok(palette, "landing page should define its colour palette C");
 const C: Record<string, string> = {};

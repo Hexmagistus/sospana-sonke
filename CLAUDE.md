@@ -75,6 +75,24 @@ A careers landing page is enough for that same set, even when the HTML lists no 
 
 ## Session Log
 
+### 2026-10-11 — Cursor (Grok 4.7) — Update #102 onto main
+Seed pull requests had landed on main, so this branch was merged with `origin/main` and the session log kept both sides. `backend/seed/company_database_import.csv` is main's file. `directory-snapshot.json` stays the 11 October Frankfurt extract (4,299 with a careers link, 11,986 in the directory): main's snapshot file was still the 7 October extract and was not part of those seed commits.
+
+### 2026-10-11 — Cursor (Grok 4.7) — Design system, live counts, mobile LCP, public jobs
+The homepage, directory cards, country pages, sign-in, CV builder, tracker and Career Agent now share one card, empty state and page title. The hero is a calm surface with no full-bleed photograph. Gold gradient text on the sign-in and registration titles is solid navy-on-paper text.
+
+`directory-snapshot.json` is the Frankfurt `GET /companies/stats` from 11 October 2026: 4,299 employers with a careers link across 207 countries, and 11,986 employers in the directory across 229 countries. The homepage and the companies metadata show both figures. A live stats response still replaces the snapshot, and an older payload that only has the all-rows total is still ignored. The browser cache key moved to `ss-landing-stats-v2` so a saved 7 October answer does not cover the new snapshot.
+
+`GET /api/v1/jobs` is public. It lists open roles the scanner has stored, filtered by title, country, employer and how recently the role was seen. It does not return the advert body. `/jobs` is the page, with those filters and JobPosting schema built only from stored fields. An empty index says so.
+
+The homepage headline is server HTML in a system face, and the display fonts are not preloaded. Lighthouse 12.8.2 on this production build: homepage mobile performance 93 (was 75 on the earlier build, 73 on the live site), accessibility 95, best practices 93, SEO 100, largest paint 3.1 s, speed index 1.7 s. Desktop performance 100, largest paint 0.7 s. Best practices stays 93 here because the page calls a local API that is not running. Seed files were not edited. Not merged.
+
+### 2026-10-11 — Cursor (Grok 4.7) — Directory search, link scope, public country pages
+Reviewed GoToCareer, JobSpotter, Unlisted, JobLarper and ScoutJobs against the live homepage and wrote `docs/ROADMAP.md`. The seed file on this branch has 11,876 rows, 231 country names and 5,387 careers URLs. The public pages still use the 7 October snapshot (3,439 with a link, 187 countries) and say so. Seed files were not edited.
+
+Shipped on the directory the candidate already has: name typeahead, filters for a careers link and for open roles we have counted, and a badge that reads the URL only (Workday `locationCountry` / `Location_Country`, an unfiltered applicant-system host, the employer's own site, or a third-party board). Public `/countries` pages are in the sitemap, with breadcrumb schema. Sign-in can return to that country's directory. The homepage hero text is in the first HTML, the wonders and heritage sections defer paint, and there is a country lookup. Card copy no longer calls a stored URL "live". Lighthouse mobile on the live homepage was performance 73, accessibility 95, best practices 100, SEO 100 (largest paint 7.2 s, speed index 4.6 s). This build: homepage mobile performance 75 and speed index 1.5 s, desktop performance 97, and `/countries/south-africa` mobile performance 85, accessibility 100, SEO 100.
+Next: vacancy search over rows the scanner already stored, then refresh the public snapshot from Frankfurt.
+
 ### 2026-10-11 — Cursor (Grok 4.7) — Careers landing pages for large groups
 The ATS slug probe only found boards that publish a job feed, so a group's own careers landing page was still rejected. For a listed large group, and for an African listed company, the official careers page on the employer's own domain now counts even when the HTML has no openings and no country filter. Discovery reads the Wikidata official website, the homepage careers link, and common paths. robots.txt, HTTP 200, and a careers path, title, or heading are still required. Saudi, Moroccan, Nigerian, and Kenyan private companies need a Wikidata listing on the national exchange. The marker stays `careers_scope=global` / `global_group`.
 ### 2026-10-11 — Cursor (Grok 4.7) — LivePerson and NICE global careers pages

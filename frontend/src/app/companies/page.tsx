@@ -5,10 +5,12 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Guard from "@/components/Guard";
 import { api } from "@/lib/api";
-import { Card, Input, Button, Alert, Spinner, EmptyState } from "@/components/ui";
+import { Card, Button, Alert, Spinner, EmptyState } from "@/components/ui";
 import { Banner } from "@/components/Banner";
 import { CircuitOverlay, GlowFrame } from "@/components/HighTech";
 import { CompanyLogo, isAtsPortal } from "@/components/CompanyLogo";
+import { DirectoryCardSkeleton, DirectoryRefine } from "@/components/DirectoryRefine";
+import { LinkScopeBadge } from "@/components/LinkScopeBadge";
 import { CompanyActionsRow, NotCountedNotice, OpenVacancyCount, TrendingBadge, ShortlistStar } from "@/components/CompanyActions";
 import { CompanyPreviewModal } from "@/components/CompanyPreviewModal";
 import { AnimatedNumber } from "@/components/AnimatedNumber";
@@ -37,6 +39,15 @@ import {
   isDirectoryFilter,
 } from "@/lib/directoryFilters";
 import { canonicalType } from "@/lib/explorer/categoryGroups";
+import {
+  employerSuggestions,
+  matchesBoardFilter,
+  matchesNameQuery,
+  matchesScopeFilter,
+  refineIsNarrowed,
+  type BoardFilter,
+  type ScopeFilter,
+} from "@/lib/directoryQuery";
 import { getShortlist, SHORTLIST_EVENT } from "@/lib/shortlist";
 import type { Company, TrendingCompany } from "@/lib/types";
 
@@ -144,6 +155,8 @@ function CompaniesDirectoryInner() {
   const [trending, setTrending] = useState<Set<string>>(new Set());
   const [err, setErr] = useState("");
   const [q, setQ] = useState("");
+  const [board, setBoard] = useState<BoardFilter>("all");
+  const [scope, setScope] = useState<ScopeFilter>("all");
   const [filter, setFilter] = useState<DirectoryFilter>("all");
   const [country, setCountry] = useState(DEFAULT_DIRECTORY_COUNTRY);
   const [shortlistOnly, setShortlistOnly] = useState(false);
@@ -282,20 +295,28 @@ function CompaniesDirectoryInner() {
     router.push(`${pathname}${search}`, { scroll: false });
   }
 
-  const shownCompanies = useMemo(() => {
+  const listedCompanies = useMemo(() => {
     if (!shortlistOnly && !country && !globalType) return [];
-    const needle = q.trim().toLowerCase();
-    const filtered = companies
+    return companies
       // A category and a country are fetched together. An empty country is
       // "All countries", and only the country control sets that.
       .filter((c) => shortlistOnly || !country || (c.country || "") === country)
       .filter((c) => !shortlistOnly || shortlistIds.has(c.id))
-      .filter((c) => matchesDirectoryFilter(c, filter))
-      .filter((c) => !needle
-        || c.company_name.toLowerCase().includes(needle)
-        || (c.jse_code || "").toLowerCase().includes(needle));
+      .filter((c) => matchesDirectoryFilter(c, filter));
+  }, [companies, filter, country, globalType, shortlistOnly, shortlistIds]);
+
+  const shownCompanies = useMemo(() => {
+    const filtered = listedCompanies
+      .filter((c) => matchesNameQuery(c, q))
+      .filter((c) => matchesBoardFilter(c, board))
+      .filter((c) => matchesScopeFilter(c, scope));
     return [...filtered].sort((a, b) => Number(!a.careers_url) - Number(!b.careers_url) || a.company_name.localeCompare(b.company_name));
-  }, [companies, q, filter, country, globalType, shortlistOnly, shortlistIds]);
+  }, [listedCompanies, q, board, scope]);
+
+  const nameSuggestions = useMemo(
+    () => employerSuggestions(listedCompanies, q),
+    [listedCompanies, q],
+  );
 
   function surpriseMe() {
     api.get<Company>("/companies/surprise").then((pick) => {
@@ -374,7 +395,8 @@ function CompaniesDirectoryInner() {
               <>
                 Browse the full directory and apply on each employer&apos;s official careers page.{" "}
                 <strong className="text-ss-text"><AnimatedNumber value={facets.total} /></strong> employers in the directory ·{" "}
-                <strong className="text-ss-text"><AnimatedNumber value={withLinks} /></strong> with direct careers links.
+                <strong className="text-ss-text"><AnimatedNumber value={withLinks} /></strong> with a careers link.
+                The two numbers are different: a row with no link is still in the directory.
               </>
             }
           >
@@ -433,15 +455,18 @@ function CompaniesDirectoryInner() {
               </button>
           </div>
 
-          <div className="min-w-[14rem]">
-            <Input
-              placeholder="Search by employer name…"
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-            />
-          </div>
+          <DirectoryRefine
+            query={q}
+            onQuery={setQ}
+            suggestions={nameSuggestions}
+            board={board}
+            onBoard={setBoard}
+            scope={scope}
+            onScope={setScope}
+            resultCount={shownCompanies.length}
+          />
 
-          <p className="ss-hud-tag mt-1.5 text-[10px] text-ss-muted">
+          <p className="ss-hud-tag mt-1.5 text-sm text-ss-muted">
             {globalType && country
               ? `Showing ${filterLabel[filter]} in ${country}.`
               : globalType
@@ -451,26 +476,20 @@ function CompaniesDirectoryInner() {
         </Card>
         </GlowFrame>
 
-        <div className="ss-hud-card flex flex-wrap items-center gap-x-4 gap-y-2 rounded-2xl border border-ss-border bg-ss-glass px-4 py-3 backdrop-blur-sm">
-          <span aria-hidden className="ss-hud-scan !opacity-40 animate-scan-sweep" />
-          <span className="ss-hud-tag flex items-center gap-2 text-[11px] font-bold text-brand-dark">
-            <span className="ss-hud-status" /> Live scan
+        <div className="ss-card flex flex-wrap items-baseline gap-x-4 gap-y-2 !py-3">
+          <p className="text-sm text-ss-text">
+            <strong className="tabular-nums">{shownCompanies.length.toLocaleString("en-US")}</strong>
+            {" "}shown
+            {shortlistOnly
+              ? ` of ${shortlistIds.size.toLocaleString("en-US")} shortlisted`
+              : ` · ${countryWithLinks.toLocaleString("en-US")} with a careers link · ${countryTotal.toLocaleString("en-US")} in the directory`}
+          </p>
+          <span className="rounded-md border border-ss-border bg-ss-bg px-2 py-1 text-xs font-semibold text-ss-text">
+            {filterLabel[filter]}
           </span>
-          <span className="flex items-baseline gap-1.5">
-            <span className="bg-gradient-to-r from-brand to-gold bg-clip-text text-3xl font-black tabular-nums leading-none text-transparent">
-              <AnimatedNumber value={shownCompanies.length} />
-            </span>
-            <span className="ss-hud-tag text-xs text-ss-muted">
-              / {shortlistOnly ? shortlistIds.size : countryTotal} {shortlistOnly ? "shortlisted" : "in range"}
-            </span>
+          <span className="rounded-md border border-ss-border bg-ss-bg px-2 py-1 text-xs font-semibold text-ss-text">
+            {globalType ? (country ? `${flag} ${country}` : "All countries") : shortlistOnly ? "My shortlist" : `${flag} ${country}`}
           </span>
-          <span className="ss-hud-tag rounded-md border border-ss-border bg-ss-surface px-2 py-1 text-[11px] font-semibold text-ss-text">
-            Category · {filterLabel[filter]}
-          </span>
-          <span className="ss-hud-tag rounded-md border border-ss-border bg-ss-surface px-2 py-1 text-[11px] font-semibold text-ss-text">
-            Zone · {globalType ? (country ? `${flag} ${country}` : "🌍 All countries") : shortlistOnly ? "⭐ My shortlist" : `${flag} ${country}`}
-          </span>
-          <span className="ss-hud-tag text-[11px] text-ss-muted sm:ml-auto">Pick a card, any card 🃏</span>
         </div>
 
         <div id="explorer-results" className="scroll-mt-24" />
@@ -487,7 +506,7 @@ function CompaniesDirectoryInner() {
                 key={c.id}
                 onClick={() => setPreviewCompany(c)}
                 style={{ borderLeftColor: accent }}
-                className="ss-hud-card cursor-pointer rounded-2xl border border-ss-border border-l-4 bg-ss-surface p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_1px_3px_rgba(16,24,40,0.06)] hover:-translate-y-0.5"
+                className="ss-card cursor-pointer border-l-4 hover:-translate-y-0.5"
               >
                 <span aria-hidden className="ss-hud-scan" />
                 <div className="absolute right-3 top-3" onClick={(e) => e.stopPropagation()}>
@@ -516,6 +535,7 @@ function CompaniesDirectoryInner() {
                         {isAtsPortal(c.careers_url) && (
                           <span className="rounded-full bg-navy/10 px-2 py-0.5 text-xs font-semibold text-ss-text">Apply on their portal</span>
                         )}
+                        <LinkScopeBadge url={c.careers_url} />
                         {trending.has(c.id) && <TrendingBadge />}
                         {c.country && <span className="text-xs text-ss-muted">{c.country}</span>}
                       </div>
@@ -530,8 +550,8 @@ function CompaniesDirectoryInner() {
                       <span className="text-ss-border">·</span>
                     </>
                   )}
-                  <span className={`ss-hud-tag ${c.careers_url ? "font-semibold text-brand-dark" : "text-ss-muted"}`}>
-                    {c.careers_url ? <><span className="ss-hud-status mr-1.5 align-middle" />DIRECT LINK LIVE ⚡</> : "NO JOBS PAGE… YET 👀"}
+                  <span className={c.careers_url ? "font-semibold text-brand-dark" : "text-ss-muted"}>
+                    {c.careers_url ? "Direct careers link" : "No careers page yet"}
                   </span>
                 </div>
 
@@ -552,16 +572,20 @@ function CompaniesDirectoryInner() {
             );
           })}
           {sliceLoading && shownCompanies.length === 0 && (
-            <div className="md:col-span-2">
-              <FunSpinner label={`Rounding up employers in ${country}…`} />
-            </div>
+            <DirectoryCardSkeleton label={country ? `Loading employers in ${country}…` : "Loading employers…"} />
           )}
           {!sliceLoading && shownCompanies.length === 0 && (
             <div className="md:col-span-2">
               <EmptyState
                 icon={shortlistOnly ? "⭐" : "🔍"}
-                title={shortlistOnly ? "Nothing starred yet ✨" : "Hmm, the radar found nothing 🛰️"}
-                message={shortlistOnly ? "Tap the ☆ on any card and it lands here, ready when you are." : "Try a different spelling, or clear a filter and go again."}
+                title={shortlistOnly ? "Nothing starred yet" : "No employers match"}
+                message={
+                  shortlistOnly
+                    ? "Tap the star on any card and it lands here."
+                    : refineIsNarrowed(q, board, scope)
+                      ? "Nothing in this list matches that search. Clear a filter, or try another spelling."
+                      : "Try another country or category."
+                }
               />
             </div>
           )}

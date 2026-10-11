@@ -638,11 +638,13 @@ function AgentInner() {
 
   return (
     <div className="space-y-5">
-      <header>
-        <h1 className="text-2xl font-bold">Sospana Sonke Career Agent</h1>
-        <p className="mt-1 text-sm text-ss-muted">
+      <header className="ss-page-header max-w-3xl">
+        <p className="text-sm font-semibold uppercase tracking-wide text-ss-muted">Career Agent</p>
+        <h1 className="mt-1 font-display text-3xl font-extrabold tracking-tight text-ss-text">Career Agent</h1>
+        <p className="mt-3 text-base leading-relaxed text-ss-muted">
           Ask in plain English. I search the live employer directory and any vacancies we have indexed, and I
           link you to the employer&rsquo;s own careers page. I do not score you against a job, and I do not invent listings.
+          Stored roles you can filter without signing in are on the public jobs page.
         </p>
       </header>
 

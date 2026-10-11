@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { safeInternalPath } from "@/lib/returnPath";
 import { useAuth } from "@/lib/auth";
 import { Card, Field, Input, Button, Alert } from "@/components/ui";
 import { CircuitOverlay, GlowFrame, LogoGlow } from "@/components/HighTech";
@@ -93,7 +94,7 @@ export default function LoginPage() {
             setCelebrate(true);
             setAuthing(false);
             await successPause();
-            router.push("/companies");
+            router.push(safeInternalPath(new URLSearchParams(window.location.search).get("next")) ?? "/companies");
           } catch (err) {
             setAuthing(false);
             setError(err instanceof Error ? err.message : "Google sign-in failed.");
@@ -118,7 +119,7 @@ export default function LoginPage() {
       setAuthing(false);
       setBusy(false);
       await successPause();
-      router.push("/companies");
+      router.push(safeInternalPath(new URLSearchParams(window.location.search).get("next")) ?? "/companies");
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Login failed";
       setAuthing(false);
@@ -164,7 +165,7 @@ export default function LoginPage() {
         lit={(email.trim() ? 1 : 0) + (password ? 1 : 0) + (needsOtp && otp.trim() ? 1 : 0)}
         total={needsOtp ? 3 : 2}
       />
-      <h1 className="animate-gradient-text mb-1 bg-gradient-to-r from-[#0b2447] via-[#8a5a00] to-[#5b3fd6] bg-clip-text text-center text-4xl font-extrabold text-transparent ">Sospana Sonke</h1>
+      <h1 className="mb-1 text-center font-display text-4xl font-extrabold text-ss-text">Sospana Sonke</h1>
       <p className="mb-4 text-center text-base font-medium text-ss-muted">
         We find the opportunities. You apply direct. <span className="font-bold text-ss-tech">No middle-man, no fees, no nonsense.</span> 😎
       </p>

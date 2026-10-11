@@ -23,6 +23,7 @@ from app.schemas.vacancy import (
     VacancyResponse, VacancyDetailResponse, VacancySourceResponse, ScanReportResponse,
     VacancyReportCreate, VacancyReportResponse, DuplicateGroupResponse,
     MergeDuplicatesRequest, MergeDuplicatesResponse,
+    PublicJobResponse, PublicJobListResponse,
 )
 from app.services.scan_service import scan_company
 from app.services.duplicate_service import find_duplicate_groups, merge_duplicates
@@ -81,6 +82,84 @@ def list_company_vacancies(company_id: str, response: Response, db: Session = De
         today = date.today()
         q = q.filter((Vacancy.closing_date.is_(None)) | (Vacancy.closing_date >= today))
     return [VacancyResponse.model_validate(v) for v in q.order_by(Vacancy.last_seen_at.desc()).all()]
+
+
+def _like_fragment(term: str) -> str:
+    """A bounded contains-match. Percent and underscore are not wildcards from the caller."""
+    cleaned = term.strip()[:80].replace("\\", "").replace("%", "").replace("_", "")
+    return f"%{cleaned}%"
+
+
+def _apply_link(vacancy: Vacancy) -> str | None:
+    return vacancy.application_url or vacancy.canonical_url or vacancy.source_url or None
+
+
+def _public_job(vacancy: Vacancy, company: Company) -> PublicJobResponse:
+    return PublicJobResponse(
+        id=vacancy.id,
+        title=vacancy.title,
+        company_name=company.company_name,
+        company_country=company.country,
+        location=vacancy.location,
+        country=vacancy.country,
+        employment_type=vacancy.employment_type,
+        work_mode=vacancy.work_mode,
+        salary=vacancy.salary,
+        salary_min=vacancy.salary_min,
+        salary_max=vacancy.salary_max,
+        salary_currency=vacancy.salary_currency,
+        posting_date=vacancy.posting_date,
+        closing_date=vacancy.closing_date,
+        first_seen_at=vacancy.first_seen_at,
+        last_seen_at=vacancy.last_seen_at,
+        application_url=_apply_link(vacancy),
+        is_open=vacancy.is_open,
+    )
+
+
+@router.get("/jobs", response_model=PublicJobListResponse)
+@limiter.limit("60/minute")
+def list_public_jobs(
+    request: Request,
+    response: Response,
+    db: Session = Depends(get_db),
+    q: str | None = Query(default=None, max_length=80, description="Words in the job title"),
+    country: str | None = Query(default=None, max_length=80, description="Employer country or the role's country"),
+    employer: str | None = Query(default=None, max_length=80, description="Words in the employer name"),
+    max_age_days: int | None = Query(
+        default=None, ge=1, le=365,
+        description="Only roles last seen on the employer site within this many days",
+    ),
+    limit: int = Query(default=30, ge=1, le=50),
+    offset: int = Query(default=0, ge=0, le=500),
+):
+    """Open roles the scanner has already stored. No sign-in. No advert body."""
+    response.headers["Cache-Control"] = "public, max-age=60"
+    today = date.today()
+    query = (
+        db.query(Vacancy, Company)
+        .join(Company, Company.id == Vacancy.company_id)
+        .filter(Vacancy.deleted_at.is_(None), Company.deleted_at.is_(None))
+        .filter(Vacancy.is_open.is_(True))
+        .filter((Vacancy.closing_date.is_(None)) | (Vacancy.closing_date >= today))
+    )
+    if q and q.strip():
+        query = query.filter(Vacancy.title.ilike(_like_fragment(q)))
+    if country and country.strip():
+        name = country.strip()[:80]
+        query = query.filter((Company.country == name) | (Vacancy.country == name))
+    if employer and employer.strip():
+        query = query.filter(Company.company_name.ilike(_like_fragment(employer)))
+    if max_age_days is not None:
+        cutoff = datetime.now(timezone.utc) - timedelta(days=max_age_days)
+        query = query.filter(Vacancy.last_seen_at >= cutoff)
+    matched = query.count()
+    rows = query.order_by(Vacancy.last_seen_at.desc()).offset(offset).limit(limit).all()
+    return PublicJobListResponse(
+        jobs=[_public_job(vacancy, company) for vacancy, company in rows],
+        matched=matched,
+        limit=limit,
+    )
 
 
 @router.get("/vacancies", response_model=list[VacancyResponse])

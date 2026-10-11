@@ -12,6 +12,8 @@ export default function robots(): MetadataRoute.Robots {
         // a page that requires login has nothing indexable behind it (a crawler
         // just gets a login redirect), so leaving it crawlable wastes crawl
         // budget and risks a bot indexing an empty/misleading shell page.
+        // /jobs, /countries and /countries/<slug> stay allowed: they are public.
+        // /companies stays disallowed because it requires sign-in.
         disallow: [
           "/admin",
           "/dashboard",

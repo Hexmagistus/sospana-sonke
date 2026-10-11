@@ -103,7 +103,7 @@ export default function RegisterPage() {
         <CircuitMascot coverEyes={passwordFocused && !celebrate} celebrate={celebrate} />
       </div>
       <LitCircuits lit={filled + (consent ? 1 : 0)} total={6} />
-      <h1 className="animate-gradient-text mb-1 bg-gradient-to-r from-[#0b2447] via-[#8a5a00] to-[#5b3fd6] bg-clip-text text-center text-4xl font-extrabold text-transparent ">Create your account</h1>
+      <h1 className="mb-1 text-center font-display text-4xl font-extrabold text-ss-text">Create your account</h1>
       <p className="mb-2 text-center text-xs font-semibold uppercase tracking-[0.16em] text-ss-primary">Born in SADC, built for the world</p>
       <p className="mb-5 text-center text-base font-medium text-ss-muted">Free forever. Takes about 60 seconds. Your future self says thanks. 🚀</p>
       <div className="mb-6">

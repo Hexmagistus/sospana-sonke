@@ -30,7 +30,7 @@ export function Card({
   const interactiveCls = interactive ? "hover:-translate-y-0.5 hover:border-ss-tech hover:shadow-[0_0_0_1px_var(--ss-tech-glow),0_22px_60px_-22px_var(--ss-tech-glow)]" : "";
   return (
     <div
-      className={`ss-card-neon rounded-2xl border border-white/50 bg-ss-glass p-5 text-ss-text shadow-[0_18px_50px_-28px_rgba(11,31,58,0.55),0_2px_8px_rgba(11,31,58,0.06)] backdrop-blur-xl transition-all duration-300 dark:border-white/10 ${accentCls} ${interactiveCls} ${className}`}
+      className={`ss-card transition-shadow duration-200 ${accentCls} ${interactiveCls} ${className}`}
     >
       {children}
     </div>
@@ -113,7 +113,7 @@ export function Stat({
       </div>
     </>
   );
-  const cls = "ss-card-neon group block overflow-hidden rounded-2xl border border-white/50 bg-ss-glass shadow-[0_18px_50px_-28px_rgba(11,31,58,0.55)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:border-ss-tech hover:shadow-[0_0_0_1px_var(--ss-tech-glow),0_22px_60px_-22px_var(--ss-tech-glow)] dark:border-white/10";
+  const cls = "ss-card group block overflow-hidden !p-0 transition-shadow duration-200 hover:-translate-y-0.5";
   return href ? (
     <Link href={href} className={cls}>{inner}</Link>
   ) : (
@@ -292,7 +292,7 @@ export function Spinner({ label = "Loading…" }: { label?: string }) {
 export function Skeleton({ className = "" }: { className?: string }) {
   return (
     <div
-      className={`animate-shimmer rounded-lg bg-ss-border ${className}`}
+      className={`animate-shimmer rounded-lg bg-ss-border/70 ${className}`}
       style={{ backgroundImage: "linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent)" }}
     />
   );
@@ -312,10 +312,10 @@ export function EmptyState({
   action?: ReactNode;
 }) {
   return (
-    <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-ss-border bg-ss-glass px-6 py-12 text-center shadow-[0_18px_50px_-32px_rgba(11,31,58,0.45)] backdrop-blur-xl">
+    <div className="ss-empty items-center text-center">
       {icon && <div className="text-3xl">{icon}</div>}
-      <div className="text-sm font-bold uppercase tracking-wide text-ss-text">{title}</div>
-      {message && <p className="max-w-sm text-sm text-ss-muted">{message}</p>}
+      <div className="text-base font-semibold text-ss-text">{title}</div>
+      {message && <p className="max-w-sm text-sm leading-relaxed text-ss-muted">{message}</p>}
       {action && <div className="mt-2">{action}</div>}
     </div>
   );

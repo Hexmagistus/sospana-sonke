@@ -63,6 +63,44 @@
    reads small or timid. Tailwind's rem-based sizes/spacing scale with this. */
 html { font-size: 17.5px; }
 
+/* Below-the-fold homepage sections. The browser can skip painting them until
+   they are near the viewport. The intrinsic size keeps the scrollbar stable. */
+.ss-defer-paint {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 520px;
+}
+
+/* Shared surfaces. Cards, empty states and the hero use these so spacing,
+   radius and shadow stay the same on the homepage, directory and tools. */
+.ss-card {
+  border-radius: 1rem;
+  border: 1px solid var(--ss-border);
+  background: var(--ss-surface);
+  color: var(--ss-text);
+  padding: 1.25rem;
+  box-shadow: 0 1px 2px rgba(11, 18, 32, 0.04), 0 16px 36px -28px rgba(11, 36, 71, 0.45);
+}
+.ss-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  border-radius: 1rem;
+  border: 1px dashed var(--ss-border);
+  background: var(--ss-surface);
+  padding: 1.75rem 1.25rem;
+}
+.ss-hero {
+  background:
+    linear-gradient(180deg, rgba(245, 179, 1, 0.08), transparent 42%),
+    var(--ss-surface);
+}
+/* The first paragraph must paint with a face that is already on the device.
+   Waiting for the display font was the mobile LCP. */
+.landing .ss-lcp,
+.landing .ss-lcp h1 {
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
 body {
   min-height: 100vh;
   color: var(--ss-text);
@@ -71,7 +109,7 @@ body {
     radial-gradient(760px 520px at -12% 6%, rgba(15, 118, 110, 0.12), transparent 60%),
     radial-gradient(820px 620px at 50% 118%, rgba(124, 92, 255, 0.10), transparent 62%),
     var(--ss-bg);
-  background-attachment: fixed;
+  background-attachment: scroll;
   transition: background-color 0.25s ease, color 0.25s ease;
 }
 
@@ -317,8 +355,14 @@ body {
     linear-gradient(180deg, rgba(247, 245, 240, 0.96), rgba(247, 245, 240, 0.98)),
     url("/photos/mara-sunset.jpg");
   background-size: auto, auto, auto, auto, cover;
-  background-attachment: fixed;
+  background-attachment: scroll;
   background-position: center;
+}
+/* The homepage paints its own hero. A full-bleed photo on body was competing
+   with the first paragraph on a slow phone. */
+body:has(.landing) {
+  background-image: none;
+  background-color: var(--ss-bg);
 }
 :root[data-theme="dark"] body {
   background-image:

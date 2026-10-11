@@ -18,7 +18,14 @@ import { NON_COUNTRY, coverageText } from "./regions";
 export type CountryRow = { name: string; flag: string; count: number };
 
 export type LandingStats = {
+  /** Employers with a direct careers link. Never the all-rows directory total. */
   total: number;
+  /** Every non-deleted employer, including rows whose careers link is still blank. */
+  directoryTotal: number | null;
+  /** Real countries that have at least one direct careers link. Buckets are not counted. */
+  countriesWithLink: number;
+  /** Real countries in the directory, including ones with no careers link yet. */
+  directoryCountries: number | null;
   byCountry: Record<string, number>;
   /** "live" from the API, "cached" from this browser, "snapshot" built in. */
   source: "live" | "cached" | "snapshot";
@@ -31,11 +38,19 @@ const SNAPSHOT_MONTHS = [
   "July", "August", "September", "October", "November", "December",
 ];
 
-/** "7 October 2026" from the snapshot's YYYY-MM-DD, without a locale lookup. */
+/** "11 October 2026" from the snapshot's YYYY-MM-DD, without a locale lookup. */
 export function snapshotAsOfLabel(iso = SNAPSHOT_AS_OF): string {
   const [y, m, d] = iso.split("-").map((part) => Number(part));
   const month = SNAPSHOT_MONTHS[(m || 1) - 1] ?? "";
   return `${d} ${month} ${y}`;
+}
+
+function linkedCountryCount(byCountry: Record<string, number>): number {
+  return Object.entries(byCountry).filter(([name, n]) => n > 0 && !NON_COUNTRY.has(name)).length;
+}
+
+function finitePositive(value: unknown): number | null {
+  return typeof value === "number" && Number.isFinite(value) && value > 0 ? Math.floor(value) : null;
 }
 
 /** Countries in the built-in snapshot that are not the International or Africa buckets. */
@@ -51,18 +66,25 @@ export function snapshotCountryRows(): { name: string; count: number }[] {
  */
 export function snapshotDirectoryDescription(): string {
   const rows = snapshotCountryRows();
-  const total = snapshot.with_link.toLocaleString("en-US");
+  const linked = snapshot.with_link.toLocaleString("en-US");
+  const directory = snapshot.employers.toLocaleString("en-US");
   return (
-    `Browse ${total} employers with a direct careers link across ${rows.length} countries ` +
-    `(${coverageText(rows)}). The built-in figure is the directory on ${snapshotAsOfLabel()} ` +
+    `Browse ${linked} employers with a direct careers link across ${rows.length} countries ` +
+    `(${coverageText(rows)}). The directory lists ${directory} employers in total, ` +
+    "including those whose careers link is still blank. " +
+    `The built-in figure is the directory on ${snapshotAsOfLabel()} ` +
     "and updates when the live directory answers. Apply on each employer's own careers page."
   );
 }
 
 export function snapshotStats(): LandingStats {
+  const byCountry = { ...(snapshot.by_country_with_link as Record<string, number>) };
   return {
     total: snapshot.with_link,
-    byCountry: { ...(snapshot.by_country_with_link as Record<string, number>) },
+    directoryTotal: snapshot.employers,
+    countriesWithLink: linkedCountryCount(byCountry),
+    directoryCountries: snapshot.countries,
+    byCountry,
     source: "snapshot",
   };
 }
@@ -83,10 +105,18 @@ export function parseStats(raw: unknown): LandingStats | null {
     if (typeof n === "number" && Number.isFinite(n) && n > 0) byCountry[name] = Math.floor(n);
   }
   if (Object.keys(byCountry).length === 0) return null;
-  return { total: Math.floor(data.with_link), byCountry, source: "live" };
+  const extra = raw as { employers?: unknown; countries?: unknown };
+  return {
+    total: Math.floor(data.with_link),
+    directoryTotal: finitePositive(extra.employers),
+    countriesWithLink: linkedCountryCount(byCountry),
+    directoryCountries: finitePositive(extra.countries),
+    byCountry,
+    source: "live",
+  };
 }
 
-const CACHE_KEY = "ss-landing-stats-v1";
+const CACHE_KEY = "ss-landing-stats-v2";
 const CACHE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
 
 export function readCachedStats(storage: Pick<Storage, "getItem"> | undefined, now = Date.now()): LandingStats | null {
