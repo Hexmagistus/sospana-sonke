@@ -312,6 +312,25 @@ def test_workday_sends_country_facet_from_the_url():
     assert vacs[0].title == "Account Manager"
 
 
+def test_workday_sends_location_country_facet_from_the_url():
+    detected = detect_ats(
+        "https://aviva.wd1.myworkdayjobs.com/External?Location_Country=29247e57dbaf46fb855b224e03170bc7"
+    )
+    assert detected[0] == "workday"
+    assert detected[1]["facets"]["Location_Country"] == ["29247e57dbaf46fb855b224e03170bc7"]
+    payload = json.loads(_fixture("workday.json"))
+
+    def handler(request: httpx.Request):
+        body = json.loads(request.content)
+        assert body["appliedFacets"]["Location_Country"] == ["29247e57dbaf46fb855b224e03170bc7"]
+        return httpx.Response(200, json=payload)
+
+    src = _Src("https://aviva.wd1.myworkdayjobs.com/External", "workday", detected[1])
+    with _client(handler) as c:
+        vacs = WorkdayStrategy().fetch(src, c)
+    assert vacs[0].title == "Account Manager"
+
+
 def test_oracle_parser_keeps_finder_commas():
     payload = json.loads(_fixture("oracle.json"))
     seen: list[str] = []

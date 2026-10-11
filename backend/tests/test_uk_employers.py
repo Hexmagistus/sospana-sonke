@@ -3,7 +3,9 @@
 A careers URL is stored only when robots.txt allows SospanaSonkeBot (or the
 host publishes no robots.txt), the response is HTTP 200, the employer's own
 board names a post, and at least half of the located roles are in the United Kingdom.
-Everyone else from the same lists is a blank row.
+Aviva is the exception added later: the unfiltered Workday board is global,
+and the stored URL is that board's own United Kingdom filter, which lists the
+roles named in the note. Everyone else from the same lists is a blank row.
 """
 import csv
 from pathlib import Path
@@ -14,6 +16,7 @@ CSV = Path(__file__).resolve().parents[1] / "seed" / "company_database_import.cs
 NOTE = '2026-10-11 uk-employers'
 LINKS = {
     'Autotrader Group': ('https://job-boards.greenhouse.io/autotrader', 'PRIVATE', 'greenhouse'),
+    'Aviva': ('https://aviva.wd1.myworkdayjobs.com/External?Location_Country=29247e57dbaf46fb855b224e03170bc7', 'PRIVATE', 'workday'),
     'Brave Bison': ('https://careers.smartrecruiters.com/bravebison', 'PRIVATE', 'smartrecruiters'),
     'Deliveroo': ('https://job-boards.greenhouse.io/deliveroo', 'PRIVATE', 'greenhouse'),
     'Frasers Group': ('https://careers.smartrecruiters.com/frasersgroup', 'PRIVATE', 'smartrecruiters'),
@@ -33,11 +36,11 @@ BLANK_KINDS = {
     'HOSPITAL': 271,
     'MUNI': 24,
     'NGO': 24,
-    'PRIVATE': 405,
+    'PRIVATE': 404,
     'SOE': 14,
     'UNI': 154,
 }
-LINKED_TOTAL = 23
+LINKED_TOTAL = 24
 
 
 def _rows():

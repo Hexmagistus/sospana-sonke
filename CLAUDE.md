@@ -67,6 +67,11 @@ Lungani, 2026-10-03: in every country dropdown, list, and work order, put **Sout
 
 ## Session Log
 
+### 2026-10-11 — Cursor (Grok 4.7) — United Kingdom Workday country filter for Aviva
+Blank United Kingdom rows were probed again. Aviva's Workday board is global (8 of 132 located roles are in the United Kingdom). The stored URL is the board's own `Location_Country` filter. The rendered page shows "8 JOBS FOUND" and "1 - 8 of 8 jobs" with United Kingdom applied. The scanner sends that facet key; posting `locationCountry` to this host returns HTTP 400.
+
+United Kingdom careers links 23 → 24. Blank rows 916 → 915.
+
 ### 2026-10-11 — Cursor (Grok 4.7) — Ready seed PRs merged while the owner was away
 Polled open pull requests for 90 minutes and merged each ready seed PR with a merge commit after updating it onto main (union of the seed CSV and the session log, no duplicate import keys) and waiting for green CI. #69 and #70 stayed open.
 
