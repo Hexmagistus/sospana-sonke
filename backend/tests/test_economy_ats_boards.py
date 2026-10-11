@@ -29,14 +29,13 @@ EXPECTED = {
     "Aldar Properties": ("United Arab Emirates", "https://jobs.lever.co/aldar", "lever"),
 }
 
-# Linked employers (active, non-empty careers URL) after this batch is
-# combined with the later country filters, Jungheinrich, and the Asia-Pacific global boards.
+# Totals include the Europe careers landing pages merged with this batch.
 LINKED = {
-    "Germany": 15,
-    "France": 16,
+    "Germany": 77,
+    "France": 32,
     "Japan": 9,
-    "Spain": 7,
-    "Italy": 6,
+    "Spain": 11,
+    "Italy": 18,
     "South Korea": 6,
     "United Arab Emirates": 21,
 }
