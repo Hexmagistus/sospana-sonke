@@ -75,6 +75,11 @@ A careers landing page is enough for that same set, even when the HTML lists no 
 
 ## Session Log
 
+### 2026-10-11 — Cursor (Grok 4.7) — Canada and Latin America careers landing pages
+S&P/TSX 60 employers and the other Americas large-cap rows that still had a blank careers URL now store the official careers page on the employer's own domain or its own applicant-system tenant. Saputo stores its Canada Workday board. A landing page counts even when the HTML lists no openings. The note is marked `careers_scope=global` and `careers_status` is `global_group`.
+
+Careers links: Canada 12 → 39, Colombia 21 → 23, Mexico 3 → 6.
+
 ### 2026-10-11 — Cursor (Grok 4.7) — Country-filter and global-board seed PRs merged
 Merged the ready seed pull requests in order after updating each onto main (union of the session log and the seed file, no duplicate import keys) and waiting for green CI. #69 and #70 stayed open. #102 is the directory refresh; it was merged separately as `a48e99c1c1785dd2ff0c25b047b508dbaa0a8435`.
 
