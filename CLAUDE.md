@@ -67,6 +67,11 @@ Lungani, 2026-10-03: in every country dropdown, list, and work order, put **Sout
 
 ## Session Log
 
+### 2026-10-11 — Cursor (Grok 4.7) — Canada and Latin America employers from market indexes and universities
+S&P/TSX 60 constituents and Canadian universities, the Mexican IPC, COLCAP names that were not already filed, and short company lists for Uruguay and Ecuador, plus a few hospitals, cities and flagship universities in Brazil and Argentina. Greenhouse, Lever, Ashby and SmartRecruiters were probed. No board had a majority of located roles in the headquarters country, so this batch stores no new careers URL. Sector labels ("Oil and Gas", "Energy") and the city names Quito and Montevideo were left out. Brazil, Chile, Argentina and Peru already hold large listed sets, so almost every name from those markets was already in the directory.
+227 blank rows, note prefix `2026-10-11 americas-employers`. Rows/links, before → after: Canada 10/10 → 167/10 (PRIVATE 5 → 64, UNI 4 → 96). Mexico 3/3 → 39/3 (PRIVATE 3 → 35). Colombia 121/21 → 136/21. Ecuador 4/2 → 14/2. Uruguay 6/6 → 11/6. Brazil 469/435 → 471/435. Argentina 252/82 → 254/82. Directory 8,801 rows / 4,206 linked → 9,028 rows / 4,206 linked. `directory-snapshot.json` was left as it is.
+Next: Africa beyond South Africa as its own ready PR off main.
+
 ### 2026-10-11 — Cursor (Grok 4.7) — United States employers from the S&P 500, hospitals, and ATS boards
 S&P 500 constituents, Association of American Universities members, large hospital systems, federal agencies, major cities, national charities, and community colleges, plus a short list of startups, were probed on Greenhouse, Lever, Ashby, Workable, SmartRecruiters, iCIMS, and Workday. A careers URL is stored only when robots.txt allows SospanaSonkeBot (or the host has no robots.txt), the page is HTTP 200, the employer's own board names a post, and at least half of the located roles are in the United States. The USAJOBS search page did not name posts in the HTML, so federal agencies stay blank. Wrong-company slugs (Public Storage, Flex, Applied Materials, and others) and global boards that are not mostly in the United States (Ciena, Analog Devices) were not stored. Williams-Sonoma was not given the Williams Companies Workday tenant.
 
