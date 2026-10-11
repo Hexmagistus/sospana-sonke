@@ -75,6 +75,9 @@ A careers landing page is enough for that same set, even when the HTML lists no 
 
 ## Session Log
 
+### 2026-10-11 — Cursor (Grok 4.7) — Google Search Console verification
+The root layout metadata now includes `verification.google` so every page, including the homepage, emits `<meta name="google-site-verification" content="MyvgoPaRTncHGCuCDG_i2ibqlRPZ02uCdjVLOsrzbcg" />`. `robots.ts` already points at `https://sospana-sonke.vercel.app/sitemap.xml`, and `sitemap.ts` already serves `/sitemap.xml`.
+
 ### 2026-10-11 — Cursor (Grok 4.7) — Careers landing-page seed PRs merged
 Merged the owner-approved landing-page pull requests in order after updating each onto main (union of the session log and the seed file, no duplicate import keys) and waiting for green CI. #69 and #70 stayed open.
 
