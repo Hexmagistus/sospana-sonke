@@ -75,6 +75,11 @@ A careers landing page is enough for that same set, even when the HTML lists no 
 
 ## Session Log
 
+### 2026-10-11 — Cursor (Grok 4.7) — African listed careers landing pages
+Kore Potash and We Buy Cars Holdings store their own careers pages. Lucara Diamond stores its Botswana careers page. Each note is marked `careers_scope=global` and `careers_status` is `global_group`. The other JSE and African-exchange blanks still have no page that passed the robots and careers-page checks.
+
+Careers links: South Africa 815 → 817, Botswana 119 → 120.
+
 ### 2026-10-11 — Cursor (Grok 4.7) — Country-filter and global-board seed PRs merged
 Merged the ready seed pull requests in order after updating each onto main (union of the session log and the seed file, no duplicate import keys) and waiting for green CI. #69 and #70 stayed open. #102 is the directory refresh; it was merged separately as `a48e99c1c1785dd2ff0c25b047b508dbaa0a8435`.
 
