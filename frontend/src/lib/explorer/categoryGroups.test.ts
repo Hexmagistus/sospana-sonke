@@ -186,4 +186,14 @@ describe("category groups: pages and navigation", () => {
     const robots = src("app", "robots.ts");
     for (const l of EXPLORER_NAV) assert.ok(robots.includes(`"${l.href}"`), l.href);
   });
+
+  it("names the sitemap in robots.txt and the Search Console token in the root layout", () => {
+    const robots = src("app", "robots.ts");
+    assert.match(robots, /sitemap: `\$\{SITE_URL\}\/sitemap\.xml`/);
+    assert.match(src("app", "sitemap.ts"), /export default function sitemap/);
+    assert.match(
+      src("app", "layout.tsx"),
+      /verification:\s*\{\s*google:\s*"MyvgoPaRTncHGCuCDG_i2ibqlRPZ02uCdjVLOsrzbcg"/,
+    );
+  });
 });
