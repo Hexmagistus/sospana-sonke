@@ -27,6 +27,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from app.core.config import settings
 from app.services.seed_board import (
+    BoardDecision,
     decide_board,
     decide_counts,
     names_match,
@@ -337,23 +338,29 @@ def _workday(client, name, country, slug, renderer):
             if facet:
                 parameter, facet_id, here, located = facet
                 decision = decide_counts(here, located)
-                if not decision.accept:
+                if here < 2:
                     continue
-                url = workday_filter_url(page_url, facet_id, parameter) if decision.filtered else page_url
-                if decision.filtered:
-                    try:
-                        filtered = _open(client, endpoint, method="POST", body={
-                            "appliedFacets": {parameter: [facet_id]},
-                            "limit": 5, "offset": 0, "searchText": "",
-                        })
-                        if filtered is None or filtered.status_code != 200:
-                            continue
-                        filtered_posts = (filtered.json() or {}).get("jobPostings") or []
-                    except (httpx.HTTPError, ValueError):
+                # Keep the country filter even when this country is already a
+                # majority. The unfiltered feed can lead with other countries,
+                # and the scanner only reads the first pages.
+                url = workday_filter_url(page_url, facet_id, parameter)
+                try:
+                    filtered = _open(client, endpoint, method="POST", body={
+                        "appliedFacets": {parameter: [facet_id]},
+                        "limit": 5, "offset": 0, "searchText": "",
+                    })
+                    if filtered is None or filtered.status_code != 200:
+                        raise ValueError("filter")
+                    filtered_posts = (filtered.json() or {}).get("jobPostings") or []
+                except (httpx.HTTPError, ValueError):
+                    if not decision.accept or decision.filtered:
                         continue
+                    url = page_url
+                else:
                     titles = [(post.get("title") or "").strip() for post in filtered_posts if (post.get("title") or "").strip()]
                     if len(titles) < 2:
                         continue
+                    decision = BoardDecision(True, True, here, located, decision.share)
             else:
                 # A first page can be one country while the rest of the board is not.
                 if int(payload.get("total") or 0) > len(posts):
