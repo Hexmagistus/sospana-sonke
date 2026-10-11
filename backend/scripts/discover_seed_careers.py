@@ -34,6 +34,7 @@ from app.services.seed_board import (
     decide_counts,
     is_large_group,
     names_match,
+    slug_is_reliable,
     slug_variants,
     tenant_fits,
     workday_country_facet,
@@ -130,6 +131,8 @@ def _accept_sample(name, country, board, titles, locations, ats, url, client, re
         if not names_match(name, board):
             return None
     elif not tenant_fits(name, slug_from_url(url)):
+        return None
+    if not slug_is_reliable(name, url):
         return None
     if len(titles) < 2:
         return None
@@ -305,6 +308,8 @@ def _workday_sites(text: str) -> list[str]:
 def _workday(client, name, country, slug, renderer, *, allow_global=False):
     alnum = "".join(ch for ch in name.lower() if ch.isalnum())
     if len(slug) < 5 or slug not in alnum or not tenant_fits(name, slug):
+        return None
+    if not slug_is_reliable(name, f"https://{slug}.wd1.myworkdayjobs.com/External"):
         return None
     for cluster in _WD_CLUSTERS:
         host = f"{slug}.wd{cluster}.myworkdayjobs.com"

@@ -156,6 +156,48 @@ def names_match(candidate: str, board: str) -> bool:
     return False
 
 
+def ats_slug(url: str) -> str:
+    """The board token on a careers URL.
+
+    A Workday URL keeps the tenant in the host (``allegion.wd5``) and the site
+    name in the path (``Careers``). Other public boards keep the token in the
+    first path segment.
+    """
+    host = (urlparse(url).hostname or "").lower()
+    if host.endswith(".myworkdayjobs.com"):
+        return host.split(".")[0]
+    parts = [part for part in urlparse(url).path.split("/") if part]
+    return (parts[0] if parts else "").replace("-", "").lower()
+
+
+def slug_is_reliable(name: str, url: str) -> bool:
+    """True when the board token is this employer's name, not a short neighbour.
+
+    ``arch`` matches Arch Capital Group only after ``capital`` and ``group``
+    are ignored. That token is rejected. ``abbott`` still fits Abbott
+    Laboratories, and a full compact name such as ``analogdevices`` is kept.
+    """
+    token = ats_slug(url)
+    if not tenant_fits(name, token):
+        return False
+    raw = re.findall(r"[a-z0-9]+", (name or "").lower().replace("&", " and "))
+    raw = [word for word in raw if word not in _LEGAL_SUFFIX and len(word) >= 2]
+    words = core_words(name)
+    compact = "".join(words)
+    dropped = [word for word in raw if word not in words]
+    if token == compact and dropped and len(token) < 8:
+        return False
+    if words and token == words[0] and token != compact and len(token) < 6:
+        return False
+    return True
+
+
+_LEGAL_SUFFIX = {
+    "inc", "incorporated", "corp", "corporation", "plc", "ltd", "limited",
+    "llc", "lp", "company", "co", "the",
+}
+
+
 def tenant_fits(name: str, slug: str) -> bool:
     """True when a Workday tenant is this employer, not a shorter neighbour.
 

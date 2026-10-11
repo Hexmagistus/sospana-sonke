@@ -74,7 +74,7 @@ Multinationals and large groups are the exception. A row counts as one only when
 ## Session Log
 
 ### 2026-10-11 — Cursor (Grok 4.7) — Global careers pages for large groups
-The in-country rule stays for small and local employers. A listed large group or a US hospital system may store its own global careers board when no country path is available. The note is marked `careers_scope=global`. Discovery for that set is `scripts/discover_seed_careers.py --large-groups`.
+The in-country rule stays for small and local employers. A listed large group or a US hospital system may store its own global careers board when no country path is available. The note is marked `careers_scope=global`. Discovery for that set is `scripts/discover_seed_careers.py --large-groups`. A short token that only matches after generic words are dropped, such as `arch` for Arch Capital Group, is rejected.
 
 ### 2026-10-11 — Cursor (Grok 4.7) — Three more United States Workday boards
 The same blank-row probe, after it also read Workday's `Location_Country` facet. Allegion's own board is already mostly in the United States (255 of 332 located roles), so the URL has no filter. Ciena (49 of 164) and Equinix (119 of 337) store that facet. Rendered pages show "49 JOBS FOUND" and "119 JOBS FOUND" with United States of America applied. The scanner sends `Location_Country` when that is the query key, because posting `locationCountry` to those hosts returns HTTP 400.
