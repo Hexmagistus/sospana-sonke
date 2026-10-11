@@ -75,6 +75,9 @@ A careers landing page is enough for that same set, even when the HTML lists no 
 
 ## Session Log
 
+### 2026-10-11 — Cursor (Grok 4.7) — Merged #102
+Updated the directory refresh onto main, kept both session logs, and merged with a merge commit `a48e99c1c1785dd2ff0c25b047b508dbaa0a8435`. CI on the updated branch was green (backend, frontend, and the Vercel preview). The seed CSV is main's. The public snapshot stays the 11 October Frankfurt extract.
+
 ### 2026-10-11 — Cursor (Grok 4.7) — Update #102 onto main
 Seed pull requests had landed on main, so this branch was merged with `origin/main` and the session log kept both sides. `backend/seed/company_database_import.csv` is main's file. `directory-snapshot.json` stays the 11 October Frankfurt extract (4,299 with a careers link, 11,986 in the directory): main's snapshot file was still the 7 October extract and was not part of those seed commits.
 
