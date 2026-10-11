@@ -50,11 +50,18 @@ def _client() -> httpx.Client:
 
 
 def _open(client: httpx.Client, url: str, *, method: str = "GET", body: dict | None = None):
-    """SSRF-checked request. robots.txt is enforced on the stored page, not the JSON host."""
+    """SSRF-checked request. A missing host or a refused address is a miss, not a crash.
+
+    robots.txt is enforced on the stored page, not on the public JSON host.
+    """
     from app.scraper.politeness import request_with_backoff
-    return request_with_backoff(
-        client, url, retries=1, sleep=lambda _delay: None, method=method, json_body=body,
-    )
+    from app.scraper.ssrf import SsrfBlocked
+    try:
+        return request_with_backoff(
+            client, url, retries=1, sleep=lambda _delay: None, method=method, json_body=body,
+        )
+    except (SsrfBlocked, httpx.HTTPError, ValueError, OSError):
+        return None
 
 
 def _titles_present(html: str, titles: list[str]) -> bool:
@@ -154,7 +161,7 @@ def _greenhouse(client, name, country, slug, renderer):
         response = _open(client, f"https://boards-api.greenhouse.io/v1/boards/{slug}/jobs?content=false")
     except httpx.HTTPError:
         return None
-    if response.status_code != 200:
+    if response is None or response.status_code != 200:
         return None
     jobs = (response.json() or {}).get("jobs") or []
     titles, locations = [], []
@@ -178,7 +185,7 @@ def _lever(client, name, country, slug, renderer):
         response = _open(client, f"https://api.lever.co/v0/postings/{slug}?mode=json")
     except httpx.HTTPError:
         return None
-    if response.status_code != 200:
+    if response is None or response.status_code != 200:
         return None
     data = response.json()
     if not isinstance(data, list):
@@ -201,7 +208,7 @@ def _ashby(client, name, country, slug, renderer):
         response = _open(client, f"https://api.ashbyhq.com/posting-api/job-board/{slug}")
     except httpx.HTTPError:
         return None
-    if response.status_code != 200:
+    if response is None or response.status_code != 200:
         return None
     jobs = (response.json() or {}).get("jobs") or []
     titles, locations = [], []
@@ -225,7 +232,7 @@ def _workable(client, name, country, token, renderer):
         response = _open(client, f"https://www.workable.com/api/accounts/{token}?details=true")
     except httpx.HTTPError:
         return None
-    if response.status_code != 200:
+    if response is None or response.status_code != 200:
         return None
     data = response.json() or {}
     titles, locations = [], []
@@ -250,7 +257,7 @@ def _smartrecruiters(client, name, country, token, renderer):
         response = _open(client, f"https://api.smartrecruiters.com/v1/companies/{token}/postings?limit=100")
     except httpx.HTTPError:
         return None
-    if response.status_code != 200:
+    if response is None or response.status_code != 200:
         return None
     posts = (response.json() or {}).get("content") or []
     titles, locations = [], []
@@ -292,6 +299,8 @@ def _workday(client, name, country, slug, renderer):
             robots = _open(client, origin + "/robots.txt")
         except httpx.HTTPError:
             continue
+        if robots is None:
+            continue
         if robots.status_code == 200:
             sites = _workday_sites(robots.text) or ["External", "Careers"]
         elif robots.status_code == 404:
@@ -308,7 +317,7 @@ def _workday(client, name, country, slug, renderer):
                 response = _open(client, endpoint, method="POST", body={"appliedFacets": {}, "limit": 20, "offset": 0, "searchText": ""})
             except httpx.HTTPError:
                 continue
-            if response.status_code != 200:
+            if response is None or response.status_code != 200:
                 continue
             try:
                 payload = response.json()
@@ -331,6 +340,8 @@ def _workday(client, name, country, slug, renderer):
                             "appliedFacets": {"locationCountry": [facet_id]},
                             "limit": 5, "offset": 0, "searchText": "",
                         })
+                        if filtered is None or filtered.status_code != 200:
+                            continue
                         filtered_posts = (filtered.json() or {}).get("jobPostings") or []
                     except (httpx.HTTPError, ValueError):
                         continue
@@ -383,8 +394,12 @@ def main() -> int:
     hits = []
 
     def one(row):
-        with _client() as client:
-            found = probe_json(client, row["company_name"], row["country"], renderer)
+        try:
+            with _client() as client:
+                found = probe_json(client, row["company_name"], row["country"], renderer)
+        except Exception as exc:
+            print(f"ERR {row.get('company_name')}: {type(exc).__name__}", flush=True)
+            return None
         if not found:
             return None
         found["source_type"] = row.get("source_type") or ""
@@ -396,6 +411,8 @@ def main() -> int:
             found = future.result()
             if found:
                 hits.append(found)
+                with open(args.out + ".jsonl", "a", encoding="utf-8") as handle:
+                    handle.write(json.dumps(found) + "\n")
                 print(f"HIT {found['country']} | {found['name']} | {found['ats']} | {found['url']}", flush=True)
             if index % 50 == 0:
                 print(f"progress {index}/{len(rows)} hits {len(hits)}", flush=True)
