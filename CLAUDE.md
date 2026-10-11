@@ -67,6 +67,16 @@ Lungani, 2026-10-03: in every country dropdown, list, and work order, put **Sout
 
 ## Session Log
 
+### 2026-10-11 — Cursor (Grok 4.7) — Blank-row discovery for the priority countries
+Offline discovery ran over the blank careers rows in the United States, the United Kingdom, Europe, Japan, South Korea, Canada, the Middle East, and Nigeria, Kenya, Egypt, Morocco, and Ghana. New links are in separate ready PRs and were not merged: United States 372 → 377 (#92), United Kingdom 23 → 24 (#93), France 15 → 16 and Netherlands 9 → 10 (#94), Japan 5 → 6 with South Korea unchanged (#96), Canada 10 → 12 (#95). Germany, Ireland, the Nordics, Spain, Italy, Switzerland, Poland, the Middle East, and those five African countries stayed at the same link counts. Zeppelin University matched the Zeppelin equipment tenant and was left blank. The daily URL check still does not launch a browser.
+
+### 2026-10-11 — Cursor (Grok 4.7) — Workday discovery keeps the country filter
+When a Workday board publishes a country facet with at least two roles, offline discovery stores that filter even if the unfiltered board is already mostly in that country. The unfiltered feed can lead with other countries, and the scanner only reads the first pages. A tenant that is only the first word of a different organisation is still rejected. Zeppelin University matched the Zeppelin construction-equipment tenant and stays blank.
+
+### 2026-10-11 — Cursor (Grok 4.7) — Optional Playwright for offline careers checks
+The daily URL check and the admin “test this URL” button stay on plain HTTP. Chromium does not fit the free scheduler, and a bot-challenge page is not executed. Offline seed work can pass a renderer into `fetch_seed_page` (`backend/app/services/seed_page.py`). It still refuses a private or loopback address, follows the SSRF checks on each redirect, and skips the page when robots.txt disallows SospanaSonkeBot. A renderer runs only when the caller supplied one and the HTTP body is an empty JavaScript shell. `scripts/verify_seed_careers.py --render` and `scripts/discover_seed_careers.py --render` are the two offline commands. Discovery still requires the employer’s own board, at least two located roles, and at least half of those roles in that country. A Workday country filter is the one extra case: the board’s own facet id, kept on the URL as `locationCountry` or `Location_Country` (the jobs POST must use the same key the board published), when that country lists at least two roles and the unfiltered board does not. The scanner sends that key from the stored URL. A first page is not treated as the whole board, and a tenant slug has to be the employer’s name.
+Next: rerun discovery on the blank rows, United States and United Kingdom first, and open one ready PR per region.
+
 ### 2026-10-11 — Cursor (Grok 4.7) — Ready seed PRs merged while the owner was away
 Polled open pull requests for 90 minutes and merged each ready seed PR with a merge commit after updating it onto main (union of the seed CSV and the session log, no duplicate import keys) and waiting for green CI. #69 and #70 stayed open.
 
