@@ -123,7 +123,7 @@ export default async function EmployerPage({ params }: Props) {
       </nav>
       <PageHeader eyebrow={category} title={employer.company_name}>
         <p>
-          {employer.country}. {storedScopeText(employer.careers_scope)} You apply on the employer&apos;s site.
+          {employer.country}. {storedScopeText(employer.careers_scope)} You apply on the employer&apos;s site.{" "}
           {SITE_NAME} does not send an application for you.
         </p>
       </PageHeader>
