@@ -97,6 +97,7 @@ def _apply_link(vacancy: Vacancy) -> str | None:
 def _public_job(vacancy: Vacancy, company: Company) -> PublicJobResponse:
     return PublicJobResponse(
         id=vacancy.id,
+        company_id=company.id,
         title=vacancy.title,
         company_name=company.company_name,
         company_country=company.country,

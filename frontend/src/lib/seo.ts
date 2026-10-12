@@ -23,6 +23,7 @@ export const PUBLIC_ROUTES = [
   "/",
   "/jobs",
   "/countries",
+  "/employers",
   "/donate",
   "/login",
   "/register",

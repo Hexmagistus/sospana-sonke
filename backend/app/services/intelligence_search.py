@@ -487,6 +487,7 @@ def _employer_query(db: Session, understood: Understood):
 def _public_vacancy(vacancy: Vacancy, company: Company) -> dict:
     return {
         "id": vacancy.id,
+        "company_id": company.id,
         "title": vacancy.title,
         "company_name": company.company_name,
         "company_country": company.country,
@@ -511,6 +512,7 @@ def _public_employer(company: Company, counts: dict[str, int], known: set[str]) 
     n = counts.get(company.id, 0)
     url = (company.careers_url or "").strip() or None
     return {
+        "id": company.id,
         "company_name": company.company_name,
         "country": company.country,
         "source_type": company.source_type,

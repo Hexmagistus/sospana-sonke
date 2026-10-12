@@ -17,6 +17,7 @@ const EXAMPLES = [
 ];
 
 type Employer = {
+  id: string;
   company_name: string;
   country: string;
   source_type: string;
@@ -29,6 +30,7 @@ type Employer = {
 
 type Vacancy = {
   id: string;
+  company_id?: string;
   title: string;
   company_name: string;
   company_country: string;
@@ -237,7 +239,11 @@ function AnswerBody({ answer, onFollowUp }: { answer: Answer; onFollowUp: (quest
               <li key={role.id} className="rounded-xl border bg-white px-3 py-3" style={{ borderColor: "rgba(12, 27, 51, 0.14)" }}>
                 <p className="font-semibold" style={{ color: "var(--ss-intel-ink)" }}>{role.title}</p>
                 <p className="mt-1 text-sm" style={{ color: "var(--ss-intel-card-muted)" }}>
-                  {role.company_name}
+                  {role.company_id ? (
+                    <Link href={`/employers/${role.company_id}`} className="font-semibold underline" style={{ color: "var(--ss-intel-teal-deep)" }}>
+                      {role.company_name}
+                    </Link>
+                  ) : role.company_name}
                   {role.company_country ? ` · ${role.company_country}` : ""}
                   {role.location ? ` · ${role.location}` : ""}
                 </p>
@@ -281,7 +287,11 @@ function AnswerBody({ answer, onFollowUp }: { answer: Answer; onFollowUp: (quest
                 style={{ borderColor: "rgba(12, 27, 51, 0.14)" }}
               >
                 <p className="font-semibold" style={{ color: "var(--ss-intel-ink)" }}>
-                  {employer.company_name}
+                  {employer.careers_url ? (
+                    <Link href={`/employers/${employer.id}`} className="underline" style={{ color: "var(--ss-intel-ink)" }}>
+                      {employer.company_name}
+                    </Link>
+                  ) : employer.company_name}
                   <span className="font-medium" style={{ color: "var(--ss-intel-card-muted)" }}>
                     {" "}· {employer.country} · {employer.source_type}
                   </span>

@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   title: "Employers by country",
   description:
     `${total.toLocaleString("en-US")} employers with a direct careers link, listed by country ` +
-    `from the directory on ${dateLabel}. Sign in to open an employer and apply on their own page.`,
+    `from the directory on ${dateLabel}. Employers with a careers link also have a public page.`,
   alternates: { canonical: "/countries" },
   openGraph: {
     title: `Employers by country · ${SITE_NAME}`,
@@ -34,7 +34,9 @@ export default function CountriesIndexPage() {
           {snapshotStats().directoryCountries
             ? ` in ${snapshotStats().directoryCountries} countries`
             : ""}, including those whose link is still blank.
-          These pages do not list vacancies. Sign in to open an employer and apply on their site.
+          These country pages do not list vacancies. Employers that already have a careers link also have a{" "}
+          <Link href="/employers" className="font-semibold text-navy underline">public page</Link>
+          {" "}with that link and any roles the scanner has stored. Sign in to browse the full directory.
         </p>
       </PageHeader>
       <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">

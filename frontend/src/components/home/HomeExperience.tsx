@@ -591,6 +591,11 @@ export default function Home({ children }: { children?: ReactNode }) {
               <div className="mt-1 text-xs font-medium text-ss-muted">Countries in the directory</div>
             </div>
           </div>
+          <p className="mt-4 text-sm font-semibold">
+            <Link href="/employers" className="text-navy underline">
+              Public pages for employers with a careers link
+            </Link>
+          </p>
         </div>
       </section>
 

@@ -107,6 +107,7 @@ class MergeDuplicatesResponse(BaseModel):
 class PublicJobResponse(BaseModel):
     """A vacancy the scanner already stored. No advert body, no trust internals."""
     id: str
+    company_id: str
     title: str
     company_name: str
     company_country: str
