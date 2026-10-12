@@ -18,6 +18,21 @@ export default function PrivacyPage() {
             under South Africa&apos;s Protection of Personal Information Act (POPIA).
           </p>
 
+          <h2 className="pt-2 text-lg font-semibold text-ss-text">Anonymous search and click counts (POPIA)</h2>
+          <p>
+            We count how the public search is used, and when someone opens an employer&apos;s careers page
+            or a role&apos;s application link. This notice is part of the same release as those counts, and
+            the counts start only with this release. The count is first-party. We do not use a third-party
+            tracker, a tracking cookie, or an account id. We do not store the words you typed, your IP
+            address, or a user id. A search total keeps only the filters the search understood: the country,
+            the category, and whether the question was about roles, employers, or both; whether the answer
+            was empty, not enough data, or had results; and a band for how many results there were, such as
+            1–5 or 21–100. A click is counted per employer or per role, per day, as a number. We keep these
+            daily totals for 90 days and then delete them. If your browser sends Do Not Track or Global
+            Privacy Control, that search and that click are left out of the totals. The search still works.
+            An administrator can see the totals. They cannot see the question or who asked it.
+          </p>
+
           <h2 className="pt-2 text-lg font-semibold text-ss-text">Information we collect</h2>
           <ul className="list-disc space-y-1 pl-5">
             <li>Account details you give us: your name, email address, and (optionally) mobile number.</li>

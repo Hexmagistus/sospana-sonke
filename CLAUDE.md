@@ -75,8 +75,11 @@ A careers landing page is enough for that same set, even when the HTML lists no 
 
 ## Session Log
 
+### 2026-10-12 — Cursor (Grok 4.7) — Anonymous search and click counts
+The public search adds one daily total of the filters it understood: country, category, intent, whether the answer was empty, not enough data, or had results, and a band for the result count. The question, the IP address, and any account id are not stored. An outbound careers or application link adds a daily count for that employer or role. Do Not Track and Global Privacy Control leave the visit out. Totals older than 90 days are deleted. The privacy page states this in the same release. Administrators see the four rates on the dashboard. `usage_search_daily` and `usage_click_daily` are created on boot and dropped by the migration's downgrade. Pull requests #69 and #70 were not touched.
+
 ### 2026-10-12 — Cursor (Grok 4.7) — One vacancy row when the description changes
-When a scan sees the same employer job id again, it updates the oldest open row even if the description changed and the stored fingerprint was the title and location. Other open rows that share that id stay open. `GET /admin/vacancies/external-id-duplicates` lists them and does not delete them. Pull requests #69 and #70 were not touched.
+When a scan sees the same employer job id again, it updates the oldest open row even if the description changed and the stored fingerprint was the title and location. Other open rows that share that id stay open. `GET /admin/vacancies/external-id-duplicates` lists them and does not delete them. Merged as pull request #118, commit `377b28bfdef52416f87254d286b0ad018235b868`. Pull requests #69 and #70 were not touched.
 
 ### 2026-10-12 — Cursor (Grok 4.7) — Daily role alerts on the existing digest
 Signed-in members can save up to eight alerts (country, category, keyword) on Preferences. The morning digest is unchanged for people who have no saved alert. When they do, the openings in that one email are only new stored roles that match, each with the source link and the last-seen date. Nothing is sent when the day has no match. The unsubscribe link pauses the saved alerts. The privacy page has a POPIA line. `role_alerts` is created on boot and can be dropped by the migration's downgrade. Merged as pull request #117, commit `f56357cf6e4f18088d908446cf1a89453272b341`. Pull requests #69 and #70 were not touched.
