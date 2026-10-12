@@ -31,7 +31,9 @@ describe("public employer pages", () => {
   it("lists employer pages in the sitemap and leaves them crawlable", () => {
     const sitemap = readFileSync(resolve(process.cwd(), "src/app/sitemap.ts"), "utf8");
     const robots = readFileSync(resolve(process.cwd(), "src/app/robots.ts"), "utf8");
-    assert.match(sitemap, /\/employers/);
+    assert.match(sitemap, /\/employers\/ids/);
+    assert.match(sitemap, /force-dynamic/);
+    assert.match(sitemap, /unstable_cache/);
     assert.doesNotMatch(robots, /disallow: \[[^\]]*["']\/employers["']/s);
   });
 });

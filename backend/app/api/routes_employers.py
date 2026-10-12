@@ -11,6 +11,7 @@ from app.db.session import get_db
 from app.models.company import Company
 from app.models.vacancy import Vacancy
 from app.schemas.employer import (
+    PublicEmployerIdsResponse,
     PublicEmployerListResponse,
     PublicEmployerResponse,
     PublicEmployerSummary,
@@ -77,6 +78,32 @@ def list_public_employers(
             )
             for row in page
         ],
+        matched=len(rows),
+        limit=limit,
+        offset=offset,
+    )
+
+
+@router.get("/ids", response_model=PublicEmployerIdsResponse)
+@limiter.limit("30/minute")
+def list_public_employer_ids(
+    request: Request,
+    response: Response,
+    db: Session = Depends(get_db),
+    limit: int = Query(default=5000, ge=1, le=5000),
+    offset: int = Query(default=0, ge=0, le=20000),
+):
+    """Ids for the sitemap, in the same order as the public list. One query."""
+    response.headers["Cache-Control"] = "public, max-age=300"
+    rows = db.query(Company.id, Company.country, Company.company_name).filter(*_linked()).all()
+    rows.sort(key=lambda row: (
+        country_band(row.country),
+        (row.country or "").casefold(),
+        (row.company_name or "").casefold(),
+    ))
+    page = rows[offset:offset + limit]
+    return PublicEmployerIdsResponse(
+        ids=[row.id for row in page],
         matched=len(rows),
         limit=limit,
         offset=offset,

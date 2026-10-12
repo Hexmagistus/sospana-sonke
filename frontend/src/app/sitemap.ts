@@ -1,38 +1,47 @@
 import type { MetadataRoute } from "next";
+import { unstable_cache } from "next/cache";
 import { publicCountries } from "@/lib/countryPageData";
 import { employerPath } from "@/lib/employerPage";
 import { SNAPSHOT_AS_OF } from "@/lib/landingStats";
 import { SITE_URL } from "@/lib/seo";
 
-export const revalidate = 3600;
+// The build can finish before Frankfurt is serving /employers. A static sitemap
+// would then keep the empty employer list for an hour. This route is rendered
+// on request. A successful id list is cached; a failed fetch is not.
+export const dynamic = "force-dynamic";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
 
+async function fetchEmployerIds(): Promise<string[]> {
+  const ids: string[] = [];
+  const limit = 5000;
+  for (let offset = 0; offset < 20000; offset += limit) {
+    const res = await fetch(`${API}/employers/ids?limit=${limit}&offset=${offset}`, { cache: "no-store" });
+    if (!res.ok) throw new Error(`employers ${res.status}`);
+    const data = (await res.json()) as { ids?: unknown; matched?: unknown };
+    const rows = Array.isArray(data.ids) ? data.ids.filter((id): id is string => typeof id === "string" && id.length > 0) : [];
+    ids.push(...rows);
+    const matched = typeof data.matched === "number" ? data.matched : ids.length;
+    if (rows.length < limit || ids.length >= matched) break;
+  }
+  return ids;
+}
+
+const cachedEmployerIds = unstable_cache(fetchEmployerIds, ["public-employer-sitemap-ids"], { revalidate: 3600 });
+
 /** Employer URLs for rows that have a careers link. An unreachable API adds none. */
 async function employerEntries(modified: Date): Promise<MetadataRoute.Sitemap> {
-  const entries: MetadataRoute.Sitemap = [];
-  const limit = 200;
-  for (let offset = 0; offset < 20000; offset += limit) {
-    try {
-      const res = await fetch(`${API}/employers?limit=${limit}&offset=${offset}`, { next: { revalidate: 3600 } });
-      if (!res.ok) break;
-      const data = (await res.json()) as { employers?: { id?: string }[] };
-      const rows = Array.isArray(data.employers) ? data.employers : [];
-      for (const row of rows) {
-        if (!row?.id) continue;
-        entries.push({
-          url: `${SITE_URL}${employerPath(row.id)}`,
-          lastModified: modified,
-          changeFrequency: "weekly",
-          priority: 0.6,
-        });
-      }
-      if (rows.length < limit) break;
-    } catch {
-      break;
-    }
+  try {
+    const ids = await cachedEmployerIds();
+    return ids.map((id) => ({
+      url: `${SITE_URL}${employerPath(id)}`,
+      lastModified: modified,
+      changeFrequency: "weekly" as const,
+      priority: 0.6,
+    }));
+  } catch {
+    return [];
   }
-  return entries;
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
