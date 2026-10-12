@@ -95,6 +95,13 @@ class DuplicateGroupResponse(BaseModel):
     duplicates: list[VacancyResponse]
 
 
+class ExternalIdDuplicateGroupResponse(BaseModel):
+    """Open vacancies that share one employer job id. A report, not a merge."""
+    company_id: str
+    external_id: str
+    vacancy_ids: list[str]
+
+
 class MergeDuplicatesRequest(BaseModel):
     keep_id: str
     duplicate_ids: list[str]

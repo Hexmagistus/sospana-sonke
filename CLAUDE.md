@@ -75,8 +75,11 @@ A careers landing page is enough for that same set, even when the HTML lists no 
 
 ## Session Log
 
+### 2026-10-12 — Cursor (Grok 4.7) — One vacancy row when the description changes
+When a scan sees the same employer job id again, it updates the oldest open row even if the description changed and the stored fingerprint was the title and location. Other open rows that share that id stay open. `GET /admin/vacancies/external-id-duplicates` lists them and does not delete them. Pull requests #69 and #70 were not touched.
+
 ### 2026-10-12 — Cursor (Grok 4.7) — Daily role alerts on the existing digest
-Signed-in members can save up to eight alerts (country, category, keyword) on Preferences. The morning digest is unchanged for people who have no saved alert. When they do, the openings in that one email are only new stored roles that match, each with the source link and the last-seen date. Nothing is sent when the day has no match. The unsubscribe link pauses the saved alerts. The privacy page has a POPIA line. `role_alerts` is created on boot and can be dropped by the migration's downgrade. Pull requests #69 and #70 were not touched.
+Signed-in members can save up to eight alerts (country, category, keyword) on Preferences. The morning digest is unchanged for people who have no saved alert. When they do, the openings in that one email are only new stored roles that match, each with the source link and the last-seen date. Nothing is sent when the day has no match. The unsubscribe link pauses the saved alerts. The privacy page has a POPIA line. `role_alerts` is created on boot and can be dropped by the migration's downgrade. Merged as pull request #117, commit `f56357cf6e4f18088d908446cf1a89453272b341`. Pull requests #69 and #70 were not touched.
 
 ### 2026-10-12 — Cursor (Grok 4.7) — Employer sitemap is filled after the API is up
 Pull request #115 is on main as `4516b570ae77dec9641434626d22c8b89e4acfbc`. The first production sitemap was built while Frankfurt was still on the previous release, so it listed `/employers` and no employer ids, and that empty result was cached for an hour. The sitemap now requests `GET /employers/ids` on demand. A successful id list is cached for an hour. A failed fetch is not cached, so the next request can fill the pages in. Pull requests #69 and #70 were not touched.

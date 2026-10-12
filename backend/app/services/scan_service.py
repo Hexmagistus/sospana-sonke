@@ -17,6 +17,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 
 import httpx
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
@@ -264,13 +265,17 @@ def apply_fetch(db: Session, source: VacancySource, outcome: FetchOutcome) -> Sc
         )
         if "title" in adapter.validate(fields):
             continue
-        existing = _find_existing(db, source, fields)
-        if existing:
+        matches = _identity_matches(db, source, fields)
+        if matches:
+            existing = matches[0]
+            # Other open rows with the same employer id stay. They are reported,
+            # not closed or deleted, when this scan recognises the id.
+            for extra in matches:
+                seen_ids.add(extra.id)
             was_open = existing.is_open
             _apply_fields(existing, fields, now)
             _replace_requirements(db, existing, fields["requirement_rows"])
             existing.last_seen_at = now
-            seen_ids.add(existing.id)
             report.updated += 1
             report.duplicates_prevented += 1
             if fields["lifecycle_status"] == "CLOSED" and was_open:
@@ -351,22 +356,41 @@ def apply_fetch(db: Session, source: VacancySource, outcome: FetchOutcome) -> Sc
     return report
 
 
-def _find_existing(db: Session, source: VacancySource, fields: dict) -> Vacancy | None:
+def _external_key(value: str | None) -> str:
+    return (value or "").strip().casefold()
+
+
+def _identity_matches(db: Session, source: VacancySource, fields: dict) -> list[Vacancy]:
+    """Open rows this listing already is. The first row is the one to update.
+
+    An employer id is the identity, including a difference of case or surrounding
+    space. Every open row that shares it is returned so a later miss does not
+    close the extras. Those extras are left in place for the duplicate report.
+    """
+    key = _external_key(fields.get("external_id"))
+    if key:
+        rows = (db.query(Vacancy)
+                .filter(Vacancy.company_id == source.company_id,
+                        Vacancy.deleted_at.is_(None),
+                        Vacancy.is_open.is_(True),
+                        Vacancy.external_id.isnot(None),
+                        func.lower(func.trim(Vacancy.external_id)) == key)
+                .order_by(Vacancy.first_seen_at.asc(), Vacancy.id.asc())
+                .all())
+        if rows:
+            return rows
     existing = (db.query(Vacancy)
                 .filter(Vacancy.company_id == source.company_id,
+                        Vacancy.deleted_at.is_(None),
                         Vacancy.fingerprint == fields["fingerprint"])
                 .first())
-    if existing is None and fields["external_id"]:
+    if existing is None and not key:
         existing = (db.query(Vacancy)
                     .filter(Vacancy.company_id == source.company_id,
-                            Vacancy.external_id == fields["external_id"])
-                    .first())
-    if existing is None:
-        existing = (db.query(Vacancy)
-                    .filter(Vacancy.company_id == source.company_id,
+                            Vacancy.deleted_at.is_(None),
                             Vacancy.content_hash == fields["content_hash"])
                     .first())
-    return existing
+    return [existing] if existing is not None else []
 
 
 def _apply_fields(vac: Vacancy, fields: dict, now: datetime) -> None:

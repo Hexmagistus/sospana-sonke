@@ -22,11 +22,12 @@ from app.models.vacancy_report import VacancyReport, VACANCY_REPORT_CATEGORIES
 from app.schemas.vacancy import (
     VacancyResponse, VacancyDetailResponse, VacancySourceResponse, ScanReportResponse,
     VacancyReportCreate, VacancyReportResponse, DuplicateGroupResponse,
+    ExternalIdDuplicateGroupResponse,
     MergeDuplicatesRequest, MergeDuplicatesResponse,
     PublicJobResponse, PublicJobListResponse,
 )
 from app.services.scan_service import scan_company
-from app.services.duplicate_service import find_duplicate_groups, merge_duplicates
+from app.services.duplicate_service import find_duplicate_groups, find_external_id_groups, merge_duplicates
 from app.services.vacancy_report_service import create_vacancy_report
 
 router = APIRouter(tags=["vacancies"])
@@ -271,6 +272,16 @@ def list_duplicate_vacancies(db: Session = Depends(get_db),
         )
         for g in groups
     ]
+
+
+@router.get("/admin/vacancies/external-id-duplicates",
+            response_model=list[ExternalIdDuplicateGroupResponse],
+            dependencies=[Depends(require_admin)])
+def list_external_id_duplicates(db: Session = Depends(get_db),
+                                company_id: str | None = Query(default=None)):
+    """Open rows that share an employer job id. Does not close or delete any row."""
+    return [ExternalIdDuplicateGroupResponse.model_validate(group)
+            for group in find_external_id_groups(db, company_id=company_id)]
 
 
 @router.post("/admin/vacancies/merge", response_model=MergeDuplicatesResponse,
