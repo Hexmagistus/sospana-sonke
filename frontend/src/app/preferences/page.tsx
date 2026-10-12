@@ -8,6 +8,7 @@ import { api } from "@/lib/api";
 import { Alert, Button, Card } from "@/components/ui";
 import { POST_TYPES, postTypeLabel, unchosenCount, yesNoLabel } from "@/lib/preferences";
 import type { User } from "@/lib/types";
+import RoleAlerts from "@/components/RoleAlerts";
 
 type Field = "allow_tagging" | "preferred_post_type" | "notify_opportunity_alerts";
 
@@ -191,6 +192,8 @@ function PreferencesInner() {
           </div>
         </fieldset>
       </Card>
+
+      <RoleAlerts />
 
       <p className="text-xs text-ss-muted">
         Why we ask: the Protection of Personal Information Act (POPIA) says we must have your permission before

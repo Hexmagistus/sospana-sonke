@@ -108,6 +108,8 @@ def init_db() -> None:
     from app.db.base import Base
     from app import models  # noqa: F401  (ensures models are registered)
     Base.metadata.create_all(bind=engine)
+    from app.db.migrations.role_alerts import upgrade as upgrade_role_alerts
+    upgrade_role_alerts(engine)
     _add_new_columns()
     _widen_external_id()
     _ensure_indexes()
@@ -350,6 +352,7 @@ _INDEXES: list[tuple[str, str, str]] = [
     ("ix_vacancies_posted", "vacancies", "posting_date"),
     ("ix_vacancies_first_seen", "vacancies", "first_seen_at"),
     ("ix_scan_logs_company_created", "scan_logs", "company_id, created_at"),
+    ("ix_role_alerts_user_active", "role_alerts", "user_id, active"),
 ]
 
 
