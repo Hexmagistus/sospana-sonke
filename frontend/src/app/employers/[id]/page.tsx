@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import CountOutboundLink from "@/components/CountOutboundLink";
 import { PageHeader } from "@/components/PageHeader";
 import {
   categoryLabel,
@@ -131,14 +132,14 @@ export default async function EmployerPage({ params }: Props) {
         <h2 className="text-lg font-bold text-ss-text">Careers link</h2>
         <p className="text-sm text-ss-muted">{scope.label}. {scope.detail}</p>
         <p className="text-sm text-ss-muted">{checkedText(employer.last_checked, employer.url_looks_like_careers)}</p>
-        <a
+        <CountOutboundLink
           href={employer.careers_url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex text-sm font-semibold text-navy underline break-all"
+          targetKind="employer"
+          targetId={employer.id}
+          className="inline-flex min-h-11 items-center text-sm font-semibold text-navy underline break-all"
         >
           {employer.careers_url}
-        </a>
+        </CountOutboundLink>
       </section>
       <section className="space-y-3">
         <h2 className="text-lg font-bold text-ss-text">
@@ -160,14 +161,14 @@ export default async function EmployerPage({ params }: Props) {
                   {role.closing_date ? ` · Closes ${role.closing_date}` : ""}
                 </p>
                 {role.application_url ? (
-                  <a
+                  <CountOutboundLink
                     href={role.application_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-3 inline-flex rounded-xl bg-navy px-4 py-2 text-sm font-semibold text-white"
+                    targetKind="vacancy"
+                    targetId={role.id}
+                    className="mt-3 inline-flex min-h-11 items-center rounded-xl bg-navy px-4 py-2 text-sm font-semibold text-white"
                   >
                     Open on the employer site
-                  </a>
+                  </CountOutboundLink>
                 ) : (
                   <p className="mt-3 text-sm text-ss-muted">No application link was stored for this role.</p>
                 )}

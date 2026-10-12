@@ -29,3 +29,4 @@ from app.models.spark import SparkOpen  # noqa: F401
 from app.models.ad import AdApplication  # noqa: F401
 from app.models.digest import DigestLog  # noqa: F401
 from app.models.role_alert import RoleAlert  # noqa: F401
+from app.models.usage_count import UsageClickDaily, UsageSearchDaily  # noqa: F401

@@ -3,6 +3,8 @@
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import { API_BASE } from "@/lib/api";
+import CountOutboundLink from "@/components/CountOutboundLink";
+import { privacyHeaders } from "@/lib/usageSignal";
 
 /**
  * Example questions that returned stored roles from the public jobs API on
@@ -101,7 +103,11 @@ export default function IntelligenceSearch({ showAccountLinks = true }: { showAc
     setError(null);
     setAnswer(null);
     try {
-      const res = await fetch(`${API_BASE}/intelligence/search?q=${encodeURIComponent(q)}`, { cache: "no-store" });
+      const res = await fetch(`${API_BASE}/intelligence/search?q=${encodeURIComponent(q)}`, {
+        cache: "no-store",
+        credentials: "omit",
+        headers: privacyHeaders(typeof navigator === "undefined" ? null : navigator),
+      });
       if (res.status === 429) {
         setAnswer(null);
         setError("Too many searches from this network. Wait a minute and try again.");
@@ -253,15 +259,15 @@ function AnswerBody({ answer, onFollowUp }: { answer: Answer; onFollowUp: (quest
                   {role.closing_date ? `. Closes ${role.closing_date}` : ""}
                 </p>
                 {role.application_url ? (
-                  <a
+                  <CountOutboundLink
                     href={role.application_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-2 inline-flex text-sm font-semibold underline"
+                    targetKind="vacancy"
+                    targetId={role.id}
+                    className="mt-2 inline-flex min-h-11 items-center text-sm font-semibold underline"
                     style={{ color: "var(--ss-intel-teal-deep)" }}
                   >
                     Open on the employer site
-                  </a>
+                  </CountOutboundLink>
                 ) : (
                   <p className="mt-2 text-sm" style={{ color: "var(--ss-intel-card-muted)" }}>
                     No application link was stored for this role.
@@ -300,15 +306,15 @@ function AnswerBody({ answer, onFollowUp }: { answer: Answer; onFollowUp: (quest
                   {roleLine(employer)}. {checkLine(employer)}.
                 </p>
                 {employer.careers_url ? (
-                  <a
+                  <CountOutboundLink
                     href={employer.careers_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-2 inline-flex text-sm font-semibold underline"
+                    targetKind="employer"
+                    targetId={employer.id}
+                    className="mt-2 inline-flex min-h-11 items-center text-sm font-semibold underline"
                     style={{ color: "var(--ss-intel-teal-deep)" }}
                   >
                     Careers page
-                  </a>
+                  </CountOutboundLink>
                 ) : (
                   <p className="mt-2 text-sm" style={{ color: "var(--ss-intel-card-muted)" }}>No careers link stored.</p>
                 )}

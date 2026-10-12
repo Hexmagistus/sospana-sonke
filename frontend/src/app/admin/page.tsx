@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { PreferenceEmailCard, LoginAlertsCard } from "@/components/AdminPreferenceCards";
+import UsageScorecard from "@/components/UsageScorecard";
 import { postTypeLabel } from "@/lib/preferences";
 import Link from "next/link";
 import Guard from "@/components/Guard";
@@ -478,6 +479,8 @@ function AdminInner() {
         <Stat label="Companies" value={d.companies_total} hint={`${d.companies_active} active`} />
         <Stat label="Open vacancies" value={d.vacancies_open} hint={`${d.vacancies_total} total`} />
       </div>
+
+      <UsageScorecard />
 
       <Card>
         <h2 className="mb-3 font-semibold">Applications by status</h2>

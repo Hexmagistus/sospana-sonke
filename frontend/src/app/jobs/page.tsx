@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import CountOutboundLink from "@/components/CountOutboundLink";
 import { PageHeader } from "@/components/PageHeader";
 import IntelligenceSearch from "@/components/home/IntelligenceSearch";
 import { jobPosting, jobSummary, type PublicJob } from "@/lib/jobPosting";
@@ -168,14 +169,14 @@ export default async function JobsPage({ searchParams }: { searchParams: Promise
                   {job.closing_date ? ` · Closes ${job.closing_date}` : ""}
                 </p>
                 {job.application_url ? (
-                  <a
+                  <CountOutboundLink
                     href={job.application_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-3 inline-flex rounded-xl bg-navy px-4 py-2 text-sm font-semibold text-white"
+                    targetKind="vacancy"
+                    targetId={job.id}
+                    className="mt-3 inline-flex min-h-11 items-center rounded-xl bg-navy px-4 py-2 text-sm font-semibold text-white"
                   >
                     Open on the employer site
-                  </a>
+                  </CountOutboundLink>
                 ) : (
                   <p className="mt-3 text-sm text-ss-muted">No application link was stored for this role.</p>
                 )}

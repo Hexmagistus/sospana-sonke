@@ -109,7 +109,9 @@ def init_db() -> None:
     from app import models  # noqa: F401  (ensures models are registered)
     Base.metadata.create_all(bind=engine)
     from app.db.migrations.role_alerts import upgrade as upgrade_role_alerts
+    from app.db.migrations.usage_counts import upgrade as upgrade_usage_counts
     upgrade_role_alerts(engine)
+    upgrade_usage_counts(engine)
     _add_new_columns()
     _widen_external_id()
     _ensure_indexes()
