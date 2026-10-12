@@ -4,11 +4,9 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getPendingSearch, clearPendingSearch, queueAgentCommand } from "@/lib/agentHandoff";
 
-/** Picks up a search typed into the public homepage's search console before
- * the visitor signed up (see page.tsx's HeroSearchConsole), and offers to
- * continue it in the Career Agent now that they're logged in and have
- * landed here (login/register both redirect to /companies). Renders nothing
- * when there's no pending search -- most visits. */
+/** Picks up a search the command palette queued before sign-in, and offers to
+ * continue it in the Career Agent. The homepage search answers in place and
+ * does not use this handoff. Renders nothing when there's no pending search. */
 export default function PendingSearchBanner() {
   const router = useRouter();
   const [text, setText] = useState<string | null>(null);

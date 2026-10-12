@@ -75,6 +75,12 @@ A careers landing page is enough for that same set, even when the HTML lists no 
 
 ## Session Log
 
+### 2026-10-11 — Cursor (Grok 4.7) — Grounded Sospana Intelligence search
+Evidence audit is `docs/TRANSFORMATION_AUDIT.md`. The change on this branch is a deterministic question box on the homepage and on `/jobs`. A question becomes filters over stored roles and the employer directory. Results show the source link and the last-seen or last-checked date. GDP and the other datasets we do not hold return "Not enough data". `llm` stays `disabled` because no model key is configured. The hero is a scoped midnight-navy and teal band. The rest of the app stays gold and navy. A new question clears the previous answer before the next count arrives. Seed CSV, snapshot, scanner, auth, and pull requests #69 and #70 were not touched.
+
+Lighthouse 12.8.2 on the homepage, live site before this change, then a production build of this branch: mobile performance 86 → 95, largest paint 4.1 s → 2.8 s, speed index 2.8 s → 1.7 s. Desktop performance stays 100. Accessibility stays 95. Best practices 96 on this machine is a console error from calling the Frankfurt stats API as localhost. Not merged.
+Next: owner review. Later stages need an analytics product, a read-only database check for duplicate roles and province fill, a licensed Stats SA or municipal file, and a model key only if a grounded paraphrase is wanted.
+
 ### 2026-10-11 — Cursor (Grok 4.7) — Merged the Search Console tag
 Merge commit `f8b7c008465a1cf17edd65aa311d14009d31c7b1` on main. CI on #113 was green (backend, frontend, and the Vercel preview) before the merge.
 

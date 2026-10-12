@@ -94,6 +94,84 @@ html { font-size: 17.5px; }
     linear-gradient(180deg, rgba(245, 179, 1, 0.08), transparent 42%),
     var(--ss-surface);
 }
+
+/* Intelligence band. Midnight navy, charcoal ink, paper cards, electric teal.
+   The rest of the app keeps the gold and navy tokens. Teal text on paper is
+   the deep teal; the bright teal is a fill on navy, where the contrast holds. */
+:root,
+.ss-intel {
+  --ss-intel-navy: #0c1b33;
+  --ss-intel-charcoal: #1c2430;
+  --ss-intel-white: #ffffff;
+  --ss-intel-paper: #f4f7f8;
+  --ss-intel-text: #ffffff;
+  --ss-intel-muted: #d5dde8;
+  --ss-intel-teal: #5eead4;
+  --ss-intel-teal-deep: #0f766e;
+  --ss-intel-ink: #0b1220;
+  --ss-intel-card-muted: #3f4a5c;
+}
+.ss-hero.ss-intel {
+  background:
+    radial-gradient(520px 240px at 100% 0%, rgba(94, 234, 212, 0.18), transparent 58%),
+    var(--ss-intel-navy);
+  color: var(--ss-intel-text);
+  border-color: transparent;
+}
+.ss-intel-title {
+  color: var(--ss-intel-text);
+}
+.ss-intel-accent {
+  color: var(--ss-intel-teal);
+}
+.ss-intel-lead {
+  color: var(--ss-intel-muted);
+}
+.ss-intel-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 999px;
+  background: var(--ss-intel-paper);
+  color: var(--ss-intel-ink);
+  border: 1px solid rgba(12, 27, 51, 0.16);
+  padding: 0.35rem 0.85rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+.ss-intel-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: var(--ss-intel-teal-deep);
+}
+.ss-intel-quote {
+  margin-top: 1.75rem;
+  max-width: 36rem;
+  border-left: 4px solid var(--ss-intel-teal);
+  padding-left: 1rem;
+  color: var(--ss-intel-muted);
+}
+.ss-intel-card {
+  border-radius: 1rem;
+  background: var(--ss-intel-paper);
+  color: var(--ss-intel-ink);
+  padding: 1.25rem;
+}
+.ss-intel-button {
+  border-radius: 0.75rem;
+  background: var(--ss-intel-teal);
+  color: var(--ss-intel-navy);
+  padding: 0.7rem 1.15rem;
+  font-weight: 800;
+}
+.ss-intel-button:disabled {
+  opacity: 0.7;
+}
+.ss-intel :focus-visible {
+  outline: 2px solid var(--ss-intel-teal);
+  outline-offset: 2px;
+}
 /* The first paragraph must paint with a face that is already on the device.
    Waiting for the display font was the mobile LCP. */
 .landing .ss-lcp,

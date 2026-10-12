@@ -152,6 +152,24 @@ describe("explorer map", () => {
   });
 });
 
+describe("intelligence band", () => {
+  const intel = readTokens(css, ".ss-intel");
+  const t = (n: string) => tokensOf(intel, n);
+
+  it("keeps white and teal readable on midnight navy, and ink readable on paper", () => {
+    check([
+      { name: "intel title on navy", fg: t("--ss-intel-text"), bg: t("--ss-intel-navy"), min: 7 },
+      { name: "intel muted on navy", fg: t("--ss-intel-muted"), bg: t("--ss-intel-navy"), min: 7 },
+      { name: "intel teal accent on navy", fg: t("--ss-intel-teal"), bg: t("--ss-intel-navy"), min: 7 },
+      { name: "navy label on teal button", fg: t("--ss-intel-navy"), bg: t("--ss-intel-teal"), min: 7 },
+      { name: "ink on paper card", fg: t("--ss-intel-ink"), bg: t("--ss-intel-paper"), min: 7 },
+      { name: "card muted on paper", fg: t("--ss-intel-card-muted"), bg: t("--ss-intel-paper"), min: 7 },
+      { name: "deep teal link on paper", fg: t("--ss-intel-teal-deep"), bg: t("--ss-intel-paper"), min: 4.5 },
+      { name: "ink on white result row", fg: t("--ss-intel-ink"), bg: t("--ss-intel-white"), min: 7 },
+    ]);
+  });
+});
+
 describe("contrastRatio helper", () => {
   it("matches the WCAG reference values", () => {
     assert.equal(Math.round(contrastRatio("#000000", "#ffffff")), 21);
