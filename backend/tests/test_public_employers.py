@@ -101,3 +101,12 @@ def test_public_page_hides_notes_and_lists_open_roles(client, db_engine):
     assert "Closed Board" not in names
     assert "secret" not in listed.text
     assert kenya_name == "Nairobi Works"
+
+    ids = client.get("/api/v1/employers/ids")
+    assert ids.status_code == 200, ids.text
+    id_body = ids.json()
+    assert id_body["matched"] == 2
+    assert id_body["ids"][0] == linked_id
+    assert blank_id not in id_body["ids"]
+    assert inactive_id not in id_body["ids"]
+    assert "secret" not in ids.text

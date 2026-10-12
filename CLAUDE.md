@@ -75,11 +75,14 @@ A careers landing page is enough for that same set, even when the HTML lists no 
 
 ## Session Log
 
+### 2026-10-12 — Cursor (Grok 4.7) — Employer sitemap is filled after the API is up
+Pull request #115 is on main as `4516b570ae77dec9641434626d22c8b89e4acfbc`. The first production sitemap was built while Frankfurt was still on the previous release, so it listed `/employers` and no employer ids, and that empty result was cached for an hour. The sitemap now requests `GET /employers/ids` on demand. A successful id list is cached for an hour. A failed fetch is not cached, so the next request can fill the pages in. Pull requests #69 and #70 were not touched.
+
 ### 2026-10-12 — Cursor (Grok 4.7) — Public employer pages and a fresh directory snapshot
 `directory-snapshot.json` is the Frankfurt `GET /companies/stats` from 12 October 2026: 4,999 employers with a careers link (was 4,299 on the 11 October file), 11,986 in the directory, 207 countries with a link, 229 in the directory. The homepage still replaces that file when the live stats answer.
 
 Public `/employers` and `/employers/{id}` are for rows that have a careers link. The page shows the name, country, category, the careers link, whether the row is marked `careers_scope=global`, the URL-check date, and stored open roles with their source links. Notes stay off the response. The sitemap lists those ids when the API answers, and leaves them out when it does not. Pull requests #69 and #70 were not touched.
-Next: this branch is the one to merge after CI and a live check of one employer page.
+Merged as pull request #115, commit `4516b570ae77dec9641434626d22c8b89e4acfbc`.
 
 ### 2026-10-11 — Cursor (Grok 4.7) — Grounded Sospana Intelligence search
 Evidence audit is `docs/TRANSFORMATION_AUDIT.md`. The change on this branch is a deterministic question box on the homepage and on `/jobs`. A question becomes filters over stored roles and the employer directory. Results show the source link and the last-seen or last-checked date. GDP and the other datasets we do not hold return "Not enough data". `llm` stays `disabled` because no model key is configured. The hero is a scoped midnight-navy and teal band. The rest of the app stays gold and navy. A new question clears the previous answer before the next count arrives. Seed CSV, snapshot, scanner, auth, and pull requests #69 and #70 were not touched.

@@ -20,6 +20,13 @@ class PublicEmployerListResponse(BaseModel):
     offset: int
 
 
+class PublicEmployerIdsResponse(BaseModel):
+    ids: list[str]
+    matched: int
+    limit: int
+    offset: int
+
+
 class PublicEmployerResponse(BaseModel):
     id: str
     company_name: str
