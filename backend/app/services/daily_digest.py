@@ -22,9 +22,11 @@ Rules, all enforced here and covered by tests:
 * Content is real data: vacancies FIRST SEEN in the last 24 hours that are still open
   (never older: the window start is clamped to 24h, and a post whose own posting date
   is more than ``MAX_POSTING_AGE_DAYS`` old is skipped), with the vacancy's own
-  apply/source link or else the employer's careers link. There is no matching and no
-  "strong matches" section: new openings are only filtered by the person's profile
-  country, watches and preferred post type.
+  apply/source link or else the employer's careers link, and the date the role was
+  last seen. There is no matching score and no "strong matches" section. With no
+  saved role alert, new openings are filtered by the person's profile country,
+  watches and preferred post type. A saved role alert replaces that openings list
+  with roles that match the alert. Tagged posts and watched pages stay as they are.
   Longest email: ``DIGEST_MAX_ITEMS`` items (default 25) plus a "see more" link.
 * Order: South Africa, rest of SADC, rest of Africa, then other regions.
 
@@ -143,6 +145,7 @@ class Item:
     country: str = ""
     place: str = ""
     note: str = ""
+    last_seen: str = ""
 
 
 @dataclass
@@ -220,8 +223,24 @@ def _watch_pair_ok(pairs, company: Company) -> bool:
     return False
 
 
+def _seen_day(value: datetime | None) -> str:
+    aware = _aware(value)
+    return aware.date().isoformat() if aware else ""
+
+
+def _opening_item(vac: Vacancy, comp: Company) -> Item:
+    country = vac.country or comp.country or ""
+    return Item(
+        title=vac.title, employer=comp.company_name, url=_link_for(vac, comp),
+        band=_band(country), country=country, place=vac.city or vac.location or "",
+        last_seen=_seen_day(vac.last_seen_at),
+    )
+
+
 def build_content(db: Session, user: User, *, since: datetime, until: datetime) -> DigestContent:
     """Everything this user may be emailed about in [since, until]. No caps here."""
+    from app.services.role_alerts import active_alerts, alert_matches
+
     content = DigestContent()
     profile = db.query(CandidateProfile).filter(CandidateProfile.user_id == user.id).first()
 
@@ -244,8 +263,16 @@ def build_content(db: Session, user: User, *, since: datetime, until: datetime) 
               .order_by(Notification.created_at.desc()).all()):
         content.watched.append(Item(title=n.title, employer="", url=n.link_url))
 
-    if _alerts_yes(user):
+    saved = active_alerts(db, user.id)
+    if saved:
         seen: set[str] = set()
+        for vac, comp in _open_vacancy_rows(db, since, until).all():
+            if vac.id in seen or not any(alert_matches(alert, vac, comp) for alert in saved):
+                continue
+            seen.add(vac.id)
+            content.openings.append(_opening_item(vac, comp))
+    elif _alerts_yes(user):
+        seen = set()
         preferred = user.preferred_post_type if user.preferred_post_state == "chosen" else None
         if preferred != "none":
             countries, company_ids, pairs = _scope(db, user, profile)
@@ -260,10 +287,7 @@ def build_content(db: Session, user: User, *, since: datetime, until: datetime) 
                 if not _post_type_ok(preferred, vac):
                     continue
                 seen.add(vac.id)
-                content.openings.append(Item(
-                    title=vac.title, employer=comp.company_name, url=_link_for(vac, comp),
-                    band=_band(country), country=country, place=vac.city or vac.location or "",
-                ))
+                content.openings.append(_opening_item(vac, comp))
 
     content.openings.sort(key=lambda i: (i.band, i.country, i.employer.lower(), i.title.lower()))
     return content
@@ -275,7 +299,10 @@ def _line(item: Item) -> list[str]:
     head = f"- {item.title}"
     if item.employer:
         head += f" at {item.employer}"
-    tail = ", ".join(x for x in (item.place, item.note) if x)
+    bits = [x for x in (item.place, item.note) if x]
+    if item.last_seen:
+        bits.append(f"last seen {item.last_seen}")
+    tail = ", ".join(bits)
     if tail:
         head += f" ({tail})"
     out = [head]
@@ -324,9 +351,9 @@ def render_digest(user: User, content: DigestContent, *, now: datetime, max_item
         lines.extend([f"...and {more} more. See them all in the app:", f"{_app_url()}/agent", ""])
     lines.extend([
         "Why you are receiving this: you have a Sospana Sonke account and chose to get "
-        "opportunity updates. We send one email a day, never more.",
+        "opportunity updates. We send one email a day. If nothing new matches, we send no email that day.",
         "",
-        "Change what you receive:",
+        "Manage your alerts:",
         f"{_app_url()}/preferences",
         "",
         "Unsubscribe from the daily updates with one click:",
@@ -365,6 +392,11 @@ def _candidates(db: Session, day: str) -> list[User]:
 
 
 def _may_receive(db: Session, user: User) -> bool:
+    from app.services.role_alerts import active_alerts
+    # An active saved alert is its own opt-in. Pausing it on unsubscribe does
+    # not count, because that path sets active to false.
+    if active_alerts(db, user.id):
+        return True
     if not _resubscribed(user):
         return False
     if _alerts_yes(user) or _tagging_yes(user):
