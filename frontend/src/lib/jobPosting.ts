@@ -2,6 +2,7 @@
 
 export type PublicJob = {
   id: string;
+  company_id?: string;
   title: string;
   company_name: string;
   company_country: string;

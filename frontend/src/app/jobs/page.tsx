@@ -154,7 +154,11 @@ export default async function JobsPage({ searchParams }: { searchParams: Promise
               <li key={job.id} className="ss-card">
                 <h2 className="font-display text-xl font-bold text-ss-text">{job.title}</h2>
                 <p className="mt-1 text-sm text-ss-muted">
-                  {job.company_name}
+                  {job.company_id ? (
+                    <Link href={`/employers/${job.company_id}`} className="font-semibold text-navy underline">
+                      {job.company_name}
+                    </Link>
+                  ) : job.company_name}
                   {job.company_country ? ` · ${job.company_country}` : ""}
                   {job.location ? ` · ${job.location}` : ""}
                 </p>

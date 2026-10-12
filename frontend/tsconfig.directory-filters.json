@@ -55,6 +55,8 @@
     "src/lib/returnPath.ts",
     "src/lib/returnPath.test.ts",
     "src/lib/jobPosting.ts",
-    "src/lib/jobPosting.test.ts"
+    "src/lib/jobPosting.test.ts",
+    "src/lib/employerPage.ts",
+    "src/lib/employerPage.test.ts"
   ]
 }

@@ -21,6 +21,7 @@ class IntelligenceUnderstood(BaseModel):
 
 
 class IntelligenceEmployer(BaseModel):
+    id: str
     company_name: str
     country: str
     source_type: str

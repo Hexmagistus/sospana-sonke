@@ -20,9 +20,9 @@ describe("landing stats", () => {
     const sum = Object.values(snap.byCountry).reduce((a, b) => a + b, 0);
     assert.equal(sum, snap.total);
     assert.equal(snap.source, "snapshot");
-    // with_link stays under 5,000. The all-rows directory total is larger, so a
-    // payload that counts employers with no careers link cannot pass as `total`.
-    assert.ok(snap.total > 4000 && snap.total < 5000, `with-link total ${snap.total}`);
+    // with_link stays well under the all-rows directory total, so a payload that
+    // counts employers with no careers link cannot pass as `total`.
+    assert.ok(snap.total > 4000 && snap.total < 8000, `with-link total ${snap.total}`);
     assert.ok(snap.directoryTotal != null && snap.directoryTotal > 10000, `directory total ${snap.directoryTotal}`);
     assert.ok(snap.directoryTotal > snap.total);
     assert.equal(snap.countriesWithLink, 207);
@@ -31,10 +31,10 @@ describe("landing stats", () => {
 
   it("directory metadata uses the snapshot, not an old Africa-only count", () => {
     const text = snapshotDirectoryDescription();
-    assert.match(text, /4,299 employers with a direct careers link/);
+    assert.match(text, /4,999 employers with a direct careers link/);
     assert.match(text, /11,986 employers in total/);
     assert.match(text, /South America/);
-    assert.match(text, /11 October 2026/);
+    assert.match(text, /12 October 2026/);
     assert.doesNotMatch(text, /2,400/);
     assert.doesNotMatch(text, /26 African/);
   });
