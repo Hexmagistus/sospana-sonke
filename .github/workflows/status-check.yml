@@ -1,0 +1,42 @@
+name: Status check
+
+on:
+  schedule:
+    - cron: "7,22,37,52 * * * *"
+  workflow_dispatch: {}
+
+jobs:
+  status:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Health and scanner freshness
+        run: |
+          set -u
+          base=https://sospana-sonke-api-fra.onrender.com
+          ok=0
+          for attempt in 1 2 3; do
+            code=$(curl -sS --max-time 50 -o /tmp/health.json -w "%{http_code}" "$base/health" || echo 000)
+            echo "health attempt ${attempt} ${code}"
+            if [ "$code" = "200" ]; then
+              ok=1
+              break
+            fi
+            sleep 15
+          done
+          test "$ok" = "1"
+          python3 - << 'PY'
+          import json
+          import urllib.request
+          url = "https://sospana-sonke-api-fra.onrender.com/api/v1/status"
+          with urllib.request.urlopen(url, timeout=50) as res:
+              body = json.load(res)
+          print(json.dumps(body))
+          database = body["components"]["database"]["status"]
+          scanner = body["components"]["scanner"]["status"]
+          if database != "ok":
+              raise SystemExit(f"database {database}")
+          if scanner == "stale":
+              raise SystemExit("scanner stale")
+          print("overall", body["status"], "scanner", scanner)
+          PY
