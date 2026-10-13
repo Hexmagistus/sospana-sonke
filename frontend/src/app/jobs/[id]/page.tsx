@@ -7,7 +7,8 @@ import { RememberRole, SaveRoleButton } from "@/components/RoleExtras";
 import { jobPosting } from "@/lib/jobPosting";
 import { loadPublicJob } from "@/lib/loadPublicJob";
 import { opportunityLabel } from "@/lib/opportunity";
-import { SITE_NAME } from "@/lib/seo";
+import { SITE_NAME, SITE_URL } from "@/lib/seo";
+import { roleCode, sharePlain, smsHref, whatsAppHref } from "@/lib/shortLink";
 
 export const revalidate = 60;
 
@@ -32,6 +33,23 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       url: `/jobs/${job.id}`,
     },
   };
+}
+
+function ShareRole({ job }: { job: { id: string; title: string; company_name: string; company_country?: string | null; location?: string | null; closing_date?: string | null; application_url?: string | null } }) {
+  const code = roleCode(job.id);
+  const shortUrl = code ? `${SITE_URL}/go/${code}` : `${SITE_URL}/jobs/${job.id}`;
+  const text = sharePlain(job, shortUrl);
+  return (
+    <p className="mt-4 text-sm text-ss-text">
+      <a className="font-semibold text-[#0f766e] underline" href={whatsAppHref(text)}>WhatsApp</a>
+      {" · "}
+      <a className="font-semibold text-[#0f766e] underline" href={smsHref(text)}>SMS</a>
+      {" · "}
+      <a className="font-semibold text-[#0f766e] underline" href={`/jobs/${job.id}/text`}>Plain text</a>
+      {" · "}
+      <a className="font-semibold text-[#0f766e] underline" href={shortUrl}>{shortUrl.replace("https://", "")}</a>
+    </p>
+  );
 }
 
 export default async function JobDetailPage({ params }: Props) {
@@ -68,6 +86,7 @@ export default async function JobDetailPage({ params }: Props) {
           {job.closing_date ? ` · Closes ${job.closing_date}` : " · No closing date was stored"}
         </p>
         <ApplySteps applicationUrl={job.application_url} vacancyId={job.id} />
+        <ShareRole job={job} />
         <SaveRoleButton id={job.id} />
       </section>
     </article>

@@ -62,6 +62,8 @@
     "src/lib/opportunity.test.ts",
     "src/lib/showpieceGate.ts",
     "src/lib/showpieceGate.test.ts",
+    "src/lib/shortLink.ts",
+    "src/lib/shortLink.test.ts",
     "src/lib/publicCache.ts",
     "src/lib/publicCache.test.ts",
     "src/lib/flagship.ts",

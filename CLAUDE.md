@@ -75,6 +75,9 @@ A careers landing page is enough for that same set, even when the HTML lists no 
 
 ## Session Log
 
+### 2026-10-13 — Cursor (Grok 4.7) — Short links and plain-text role summaries
+A stored role id becomes 22 characters and back, with no lookup table. `/go/{code}` redirects to that role. `/jobs/{id}/text` is the plain summary. The role page links to WhatsApp, SMS, and that text. Measured on the Senior Provisioning Officer row: the text file is 186 bytes, and the short link `8qJvQwD6R5GhbnF8ma9sKQ` answers 302 to `/jobs/f2a26f43-00fa-4791-a16e-717c99af6c29` with an empty body. The role page HTML is 41,257 bytes with those links, against 37,812 bytes on the live site the same day before this change. Homepage first-load JavaScript stayed 154 kB. Pull requests #69 and #70 were not touched.
+
 ### 2026-10-13 — Cursor (Grok 4.7) — Quality gates
 CI builds the site and runs Playwright against that build: search, programmes, an employer page taken from a live stored role, the sign-up form without creating an account, and the signed-out alerts page, which returns to sign-in. Mobile Lighthouse on `/` is three simulated runs. The median performance score must be at least 90, and every accessibility score must be 100. On this machine, Lighthouse 12.8.2 recorded performance 92, 92 and 92, and accessibility 100, 100 and 100. The same production build printed homepage first-load JavaScript of 154 kB, and the check fails above that figure. The GitHub Actions run recorded first-load JavaScript 154 kB, Playwright 5 passed, and Lighthouse performance 92, 92 and 85 (median 92) with accessibility 100, 100 and 100. `pip-audit` on 2026-10-13 named PyJWT 2.13.0, orjson 3.10.15 and pypdf 6.18.1. Those pins are now PyJWT 2.15.1, orjson 3.11.6 and pypdf 6.19.0. A second audit found no known vulnerabilities. The PDF text test and the auth tests passed on those versions. `npm audit --audit-level=high` is unchanged. Pull requests #69 and #70 were not touched.
 
