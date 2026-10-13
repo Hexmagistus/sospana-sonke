@@ -8,6 +8,7 @@ import { jobSummary, type PublicJob } from "@/lib/jobPosting";
 import { SITE_NAME, SITE_URL } from "@/lib/seo";
 import { RoleSuggestInput } from "@/components/RoleSuggestInput";
 import { RecentRoles, SavedRoles } from "@/components/RoleExtras";
+import { FLAGSHIP_COUNTRY, flagshipCountry, flagshipQuery } from "@/lib/flagship";
 import { LIST_PAGE, listOffset } from "@/lib/listWindow";
 
 export const dynamic = "force-dynamic";
@@ -34,7 +35,8 @@ function freshnessDays(value: string | undefined): string | null {
 async function loadJobs(search: Search): Promise<Load> {
   const params = new URLSearchParams();
   if (search.q?.trim()) params.set("q", search.q.trim().slice(0, 80));
-  if (search.country?.trim()) params.set("country", search.country.trim().slice(0, 80));
+  const country = flagshipCountry(search.country);
+  if (country) params.set("country", country);
   if (search.employer?.trim()) params.set("employer", search.employer.trim().slice(0, 80));
   const days = freshnessDays(search.freshness);
   if (days) params.set("max_age_days", days);
@@ -62,7 +64,8 @@ const fieldClass =
 function jobsHref(search: Search, offset: number): string {
   const params = new URLSearchParams();
   if (search.q?.trim()) params.set("q", search.q.trim());
-  if (search.country?.trim()) params.set("country", search.country.trim());
+  const country = flagshipQuery(search.country);
+  if (country) params.set("country", country);
   if (search.employer?.trim()) params.set("employer", search.employer.trim());
   const days = freshnessDays(search.freshness);
   if (days) params.set("freshness", days);
@@ -176,7 +179,7 @@ async function JobResults({ search }: { search: Search }) {
 export default async function JobsPage({ searchParams }: { searchParams: Promise<Search> }) {
   const search = await searchParams;
   const q = search.q ?? "";
-  const country = search.country ?? "";
+  const country = flagshipCountry(search.country);
   const employer = search.employer ?? "";
   const freshness = freshnessDays(search.freshness) ?? "";
 
@@ -185,6 +188,7 @@ export default async function JobsPage({ searchParams }: { searchParams: Promise
       <PageHeader eyebrow="Stored openings" title="Open roles the scanner has stored">
         <p>
           These are jobs, internships, learnerships, bursaries and graduate programmes already saved from official pages.
+          This page opens on {FLAGSHIP_COUNTRY}. Clear the country box, or choose All countries, to see every stored role. South Africa stays first in that wider list.
           The list is not every opening in a country.
           If nothing is here, the scanner has not stored a matching open role. Check the organisation&apos;s own page.
           You apply there. {SITE_NAME} does not send an application for you.
@@ -227,6 +231,13 @@ export default async function JobsPage({ searchParams }: { searchParams: Promise
           <button type="submit" className="ss-intel-button min-h-11">
             Search stored roles
           </button>
+          {country ? (
+            <Link href={jobsHref({ ...search, country: "all" }, 0)} className="ml-4 text-sm font-semibold text-[#0f766e] underline">
+              All countries
+            </Link>
+          ) : (
+            <span className="ml-4 text-sm text-ss-muted">All countries. South Africa is listed first.</span>
+          )}
         </div>
       </form>
 

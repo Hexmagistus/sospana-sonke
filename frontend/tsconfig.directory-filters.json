@@ -61,6 +61,8 @@
     "src/lib/opportunity.ts",
     "src/lib/opportunity.test.ts",
     "src/lib/showpieceGate.ts",
-    "src/lib/showpieceGate.test.ts"
+    "src/lib/showpieceGate.test.ts",
+    "src/lib/flagship.ts",
+    "src/lib/flagship.test.ts"
   ]
 }
