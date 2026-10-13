@@ -45,6 +45,52 @@ const nextConfig = {
         headers: securityHeaders,
       },
       {
+        source: "/",
+        headers: [{ key: "Cache-Control", value: "public, s-maxage=300, stale-while-revalidate=600" }],
+      },
+      {
+        // Public HTML. s-maxage matches the page revalidate: 60s for lists, 300s for
+        // the labour table, pricing, and employer pages. Authenticated routes are not listed.
+        source: "/jobs",
+        headers: [{ key: "Cache-Control", value: "public, s-maxage=60, stale-while-revalidate=120" }],
+      },
+      {
+        source: "/jobs/:path*",
+        headers: [{ key: "Cache-Control", value: "public, s-maxage=60, stale-while-revalidate=120" }],
+      },
+      {
+        source: "/opportunities",
+        headers: [{ key: "Cache-Control", value: "public, s-maxage=60, stale-while-revalidate=120" }],
+      },
+      {
+        source: "/opportunities/:path*",
+        headers: [{ key: "Cache-Control", value: "public, s-maxage=60, stale-while-revalidate=120" }],
+      },
+      {
+        source: "/feed.xml",
+        headers: [{ key: "Cache-Control", value: "public, s-maxage=60, stale-while-revalidate=120" }],
+      },
+      {
+        source: "/feed.json",
+        headers: [{ key: "Cache-Control", value: "public, s-maxage=60, stale-while-revalidate=120" }],
+      },
+      {
+        source: "/data",
+        headers: [{ key: "Cache-Control", value: "public, s-maxage=300, stale-while-revalidate=600" }],
+      },
+      {
+        source: "/pricing",
+        headers: [{ key: "Cache-Control", value: "public, s-maxage=300, stale-while-revalidate=600" }],
+      },
+      {
+        source: "/employers",
+        headers: [{ key: "Cache-Control", value: "public, s-maxage=300, stale-while-revalidate=600" }],
+      },
+      {
+        source: "/employers/:path*",
+        headers: [{ key: "Cache-Control", value: "public, s-maxage=300, stale-while-revalidate=600" }],
+      },
+      {
         // Landmark photos are replaced rarely and are the heaviest bytes on
         // the landing page. A week of shared caching avoids re-downloading
         // them on every visit without pinning a swapped file for a year.

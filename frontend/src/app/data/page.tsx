@@ -3,7 +3,7 @@ import Link from "next/link";
 import { PageHeader } from "@/components/PageHeader";
 import { SITE_NAME } from "@/lib/seo";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
 
@@ -44,7 +44,7 @@ type Table = {
 
 async function loadTable(): Promise<Table> {
   try {
-    const res = await fetch(`${API}/labour/south-africa`, { cache: "no-store" });
+    const res = await fetch(`${API}/labour/south-africa`, { next: { revalidate: 300 } });
     if (!res.ok) return { loaded: false };
     const body = (await res.json()) as Table;
     if (!body.loaded || !body.rows?.length || !body.periods?.length) return { loaded: false };

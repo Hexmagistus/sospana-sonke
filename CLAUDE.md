@@ -75,6 +75,9 @@ A careers landing page is enough for that same set, even when the HTML lists no 
 
 ## Session Log
 
+### 2026-10-13 — Cursor (Grok 4.7) — Public pages cache for 60 or 300 seconds
+Job, programme, role, and feed responses reuse the API for 60 seconds. The labour table, pricing, and employer pages stay at 300 seconds. The sitemap still renders on request. `Cache-Control` on those paths uses the same windows. A SQLite `EXPLAIN QUERY PLAN` of the open-role list used the existing `ix_vacancies_open_last_seen` index, so no new index was added. The live p95 before this change is the 2026-10-13 sample: jobs list 382.2 ms, health 195.5 ms, company stats 337.5 ms. The after sample waits until this is deployed. Pull requests #69 and #70 were not touched.
+
 ### 2026-10-13 — Cursor (Grok 4.7) — Dimensional surfaces and a gated hero globe
 Shared cards now carry a top highlight and a stacked shadow. Teal buttons and the shared button press inward. A fine pointer tilts a card a few degrees. Touch does not. The homepage hero includes a painted globe in the HTML. WebGL (`three` and `@react-three/fiber`) loads only after idle, and only on a wide screen with a fine pointer, no data-saver, no slow connection, at least four cores, and motion allowed. The canvas uses the same box as the painting. Labour bars stay flat: the length is the printed rate, and the table is unchanged. The decision is `docs/adr/0001-dimensional-surfaces.md`. Pull requests #69 and #70 were not touched.
 
