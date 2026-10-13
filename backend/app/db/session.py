@@ -108,11 +108,13 @@ def init_db() -> None:
     from app.db.base import Base
     from app import models  # noqa: F401  (ensures models are registered)
     Base.metadata.create_all(bind=engine)
+    from app.db.migrations.alert_opportunity_type import upgrade as upgrade_alert_opportunity_type
     from app.db.migrations.opportunity_types import upgrade as upgrade_opportunity_types
     from app.db.migrations.role_alerts import upgrade as upgrade_role_alerts
     from app.db.migrations.usage_counts import upgrade as upgrade_usage_counts
     from app.db.migrations.verified_programmes import upgrade as upgrade_verified_programmes
     upgrade_role_alerts(engine)
+    upgrade_alert_opportunity_type(engine)
     upgrade_usage_counts(engine)
     upgrade_opportunity_types(engine)
     upgrade_verified_programmes(engine)

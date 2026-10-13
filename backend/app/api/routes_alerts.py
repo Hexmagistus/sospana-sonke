@@ -25,6 +25,7 @@ def create_my_alert(request: Request, body: RoleAlertWrite, db: Session = Depend
                     user: User = Depends(get_current_user)):
     row = role_alerts.create_alert(
         db, user, country=body.country, category=body.category, keyword=body.keyword,
+        opportunity_type=body.opportunity_type,
     )
     return RoleAlertResponse.model_validate(row)
 
@@ -43,6 +44,7 @@ def update_my_alert(request: Request, alert_id: str, body: RoleAlertWrite,
                     db: Session = Depends(get_db), user: User = Depends(get_current_user)):
     row = role_alerts.update_alert(
         db, user, alert_id, country=body.country, category=body.category, keyword=body.keyword,
+        opportunity_type=body.opportunity_type,
     )
     return RoleAlertResponse.model_validate(row)
 
