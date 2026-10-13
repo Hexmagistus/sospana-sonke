@@ -39,7 +39,14 @@ function emit() {
 function saveDataOn(): boolean {
   if (typeof navigator === "undefined") return false;
   const connection = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection;
-  return Boolean(connection?.saveData);
+  if (connection?.saveData) return true;
+  try {
+    if (window.localStorage.getItem("ss-data-saver") === "1") return true;
+  } catch {
+    // Private mode can refuse the read. The connection flag above still applies.
+  }
+  if (typeof location !== "undefined" && location.pathname.startsWith("/lite")) return true;
+  return false;
 }
 
 function bindVisibility() {

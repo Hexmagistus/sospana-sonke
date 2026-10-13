@@ -57,6 +57,8 @@ describe("soundtrack choices", () => {
     assert.match(player, /preload = "none"/);
     assert.match(player, /loop = true/);
     assert.match(player, /visibilitychange/);
+    assert.match(player, /ss-data-saver/);
+    assert.match(player, /\/lite/);
     assert.equal(player.includes("autoplay"), false);
     const layout = readFileSync(resolve(process.cwd(), "src/app/layout.tsx"), "utf8");
     const home = readFileSync(resolve(process.cwd(), "src/components/home/HomeExperience.tsx"), "utf8");
