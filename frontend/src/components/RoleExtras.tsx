@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { api, getToken } from "@/lib/api";
+import { playUiCue } from "@/lib/ambientPlayer";
 
 const KEY = "ss-recent-roles";
 
@@ -90,6 +91,7 @@ export function SaveRoleButton({ id }: { id: string }) {
     try {
       await api.post("/saved-opportunities", { vacancy_id: id });
       setMessage("Saved to your account.");
+      playUiCue("save");
     } catch {
       setMessage("Could not save that role. It may no longer be open.");
     }

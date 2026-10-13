@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { Button, Field, Input, Select } from "@/components/ui";
 import { sortCountries } from "@/lib/directoryFilters";
+import { playUiCue } from "@/lib/ambientPlayer";
 
 type AlertRow = {
   id: string;
@@ -139,6 +140,7 @@ export default function RoleAlerts() {
       } else {
         await api.post("/alerts", body);
         setMsg("Alert saved. We email once a day, and only when a new stored role matches.");
+        playUiCue("alert");
       }
       setForm(emptyForm);
       setEditing(null);

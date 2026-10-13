@@ -10,6 +10,7 @@ import ThemeToggleButton from "@/lib/ThemeToggleButton";
 import NotificationBell from "@/components/NotificationBell";
 import { isExplorerPath, OPEN_MENU_EVENT } from "@/lib/explorer/explorerPaths";
 import { EXPLORER_NAV } from "@/lib/explorer/categoryGroups";
+import { SoundControls } from "@/components/SoundControls";
 
 const LINKS = [
   { href: "/dashboard", label: "Dashboard" },
@@ -143,6 +144,7 @@ export default function Nav() {
             </Link>
           )}
           <div className="ml-auto flex shrink-0 items-center gap-3 whitespace-nowrap pl-2">
+            <SoundControls />
             <NotificationBell unread={unread} />
             <ThemeToggle />
             <span className="hidden max-w-[9rem] truncate text-xs text-ss-muted xl:inline" title={user.email}>{user.email}</span>
@@ -180,6 +182,9 @@ export default function Nav() {
             )}
           </button>
         </div>
+      </div>
+      <div className="border-t border-ss-border px-3 py-1.5 lg:hidden">
+        <SoundControls />
       </div>
 
       {/* Mobile: stacked dropdown panel */}
@@ -247,7 +252,8 @@ export default function Nav() {
               </Link>
             )}
           </div>
-          <div className="mt-4 flex items-center gap-3 border-t border-ss-border pt-3">
+          <div className="mt-4 flex flex-wrap items-center gap-3 border-t border-ss-border pt-3">
+            <SoundControls />
             <NotificationBell unread={unread} />
             <ThemeToggle />
           </div>

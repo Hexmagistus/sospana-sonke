@@ -18,6 +18,7 @@ import {
 import DailySparkTease from "@/components/DailySparkTease";
 import { CountryJump } from "@/components/CountryJump";
 import { HeroShowpiece } from "@/components/home/HeroShowpiece";
+import { SoundControls } from "@/components/SoundControls";
 
 const CoverageWorldMap = dynamic(() => import("@/components/CoverageWorldMap"), {
   ssr: false,
@@ -532,10 +533,11 @@ export default function Home({ children }: { children?: ReactNode }) {
             </Link>
           </div>
         </div>
-        <nav aria-label="Site" className="mx-auto flex max-w-6xl flex-wrap gap-x-4 gap-y-1 px-3 pb-2 text-sm font-semibold sm:px-4" style={{ color: C.navy }}>
+        <nav aria-label="Site" className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-4 gap-y-2 px-3 pb-2 text-sm font-semibold sm:px-4" style={{ color: C.navy }}>
           <Link href="/jobs" className="underline-offset-2 hover:underline">Jobs</Link>
           <Link href="/opportunities" className="underline-offset-2 hover:underline">Opportunities</Link>
           <Link href="/data" className="underline-offset-2 hover:underline">Labour data</Link>
+          <SoundControls />
         </nav>
       </header>
 

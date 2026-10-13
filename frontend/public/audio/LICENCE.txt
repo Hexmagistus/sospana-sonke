@@ -1,0 +1,17 @@
+Sospana Sonke ambient soundtrack
+================================
+
+File: ambient.ogg
+Title: Paper and Gold
+Author: original synthesis for Sospana Sonke
+Source: frontend/scripts/ambient_loop.py
+
+This recording is synthesised from sine waves, a falling log-drum pitch,
+and noise. It uses no samples, no third-party recording, and no copied
+melody. The composition and the recording are dedicated to the public
+domain under the Creative Commons CC0 1.0 Universal licence.
+
+https://creativecommons.org/publicdomain/zero/1.0/
+
+You can copy, modify, and use this loop for any purpose, including
+commercial use, without asking permission.
