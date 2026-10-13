@@ -75,6 +75,9 @@ A careers landing page is enough for that same set, even when the HTML lists no 
 
 ## Session Log
 
+### 2026-10-13 — Cursor (Grok 4.7) — Opportunity types on stored roles
+A stored role is a job unless its title, or otherwise its description, names exactly one of internship, learnership, bursary, or graduate programme. Two names, or a mention that is only a requirement the applicant already holds, stay a job. Field of study and stipend are stored only when the text labels them. Closing dates are not invented. `opportunity_type`, `field_of_study`, `stipend_text`, and `verified_at` are added on boot and dropped by the migration's downgrade. `GET /jobs?opportunity_type=` filters the public list, and `GET /jobs/counts` returns a count for each type. Pull requests #69 and #70 were not touched.
+
 ### 2026-10-13 — Cursor (Grok 4.7) — Homepage accessibility labels
 The country dropdown on the homepage is named by its "Jump to a country" label. The four steps under "How it works" are headings at the next level down from that section, so the outline no longer skips a level. Lighthouse 12.8.2 on a production build of this branch: mobile performance 92, accessibility 100, best practices 96, SEO 100, largest paint 3.2 s, speed index 1.7 s. Desktop performance 100, accessibility 100, best practices 96, SEO 100, largest paint 0.7 s. Best practices stays at 96 because the page calls the Frankfurt stats API from localhost and the console records that cross-origin refusal. Pull requests #69 and #70 were not touched.
 
