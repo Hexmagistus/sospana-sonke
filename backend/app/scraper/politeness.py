@@ -11,20 +11,19 @@ import contextvars
 import logging
 import time
 from contextlib import contextmanager
-from urllib.parse import urljoin, urlparse
+from urllib.parse import urlparse
 from urllib.robotparser import RobotFileParser
 
 import httpx
 
 from app.core.config import settings
+from app.scraper.safe_fetch import REDIRECTS, follow_redirects
 from app.scraper.ssrf import assert_safe_fetch_url
 
 logger = logging.getLogger(__name__)
 
 # A public JSON board can be large. Cap the body so one host cannot fill memory.
 MAX_RESPONSE_BYTES = 5_000_000
-_REDIRECTS = {301, 302, 303, 307, 308}
-_MAX_REDIRECTS = 5
 
 # The cron scan sets this so one dead host cannot burn retries * timeout.
 # Unset (None) leaves request_with_backoff's own `retries` argument alone.
@@ -162,30 +161,30 @@ def _fetch_limited(client: httpx.Client, url: str, *, method: str,
 
     ``headers`` are sent on the request only (the client's own headers stay
     as they are). ``form_body`` posts a urlencoded form instead of JSON.
+    Redirects use the same hop check as the URL tester and the page hasher.
     """
-    current = url
-    for _hop in range(_MAX_REDIRECTS + 1):
-        if method.upper() == "POST":
-            if form_body is not None:
-                resp = client.post(current, data=form_body, headers=headers,
+    state = {"method": method, "json": json_body, "form": form_body}
+
+    def once(current: str):
+        if state["method"].upper() == "POST":
+            if state["form"] is not None:
+                resp = client.post(current, data=state["form"], headers=headers,
                                    follow_redirects=False)
             else:
-                resp = client.post(current, json=json_body or {}, headers=headers,
+                resp = client.post(current, json=state["json"] or {}, headers=headers,
                                    follow_redirects=False)
         else:
             resp = client.get(current, headers=headers, follow_redirects=False)
-        if resp.status_code not in _REDIRECTS:
-            _reject_oversized_or_binary(resp)
-            return resp
-        location = resp.headers.get("location")
-        if not location:
-            return resp
-        current = urljoin(str(resp.url), location)
-        assert_safe_fetch_url(current)
-        method = "GET"
-        json_body = None
-        form_body = None
-    raise ValueError("too many redirects")
+        if resp.status_code in REDIRECTS and resp.headers.get("location"):
+            state["method"] = "GET"
+            state["json"] = None
+            state["form"] = None
+        return resp
+
+    resp = follow_redirects(once, url)
+    if resp.status_code not in REDIRECTS:
+        _reject_oversized_or_binary(resp)
+    return resp
 
 
 def _reject_oversized_or_binary(resp: httpx.Response) -> None:

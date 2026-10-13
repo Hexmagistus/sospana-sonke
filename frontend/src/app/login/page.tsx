@@ -59,6 +59,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [otp, setOtp] = useState("");
   const [needsOtp, setNeedsOtp] = useState(false);
+  const [googleCredential, setGoogleCredential] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [authing, setAuthing] = useState(false);
@@ -96,8 +97,15 @@ export default function LoginPage() {
             await successPause();
             router.push(safeInternalPath(new URLSearchParams(window.location.search).get("next")) ?? "/companies");
           } catch (err) {
+            const msg = err instanceof Error ? err.message : "Google sign-in failed.";
             setAuthing(false);
-            setError(err instanceof Error ? err.message : "Google sign-in failed.");
+            if (/mfa/i.test(msg)) {
+              setGoogleCredential(resp.credential);
+              setNeedsOtp(true);
+              setError("Enter your authenticator code to continue.");
+            } else {
+              setError(msg);
+            }
           }
         },
       });
@@ -114,7 +122,8 @@ export default function LoginPage() {
     setBusy(true);
     setAuthing(true);
     try {
-      await login(email, password, otp);
+      if (googleCredential) await loginWithGoogle(googleCredential, otp);
+      else await login(email, password, otp);
       setCelebrate(true);
       setAuthing(false);
       setBusy(false);
@@ -187,7 +196,7 @@ export default function LoginPage() {
           <form onSubmit={submit} className="space-y-4">
             {error && <Alert kind="error">{error}</Alert>}
             <Field label="Email">
-              <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+              <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required={!googleCredential} />
             </Field>
             <Field label="Password">
               <Input
@@ -197,7 +206,7 @@ export default function LoginPage() {
                 onFocus={() => setPasswordFocused(true)}
                 onBlur={() => setPasswordFocused(false)}
                 autoComplete="current-password"
-                required
+                required={!googleCredential}
               />
             </Field>
             {needsOtp && (

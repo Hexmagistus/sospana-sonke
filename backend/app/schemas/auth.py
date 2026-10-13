@@ -56,6 +56,7 @@ class RefreshRequest(BaseModel):
 
 class GoogleLoginRequest(BaseModel):
     credential: str   # the Google ID token (JWT) returned by Google Identity Services
+    otp_code: str | None = None   # required when the linked account already has MFA
 
 
 class UserResponse(BaseModel):

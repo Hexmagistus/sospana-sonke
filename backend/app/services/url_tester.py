@@ -14,6 +14,7 @@ import httpx
 from app.core.config import settings
 from app.schemas.company import UrlTestResult
 from app.scraper.politeness import is_aws_waf_challenge
+from app.scraper.safe_fetch import checked_get, checked_get_async
 
 _CAREERS_HINTS = ("career", "job", "vacan", "recruit", "opportunit", "employment", "join-us", "join us")
 _TITLE_RE = re.compile(r"<title[^>]*>(.*?)</title>", re.IGNORECASE | re.DOTALL)
@@ -38,11 +39,11 @@ async def test_url(url: str | None, client: httpx.AsyncClient | None = None) -> 
     if owns_client:
         client = httpx.AsyncClient(
             timeout=settings.URL_TEST_TIMEOUT_SECONDS,
-            follow_redirects=True,
+            follow_redirects=False,
             headers={"User-Agent": settings.URL_TEST_USER_AGENT},
         )
     try:
-        resp = await client.get(url)
+        resp = await checked_get_async(client, url)
         html = resp.text or ""
         final_url = str(resp.url)
         if is_aws_waf_challenge(resp.status_code, html):
@@ -96,11 +97,11 @@ def test_url_sync(url: str | None, client: "httpx.Client | None" = None) -> UrlT
     if owns_client:
         client = httpx.Client(
             timeout=settings.URL_TEST_TIMEOUT_SECONDS,
-            follow_redirects=True,
+            follow_redirects=False,
             headers={"User-Agent": settings.URL_TEST_USER_AGENT},
         )
     try:
-        resp = client.get(url)
+        resp = checked_get(client, url)
         html = resp.text or ""
         final_url = str(resp.url)
         if is_aws_waf_challenge(resp.status_code, html):

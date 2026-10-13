@@ -1,5 +1,5 @@
 """Tests for candidate profile CRUD and ownership isolation."""
-from tests.conftest import register_and_login
+from tests.conftest import confirm_registered_email, register_and_login
 
 
 def _auth(tokens):
@@ -26,6 +26,7 @@ def test_profile_seeded_from_registration_answers(client):
         "preferred_position": "Warehouse Supervisor", "qualification_name": "National Diploma: Logistics",
     })
     assert reg.status_code == 201, reg.text
+    confirm_registered_email(client, reg)
     tokens = client.post("/api/v1/auth/login", json={"email": email, "password": "Password123!"}).json()
     h = _auth(tokens)
 

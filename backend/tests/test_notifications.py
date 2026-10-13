@@ -2,7 +2,7 @@
 import json
 from datetime import datetime, timezone
 
-from tests.conftest import register_and_login, make_admin
+from tests.conftest import register_and_login, make_admin, admin_login
 from app.models.company import Company
 from app.models.vacancy import Vacancy, VacancyRequirement
 
@@ -218,7 +218,7 @@ def test_scan_due_companies_does_not_broadcast_to_candidates(client, db_engine, 
 
 def _admin(client, db_engine):
     email, password = make_admin(db_engine)
-    return client.post("/api/v1/auth/login", json={"email": email, "password": password}).json()
+    return admin_login(client, email, password).json()
 
 
 def test_schedule_defaults_and_update(client, db_engine):

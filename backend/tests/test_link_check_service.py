@@ -18,7 +18,7 @@ class _FakeClient:
     def __init__(self, texts):
         self._texts = list(texts)
 
-    def get(self, url):
+    def get(self, url, **kwargs):
         return _FakeResponse(self._texts.pop(0))
 
 

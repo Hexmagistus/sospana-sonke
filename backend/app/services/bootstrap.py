@@ -95,6 +95,9 @@ def bootstrap(db: Session) -> None:
     if settings.ADMIN_EMAIL and settings.ADMIN_PASSWORD:
         email = settings.ADMIN_EMAIL.lower()
         if not db.query(User).filter(User.email == email).first():
+            # MFA stays off on this first row so the owner can sign in and enrol.
+            # require_admin refuses administrator tools until that is done.
+            # See docs/ADMIN-2FA.md.
             db.add(User(email=email, password_hash=security.hash_password(settings.ADMIN_PASSWORD),
                         first_name="Admin", last_name="User", role="admin", email_verified=True))
             db.commit()

@@ -1,5 +1,5 @@
 """Route-level tests for scanning and vacancy listing (access control + basics)."""
-from tests.conftest import register_and_login, make_admin
+from tests.conftest import register_and_login, make_admin, admin_login
 from app.models.company import Company
 from app.models.vacancy import Vacancy
 from datetime import date, datetime, timedelta, timezone
@@ -45,7 +45,7 @@ def test_scan_now_writes_an_audit_row_and_does_not_fetch(client, db_engine, monk
 
     monkeypatch.setattr("app.api.routes_vacancies.scan_company", _fake)
     email, password = make_admin(db_engine)
-    tokens = client.post("/api/v1/auth/login", json={"email": email, "password": password}).json()
+    tokens = admin_login(client, email, password).json()
     company_id, _ = _seed_vacancy(db_engine)
     r = client.post(f"/api/v1/companies/{company_id}/scan", headers=_auth(tokens))
     assert r.status_code == 200, r.text
@@ -60,7 +60,7 @@ def test_scan_now_writes_an_audit_row_and_does_not_fetch(client, db_engine, monk
 
 def test_scan_missing_company(client, db_engine):
     email, password = make_admin(db_engine)
-    tokens = client.post("/api/v1/auth/login", json={"email": email, "password": password}).json()
+    tokens = admin_login(client, email, password).json()
     r = client.post("/api/v1/companies/does-not-exist/scan", headers=_auth(tokens))
     assert r.status_code == 404
 

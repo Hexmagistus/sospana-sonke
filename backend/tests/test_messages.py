@@ -3,7 +3,7 @@ from datetime import datetime, timedelta, timezone
 
 from sqlalchemy.orm import sessionmaker
 
-from tests.conftest import register_and_login, make_admin
+from tests.conftest import register_and_login, make_admin, admin_login
 from app.models.message import Message, MessageReport
 from app.models.user import User
 
@@ -72,7 +72,7 @@ def test_report_snapshots_and_admin_can_suspend(client, db_engine):
                        json={"reason": "harassment"}).status_code == 201
     assert client.get(f"{API}/messages/inbox", headers=_h(b)).json() == []
     email, pw = make_admin(db_engine)
-    admin = client.post(f"{API}/auth/login", json={"email": email, "password": pw}).json()
+    admin = admin_login(client, email, pw).json()
     reports = client.get(f"{API}/admin/message-reports", headers=_h(admin)).json()
     assert reports[0]["body_snapshot"] == "Rude words"
     res = client.post(f"{API}/admin/message-reports/{reports[0]['id']}/resolve", headers=_h(admin),

@@ -1,7 +1,7 @@
 """Tests for the company database, CSV import, and admin gating."""
 import io
 
-from tests.conftest import register_and_login, make_admin
+from tests.conftest import register_and_login, make_admin, admin_login
 
 CSV = (
     "company_name,jse_code,careers_url,source_type,scraping_status,active,relevance_note,country\n"
@@ -24,7 +24,7 @@ def test_import_requires_admin(client):
 
 def test_admin_import_dedupes(client, db_engine):
     email, password = make_admin(db_engine)
-    tokens = client.post("/api/v1/auth/login", json={"email": email, "password": password}).json()
+    tokens = admin_login(client, email, password).json()
     files = {"file": ("companies.csv", io.BytesIO(CSV.encode()), "text/csv")}
     r = client.post("/api/v1/companies/import", files=files, headers=_auth_header(tokens))
     assert r.status_code == 200, r.text
@@ -43,7 +43,7 @@ def test_admin_import_dedupes(client, db_engine):
 
 def test_list_filters_by_source_type(client, db_engine):
     email, password = make_admin(db_engine)
-    tokens = client.post("/api/v1/auth/login", json={"email": email, "password": password}).json()
+    tokens = admin_login(client, email, password).json()
     files = {"file": ("companies.csv", io.BytesIO(CSV.encode()), "text/csv")}
     client.post("/api/v1/companies/import", files=files, headers=_auth_header(tokens))
     soe = client.get("/api/v1/companies", params={"source_type": "SOE"}, headers=_auth_header(tokens)).json()
@@ -52,7 +52,7 @@ def test_list_filters_by_source_type(client, db_engine):
 
 def test_reject_non_csv(client, db_engine):
     email, password = make_admin(db_engine)
-    tokens = client.post("/api/v1/auth/login", json={"email": email, "password": password}).json()
+    tokens = admin_login(client, email, password).json()
     files = {"file": ("companies.txt", io.BytesIO(b"nope"), "text/plain")}
     r = client.post("/api/v1/companies/import", files=files, headers=_auth_header(tokens))
     assert r.status_code == 400
@@ -69,7 +69,7 @@ def _seed_one_company(client, db_engine, **overrides):
     row.update(overrides)
     csv_text = ",".join(row.keys()) + "\n" + ",".join(row.values()) + "\n"
     email, password = make_admin(db_engine, email="admin2@example.com")
-    tokens = client.post("/api/v1/auth/login", json={"email": email, "password": password}).json()
+    tokens = admin_login(client, email, password).json()
     files = {"file": ("companies.csv", io.BytesIO(csv_text.encode()), "text/csv")}
     client.post("/api/v1/companies/import", files=files, headers=_auth_header(tokens))
     listed = client.get("/api/v1/companies", headers=_auth_header(tokens)).json()

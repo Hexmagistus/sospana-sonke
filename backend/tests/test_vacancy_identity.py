@@ -12,7 +12,7 @@ from app.scraper.base import RawVacancy
 from app.scraper.fingerprint import vacancy_fingerprint
 from app.services.duplicate_service import find_external_id_groups
 from app.services.scan_service import FetchOutcome, apply_fetch
-from tests.conftest import make_admin, register_and_login
+from tests.conftest import admin_login, make_admin, register_and_login
 
 NOW = datetime(2026, 10, 12, 8, 0, tzinfo=timezone.utc)
 
@@ -102,7 +102,7 @@ def test_shared_external_id_rows_stay_open_and_are_reported(client, db, db_engin
     before = [(row.id, row.is_open, row.deleted_at, row.description) for row in kept]
 
     admin_email, admin_password = make_admin(db_engine)
-    admin = client.post("/api/v1/auth/login", json={"email": admin_email, "password": admin_password}).json()
+    admin = admin_login(client, admin_email, admin_password).json()
     listed = client.get(
         "/api/v1/admin/vacancies/external-id-duplicates",
         headers={"Authorization": f"Bearer {admin['access_token']}"},

@@ -1,7 +1,7 @@
 """Tests for the Career Explorer (qualification -> adjacent career families)."""
 from datetime import datetime, timezone
 
-from tests.conftest import register_and_login
+from tests.conftest import confirm_registered_email, register_and_login
 from app.models.company import Company
 from app.models.vacancy import Vacancy
 from app.services.career_taxonomy import find_career_families
@@ -44,6 +44,7 @@ def test_explorer_falls_back_to_registration_answer(client, db_engine):
         "mobile_number": "0821234567", "qualification_name": "Diploma in Water Treatment",
     })
     assert reg.status_code == 201, reg.text
+    confirm_registered_email(client, reg)
     tokens = client.post("/api/v1/auth/login", json={"email": email, "password": password}).json()
     r = client.get("/api/v1/career-explorer", headers=_auth(tokens))
     assert r.status_code == 200

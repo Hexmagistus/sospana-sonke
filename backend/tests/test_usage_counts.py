@@ -11,7 +11,7 @@ from app.models.usage_count import UsageClickDaily, UsageSearchDaily
 from app.models.vacancy import Vacancy
 from app.services.intelligence_search import IntelligenceAnswer, Understood
 from app.services.usage_counts import RETENTION_DAYS, classify_search, utc_today
-from tests.conftest import make_admin, register_and_login
+from tests.conftest import admin_login, make_admin, register_and_login
 
 
 def _company(session, name, country, source_type, careers_url=None):
@@ -186,7 +186,7 @@ def test_search_and_click_land_in_the_daily_totals(client, db_engine):
     assert refused.status_code == 403
 
     admin_email, admin_password = make_admin(db_engine)
-    admin = client.post("/api/v1/auth/login", json={"email": admin_email, "password": admin_password}).json()
+    admin = admin_login(client, admin_email, admin_password).json()
     card = client.get(
         "/api/v1/intelligence/admin/scorecard",
         headers={"Authorization": f"Bearer {admin['access_token']}"},

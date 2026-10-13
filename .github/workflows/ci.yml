@@ -18,6 +18,10 @@ jobs:
           cache-dependency-path: backend/requirements.txt
       - name: Install backend
         run: pip install -r backend/requirements.txt
+      - name: Dependency audit
+        # Audits the pinned requirements (and what they install). setup-python
+        # can build the temporary env pip-audit uses.
+        run: pip install pip-audit && pip-audit -r backend/requirements.txt --progress-spinner off
       - name: Pytest
         working-directory: backend
         run: pytest -q

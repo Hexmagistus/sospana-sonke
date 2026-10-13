@@ -1,7 +1,7 @@
 """Admin source-health summary and the dashboard freshness stamp."""
 from datetime import datetime, timezone
 
-from tests.conftest import register_and_login, make_admin
+from tests.conftest import register_and_login, make_admin, admin_login
 from app.models.company import Company
 from app.models.vacancy import Vacancy, VacancySource
 
@@ -42,7 +42,7 @@ def test_source_health_is_admin_only_and_reports_the_latest_read(client, db_engi
     assert client.get("/api/v1/admin/source-health", headers=_auth(tokens)).status_code == 403
 
     email, password = make_admin(db_engine)
-    admin = client.post("/api/v1/auth/login", json={"email": email, "password": password}).json()
+    admin = admin_login(client, email, password).json()
     body = client.get("/api/v1/admin/source-health", headers=_auth(admin))
     assert body.status_code == 200, body.text
     health = body.json()
