@@ -20,6 +20,7 @@ from app.models.vacancy import Vacancy
 from app.scraper.extract import SA_PROVINCES, _CITY_TO_PROVINCE
 from app.services.category_groups import stored_values_for
 from app.services.country_names import COUNTRY_ALIASES, NON_COUNTRY_BUCKETS, canonical_country
+from app.services.flagship import flagship_employer_rank, flagship_role_rank
 from app.services.labour_stats import latest_rate, load_table, place_row
 from app.services.opportunity_type import type_label
 from app.services.vacancy_counts import companies_with_known_vacancy_count, open_vacancy_counts
@@ -213,6 +214,15 @@ class IntelligenceAnswer:
     counted_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     dataset_id: str | None = None
     citation: dict | None = None
+
+
+def _role_order(understood: Understood):
+    """South Africa first when the question did not name a country, then last seen."""
+    terms = []
+    if not understood.country:
+        terms.append(flagship_role_rank())
+    terms.append(Vacancy.last_seen_at.desc())
+    return terms
 
 
 def _like(value: str) -> str:
@@ -577,6 +587,8 @@ def _reading(understood: Understood) -> str:
         parts.append(f"Category: {understood.source_label}.")
     if understood.country:
         parts.append(f"Country: {understood.country}.")
+    else:
+        parts.append("South Africa is listed first. Other countries follow.")
     if understood.province:
         parts.append(f"Province: {understood.province}.")
     if understood.city:
@@ -971,7 +983,7 @@ def answer_question(db: Session, question: str) -> IntelligenceAnswer:
             .scalar()
             or 0
         )
-        rows = vq.order_by(Vacancy.last_seen_at.desc()).limit(40).all()
+        rows = vq.order_by(*_role_order(understood)).limit(40).all()
         seen: set[str] = set()
         for vacancy, company in rows:
             if len(vacancies) < SAMPLE:
@@ -993,20 +1005,20 @@ def answer_question(db: Session, question: str) -> IntelligenceAnswer:
                 .order_by(None)
                 .count()
             )
-        employer_rows = (
-            eq.order_by(
-                case(
-                    (and_(Company.careers_url.isnot(None), Company.careers_url != ""), 0),
-                    else_=1,
-                ),
-                Company.company_name,
-            )
-            .limit(SAMPLE)
-            .all()
-        )
+        employer_order = []
+        if not understood.country:
+            employer_order.append(flagship_employer_rank())
+        employer_order.extend((
+            case(
+                (and_(Company.careers_url.isnot(None), Company.careers_url != ""), 0),
+                else_=1,
+            ),
+            Company.company_name,
+        ))
+        employer_rows = eq.order_by(*employer_order).limit(SAMPLE).all()
         vq = _vacancy_query(db, understood)
         vacancy_count = int(vq.with_entities(func.count(Vacancy.id)).scalar() or 0)
-        for vacancy, company in vq.order_by(Vacancy.last_seen_at.desc()).limit(SAMPLE).all():
+        for vacancy, company in vq.order_by(*_role_order(understood)).limit(SAMPLE).all():
             vacancies.append(_public_vacancy(vacancy, company))
             if newest is None:
                 newest = vacancy.last_seen_at
