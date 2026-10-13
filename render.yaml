@@ -67,5 +67,17 @@ services:
       - key: CRON_SECRET
         sync: false                 # long random string; set the SAME value as the GitHub repo secret CRON_SECRET.
                                      # Enables scheduled scraping (.github/workflows/scrape.yml). Until set, the cron endpoint is 404 (off).
+      - key: USSD_ENABLED
+        value: "false"              # Stays off. No shortcode is configured in this file.
+      - key: USSD_CALLBACK_SECRET
+        sync: false                 # Set only after an Africa's Talking or Vodacom Messaging account exists.
+      - key: WHATSAPP_VERIFY_TOKEN
+        sync: false
+      - key: WHATSAPP_TOKEN
+        sync: false
+      - key: WHATSAPP_PHONE_NUMBER_ID
+        sync: false
+      - key: WHATSAPP_APP_SECRET
+        sync: false
       - key: JS_RENDER_ENABLED
         value: "false"              # headless-browser scraping off — Render's free tier can't run Chromium. Turn on only on a paid instance.

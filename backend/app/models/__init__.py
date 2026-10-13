@@ -31,6 +31,7 @@ from app.models.digest import DigestLog  # noqa: F401
 from app.models.role_alert import RoleAlert  # noqa: F401
 from app.models.usage_count import UsageClickDaily, UsageSearchDaily  # noqa: F401
 from app.models.saved_opportunity import SavedOpportunity  # noqa: F401
+from app.models.sms_alert import SmsAlert  # noqa: F401
 from app.models.organisation import (  # noqa: F401
     EmployerAccount, EmployerPlanConfig, EmployerOpportunity, EmployerEntitlement,
     EmployerInvoice, EmployerPaymentEvent, EmployerCorrection, EmployerAuditEvent,
