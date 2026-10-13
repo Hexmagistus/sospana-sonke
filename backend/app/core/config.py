@@ -98,6 +98,10 @@ class Settings(BaseSettings):
     PAYMENT_PROVIDER: str = "mock"          # mock | paystack
     PAYSTACK_SECRET_KEY: str | None = None
     PAYSTACK_PUBLIC_KEY: str | None = None
+    # Public site, used for employer claim links. Employer checkout stays in
+    # Paystack test mode until an administrator sets prices and test keys.
+    FRONTEND_URL: str = "https://sospana-sonke.vercel.app"
+    EMPLOYER_CHECKOUT_RETURN_URL: str = "https://sospana-sonke.vercel.app/organisation?checkout=return"
     PAYMENT_CALLBACK_URL: str = "http://localhost:3000/subscription/return"
     # Donations (one-off, voluntary "keep the app free" support) reuse the
     # same Paystack account but return the browser to a different page.
