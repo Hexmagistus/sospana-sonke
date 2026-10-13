@@ -9,7 +9,7 @@ import { LIST_PAGE, listOffset } from "@/lib/listWindow";
 import { OPPORTUNITY_TABS, opportunityLabel, statedDate } from "@/lib/opportunity";
 import { SITE_NAME, SITE_URL } from "@/lib/seo";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
 
@@ -41,7 +41,7 @@ async function loadJobs(search: Search): Promise<Load> {
   params.set("limit", String(LIST_PAGE));
   params.set("offset", String(listOffset(search.offset)));
   try {
-    const res = await fetch(`${API}/jobs?${params.toString()}`, { cache: "no-store" });
+    const res = await fetch(`${API}/jobs?${params.toString()}`, { next: { revalidate: 60 } });
     if (!res.ok) return { ok: false };
     const data = (await res.json()) as { jobs?: PublicJob[]; sponsored?: PublicJob[]; matched?: number };
     if (!data || !Array.isArray(data.jobs) || typeof data.matched !== "number") return { ok: false };

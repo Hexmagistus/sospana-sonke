@@ -6,7 +6,7 @@ export type PublicJobDetail = PublicJob & { summary: string };
 
 export async function loadPublicJob(id: string): Promise<PublicJobDetail | null | "down"> {
   try {
-    const res = await fetch(`${API}/jobs/${encodeURIComponent(id)}`, { cache: "no-store" });
+    const res = await fetch(`${API}/jobs/${encodeURIComponent(id)}`, { next: { revalidate: 60 } });
     if (res.status === 404) return null;
     if (!res.ok) return "down";
     const data = (await res.json()) as PublicJobDetail;

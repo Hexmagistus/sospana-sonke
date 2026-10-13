@@ -9,7 +9,7 @@ import { loadPublicJob } from "@/lib/loadPublicJob";
 import { opportunityLabel } from "@/lib/opportunity";
 import { SITE_NAME } from "@/lib/seo";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 type Props = { params: Promise<{ id: string }> };
 

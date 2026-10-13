@@ -7,7 +7,7 @@ import { programmeFromSlug } from "@/lib/jobLandings";
 import type { PublicJob } from "@/lib/jobPosting";
 import { SITE_NAME } from "@/lib/seo";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
 
@@ -15,7 +15,7 @@ type Props = { params: Promise<{ type: string }> };
 
 async function load(type: string): Promise<{ jobs: PublicJob[]; matched: number } | null> {
   try {
-    const res = await fetch(`${API}/jobs?opportunity_type=${encodeURIComponent(type)}&sort=closing&limit=30`, { cache: "no-store" });
+    const res = await fetch(`${API}/jobs?opportunity_type=${encodeURIComponent(type)}&sort=closing&limit=30`, { next: { revalidate: 60 } });
     if (!res.ok) return null;
     const data = (await res.json()) as { jobs?: PublicJob[]; matched?: number };
     if (!data || !Array.isArray(data.jobs) || typeof data.matched !== "number") return null;
