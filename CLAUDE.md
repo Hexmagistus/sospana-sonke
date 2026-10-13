@@ -75,6 +75,9 @@ A careers landing page is enough for that same set, even when the HTML lists no 
 
 ## Session Log
 
+### 2026-10-13 — Cursor (Grok 4.7) — Public pages cache for 60 or 300 seconds
+Job, programme, role, and feed responses reuse the API for 60 seconds. The labour table, pricing, and employer pages stay at 300 seconds. The sitemap still renders on request. `Cache-Control` on those paths uses the same windows. A SQLite `EXPLAIN QUERY PLAN` of the open-role list used the existing `ix_vacancies_open_last_seen` index, so no new index was added. The live p95 before this change is the 2026-10-13 sample: jobs list 382.2 ms, health 195.5 ms, company stats 337.5 ms. The after sample waits until this is deployed. Pull requests #69 and #70 were not touched.
+
 ### 2026-10-13 — Cursor (Grok 4.7) — Database restore notes and a local drill
 Neon’s published free plan keeps 6 hours of history, capped at 1 GB, and one manual snapshot. Paid plans publish longer history and backup schedules. This environment has no Neon credentials, so production was not restored. `run_restore_drill` copies one South African directory row between two empty SQLite databases and does not read `DATABASE_URL`. A public jobs request the same day showed a role last seen at 2026-10-13T21:01:16Z. Pull requests #69 and #70 were not touched.
 

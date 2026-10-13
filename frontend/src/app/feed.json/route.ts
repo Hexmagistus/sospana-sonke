@@ -1,14 +1,14 @@
 import { jobSummary, type PublicJob } from "@/lib/jobPosting";
 import { SITE_NAME, SITE_URL } from "@/lib/seo";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
 
 export async function GET() {
   let jobs: PublicJob[] = [];
   try {
-    const res = await fetch(`${API}/jobs?limit=30&max_age_days=7`, { cache: "no-store" });
+    const res = await fetch(`${API}/jobs?limit=30&max_age_days=7`, { next: { revalidate: 60 } });
     if (res.ok) {
       const data = (await res.json()) as { jobs?: PublicJob[] };
       jobs = Array.isArray(data.jobs) ? data.jobs : [];
@@ -32,6 +32,6 @@ export async function GET() {
     })),
   };
   return Response.json(body, {
-    headers: { "Cache-Control": "public, max-age=300" },
+    headers: { "Cache-Control": "public, max-age=60, stale-while-revalidate=120" },
   });
 }
