@@ -21,6 +21,7 @@ from app.scraper.extract import SA_PROVINCES, _CITY_TO_PROVINCE
 from app.services.category_groups import stored_values_for
 from app.services.country_names import COUNTRY_ALIASES, NON_COUNTRY_BUCKETS, canonical_country
 from app.services.labour_stats import latest_rate, load_table, place_row
+from app.services.opportunity_type import type_label
 from app.services.vacancy_counts import companies_with_known_vacancy_count, open_vacancy_counts
 
 SAMPLE = 8
@@ -130,6 +131,22 @@ _WORK_MODE = {
     "onsite": "onsite",
 }
 
+# Longer phrases first. A single named type is a filter. Two types stay unset.
+_OPPORTUNITY_PHRASES: tuple[tuple[str, str], ...] = (
+    ("graduate programmes", "graduate_programme"),
+    ("graduate programs", "graduate_programme"),
+    ("graduate programme", "graduate_programme"),
+    ("graduate program", "graduate_programme"),
+    ("learnerships", "learnership"),
+    ("learnership", "learnership"),
+    ("bursaries", "bursary"),
+    ("bursary", "bursary"),
+    ("internships", "internship"),
+    ("internship", "internship"),
+    ("interns", "internship"),
+    ("intern", "internship"),
+)
+
 _STOP = frozenset({
     "a", "an", "the", "in", "on", "at", "for", "to", "of", "and", "or", "me", "my",
     "show", "find", "search", "what", "which", "are", "is", "there", "any", "please",
@@ -164,6 +181,7 @@ class Understood:
     work_mode: str | None = None
     max_age_days: int | None = None
     careers_link_only: bool = False
+    opportunity_type: str | None = None
     looking_for: str = "both"
     declined: tuple[str, ...] = ()
     prompt: bool = False
@@ -172,7 +190,8 @@ class Understood:
     def has_filter(self) -> bool:
         return bool(
             self.keywords or self.country or self.province or self.city or self.employer
-            or self.source_types or self.employment_type or self.work_mode or self.careers_link_only
+            or self.source_types or self.employment_type or self.work_mode
+            or self.careers_link_only or self.opportunity_type
         )
 
 
@@ -333,6 +352,16 @@ def parse_question(question: str, country_names: list[str]) -> Understood:
         careers_link_only = True
         text = re.sub(r"\bcareers?\s+links?\b", " ", text)
 
+    opportunity_type = None
+    for phrase, kind in _OPPORTUNITY_PHRASES:
+        if _contained(text, phrase):
+            if opportunity_type is None:
+                opportunity_type = kind
+            elif opportunity_type != kind:
+                opportunity_type = None
+                break
+            text = _cut(text, phrase)
+
     asks_roles = bool(re.search(
         r"\b(jobs?|roles?|vacancies|vacancy|openings?|internships?|learnerships?|bursar(?:y|ies)|scholarships?)\b",
         text,
@@ -367,7 +396,9 @@ def parse_question(question: str, country_names: list[str]) -> Understood:
         # filter would drop roles whose type was never filled in.
         employment = None
 
-    if source_label and not asks_roles:
+    if opportunity_type:
+        looking_for = "roles"
+    elif source_label and not asks_roles:
         looking_for = "employers"
     elif asks_employers and not asks_roles:
         looking_for = "employers"
@@ -388,6 +419,7 @@ def parse_question(question: str, country_names: list[str]) -> Understood:
         work_mode=work_mode,
         max_age_days=max_age,
         careers_link_only=careers_link_only,
+        opportunity_type=opportunity_type,
         looking_for=looking_for,
         declined=tuple(declined),
         supported=True,
@@ -465,6 +497,8 @@ def _vacancy_query(db: Session, understood: Understood):
     if understood.max_age_days is not None:
         cutoff = datetime.now(timezone.utc) - timedelta(days=understood.max_age_days)
         query = query.filter(Vacancy.last_seen_at >= cutoff)
+    if understood.opportunity_type:
+        query = query.filter(Vacancy.opportunity_type == understood.opportunity_type)
     return query
 
 
@@ -553,6 +587,8 @@ def _reading(understood: Understood) -> str:
         parts.append(f"Work mode contains “{understood.work_mode}”.")
     if understood.max_age_days:
         parts.append(f"Last seen within {understood.max_age_days} days.")
+    if understood.opportunity_type:
+        parts.append(f"Opportunity type: {type_label(understood.opportunity_type)}.")
     if understood.careers_link_only:
         parts.append("Only employers with a careers link stored.")
     if understood.looking_for == "roles":
@@ -572,7 +608,10 @@ def _summary(understood: Understood, vacancy_count: int, employer_count: int, wi
         return f"Not enough data. Sospana Sonke does not have {topic}. This search did not guess an answer."
     sentences: list[str] = []
     if understood.looking_for != "employers":
-        if vacancy_count == 0:
+        if vacancy_count == 0 and understood.opportunity_type:
+            label = type_label(understood.opportunity_type)
+            sentences.append(f"Not enough data. No stored {label} matches this question.")
+        elif vacancy_count == 0:
             sentences.append("No open role in the store matches this question.")
         else:
             word = "role" if vacancy_count == 1 else "roles"
@@ -977,7 +1016,9 @@ def answer_question(db: Session, question: str) -> IntelligenceAnswer:
     known = companies_with_known_vacancy_count(db, ids)
     employers = [_public_employer(company, counts, known) for company in employer_rows]
 
-    if understood.looking_for == "roles":
+    if understood.opportunity_type:
+        enough = vacancy_count > 0
+    elif understood.looking_for == "roles":
         enough = vacancy_count > 0
     elif understood.looking_for == "employers":
         enough = employer_count > 0

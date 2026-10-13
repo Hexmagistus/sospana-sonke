@@ -6,6 +6,7 @@ class RoleAlertWrite(BaseModel):
     country: str | None = Field(default=None, max_length=80)
     category: str | None = Field(default=None, max_length=40)
     keyword: str | None = Field(default=None, max_length=80)
+    opportunity_type: str | None = Field(default=None, max_length=32)
 
 
 class RoleAlertResponse(BaseModel):
@@ -14,6 +15,7 @@ class RoleAlertResponse(BaseModel):
     country: str | None
     category: str | None
     keyword: str | None
+    opportunity_type: str | None = None
     active: bool
 
 

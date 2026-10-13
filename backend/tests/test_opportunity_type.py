@@ -163,3 +163,19 @@ def test_public_jobs_filter_and_counts_by_type(client, db_engine):
     assert counts["learnership"] >= 1
     assert counts["bursary"] == 0
     assert counts["graduate_programme"] == 0
+
+    from datetime import date as date_cls
+    s = S()
+    soon = s.get(Vacancy, ids["internship"])
+    soon.closing_date = date_cls(2026, 12, 1)
+    later = s.get(Vacancy, ids["learnership"])
+    later.closing_date = date_cls(2026, 12, 20)
+    s.commit()
+    s.close()
+    dated = client.get("/api/v1/jobs", params={"sort": "closing"})
+    assert dated.status_code == 200
+    ordered = [row["title"] for row in dated.json()["jobs"]]
+    assert ordered.index("Finance Internship") < ordered.index("Electrical Learnership")
+    assert ordered.index("Electrical Learnership") < ordered.index("Nurse")
+    nurse = next(row for row in dated.json()["jobs"] if row["title"] == "Nurse")
+    assert nurse["closing_date"] is None

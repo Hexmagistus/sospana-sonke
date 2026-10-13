@@ -910,6 +910,7 @@ export default function Home({ children }: { children?: ReactNode }) {
       <footer className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-4 py-8 text-sm text-ss-muted">
         <span>© 2026 Sospana Sonke · Born in SADC</span>
         <div className="flex items-center gap-4">
+          <Link href="/opportunities" className="hover:text-ss-text">Learnerships and bursaries</Link>
           <Link href="/data" className="hover:text-ss-text">Labour data</Link>
           <Link href="/donate" className="hover:text-ss-text">Donate</Link>
           <a href="/privacy" className="hover:text-ss-text">Privacy Policy</a>

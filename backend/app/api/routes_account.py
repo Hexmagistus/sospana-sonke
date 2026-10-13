@@ -92,7 +92,7 @@ def export_my_data(request: Request, db: Session = Depends(get_db), user: User =
         "profile": _export_profile(db, user),
         "role_alerts": [
             {"country": row.country, "category": row.category, "keyword": row.keyword,
-             "active": row.active,
+             "opportunity_type": row.opportunity_type, "active": row.active,
              "created_at": row.created_at.isoformat() if row.created_at else None}
             for row in db.query(RoleAlert).filter(
                 RoleAlert.user_id == user.id, RoleAlert.deleted_at.is_(None)

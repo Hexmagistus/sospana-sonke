@@ -89,7 +89,11 @@ export default async function JobsPage({ searchParams }: { searchParams: Promise
         <p>
           These are jobs already saved from employer careers pages. The list is not every vacancy in a country.
           If nothing is here, the scanner has not stored a matching open role. Check the employer&apos;s own page.
-          You apply there. {SITE_NAME} does not send an application for you.
+          You apply there. {SITE_NAME} does not send an application for you.{" "}
+          <Link href="/opportunities" className="font-semibold text-navy underline">
+            Learnerships, bursaries and graduate programmes
+          </Link>{" "}
+          are listed separately.
         </p>
       </PageHeader>
 

@@ -20,6 +20,8 @@ export type PublicJob = {
   last_seen_at: string;
   application_url: string | null;
   is_open: boolean;
+  opportunity_type?: string | null;
+  verified_at?: string | null;
 };
 
 export function jobSummary(job: PublicJob): string {

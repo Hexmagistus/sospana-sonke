@@ -8,7 +8,7 @@ from dataclasses import asdict
 from datetime import datetime, timedelta, timezone, date
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, status
-from sqlalchemy import func
+from sqlalchemy import case, func
 from sqlalchemy.orm import Session, defer
 
 from app.core.deps import get_current_user, require_admin
@@ -169,6 +169,10 @@ def list_public_jobs(
         default=None, ge=1, le=365,
         description="Only roles last seen on the employer site within this many days",
     ),
+    sort: str | None = Query(
+        default=None, max_length=20,
+        description="closing puts a stated closing date first. Anything else uses last seen.",
+    ),
     limit: int = Query(default=30, ge=1, le=50),
     offset: int = Query(default=0, ge=0, le=500),
 ):
@@ -201,7 +205,15 @@ def list_public_jobs(
         cutoff = datetime.now(timezone.utc) - timedelta(days=max_age_days)
         query = query.filter(Vacancy.last_seen_at >= cutoff)
     matched = query.count()
-    rows = query.order_by(Vacancy.last_seen_at.desc()).offset(offset).limit(limit).all()
+    if sort and sort.strip().lower() == "closing":
+        order = (
+            case((Vacancy.closing_date.is_(None), 1), else_=0),
+            Vacancy.closing_date.asc(),
+            Vacancy.last_seen_at.desc(),
+        )
+    else:
+        order = (Vacancy.last_seen_at.desc(),)
+    rows = query.order_by(*order).offset(offset).limit(limit).all()
     return PublicJobListResponse(
         jobs=[_public_job(vacancy, company) for vacancy, company in rows],
         matched=matched,

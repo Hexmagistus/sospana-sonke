@@ -124,8 +124,9 @@ export default function PrivacyPage() {
 
           <h2 className="pt-2 text-lg font-semibold text-ss-text">Saved role alerts (POPIA)</h2>
           <p>
-            Signed-in members can save a daily role alert made of a country, a category, a keyword, or any
-            mix of those. We store that filter only so the existing daily email can list new roles we have
+            Signed-in members can save a daily role alert made of a country, a category, a keyword, an
+            opportunity type (job, internship, learnership, bursary, or graduate programme), or any mix of
+            those. An empty type means any type. We store that filter only so the existing daily email can list new roles we have
             already stored that match it. Each line in that email has the employer&apos;s own link and the
             date we last saw the role. We send one email a day, and we send nothing when no new role matches.
             The alert starts only when you save it. The email has a one-click unsubscribe, which pauses the

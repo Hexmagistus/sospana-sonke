@@ -17,6 +17,7 @@ class IntelligenceUnderstood(BaseModel):
     work_mode: str | None = None
     max_age_days: int | None = None
     careers_link_only: bool = False
+    opportunity_type: str | None = None
     looking_for: str
 
 

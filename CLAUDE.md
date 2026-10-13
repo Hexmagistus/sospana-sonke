@@ -75,6 +75,9 @@ A careers landing page is enough for that same set, even when the HTML lists no 
 
 ## Session Log
 
+### 2026-10-13 — Cursor (Grok 4.7) — Opportunities page, type search, and alert type
+`/opportunities` lists stored roles with type tabs and a closing-date sort. A card shows the type, the organisation, the closing date or “not stated”, the source link, and the last checked date. A question such as learnerships in engineering or bursaries for accounting filters on that type. When no stored row matches, the answer says there is not enough data. A saved alert can filter by type, including a type on its own. An empty type still means any type. Pull requests #69 and #70 were not touched.
+
 ### 2026-10-13 — Cursor (Grok 4.7) — Official South African programme pages
 Programme names that were on the employer's own page on 13 October 2026 are stored for Absa Group, Deloitte Southern Africa, and EY South Africa. robots.txt allows SospanaSonkeBot, and Absa publishes no robots.txt. None of those pages stated a closing date, so the date is blank. Scholarships, vacation work, apprenticeships, and a Deloitte editor label are not stored. NSFAS failed TLS. KPMG's stated close of 30 April 2026 is in the past. Services SETA's notice is to existing students. Standard Bank's pages did not list openings. merSETA's page explains learnerships and does not list one. DHET's dated posts are ordinary jobs. PwC returned 403 and MICT returned a challenge. The new rows sit on an inactive source, so the scanner keeps reading the employer's careers board. The import runs on boot and the downgrade deletes only these rows. Pull requests #69 and #70 were not touched.
 

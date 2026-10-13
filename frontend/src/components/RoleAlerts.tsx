@@ -10,6 +10,7 @@ type AlertRow = {
   country: string | null;
   category: string | null;
   keyword: string | null;
+  opportunity_type: string | null;
   active: boolean;
 };
 
@@ -47,7 +48,21 @@ const CATEGORIES: { value: string; label: string }[] = [
   { value: "MUSIC", label: "Music" },
 ];
 
+const TYPES: { value: string; label: string }[] = [
+  { value: "", label: "Any type" },
+  { value: "job", label: "Job" },
+  { value: "internship", label: "Internship" },
+  { value: "learnership", label: "Learnership" },
+  { value: "bursary", label: "Bursary" },
+  { value: "graduate_programme", label: "Graduate programme" },
+];
+
 const SKIP_COUNTRIES = new Set(["International", "Africa"]);
+
+function typeLabel(code: string | null): string {
+  if (!code) return "Any type";
+  return TYPES.find((row) => row.value === code)?.label || code;
+}
 
 function categoryLabel(code: string | null): string {
   if (!code) return "Any category";
@@ -55,10 +70,10 @@ function categoryLabel(code: string | null): string {
 }
 
 function describe(row: AlertRow): string {
-  return [row.country || "Any country", categoryLabel(row.category), row.keyword || "Any keyword"].join(" · ");
+  return [row.country || "Any country", categoryLabel(row.category), typeLabel(row.opportunity_type), row.keyword || "Any keyword"].join(" · ");
 }
 
-const emptyForm = { country: "", category: "", keyword: "" };
+const emptyForm = { country: "", category: "", keyword: "", opportunity_type: "" };
 
 export default function RoleAlerts() {
   const [alerts, setAlerts] = useState<AlertRow[]>([]);
@@ -101,6 +116,7 @@ export default function RoleAlerts() {
       country: row.country || "",
       category: row.category || "",
       keyword: row.keyword || "",
+      opportunity_type: row.opportunity_type || "",
     });
     setErr("");
     setMsg("");
@@ -114,6 +130,7 @@ export default function RoleAlerts() {
       country: form.country.trim() || null,
       category: form.category.trim() || null,
       keyword: form.keyword.trim() || null,
+      opportunity_type: form.opportunity_type.trim() || null,
     };
     try {
       if (editing) {
@@ -172,7 +189,7 @@ export default function RoleAlerts() {
     <section className="rounded-2xl border border-ss-border bg-ss-surface p-4 shadow-sm sm:p-5" aria-labelledby="role-alerts-heading">
       <h2 id="role-alerts-heading" className="text-lg font-semibold text-ss-text">Daily role alerts</h2>
       <p className="mt-1 text-sm text-ss-muted">
-        Save a country, a category, a keyword, or any mix. This is a separate choice from the administrator
+        Save a country, a category, a keyword, an opportunity type, or any mix. Leave the type blank for any type. This is a separate choice from the administrator
         alerts above. We send one email a day, and only when a new stored role matches. Each role includes
         the employer&apos;s link and the date we last saw it. A day with no match stays quiet. The alert
         starts when you press Save this alert.
@@ -188,7 +205,7 @@ export default function RoleAlerts() {
           void save();
         }}
       >
-        <div className="grid gap-3 sm:grid-cols-3">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <Field label="Country" hint="Optional">
             {countries.length > 0 ? (
               <Select
@@ -219,6 +236,17 @@ export default function RoleAlerts() {
             >
               {CATEGORIES.map((row) => (
                 <option key={row.value || "any"} value={row.value}>{row.label}</option>
+              ))}
+            </Select>
+          </Field>
+          <Field label="Type" hint="Optional">
+            <Select
+              aria-label="Opportunity type"
+              value={form.opportunity_type}
+              onChange={(event) => setForm({ ...form, opportunity_type: event.target.value })}
+            >
+              {TYPES.map((row) => (
+                <option key={row.value || "any-type"} value={row.value}>{row.label}</option>
               ))}
             </Select>
           </Field>
