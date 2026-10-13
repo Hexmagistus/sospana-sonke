@@ -37,7 +37,8 @@ _UUID = re.compile(
 
 DEFINITIONS = {
     "search_success_rate": (
-        "Searches that returned at least one stored role or employer, divided by all searches in the window."
+        "Searches that returned at least one stored role or employer, or a sourced official statistic, "
+        "divided by all searches in the window."
     ),
     "not_enough_data_rate": (
         "Searches the parser could not answer from stored roles or employers, divided by all searches in the window."
@@ -118,6 +119,16 @@ def _valid_source(url: str | None) -> bool:
 
 def classify_search(answer: IntelligenceAnswer) -> SearchCount:
     """The fields worth keeping from one answer. The question is not one of them."""
+    if answer.dataset_id and answer.enough_data:
+        return SearchCount(
+            country=_country(answer.understood.country or "South Africa"),
+            category="",
+            intent="statistic",
+            outcome="results",
+            result_bucket=_bucket(1),
+            results_returned=0,
+            results_with_source=0,
+        )
     understood = answer.understood
     unsupported = (not understood.supported) or understood.prompt
     if unsupported:

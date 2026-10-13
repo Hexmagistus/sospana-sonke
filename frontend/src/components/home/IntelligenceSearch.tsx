@@ -16,6 +16,7 @@ const EXAMPLES = [
   "Internships in South Africa",
   "Learnerships in South Africa",
   "Open roles at Mediclinic",
+  "Unemployment in Limpopo",
 ];
 
 type Employer = {
@@ -43,6 +44,18 @@ type Vacancy = {
   closing_date: string | null;
 };
 
+type Citation = {
+  publisher: string;
+  title: string;
+  url: string;
+  licence_url: string;
+  release_date: string;
+  table: string;
+  place: string;
+  series: string;
+  points: { period: string; label: string; rate: string }[];
+};
+
 type Answer = {
   llm: string;
   enough_data: boolean;
@@ -55,6 +68,7 @@ type Answer = {
   employers: Employer[];
   employer_count: number;
   counted_at: string;
+  citation?: Citation | null;
 };
 
 function day(value: string | null | undefined): string | null {
@@ -222,7 +236,11 @@ function AnswerBody({ answer, onFollowUp }: { answer: Answer; onFollowUp: (quest
     <div className="space-y-4">
       <div>
         <h2 className="text-lg font-bold" style={{ color: "var(--ss-intel-ink)" }}>
-          {answer.enough_data ? "From the directory and the stored roles" : "Not enough data"}
+          {answer.citation
+            ? "From the stored labour table"
+            : answer.enough_data
+              ? "From the directory and the stored roles"
+              : "Not enough data"}
         </h2>
         <p className="mt-2 text-base leading-relaxed" style={{ color: "var(--ss-intel-ink)" }}>
           {answer.summary}
@@ -233,6 +251,47 @@ function AnswerBody({ answer, onFollowUp }: { answer: Answer; onFollowUp: (quest
           {answer.llm === "disabled" ? " Language model: off." : ""}
         </p>
       </div>
+
+      {answer.citation ? (
+        <div>
+          <h3 className="text-base font-bold" style={{ color: "var(--ss-intel-ink)" }}>
+            {answer.citation.place}
+          </h3>
+          <table className="mt-2 w-full border-collapse text-left text-sm">
+            <caption className="sr-only">
+              {answer.citation.series === "expanded" ? "Combined rate" : "Official unemployment rate"} for {answer.citation.place}
+            </caption>
+            <thead>
+              <tr>
+                {answer.citation.points.map((point) => (
+                  <th key={point.period} scope="col" className="py-1 pr-3 font-semibold" style={{ color: "var(--ss-intel-ink)" }}>
+                    {point.label}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                {answer.citation.points.map((point) => (
+                  <td key={point.period} className="py-1 pr-3 tabular-nums" style={{ color: "var(--ss-intel-ink)" }}>
+                    {point.rate}%
+                  </td>
+                ))}
+              </tr>
+            </tbody>
+          </table>
+          <p className="mt-2 text-sm" style={{ color: "var(--ss-intel-card-muted)" }}>
+            {answer.citation.publisher}. {answer.citation.title}. {answer.citation.table}. Released {answer.citation.release_date}.{" "}
+            <a className="font-semibold underline" style={{ color: "var(--ss-intel-teal-deep)" }} href={answer.citation.url}>
+              Statistical release
+            </a>
+            {" · "}
+            <Link href="/data" className="font-semibold underline" style={{ color: "var(--ss-intel-teal-deep)" }}>
+              Full table
+            </Link>
+          </p>
+        </div>
+      ) : null}
 
       {answer.vacancies.length > 0 ? (
         <div>
