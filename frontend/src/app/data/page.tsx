@@ -88,8 +88,8 @@ export default async function LabourDataPage() {
               Official unemployment rate, {latest.label}
             </h2>
             <p className="mt-2 text-sm text-ss-muted">
-              Each bar is the printed rate, out of 100. The number is beside the bar. The order is the order in the
-              source table.
+              Each bar is the printed rate, out of 100. The number beside the bar is the figure. Shading on the
+              track does not change the length. The order is the order in the source table.
             </p>
             <ul className="mt-4 grid gap-3">
               {table.rows!.map((row) => {
@@ -98,11 +98,8 @@ export default async function LabourDataPage() {
                   <li key={row.place} className="grid grid-cols-[9.5rem_minmax(0,1fr)] items-center gap-3">
                     <span className="text-sm font-semibold text-ss-text">{row.place}</span>
                     <span className="flex min-w-0 items-center gap-2">
-                      <span className="h-3 flex-1 rounded-full bg-ss-bg" aria-hidden="true">
-                        <span
-                          className="block h-3 rounded-full bg-navy"
-                          style={{ width: widthOf(rate) }}
-                        />
+                      <span className="ss-rate-track" aria-hidden="true">
+                        <span className="ss-rate-fill" style={{ width: widthOf(rate) }} />
                       </span>
                       <span className="w-14 shrink-0 text-right text-sm font-semibold tabular-nums text-ss-text">
                         {rate}%
