@@ -4,6 +4,7 @@ import { ApplySteps } from "@/components/ApplySteps";
 import { SponsoredStrip } from "@/components/organisation/SponsoredStrip";
 import type { PublicJob } from "@/lib/jobPosting";
 import { PROGRAMME_PAGES } from "@/lib/jobLandings";
+import { FLAGSHIP_COUNTRY, flagshipCountry, flagshipQuery } from "@/lib/flagship";
 import { LIST_PAGE, listOffset } from "@/lib/listWindow";
 import { OPPORTUNITY_TABS, opportunityLabel, statedDate } from "@/lib/opportunity";
 import { SITE_NAME, SITE_URL } from "@/lib/seo";
@@ -15,6 +16,7 @@ const API = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
 type Search = {
   type?: string;
   q?: string;
+  country?: string;
   sort?: string;
   offset?: string;
 };
@@ -33,6 +35,8 @@ async function loadJobs(search: Search): Promise<Load> {
   const kind = chosenType(search.type);
   if (kind) params.set("opportunity_type", kind);
   if (search.q?.trim()) params.set("q", search.q.trim().slice(0, 80));
+  const country = flagshipCountry(search.country);
+  if (country) params.set("country", country);
   params.set("sort", search.sort === "checked" ? "checked" : "closing");
   params.set("limit", String(LIST_PAGE));
   params.set("offset", String(listOffset(search.offset)));
@@ -52,27 +56,24 @@ async function loadJobs(search: Search): Promise<Load> {
   }
 }
 
-function pageHref(type: string, q: string, sort: string, offset: number): string {
+function pageHref(type: string, q: string, country: string | undefined, sort: string, offset: number): string {
   const params = new URLSearchParams();
   if (type) params.set("type", type);
   if (q) params.set("q", q);
+  const place = flagshipQuery(country);
+  if (place) params.set("country", place);
   if (sort === "checked") params.set("sort", "checked");
   if (offset > 0) params.set("offset", String(offset));
   const query = params.toString();
   return query ? `/opportunities?${query}` : "/opportunities";
 }
 
-function tabHref(type: string, q: string, sort: string): string {
-  const params = new URLSearchParams();
-  if (type) params.set("type", type);
-  if (q) params.set("q", q);
-  if (sort === "checked") params.set("sort", "checked");
-  const query = params.toString();
-  return query ? `/opportunities?${query}` : "/opportunities";
+function tabHref(type: string, q: string, country: string | undefined, sort: string): string {
+  return pageHref(type, q, country, sort, 0);
 }
 
-async function ProgrammeResults({ type, q, sort, offset }: { type: string; q: string; sort: string; offset: number }) {
-  const loaded = await loadJobs({ type, q, sort, offset: String(offset) });
+async function ProgrammeResults({ type, q, country, sort, offset }: { type: string; q: string; country?: string; sort: string; offset: number }) {
+  const loaded = await loadJobs({ type, q, country, sort, offset: String(offset) });
   const jsonLd = loaded.ok && loaded.jobs.length > 0
     ? {
         "@context": "https://schema.org",
@@ -110,7 +111,7 @@ async function ProgrammeResults({ type, q, sort, offset }: { type: string; q: st
       ) : loaded.jobs.length === 0 ? (
         <div className="ss-empty" role="status">
           <p className="text-base font-semibold text-ss-text">This page is past the last stored programme</p>
-          <Link href={pageHref(type, q, sort, 0)} className="mt-4 inline-flex text-sm font-semibold text-[#0f766e] underline">
+          <Link href={pageHref(type, q, country, sort, 0)} className="mt-4 inline-flex text-sm font-semibold text-[#0f766e] underline">
             Back to the first page
           </Link>
         </div>
@@ -118,6 +119,7 @@ async function ProgrammeResults({ type, q, sort, offset }: { type: string; q: st
         <div className="space-y-3">
           <SponsoredStrip jobs={loaded.sponsored} />
           <p className="text-sm text-ss-muted">
+            {flagshipCountry(country) ? `${flagshipCountry(country)}. ` : "All countries. South Africa is listed first. "}
             Showing {(offset + 1).toLocaleString("en-US")}–{(offset + loaded.jobs.length).toLocaleString("en-US")} of {loaded.matched.toLocaleString("en-US")}.
             {sort === "closing" ? " Closing dates that were not stated are listed last." : " Sorted by the date we last checked the row."}
           </p>
@@ -131,6 +133,7 @@ async function ProgrammeResults({ type, q, sort, offset }: { type: string; q: st
                   <Link href={`/jobs/${job.id}`} className="underline">{job.title}</Link>
                 </h2>
                 <p className="mt-1 text-sm text-[#3f4a5c]">
+                  {job.company_country ? `${job.company_country} · ` : ""}
                   {job.company_id ? (
                     <Link href={`/employers/${job.company_id}`} className="font-semibold text-[#0c1b33] underline">
                       {job.company_name}
@@ -167,12 +170,12 @@ async function ProgrammeResults({ type, q, sort, offset }: { type: string; q: st
           </ul>
           <nav aria-label="More stored programmes" className="flex flex-wrap gap-4 text-sm">
             {offset > 0 ? (
-              <Link href={pageHref(type, q, sort, offset - LIST_PAGE)} className="font-semibold text-[#0f766e] underline">
+              <Link href={pageHref(type, q, country, sort, offset - LIST_PAGE)} className="font-semibold text-[#0f766e] underline">
                 Previous {LIST_PAGE}
               </Link>
             ) : null}
             {offset + loaded.jobs.length < loaded.matched ? (
-              <Link href={pageHref(type, q, sort, offset + LIST_PAGE)} className="font-semibold text-[#0f766e] underline">
+              <Link href={pageHref(type, q, country, sort, offset + LIST_PAGE)} className="font-semibold text-[#0f766e] underline">
                 Next {LIST_PAGE}
               </Link>
             ) : null}
@@ -218,7 +221,7 @@ export default async function OpportunitiesPage({ searchParams }: { searchParams
           return (
             <Link
               key={tab.label}
-              href={tabHref(tab.value, q, sort)}
+              href={tabHref(tab.value, q, search.country, sort)}
               aria-current={current ? "page" : undefined}
               className={
                 current
@@ -234,6 +237,10 @@ export default async function OpportunitiesPage({ searchParams }: { searchParams
 
       <form method="get" action="/opportunities" className="ss-card ss-sticky-search flex flex-col gap-3 sm:flex-row sm:items-end">
         {type ? <input type="hidden" name="type" value={type} /> : null}
+        <label className="block text-sm font-semibold text-ss-text">
+          Country
+          <input name="country" defaultValue={flagshipCountry(search.country)} placeholder={FLAGSHIP_COUNTRY} className="mt-1 w-full rounded-xl border border-ss-border bg-ss-surface px-3.5 py-2.5 text-sm text-ss-text" />
+        </label>
         <label className="block flex-1 text-sm font-semibold text-ss-text">
           Keyword
           <input name="q" defaultValue={q} placeholder="engineering, accounting" className="mt-1 w-full rounded-xl border border-ss-border bg-ss-surface px-3.5 py-2.5 text-sm text-ss-text" />
@@ -248,10 +255,15 @@ export default async function OpportunitiesPage({ searchParams }: { searchParams
         <button type="submit" className="ss-intel-button min-h-11">
           Show stored programmes
         </button>
+        {flagshipCountry(search.country) ? (
+          <Link href={pageHref(type, q, "all", sort, 0)} className="text-sm font-semibold text-[#0f766e] underline">
+            All countries
+          </Link>
+        ) : null}
       </form>
 
       <Suspense fallback={<p className="text-sm text-ss-muted" role="status">Loading stored programmes.</p>}>
-        <ProgrammeResults type={type} q={q} sort={sort} offset={offset} />
+        <ProgrammeResults type={type} q={q} country={search.country} sort={sort} offset={offset} />
       </Suspense>
     </div>
   );
