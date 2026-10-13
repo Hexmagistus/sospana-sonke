@@ -75,6 +75,9 @@ A careers landing page is enough for that same set, even when the HTML lists no 
 
 ## Session Log
 
+### 2026-10-13 — Cursor (Grok 4.7) — Homepage accessibility labels
+The country dropdown on the homepage is named by its "Jump to a country" label. The four steps under "How it works" are headings at the next level down from that section, so the outline no longer skips a level. Pull requests #69 and #70 were not touched.
+
 ### 2026-10-12 — Cursor (Grok 4.7) — Anonymous search and click counts
 The public search adds one daily total of the filters it understood: country, category, intent, whether the answer was empty, not enough data, or had results, and a band for the result count. The question, the IP address, and any account id are not stored. An outbound careers or application link adds a daily count for that employer or role. Do Not Track and Global Privacy Control leave the visit out. Totals older than 90 days are deleted. The privacy page states this in the same release. Administrators see the four rates on the dashboard. `usage_search_daily` and `usage_click_daily` are created on boot and dropped by the migration's downgrade. Pull requests #69 and #70 were not touched.
 
