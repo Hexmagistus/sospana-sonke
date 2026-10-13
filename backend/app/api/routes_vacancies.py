@@ -227,10 +227,40 @@ def list_public_jobs(
     else:
         order = (Vacancy.last_seen_at.desc(),)
     rows = query.order_by(*order).offset(offset).limit(limit).all()
+    jobs = [_public_job(vacancy, company) for vacancy, company in rows]
+    from app.services.employer_service import (
+        RANKING_NOTE, SPONSORED_CAP, featured_matches, submitted_vacancy_ids,
+    )
+    sponsored_rows = featured_matches(db, query)
+    sponsored = []
+    sponsored_ids: set[str] = set()
+    for vacancy, company, until in sponsored_rows:
+        card = _public_job(vacancy, company)
+        card.sponsored = True
+        card.sponsored_until = until.date() if hasattr(until, "date") else until
+        sponsored.append(card)
+        sponsored_ids.add(vacancy.id)
+    labels = submitted_vacancy_ids(db, [job.id for job in jobs] + [job.id for job in sponsored])
+    for card in jobs:
+        if card.id in labels:
+            card.employer_submitted = True
+            card.provenance = "employer-submitted"
+        if card.id in sponsored_ids:
+            card.sponsored = True
+            match = next((item for item in sponsored if item.id == card.id), None)
+            if match is not None:
+                card.sponsored_until = match.sponsored_until
+    for card in sponsored:
+        if card.id in labels:
+            card.employer_submitted = True
+            card.provenance = "employer-submitted"
     return PublicJobListResponse(
-        jobs=[_public_job(vacancy, company) for vacancy, company in rows],
+        jobs=jobs,
         matched=matched,
         limit=limit,
+        sponsored=sponsored,
+        sponsored_cap=SPONSORED_CAP,
+        ranking_note=RANKING_NOTE,
     )
 
 

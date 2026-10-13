@@ -152,6 +152,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     entry("/register", 0.6, "monthly"),
     entry("/forgot-password", 0.3, "yearly"),
     entry("/reset-password", 0.3, "yearly"),
+    entry("/for-organisations", 0.5, "monthly"),
+    entry("/pricing", 0.5, "monthly"),
+    entry("/ranking", 0.4, "yearly"),
     entry("/privacy", 0.3, "yearly"),
     entry("/terms", 0.3, "yearly"),
   ];

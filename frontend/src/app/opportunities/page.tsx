@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import CountOutboundLink from "@/components/CountOutboundLink";
 import { ApplySteps } from "@/components/ApplySteps";
+import { SponsoredStrip } from "@/components/organisation/SponsoredStrip";
 import type { PublicJob } from "@/lib/jobPosting";
 import { PROGRAMME_PAGES } from "@/lib/jobLandings";
 import { OPPORTUNITY_TABS, opportunityLabel, statedDate } from "@/lib/opportunity";
@@ -29,7 +30,7 @@ type Search = {
   sort?: string;
 };
 
-type Load = { ok: true; jobs: PublicJob[]; matched: number } | { ok: false };
+type Load = { ok: true; jobs: PublicJob[]; sponsored: PublicJob[]; matched: number } | { ok: false };
 
 const TYPES = new Set(OPPORTUNITY_TABS.map((tab) => tab.value).filter(Boolean));
 
@@ -48,9 +49,14 @@ async function loadJobs(search: Search): Promise<Load> {
   try {
     const res = await fetch(`${API}/jobs?${params.toString()}`, { cache: "no-store" });
     if (!res.ok) return { ok: false };
-    const data = (await res.json()) as { jobs?: PublicJob[]; matched?: number };
+    const data = (await res.json()) as { jobs?: PublicJob[]; sponsored?: PublicJob[]; matched?: number };
     if (!data || !Array.isArray(data.jobs) || typeof data.matched !== "number") return { ok: false };
-    return { ok: true, jobs: data.jobs, matched: data.matched };
+    return {
+      ok: true,
+      jobs: data.jobs,
+      sponsored: Array.isArray(data.sponsored) ? data.sponsored : [],
+      matched: data.matched,
+    };
   } catch {
     return { ok: false };
   }
@@ -165,6 +171,7 @@ export default async function OpportunitiesPage({ searchParams }: { searchParams
         </div>
       ) : (
         <div className="space-y-3">
+          <SponsoredStrip jobs={loaded.sponsored} />
           <p className="text-sm text-ss-muted">
             Showing {loaded.jobs.length.toLocaleString("en-US")} of {loaded.matched.toLocaleString("en-US")}.
             {sort === "closing" ? " Closing dates that were not stated are listed last." : " Sorted by the date we last checked the row."}
@@ -172,6 +179,8 @@ export default async function OpportunitiesPage({ searchParams }: { searchParams
           <ul className="grid gap-3">
             {loaded.jobs.map((job) => (
               <li key={job.id} className="ss-intel-card border border-[#0c1b33]/10">
+                {job.sponsored ? <p className="text-sm font-semibold text-ss-primary">Sponsored</p> : null}
+                {job.employer_submitted ? <p className="text-sm text-ss-muted">Employer-submitted</p> : null}
                 <p className="text-sm font-semibold text-[#0f766e]">{opportunityLabel(job.opportunity_type)}</p>
                 <h2 className="mt-1 font-display text-xl font-bold text-[#0c1b33]">
                   <Link href={`/jobs/${job.id}`} className="underline">{job.title}</Link>

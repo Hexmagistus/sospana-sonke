@@ -16,6 +16,7 @@ export default function robots(): MetadataRoute.Robots {
         // /companies stays disallowed because it requires sign-in.
         disallow: [
           "/admin",
+          "/organisation",
           "/dashboard",
           "/profile",
           "/matches",

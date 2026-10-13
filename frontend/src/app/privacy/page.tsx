@@ -34,6 +34,28 @@ export default function PrivacyPage() {
             An administrator can see the totals. They cannot see the question or who asked it.
           </p>
 
+          <h2 className="pt-2 text-lg font-semibold text-ss-text">Organisation accounts, payments, and sponsored listings</h2>
+          <p>
+            An organisation account stores the name and email of the person who registers it, plus the work email
+            used to confirm that the address is on the employer&apos;s own domain. An administrator can approve a
+            claim when a domain email is not available. We keep the claim status, the opportunities the organisation
+            submits, and the decision on each one.
+          </p>
+          <p>
+            Paid plans are charged in rand through Paystack while checkout is in test mode. The card number is
+            entered on Paystack&apos;s page. We store the invoice amount, the currency, the provider reference, and
+            whether it was paid, refunded, or cancelled. We do not store the card number, the expiry, or the
+            security code. A refund or a cancellation is recorded on that invoice. Access to a paid plan ends when
+            the period ends, or immediately when a refund is confirmed.
+          </p>
+          <p>
+            Employer Pro can see aggregated click totals for its own page and roles: a count per day, summed.
+            Those totals have no IP address, no account id, and no search text. A featured listing is labelled
+            Sponsored wherever it appears. It has to match the filters, it is capped on each results page, and it
+            does not change the order of the other rows.{" "}
+            <Link href="/ranking" className="font-semibold text-navy underline">How ranking works</Link>.
+          </p>
+
           <h2 className="pt-2 text-lg font-semibold text-ss-text">Information we collect</h2>
           <ul className="list-disc space-y-1 pl-5">
             <li>Account details you give us: your name, email address, and (optionally) mobile number.</li>

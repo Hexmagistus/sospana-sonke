@@ -112,12 +112,14 @@ def init_db() -> None:
     from app.db.migrations.opportunity_types import upgrade as upgrade_opportunity_types
     from app.db.migrations.role_alerts import upgrade as upgrade_role_alerts
     from app.db.migrations.usage_counts import upgrade as upgrade_usage_counts
+    from app.db.migrations.employer_plans import upgrade as upgrade_employer_plans
     from app.db.migrations.verified_programmes import upgrade as upgrade_verified_programmes
     upgrade_role_alerts(engine)
     upgrade_alert_opportunity_type(engine)
     upgrade_usage_counts(engine)
     upgrade_opportunity_types(engine)
     upgrade_verified_programmes(engine)
+    upgrade_employer_plans(engine)
     _add_new_columns()
     _widen_external_id()
     _ensure_indexes()

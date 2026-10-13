@@ -24,6 +24,10 @@ export type PublicJob = {
   verified_at?: string | null;
   /** Plain text from the stored advert, when the detail page has it. */
   summary?: string | null;
+  employer_submitted?: boolean;
+  provenance?: string | null;
+  sponsored?: boolean;
+  sponsored_until?: string | null;
 };
 
 const SITE = "https://sospana-sonke.vercel.app";

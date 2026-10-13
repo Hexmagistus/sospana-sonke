@@ -470,7 +470,10 @@ function AdminInner() {
     <div className="admin-readable space-y-6">
       <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="ss-intel-title whitespace-nowrap rounded-2xl bg-[#0c1b33] px-4 py-2 text-2xl font-bold">Admin dashboard</h1>
-        <Link href="/admin/companies" className="shrink-0"><Button variant="ghost" className="whitespace-nowrap">Manage companies</Button></Link>
+        <div className="flex shrink-0 flex-wrap gap-2">
+          <Link href="/admin/organisations"><Button variant="ghost" className="whitespace-nowrap">Organisations</Button></Link>
+          <Link href="/admin/companies"><Button variant="ghost" className="whitespace-nowrap">Manage companies</Button></Link>
+        </div>
       </div>
       {err && <Alert kind="error">{err}</Alert>}
 

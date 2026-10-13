@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { SponsoredStrip } from "@/components/organisation/SponsoredStrip";
 import { PageHeader } from "@/components/PageHeader";
 import IntelligenceSearch from "@/components/home/IntelligenceSearch";
 import { ApplySteps } from "@/components/ApplySteps";
@@ -33,7 +34,7 @@ type Search = {
 };
 
 type Load =
-  | { ok: true; jobs: PublicJob[]; matched: number }
+  | { ok: true; jobs: PublicJob[]; sponsored: PublicJob[]; matched: number }
   | { ok: false };
 
 function freshnessDays(value: string | undefined): string | null {
@@ -51,9 +52,14 @@ async function loadJobs(search: Search): Promise<Load> {
   try {
     const res = await fetch(`${API}/jobs?${params.toString()}`, { cache: "no-store" });
     if (!res.ok) return { ok: false };
-    const data = (await res.json()) as { jobs?: PublicJob[]; matched?: number };
+    const data = (await res.json()) as { jobs?: PublicJob[]; sponsored?: PublicJob[]; matched?: number };
     if (!data || !Array.isArray(data.jobs) || typeof data.matched !== "number") return { ok: false };
-    return { ok: true, jobs: data.jobs, matched: data.matched };
+    return {
+      ok: true,
+      jobs: data.jobs,
+      sponsored: Array.isArray(data.sponsored) ? data.sponsored : [],
+      matched: data.matched,
+    };
   } catch {
     return { ok: false };
   }
@@ -93,7 +99,9 @@ export default async function JobsPage({ searchParams }: { searchParams: Promise
           These are jobs, internships, learnerships, bursaries and graduate programmes already saved from official pages.
           The list is not every opening in a country.
           If nothing is here, the scanner has not stored a matching open role. Check the organisation&apos;s own page.
-          You apply there. {SITE_NAME} does not send an application for you.{" "}
+          You apply there. {SITE_NAME} does not send an application for you.
+          A sponsored row, when one matches, sits in its own list and does not move these rows.{" "}
+          <Link href="/ranking" className="underline">How ranking works</Link>.{" "}
           <Link href="/opportunities" className="underline">
             The same list, with type tabs
           </Link>
@@ -157,12 +165,15 @@ export default async function JobsPage({ searchParams }: { searchParams: Promise
         </div>
       ) : (
         <div className="space-y-3">
+          <SponsoredStrip jobs={loaded.sponsored} />
           <p className="text-sm text-ss-muted">
             Showing {loaded.jobs.length.toLocaleString("en-US")} of {loaded.matched.toLocaleString("en-US")} open roles that match.
           </p>
           <ul className="grid gap-3">
             {loaded.jobs.map((job) => (
               <li key={job.id} className="ss-card">
+                {job.sponsored ? <p className="text-sm font-semibold text-ss-primary">Sponsored</p> : null}
+                {job.employer_submitted ? <p className="text-sm text-ss-muted">Employer-submitted</p> : null}
                 <h2 className="font-display text-xl font-bold text-ss-text">
                   <Link href={`/jobs/${job.id}`} className="underline">{job.title}</Link>
                 </h2>
