@@ -108,10 +108,12 @@ def init_db() -> None:
     from app.db.base import Base
     from app import models  # noqa: F401  (ensures models are registered)
     Base.metadata.create_all(bind=engine)
+    from app.db.migrations.opportunity_types import upgrade as upgrade_opportunity_types
     from app.db.migrations.role_alerts import upgrade as upgrade_role_alerts
     from app.db.migrations.usage_counts import upgrade as upgrade_usage_counts
     upgrade_role_alerts(engine)
     upgrade_usage_counts(engine)
+    upgrade_opportunity_types(engine)
     _add_new_columns()
     _widen_external_id()
     _ensure_indexes()
@@ -176,6 +178,11 @@ _NEW_COLUMNS: list[tuple[str, str, str]] = [
     ("vacancies", "verification_state", "VARCHAR(20)"),
     ("vacancies", "quality_score", "INTEGER"),
     ("vacancies", "consecutive_misses", "INTEGER NOT NULL DEFAULT 0"),
+    ("vacancies", "opportunity_type", "VARCHAR(32) NOT NULL DEFAULT 'job'"),
+    ("vacancies", "field_of_study", "VARCHAR(200)"),
+    ("vacancies", "stipend_text", "VARCHAR(240)"),
+    ("vacancies", "verified_at", _TS),
+    ("vacancies", "opportunity_reviewed", "BOOLEAN NOT NULL DEFAULT FALSE" if not DATABASE_URL.startswith("sqlite") else "BOOLEAN NOT NULL DEFAULT 0"),
     ("vacancy_sources", "last_success_at", _TS),
     ("vacancy_sources", "last_vacancy_found_at", _TS),
     ("vacancy_sources", "http_status", "INTEGER"),
@@ -337,6 +344,7 @@ _INDEXES: list[tuple[str, str, str]] = [
     # Directory list: WHERE deleted_at IS NULL ORDER BY company_name.
     ("ix_companies_deleted_name", "companies", "deleted_at, company_name"),
     ("ix_vacancies_open_closing", "vacancies", "is_open, closing_date"),
+    ("ix_vacancies_open_type", "vacancies", "is_open, opportunity_type"),
     # Employer cards: count open vacancies for the companies on the page.
     ("ix_vacancies_company_open", "vacancies", "company_id, is_open, deleted_at"),
     # Vacancy list and the dashboard "listings last confirmed" stamp:

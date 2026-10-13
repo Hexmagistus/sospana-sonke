@@ -132,12 +132,21 @@ class PublicJobResponse(BaseModel):
     last_seen_at: datetime
     application_url: str | None = None
     is_open: bool
+    opportunity_type: str = "job"
+    field_of_study: str | None = None
+    stipend_text: str | None = None
+    verified_at: datetime | None = None
 
 
 class PublicJobListResponse(BaseModel):
     jobs: list[PublicJobResponse]
     matched: int
     limit: int
+
+
+class OpportunityCountResponse(BaseModel):
+    """Open stored rows by type. A type with none is 0, not omitted."""
+    counts: dict[str, int]
 
 
 class ScanReportResponse(BaseModel):
