@@ -28,6 +28,7 @@ export default function HomePage() {
           better-informed decisions about South Africa&apos;s future.
         </p>
         <p className="ss-intel-lead mt-3 max-w-xl text-base leading-relaxed">
+          South Africa is the featured country. Search, programmes and the labour table open there, and stored South African roles are listed first. Other countries stay in the directory.{" "}
           Ask in the box below. The answer uses jobs, internships, learnerships, bursaries and graduate
           programmes the scanner has stored, employers in the directory, and the Stats SA labour table, with
           the source and the date we last saw them. Employers are listed across {coverage}. If the data is

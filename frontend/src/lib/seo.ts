@@ -33,4 +33,5 @@ export const PUBLIC_ROUTES = [
   "/reset-password",
   "/privacy",
   "/terms",
+  "/status",
 ];
