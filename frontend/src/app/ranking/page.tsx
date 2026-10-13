@@ -18,8 +18,9 @@ export default function RankingPage() {
       <div className="ss-card space-y-3 text-sm leading-relaxed text-ss-text">
         <p>
           Open roles are the rows the scanner has stored, or an opportunity an organisation submitted and an
-          administrator approved. On the jobs page the order is the date the row was last seen. On the opportunities
-          page you can sort by a closing date the source stated.
+          administrator approved. South Africa is listed first when no country is selected. After that, the jobs
+          page uses the date the row was last seen, and the opportunities page can use a closing date the source
+          stated. Choosing a country shows that country only.
         </p>
         <p>
           A featured listing is a paid placement of one approved opportunity for a set number of days. It appears in

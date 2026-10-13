@@ -75,6 +75,9 @@ A careers landing page is enough for that same set, even when the HTML lists no 
 
 ## Session Log
 
+### 2026-10-13 — Cursor (Grok 4.7) — South Africa listed first
+South Africa is the featured country. `/jobs` and `/opportunities` open on South Africa. Clearing the country, or choosing All countries, keeps every country and lists South Africa first. A named country stays a filter. Search questions that do not name a country use the same order. `/data` was already the Statistics South Africa table. The seed file, counted in this session, has 1,185 South African rows out of 11,876: SETA 22 (20 with a careers link), SOE 146 (132), municipalities 266 (216), colleges 107 (59), universities 26 (26), departments 45 (45), hospitals 9 (9). No new careers URL was added. Pull requests #69 and #70 were not touched.
+
 ### 2026-10-13 — Cursor (Grok 4.7) — Dimensional surfaces and a gated hero globe
 Shared cards now carry a top highlight and a stacked shadow. Teal buttons and the shared button press inward. A fine pointer tilts a card a few degrees. Touch does not. The homepage hero includes a painted globe in the HTML. WebGL (`three` and `@react-three/fiber`) loads only after idle, and only on a wide screen with a fine pointer, no data-saver, no slow connection, at least four cores, and motion allowed. The canvas uses the same box as the painting. Labour bars stay flat: the length is the printed rate, and the table is unchanged. The decision is `docs/adr/0001-dimensional-surfaces.md`. Pull requests #69 and #70 were not touched.
 
