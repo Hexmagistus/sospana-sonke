@@ -36,6 +36,7 @@ import "./jobPosting.test.js";
 import "./employerPage.test.js";
 import "./opportunity.test.js";
 import "./showpieceGate.test.js";
+import "./shortLink.test.js";
 import "./publicCache.test.js";
 import "./flagship.test.js";
 
