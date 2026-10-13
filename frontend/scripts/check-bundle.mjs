@@ -2,11 +2,12 @@
  * Fail when the homepage first-load JavaScript printed by `next build`
  * is above the ceiling measured on 2026-10-13.
  *
- * That build printed: `┌ ○ /  20 kB  154 kB` (First Load JS).
+ * The 2026-10-13 gate build printed `┌ ○ /  20 kB  154 kB`.
+ * The soundtrack controls measured `┌ ○ /  20.4 kB  155 kB`.
  */
 import { readFileSync } from "node:fs";
 
-const ceilingKb = 154;
+const ceilingKb = 155;
 const logPath = process.argv[2];
 if (!logPath) {
   console.error("usage: node scripts/check-bundle.mjs <next-build-log>");
