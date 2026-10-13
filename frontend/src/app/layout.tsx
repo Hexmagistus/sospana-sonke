@@ -196,6 +196,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 {" · "}
                 <a href="/feed.xml" className="underline hover:text-ss-text">New roles feed</a>
                 {" · "}
+                <a href="/for-organisations" className="underline hover:text-ss-text">For organisations</a>
+                {" · "}
+                <a href="/pricing" className="underline hover:text-ss-text">Pricing</a>
+                {" · "}
+                <a href="/ranking" className="underline hover:text-ss-text">Ranking</a>
+                {" · "}
                 <a href="/privacy" className="underline hover:text-ss-text">Privacy</a>
                 {" · "}
                 <a href="/terms" className="underline hover:text-ss-text">Terms</a>

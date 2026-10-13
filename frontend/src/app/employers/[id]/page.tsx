@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import CountOutboundLink from "@/components/CountOutboundLink";
+import { OrganisationBrand } from "@/components/organisation/OrganisationBrand";
 import { PageHeader } from "@/components/PageHeader";
 import {
   categoryLabel,
@@ -128,6 +129,7 @@ export default async function EmployerPage({ params }: Props) {
           {employer.careers_url}
         </CountOutboundLink>
       </section>
+      <OrganisationBrand companyId={employer.id} />
       <section className="space-y-3">
         <h2 className="text-lg font-bold text-ss-text">
           Stored open roles ({employer.open_role_count.toLocaleString("en-US")}

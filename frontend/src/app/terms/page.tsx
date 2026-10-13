@@ -74,6 +74,21 @@ export default function TermsPage() {
             rather than copying the full advert, and we do not permit bulk copying of our curated directory.
           </p>
 
+          <h2 className="pt-2 text-lg font-semibold text-ss-text">Organisation accounts and sponsored listings</h2>
+          <p>
+            Search, alerts, and CV tools stay free for job seekers. An organisation may claim its directory page,
+            correct details, and submit opportunities. Every organisation post is checked before it is listed and
+            is labelled employer-submitted.
+          </p>
+          <p>
+            A featured listing is a paid, time-boxed placement of one approved opportunity. It is labelled Sponsored,
+            it is shown only when it matches the filters on that page, and each results page shows at most two.
+            It does not change the order of unsponsored rows. There is no countdown and no invented shortage.
+            Prices are in rand and are shown only after the owner publishes them. Until then the pricing page says
+            pricing is coming soon. Card details are entered on the payment provider. We do not store the card.
+            <Link href="/ranking" className="font-semibold text-navy underline"> How ranking works</Link>.
+          </p>
+
           <h2 className="pt-2 text-lg font-semibold text-ss-text">Availability and changes</h2>
           <p>
             The Service is provided &quot;as is&quot;, and may change or be interrupted from time to

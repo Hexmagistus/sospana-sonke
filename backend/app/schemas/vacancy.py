@@ -136,12 +136,22 @@ class PublicJobResponse(BaseModel):
     field_of_study: str | None = None
     stipend_text: str | None = None
     verified_at: datetime | None = None
+    employer_submitted: bool = False
+    provenance: str | None = None
+    sponsored: bool = False
+    sponsored_until: date | None = None
 
 
 class PublicJobListResponse(BaseModel):
     jobs: list[PublicJobResponse]
     matched: int
     limit: int
+    sponsored: list[PublicJobResponse] = []
+    sponsored_cap: int = 2
+    ranking_note: str = (
+        "Sponsored rows are a separate list. They match these filters, they are capped, "
+        "and the order of the other rows is unchanged."
+    )
 
 
 class PublicJobDetailResponse(PublicJobResponse):
