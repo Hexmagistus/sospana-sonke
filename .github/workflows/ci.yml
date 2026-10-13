@@ -21,6 +21,10 @@ jobs:
       - name: Pytest
         working-directory: backend
         run: pytest -q
+      - name: Python dependency audit
+        run: |
+          pip install pip-audit
+          pip-audit -r backend/requirements.txt
 
   frontend:
     runs-on: ubuntu-latest
@@ -48,3 +52,57 @@ jobs:
         # braces is installed from frontend/vendor/braces (3.0.4) and overrides
         # force every copy onto that one. Tailwind stays on 3.4.7.
         run: npm audit --audit-level=high
+
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Install frontend
+        working-directory: frontend
+        run: npm ci
+      - name: Install Chromium
+        working-directory: frontend
+        run: npx playwright install --with-deps chromium
+      - name: Production build
+        working-directory: frontend
+        env:
+          NEXT_PUBLIC_API_URL: https://sospana-sonke-api-fra.onrender.com/api/v1
+        run: |
+          set -o pipefail
+          npm run build | tee /tmp/next-build.txt
+      - name: Bundle size
+        working-directory: frontend
+        run: node scripts/check-bundle.mjs /tmp/next-build.txt
+      - name: Start the site
+        working-directory: frontend
+        run: |
+          npm run start -- --hostname 127.0.0.1 --port 3000 > /tmp/next-start.txt 2>&1 &
+          for _ in $(seq 1 40); do
+            if curl -sf -o /dev/null http://127.0.0.1:3000/; then
+              exit 0
+            fi
+            sleep 2
+          done
+          cat /tmp/next-start.txt
+          exit 1
+      - name: Playwright smoke
+        working-directory: frontend
+        env:
+          PLAYWRIGHT_BASE_URL: http://127.0.0.1:3000
+          NEXT_PUBLIC_API_URL: https://sospana-sonke-api-fra.onrender.com/api/v1
+          CI: "true"
+        run: npx playwright test
+      - name: Lighthouse mobile budget
+        working-directory: frontend
+        env:
+          LH_URL: http://127.0.0.1:3000/
+        run: |
+          export CHROME_PATH="$(find "$HOME/.cache/ms-playwright" -type f -path '*/chrome-linux*/chrome' | head -1)"
+          test -n "$CHROME_PATH"
+          node scripts/lighthouse-budget.mjs
