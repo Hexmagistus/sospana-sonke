@@ -65,6 +65,8 @@
     "src/lib/publicCache.ts",
     "src/lib/publicCache.test.ts",
     "src/lib/flagship.ts",
-    "src/lib/flagship.test.ts"
+    "src/lib/flagship.test.ts",
+    "src/lib/soundPrefs.ts",
+    "src/lib/soundPrefs.test.ts"
   ]
 }

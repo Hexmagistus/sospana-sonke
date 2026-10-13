@@ -24,7 +24,7 @@ export function GlobeFallback() {
       <ellipse cx="100" cy="188" rx="46" ry="8" fill="rgba(7,17,31,0.28)" />
       <circle cx="100" cy="96" r="72" fill="none" stroke="#b8fff3" strokeWidth="3" />
       <circle cx="100" cy="96" r="68" fill="url(#ss-globe-body)" />
-      <g clipPath="url(#ss-globe-clip)">
+      <g className="ss-globe-land" clipPath="url(#ss-globe-clip)">
         <path
           fill="url(#ss-globe-land)"
           d="M112 52c10 2 18 10 16 20 8 4 14 14 8 24 2 10-2 18-6 24-2 14-12 24-20 34-8-6-12-16-16-24-10 2-18-6-16-16-8-4-6-16 2-22 2-12 10-22 20-24 4-8 8-14 12-16z"

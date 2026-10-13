@@ -6,6 +6,7 @@ import { AuthProvider } from "@/lib/auth";
 import { ThemeProvider } from "@/lib/theme";
 import { THEME_BOOTSTRAP_SCRIPT } from "@/lib/themeBootstrap";
 import Nav from "@/components/Nav";
+import { SiteSoundBar } from "@/components/SiteSoundBar";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import CommandPalette from "@/components/CommandPalette";
 import PwaRegister from "@/components/PwaRegister";
@@ -168,6 +169,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ThemeProvider>
           <AuthProvider>
             <Nav />
+            <SiteSoundBar />
             <main id="main-content" className="relative z-0 mx-auto max-w-6xl px-4 py-6 pb-24 md:pb-6">
               <PhotoWash />
               {children}
