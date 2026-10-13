@@ -1,5 +1,3 @@
-import CountOutboundLink from "@/components/CountOutboundLink";
-
 /** The real next step for a stored role: read it here, open the source, apply there. */
 export function ApplySteps({
   applicationUrl,
@@ -20,14 +18,16 @@ export function ApplySteps({
         <li>Read the summary on this page. It is not the full advert.</li>
         <li>
           {applicationUrl ? (
-            <CountOutboundLink
+            <a
               href={applicationUrl}
-              targetKind="vacancy"
-              targetId={vacancyId}
+              target="_blank"
+              rel="noopener noreferrer"
+              data-count-target="vacancy"
+              data-count-id={vacancyId}
               className={onDark ? "font-semibold text-[#5eead4] underline" : "font-semibold text-[#0f766e] underline"}
             >
               Open the source page
-            </CountOutboundLink>
+            </a>
           ) : (
             "No application link was stored for this role."
           )}

@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import CountOutboundLink from "@/components/CountOutboundLink";
 import { ApplySteps } from "@/components/ApplySteps";
 import type { PublicJob } from "@/lib/jobPosting";
 import { PROGRAMME_PAGES } from "@/lib/jobLandings";
@@ -195,14 +194,16 @@ export default async function OpportunitiesPage({ searchParams }: { searchParams
                 </dl>
                 <ApplySteps applicationUrl={job.application_url} vacancyId={job.id} />
                 {job.application_url ? (
-                  <CountOutboundLink
+                  <a
                     href={job.application_url}
-                    targetKind="vacancy"
-                    targetId={job.id}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    data-count-target="vacancy"
+                    data-count-id={job.id}
                     className="mt-3 inline-flex min-h-11 items-center rounded-xl bg-[#5eead4] px-4 py-2 text-sm font-semibold text-[#0c1b33]"
                   >
                     Source page
-                  </CountOutboundLink>
+                  </a>
                 ) : (
                   <p className="mt-3 text-sm text-[#3f4a5c]">No source link was stored.</p>
                 )}

@@ -75,6 +75,9 @@ A careers landing page is enough for that same set, even when the HTML lists no 
 
 ## Session Log
 
+### 2026-10-13 — Cursor (Grok 4.7) — Faster public role lists
+Mobile Lighthouse on `/jobs` was performance 78 because two long tasks sat on the document (total blocking time 680 ms). The homepage, which does not paint the photograph, stayed at 92 with accessibility 100. The role and programme lists no longer paint that full-width photograph, and each “Open the source page” link is ordinary HTML. One listener still records the anonymous click. A role detail page keeps the photograph. Pull requests #69 and #70 were not touched.
+
 ### 2026-10-13 — Cursor (Grok 4.7) — Public role pages, feeds and saved roles
 Each open stored role has a public page at `/jobs/{id}` with JobPosting markup built from stored fields. `directApply` is false. A closing date is included only when one was stored. A closed or expired role is not served as an active posting. Programme pages (`/opportunities/learnerships` and the other three types), country pages (`/jobs/in/{country}`) and employment-type pages (`/jobs/category/{category}`) are generated from the live index and left out of the sitemap when the count is zero. The sitemap also lists roles seen in the last 14 days. `/feed.xml` and `/feed.json` list roles seen in the last seven days. IndexNow is pinged after a closing date is marked expired, at most once every six hours, and not during tests. The site is English only, so there is no hreflang. A signed-in person can save a role. Recently viewed roles stay in this browser. Search treats learnership and learnerships, and a one-letter misspelling of those programme words, as the same query. Suggestions come from stored titles, employers and countries.
 
