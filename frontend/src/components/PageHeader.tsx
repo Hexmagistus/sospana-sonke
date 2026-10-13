@@ -11,14 +11,14 @@ export function PageHeader({
   children?: ReactNode;
 }) {
   return (
-    <header className="ss-page-header max-w-3xl">
+    <header className="ss-hero ss-intel ss-page-header max-w-3xl rounded-3xl px-5 py-8 sm:px-8">
       {eyebrow ? (
-        <p className="text-sm font-semibold uppercase tracking-wide text-ss-muted">{eyebrow}</p>
+        <p className="ss-intel-accent text-sm font-semibold uppercase tracking-wide">{eyebrow}</p>
       ) : null}
-      <h1 className="mt-1 font-display text-3xl font-extrabold tracking-tight text-ss-text sm:text-4xl">
+      <h1 className="ss-intel-title mt-1 font-display text-3xl font-extrabold tracking-tight sm:text-4xl">
         {title}
       </h1>
-      {children ? <div className="mt-3 space-y-2 text-base leading-relaxed text-ss-muted">{children}</div> : null}
+      {children ? <div className="ss-intel-lead mt-3 space-y-2 text-base leading-relaxed">{children}</div> : null}
     </header>
   );
 }

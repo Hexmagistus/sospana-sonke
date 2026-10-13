@@ -469,7 +469,7 @@ function AdminInner() {
   return (
     <div className="admin-readable space-y-6">
       <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="whitespace-nowrap text-2xl font-bold text-ss-text">Admin dashboard</h1>
+        <h1 className="ss-intel-title whitespace-nowrap rounded-2xl bg-[#0c1b33] px-4 py-2 text-2xl font-bold">Admin dashboard</h1>
         <Link href="/admin/companies" className="shrink-0"><Button variant="ghost" className="whitespace-nowrap">Manage companies</Button></Link>
       </div>
       {err && <Alert kind="error">{err}</Alert>}
