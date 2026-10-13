@@ -182,6 +182,51 @@
       "source_url": "https://www.ey.com/en_za/careers/graduate-programmes-south-africa",
       "description": "Bursaries are awarded to individuals who we believe have the commitment to qualify as a Chartered Accountant and an academic record which indicates the ability to do so with due regard to financial need.",
       "qualifications": "A valid South African identity document. Studying a CA degree at a SAICA accredited university."
+    },
+    {
+      "company_name": "National Student Financial Aid Scheme (NSFAS)",
+      "country": "South Africa",
+      "title": "Apply for NSFAS funding for the 2027 academic year",
+      "opportunity_type": "bursary",
+      "source_url": "https://www.nsfas.org.za/content/how-to-apply.html",
+      "description": "Applications for the 2027 academic year are open from 18 September to 31 October 2026. Applying is free.",
+      "closing_date": "2026-10-31"
+    },
+    {
+      "company_name": "CHIETA",
+      "country": "South Africa",
+      "title": "Human Resource Intern",
+      "opportunity_type": "internship",
+      "source_url": "https://chieta.org.za/job/24-month-internships-hr-intern-administration-intern-re-advertisement/",
+      "description": "RE-ADVERTISEMENT: 24-MONTH INTERNSHIP PROGRAMME. LOCATION: Gauteng. DURATION: 24 Months.",
+      "qualifications": "NQF Level 7 qualification in Human Resource Management or related. A minimum aggregate of 65% for overall qualification. No work experience required.",
+      "field_of_study": "Human Resource Management",
+      "stipend_text": "R7 000.00",
+      "closing_date": "2026-10-16"
+    },
+    {
+      "company_name": "CHIETA",
+      "country": "South Africa",
+      "title": "Administration Intern",
+      "opportunity_type": "internship",
+      "source_url": "https://chieta.org.za/job/24-month-internships-hr-intern-administration-intern-re-advertisement/",
+      "description": "RE-ADVERTISEMENT: 24-MONTH INTERNSHIP PROGRAMME. LOCATION: Gauteng. DURATION: 24 Months.",
+      "qualifications": "NQF Level 6 qualification in Public Management, Administration or related. A minimum aggregate of 65% for overall qualification. No work experience required.",
+      "field_of_study": "Public Management, Administration or related",
+      "stipend_text": "R7 000.00",
+      "closing_date": "2026-10-16"
+    },
+    {
+      "company_name": "CHIETA",
+      "country": "South Africa",
+      "title": "ICT Intern",
+      "opportunity_type": "internship",
+      "source_url": "https://chieta.org.za/job/24-months-internship-ict-intern/",
+      "description": "24 MONTHS INTERNSHIP: ICT INTERN. LOCATION: Midrand, Gauteng. DURATION: 24 Months.",
+      "qualifications": "National Diploma in Information Technology or related. A minimum aggregate of 65% for overall qualification. Applicants must reside in Gauteng Province.",
+      "field_of_study": "Information Technology",
+      "stipend_text": "R7 000.00",
+      "closing_date": "2026-10-23"
     }
   ]
 }

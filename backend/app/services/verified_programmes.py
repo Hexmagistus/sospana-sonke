@@ -1,16 +1,17 @@
 """Store programme names read from an employer's own page.
 
 The file lists only names that were on that page, with the sentence that
-sat under the name. Closing dates are not in the file and are not filled in
-here. A row is attached to an inactive source so the scanner keeps reading
-the employer's careers board. A company that is not already in the directory
+sat under the name. A closing date is stored only when the page stated one
+and that date is still open. A row is attached to an inactive source so the scanner
+keeps reading the employer's careers board. A company that is not already in the directory
 is skipped. Nothing here creates an employer.
 """
 from __future__ import annotations
 
 import hashlib
 import json
-from datetime import datetime, timedelta, timezone
+import re
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 from sqlalchemy import func
@@ -142,7 +143,7 @@ def _store_one(db: Session, record: dict, verified_on: datetime) -> str:
     existing.country = country
     existing.source_url = source_url
     existing.application_url = source_url
-    existing.closing_date = None
+    existing.closing_date = _stated_closing(record.get("closing_date"), verified_on)
     existing.posting_date = None
     existing.content_hash = digest
     existing.fingerprint = digest
@@ -196,6 +197,22 @@ def _verified_source(db: Session, company: Company, source_url: str, verified_on
     db.add(source)
     db.flush()
     return source
+
+
+def _stated_closing(value, verified_on: datetime) -> date | None:
+    """Keep a closing date only when the page stated an ISO date that is still open."""
+    if value is None:
+        return None
+    text = str(value).strip()
+    if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", text):
+        return None
+    try:
+        day = datetime.strptime(text, "%Y-%m-%d").date()
+    except ValueError:
+        return None
+    if day < verified_on.date():
+        return None
+    return day
 
 
 def _clean(value) -> str | None:
