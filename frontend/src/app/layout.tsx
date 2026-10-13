@@ -204,6 +204,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 {" · "}
                 <a href="/ranking" className="underline hover:text-ss-text">Ranking</a>
                 {" · "}
+                <a href="/status" className="underline hover:text-ss-text">Status</a>
+                {" · "}
                 <a href="/privacy" className="underline hover:text-ss-text">Privacy</a>
                 {" · "}
                 <a href="/terms" className="underline hover:text-ss-text">Terms</a>
