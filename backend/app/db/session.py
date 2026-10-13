@@ -111,9 +111,11 @@ def init_db() -> None:
     from app.db.migrations.opportunity_types import upgrade as upgrade_opportunity_types
     from app.db.migrations.role_alerts import upgrade as upgrade_role_alerts
     from app.db.migrations.usage_counts import upgrade as upgrade_usage_counts
+    from app.db.migrations.verified_programmes import upgrade as upgrade_verified_programmes
     upgrade_role_alerts(engine)
     upgrade_usage_counts(engine)
     upgrade_opportunity_types(engine)
+    upgrade_verified_programmes(engine)
     _add_new_columns()
     _widen_external_id()
     _ensure_indexes()
@@ -179,7 +181,7 @@ _NEW_COLUMNS: list[tuple[str, str, str]] = [
     ("vacancies", "quality_score", "INTEGER"),
     ("vacancies", "consecutive_misses", "INTEGER NOT NULL DEFAULT 0"),
     ("vacancies", "opportunity_type", "VARCHAR(32) NOT NULL DEFAULT 'job'"),
-    ("vacancies", "field_of_study", "VARCHAR(200)"),
+    ("vacancies", "field_of_study", "VARCHAR(400)"),
     ("vacancies", "stipend_text", "VARCHAR(240)"),
     ("vacancies", "verified_at", _TS),
     ("vacancies", "opportunity_reviewed", "BOOLEAN NOT NULL DEFAULT FALSE" if not DATABASE_URL.startswith("sqlite") else "BOOLEAN NOT NULL DEFAULT 0"),

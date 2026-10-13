@@ -75,6 +75,9 @@ A careers landing page is enough for that same set, even when the HTML lists no 
 
 ## Session Log
 
+### 2026-10-13 — Cursor (Grok 4.7) — Official South African programme pages
+Programme names that were on the employer's own page on 13 October 2026 are stored for Absa Group, Deloitte Southern Africa, and EY South Africa. robots.txt allows SospanaSonkeBot, and Absa publishes no robots.txt. None of those pages stated a closing date, so the date is blank. Scholarships, vacation work, apprenticeships, and a Deloitte editor label are not stored. NSFAS failed TLS. KPMG's stated close of 30 April 2026 is in the past. Services SETA's notice is to existing students. Standard Bank's pages did not list openings. merSETA's page explains learnerships and does not list one. DHET's dated posts are ordinary jobs. PwC returned 403 and MICT returned a challenge. The new rows sit on an inactive source, so the scanner keeps reading the employer's careers board. The import runs on boot and the downgrade deletes only these rows. Pull requests #69 and #70 were not touched.
+
 ### 2026-10-13 — Cursor (Grok 4.7) — Opportunity types on stored roles
 A stored role is a job unless its title, or otherwise its description, names exactly one of internship, learnership, bursary, or graduate programme. Two names, or a mention that is only a requirement the applicant already holds, stay a job. Field of study and stipend are stored only when the text labels them. Closing dates are not invented. `opportunity_type`, `field_of_study`, `stipend_text`, and `verified_at` are added on boot and dropped by the migration's downgrade. `GET /jobs?opportunity_type=` filters the public list, and `GET /jobs/counts` returns a count for each type. Pull requests #69 and #70 were not touched.
 

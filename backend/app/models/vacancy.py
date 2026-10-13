@@ -74,7 +74,7 @@ class Vacancy(UUIDMixin, TimestampMixin, Base):
     # job | internship | learnership | bursary | graduate_programme.
     # Existing rows stay job until the title or description names one type.
     opportunity_type: Mapped[str] = mapped_column(String(32), default="job", nullable=False)
-    field_of_study: Mapped[str | None] = mapped_column(String(200), nullable=True)
+    field_of_study: Mapped[str | None] = mapped_column(String(400), nullable=True)
     stipend_text: Mapped[str | None] = mapped_column(String(240), nullable=True)
     verified_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     # Bookkeeping for the one-time label pass. Not shown to candidates.
