@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
@@ -870,7 +870,7 @@ export default function Home({ children }: { children?: ReactNode }) {
                   <span className="absolute -inset-1 -z-10 animate-node-pulse rounded-xl" aria-hidden="true" />
                   {n}
                 </div>
-                <h4 className="mt-4 font-bold" style={{ color: C.navy }}>{t}</h4>
+                <h3 className="mt-4 font-bold" style={{ color: C.navy }}>{t}</h3>
                 <p className="mt-1.5 text-sm leading-relaxed text-gray-600">{d}</p>
                 <div className="mt-3 h-[3px] w-0 rounded-full transition-all duration-500 group-hover:w-full" style={{ background: col as string }} />
               </div>
@@ -1066,6 +1066,7 @@ function LiveCountryCard({ c, i }: { c: CountryCard; i: number }) {
    country in the directory (the same coverage line as the rest of the page)
    in the standing order (South Africa, SADC, rest of Africa, other regions). Choosing one shows just that country's card below. */
 function CountryJumpSelect({ live, coverage }: { live: CountryCard[]; coverage: string }) {
+  const selectId = useId();
   const [selected, setSelected] = useState("");
   // South Africa first, then the rest of SADC, the rest of Africa, then the
   // other regions; alphabetical inside each group (other regions grouped by region).
@@ -1076,7 +1077,7 @@ function CountryJumpSelect({ live, coverage }: { live: CountryCard[]; coverage: 
 
   return (
     <div className="mt-4">
-      <label className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-ss-muted">
+      <label htmlFor={selectId} className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-ss-muted">
         <span className="relative flex h-2 w-2">
           <span className="absolute inline-flex h-full w-full animate-node-pulse rounded-full bg-white/60" />
           <span className="relative inline-flex h-2 w-2 rounded-full bg-white" />
@@ -1085,6 +1086,7 @@ function CountryJumpSelect({ live, coverage }: { live: CountryCard[]; coverage: 
       </label>
       <div className="relative w-full sm:max-w-sm">
         <select
+          id={selectId}
           value={selected}
           onChange={(e) => setSelected(e.target.value)}
           className="w-full appearance-none rounded-xl border border-ss-border bg-ss-surface py-3 pl-4 pr-10 text-sm font-bold text-ss-text backdrop-blur-sm transition hover:border-ss-border hover:bg-white/20 focus:border-white/50 focus:outline-none"

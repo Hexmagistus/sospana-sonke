@@ -75,6 +75,9 @@ A careers landing page is enough for that same set, even when the HTML lists no 
 
 ## Session Log
 
+### 2026-10-13 — Cursor (Grok 4.7) — Homepage accessibility labels
+The country dropdown on the homepage is named by its "Jump to a country" label. The four steps under "How it works" are headings at the next level down from that section, so the outline no longer skips a level. Lighthouse 12.8.2 on a production build of this branch: mobile performance 92, accessibility 100, best practices 96, SEO 100, largest paint 3.2 s, speed index 1.7 s. Desktop performance 100, accessibility 100, best practices 96, SEO 100, largest paint 0.7 s. Best practices stays at 96 because the page calls the Frankfurt stats API from localhost and the console records that cross-origin refusal. Pull requests #69 and #70 were not touched.
+
 ### 2026-10-13 — Cursor (Grok 4.7) — Stats SA unemployment table
 The data page and the public search use Table E of Statistics South Africa, Quarterly Labour Force Survey, Quarter 2: 2026 (statistical release P0211, released 11 August 2026). The rates are the printed official rate and the combined rate (LU3) for South Africa and the nine provinces, including the two earlier quarters printed in that same table. The metadata notice allows this free display when Stats SA is named as the source and the presentation is identified as ours, and it forbids selling the data. There is no downloadable file. A question such as unemployment in Limpopo returns those figures and the citation. A city, another country, a subgroup, or any other dataset still says there is not enough data. Pull requests #69 and #70 were not touched.
 
