@@ -75,6 +75,9 @@ A careers landing page is enough for that same set, even when the HTML lists no 
 
 ## Session Log
 
+### 2026-10-13 — Cursor (Grok 4.7) — Database restore notes and a local drill
+Neon’s published free plan keeps 6 hours of history, capped at 1 GB, and one manual snapshot. Paid plans publish longer history and backup schedules. This environment has no Neon credentials, so production was not restored. `run_restore_drill` copies one South African directory row between two empty SQLite databases and does not read `DATABASE_URL`. A public jobs request the same day showed a role last seen at 2026-10-13T21:01:16Z. Pull requests #69 and #70 were not touched.
+
 ### 2026-10-13 — Cursor (Grok 4.7) — Dimensional surfaces and a gated hero globe
 Shared cards now carry a top highlight and a stacked shadow. Teal buttons and the shared button press inward. A fine pointer tilts a card a few degrees. Touch does not. The homepage hero includes a painted globe in the HTML. WebGL (`three` and `@react-three/fiber`) loads only after idle, and only on a wide screen with a fine pointer, no data-saver, no slow connection, at least four cores, and motion allowed. The canvas uses the same box as the painting. Labour bars stay flat: the length is the printed rate, and the table is unchanged. The decision is `docs/adr/0001-dimensional-surfaces.md`. Pull requests #69 and #70 were not touched.
 
