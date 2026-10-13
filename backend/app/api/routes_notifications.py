@@ -62,7 +62,7 @@ def digest_unsubscribe_page(token: str = Query(default="", max_length=2000), db:
     action = html.escape(f"?token={token}", quote=True)
     return HTMLResponse(_PAGE.format(body=(
         "<h1>Stop the daily updates?</h1><p>You will no longer get the Your daily updates email. "
-        "You can switch it back on any time on the Preferences page.</p>"
+        "Saved role alerts are paused as well. You can switch them back on any time on the Preferences page.</p>"
         f"<form method=\"post\" action=\"{action}\"><button type=\"submit\" "
         "style=\"padding:.6rem 1rem;font-size:1rem\">Unsubscribe</button></form>")))
 
@@ -76,6 +76,8 @@ def digest_unsubscribe(token: str = Query(default="", max_length=2000), db: Sess
     user.digest_unsubscribed_at = now
     user.notify_opportunity_alerts = False
     user.notify_opportunity_alerts_chosen_at = now   # equal to the unsubscribe time: not a re-subscribe
+    from app.services.role_alerts import pause_all
+    pause_all(db, user.id)
     db.commit()
     return HTMLResponse(_PAGE.format(body="<h1>You are unsubscribed</h1><p>We will not send you the daily "
                                           "updates email again. You can change this any time on the "

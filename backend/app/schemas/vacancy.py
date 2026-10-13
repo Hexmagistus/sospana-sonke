@@ -95,6 +95,13 @@ class DuplicateGroupResponse(BaseModel):
     duplicates: list[VacancyResponse]
 
 
+class ExternalIdDuplicateGroupResponse(BaseModel):
+    """Open vacancies that share one employer job id. A report, not a merge."""
+    company_id: str
+    external_id: str
+    vacancy_ids: list[str]
+
+
 class MergeDuplicatesRequest(BaseModel):
     keep_id: str
     duplicate_ids: list[str]
@@ -102,6 +109,35 @@ class MergeDuplicatesRequest(BaseModel):
 
 class MergeDuplicatesResponse(BaseModel):
     merged: int
+
+
+class PublicJobResponse(BaseModel):
+    """A vacancy the scanner already stored. No advert body, no trust internals."""
+    id: str
+    company_id: str
+    title: str
+    company_name: str
+    company_country: str
+    location: str | None = None
+    country: str | None = None
+    employment_type: str | None = None
+    work_mode: str | None = None
+    salary: str | None = None
+    salary_min: int | None = None
+    salary_max: int | None = None
+    salary_currency: str | None = None
+    posting_date: date | None = None
+    closing_date: date | None = None
+    first_seen_at: datetime
+    last_seen_at: datetime
+    application_url: str | None = None
+    is_open: bool
+
+
+class PublicJobListResponse(BaseModel):
+    jobs: list[PublicJobResponse]
+    matched: int
+    limit: int
 
 
 class ScanReportResponse(BaseModel):

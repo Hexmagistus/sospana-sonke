@@ -3,7 +3,8 @@ import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { describe, it } from "node:test";
 import { groupOf } from "./countryExplorer";
-import { BUCKET_CODES, KNOWN_COUNTRY_NAMES, countryCode } from "./countryCodes";
+import { BUCKET_CODES, KNOWN_COUNTRY_NAMES, countryCode, countryFlag } from "./countryCodes";
+import { tierOf } from "./regions";
 import { REGION_BY_CODE, WORLD_REGIONS, worldRegionOf } from "./worldRegions";
 
 // Same canonical spellings as backend app/services/country_names.py.
@@ -100,8 +101,100 @@ describe("world regions", () => {
       "Saudi Arabia": "middle-east", Turkey: "middle-east", Israel: "middle-east", Iran: "middle-east",
       Australia: "oceania", Fiji: "oceania", Russia: "europe", Cyprus: "europe", Kosovo: "europe",
       "South Africa": "south-africa", Zimbabwe: "sadc", Kenya: "africa", Egypt: "africa",
+      Monaco: "europe", "North Macedonia": "europe", "San Marino": "europe",
+      Tajikistan: "asia", Turkmenistan: "asia", Myanmar: "asia",
+      "Puerto Rico": "central-america-caribbean", Greenland: "north-america",
+      Macau: "asia", "New Caledonia": "oceania", "Réunion": "africa",
     };
     for (const [name, group] of Object.entries(expect)) assert.equal(groupOf(name), group, name);
+  });
+
+  it("places Monaco, North Macedonia, San Marino, Tajikistan, Turkmenistan and Myanmar", () => {
+    const places: Record<string, { code: string; flag: string; tier: string; group: string }> = {
+      Monaco: { code: "MC", flag: "🇲🇨", tier: "europe", group: "europe" },
+      "North Macedonia": { code: "MK", flag: "🇲🇰", tier: "europe", group: "europe" },
+      "San Marino": { code: "SM", flag: "🇸🇲", tier: "europe", group: "europe" },
+      Tajikistan: { code: "TJ", flag: "🇹🇯", tier: "asia", group: "asia" },
+      Turkmenistan: { code: "TM", flag: "🇹🇲", tier: "asia", group: "asia" },
+      Myanmar: { code: "MM", flag: "🇲🇲", tier: "asia", group: "asia" },
+    };
+    for (const [name, place] of Object.entries(places)) {
+      assert.equal(countryCode(name), place.code, name);
+      assert.equal(countryFlag(name), place.flag, name);
+      assert.equal(tierOf(name), place.tier, name);
+      assert.equal(groupOf(name), place.group, name);
+    }
+  });
+
+  it("places the 2026-10-10 territories with a flag, a code and a landing tier", () => {
+    const places: Record<string, { code: string; flag: string; tier: string }> = {
+      "Puerto Rico": { code: "PR", flag: "🇵🇷", tier: "north-america" },
+      Greenland: { code: "GL", flag: "🇬🇱", tier: "north-america" },
+      Macau: { code: "MO", flag: "🇲🇴", tier: "asia" },
+      "New Caledonia": { code: "NC", flag: "🇳🇨", tier: "oceania" },
+      "Réunion": { code: "RE", flag: "🇷🇪", tier: "africa" },
+    };
+    for (const [name, place] of Object.entries(places)) {
+      assert.equal(countryCode(name), place.code, name);
+      assert.equal(countryFlag(name), place.flag, name);
+      assert.equal(tierOf(name), place.tier, name);
+      assert.notEqual(groupOf(name), "other", name);
+    }
+    // Réunion is an African territory, so it is not given a world-region code.
+    assert.equal(worldRegionOf("RE"), null);
+    assert.equal(worldRegionOf("NC"), "oceania");
+    assert.equal(worldRegionOf("PR"), "central-america-caribbean");
+    assert.equal(worldRegionOf("GL"), "north-america");
+    assert.equal(worldRegionOf("MO"), "asia");
+  });
+
+  it("places the remaining territories with a flag, a code and a landing tier", () => {
+    const places: Record<string, { code: string; flag: string; tier: string; group: string }> = {
+      Mayotte: { code: "YT", flag: "🇾🇹", tier: "africa", group: "africa" },
+      "Saint Helena": { code: "SH", flag: "🇸🇭", tier: "africa", group: "africa" },
+      "Faroe Islands": { code: "FO", flag: "🇫🇴", tier: "europe", group: "europe" },
+      Gibraltar: { code: "GI", flag: "🇬🇮", tier: "europe", group: "europe" },
+      "French Polynesia": { code: "PF", flag: "🇵🇫", tier: "oceania", group: "oceania" },
+      Guam: { code: "GU", flag: "🇬🇺", tier: "oceania", group: "oceania" },
+      "American Samoa": { code: "AS", flag: "🇦🇸", tier: "oceania", group: "oceania" },
+      "Cook Islands": { code: "CK", flag: "🇨🇰", tier: "oceania", group: "oceania" },
+      Niue: { code: "NU", flag: "🇳🇺", tier: "oceania", group: "oceania" },
+      "Northern Mariana Islands": { code: "MP", flag: "🇲🇵", tier: "oceania", group: "oceania" },
+      "Wallis and Futuna": { code: "WF", flag: "🇼🇫", tier: "oceania", group: "oceania" },
+      Bermuda: { code: "BM", flag: "🇧🇲", tier: "north-america", group: "north-america" },
+      "Saint Pierre and Miquelon": { code: "PM", flag: "🇵🇲", tier: "north-america", group: "north-america" },
+      "Falkland Islands": { code: "FK", flag: "🇫🇰", tier: "south-america", group: "south-america" },
+      Anguilla: { code: "AI", flag: "🇦🇮", tier: "north-america", group: "central-america-caribbean" },
+      Aruba: { code: "AW", flag: "🇦🇼", tier: "north-america", group: "central-america-caribbean" },
+      "British Virgin Islands": { code: "VG", flag: "🇻🇬", tier: "north-america", group: "central-america-caribbean" },
+      "Caribbean Netherlands": { code: "BQ", flag: "🇧🇶", tier: "north-america", group: "central-america-caribbean" },
+      "Cayman Islands": { code: "KY", flag: "🇰🇾", tier: "north-america", group: "central-america-caribbean" },
+      "Curaçao": { code: "CW", flag: "🇨🇼", tier: "north-america", group: "central-america-caribbean" },
+      Guadeloupe: { code: "GP", flag: "🇬🇵", tier: "north-america", group: "central-america-caribbean" },
+      Martinique: { code: "MQ", flag: "🇲🇶", tier: "north-america", group: "central-america-caribbean" },
+      Montserrat: { code: "MS", flag: "🇲🇸", tier: "north-america", group: "central-america-caribbean" },
+      "Saint Barthélemy": { code: "BL", flag: "🇧🇱", tier: "north-america", group: "central-america-caribbean" },
+      "Saint-Martin": { code: "MF", flag: "🇲🇫", tier: "north-america", group: "central-america-caribbean" },
+      "Sint Maarten": { code: "SX", flag: "🇸🇽", tier: "north-america", group: "central-america-caribbean" },
+      "Turks and Caicos Islands": { code: "TC", flag: "🇹🇨", tier: "north-america", group: "central-america-caribbean" },
+      "US Virgin Islands": { code: "VI", flag: "🇻🇮", tier: "north-america", group: "central-america-caribbean" },
+    };
+    for (const [name, place] of Object.entries(places)) {
+      assert.equal(countryCode(name), place.code, name);
+      assert.equal(countryFlag(name), place.flag, name);
+      assert.equal(tierOf(name), place.tier, name);
+      assert.equal(groupOf(name), place.group, name);
+    }
+    // Mayotte and Saint Helena follow Réunion: Africa, with no world-region code.
+    assert.equal(worldRegionOf("YT"), null);
+    assert.equal(worldRegionOf("SH"), null);
+    assert.equal(worldRegionOf("FO"), "europe");
+    assert.equal(worldRegionOf("GI"), "europe");
+    assert.equal(worldRegionOf("PF"), "oceania");
+    assert.equal(worldRegionOf("GU"), "oceania");
+    assert.equal(worldRegionOf("KY"), "central-america-caribbean");
+    assert.equal(worldRegionOf("FK"), "south-america");
+    assert.equal(worldRegionOf("PM"), "north-america");
   });
 
   it("Canada is one entry inside North America, not a group of its own", () => {

@@ -20,16 +20,21 @@ describe("landing stats", () => {
     const sum = Object.values(snap.byCountry).reduce((a, b) => a + b, 0);
     assert.equal(sum, snap.total);
     assert.equal(snap.source, "snapshot");
-    // Ceiling stays under the all-rows employer count (5,800 on 2026-10-07),
-    // so a payload that also counts employers with no careers link still fails.
-    assert.ok(snap.total > 3000 && snap.total < 5000, `snapshot total ${snap.total}`);
+    // with_link stays well under the all-rows directory total, so a payload that
+    // counts employers with no careers link cannot pass as `total`.
+    assert.ok(snap.total > 4000 && snap.total < 8000, `with-link total ${snap.total}`);
+    assert.ok(snap.directoryTotal != null && snap.directoryTotal > 10000, `directory total ${snap.directoryTotal}`);
+    assert.ok(snap.directoryTotal > snap.total);
+    assert.equal(snap.countriesWithLink, 207);
+    assert.equal(snap.directoryCountries, 229);
   });
 
   it("directory metadata uses the snapshot, not an old Africa-only count", () => {
     const text = snapshotDirectoryDescription();
-    assert.match(text, /3,439 employers/);
+    assert.match(text, /4,999 employers with a direct careers link/);
+    assert.match(text, /11,986 employers in total/);
     assert.match(text, /South America/);
-    assert.match(text, /7 October 2026/);
+    assert.match(text, /12 October 2026/);
     assert.doesNotMatch(text, /2,400/);
     assert.doesNotMatch(text, /26 African/);
   });
@@ -45,6 +50,9 @@ describe("landing stats", () => {
   it("uses the direct-link counts and refuses an older payload without them", () => {
     const parsed = parseStats(live);
     assert.equal(parsed?.total, 2700);
+    assert.equal(parsed?.directoryTotal, 5001);
+    assert.equal(parsed?.countriesWithLink, 4);
+    assert.equal(parsed?.directoryCountries, null);
     assert.equal(parsed?.source, "live");
     assert.equal(parseStats({ employers: 5001, by_country: { "South Africa": 996 } }), null);
     assert.equal(parseStats({ with_link: 0, by_country_with_link: { A: 1 } }), null);
@@ -96,6 +104,25 @@ describe("regions", () => {
     assert.equal(tierOf("Botswana"), "sadc");
     assert.equal(tierOf("Kenya"), "africa");
     assert.equal(tierOf("Hong Kong"), "asia");
+    assert.equal(tierOf("Monaco"), "europe");
+    assert.equal(tierOf("San Marino"), "europe");
+    assert.equal(tierOf("North Macedonia"), "europe");
+    assert.equal(tierOf("Myanmar"), "asia");
+    assert.equal(tierOf("Tajikistan"), "asia");
+    assert.equal(tierOf("Turkmenistan"), "asia");
+    assert.equal(tierOf("Macau"), "asia");
+    assert.equal(tierOf("New Caledonia"), "oceania");
+    assert.equal(tierOf("Réunion"), "africa");
+    assert.equal(tierOf("Greenland"), "north-america");
+    assert.equal(tierOf("Puerto Rico"), "north-america");
+    assert.equal(tierOf("Mayotte"), "africa");
+    assert.equal(tierOf("Saint Helena"), "africa");
+    assert.equal(tierOf("Faroe Islands"), "europe");
+    assert.equal(tierOf("Gibraltar"), "europe");
+    assert.equal(tierOf("French Polynesia"), "oceania");
+    assert.equal(tierOf("Guam"), "oceania");
+    assert.equal(tierOf("Falkland Islands"), "south-america");
+    assert.equal(tierOf("Cayman Islands"), "north-america");
     assert.equal(tierOf("Atlantis"), "other");
   });
 

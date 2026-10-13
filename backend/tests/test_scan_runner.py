@@ -184,9 +184,13 @@ def test_parallel_scan_runs_concurrently_and_stamps(db, db_engine):
 def test_one_crashing_company_does_not_stop_the_batch_and_bumps_backoff(db, db_engine):
     good = _co(db, "Good"); bad = _co(db, "Bad")
     _src(db, bad, fails=0)
+    # The commit above expires these instances. Workers must compare plain ids:
+    # reading bad.id from another thread lazy-loads on this session's SQLite
+    # connection, and that refresh can fail both companies.
+    good_id, bad_id = good.id, bad.id
 
     def fake_scan(session, company):
-        if company.id == bad.id:
+        if company.id == bad_id:
             raise RuntimeError("boom")
         return [ScanReport(source_id="s", status="ok", created=1)]
 
@@ -195,10 +199,10 @@ def test_one_crashing_company_does_not_stop_the_batch_and_bumps_backoff(db, db_e
     assert out["companies_scanned"] == 2 and out["sources_failed"] == 1
     assert out["vacancies_created"] == 1
     db.expire_all()
-    assert db.get(Company, bad.id).last_checked is not None
-    src = db.query(VacancySource).filter_by(company_id=bad.id).one()
+    assert db.get(Company, bad_id).last_checked is not None
+    src = db.query(VacancySource).filter_by(company_id=bad_id).one()
     assert src.consecutive_failures == 1
-    assert db.get(Company, good.id).last_checked is not None
+    assert db.get(Company, good_id).last_checked is not None
 
 
 def test_deadline_stops_starting_new_scans(db, db_engine):

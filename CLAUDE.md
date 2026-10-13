@@ -65,7 +65,357 @@ What is running today, before the pipeline work below. This is the system the up
 
 Lungani, 2026-10-03: in every country dropdown, list, and work order, put **South Africa first, then the other SADC states, then the rest of Africa, then other regions**. Alphabetical inside each band. The directory picker uses `sortCountries` in `frontend/src/lib/directoryFilters.ts`. Homepage bars that are ranked by employer count are a separate display; new country pickers and work queues follow this order.
 
+## Standing rule (careers links)
+
+A careers URL is the employer's own careers or jobs page. robots.txt must allow SospanaSonkeBot (or the host publishes no robots.txt), and the fetch must be HTTP 200. A homepage, a LinkedIn page, or a job-board aggregator is not stored. Small and local employers still need an in-country list: at least two located roles, and at least half of those in the employer's country, or a stable country filter on the employer's own board that lists at least two roles there.
+
+Multinationals and large groups are the exception. A row counts as one only when its note names a large-cap list or `US hospital systems` (`is_large_group` in `backend/app/services/seed_board.py`). AIM issuers, local company lists, universities, municipalities, and NHS trusts do not. For those large groups, the official main careers page or job search on the employer's own domain or its own ATS tenant may be stored without an in-country filter. A country or language path is still preferred when one exists. The note then contains `careers_scope=global` and `careers_status` is `global_group`, so the directory and the scanner can tell a global board from an in-country list. `global_group` is not a live-verified status, so import leaves `scraping_status` as `pending`.
+
+A careers landing page is enough for that same set, even when the HTML lists no openings and the page has no country filter. The same landing page is also enough for an African listed company: source type JSE, EGX, ZSE, BSE, BVM, ESE, NSX, or VFEX, the Indian NSE rows, or a note that says NGX-listed, NSE-listed, EGX-listed, CSE-listed, or names the Casablanca Stock Exchange. A note that says the employer is not listed stays on the strict rule. Saudi, Moroccan, Nigerian, and Kenyan private companies that are not already on a named large-cap list are included only when Wikidata records a listing on that country's exchange. Discovery (`scripts/discover_careers_landing.py`) starts from the Wikidata official website, then the homepage's careers link and common paths (`/careers`, `/jobs`, `/karriere`, `/carrieres`, `/saiyo`, `/recruit`). Required every time: robots.txt allows SospanaSonkeBot, HTTP 200 (a JavaScript shell may be rendered offline), the host is the employer's own domain or its own ATS tenant, and the host, path, title, or heading shows that the page is careers or jobs. The stored row is still `careers_scope=global` / `global_group`.
+
 ## Session Log
+
+### 2026-10-13 — Cursor (Grok 4.7) — PR #70 brought up to date with main
+Merged `origin/main` (`8b221fa`, 162 commits) into `cursor/high-findings-auth-ssrf-ci-c8df`. The only content conflict was `CLAUDE.md`: main's session log was kept, and the 9 October security-review entry sits above the entry that was the top of the log when that work was written. The four fixes stayed. Google sign-in still reclaims an unverified account and asks for a code when 2FA is already on. Administrator routes stay closed until TOTP is enrolled. The careers-URL tester and the page hasher still follow redirects through `safe_fetch`. Dependabot and the pip-audit CI step stayed. Two tests added on main (`test_vacancy_identity`, `test_usage_counts`) logged in as the test admin without the authenticator code. They now use `admin_login`. Pull request #70 stays a draft.
+
+### 2026-10-12 — Cursor (Grok 4.7) — Anonymous search and click counts
+The public search adds one daily total of the filters it understood: country, category, intent, whether the answer was empty, not enough data, or had results, and a band for the result count. The question, the IP address, and any account id are not stored. An outbound careers or application link adds a daily count for that employer or role. Do Not Track and Global Privacy Control leave the visit out. Totals older than 90 days are deleted. The privacy page states this in the same release. Administrators see the four rates on the dashboard. `usage_search_daily` and `usage_click_daily` are created on boot and dropped by the migration's downgrade. Pull requests #69 and #70 were not touched.
+
+### 2026-10-12 — Cursor (Grok 4.7) — One vacancy row when the description changes
+When a scan sees the same employer job id again, it updates the oldest open row even if the description changed and the stored fingerprint was the title and location. Other open rows that share that id stay open. `GET /admin/vacancies/external-id-duplicates` lists them and does not delete them. Merged as pull request #118, commit `377b28bfdef52416f87254d286b0ad018235b868`. Pull requests #69 and #70 were not touched.
+
+### 2026-10-12 — Cursor (Grok 4.7) — Daily role alerts on the existing digest
+Signed-in members can save up to eight alerts (country, category, keyword) on Preferences. The morning digest is unchanged for people who have no saved alert. When they do, the openings in that one email are only new stored roles that match, each with the source link and the last-seen date. Nothing is sent when the day has no match. The unsubscribe link pauses the saved alerts. The privacy page has a POPIA line. `role_alerts` is created on boot and can be dropped by the migration's downgrade. Merged as pull request #117, commit `f56357cf6e4f18088d908446cf1a89453272b341`. Pull requests #69 and #70 were not touched.
+
+### 2026-10-12 — Cursor (Grok 4.7) — Employer sitemap is filled after the API is up
+Pull request #115 is on main as `4516b570ae77dec9641434626d22c8b89e4acfbc`. The first production sitemap was built while Frankfurt was still on the previous release, so it listed `/employers` and no employer ids, and that empty result was cached for an hour. The sitemap now requests `GET /employers/ids` on demand. A successful id list is cached for an hour. A failed fetch is not cached, so the next request can fill the pages in. Pull requests #69 and #70 were not touched.
+
+### 2026-10-12 — Cursor (Grok 4.7) — Public employer pages and a fresh directory snapshot
+`directory-snapshot.json` is the Frankfurt `GET /companies/stats` from 12 October 2026: 4,999 employers with a careers link (was 4,299 on the 11 October file), 11,986 in the directory, 207 countries with a link, 229 in the directory. The homepage still replaces that file when the live stats answer.
+
+Public `/employers` and `/employers/{id}` are for rows that have a careers link. The page shows the name, country, category, the careers link, whether the row is marked `careers_scope=global`, the URL-check date, and stored open roles with their source links. Notes stay off the response. The sitemap lists those ids when the API answers, and leaves them out when it does not. Pull requests #69 and #70 were not touched.
+Merged as pull request #115, commit `4516b570ae77dec9641434626d22c8b89e4acfbc`.
+
+### 2026-10-11 — Cursor (Grok 4.7) — Grounded Sospana Intelligence search
+Evidence audit is `docs/TRANSFORMATION_AUDIT.md`. The change on this branch is a deterministic question box on the homepage and on `/jobs`. A question becomes filters over stored roles and the employer directory. Results show the source link and the last-seen or last-checked date. GDP and the other datasets we do not hold return "Not enough data". `llm` stays `disabled` because no model key is configured. The hero is a scoped midnight-navy and teal band. The rest of the app stays gold and navy. A new question clears the previous answer before the next count arrives. Seed CSV, snapshot, scanner, auth, and pull requests #69 and #70 were not touched.
+
+Lighthouse 12.8.2 on the homepage, live site before this change, then a production build of this branch: mobile performance 86 → 95, largest paint 4.1 s → 2.8 s, speed index 2.8 s → 1.7 s. Desktop performance stays 100. Accessibility stays 95. Best practices 96 on this machine is a console error from calling the Frankfurt stats API as localhost. Not merged.
+Next: owner review. Later stages need an analytics product, a read-only database check for duplicate roles and province fill, a licensed Stats SA or municipal file, and a model key only if a grounded paraphrase is wanted.
+
+### 2026-10-11 — Cursor (Grok 4.7) — Merged the Search Console tag
+Merge commit `f8b7c008465a1cf17edd65aa311d14009d31c7b1` on main. CI on #113 was green (backend, frontend, and the Vercel preview) before the merge.
+
+### 2026-10-11 — Cursor (Grok 4.7) — Google Search Console verification
+The root layout metadata now includes `verification.google` so every page, including the homepage, emits `<meta name="google-site-verification" content="MyvgoPaRTncHGCuCDG_i2ibqlRPZ02uCdjVLOsrzbcg" />`. `robots.ts` already points at `https://sospana-sonke.vercel.app/sitemap.xml`, and `sitemap.ts` already serves `/sitemap.xml`.
+
+### 2026-10-11 — Cursor (Grok 4.7) — Careers landing-page seed PRs merged
+Merged the owner-approved landing-page pull requests in order after updating each onto main (union of the session log and the seed file, no duplicate import keys) and waiting for green CI. #69 and #70 stayed open.
+
+- #106 `d221ff6f692bf17279f31618485ec0fa5475ebaa` Europe careers landing pages
+- #107 `6c11fa7eed422d5c8e612e86252881b81d30e98a` Asia-Pacific careers landing pages
+- #108 `84f8518c73cee69ae8c135410c58ed46c2420ba7` United Kingdom careers landing pages
+- #109 `b99b76adde044ba9b4d1396430389394a492d5ab` United States careers landing pages
+- #110 `0951e0463fbfaf818674bf2b0223c0ccf48a7b80` Middle East careers landing pages
+- #111 `8a8269c08305c94bcd9da4a7b317c21726e3f6f3` African listed careers landing pages
+- #112 `17d7afb04bcfc7cf90b35875604233cfa9561719` Canada and Latin America careers landing pages
+
+Where a new link raised a country total that another test still asserted, that expected count was updated to the combined total. The seed file stays 11,876 rows. No further ready seed PR was open at 17:31 UTC.
+
+### 2026-10-11 — Cursor (Grok 4.7) — Canada and Latin America careers landing pages
+S&P/TSX 60 employers and the other Americas large-cap rows that still had a blank careers URL now store the official careers page on the employer's own domain or its own applicant-system tenant. Saputo stores its Canada Workday board. A landing page counts even when the HTML lists no openings. The note is marked `careers_scope=global` and `careers_status` is `global_group`.
+
+Careers links: Canada 12 → 39, Colombia 21 → 23, Mexico 3 → 6.
+
+### 2026-10-11 — Cursor (Grok 4.7) — African listed careers landing pages
+Kore Potash and We Buy Cars Holdings store their own careers pages. Lucara Diamond stores its Botswana careers page. Each note is marked `careers_scope=global` and `careers_status` is `global_group`. The other JSE and African-exchange blanks still have no page that passed the robots and careers-page checks.
+
+Careers links: South Africa 815 → 817, Botswana 119 → 120.
+
+### 2026-10-11 — Cursor (Grok 4.7) — Middle East careers landing pages
+TA-125 groups and Saudi and Emirati companies that Wikidata lists on the national exchange now store the official careers page on the employer's own domain. Almarai and Al Rajhi Bank are in this set. A landing page counts even when the HTML lists no openings. The note is marked `careers_scope=global` and `careers_status` is `global_group`.
+
+Careers links: Israel 11 → 28, Saudi Arabia 4 → 16, United Arab Emirates 21 → 23.
+### 2026-10-11 — Cursor (Grok 4.7) — United States careers landing pages
+S&P 500 employers and the named US hospital systems that still had a blank careers URL now store the official careers page on the employer's own domain or its own applicant-system tenant. A landing page counts even when the HTML lists no openings. The note is marked `careers_scope=global` and `careers_status` is `global_group`. A parent-company board and a host that answered with a bot challenge stayed blank.
+
+Careers links: United States 380 → 534.
+### 2026-10-11 — Cursor (Grok 4.7) — United Kingdom careers landing pages
+FTSE 100 and FTSE 250 employers that still had a blank careers URL now store the official careers page on the employer's own domain or its own applicant-system tenant. A landing page counts even when the HTML lists no openings. The note is marked `careers_scope=global` and `careers_status` is `global_group`.
+
+Careers links: United Kingdom 25 → 98.
+### 2026-10-11 — Cursor (Grok 4.7) — Asia-Pacific careers landing pages
+Nikkei 225, KOSPI 200, ASX 200, and the other Asia-Pacific large-cap lists that still had a blank careers URL now store the official careers page on the employer's own domain or its own applicant-system tenant. Marubeni's Japanese recruit page is in this set. A landing page counts even when the HTML lists no openings. The note is marked `careers_scope=global` and `careers_status` is `global_group`.
+
+Careers links: Australia 36 → 68, India 26 → 49, Japan 9 → 116, Malaysia 3 → 5, New Zealand 11 → 20, Philippines 5 → 11, Singapore 9 → 16, South Korea 6 → 36, Thailand 2 → 14.
+### 2026-10-11 — Cursor (Grok 4.7) — Europe careers landing pages
+Listed large groups in continental Europe that still had a blank careers URL now store the official careers page on the employer's own domain or its own applicant-system tenant. Eni's Italian careers page and ASML's careers page are in this set. Adidas stayed blank because the host returned a bot challenge. A landing page counts even when the HTML lists no openings. The note is marked `careers_scope=global` and `careers_status` is `global_group`.
+
+Careers links: Denmark 7 → 14, Finland 5 → 17, France 16 → 32, Germany 15 → 77, Italy 6 → 18, Netherlands 10 → 22, Norway 7 → 15, Poland 5 → 8, Spain 7 → 11, Sweden 7 → 18, Switzerland 7 → 25.
+
+### 2026-10-11 — Cursor (Grok 4.7) — Country-filter and global-board seed PRs merged
+Merged the ready seed pull requests in order after updating each onto main (union of the session log and the seed file, no duplicate import keys) and waiting for green CI. #69 and #70 stayed open. #102 is the directory refresh; it was merged separately as `a48e99c1c1785dd2ff0c25b047b508dbaa0a8435`.
+
+- #91 `e03ad948c856f78cdc35d2e6216a12bf7456e1be` optional Playwright for offline careers checks
+- #92 `a1751e6e35074e3bb778a52453dd225174888c71` United States Workday country filters
+- #93 `78dc2273b322083bd8e09f5a071c9b586edf9056` Aviva's United Kingdom filter
+- #94 `dbc2f04bd76b077e807a539353a6e0b08ea27b70` Thales and Fugro
+- #95 `cce668cfba7afe75e9132fe484a6f71705e4d150` Cenovus and Waste Connections
+- #96 `d4e4d5ce7d81d4623b4a419833bb41211aac60da` Trend Micro's Japan filter
+- #97 `351cf247ecd5087ef87944be5562891892a4b8ea` large-group global boards
+- #98 `e28a2a9c6e884f840507fa12dc3077762e184ebd` Intel, Revvity, and Viatris
+- #99 `2d48b09240c78ea1d3cee87519c69f7496276246` Smith & Nephew
+- #100 `6d899fecc9be0e89bf98dfb3726d74e45c88e4f6` accent folding for board tokens
+- #101 `152a5978d1b7e08ce0b2a08ab3fb2dc7c075df39` four European global boards
+- #103 `91b15e5fa68619889411c9e7fc95eebb061b05e3` eight Asia-Pacific boards
+- #104 `8bf6e12ad27ff25cdfe02016b0c702bd76ddaf54` LivePerson and NICE
+- #105 `48ae9e59108d0b93cf3c4a26eef7af6069de04ff` careers landing pages for large groups
+
+Where a new link raised a country total that another test still asserted, that expected count was updated to the combined total. No further ready seed PR was open at 16:27 UTC.
+
+### 2026-10-11 — Cursor (Grok 4.7) — Merged #102
+Updated the directory refresh onto main, kept both session logs, and merged with a merge commit `a48e99c1c1785dd2ff0c25b047b508dbaa0a8435`. CI on the updated branch was green (backend, frontend, and the Vercel preview). The seed CSV is main's. The public snapshot stays the 11 October Frankfurt extract.
+
+### 2026-10-11 — Cursor (Grok 4.7) — Update #102 onto main
+Seed pull requests had landed on main, so this branch was merged with `origin/main` and the session log kept both sides. `backend/seed/company_database_import.csv` is main's file. `directory-snapshot.json` stays the 11 October Frankfurt extract (4,299 with a careers link, 11,986 in the directory): main's snapshot file was still the 7 October extract and was not part of those seed commits.
+
+### 2026-10-11 — Cursor (Grok 4.7) — Design system, live counts, mobile LCP, public jobs
+The homepage, directory cards, country pages, sign-in, CV builder, tracker and Career Agent now share one card, empty state and page title. The hero is a calm surface with no full-bleed photograph. Gold gradient text on the sign-in and registration titles is solid navy-on-paper text.
+
+`directory-snapshot.json` is the Frankfurt `GET /companies/stats` from 11 October 2026: 4,299 employers with a careers link across 207 countries, and 11,986 employers in the directory across 229 countries. The homepage and the companies metadata show both figures. A live stats response still replaces the snapshot, and an older payload that only has the all-rows total is still ignored. The browser cache key moved to `ss-landing-stats-v2` so a saved 7 October answer does not cover the new snapshot.
+
+`GET /api/v1/jobs` is public. It lists open roles the scanner has stored, filtered by title, country, employer and how recently the role was seen. It does not return the advert body. `/jobs` is the page, with those filters and JobPosting schema built only from stored fields. An empty index says so.
+
+The homepage headline is server HTML in a system face, and the display fonts are not preloaded. Lighthouse 12.8.2 on this production build: homepage mobile performance 93 (was 75 on the earlier build, 73 on the live site), accessibility 95, best practices 93, SEO 100, largest paint 3.1 s, speed index 1.7 s. Desktop performance 100, largest paint 0.7 s. Best practices stays 93 here because the page calls a local API that is not running. Seed files were not edited. Not merged.
+
+### 2026-10-11 — Cursor (Grok 4.7) — Directory search, link scope, public country pages
+Reviewed GoToCareer, JobSpotter, Unlisted, JobLarper and ScoutJobs against the live homepage and wrote `docs/ROADMAP.md`. The seed file on this branch has 11,876 rows, 231 country names and 5,387 careers URLs. The public pages still use the 7 October snapshot (3,439 with a link, 187 countries) and say so. Seed files were not edited.
+
+Shipped on the directory the candidate already has: name typeahead, filters for a careers link and for open roles we have counted, and a badge that reads the URL only (Workday `locationCountry` / `Location_Country`, an unfiltered applicant-system host, the employer's own site, or a third-party board). Public `/countries` pages are in the sitemap, with breadcrumb schema. Sign-in can return to that country's directory. The homepage hero text is in the first HTML, the wonders and heritage sections defer paint, and there is a country lookup. Card copy no longer calls a stored URL "live". Lighthouse mobile on the live homepage was performance 73, accessibility 95, best practices 100, SEO 100 (largest paint 7.2 s, speed index 4.6 s). This build: homepage mobile performance 75 and speed index 1.5 s, desktop performance 97, and `/countries/south-africa` mobile performance 85, accessibility 100, SEO 100.
+Next: vacancy search over rows the scanner already stored, then refresh the public snapshot from Frankfurt.
+
+### 2026-10-11 — Cursor (Grok 4.7) — Careers landing pages for large groups
+The ATS slug probe only found boards that publish a job feed, so a group's own careers landing page was still rejected. For a listed large group, and for an African listed company, the official careers page on the employer's own domain now counts even when the HTML has no openings and no country filter. Discovery reads the Wikidata official website, the homepage careers link, and common paths. robots.txt, HTTP 200, and a careers path, title, or heading are still required. Saudi, Moroccan, Nigerian, and Kenyan private companies need a Wikidata listing on the national exchange. The marker stays `careers_scope=global` / `global_group`.
+### 2026-10-11 — Cursor (Grok 4.7) — LivePerson and NICE global careers pages
+LivePerson's Greenhouse board and NICE's own careers page are stored for these TA-125 groups. Neither board is filtered to Israel. The note is marked `careers_scope=global` and `careers_status` is `global_group`. NICE's page names Actimize, which is NICE's product. The United Arab Emirates, Saudi Arabia, and Qatar lists had no new board that met the rule.
+
+Israel careers links 9 → 11. The United Arab Emirates stays at 21, Saudi Arabia at 4, and Qatar at 6.
+
+### 2026-10-11 — Cursor (Grok 4.7) — Asia-Pacific careers boards for listed large groups
+Alcoa stores its own Australia Workday filter (26 of 110 located roles). Charter Hall, Life360, Perpetual, Bridgestone, Sumitomo Heavy Industries, Terumo, and LG Electronics store their own global board, marked `careers_scope=global` with `careers_status` `global_group`. IndiGo, Titan, Sharp, SHIFT, and Vector matched a different organisation and stay blank. Trend Micro's Japan filter is unchanged.
+
+Careers links, before → after: Australia 32 → 36, Japan 6 → 9, South Korea 5 → 6. India, Singapore, New Zealand, Indonesia, Malaysia, Thailand, Vietnam, and the Philippines are unchanged.
+
+### 2026-10-11 — Cursor (Grok 4.7) — Global careers boards in Denmark, Finland, Germany, and Switzerland
+Zealand Pharma, Valmet, Jungheinrich, and Galderma are listed large groups. Their own boards have no country facet with at least two roles, so the stored URL is the group's main board. The note is marked `careers_scope=global` and `careers_status` is `global_group`. Vinci, Frontline, Julius Bär, and Sunrise matched a different organisation and stay blank. Thales and Fugro are unchanged.
+
+Careers links, before → after: Denmark 6 → 7, Finland 4 → 5, Germany 14 → 15, Switzerland 6 → 7. France, the Netherlands, Ireland, Norway, Sweden, Iceland, Spain, Italy, and Poland are unchanged.
+### 2026-10-11 — Cursor (Grok 4.7) — Smith & Nephew global Workday board
+Smith & Nephew is a FTSE 100 employer. Its own Workday board has no United Kingdom facet with at least two roles, so the stored URL is the group's main board. The note is marked `careers_scope=global` and `careers_status` is `global_group`. Goodwin's Greenhouse board and Quilter's Ashby board are different organisations and stay blank. Aviva's country filter is unchanged.
+
+United Kingdom careers links 24 → 25. Blank rows 915 → 914.
+### 2026-10-11 — Cursor (Grok 4.7) — Global careers boards for three United States groups
+Intel, Revvity, and Viatris are S&P 500 employers whose own Workday board has no United States facet with at least two roles. The stored URL is that board. The note is marked `careers_scope=global` and `careers_status` is `global_group`, so import leaves the row pending. Arch Capital Group's Ashby token `arch` and Universal Health Services' Greenhouse token `universal` are different organisations and stay blank.
+
+United States careers links 377 → 380. Blank rows 493 → 490.
+
+### 2026-10-11 — Cursor (Grok 4.7) — Global careers pages for large groups
+The in-country rule stays for small and local employers. A listed large group or a US hospital system may store its own global careers board when no country path is available. The note is marked `careers_scope=global`. Discovery for that set is `scripts/discover_seed_careers.py --large-groups`. A short token that only matches after generic words are dropped, such as `arch` for Arch Capital Group or `universal` for Universal Health Services, is rejected.
+
+### 2026-10-11 — Cursor (Grok 4.7) — Japan Workday country filter for Trend Micro
+Blank Japan and South Korea rows were probed again. Trend Micro stores the board's own `locationCountry` filter. The rendered page shows "18 JOBS FOUND" with Japan applied, and the roles are in Tokyo. South Korea had no new board that met the in-country rule.
+
+Careers links, before → after: Japan 5 → 6, South Korea 5 → 5. Blank rows: Japan 306 → 305, South Korea 178 → 178.
+### 2026-10-11 — Cursor (Grok 4.7) — Canada Workday country filters
+Blank Canada rows were probed again. Cenovus Energy and Waste Connections store the board's own `Location_Country` filter. Rendered pages show "20 JOBS FOUND" and "63 JOBS FOUND" with Canada applied. The roles are in Calgary, Lloydminster, Lethbridge, Saskatoon, and Kelowna. The scanner sends that facet key.
+
+Canada careers links 10 → 12. Blank rows 157 → 155. Mexico, Brazil, Argentina, Colombia, Uruguay, and Ecuador are unchanged.
+### 2026-10-11 — Cursor (Grok 4.7) — France and Netherlands Workday country filters
+Blank European rows were probed again. Thales and Fugro store the board's own `locationCountry` filter. Rendered pages: Thales "1614 JOBS FOUND" with France applied; Fugro "26 JOBS FOUND" with Netherlands applied. Zeppelin University matched the Zeppelin construction-equipment tenant (workshop and CAT-dealer titles) and stays blank.
+
+Careers links, before → after: France 15 → 16, Netherlands 9 → 10. Blank rows: France 114 → 113, Netherlands 78 → 77. Germany, Ireland, the Nordics, Spain, Italy, Switzerland, and Poland are unchanged.
+### 2026-10-11 — Cursor (Grok 4.7) — United Kingdom Workday country filter for Aviva
+Blank United Kingdom rows were probed again. Aviva's Workday board is global (8 of 132 located roles are in the United Kingdom). The stored URL is the board's own `Location_Country` filter. The rendered page shows "8 JOBS FOUND" and "1 - 8 of 8 jobs" with United Kingdom applied. The scanner sends that facet key; posting `locationCountry` to this host returns HTTP 400.
+
+United Kingdom careers links 23 → 24. Blank rows 916 → 915.
+### 2026-10-11 — Cursor (Grok 4.7) — Three more United States Workday boards
+The same blank-row probe, after it also read Workday's `Location_Country` facet. Allegion's own board is already mostly in the United States (255 of 332 located roles), so the URL has no filter. Ciena (49 of 164) and Equinix (119 of 337) store that facet. Rendered pages show "49 JOBS FOUND" and "119 JOBS FOUND" with United States of America applied. The scanner sends `Location_Country` when that is the query key, because posting `locationCountry` to those hosts returns HTTP 400.
+
+United States careers links 374 → 377. Blank rows 496 → 493.
+
+### 2026-10-11 — Cursor (Grok 4.7) — Two United States Workday country filters
+Blank United States rows were probed again. A global Workday board is stored when its own `locationCountry` filter lists the roles and the page keeps that filter. Both pages were rendered offline after robots.txt allowed the fetch: Analog Devices shows 332 jobs with United States of America applied (332 of 889 located roles), and Equifax shows 70 (70 of 215). Revvity's first page looked mostly American, but the full board is 29 of 74 located roles in the United States and publishes no country facet, so it stays blank. Williams-Sonoma matched the Williams tenant and was rejected.
+
+United States careers links 372 → 374. Blank rows 498 → 496.
+### 2026-10-11 — Cursor (Grok 4.7) — Blank-row discovery for the priority countries
+Offline discovery ran over the blank careers rows in the United States, the United Kingdom, Europe, Japan, South Korea, Canada, the Middle East, and Nigeria, Kenya, Egypt, Morocco, and Ghana. New links are in separate ready PRs and were not merged: United States 372 → 377 (#92), United Kingdom 23 → 24 (#93), France 15 → 16 and Netherlands 9 → 10 (#94), Japan 5 → 6 with South Korea unchanged (#96), Canada 10 → 12 (#95). Germany, Ireland, the Nordics, Spain, Italy, Switzerland, Poland, the Middle East, and those five African countries stayed at the same link counts. Zeppelin University matched the Zeppelin equipment tenant and was left blank. The daily URL check still does not launch a browser.
+
+### 2026-10-11 — Cursor (Grok 4.7) — Workday discovery keeps the country filter
+When a Workday board publishes a country facet with at least two roles, offline discovery stores that filter even if the unfiltered board is already mostly in that country. The unfiltered feed can lead with other countries, and the scanner only reads the first pages. A tenant that is only the first word of a different organisation is still rejected. Zeppelin University matched the Zeppelin construction-equipment tenant and stays blank.
+
+### 2026-10-11 — Cursor (Grok 4.7) — Optional Playwright for offline careers checks
+The daily URL check and the admin “test this URL” button stay on plain HTTP. Chromium does not fit the free scheduler, and a bot-challenge page is not executed. Offline seed work can pass a renderer into `fetch_seed_page` (`backend/app/services/seed_page.py`). It still refuses a private or loopback address, follows the SSRF checks on each redirect, and skips the page when robots.txt disallows SospanaSonkeBot. A renderer runs only when the caller supplied one and the HTTP body is an empty JavaScript shell. `scripts/verify_seed_careers.py --render` and `scripts/discover_seed_careers.py --render` are the two offline commands. Discovery still requires the employer’s own board, at least two located roles, and at least half of those roles in that country. A Workday country filter is the one extra case: the board’s own facet id, kept on the URL as `locationCountry` or `Location_Country` (the jobs POST must use the same key the board published), when that country lists at least two roles and the unfiltered board does not. The scanner sends that key from the stored URL. A first page is not treated as the whole board, and a tenant slug has to be the employer’s name.
+Next: rerun discovery on the blank rows, United States and United Kingdom first, and open one ready PR per region.
+
+### 2026-10-11 — Cursor (Grok 4.7) — Ready seed PRs merged while the owner was away
+Polled open pull requests for 90 minutes and merged each ready seed PR with a merge commit after updating it onto main (union of the seed CSV and the session log, no duplicate import keys) and waiting for green CI. #69 and #70 stayed open.
+
+- #84 `9f88fee9161142310d560cafb3b6df66045f8aff` United Kingdom employers
+- #85 `6b1a32d6ca9a94221a10fba8a7771edca52d3478` United States employers
+- #86 `4c722e778ecb9dab5e1fbca398655371acb4d906` European index employers
+- #87 `a7bc5e6967296d74566a50f39b9f85859da4f22c` Asia-Pacific employers
+- #88 `c65cbafb8b6287413e98f928a507d5207a639ad9` Middle East employers
+- #89 `b921bee7f8de6803cdcbd780769e9dbfe1d6625e` Canada and Latin America employers
+- #90 `5e59bb7227f5655b0423f034985817e7c79a7925` employers in Africa beyond South Africa
+
+#83 was already on main before this window. No further ready seed PR was open at 12:06 UTC.
+
+### 2026-10-11 — Cursor (Grok 4.7) — Employers in Africa beyond South Africa
+University lists for Nigeria, Kenya, Egypt and Ghana, and the published company and university lists for Morocco. Names already in the directory were skipped. Greenhouse, Lever, Ashby and SmartRecruiters were probed. No board had a majority of located roles in the headquarters country, so this batch stores no new careers URL. Heading labels ("Public universities", "Private universities") and the University of Wales were left out. South Africa was not expanded.
+330 blank rows, note prefix `2026-10-11 africa-employers`. Rows/links, before → after: Nigeria 187/93 → 327/93 (UNI 58 → 198). Kenya 184/133 → 211/133 (UNI 45 → 72). Egypt 96/34 → 140/34 (UNI 14 → 58). Morocco 53/13 → 126/13 (PRIVATE 10 → 71, UNI 11 → 23). Ghana 121/57 → 167/57 (UNI 34 → 80). South Africa stays 815 linked rows. Directory 8,801 rows / 4,206 linked → 9,131 rows / 4,206 linked. `directory-snapshot.json` was left as it is.
+### 2026-10-11 — Cursor (Grok 4.7) — Canada and Latin America employers from market indexes and universities
+S&P/TSX 60 constituents and Canadian universities, the Mexican IPC, COLCAP names that were not already filed, and short company lists for Uruguay and Ecuador, plus a few hospitals, cities and flagship universities in Brazil and Argentina. Greenhouse, Lever, Ashby and SmartRecruiters were probed. No board had a majority of located roles in the headquarters country, so this batch stores no new careers URL. Sector labels ("Oil and Gas", "Energy") and the city names Quito and Montevideo were left out. Brazil, Chile, Argentina and Peru already hold large listed sets, so almost every name from those markets was already in the directory.
+227 blank rows, note prefix `2026-10-11 americas-employers`. Rows/links, before → after: Canada 10/10 → 167/10 (PRIVATE 5 → 64, UNI 4 → 96). Mexico 3/3 → 39/3 (PRIVATE 3 → 35). Colombia 121/21 → 136/21. Ecuador 4/2 → 14/2. Uruguay 6/6 → 11/6. Brazil 469/435 → 471/435. Argentina 252/82 → 254/82. Directory 8,801 rows / 4,206 linked → 9,028 rows / 4,206 linked. `directory-snapshot.json` was left as it is.
+Next: Africa beyond South Africa as its own ready PR off main.
+### 2026-10-11 — Cursor (Grok 4.7) — Middle East employers from exchange lists and universities
+Dubai Financial Market listings, published company lists for the United Arab Emirates, Saudi Arabia and Qatar, the TA-125, and university lists for those four countries, plus a short set of ministries, hospitals, cities and charities. Greenhouse, Lever, Ashby and SmartRecruiters were probed for every name. No board had a majority of located roles in the headquarters country, so this batch stores no new careers URL. Blank rows use `grey_none_verified` / `no_url`. Nav labels ("universities", "colleges") and foreign universities that are not a local campus were left out. Aramco was left out because Saudi Aramco is already in the directory.
+474 blank rows, note prefix `2026-10-11 mena-employers`. Rows/links, before → after: United Arab Emirates 51/21 → 213/21 (PRIVATE rows 6 → 115, UNI rows 4 → 56). Saudi Arabia 4/4 → 155/4 (PRIVATE rows 2 → 97, UNI rows 0 → 53). Qatar 6/6 → 45/6 (PRIVATE rows 0 → 27, UNI rows 2 → 12). Israel 9/9 → 131/9 (PRIVATE rows 9 → 60, UNI rows 0 → 67). Directory 8,801 rows / 4,206 linked → 9,275 rows / 4,206 linked. `directory-snapshot.json` was left as it is.
+Next: Canada and Latin America as its own ready PR off main.
+### 2026-10-11 — Cursor (Grok 4.7) — Asia-Pacific employers from market indexes and ATS boards
+Nifty 50, Nifty Next 50, BSE Sensex, Straits Times, ASX 200, NZX 50, Nikkei 225, KOSPI 200, LQ45, FBM KLCI, SET50 and PSEi constituents, plus central universities in India, Australian and New Zealand universities, Japanese and South Korean national universities, and a short set of hospitals, ministries, cities and public corporations. Greenhouse, Lever, Ashby and SmartRecruiters were probed. A careers URL is stored only when robots.txt allows SospanaSonkeBot (or the host has no robots.txt), the page is HTTP 200 and stays on a host that names a post, and at least half of the located roles are in that country. New Zealand firms that also sit on the ASX were kept under New Zealand. City names and sector indexes that the table parser picked up were left out. Ampol, DroneShield and Western Sydney University publish boards, but the public page the board redirects to does not name the posts, so those URLs stayed off. A SmartRecruiters board named Indonesia is a different organisation from the University of Indonesia.
+4 new linked rows, note prefix `2026-10-11 apac-employers`. Australia: NextDC (SmartRecruiters, 16 of 21 located roles in Australia) and Griffith University (39 of 39). New Zealand: Contact Energy (12 of 12) and Arvida Group (39 of 39). 1,059 blank rows use `grey_none_verified` / `no_url`.
+Rows then links, before → after: India 68/26 → 211/26 (PRIVATE 14/12 → 103/12, UNI 5/0 → 56/0). Singapore 9/9 → 65/9 (UNI 1/1 → 25/1, PRIVATE 6/6 → 35/6). Australia 30/30 → 184/32 (PRIVATE 21/21 → 133/22, UNI 5/5 → 45/6). New Zealand 9/9 → 66/11 (PRIVATE 7/7 → 55/9). Japan 5/5 → 311/5 (PRIVATE 4/4 → 221/4, UNI 1/1 → 87/1). South Korea 5/5 → 183/5 (PRIVATE 4/4 → 135/4, UNI 1/1 → 45/1). Indonesia 53/9 → 100/9. Malaysia 3/3 → 32/3. Thailand 2/2 → 55/2. Vietnam 1/1 → 9/1. Philippines 5/5 → 37/5. Directory 8,801 rows / 4,206 linked → 9,864 rows / 4,210 linked. `directory-snapshot.json` was left as it is.
+Next: the Middle East (UAE, Saudi Arabia, Qatar, Israel) as its own ready PR off main.
+### 2026-10-11 — Cursor (Grok 4.7) — European employers from the national indexes and ATS boards
+DAX, MDAX, SDAX, CAC 40, AEX, AMX, ISEQ 20, OMX Stockholm 30, OBX, OMX Copenhagen 25, OMX Helsinki 25, IBEX 35, FTSE MIB, SMI, SMIM and WIG30 constituents, national university lists, and a short set of hospitals, ministries, cities, railways and charities in Germany, France, the Netherlands, Ireland, Norway, Sweden, Denmark, Finland, Iceland, Spain, Italy, Switzerland and Poland. Greenhouse, Lever, Ashby and SmartRecruiters were probed for every name. Workday (wd3 and wd5) was probed for the listed private companies. A careers URL is stored only when robots.txt allows SospanaSonkeBot (or the host has no robots.txt), the page is HTTP 200, the employer's own board names a post, and at least half of the located roles are in that country. Same-organisation names already in the directory under another country stayed out (Airbus, EssilorLuxottica, Prosus, Unilever, InPost, AstraZeneca, Metso, International Airlines Group, Tenaris). Continental, Accor and Orkla have public boards whose located roles are mostly outside the headquarters country, so those URLs stayed off.
+6 new linked rows, note prefix `2026-10-11 europe-employers`. Germany: Scout24 (`https://www.scout24.com/en/career/jobs`, 14 of 15 located roles in Germany) and Gerresheimer (SmartRecruiters, 68 of 100). France: Saint-Gobain (SmartRecruiters, 9 of 18). Netherlands: Boskalis (SmartRecruiters, 75 of 100). Sweden: Vattenfall (`https://careers.vattenfall.com/`, 62 of 100). Switzerland: Swissquote (SmartRecruiters, 37 of 49). 975 blank rows use `grey_none_verified` / `no_url`.
+Rows then links, before → after: Germany 12/12 → 246/14 (PRIVATE 10/10 → 151/12, UNI 0 → 79/0, HOSPITAL 1/1 → 4/1, DEPT 0 → 3/0, MUNI 0 → 4/0, NGO 0 → 2/0, SOE 1/1 → 3/1). France 14/14 → 129/15 (PRIVATE 13/13 → 47/14, UNI 1/1 → 69/1, SOE 0 → 4/0, HOSPITAL 0 → 2/0, MUNI 0 → 3/0, DEPT 0 → 2/0, NGO 0 → 2/0). Netherlands 8/8 → 87/9 (PRIVATE 2/2 → 40/3, UNI 4/4 → 33/4, HOSPITAL 1/1 → 8/1). Ireland 6/6 → 17/6 (UNI 0 → 7/0). Norway 7/7 → 64/7 (UNI 1/1 → 32/1, PRIVATE 4/4 → 27/4). Sweden 6/6 → 45/7 (PRIVATE 2/2 → 27/2, UNI 4/4 → 14/4, SOE 0 → 1/1). Denmark 6/6 → 37/6. Finland 4/4 → 41/4. Iceland 5/5 → 16/5. Spain 7/7 → 134/7 (UNI 0 → 93/0, PRIVATE 6/6 → 34/6). Italy 6/6 → 133/6 (UNI 1/1 → 89/1, PRIVATE 5/5 → 39/5). Switzerland 5/5 → 66/6 (PRIVATE 2/2 → 46/3). Poland 5/5 → 57/5 (UNI 0 → 20/0, PRIVATE 5/5 → 32/5). Directory 8,801 rows / 4,206 linked → 9,782 rows / 4,212 linked. `directory-snapshot.json` was left as it is.
+Next: Asia-Pacific (India, Singapore, Australia, New Zealand, Japan, South Korea, Southeast Asia) as its own ready PR off main.
+
+### 2026-10-11 — Cursor (Grok 4.7) — United States employers from the S&P 500, hospitals, and ATS boards
+S&P 500 constituents, Association of American Universities members, large hospital systems, federal agencies, major cities, national charities, and community colleges, plus a short list of startups, were probed on Greenhouse, Lever, Ashby, Workable, SmartRecruiters, iCIMS, and Workday. A careers URL is stored only when robots.txt allows SospanaSonkeBot (or the host has no robots.txt), the page is HTTP 200, the employer's own board names a post, and at least half of the located roles are in the United States. The USAJOBS search page did not name posts in the HTML, so federal agencies stay blank. Wrong-company slugs (Public Storage, Flex, Applied Materials, and others) and global boards that are not mostly in the United States (Ciena, Analog Devices) were not stored. Williams-Sonoma was not given the Williams Companies Workday tenant.
+
+United States rows 328 → 870. Careers links 328 → 372. By category, rows then links: PRIVATE 93 → 523 (134 linked), HOSPITAL 45 → 57 (47), UNI 30 → 71 (30), MUNI 18 → 45 (19), DEPT 20 → 36 (20), NGO 33 → 43 (33), COLLEGE 12 → 18 (12). SOE 34, FED 15, MUSIC 12, SPORT 9, and SETA 7 are unchanged. Note prefix `2026-10-11 usa-employers`. 44 new links, including AbbVie, Amgen, Axon Enterprise, Brex, Devon Energy, Domino's, Figma, GoDaddy, Hasbro, Labcorp, Leidos, Motorola Solutions, Northwestern Medicine, OpenAI, Penn Medicine, Plaid, SoFi, Truist Financial, and Verisign. The other 498 new rows keep a blank careers URL.
+### 2026-10-11 — Cursor (Grok 4.7) — United Kingdom employers from the FTSE, AIM, NHS, and ATS boards
+Index lists (FTSE 100, FTSE 250, AIM, NHS trusts, UK universities, ministerial departments, city councils, charities, and public corporations) plus Greenhouse, Lever, Ashby, Workable, SmartRecruiters, iCIMS, and Workday slug probes. A careers URL is stored only when robots.txt allows SospanaSonkeBot (or the host has no robots.txt), the page is HTTP 200, the employer's own board names a post, and at least half of the located roles are in the United Kingdom. Civil Service Jobs returned a bot check, so no department uses that portal. Workday boards whose open roles sit mostly in another country (Aviva's sample was Canada-heavy) were left blank.
+
+United Kingdom rows 9 → 939. Careers links 9 → 23. By category, rows then links: PRIVATE 7 → 424 (19 linked), HOSPITAL 1 → 272 (1), UNI 1 → 155 (1), NGO 0 → 25 (1), SOE 0 → 15 (1), DEPT 0 → 24 (0), MUNI 0 → 24 (0). Note prefix `2026-10-11 uk-employers`. 14 new links: Autotrader Group, Brave Bison, Deliveroo, FRP Advisory, Frasers Group, Funding Circle, Man Group, Moonpig, National Trust, Rotork, Shawbrook Bank, TP ICAP, Trainline, UK Atomic Energy Authority. The other 916 new rows keep a blank careers URL.
+
+### 2026-10-10 — Cursor (Grok 4.7) — European ATS boards and three university pages
+Teamtailor, Personio, Softgarden, Join.com, Welcome to the Jungle, and Recruitee customer lists were filtered to employers headquartered in European countries that had five or fewer careers links. A board was stored only when robots.txt allowed SospanaSonkeBot (or the host had no robots.txt), the response was HTTP 200, the page named a post, and at least half of the located roles, at least two, were in that headquarters country. Headquarters in France, Germany, Ireland, Italy, the Netherlands, Spain, Sweden, and the United Kingdom stayed off, along with stale 2021 demo boards, volunteer-only pages, and boards whose open roles sit in another country.
+
+14 new linked rows, note prefix `2026-10-10 europe-boards`. Norway 3→7 (Schibsted, Itera, Veidekke, University of Oslo). Denmark 2→6 (Lunar, Matas, Power Danmark, Templafy). Finland 2→4 (Siili Solutions, Aalto University). Belgium 4→6 (Technord, Xylos). Romania 5→6 (RebelDot). Iceland 4→5 (University of Iceland). Xylos has no official website stored because the homepage answered with a checkpoint. Personio, Softgarden, Join.com, and Welcome to the Jungle added no row: their listed customers are headquartered in countries that already have more than five links, the page did not name a post, or the jobs page refused this bot.
+
+### 2026-10-10 — Cursor (Grok 4.7) — Public-service portals merged
+#82 was already even with main. GitHub CI was green, then it was merged with a merge commit. No later seed pull request was open. #69 and #70 stayed open.
+
+Merge commit on `main`: #82 `7519127853d091c318f30417868772a19acd1958`.
+
+### 2026-10-10 — Cursor (Grok 4.7) — Public-service recruitment portals
+Countries with five or fewer careers links were checked for a national civil-service or concours page, and for state-owned career pages that name a post. A URL was stored only when SospanaSonkeBot was allowed (or the host had no robots.txt), the response was HTTP 200, and the page named a post or an open exam. General job boards, login walls, JavaScript shells, and a vacancy count with no title were left off. Italy was already at six links after the economy-board merge, so inPA was out of scope.
+
+Three new departments, all linked: Werkenvoor.be (Belgium 3→4), GovJobs (Luxembourg 3→4), Posturi.gov.ro (Romania 4→5). Two existing blank rows now have a jobs page: Rijksdienst Caribisch Nederland (Caribbean Netherlands 0→1; the note still starts with `2026-10-10 remaining-territories`) and the Macau civil-service bureau (Macau 2→3; the note still starts with `2026-10-10 territory`). The Macau page is the bureau's own notice opening registration for the bachelor-level ability exam on 8 October 2026. Nukissiorfiit's Mindkey board names posts and disallows this bot, so it stays blank. Gibraltar Electricity Authority's media headline had no vacancy text.
+A follow-up pass for university staff pages in the same thin countries found three pages that name a post: Aalto University, the University of Iceland, and the University of Oslo. Those three pages are stored with the European ATS boards in the entry above. The other university sites were category hubs, JavaScript shells, student admissions, or homepages.
+
+### 2026-10-10 — Cursor (Grok 4.7) — Second merge train for the seed pull requests
+Marked each ready where it was still a draft, updated it with main, and kept both sides of every session log and seed change. No duplicate import keys. Where a later batch raised a country link total, the test that asserts that total was updated to the combined count. Left #69 and #70 open.
+
+Merge commits on `main`: #75 `6f1c622178dc14cc50b0bb6c6e38927c3fa43fc1`, #76 `3bb0a1358d8821b53893a0b4caa1f75db83884f9`, #77 `04ce95243af045613215231e0a1675fb6c9a5e67`, #78 `472d8f54f43b29f6a42b227e646232936b8f65c7`, #79 `9237fa10d0614f07bbddfcf69c5ce5b619d40d37`, #80 `78bda87a3de3302732e8811d61cfbddf1ce02c48`, #81 `c77bf1b614ec109e6c471341263dca5407fd90aa`.
+
+### 2026-10-10 — Cursor (Grok 4.7) — JSE and Chile boards the slug probe could verify
+Probed Greenhouse, Lever, Workable, Recruitee and SmartRecruiters slugs for 438 unlinked employers (120 JSE rows with no careers link, plus Argentina, Chile and Colombia private rows that only have a homepage). None of those tokens was both the employer's own board and mostly in that country. A second pass on simplify.hr and ci.hr, and on iCIMS search URLs for the large names, kept three.
+
+Updated, not added: Arauco (Chile) to its iCIMS search, 40 roles in Chile. Sygnia and Weaver Fintech (South Africa, JSE) to their simplify.hr boards. Sygnia's board states there are currently no open jobs. Weaver lists 13 roles in Cape Town. Notes for the two JSE rows still start with `2026-10-09 SA gap`, so that batch stays 91 rows and its linked count moves 4→6. South Africa linked 811→813. Chile linked 45→46. Parque Arauco is a different company and stays blank. Liberty Two Degrees was left alone: `liberty.simplify.hr` is Liberty's advisor talent pool, not the REIT. Cencosud's chatbot, Falabella's Aira portal, and Harmony's expired certificate were not stored.
+Next: nothing from this probe is waiting. Further blank rows need a page that names a post.
+### 2026-10-10 — Cursor (Grok 4.7) — Country-specific ATS boards for the large economies
+Probed Greenhouse, Lever, SmartRecruiters, Workable, Recruitee, Teamtailor, Personio and Softgarden slugs, plus guessed Workday tenants, for major employers in Germany, France, Japan, Mexico, Spain, Italy, South Korea, Turkey, Saudi Arabia, the UAE and India. A board was stored only when the name matched, robots.txt allowed SospanaSonkeBot (or the host had no robots.txt), and at least half of the sampled roles were in that country. Mixed global boards (HelloFresh, Doctolib, Cabify, Typeform, Celonis, Fever, Jobandtalent and others) and wrong-company Teamtailor hosts (Swedish STC, Norwegian AXIS, Toyota Sweden) were left off.
+
+18 new linked rows, note prefix `2026-10-10 economy-ats`, all `PRIVATE`. Germany 5→8 (GetYourGuide, Raisin, Solaris). France 5→13 (BlaBlaCar, Qonto, Algolia, Mirakl, Vestiaire Collective, Swile, Scaleway, Malt). Spain 4→6 (Wallapop, Holded). Italy 5→6 (Musixmatch). South Korea 3→5 (Sendbird, Karrot). Japan 3→4 (Mercari). United Arab Emirates 20→21 (Aldar Properties). Mexico, Turkey, Saudi Arabia and India gained no board that was both theirs and mostly in-country. No existing row was retargeted.
+Next: JSE blanks and Argentina, Chile and Colombia homepage-only rows, same ATS method, separate PR.
+### 2026-10-10 — Cursor (Grok 4.7) — Employers in the countries with the fewest careers links
+23 new employers across 15 countries that had one or two careers links (Armenia had two). Eight have a direct jobs page. The other 15 keep a verified homepage and a blank careers URL. Note prefix `2026-10-10 fewest-links`. No new country, so no flag or region change.
+
+Linked (name, country) → URL:
+- Universitat d'Andorra, Andorra, UNI → https://www.uda.ad/universitat/treballeu-amb-nosaltres/ (real zero: no selection process open)
+- Sir Lester Bird Medical Centre, Antigua and Barbuda, HOSPITAL → https://www.msjmc.org/careers (Registered/Staff Nurse)
+- University of Sarajevo, Bosnia and Herzegovina, UNI → https://www.unsa.ba/konkursi (academic-staff competitions, one dated 9 October 2026)
+- Klinički centar Univerziteta u Sarajevu, Bosnia and Herzegovina, HOSPITAL → https://kcus.ba/kcus-raspisao-konkurs-za-prijem-120-novih-medicinskih-sestara-i-tehnicara/ (120 nurses and technicians, published 2 October 2026)
+- Ministry of Health Brunei Darussalam, Brunei, DEPT → https://moh.gov.bn/about-us/explore-career/ (Medical Officer)
+- Government of the Commonwealth of Dominica, Dominica, DEPT → https://dominica.gov.dm/vacancies (Project Engineer - DOMCREP, closes 27 October 2026)
+- Vilnius University, Lithuania, UNI → https://www.vu.lt/karjera (project manager, open until 28 October 2026)
+- National University of Samoa, Samoa, UNI → https://nus.edu.ws/vacancies/ (IT User Services Officer, closing 19 October 2026)
+
+Links after this batch: Andorra 1 → 2, Antigua and Barbuda 1 → 2, Bosnia and Herzegovina 1 → 3, Brunei 1 → 2, Dominica 1 → 2, Lithuania 1 → 2, Samoa 1 → 2. Armenia, Costa Rica, Czechia, the Dominican Republic, Estonia, Guatemala, Serbia, and Slovenia stay at their previous link counts; the new rows there are blanks. 23 rows added, 8 linked.
+
+Left blank on purpose: Andorra Telecom (jobs host did not return robots.txt), SAAS (no named post), BH Telecom, Universiti Brunei Darussalam, Universidad de Costa Rica, ICE, Charles University, ČEZ (the career link is jobs.cz), Eesti Energia, the Government of Antigua and Barbuda, Banco Central de la República Dominicana, the University of Belgrade (scholarships, not staff posts), the University of Ljubljana (student career centre), Universidad de San Carlos (empleo.usac.edu.gt invites other employers to advertise), and Yerevan State Medical University.
+### 2026-10-10 — Cursor (Grok 4.7) — Fill blank careers links on existing rows
+Six rows that already had a homepage, and no active jobs link, now point at a page fetched as SospanaSonkeBot. Robots allow the bot (or the host has no robots.txt), the response is HTTP 200, and the page names a post or says there are no openings. Note prefix `2026-10-10 fill-blanks`. Adapt IT, Biovac, and OPT-NC keep their earlier note prefixes so those batch counts still include them.
+
+Linked (name, country) → URL:
+- Adapt IT, South Africa → https://adaptit.ci.hr/ (Senior EPM Consultant, Midrand, closes 21 October 2026; Hospitality Systems Consultant, Durban)
+- Biovac, South Africa → https://biovac.teamtailor.com/jobs (Network Engineer, AMD Scientist; Cape Town and Johannesburg)
+- Dashen Bank, Ethiopia → https://dashenbanksc.com/careers (Branch Business Relationship Manager and other posts dated September and October 2026)
+- IAMGOLD Essakane SA, Burkina Faso → https://www.iamgoldessakane.com/offres-emplois (real zero: no offer open)
+- OPT-NC, New Caledonia → https://office.opt.nc/fr/emploi-et-carriere/postuler-lopt-nc/offres-emploi (real zero: no offer matches)
+- Ministry of Lands, Housing, and Country Planning, Sierra Leone → https://molhcp.gov.sl/jobs/ (Project Civil Engineer for the Sierra Leone Land Administration Project)
+
+Links after this fill: South Africa 811 → 813, Ethiopia 17 → 18, Burkina Faso 19 → 20, New Caledonia 4 → 5, Sierra Leone 16 → 17. Six rows updated, six links filled, no new employers.
+
+Left blank on purpose: Woolworths careers host failed TLS; LUMA's Workday path is disallowed in robots.txt; Petra Diamonds' job search is a PNet frame; McCain's listed posts are dated June 2023 and the apply link lands on the US careers home; Cimencam's cards are dated 2025; Air Greenland, Nukissiorfiit, and Royal Arctic Line name no post; Gambia's tourism vacancies page did not return robots.txt.
+
+### 2026-10-10 — Cursor (Grok 4.7) — Remaining zero-row territories
+Off current `main`, separate from the thin-Africa and major-economy branches. Added 28 territories that still had no seed rows: Mayotte and Saint Helena (Africa, same pattern as Réunion), Faroe Islands and Gibraltar (Europe), French Polynesia, Guam, American Samoa, the Cook Islands, Niue, the Northern Mariana Islands and Wallis and Futuna (Oceania), Bermuda and Saint Pierre and Miquelon (North America), the Falkland Islands (South America), and the remaining Caribbean territories. Each has a flag, a landing tier and a picker group. Puerto Rico, Réunion, Macau, Greenland and New Caledonia were already on main and were not added again.
+61 employers. 16 have a direct jobs link (a page that named a post, or said there were no openings): Mayotte 2, Saint Helena 1, Gibraltar 3, French Polynesia 2, Guam 3, American Samoa 1, Cook Islands 1, Niue 1, Anguilla 1, British Virgin Islands 1. The other 45 are blank. Faroe Islands, Aruba, Bermuda, Cayman Islands, Curaçao, Guadeloupe, Martinique, the US Virgin Islands and the smaller territories stay at zero links because no own-domain page both allowed the bot and named a post. Login walls, JavaScript boards and profession lists were not stored.
+Next: these rows import on the next boot. The thin-Africa and major-economy pull requests stay separate.
+
+### 2026-10-10 — Cursor (Grok 4.7) — Major-economy careers pages
+Off current `main`. Added eight employers whose own careers page named a post when fetched as SospanaSonkeBot: BMW Group, Volkswagen Group, Deutsche Bahn, and Deutsche Bank in Germany; Société Générale in France; Telefónica in Spain; Saudi Aramco; Panasonic Group in Japan (graduate notice naming sales, accounting, R&D and systems-engineer roles). The Panasonic corporate homepage blocked the bot, so the official site stored is the verified Panasonic Group recruitment host. Culture pages, cookie banners, investor "analyst coverage", JavaScript boards with no title in the HTML, and hosts that disallow the bot were not stored. China stays at 3 links: Tencent's public feed names posts, but the search page HTML does not, and State Grid and China Mobile disallow the bot.
+Linked counts now: Germany 9, France 6, Japan 4, Mexico 3, Spain 5, Italy 5, China 3, South Korea 3, Turkey 4, Saudi Arabia 4.
+Next: the remaining zero-row territories, on a separate branch off main.
+
+### 2026-10-10 — Cursor (Grok 4.7) — Thin African careers links
+Off current `main`. Filled direct jobs pages for the thin African countries where a fetch as SospanaSonkeBot was allowed, returned HTTP 200, and the page named a post or said there were no openings. 17 existing rows gained that kind of URL (15 of them were not links before; UGANC and the Niger civil-service ministry already counted and now point at the recruitment list). One new Benin government row is linked. Five new rows stay blank: GITGE and the São Tomé central bank keep a verified homepage; Commercial Bank of Eritrea, EriTel, and Orotta Hospital have no page the bot was allowed to read. Procurement pages, student exams, culture pages, JavaScript boards with no title in the HTML, and hosts whose robots.txt blocked the bot were not stored. Eritrea, Equatorial Guinea, and São Tomé stay at 2, 2, and 3 links.
+Linked counts now: Eritrea 2, Equatorial Guinea 2, Sao Tome and Principe 3, Benin 10, Guinea 9, Gabon 6, Côte d'Ivoire 8, Libya 7, Central African Republic 6, Togo 7, Niger 8.
+Next: major economies with five or fewer links, on a separate branch off main.
+
+### 2026-10-10 — Cursor (Grok 4.7) — Merge train for the employer and how-to pull requests
+Marked each ready, updated it with main, kept both sides of every session log, seed append, flag, and region (no duplicate import keys or flag names), waited for CI, then merged with a merge commit. Left #69 and #70 open.
+
+Merge commits on `main`: #67 `5d3e76901036f511657c4a53293de092a2dfe588`, #68 `551101f6a3ef5412c1707dde13bfddecaf59d04d`, #71 `10fbf4d2a0fa07491b09bcc0ded3a4cda4f35190`, #72 `9733f0300244078413ef4b4cf61b83535edabe6a`, #73 `15dc8600af90c6a6d77afd9ee83294b49b67b0c1`, #74 `c868e8869d674beef2e210d2624fe8661fd1f428`.
+
+### 2026-10-10 — Cursor (Grok 4.7) — Monaco, North Macedonia, San Marino, Tajikistan, Turkmenistan, Myanmar
+Added 66 employers on a branch off main, separate from the territory batch. A careers URL was stored only when robots.txt allowed SospanaSonkeBot (or the host published none), the page returned HTTP 200, and it was that organisation's own jobs page or a government recruitment page of that body. Myanmar leaves out the Ministry of Defence, MEHL, MEC, MOGE, Mytel, Myanma Foreign Trade Bank, Myanma Investment and Commercial Bank, and Myanma Five Star Line.
+
+Rows, with a link / without: Monaco 11 (2/9), North Macedonia 13 (3/10), San Marino 10 (3/7), Tajikistan 11 (3/8), Turkmenistan 10 (0/10), Myanmar 11 (0/11). Notable with a link: Centre Hospitalier Princesse Grace, the Monaco civil-service notice in the Journal de Monaco, Makedonski Telekom (the page says there are no current advertisements), the Agency for Administration, the Red Cross of North Macedonia, Ospedale di Stato through the ISS competitions, the University of San Marino, the San Marino civil-service competitions, Tcell, Alif Bank, and FINCA Tajikistan. San Marino and Turkmenistan have no separately listed company in this batch. Turkmenistan and Myanmar had no page that both allowed the bot and named a post.
+
+Flags and picker: Monaco, North Macedonia and San Marino are Europe. Tajikistan, Turkmenistan and Myanmar are Asia. Monaco and San Marino were already in the explorer and are now on the Europe landing tier as well. These rows reach the Frankfurt database on the next boot that imports the seed. Not merged.
+
+### 2026-10-10 — Cursor (Grok 4.7) — Puerto Rico, Réunion, Macau, Greenland, New Caledonia
+Added 73 employers on a branch off main, across listed and private companies, state-owned bodies, government, municipalities, NGOs, universities, colleges and hospitals. A careers URL was stored only when robots.txt allowed SospanaSonkeBot (or the host published none), the page returned HTTP 200, and it was that organisation's own jobs, recrutement, vacancies or concours page, or its own ATS board. Greenland has no stored link: the banks and utilities that publish vacancies put them behind a recruiting host that disallows the bot, or on a page that does not list posts.
+
+Rows, with a link / without: Puerto Rico 17 (5/12), Réunion 12 (3/9), Macau 14 (2/12), Greenland 14 (0/14), New Caledonia 16 (4/12). Notable with a link: Popular (jobs.popular.com), the Puerto Rico labour department and OATRH convocatorias, Universidad de Puerto Rico, PRIDCO, Université de La Réunion, CHU de La Réunion (its Mstaff board), Département de La Réunion, CEM Macau, Macau University of Science and Technology, Université de la Nouvelle-Calédonie, Société Le Nickel, CHT Gaston-Bourret, and the New Caledonia civil-service vacancy notices. Listed but blank: First BanCorp, Oriental Bank, Evertec, SJM Holdings, Sands China, CBo Territoria, GrønlandsBANKEN. New Caledonia has no separately listed company in this batch; Société Le Nickel is the Eramet subsidiary.
+
+Flags and picker: Puerto Rico stays in the Caribbean picker group and the North America landing tier. Greenland stays North America in both. Macau is Asia on the landing map as well as in the picker. New Caledonia is Oceania in both. Réunion is in the rest-of-Africa band, so it sorts with Africa and is not given a world-region code. The directory snapshot was left as the last live API reading. These rows reach the Frankfurt database on the next boot that imports the seed. Not merged.
+
+### 2026-10-09 — Cursor (Grok 4.7) — How-to video, jazz bed, no voiceover
+A 2:14 screen recording of the live site (1280×720, H.264, AAC, 4.5 MB) is in `docs/tutorial/sospana-sonke-how-to-use.mp4`, with the step list in `docs/tutorial/storyboard.md`. No app code changed. Captions and title cards stay. There is no voiceover. The bed is an original instrumental loop from `docs/tutorial/jazz-bed.py` (sine, harmonics, and noise only), dedicated under CC0 1.0, mixed at about −18 LUFS with a 2s fade-in and a 3s fade-out. The walkthrough covers the homepage, sign-in, free registration, the directory (search, country, Private), Colleges and SETAs, NGOs, Government, Absa’s own Workday page (nothing submitted), preferences left off, the CV builder without Analyse, the Career Agent, an empty tracker, donate without paying, and signing in again. The throwaway candidate account was deleted (`POST /account/delete` returned 204; a later login returned 401).
+
+### 2026-10-09 — Cursor (Grok 4.7) — Parallel scan test no longer shares one session across threads
+CI on the South African gap branch failed one test: both companies counted as a failed scan. The worker compared `company.id` with `bad.id`, and `bad` belonged to the test session. After commit that attribute is expired, so both threads tried to refresh it on the same SQLite connection (`InterfaceError`, then `ObjectDeletedError`). The test now keeps the ids as strings before the pool starts. The seed rows are unchanged.
+Next: the same as the entry below — Frankfurt import on the next boot.
+
+### 2026-10-09 — Cursor (Grok 4.7) — South African employer gap, then the blank JSE links
+Off `main` (`3c3ad18`), separate from PR #67. Added **91** South African employers from the gap list (4 with a direct jobs link, 87 blank). Skipped African & Overseas, Rex Trueform, and Amazon South Africa because they were already in the seed, and Grindrod Bank because that bank was sold into African Bank. Stored a careers URL only after a fresh fetch as SospanaSonkeBot: Allan Gray, Prescient (`prescient.simplify.hr`), Postbank, and Wesizwe (the page says there are no openings, which is a real zero). The earlier "yes" list lost Tsebo and Pikitup (robots.txt blocks the bot), Assupol (the vacancies path is a 404), Lactalis and Macsteel (the jobs sit on eRecruit), McCain (a 2023 list that links to the global board), Petra Diamonds (the job search is a login), and Deneb (a CV drop-box, not a vacancy list). The same pass filled **3** of the 110 blank JSE rows: Balwin, Finbond (a real zero), and Eastern Platinum (a real zero). Those 110 are now 107 blank and 161 linked. Woolworths Holdings stays blank.
+Next: the Frankfurt import picks the new rows up on the next boot. The blocked hosts (BCX, KFC, McDonald's, TCS, De Beers) are in the seed without a link.
+
+### 2026-10-09 — Cursor (Grok 4.7) — Admin dashboard reads horizontally on a phone
+On a phone, the admin page (`/admin`) stacked names, emails, dates, badges and buttons one letter per line. The site-wide phone rule `overflow-wrap: anywhere` lets a table column shrink to one character, and the users table has ten columns. The admin page now opts out of that break. Each table cell stays on one line and the table scrolls sideways. Stat cards stack in one column below 640px so "Registered candidates" stays one line. Button rows, chips and the page title do the same. Paragraphs still wrap on spaces. Desktop tables use the same one-line cells, inside the existing sideways scroll, so a wide row does not widen the page. Seed files were not touched. Checked at 360, 390, 430 and 1280px: no page-level sideways scroll, and no cell or button narrower than its words.
+
+### 2026-10-09 — Cursor (Grok 4.7) — Thin SADC and African employer pass
+From `main` at `3c3ad18` (PR #66). Branch `cursor/thin-markets-employers-ad86`, draft PR #67, not merged. Added 69 employers across Botswana, Zambia, Zimbabwe, Tanzania, Ghana, Namibia, Mozambique, Malawi, Eswatini, Lesotho, Uganda, and Rwanda (14 with a direct jobs link, 55 blank). A careers URL was stored only when robots.txt allowed SospanaSonkeBot, the fetch returned HTTP 200, and the page was that employer's own jobs board. Homepages, aggregators, rental "vacancies", news posts, product pages, a parent-company SmartRecruiters board, a spam-injected careers host, and a US veterinary site that shared a name were not stored. Blank rows keep the homepage that named the employer. `directory-snapshot.json` was left alone (these rows are not imported yet).
+
+Whole-country seed counts, with a link / without, before → after: Botswana 134/21 → 134/23, Zambia 91/35 → 91/41, Zimbabwe 151/63 → 152/65, Tanzania 84/43 → 86/49, Ghana 86/28 → 87/34, Namibia 110/26 → 111/28, Mozambique 78/41 → 79/43, Malawi 75/18 → 76/24, Eswatini 76/52 → 77/55, Lesotho 73/12 → 75/14, Uganda 73/22 → 77/31, Rwanda 40/17 → 40/26.
+
+New links: Rainbow Tourism Group (`rtgafrica.com/careers`, live adverts), Geita Gold Mining (AngloGold Ashanti Tanzania iCIMS board, Geita requisitions), Enterprise Group (confirmed zero), TOL Gases (confirmed zero), Debmarine Namibia (own vacancies page; the De Beers SmartRecruiters parent board was not stored), Maputo Port Development Company (confirmed zero), Castel Malawi (confirmed zero), Eswatini Royal Insurance Corporation (open sales-agent advert), Matekane Group of Companies (drilling workshop supervisor), Kick4Life (confirmed zero), Uganda Clays (confirmed zero), Kakira Sugar (open advert), Tororo Cement (confirmed zero), Hima Cement (trainee adverts).
 
 ### 2026-10-09 — Cursor (Grok 4.7) — Four high findings from the security review
 Separate branch from the review PR. Google sign-in no longer keeps a pre-registered password, sessions, or authenticator: an unverified row is reclaimed when Google proves the mailbox, and a verified account that already has 2FA must send the code. Unverified tokens can only call auth and account export/delete until the email link is opened. Administrator tools return 403 until that admin enrols TOTP; sign-in stays open, including the boot admin, and an admin cannot turn 2FA off (`docs/ADMIN-2FA.md`). The careers-URL tester and the page hasher follow redirects through the same hop check as the scraper. Dependabot is configured for pip, npm, and GitHub Actions, and CI runs pip-audit plus the existing npm audit. orjson 3.11.6, PyJWT 2.15.0, pypdf 6.19.0, Next.js 15.5.27, and PostCSS 8.5.29 are pinned; `postcss-selector-parser` is overridden to 7.1.6 so the selector-parser advisory clears without moving Tailwind off 3.4.7. The owner still has to turn on Dependabot alerts, secret scanning, and branch protection in GitHub settings.

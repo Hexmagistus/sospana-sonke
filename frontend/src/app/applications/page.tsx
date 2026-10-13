@@ -107,8 +107,9 @@ function ApplicationsInner() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-ss-text">My applications</h1>
-          <p className="text-ss-muted">
+          <p className="text-sm font-semibold uppercase tracking-wide text-ss-muted">Tracker</p>
+          <h1 className="mt-1 font-display text-3xl font-extrabold tracking-tight text-ss-text">My applications</h1>
+          <p className="mt-3 text-base leading-relaxed text-ss-muted">
             Every application you&apos;ve started or are tracking — nothing is ever sent
             without you reviewing and approving it first.
           </p>

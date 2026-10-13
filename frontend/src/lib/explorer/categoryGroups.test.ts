@@ -180,10 +180,20 @@ describe("category groups: pages and navigation", () => {
 
   it("the menu drawer, landing cards and robots list the new pages", () => {
     assert.match(src("components", "Nav.tsx"), /\.\.\.EXPLORER_NAV/);
-    const landing = src("app", "page.tsx");
+    const landing = src("components", "home", "HomeExperience.tsx");
     const hrefs = [...landing.matchAll(/label: "[^"]+", desc: "[^"]+", href: "([^"]+)"/g)].map((m) => m[1]);
     assert.deepEqual(hrefs, EXPLORER_NAV.map((l) => l.href));
     const robots = src("app", "robots.ts");
     for (const l of EXPLORER_NAV) assert.ok(robots.includes(`"${l.href}"`), l.href);
+  });
+
+  it("names the sitemap in robots.txt and the Search Console token in the root layout", () => {
+    const robots = src("app", "robots.ts");
+    assert.match(robots, /sitemap: `\$\{SITE_URL\}\/sitemap\.xml`/);
+    assert.match(src("app", "sitemap.ts"), /export default async function sitemap/);
+    assert.match(
+      src("app", "layout.tsx"),
+      /verification:\s*\{\s*google:\s*"MyvgoPaRTncHGCuCDG_i2ibqlRPZ02uCdjVLOsrzbcg"/,
+    );
   });
 });

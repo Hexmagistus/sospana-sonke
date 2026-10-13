@@ -29,12 +29,15 @@ import { SITE_URL, SITE_NAME, SITE_TAGLINE, SITE_DESCRIPTION, SITE_KEYWORDS } fr
 const display = Bricolage_Grotesque({
   subsets: ["latin", "latin-ext", "vietnamese"],
   variable: "--font-display",
-  display: "swap",
+  // optional, and not preloaded: a preloaded file was holding the hero text.
+  display: "optional",
+  preload: false,
 });
 const text = Inter({
   subsets: ["latin", "latin-ext", "vietnamese"],
   variable: "--font-text",
-  display: "swap",
+  display: "optional",
+  preload: false,
 });
 
 export const metadata: Metadata = {
@@ -91,6 +94,9 @@ export const metadata: Metadata = {
       "max-video-preview": -1,
     },
   },
+  verification: {
+    google: "MyvgoPaRTncHGCuCDG_i2ibqlRPZ02uCdjVLOsrzbcg",
+  },
 };
 
 export const viewport: Viewport = {
@@ -112,10 +118,8 @@ const jsonLd = {
       areaServed: "Africa, Oceania, Europe, South America, North America and Asia. First made for the SADC region.",
     },
     {
-      // No SearchAction here: the one place a keyword search actually lives
-      // (`/companies`) requires login, and schema.org's own guidance is that a
-      // SearchAction target must be usable without authentication -- pointing
-      // it at a gated page would just send crawlers into a login redirect.
+      // SearchAction points at /jobs, which is public. /companies still requires
+      // sign-in, so it is not the target.
       "@type": "WebSite",
       "@id": `${SITE_URL}/#website`,
       name: SITE_NAME,
@@ -123,6 +127,14 @@ const jsonLd = {
       description: SITE_DESCRIPTION,
       publisher: { "@id": `${SITE_URL}/#organization` },
       inLanguage: "en",
+      potentialAction: {
+        "@type": "SearchAction",
+        target: {
+          "@type": "EntryPoint",
+          urlTemplate: `${SITE_URL}/jobs?q={search_term_string}`,
+        },
+        "query-input": "required name=search_term_string",
+      },
     },
   ],
 };

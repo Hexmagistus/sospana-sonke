@@ -59,6 +59,37 @@ def find_duplicate_groups(db: Session, company_id: str | None = None, limit: int
     return groups
 
 
+def find_external_id_groups(db: Session, company_id: str | None = None) -> list[dict]:
+    """Open rows that share an employer and an employer job id.
+
+    Read-only. The id comparison ignores case and surrounding space, which is
+    the same key the scanner uses. Nothing is closed or deleted.
+    """
+    q = db.query(Vacancy.id, Vacancy.company_id, Vacancy.external_id, Vacancy.first_seen_at).filter(
+        Vacancy.deleted_at.is_(None), Vacancy.is_open.is_(True), Vacancy.external_id.isnot(None),
+    )
+    if company_id:
+        q = q.filter(Vacancy.company_id == company_id)
+    buckets: dict[tuple[str, str], list] = {}
+    for vid, cid, external_id, first_seen in q.all():
+        key = (external_id or "").strip().casefold()
+        if not key:
+            continue
+        buckets.setdefault((cid, key), []).append((first_seen, vid))
+    groups = []
+    for (cid, key), members in buckets.items():
+        if len(members) < 2:
+            continue
+        ordered = sorted(members, key=lambda item: ((item[0] is None), item[0] or "", item[1]))
+        groups.append({
+            "company_id": cid,
+            "external_id": key,
+            "vacancy_ids": [vid for _, vid in ordered],
+        })
+    groups.sort(key=lambda group: (group["company_id"], group["external_id"]))
+    return groups
+
+
 def merge_duplicates(db: Session, keep_id: str, duplicate_ids: list[str]) -> int:
     """Soft-closes each duplicate (is_open=False, deleted_at set, duplicate_of_id
     points at the canonical listing) -- never a hard delete, so the record and

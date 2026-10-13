@@ -9,13 +9,28 @@ export default function PrivacyPage() {
     <div className="mx-auto mt-8 max-w-3xl">
       <Card>
         <h1 className="mb-1 text-2xl font-bold text-ss-text">Privacy Policy</h1>
-        <p className="mb-6 text-sm text-ss-muted">Last updated: 9 October 2026</p>
+        <p className="mb-6 text-sm text-ss-muted">Last updated: 12 October 2026</p>
         <div className="space-y-4 text-sm leading-relaxed text-ss-text">
           <p>
             Sospana Sonke (&quot;we&quot;, &quot;us&quot;) started in the SADC region and lists employers
             with a direct careers-page link across Africa, Oceania, Europe, South America, North America and Asia.
             This policy explains what personal information we collect, why, and the choices you have
             under South Africa&apos;s Protection of Personal Information Act (POPIA).
+          </p>
+
+          <h2 className="pt-2 text-lg font-semibold text-ss-text">Anonymous search and click counts (POPIA)</h2>
+          <p>
+            We count how the public search is used, and when someone opens an employer&apos;s careers page
+            or a role&apos;s application link. This notice is part of the same release as those counts, and
+            the counts start only with this release. The count is first-party. We do not use a third-party
+            tracker, a tracking cookie, or an account id. We do not store the words you typed, your IP
+            address, or a user id. A search total keeps only the filters the search understood: the country,
+            the category, and whether the question was about roles, employers, or both; whether the answer
+            was empty, not enough data, or had results; and a band for how many results there were, such as
+            1–5 or 21–100. A click is counted per employer or per role, per day, as a number. We keep these
+            daily totals for 90 days and then delete them. If your browser sends Do Not Track or Global
+            Privacy Control, that search and that click are left out of the totals. The search still works.
+            An administrator can see the totals. They cannot see the question or who asked it.
           </p>
 
           <h2 className="pt-2 text-lg font-semibold text-ss-text">Information we collect</h2>
@@ -105,6 +120,18 @@ export default function PrivacyPage() {
             lets an administrator notify you about a post that fits a preferred role you saved. That
             opt-in is not bundled into the privacy checkbox. You can switch it off on the Security page.
             People who leave it off are not tagged or notified for this.
+          </p>
+
+          <h2 className="pt-2 text-lg font-semibold text-ss-text">Saved role alerts (POPIA)</h2>
+          <p>
+            Signed-in members can save a daily role alert made of a country, a category, a keyword, or any
+            mix of those. We store that filter only so the existing daily email can list new roles we have
+            already stored that match it. Each line in that email has the employer&apos;s own link and the
+            date we last saw the role. We send one email a day, and we send nothing when no new role matches.
+            The alert starts only when you save it. The email has a one-click unsubscribe, which pauses the
+            saved alerts, and a link to manage them on the Preferences page. Saved alerts are included in
+            your data download and deleted when you delete your account. This choice is separate from the
+            administrator opportunity alerts above.
           </p>
 
           <h2 className="pt-2 text-lg font-semibold text-ss-text">Temporary messages between members</h2>

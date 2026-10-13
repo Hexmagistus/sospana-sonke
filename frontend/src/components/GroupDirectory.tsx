@@ -11,11 +11,13 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Guard from "@/components/Guard";
 import { api } from "@/lib/api";
-import { Card, Input, Button, Alert, Spinner, EmptyState } from "@/components/ui";
+import { Card, Button, Alert, Spinner, EmptyState } from "@/components/ui";
 import { Banner } from "@/components/Banner";
 import { HowToUseCard } from "@/lib/explorer/HowToUseCard";
 import { guideStepsFor } from "@/lib/directoryFilters";
 import { CompanyLogo, isAtsPortal } from "@/components/CompanyLogo";
+import { DirectoryRefine } from "@/components/DirectoryRefine";
+import { LinkScopeBadge } from "@/components/LinkScopeBadge";
 import { CompanyActionsRow, NotCountedNotice, OpenVacancyCount, TrendingBadge, ShortlistStar } from "@/components/CompanyActions";
 import { CompanyPreviewModal } from "@/components/CompanyPreviewModal";
 import { AnimatedNumber } from "@/components/AnimatedNumber";
@@ -31,6 +33,14 @@ import {
   type CategoryGroup,
 } from "@/lib/explorer/categoryGroups";
 import { getShortlist, SHORTLIST_EVENT } from "@/lib/shortlist";
+import {
+  employerSuggestions,
+  matchesBoardFilter,
+  matchesScopeFilter,
+  refineIsNarrowed,
+  type BoardFilter,
+  type ScopeFilter,
+} from "@/lib/directoryQuery";
 import type { Company, TrendingCompany } from "@/lib/types";
 
 const AVATAR_GRADIENTS = [
@@ -62,6 +72,8 @@ function GroupDirectoryInner({ group }: { group: CategoryGroup }) {
   const [trending, setTrending] = useState<Set<string>>(new Set());
   const [err, setErr] = useState("");
   const [q, setQ] = useState("");
+  const [board, setBoard] = useState<BoardFilter>("all");
+  const [scope, setScope] = useState<ScopeFilter>("all");
   const [country, setCountry] = useState("South Africa");
   const [category, setCategory] = useState("all");
   const [shortlistOnly, setShortlistOnly] = useState(false);
@@ -155,9 +167,21 @@ function GroupDirectoryInner({ group }: { group: CategoryGroup }) {
     router.push(`${pathname}${qs ? `?${qs}` : ""}`, { scroll: false });
   }
 
-  const shown = useMemo(
+  const namedRows = useMemo(
     () => shownRows(rows, { category, country, q, shortlistOnly, shortlistIds }),
     [rows, category, country, q, shortlistOnly, shortlistIds],
+  );
+  const suggestionPool = useMemo(
+    () => shownRows(rows, { category, country, q: "", shortlistOnly, shortlistIds }),
+    [rows, category, country, shortlistOnly, shortlistIds],
+  );
+  const shown = useMemo(
+    () => namedRows.filter((row) => matchesBoardFilter(row, board) && matchesScopeFilter(row, scope)),
+    [namedRows, board, scope],
+  );
+  const nameSuggestions = useMemo(
+    () => employerSuggestions(suggestionPool, q),
+    [suggestionPool, q],
   );
 
   function surpriseMe() {
@@ -274,12 +298,16 @@ function GroupDirectoryInner({ group }: { group: CategoryGroup }) {
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            <div className="min-w-0 flex-1 sm:min-w-[14rem]">
-              <Input
-                placeholder={`Search ${group.searchNoun}…`}
-                aria-label={`Search ${group.searchNoun}`}
-                value={q}
-                onChange={(e) => setQ(e.target.value)}
+            <div className="min-w-0 flex-1 basis-full">
+              <DirectoryRefine
+                query={q}
+                onQuery={setQ}
+                suggestions={nameSuggestions}
+                board={board}
+                onBoard={setBoard}
+                scope={scope}
+                onScope={setScope}
+                resultCount={shown.length}
               />
             </div>
           </div>
@@ -301,7 +329,7 @@ function GroupDirectoryInner({ group }: { group: CategoryGroup }) {
                 key={c.id}
                 onClick={() => setPreviewCompany(c)}
                 style={{ borderLeftColor: accent }}
-                className="relative min-w-0 cursor-pointer rounded-2xl border border-ss-border border-l-4 bg-ss-surface p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_1px_3px_rgba(16,24,40,0.06)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+                className="ss-card relative min-w-0 cursor-pointer border-l-4 transition-shadow duration-200 hover:-translate-y-0.5"
               >
                 <div className="absolute right-3 top-3" onClick={(e) => e.stopPropagation()}>
                   <ShortlistStar companyId={c.id} />
@@ -325,6 +353,7 @@ function GroupDirectoryInner({ group }: { group: CategoryGroup }) {
                         {isAtsPortal(c.careers_url) && (
                           <span className="rounded-full bg-navy/10 px-2 py-0.5 text-xs font-semibold text-ss-text">Apply on their portal</span>
                         )}
+                        <LinkScopeBadge url={c.careers_url} />
                         {trending.has(c.id) && <TrendingBadge />}
                         {c.country && <span className="text-xs text-ss-muted">{c.country}</span>}
                       </div>
@@ -340,7 +369,7 @@ function GroupDirectoryInner({ group }: { group: CategoryGroup }) {
                     </>
                   )}
                   <span className={c.careers_url ? "font-semibold text-brand-dark" : "text-ss-muted"}>
-                    {c.careers_url ? "Direct careers link active ✓" : "No careers page yet"}
+                    {c.careers_url ? "Direct careers link" : "No careers page yet"}
                   </span>
                 </div>
 
@@ -362,7 +391,13 @@ function GroupDirectoryInner({ group }: { group: CategoryGroup }) {
           })}
           {shown.length === 0 && (
             <div className="md:col-span-2">
-              <EmptyState icon={empty.icon} title={empty.title} message={empty.message} />
+              <EmptyState
+                icon={empty.icon}
+                title={refineIsNarrowed(q, board, scope) ? "No employers match" : empty.title}
+                message={refineIsNarrowed(q, board, scope)
+                  ? "Nothing in this list matches that search. Clear a filter, or try another spelling."
+                  : empty.message}
+              />
             </div>
           )}
         </div>

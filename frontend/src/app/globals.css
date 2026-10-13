@@ -63,6 +63,122 @@
    reads small or timid. Tailwind's rem-based sizes/spacing scale with this. */
 html { font-size: 17.5px; }
 
+/* Below-the-fold homepage sections. The browser can skip painting them until
+   they are near the viewport. The intrinsic size keeps the scrollbar stable. */
+.ss-defer-paint {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 520px;
+}
+
+/* Shared surfaces. Cards, empty states and the hero use these so spacing,
+   radius and shadow stay the same on the homepage, directory and tools. */
+.ss-card {
+  border-radius: 1rem;
+  border: 1px solid var(--ss-border);
+  background: var(--ss-surface);
+  color: var(--ss-text);
+  padding: 1.25rem;
+  box-shadow: 0 1px 2px rgba(11, 18, 32, 0.04), 0 16px 36px -28px rgba(11, 36, 71, 0.45);
+}
+.ss-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  border-radius: 1rem;
+  border: 1px dashed var(--ss-border);
+  background: var(--ss-surface);
+  padding: 1.75rem 1.25rem;
+}
+.ss-hero {
+  background:
+    linear-gradient(180deg, rgba(245, 179, 1, 0.08), transparent 42%),
+    var(--ss-surface);
+}
+
+/* Intelligence band. Midnight navy, charcoal ink, paper cards, electric teal.
+   The rest of the app keeps the gold and navy tokens. Teal text on paper is
+   the deep teal; the bright teal is a fill on navy, where the contrast holds. */
+:root,
+.ss-intel {
+  --ss-intel-navy: #0c1b33;
+  --ss-intel-charcoal: #1c2430;
+  --ss-intel-white: #ffffff;
+  --ss-intel-paper: #f4f7f8;
+  --ss-intel-text: #ffffff;
+  --ss-intel-muted: #d5dde8;
+  --ss-intel-teal: #5eead4;
+  --ss-intel-teal-deep: #0f766e;
+  --ss-intel-ink: #0b1220;
+  --ss-intel-card-muted: #3f4a5c;
+}
+.ss-hero.ss-intel {
+  background:
+    radial-gradient(520px 240px at 100% 0%, rgba(94, 234, 212, 0.18), transparent 58%),
+    var(--ss-intel-navy);
+  color: var(--ss-intel-text);
+  border-color: transparent;
+}
+.ss-intel-title {
+  color: var(--ss-intel-text);
+}
+.ss-intel-accent {
+  color: var(--ss-intel-teal);
+}
+.ss-intel-lead {
+  color: var(--ss-intel-muted);
+}
+.ss-intel-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 999px;
+  background: var(--ss-intel-paper);
+  color: var(--ss-intel-ink);
+  border: 1px solid rgba(12, 27, 51, 0.16);
+  padding: 0.35rem 0.85rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+.ss-intel-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: var(--ss-intel-teal-deep);
+}
+.ss-intel-quote {
+  margin-top: 1.75rem;
+  max-width: 36rem;
+  border-left: 4px solid var(--ss-intel-teal);
+  padding-left: 1rem;
+  color: var(--ss-intel-muted);
+}
+.ss-intel-card {
+  border-radius: 1rem;
+  background: var(--ss-intel-paper);
+  color: var(--ss-intel-ink);
+  padding: 1.25rem;
+}
+.ss-intel-button {
+  border-radius: 0.75rem;
+  background: var(--ss-intel-teal);
+  color: var(--ss-intel-navy);
+  padding: 0.7rem 1.15rem;
+  font-weight: 800;
+}
+.ss-intel-button:disabled {
+  opacity: 0.7;
+}
+.ss-intel :focus-visible {
+  outline: 2px solid var(--ss-intel-teal);
+  outline-offset: 2px;
+}
+/* The first paragraph must paint with a face that is already on the device.
+   Waiting for the display font was the mobile LCP. */
+.landing .ss-lcp,
+.landing .ss-lcp h1 {
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
 body {
   min-height: 100vh;
   color: var(--ss-text);
@@ -71,7 +187,7 @@ body {
     radial-gradient(760px 520px at -12% 6%, rgba(15, 118, 110, 0.12), transparent 60%),
     radial-gradient(820px 620px at 50% 118%, rgba(124, 92, 255, 0.10), transparent 62%),
     var(--ss-bg);
-  background-attachment: fixed;
+  background-attachment: scroll;
   transition: background-color 0.25s ease, color 0.25s ease;
 }
 
@@ -317,8 +433,14 @@ body {
     linear-gradient(180deg, rgba(247, 245, 240, 0.96), rgba(247, 245, 240, 0.98)),
     url("/photos/mara-sunset.jpg");
   background-size: auto, auto, auto, auto, cover;
-  background-attachment: fixed;
+  background-attachment: scroll;
   background-position: center;
+}
+/* The homepage paints its own hero. A full-bleed photo on body was competing
+   with the first paragraph on a slow phone. */
+body:has(.landing) {
+  background-image: none;
+  background-color: var(--ss-bg);
 }
 :root[data-theme="dark"] body {
   background-image:
@@ -498,6 +620,53 @@ main p, main li, main a { overflow-wrap: break-word; }
 @media (max-width: 767px) {
   main, main *, main p, main li, main a { overflow-wrap: anywhere; }
 }
+/* Admin dashboard on a phone. `overflow-wrap: anywhere` drops a cell's minimum
+   width to one character, so names, emails, dates, badges and buttons stack
+   vertically. Restore normal breaks here. Tables and tool rows stay one line
+   and scroll sideways. Paragraphs still wrap on spaces. Desktop is unchanged. */
+.admin-readable .admin-scroll {
+  display: block;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+}
+/* Every breakpoint: a cell is one line. The pane above scrolls instead of
+   squeezing a name or email into a column of letters. */
+.admin-readable table {
+  width: max-content;
+  min-width: 100%;
+}
+.admin-readable th,
+.admin-readable td {
+  white-space: nowrap;
+  min-width: max-content;
+  vertical-align: top;
+}
+@media (max-width: 767px) {
+  .admin-readable,
+  .admin-readable * {
+    overflow-wrap: normal;
+    word-break: normal;
+  }
+  .admin-readable .admin-oneline {
+    white-space: nowrap;
+    min-width: max-content;
+    flex-shrink: 0;
+  }
+  .admin-readable .admin-stats span {
+    white-space: nowrap;
+  }
+  .admin-readable label > span.flex {
+    flex-wrap: wrap;
+    column-gap: 0.75rem;
+    row-gap: 0.15rem;
+  }
+  .admin-readable label > span.flex > span {
+    white-space: nowrap;
+    min-width: max-content;
+    flex-shrink: 0;
+  }
+}
 /* Touch screens: small buttons get a finger-sized hit area (40px tall), checkboxes and
  * radios are no longer 13px dots. Mouse and desktop layouts are untouched. */
 @media (max-width: 767px) and (pointer: coarse) {
@@ -516,6 +685,15 @@ main p, main li, main a { overflow-wrap: break-word; }
   main input[type="radio"] {
     width: 1.25rem;
     height: 1.25rem;
+  }
+}
+/* After the coarse-pointer min-width, so an admin button stays as wide as its label. */
+@media (max-width: 767px) {
+  main .admin-readable button {
+    white-space: nowrap;
+    min-width: max-content;
+    flex-shrink: 0;
+    height: auto;
   }
 }
 

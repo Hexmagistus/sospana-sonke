@@ -43,7 +43,12 @@ def test_new_employers_keep_the_direct_link_rule():
         assert ":443" not in (row["careers_url"] or "")
         if row["careers_url"]:
             assert row["active"] == "true"
-            assert row["careers_status"] == "green_verified"
+            # We Buy Cars Holdings later stored its own careers page under the
+            # listed-company landing rule (careers_scope=global).
+            if "careers_scope=global" in row["relevance_note"]:
+                assert row["careers_status"] == "global_group"
+            else:
+                assert row["careers_status"] == "green_verified"
             assert row["scraping_status"] == "pending"
             assert row["careers_url"].startswith("https://")
             host = urlparse(row["careers_url"]).netloc.lower()
@@ -78,3 +83,27 @@ def test_notable_south_african_employers_and_existing_rows_stay_put():
     assert rows[("Woolworths Holdings", "South Africa")]["official_website"].startswith("https://www.woolworths.co.za")
     assert rows[("One Acre Fund", "Kenya")]["careers_url"].startswith("https://oneacrefund.org/careers/")
     assert rows[("Bell Equipment", "South Africa")]["careers_url"].startswith("https://global.bellequipment.com/")
+
+
+def test_south_african_gap_rows_and_the_jse_links_filled_with_them():
+    rows = {(row["company_name"], row["country"]): row for row in _rows()}
+    gap = [row for row in _rows() if row["relevance_note"].startswith("2026-10-09 SA gap")]
+    linked = [row for row in gap if row["careers_url"]]
+    assert len(gap) == 91
+    assert len(linked) == 7
+    assert rows[("Allan Gray", "South Africa")]["careers_url"] == "https://www.allangray.co.za/careers/"
+    assert rows[("Prescient", "South Africa")]["careers_url"] == "https://prescient.simplify.hr/"
+    assert rows[("Postbank", "South Africa")]["careers_url"] == "https://www.postbank.co.za/careers.html"
+    assert rows[("Wesizwe Platinum", "South Africa")]["careers_url"] == "https://wesizwe.co.za/vacancies/"
+    assert rows[("Balwin Properties", "South Africa")]["careers_url"] == "https://balwin.co.za/careers-at-balwin"
+    assert rows[("Finbond Group", "South Africa")]["careers_url"] == "https://www.finbondgroup.com/vacancies/"
+    assert rows[("Eastern Platinum", "South Africa")]["careers_url"] == "https://www.eastplats.com/careers/"
+    assert rows[("Sygnia", "South Africa")]["careers_url"] == "https://sygnia.simplify.hr/"
+    assert rows[("Weaver Fintech", "South Africa")]["careers_url"] == "https://weaverfintech.simplify.hr/"
+    # Re-checked and not stored: robots block, a dead URL, eRecruit, a login wall, or a culture page.
+    for name in (
+        "Tsebo Solutions Group", "Pikitup", "Assupol", "Lactalis South Africa",
+        "McCain Foods South Africa", "Petra Diamonds", "Deneb Investments", "Macsteel",
+    ):
+        assert rows[(name, "South Africa")]["careers_url"] == ""
+        assert rows[(name, "South Africa")]["active"] == "false"

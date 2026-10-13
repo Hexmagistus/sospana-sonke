@@ -28,6 +28,12 @@ import "./themeContrast.test.js";
 import "./mapView.test.js";
 import "./mobileFit.test.js";
 import "./explorer/BalungileWalker.test.js";
+import "./linkScope.test.js";
+import "./directoryQuery.test.js";
+import "./countryPage.test.js";
+import "./returnPath.test.js";
+import "./jobPosting.test.js";
+import "./employerPage.test.js";
 
 describe("directory country stays when the category changes", () => {
   it("keeps South Africa when a category is chosen", () => {
@@ -86,6 +92,10 @@ describe("directory country stays when the category changes", () => {
     assert.ok(compareCountries("Zimbabwe", "Nigeria") < 0);
     assert.ok(compareCountries("Egypt", "Brazil") < 0);
     assert.ok(compareCountries("United Kingdom", "Zambia") > 0);
+    assert.ok(compareCountries("Réunion", "Canada") < 0);
+    assert.ok(compareCountries("Egypt", "Réunion") < 0);
+    assert.ok(compareCountries("Mayotte", "Canada") < 0);
+    assert.ok(compareCountries("Saint Helena", "Faroe Islands") < 0);
   });
 
   it("lists four how-to steps", () => {

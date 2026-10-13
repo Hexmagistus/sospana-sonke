@@ -18,6 +18,7 @@ from app.models.notification import Notification, PushToken
 from app.models.spark import SparkOpen
 from app.models.user import User
 from app.models.admin_ops import UserTag
+from app.models.role_alert import RoleAlert
 from app.schemas.auth import NotificationPreferencesRequest, OpportunityAlertsRequest, UserResponse
 from app.models.cv import CV
 from app.models.document import CVVersion, CoverLetter
@@ -89,6 +90,14 @@ def export_my_data(request: Request, db: Session = Depends(get_db), user: User =
                               .order_by(SparkOpen.spark_date)],
         "blocked_user_ids": [b.blocked_id for b in db.query(UserBlock).filter(UserBlock.blocker_id == user.id)],
         "profile": _export_profile(db, user),
+        "role_alerts": [
+            {"country": row.country, "category": row.category, "keyword": row.keyword,
+             "active": row.active,
+             "created_at": row.created_at.isoformat() if row.created_at else None}
+            for row in db.query(RoleAlert).filter(
+                RoleAlert.user_id == user.id, RoleAlert.deleted_at.is_(None)
+            )
+        ],
         "note": "Temporary messages are deleted automatically 24 hours after they are sent. "
                 "This file includes your account and profile. Uploaded CV files are not attached; "
                 "ask the Information Officer for a copy of a file before you delete the account. "
@@ -230,6 +239,7 @@ def delete_my_account(request: Request, body: DeleteRequest, db: Session = Depen
     db.query(SparkOpen).filter(SparkOpen.user_id == user.id).delete(synchronize_session=False)
     db.query(PushToken).filter(PushToken.user_id == user.id).delete(synchronize_session=False)
     db.query(UserTag).filter(UserTag.user_id == user.id).delete(synchronize_session=False)
+    db.query(RoleAlert).filter(RoleAlert.user_id == user.id).delete(synchronize_session=False)
     _erase_documents_and_profile(db, user)
     user.token_version = (user.token_version or 0) + 1  # kill every session now
     user.email = f"deleted-{user.id}@deleted.invalid"

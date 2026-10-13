@@ -1,0 +1,482 @@
+"""Look for direct careers links on blank seed rows. Offline only.
+
+A hit is kept when robots.txt allows SospanaSonkeBot (or the host has no
+robots.txt), the page is HTTP 200, the board is that employer's, and either
+at least half of the located roles are in the employer's country or a stable
+Workday country filter (``locationCountry`` or ``Location_Country``) lists at least two roles there.
+``--large-groups`` limits the scan to listed large groups and also keeps that
+group's own board when no country path exists. Those hits have ``scope`` global.
+
+    python scripts/discover_seed_careers.py --country "United States" --out /tmp/hits.json
+
+``--render`` renders a JavaScript shell when a non-Workday page does not name
+a post in the HTTP body. The scan cron does not call this script.
+"""
+from __future__ import annotations
+
+import argparse
+import csv
+import json
+import os
+import sys
+from collections import Counter
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from urllib.parse import parse_qsl, urlparse
+
+import httpx
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from app.core.config import settings
+from app.services.seed_board import (
+    BoardDecision,
+    decide_board,
+    decide_counts,
+    is_large_group,
+    names_match,
+    slug_is_reliable,
+    slug_variants,
+    tenant_fits,
+    workday_country_facet,
+    workday_filter_url,
+)
+from app.services.seed_page import fetch_seed_page, looks_like_js_shell
+
+UA = settings.URL_TEST_USER_AGENT
+_WD_CLUSTERS = (1, 3, 5, 103)
+_SKIP_SITES = {"refreshfacet", "wday"}
+
+
+def _client() -> httpx.Client:
+    return httpx.Client(
+        headers={"User-Agent": UA, "Accept": "application/json,text/html"},
+        follow_redirects=False,
+        timeout=httpx.Timeout(12.0, connect=4.0),
+    )
+
+
+def _open(client: httpx.Client, url: str, *, method: str = "GET", body: dict | None = None):
+    """SSRF-checked request. A missing host or a refused address is a miss, not a crash.
+
+    robots.txt is enforced on the stored page, not on the public JSON host.
+    """
+    from app.scraper.politeness import request_with_backoff
+    from app.scraper.ssrf import SsrfBlocked
+    try:
+        return request_with_backoff(
+            client, url, retries=1, sleep=lambda _delay: None, method=method, json_body=body,
+        )
+    except (SsrfBlocked, httpx.HTTPError, ValueError, OSError):
+        return None
+
+
+def _titles_present(html: str, titles: list[str]) -> bool:
+    low = (html or "").lower()
+    return any(title and title.lower() in low for title in titles[:3])
+
+
+def _confirm(client, url: str, titles: list[str], *, renderer, workday: bool, filtered: bool) -> str | None:
+    page = fetch_seed_page(url, client, renderer=None)
+    if page.error == "robots" or page.robots_allowed is False or not page.ok:
+        return None
+    final = page.final_url or ""
+    host = (urlparse(final).hostname or "").lower()
+    if workday:
+        if "myworkdayjobs.com" not in host:
+            return None
+        if filtered and not _country_query(final):
+            return None
+        return final
+    if not _titles_present(page.html, titles) and looks_like_js_shell(page.html) and renderer is not None:
+        page = fetch_seed_page(url, client, renderer=renderer)
+        if not page.ok:
+            return None
+        final = page.final_url or final
+    if not _titles_present(page.html, titles):
+        return None
+    return final
+
+
+def _country_query(url: str) -> bool:
+    keys = {key.lower() for key, _value in parse_qsl(urlparse(url).query, keep_blank_values=True)}
+    return "locationcountry" in keys or "location_country" in keys
+
+
+def probe_json(client, name: str, country: str, renderer, *, allow_global: bool = False) -> dict | None:
+    for slug in slug_variants(name):
+        token = slug.replace("-", "")
+        hit = _greenhouse(client, name, country, slug, renderer, allow_global=allow_global)
+        if hit:
+            return hit
+        hit = _lever(client, name, country, slug, renderer, allow_global=allow_global)
+        if hit:
+            return hit
+        hit = _ashby(client, name, country, slug, renderer, allow_global=allow_global)
+        if hit:
+            return hit
+        hit = _workable(client, name, country, token, renderer, allow_global=allow_global)
+        if hit:
+            return hit
+        hit = _smartrecruiters(client, name, country, token, renderer, allow_global=allow_global)
+        if hit:
+            return hit
+        hit = _workday(client, name, country, token, renderer, allow_global=allow_global)
+        if hit:
+            return hit
+    return None
+
+
+def _accept_sample(name, country, board, titles, locations, ats, url, client, renderer, *, allow_filter=False, allow_global=False):
+    if board:
+        if not names_match(name, board):
+            return None
+    elif not tenant_fits(name, slug_from_url(url)):
+        return None
+    if not slug_is_reliable(name, url):
+        return None
+    if len(titles) < 2:
+        return None
+    decision = decide_board(locations, country)
+    scope = "country"
+    if not decision.accept or (decision.filtered and not allow_filter):
+        # A global board is the group's own careers site. It is not an
+        # in-country list, so it is stored only for a large group and marked.
+        if not allow_global:
+            return None
+        decision = BoardDecision(True, False, decision.here, decision.located, decision.share)
+        scope = "global"
+    final = _confirm(client, url, titles, renderer=renderer, workday=ats == "workday", filtered=decision.filtered and scope != "global")
+    if not final:
+        return None
+    hit = _hit(name, country, ats, final, decision, titles)
+    hit["scope"] = scope
+    return hit
+
+
+def slug_from_url(url: str) -> str:
+    parts = [part for part in urlparse(url).path.split("/") if part]
+    return (parts[0] if parts else "").replace("-", "").lower()
+
+
+def _hit(name, country, ats, url, decision, titles) -> dict:
+    return {
+        "name": name,
+        "country": country,
+        "ats": ats,
+        "url": url,
+        "filtered": decision.filtered,
+        "here": decision.here,
+        "located": decision.located,
+        "share": round(decision.share, 3),
+        "titles": [title for title in titles if title][:3],
+        "scope": "country",
+    }
+
+
+def _greenhouse(client, name, country, slug, renderer, *, allow_global=False):
+    try:
+        response = _open(client, f"https://boards-api.greenhouse.io/v1/boards/{slug}/jobs?content=false")
+    except httpx.HTTPError:
+        return None
+    if response is None or response.status_code != 200:
+        return None
+    jobs = (response.json() or {}).get("jobs") or []
+    titles, locations = [], []
+    boards = Counter()
+    for job in jobs:
+        title = (job.get("title") or "").strip()
+        if not title:
+            continue
+        titles.append(title)
+        locations.append(((job.get("location") or {}).get("name") or ""))
+        boards[job.get("company_name") or ""] += 1
+    board = boards.most_common(1)[0][0] if boards else ""
+    return _accept_sample(
+        name, country, board, titles, locations, "greenhouse",
+        f"https://job-boards.greenhouse.io/{slug}", client, renderer, allow_global=allow_global,
+    )
+
+
+def _lever(client, name, country, slug, renderer, *, allow_global=False):
+    try:
+        response = _open(client, f"https://api.lever.co/v0/postings/{slug}?mode=json")
+    except httpx.HTTPError:
+        return None
+    if response is None or response.status_code != 200:
+        return None
+    data = response.json()
+    if not isinstance(data, list):
+        return None
+    titles, locations = [], []
+    for job in data:
+        title = (job.get("text") or "").strip()
+        if not title:
+            continue
+        titles.append(title)
+        locations.append(((job.get("categories") or {}).get("location") or ""))
+    return _accept_sample(
+        name, country, "", titles, locations, "lever",
+        f"https://jobs.lever.co/{slug}", client, renderer, allow_global=allow_global,
+    )
+
+
+def _ashby(client, name, country, slug, renderer, *, allow_global=False):
+    try:
+        response = _open(client, f"https://api.ashbyhq.com/posting-api/job-board/{slug}")
+    except httpx.HTTPError:
+        return None
+    if response is None or response.status_code != 200:
+        return None
+    jobs = (response.json() or {}).get("jobs") or []
+    titles, locations = [], []
+    for job in jobs:
+        title = (job.get("title") or "").strip()
+        if not title:
+            continue
+        titles.append(title)
+        location = job.get("location") or ""
+        if isinstance(location, dict):
+            location = location.get("name") or ""
+        locations.append(str(location))
+    return _accept_sample(
+        name, country, "", titles, locations, "ashby",
+        f"https://jobs.ashbyhq.com/{slug}", client, renderer, allow_global=allow_global,
+    )
+
+
+def _workable(client, name, country, token, renderer, *, allow_global=False):
+    try:
+        response = _open(client, f"https://www.workable.com/api/accounts/{token}?details=true")
+    except httpx.HTTPError:
+        return None
+    if response is None or response.status_code != 200:
+        return None
+    data = response.json() or {}
+    titles, locations = [], []
+    for job in data.get("jobs") or []:
+        title = (job.get("title") or "").strip()
+        if not title:
+            continue
+        titles.append(title)
+        loc = job.get("location") or {}
+        if isinstance(loc, dict):
+            locations.append(", ".join(part for part in [loc.get("city") or "", loc.get("country") or ""] if part))
+        else:
+            locations.append(str(loc))
+    return _accept_sample(
+        name, country, data.get("name") or "", titles, locations, "workable",
+        f"https://apply.workable.com/{token}/", client, renderer, allow_global=allow_global,
+    )
+
+
+def _smartrecruiters(client, name, country, token, renderer, *, allow_global=False):
+    try:
+        response = _open(client, f"https://api.smartrecruiters.com/v1/companies/{token}/postings?limit=100")
+    except httpx.HTTPError:
+        return None
+    if response is None or response.status_code != 200:
+        return None
+    posts = (response.json() or {}).get("content") or []
+    titles, locations = [], []
+    for post in posts:
+        title = (post.get("name") or "").strip()
+        if not title:
+            continue
+        titles.append(title)
+        loc = post.get("location") or {}
+        locations.append(", ".join(part for part in [loc.get("city") or "", loc.get("region") or "", loc.get("country") or ""] if part))
+    return _accept_sample(
+        name, country, "", titles, locations, "smartrecruiters",
+        f"https://careers.smartrecruiters.com/{token}", client, renderer, allow_global=allow_global,
+    )
+
+
+def _workday_sites(text: str) -> list[str]:
+    sites = []
+    for line in text.splitlines():
+        raw = line.split("#", 1)[0].strip()
+        if not raw.lower().startswith("allow:"):
+            continue
+        path = raw.split(":", 1)[1].strip().strip("/")
+        site = path.split("/", 1)[0]
+        if not site or site.lower() in _SKIP_SITES or site in sites:
+            continue
+        sites.append(site)
+    return sites[:4]
+
+
+def _workday(client, name, country, slug, renderer, *, allow_global=False):
+    alnum = "".join(ch for ch in name.lower() if ch.isalnum())
+    if len(slug) < 5 or slug not in alnum or not tenant_fits(name, slug):
+        return None
+    if not slug_is_reliable(name, f"https://{slug}.wd1.myworkdayjobs.com/External"):
+        return None
+    for cluster in _WD_CLUSTERS:
+        host = f"{slug}.wd{cluster}.myworkdayjobs.com"
+        origin = f"https://{host}"
+        try:
+            robots = _open(client, origin + "/robots.txt")
+        except httpx.HTTPError:
+            continue
+        if robots is None:
+            continue
+        if robots.status_code == 200:
+            sites = _workday_sites(robots.text) or ["External", "Careers"]
+        elif robots.status_code == 404:
+            sites = ["External", "Careers"]
+        else:
+            continue
+        for site in sites:
+            page_url = f"{origin}/{site}"
+            endpoint = f"{origin}/wday/cxs/{slug}/{site}/jobs"
+            from app.scraper.politeness import RobotsChecker
+            if not RobotsChecker(client).is_allowed(page_url):
+                continue
+            try:
+                response = _open(client, endpoint, method="POST", body={"appliedFacets": {}, "limit": 20, "offset": 0, "searchText": ""})
+            except httpx.HTTPError:
+                continue
+            if response is None or response.status_code != 200:
+                continue
+            try:
+                payload = response.json()
+            except ValueError:
+                continue
+            posts = payload.get("jobPostings") or []
+            titles = [(post.get("title") or "").strip() for post in posts]
+            titles = [title for title in titles if title]
+            locations = [(post.get("locationsText") or "").strip() for post in posts]
+            facet = workday_country_facet(payload, country)
+            scope = "country"
+            if facet:
+                parameter, facet_id, here, located = facet
+                decision = decide_counts(here, located)
+                if here >= 2:
+                    # Prefer the board's own country filter, including when this
+                    # country is already a majority. The unfiltered feed can lead
+                    # with other countries.
+                    url = workday_filter_url(page_url, facet_id, parameter)
+                    try:
+                        filtered = _open(client, endpoint, method="POST", body={
+                            "appliedFacets": {parameter: [facet_id]},
+                            "limit": 5, "offset": 0, "searchText": "",
+                        })
+                        if filtered is None or filtered.status_code != 200:
+                            raise ValueError("filter")
+                        filtered_posts = (filtered.json() or {}).get("jobPostings") or []
+                    except (httpx.HTTPError, ValueError):
+                        if allow_global and len(titles) >= 2 and int(payload.get("total") or 0) >= 2:
+                            url = page_url
+                            decision = BoardDecision(True, False, 0, int(payload.get("total") or 0), 0.0)
+                            scope = "global"
+                        elif not decision.accept or decision.filtered:
+                            continue
+                        else:
+                            url = page_url
+                    else:
+                        titles = [(post.get("title") or "").strip() for post in filtered_posts if (post.get("title") or "").strip()]
+                        if len(titles) < 2:
+                            continue
+                        decision = BoardDecision(True, True, here, located, decision.share)
+                elif allow_global and len(titles) >= 2 and int(payload.get("total") or 0) >= 2:
+                    url = page_url
+                    decision = BoardDecision(True, False, 0, int(payload.get("total") or 0), 0.0)
+                    scope = "global"
+                else:
+                    continue
+            else:
+                # A first page can be one country while the rest of the board is not.
+                # A complete in-country majority stays a country board. A large
+                # group's own tenant with no country facet is the global board.
+                total = int(payload.get("total") or 0)
+                page_complete = total <= len(posts)
+                decision = decide_board(locations, country) if page_complete else BoardDecision(False, False, 0, 0, 0.0)
+                if page_complete and decision.accept and not decision.filtered:
+                    url = page_url
+                    scope = "country"
+                elif allow_global and len(titles) >= 2 and total >= 2:
+                    url = page_url
+                    decision = BoardDecision(True, False, 0, total, 0.0)
+                    scope = "global"
+                else:
+                    continue
+            if len(titles) < 2:
+                continue
+            final = _confirm(client, url, titles, renderer=renderer, workday=True, filtered=decision.filtered and scope != "global")
+            if not final:
+                continue
+            hit = _hit(name, country, "workday", final, decision, titles)
+            hit["scope"] = scope
+            return hit
+    return None
+
+
+def blank_rows(path: str, countries: set[str]) -> list[dict]:
+    with open(path, encoding="utf-8-sig", newline="") as handle:
+        rows = []
+        for row in csv.DictReader(handle):
+            if (row.get("careers_url") or "").strip():
+                continue
+            if row.get("country") not in countries:
+                continue
+            rows.append(row)
+        return rows
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="Discover direct careers links for blank seed rows.")
+    parser.add_argument("--csv", default=os.path.join(os.path.dirname(__file__), "..", "seed", "company_database_import.csv"))
+    parser.add_argument("--country", action="append", required=True)
+    parser.add_argument("--out", required=True)
+    parser.add_argument("--render", action="store_true")
+    parser.add_argument("--workers", type=int, default=8)
+    parser.add_argument("--limit", type=int, default=0)
+    parser.add_argument("--large-groups", action="store_true",
+                        help="Only listed large groups. Accept the group's own global careers board.")
+    args = parser.parse_args()
+    renderer = None
+    if args.render:
+        from app.scraper.render import PlaywrightRenderer
+        renderer = PlaywrightRenderer()
+    rows = blank_rows(args.csv, set(args.country))
+    if args.large_groups:
+        rows = [row for row in rows if is_large_group(row.get("source_type") or "", row.get("relevance_note") or "")]
+    if args.limit:
+        rows = rows[:args.limit]
+    print(f"blank {len(rows)}", flush=True)
+    hits = []
+
+    def one(row):
+        try:
+            with _client() as client:
+                found = probe_json(
+                    client, row["company_name"], row["country"], renderer,
+                    allow_global=args.large_groups,
+                )
+        except Exception as exc:
+            print(f"ERR {row.get('company_name')}: {type(exc).__name__}", flush=True)
+            return None
+        if not found:
+            return None
+        found["source_type"] = row.get("source_type") or ""
+        return found
+
+    with ThreadPoolExecutor(max_workers=args.workers) as pool:
+        futures = [pool.submit(one, row) for row in rows]
+        for index, future in enumerate(as_completed(futures), start=1):
+            found = future.result()
+            if found:
+                hits.append(found)
+                with open(args.out + ".jsonl", "a", encoding="utf-8") as handle:
+                    handle.write(json.dumps(found) + "\n")
+                print(f"HIT {found['country']} | {found['name']} | {found['ats']} | {found['url']}", flush=True)
+            if index % 50 == 0:
+                print(f"progress {index}/{len(rows)} hits {len(hits)}", flush=True)
+    with open(args.out, "w", encoding="utf-8") as handle:
+        json.dump(hits, handle, indent=2)
+    print(f"DONE {len(hits)}", flush=True)
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
