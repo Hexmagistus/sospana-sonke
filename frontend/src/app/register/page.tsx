@@ -105,7 +105,7 @@ export default function RegisterPage() {
       <LitCircuits lit={filled + (consent ? 1 : 0)} total={6} />
       <h1 className="mb-1 text-center font-display text-4xl font-extrabold text-ss-text">Create your account</h1>
       <p className="mb-2 text-center text-xs font-semibold uppercase tracking-[0.16em] text-ss-primary">Born in SADC, built for the world</p>
-      <p className="mb-5 text-center text-base font-medium text-ss-muted">Free forever. Takes about 60 seconds. Your future self says thanks. 🚀</p>
+      <p className="mb-5 text-center text-base font-medium text-ss-muted">Free forever. Takes about 60 seconds. Jobs, programmes, labour data and grounded search, in one place. 🚀</p>
       <div className="mb-6">
         <Alert kind="info" onPhoto>
           First sign-in taking a while? That&apos;s just our server being woken up (or occasionally updated)
@@ -175,7 +175,7 @@ export default function RegisterPage() {
                 <Link href="/privacy" target="_blank" className="text-brand hover:underline">Privacy Policy</Link>{" "}
                 and{" "}
                 <Link href="/terms" target="_blank" className="text-brand hover:underline">Terms</Link>, and I agree
-                that Sospana Sonke may process my personal information to match me to vacancies, as described there (POPIA).
+                that Sospana Sonke may process my personal information to run my account and show stored roles, as described there (POPIA).
               </span>
             </label>
             <fieldset className="space-y-4 rounded-xl border border-ss-border p-3">
@@ -201,7 +201,7 @@ export default function RegisterPage() {
               </label>
               <YesNo
                 name="alerts"
-                label="May an administrator email me about a post that fits a role I named? This is off unless I say yes. The site does not score me against vacancies."
+                label="May an administrator email me about a post that fits a role I named? This is off unless I say yes. The site does not score me against stored roles."
                 value={alerts}
                 onChange={setAlerts}
               />
@@ -212,7 +212,7 @@ export default function RegisterPage() {
           </form>
           <div className="mt-5 border-t border-ss-border pt-4 text-center">
             <p className="mb-2 text-sm text-ss-muted">
-              Want vacancy alerts on WhatsApp? Optional — no number needed, and it never touches your account.
+              Want opening alerts on WhatsApp? Optional — no number needed, and it never touches your account.
             </p>
             <WhatsAppChannelButton source="register" className="w-full" />
           </div>

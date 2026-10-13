@@ -220,8 +220,8 @@ function TailorInner() {
       <Banner
         variant="tailor"
         eyebrow="Apply smarter"
-        title="Build my job-aligned CV"
-        subtitle="Paste a job advert and we'll analyse it against your Master CV, score the match, flag real gaps, and help you rewrite a truthful, tailored CV for it — never fabricated, only rewritten around the job."
+        title="Build a CV for one role"
+        subtitle="Paste a job, internship, learnership, bursary or graduate-programme advert. We compare it with your Master CV, flag real gaps, and help you rewrite a truthful CV around that advert. Nothing is invented."
       >
         <div className="flex flex-wrap gap-3 text-sm">
           <Link href="/master-cv" className="font-semibold text-gold underline underline-offset-2">

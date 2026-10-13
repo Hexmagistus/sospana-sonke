@@ -10,9 +10,9 @@ export const dynamic = "force-dynamic";
 const API = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
 
 export const metadata: Metadata = {
-  title: "Learnerships, bursaries and graduate programmes",
+  title: "Internships, learnerships, bursaries and graduate programmes",
   description:
-    "Internships, learnerships, bursaries and graduate programmes Sospana Sonke has stored from official pages. A closing date is shown only when the source stated one.",
+    "Internships, learnerships, bursaries and graduate programmes Sospana Sonke has stored from official pages. A closing date is shown only when the source stated one. Jobs are in the same store.",
   alternates: { canonical: "/opportunities" },
   openGraph: {
     title: `Opportunities · ${SITE_NAME}`,
@@ -90,11 +90,11 @@ export default async function OpportunitiesPage({ searchParams }: { searchParams
       <header className="ss-hero ss-intel rounded-3xl px-5 py-8 sm:px-8">
         <p className="text-sm font-semibold uppercase tracking-wide ss-intel-accent">South Africa first</p>
         <h1 className="ss-intel-title mt-1 font-display text-3xl font-extrabold tracking-tight sm:text-4xl">
-          Learnerships, bursaries and graduate programmes
+          Internships, learnerships, bursaries and graduate programmes
         </h1>
         <p className="ss-intel-lead mt-3 max-w-3xl text-base leading-relaxed">
           These are programmes already stored from an employer, a SETA, a university, or a government page.
-          A closing date appears only when that page stated one. If a date is not stated, the card says so.
+          Jobs sit in the same list. A closing date appears only when that page stated one. If a date is not stated, the card says so.
           You apply on the source page. {SITE_NAME} does not send an application for you.
         </p>
       </header>

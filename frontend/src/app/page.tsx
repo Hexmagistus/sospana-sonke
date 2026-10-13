@@ -5,7 +5,7 @@ import { coverageText } from "@/lib/regions";
 
 export const metadata: Metadata = {
   description:
-    "Ask about roles and employers Sospana Sonke has stored. The answer includes the source link, the last-seen date, and a clear note when the data is not there.",
+    "Ask about jobs, internships, learnerships, bursaries, graduate programmes and employers Sospana Sonke has stored, or about the Stats SA labour table. The answer includes the source and a clear note when the data is not there.",
 };
 
 /** Server-rendered headline. It is not inside the client bundle, so the first
@@ -28,9 +28,10 @@ export default function HomePage() {
           better-informed decisions about South Africa&apos;s future.
         </p>
         <p className="ss-intel-lead mt-3 max-w-xl text-base leading-relaxed">
-          Ask in the box below. The answer uses roles the scanner has stored and employers in the directory,
-          with the source link and the date we last saw them. Employers are listed across {coverage}. If the
-          data is not there, the answer says so. We do not promise you the job.
+          Ask in the box below. The answer uses jobs, internships, learnerships, bursaries and graduate
+          programmes the scanner has stored, employers in the directory, and the Stats SA labour table, with
+          the source and the date we last saw them. Employers are listed across {coverage}. If the data is
+          not there, the answer says so. We do not promise you a place.
         </p>
         <noscript>
           <p className="ss-intel-lead mt-4 text-base">

@@ -9,11 +9,12 @@ export default function PrivacyPage() {
     <div className="mx-auto mt-8 max-w-3xl">
       <Card>
         <h1 className="mb-1 text-2xl font-bold text-ss-text">Privacy Policy</h1>
-        <p className="mb-6 text-sm text-ss-muted">Last updated: 12 October 2026</p>
+        <p className="mb-6 text-sm text-ss-muted">Last updated: 13 October 2026</p>
         <div className="space-y-4 text-sm leading-relaxed text-ss-text">
           <p>
-            Sospana Sonke (&quot;we&quot;, &quot;us&quot;) started in the SADC region and lists employers
-            with a direct careers-page link across Africa, Oceania, Europe, South America, North America and Asia.
+            Sospana Sonke (&quot;we&quot;, &quot;us&quot;) started in the SADC region. It stores jobs, internships,
+            learnerships, bursaries and graduate programmes from official pages, lists employers with a direct
+            careers link, and shows the Statistics South Africa labour table. Search answers use only what is stored.
             This policy explains what personal information we collect, why, and the choices you have
             under South Africa&apos;s Protection of Personal Information Act (POPIA).
           </p>
@@ -50,9 +51,9 @@ export default function PrivacyPage() {
 
           <h2 className="pt-2 text-lg font-semibold text-ss-text">How we use your information</h2>
           <p>
-            We use it to run your account, show the employer directory and the vacancies we have indexed,
+            We use it to run your account, show the employer directory and the roles we have stored,
             tailor a CV when you paste a role, and send service messages such as email verification and
-            the daily updates you opted into. We do not score you against vacancies. We do not use your
+            the daily updates you opted into. We do not score you against stored roles. We do not use your
             information for unrelated advertising.
           </p>
 
@@ -86,7 +87,7 @@ export default function PrivacyPage() {
           <h2 className="pt-2 text-lg font-semibold text-ss-text">Why we process your information</h2>
           <p>
             We collect only what we need for a specific purpose: creating and securing your account,
-            showing the employer directory and indexed vacancies, tailoring a CV when you ask, tracking the applications you record,
+            showing the employer directory and stored roles, tailoring a CV when you ask, tracking the applications you record,
             and sending service messages. We process it because you gave consent when you registered
             and because it is needed to provide the service you asked for. You may withdraw consent at
             any time by deleting your account, which does not affect processing done before then.
@@ -116,7 +117,7 @@ export default function PrivacyPage() {
 
           <h2 className="pt-2 text-lg font-semibold text-ss-text">Opportunity alerts (a separate choice)</h2>
           <p>
-            The product does not score you against vacancies. A separate choice, off unless you tick it,
+            The product does not score you against stored roles. A separate choice, off unless you tick it,
             lets an administrator notify you about a post that fits a preferred role you saved. That
             opt-in is not bundled into the privacy checkbox. You can switch it off on the Security page.
             People who leave it off are not tagged or notified for this.

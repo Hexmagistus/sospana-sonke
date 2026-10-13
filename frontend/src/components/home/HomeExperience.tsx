@@ -515,6 +515,11 @@ export default function Home({ children }: { children?: ReactNode }) {
             </Link>
           </div>
         </div>
+        <nav aria-label="Site" className="mx-auto flex max-w-6xl flex-wrap gap-x-4 gap-y-1 px-3 pb-2 text-sm font-semibold sm:px-4" style={{ color: C.navy }}>
+          <Link href="/jobs" className="underline-offset-2 hover:underline">Jobs</Link>
+          <Link href="/opportunities" className="underline-offset-2 hover:underline">Opportunities</Link>
+          <Link href="/data" className="underline-offset-2 hover:underline">Labour data</Link>
+        </nav>
       </header>
 
       {/* Hero. No photograph: the lead paragraph is the first paint. */}
@@ -547,7 +552,7 @@ export default function Home({ children }: { children?: ReactNode }) {
               </blockquote>
 
               <p className="ss-intel-lead mt-6 text-sm">
-                <b className="ss-intel-accent">Free to use</b> · Direct employer links, a CV you tailor yourself, and a tracker for the roles you choose. Nothing is sent to an employer for you.
+                <b className="ss-intel-accent">Free to use</b> · Stored jobs and programmes, direct employer links, the Stats SA labour table, a CV you tailor yourself, and a tracker for the roles you choose. Nothing is sent for you.
               </p>
           </div>
         </div>
@@ -608,7 +613,7 @@ export default function Home({ children }: { children?: ReactNode }) {
         {[
           ["🎯", "Straight to employers", `Direct links to ${shownEmployers.toLocaleString("en-US")} employers' official careers pages. You apply on their site. We don't invent listings.`, C.red],
           ["🏛️", "State-owned employers too", "State-owned employers sit in the same directory. A careers link is shown only when we have one. Many still have none, and those cards do not pretend otherwise.", C.gold],
-          ["🤖", "A daily email, still your call", "If you opt in, one email a day can list vacancies first seen in the last 24 hours. It does not draft an application, and nothing is sent to an employer for you.", C.sky],
+          ["🤖", "A daily email, still your call", "If you opt in, one email a day can list openings first seen in the last 24 hours. An opening can be a job, an internship, a learnership, a bursary or a graduate programme. It does not draft an application, and nothing is sent for you.", C.sky],
           ["📈", "Track & rise", "Every application in one place. Stay organised, stay ready, and keep moving forward.", C.teal],
         ].map(([ic, t, d, col], i) => (
           <Reveal key={t as string} delay={i * 120}>
@@ -645,7 +650,7 @@ export default function Home({ children }: { children?: ReactNode }) {
             </span>
           </h2>
           <p className="mx-auto mt-3 max-w-2xl text-gray-600">
-            Tap a sector to open a live directory of employers with direct links to their official careers pages — no job boards, no dead ends.
+            Tap a sector to open a live directory of employers with direct links to their official careers pages.
           </p>
         </Reveal>
 
@@ -830,8 +835,8 @@ export default function Home({ children }: { children?: ReactNode }) {
           <div className="rounded-3xl bg-white px-6 py-9 shadow-sm ring-1 ring-black/5 sm:px-10">
             <h2 className="font-display text-2xl font-extrabold sm:text-3xl" style={{ color: C.navy }}>Started in SADC. The directory goes further. 🌍</h2>
             <p className="mt-3 max-w-3xl text-gray-600">
-              Sospana Sonke was made for job seekers in Africa. The employer list now covers {coverage}.
-              You still apply on the employer&apos;s own careers page. We do not promise a job.
+              Sospana Sonke was made for people looking for work and study support in Africa. The employer list now covers {coverage}.
+              You still apply on the organisation&apos;s own page. We do not promise a place.
             </p>
             <div className="mt-5 flex flex-wrap gap-2">
               {VALUES.map((l, i) => {
@@ -857,7 +862,7 @@ export default function Home({ children }: { children?: ReactNode }) {
         <div className="mt-8 grid gap-5 sm:grid-cols-4">
           {[
             ["1", "Create your profile", "Add your details and upload your CV — once.", C.red],
-            ["2", "Find the right openings", "Browse employers and any vacancies we have been able to read. Paste a role if you want a tailored CV and cover letter.", C.sun],
+            ["2", "Find the right openings", "Browse employers, stored jobs, and programmes we have been able to read. Paste a role if you want a tailored CV and cover letter.", C.sun],
             ["3", "Review, then apply there", "Nothing is sent to an employer for you. Review what you prepared, then apply on the employer's own page.", C.green],
             ["4", "Keep a record", "Roles you tailor are kept in one list. The list does not apply for you.", C.sky],
           ].map(([n, t, d, col], i) => (
@@ -892,7 +897,7 @@ export default function Home({ children }: { children?: ReactNode }) {
               <div className="pointer-events-none absolute -inset-1 animate-pulse-glow rounded-[2rem]" style={{ boxShadow: `0 0 90px 10px ${C.gold}66` }} />
               <div className="relative">
                 <h2 className="font-display text-3xl font-extrabold sm:text-4xl" style={{ color: "#1a0f00" }}>Your ambition deserves a real platform.</h2>
-                <p className="mx-auto mt-3 max-w-xl text-lg" style={{ color: "#1a0f00" }}>Build your profile, explore open vacancies, and start applying with confidence today.</p>
+                <p className="mx-auto mt-3 max-w-xl text-lg" style={{ color: "#1a0f00" }}>Build your profile, look through stored openings, and apply on the source page.</p>
                 <Link
                   href="/register"
                   className="group relative mt-7 inline-block overflow-hidden rounded-xl px-8 py-4 text-lg font-extrabold text-white shadow-lg transition hover:-translate-y-0.5 hover:brightness-110"
@@ -910,7 +915,8 @@ export default function Home({ children }: { children?: ReactNode }) {
       <footer className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-4 py-8 text-sm text-ss-muted">
         <span>© 2026 Sospana Sonke · Born in SADC</span>
         <div className="flex items-center gap-4">
-          <Link href="/opportunities" className="hover:text-ss-text">Learnerships and bursaries</Link>
+          <Link href="/jobs" className="hover:text-ss-text">Jobs</Link>
+          <Link href="/opportunities" className="hover:text-ss-text">Opportunities</Link>
           <Link href="/data" className="hover:text-ss-text">Labour data</Link>
           <Link href="/donate" className="hover:text-ss-text">Donate</Link>
           <a href="/privacy" className="hover:text-ss-text">Privacy Policy</a>

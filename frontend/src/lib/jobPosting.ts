@@ -33,7 +33,10 @@ export function jobSummary(job: PublicJob): string {
     job.employment_type ? `Employment type: ${job.employment_type}.` : null,
     job.work_mode ? `Work mode: ${job.work_mode}.` : null,
     job.salary ? `Pay as published: ${job.salary}.` : null,
-    "Apply on the employer's site. Sospana Sonke does not take the application.",
+    job.opportunity_type && job.opportunity_type !== "job"
+      ? `Type: ${job.opportunity_type.replace(/_/g, " ")}.`
+      : null,
+    "Apply on the source page. Sospana Sonke does not take the application.",
   ];
   return parts.filter((part): part is string => Boolean(part)).join(" ");
 }

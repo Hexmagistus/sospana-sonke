@@ -159,7 +159,7 @@ _STOP = frozenset({
 })
 
 _BASE_LIMITS = (
-    "These figures are roles and employers stored by Sospana Sonke, not every vacancy in a country.",
+    "These figures are jobs, internships, learnerships, bursaries, graduate programmes and employers stored by Sospana Sonke, not every opening in a country.",
     "A missing role does not mean the employer has no openings. Check the careers page.",
     "The advert text is not included. Open the source link to read the role.",
     "Last seen is the last scan that found the role. It is not a promise the role is still open.",
@@ -765,7 +765,7 @@ def _labour_limitations(table: dict) -> list[str]:
         table["coverage"],
         table["history_note"],
         "Sampling variability is in the statistical release and is not reprinted here.",
-        "This is not a count of vacancies stored by Sospana Sonke.",
+        "This is not a count of roles stored by Sospana Sonke.",
         "A downloadable file is not offered. The notice permits this free display when the source is named, and it forbids selling the data.",
     ]
 

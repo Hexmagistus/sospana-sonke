@@ -167,7 +167,7 @@ export default function LoginPage() {
       />
       <h1 className="mb-1 text-center font-display text-4xl font-extrabold text-ss-text">Sospana Sonke</h1>
       <p className="mb-4 text-center text-base font-medium text-ss-muted">
-        We find the opportunities. You apply direct. <span className="font-bold text-ss-tech">No middle-man, no fees, no nonsense.</span> 😎
+        Jobs, internships, learnerships, bursaries and graduate programmes, plus the Stats SA labour table. You apply on the source page. <span className="font-bold text-ss-tech">No middle-man, no fees, no nonsense.</span> 😎
       </p>
       <div className="mb-6">
         <Alert kind="info" onPhoto>

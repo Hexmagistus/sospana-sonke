@@ -34,7 +34,7 @@ export default function CountriesIndexPage() {
           {snapshotStats().directoryCountries
             ? ` in ${snapshotStats().directoryCountries} countries`
             : ""}, including those whose link is still blank.
-          These country pages do not list vacancies. Employers that already have a careers link also have a{" "}
+          These country pages do not list openings. Employers that already have a careers link also have a{" "}
           <Link href="/employers" className="font-semibold text-navy underline">public page</Link>
           {" "}with that link and any roles the scanner has stored. Sign in to browse the full directory.
         </p>

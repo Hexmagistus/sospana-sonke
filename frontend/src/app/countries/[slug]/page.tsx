@@ -59,9 +59,9 @@ export default async function CountryPage({ params }: Props) {
         </h1>
         <p className="mt-3 text-base leading-relaxed text-ss-muted">
           The directory on {snapshotDateLabel()} lists {row.withLink.toLocaleString("en-US")} employers
-          in {row.name} with a direct careers link. That count is employers, not open vacancies.
+          in {row.name} with a direct careers link. That count is employers, not open roles.
           A link is the employer&apos;s own careers page or their public applicant-system board.
-          You apply there. We do not promise a job.
+          You apply there. We do not promise a place.
         </p>
       </header>
       <p className="ss-card text-sm leading-relaxed">

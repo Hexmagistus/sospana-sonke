@@ -38,8 +38,8 @@ function DashboardInner() {
         title={`Welcome back, ${firstName} 👋`}
         subtitle={
           data
-            ? `${data.vacancies_open.toLocaleString()} open vacancies are listed right now.${data.listings_updated_at ? ` Listings last confirmed ${data.listings_updated_at.slice(0, 16).replace("T", " ")} UTC.` : ""}`
-            : "Here's where things stand across your vacancies, CVs and applications."
+            ? `${data.vacancies_open.toLocaleString()} open roles are listed right now.${data.listings_updated_at ? ` Listings last confirmed ${data.listings_updated_at.slice(0, 16).replace("T", " ")} UTC.` : ""}`
+            : "Here's where things stand across your roles, CVs and applications."
         }
       >
         {data && (
@@ -75,10 +75,10 @@ function DashboardInner() {
         <>
           <div>
             <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-ss-muted">
-              Vacancies
+              Open roles
             </h2>
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-              <Stat label="Open vacancies" value={data.vacancies_open} accent="sky" href="/companies" />
+              <Stat label="Open roles" value={data.vacancies_open} accent="sky" href="/jobs" />
             </div>
           </div>
 

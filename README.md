@@ -1,7 +1,10 @@
 # Sospana Sonke
 
-**AI-powered job discovery, CV tailoring and application platform for South Africa.**
-*"We find the opportunities. We tailor your application. We help you apply smarter."*
+Sospana Sonke stores jobs, internships, learnerships, bursaries and graduate programmes from official pages, lists employers with a direct careers link, shows the Statistics South Africa labour table, and answers a search only from what is stored. You apply on the source page. The tools are free. We do not promise a place.
+
+The public line is: Discover what's possible. Understand what's changing. Act on what matters.
+
+The sections below describe the original Phase 1 foundation. Several of those claims are no longer how the product works. Job matching was removed. The employer directory is far larger than the 367-company seed named here. There is no paid gate on the public tools. See `CLAUDE.md` for the system that is running.
 
 This repository contains the **Phase 1 foundation** of the platform described in the
 [Product & Technical Blueprint](docs/). It is a real, running, tested codebase — not a mockup.

@@ -11,20 +11,20 @@ import type { Company } from "./types.js";
 export const NOT_COUNTED_LABEL = "Not counted yet";
 
 /** Always-visible short note beside the badge. */
-export const NOT_COUNTED_INLINE = "That is not “no jobs”. Check their site.";
+export const NOT_COUNTED_INLINE = "That is not “nothing open”. Check their site.";
 
 /** Tooltip on the badge. */
 export const NOT_COUNTED_TOOLTIP =
-  "This does not mean the employer has no vacancies. Their website or hiring system blocks " +
-  "automated reading (or we cannot read it yet), so Sospana cannot count their jobs. " +
+  "This does not mean the employer has no openings. Their website or hiring system blocks " +
+  "automated reading (or we cannot read it yet), so Sospana cannot count their roles. " +
   "Open their careers link and check with the employer directly.";
 
-export const NOT_COUNTED_NOTICE_TITLE = "“Not counted yet” does not mean “no vacancies”";
+export const NOT_COUNTED_NOTICE_TITLE = "“Not counted yet” does not mean “no openings”";
 
 /** Full wording for the notice above a list. */
 export const NOT_COUNTED_NOTICE_BODY =
   "Some employers' websites or hiring systems block automated reading, or we cannot read them yet, " +
-  "so Sospana cannot count their jobs. An employer marked “Not counted yet” may well have openings. " +
+  "so Sospana cannot count their roles. An employer marked “Not counted yet” may well have openings. " +
   "Open the employer's careers link and check that employer directly, and keep checking such " +
   "employers yourself from time to time.";
 

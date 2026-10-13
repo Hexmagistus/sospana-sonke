@@ -184,7 +184,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <p className="mx-auto mt-4 max-w-2xl text-center text-xs leading-relaxed text-ss-muted">
                 Organisation names and logos belong to their owners; listing them does not imply
                 partnership or endorsement.{" "}
-                <a href="/opportunities" className="underline hover:text-ss-text">Learnerships and bursaries</a>
+                <a href="/jobs" className="underline hover:text-ss-text">Jobs</a>
+                {" · "}
+                <a href="/opportunities" className="underline hover:text-ss-text">Opportunities</a>
                 {" · "}
                 <a href="/data" className="underline hover:text-ss-text">Labour data</a>
                 {" · "}

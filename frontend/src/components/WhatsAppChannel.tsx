@@ -41,7 +41,7 @@ export function WhatsAppChannelCard() {
   return (
     <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[#25D366]/40 bg-[#25D366]/10 p-5 text-ss-text">
       <div className="min-w-0 flex-1">
-        <p className="text-base font-semibold">Get new vacancies on WhatsApp</p>
+        <p className="text-base font-semibold">Get new openings on WhatsApp</p>
         <p className="mt-1 text-sm text-ss-muted">
           Follow the Sospana Sonke channel for fresh openings, closing-date reminders and application tips.
           It&apos;s optional, free, and private — other followers can&apos;t see your number.

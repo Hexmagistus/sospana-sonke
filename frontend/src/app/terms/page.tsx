@@ -9,7 +9,7 @@ export default function TermsPage() {
     <div className="mx-auto mt-8 max-w-3xl">
       <Card>
         <h1 className="mb-1 text-2xl font-bold text-brand">Terms of Service</h1>
-        <p className="mb-6 text-sm text-ss-muted">Last updated: 9 October 2026</p>
+        <p className="mb-6 text-sm text-ss-muted">Last updated: 13 October 2026</p>
         <div className="space-y-4 text-sm leading-relaxed text-ss-text">
           <p>
             These terms govern your use of Sospana Sonke (the &quot;Service&quot;). By creating an
@@ -18,11 +18,11 @@ export default function TermsPage() {
 
           <h2 className="pt-2 text-lg font-semibold text-ss-text">What the Service does</h2>
           <p>
-            Sospana Sonke helps you find employers that have a direct careers link, and vacancies we
-            have been able to read from those pages, across Africa, Oceania, Europe, South America,
-            North America and Asia. It started in the SADC region. You apply on the employer&apos;s own
-            site. We are not an employer, agency, or recruiter, and we do not guarantee any job,
-            interview, or outcome. We do not score you against vacancies.
+            Sospana Sonke stores jobs, internships, learnerships, bursaries and graduate programmes from
+            official pages, lists employers that have a direct careers link, and shows the Statistics South
+            Africa labour table. It started in the SADC region. You apply on the source page.
+            We are not an employer, a funder, an agency, or a recruiter, and we do not guarantee any place,
+            interview, or outcome. We do not score you against stored roles. Search answers use only what is stored.
           </p>
 
           <h2 className="pt-2 text-lg font-semibold text-ss-text">Your account</h2>
@@ -59,10 +59,10 @@ export default function TermsPage() {
 
           <h2 className="pt-2 text-lg font-semibold text-ss-text">Employer links and content</h2>
           <p>
-            Vacancy details and links to employer careers pages are provided for convenience. We do
+            Role details and links to official pages are provided for convenience. We do
             our best to keep them accurate but cannot guarantee that every listing is current or that
-            an external site is available. Your application and any hiring decision are between you and
-            the employer.
+            an external site is available. Your application and any decision are between you and
+            the organisation.
           </p>
           <p>
             <strong>&quot;{NOT_COUNTED_LABEL}&quot; on an employer card.</strong> {NOT_COUNTED_NOTICE_BODY}
@@ -70,8 +70,8 @@ export default function TermsPage() {
           <p>
             Employer, university, college, hospital and public-body names, logos and trade marks belong
             to their owners and are used only to identify them. Sospana Sonke is independent and is not
-            affiliated with, sponsored by or endorsed by any listed organisation. We link to vacancy pages
-            rather than copying job adverts, and we do not permit bulk copying of our curated directory.
+            affiliated with, sponsored by or endorsed by any listed organisation. We link to the source page
+            rather than copying the full advert, and we do not permit bulk copying of our curated directory.
           </p>
 
           <h2 className="pt-2 text-lg font-semibold text-ss-text">Availability and changes</h2>

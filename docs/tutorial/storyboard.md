@@ -50,7 +50,7 @@ Times are the on-screen beats. The file runs a couple of seconds past the closin
 
 ## What this video does not claim
 
-- Job matching was removed. The Career Agent searches the directory and vacancies the scanner has already read.
-- The daily email (“Your daily updates”) goes out once a day at 08:00 SAST only when alerts are yes, the email is verified, and the person has not unsubscribed. It lists vacancies first seen in the last 24 hours, with a posting date no older than three days, that are not closed.
+- Job matching was removed. The Career Agent searches the directory and roles the scanner has already read. A role can be a job, an internship, a learnership, a bursary or a graduate programme.
+- The daily email (“Your daily updates”) goes out once a day at 08:00 SAST only when alerts are yes, the email is verified, and the person has not unsubscribed. It lists openings first seen in the last 24 hours, with a posting date no older than three days, that are not closed.
 - SETAs in the Colleges and SETAs list are South African.
 - A careers link opens the employer’s site in a new tab. Sospana Sonke does not submit the application.
