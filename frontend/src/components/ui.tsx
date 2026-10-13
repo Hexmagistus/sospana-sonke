@@ -138,7 +138,7 @@ export function Button({
   glow?: boolean;
 } & ButtonHTMLAttributes<HTMLButtonElement>) {
   const styles = {
-    primary: "bg-gold font-semibold text-navy shadow-[0_8px_20px_-12px_rgba(11,36,71,0.55)] ring-1 ring-navy/30 hover:brightness-105 focus-visible:ring-navy dark:focus-visible:ring-gold",
+    primary: "bg-[#5eead4] font-semibold text-[#0c1b33] shadow-[0_8px_20px_-12px_rgba(12,27,51,0.45)] ring-1 ring-[#0c1b33]/25 hover:brightness-105 focus-visible:ring-[#0f766e]",
     secondary: "bg-ss-primary-soft text-ss-text shadow-sm ring-1 ring-ss-primary-border-soft hover:bg-ss-primary-soft-strong focus-visible:ring-navy dark:focus-visible:ring-gold",
     ghost: "border border-ss-border bg-ss-glass text-ss-text shadow-sm backdrop-blur-md hover:border-navy hover:bg-ss-primary-soft hover:text-ss-text focus-visible:ring-brand/30",
     danger: "bg-ss-danger text-white hover:brightness-110 focus-visible:ring-ss-danger dark:text-slate-900",
@@ -276,7 +276,7 @@ export function Alert({
 export function Spinner({ label = "Loading…" }: { label?: string }) {
   return (
     <div className="flex items-center justify-center gap-2.5 py-10 text-sm text-ss-muted">
-      <svg className="h-4 w-4 animate-spin text-brand" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <svg className="h-4 w-4 animate-spin text-[#0f766e]" viewBox="0 0 24 24" fill="none" aria-hidden="true">
         <circle className="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
         <path className="opacity-90" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
       </svg>

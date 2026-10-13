@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import CountOutboundLink from "@/components/CountOutboundLink";
+import { ApplySteps } from "@/components/ApplySteps";
 import { jobPosting, type PublicJob } from "@/lib/jobPosting";
 import { OPPORTUNITY_TABS, opportunityLabel, statedDate } from "@/lib/opportunity";
 import { SITE_NAME } from "@/lib/seo";
@@ -119,7 +120,7 @@ export default async function OpportunitiesPage({ searchParams }: { searchParams
         })}
       </nav>
 
-      <form method="get" action="/opportunities" className="ss-card flex flex-col gap-3 sm:flex-row sm:items-end">
+      <form method="get" action="/opportunities" className="ss-card ss-sticky-search flex flex-col gap-3 sm:flex-row sm:items-end">
         {type ? <input type="hidden" name="type" value={type} /> : null}
         <label className="block flex-1 text-sm font-semibold text-ss-text">
           Keyword
@@ -180,12 +181,13 @@ export default async function OpportunitiesPage({ searchParams }: { searchParams
                     <dd>{statedDate(job.last_seen_at)}</dd>
                   </div>
                 </dl>
+                <ApplySteps applicationUrl={job.application_url} vacancyId={job.id} />
                 {job.application_url ? (
                   <CountOutboundLink
                     href={job.application_url}
                     targetKind="vacancy"
                     targetId={job.id}
-                    className="mt-3 inline-flex min-h-11 items-center rounded-xl bg-[#0c1b33] px-4 py-2 text-sm font-semibold text-white"
+                    className="mt-3 inline-flex min-h-11 items-center rounded-xl bg-[#5eead4] px-4 py-2 text-sm font-semibold text-[#0c1b33]"
                   >
                     Source page
                   </CountOutboundLink>

@@ -75,6 +75,9 @@ A careers landing page is enough for that same set, even when the HTML lists no 
 
 ## Session Log
 
+### 2026-10-13 — Cursor (Grok 4.7) — Shared navy and teal chrome
+Page titles that use the shared header now sit on the midnight navy band with electric teal text. Primary buttons use that teal fill with navy text. Cards keep a teal top edge, and table headers use a teal tint. With no saved theme, the app follows the system light or dark setting. The landing, sign-in and password pages stay bright. A signed-out phone gets a bottom bar for Home, Jobs, Programmes, Countries and Sign in. Job and programme cards list the three apply steps and link to the source page. Search on those pages stays on screen while you scroll. A first-visit note can be hidden, and that choice stays on the device.
+
 ### 2026-10-13 — Cursor (Grok 4.7) — Copy for jobs, programmes, labour data and search
 Public pages, titles, descriptions, Open Graph text and the site schema now say the product stores jobs, internships, learnerships, bursaries and graduate programmes, shows the Statistics South Africa labour table, and answers search only from what is stored. The three-line hero stays. Counts on a page still come from the live directory or the dated snapshot. There is no fixed programme total in the copy. There is no About page and no FAQ page. The daily email names the five types and still starts with "Your daily updates". Pull requests #69 and #70 were not touched.
 
