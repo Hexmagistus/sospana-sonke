@@ -1,7 +1,7 @@
 // Sospana Sonke service worker: installable + works offline for browsing employers.
 // Caches only public, non-personal data (static assets, pages, the employer directory).
 // Never caches messages, notifications, account, tips or any other personal API call.
-const VERSION = "v3";
+const VERSION = "v4";
 const STATIC = `ss-static-${VERSION}`;
 const PAGES = `ss-pages-${VERSION}`;
 const DATA = `ss-data-${VERSION}`;
@@ -28,6 +28,14 @@ async function put(name, req, res) {
   return res;
 }
 
+const ROLE_PAGE = /^\/jobs\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+self.addEventListener("message", (event) => {
+  const data = event.data;
+  if (!data || data.type !== "cache-role" || typeof data.url !== "string" || !ROLE_PAGE.test(data.url)) return;
+  event.waitUntil(caches.open(PAGES).then((cache) => cache.add(data.url)));
+});
+
 self.addEventListener("fetch", (event) => {
   const req = event.request;
   if (req.method !== "GET") return;
@@ -44,6 +52,7 @@ self.addEventListener("fetch", (event) => {
   }
 
   if (url.origin !== self.location.origin) return;
+  if (url.pathname.startsWith("/api/")) return;
 
   // Built assets and icons: cache-first (hashed filenames never change).
   if (url.pathname.startsWith("/_next/static/") || url.pathname.startsWith("/icons/")) {
