@@ -1,0 +1,36 @@
+{
+  "id": "stats-sa-qlfs-p0211-q2-2026-table-e",
+  "publisher": "Statistics South Africa",
+  "title": "Quarterly Labour Force Survey, Quarter 2: 2026",
+  "series": "P0211",
+  "release_url": "https://www.statssa.gov.za/publications/P0211/P02112ndQuarter2026.pdf",
+  "licence_url": "https://isibaloweb.statssa.gov.za/metadata/QLFS/2026/Qtr02/Quarterly%20Labour%20Force%20Survey%202nd%20Quarter%202026%20metadata.pdf",
+  "release_date": "2026-08-11",
+  "embargo": "11 August 2026, 11:00",
+  "isbn": "978-0-621-52243-3",
+  "table": "Table E: Unemployment rate by province",
+  "table_page": "7",
+  "licence": "Users may apply or process this data, provided Statistics South Africa (Stats SA) is acknowledged as the original source of the data; that it is specified that the application and/or analysis is the result of the user's independent processing of the data; and that neither the basic data nor any reprocessed version or application thereof may be sold or offered for sale in any form whatsoever without prior permission from Stats SA.",
+  "coverage": "South Africa and its nine provinces. The Quarterly Labour Force Survey sample covers the non-institutional population, except workers' hostels. People living in private dwellings inside institutions are included. The rates in this table are for people aged 15 to 64.",
+  "official_definition": "Unemployed persons according to the official definition are those aged 15–64 years who were not employed in the reference week and actively looked for work or tried to start a business in the four weeks preceding the survey interview and were available for work, or who had not actively looked in those four weeks but had a job or business to start at a definite date in the future and were available. The unemployment rate is the proportion of the labour force that is unemployed.",
+  "expanded_definition": "LU3 is the combined rate of unemployment and the potential labour force. The potential labour force includes people who are not in the labour force but were either available for work and not actively seeking it, or actively seeking work and not currently available.",
+  "history_note": "The earlier columns are the figures printed in Table E of the Quarter 2: 2026 release. They were not re-read from the older releases.",
+  "download_permitted": false,
+  "periods": [
+    {"id": "2025-Q2", "label": "Apr–Jun 2025", "quarter": "Q2: 2025"},
+    {"id": "2026-Q1", "label": "Jan–Mar 2026", "quarter": "Q1: 2026"},
+    {"id": "2026-Q2", "label": "Apr–Jun 2026", "quarter": "Q2: 2026"}
+  ],
+  "rows": [
+    {"place": "South Africa", "kind": "country", "official": ["33,2", "32,7", "33,6"], "expanded": ["43,0", "43,7", "43,8"]},
+    {"place": "Western Cape", "kind": "province", "official": ["21,1", "19,6", "19,5"], "expanded": ["27,0", "24,8", "26,1"]},
+    {"place": "Eastern Cape", "kind": "province", "official": ["39,5", "44,6", "47,5"], "expanded": ["47,7", "54,4", "54,1"]},
+    {"place": "Northern Cape", "kind": "province", "official": ["32,7", "30,4", "28,7"], "expanded": ["47,0", "47,0", "47,1"]},
+    {"place": "Free State", "kind": "province", "official": ["38,5", "37,8", "37,3"], "expanded": ["43,8", "44,3", "44,0"]},
+    {"place": "KwaZulu-Natal", "kind": "province", "official": ["33,4", "31,2", "32,5"], "expanded": ["47,9", "47,2", "47,8"]},
+    {"place": "North West", "kind": "province", "official": ["40,1", "35,3", "38,1"], "expanded": ["54,7", "54,8", "56,0"]},
+    {"place": "Gauteng", "kind": "province", "official": ["33,8", "34,1", "34,6"], "expanded": ["39,2", "40,6", "40,5"]},
+    {"place": "Mpumalanga", "kind": "province", "official": ["34,0", "36,3", "36,6"], "expanded": ["48,4", "49,6", "48,3"]},
+    {"place": "Limpopo", "kind": "province", "official": ["35,0", "31,7", "32,0"], "expanded": ["47,7", "47,0", "46,7"]}
+  ]
+}

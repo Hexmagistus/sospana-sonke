@@ -17,6 +17,7 @@ class IntelligenceUnderstood(BaseModel):
     work_mode: str | None = None
     max_age_days: int | None = None
     careers_link_only: bool = False
+    opportunity_type: str | None = None
     looking_for: str
 
 
@@ -30,6 +31,25 @@ class IntelligenceEmployer(BaseModel):
     url_looks_like_careers: bool | None = None
     open_vacancies: int = 0
     open_vacancies_known: bool = False
+
+
+class LabourPoint(BaseModel):
+    period: str
+    label: str
+    rate: str
+
+
+class LabourCitation(BaseModel):
+    """Where a labour figure came from. Present only when the question asked for one."""
+    publisher: str
+    title: str
+    url: str
+    licence_url: str
+    release_date: str
+    table: str
+    place: str
+    series: str
+    points: list[LabourPoint] = Field(default_factory=list)
 
 
 class IntelligenceSearchResponse(BaseModel):
@@ -47,3 +67,4 @@ class IntelligenceSearchResponse(BaseModel):
     employer_count: int
     with_link_count: int
     counted_at: datetime
+    citation: LabourCitation | None = None

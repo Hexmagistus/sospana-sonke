@@ -57,6 +57,8 @@
     "src/lib/jobPosting.ts",
     "src/lib/jobPosting.test.ts",
     "src/lib/employerPage.ts",
-    "src/lib/employerPage.test.ts"
+    "src/lib/employerPage.test.ts",
+    "src/lib/opportunity.ts",
+    "src/lib/opportunity.test.ts"
   ]
 }

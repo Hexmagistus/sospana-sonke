@@ -68,6 +68,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return [
     entry("/", 1.0, "weekly"),
     entry("/jobs", 0.9, "daily"),
+    entry("/opportunities", 0.9, "daily"),
+    entry("/data", 0.6, "monthly"),
     // /companies requires login (<Guard>) -- not listed here since a crawler
     // would just hit a login redirect; see robots.ts's disallow list.
     // /countries is public: one page per country in the built-in snapshot.

@@ -29,6 +29,9 @@ from app.scraper.base import detect_ats
 from app.scraper.errors import NEEDS_REVIEW_AFTER, classify_fetch_error, http_status_of, is_permanent
 from app.scraper.static_html import BotChallengeError
 from app.scraper.ssrf import SsrfBlocked, assert_safe_fetch_url
+from app.services.opportunity_type import (
+    classify_opportunity, stated_field_of_study, stated_stipend,
+)
 from app.services.trust_service import scan_for_trust_flags
 from app.scraper.politeness import RobotsChecker
 
@@ -405,6 +408,12 @@ def _apply_fields(vac: Vacancy, fields: dict, now: datetime) -> None:
     vac.verification_state = vac.verification_state or "DISCOVERED"
     vac.consecutive_misses = 0
     vac.last_seen_at = now
+    kind = classify_opportunity(fields.get("title"), fields.get("description"))
+    vac.opportunity_type = kind
+    vac.field_of_study = stated_field_of_study(fields.get("title"), fields.get("description"))
+    vac.stipend_text = stated_stipend(fields.get("title"), fields.get("description"))
+    vac.verified_at = now if kind != "job" else None
+    vac.opportunity_reviewed = True
     if fields["lifecycle_status"] == "CLOSED":
         vac.is_open = False
         vac.lifecycle_status = "CLOSED"

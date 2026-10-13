@@ -16,7 +16,7 @@ from app.core.deps import require_admin
 from app.core.rate_limit import limiter
 from app.db.session import get_db
 from app.models.user import User
-from app.schemas.intelligence import IntelligenceSearchResponse, IntelligenceUnderstood
+from app.schemas.intelligence import IntelligenceSearchResponse, IntelligenceUnderstood, LabourCitation
 from app.schemas.usage import UsageScorecardResponse
 from app.services.intelligence_search import answer_question
 from app.services.usage_counts import (
@@ -82,6 +82,7 @@ def search_intelligence(
         employer_count=answer.employer_count,
         with_link_count=answer.with_link_count,
         counted_at=answer.counted_at,
+        citation=LabourCitation(**answer.citation) if answer.citation else None,
     )
 
 

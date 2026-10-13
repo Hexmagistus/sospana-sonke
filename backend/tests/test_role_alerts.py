@@ -214,6 +214,28 @@ def test_validation_preview_edit_delete_and_no_notes(client, db):
     assert exported.status_code == 200 and exported.json()["role_alerts"] == []
 
 
+def test_type_only_alert_matches_that_type(client, db):
+    _, tokens = register_and_login(client, email="types@example.com")
+    headers = _auth(tokens)
+    company = _company(db, "Programme House", "South Africa", "PRIVATE")
+    _vac(db, company, "Electrical Learnership")
+    learn = db.query(Vacancy).filter(Vacancy.title == "Electrical Learnership").one()
+    learn.opportunity_type = "learnership"
+    _vac(db, company, "Nurse")
+    db.commit()
+    made = client.post("/api/v1/alerts", headers=headers, json={"opportunity_type": "learnership"})
+    assert made.status_code == 201, made.text
+    assert made.json()["opportunity_type"] == "learnership"
+    assert made.json()["country"] is None
+    preview = client.get("/api/v1/alerts/preview", headers=headers)
+    assert preview.status_code == 200, preview.text
+    titles = {row["title"] for row in preview.json()["open_matches"]}
+    assert "Electrical Learnership" in titles
+    assert "Nurse" not in titles
+    rejected = client.post("/api/v1/alerts", headers=headers, json={"opportunity_type": "scholarship"})
+    assert rejected.status_code == 422
+
+
 def test_account_delete_removes_saved_alerts(client, db):
     _, tokens = register_and_login(client, email="gone@example.com", password="Password123!")
     headers = _auth(tokens)

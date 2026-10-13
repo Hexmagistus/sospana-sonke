@@ -20,6 +20,8 @@ from app.models.vacancy import Vacancy
 from app.scraper.extract import SA_PROVINCES, _CITY_TO_PROVINCE
 from app.services.category_groups import stored_values_for
 from app.services.country_names import COUNTRY_ALIASES, NON_COUNTRY_BUCKETS, canonical_country
+from app.services.labour_stats import latest_rate, load_table, place_row
+from app.services.opportunity_type import type_label
 from app.services.vacancy_counts import companies_with_known_vacancy_count, open_vacancy_counts
 
 SAMPLE = 8
@@ -83,6 +85,8 @@ _CATEGORIES: tuple[tuple[str, tuple[str, ...], str], ...] = (
 # search and named in the answer. Nothing is estimated in its place.
 _DECLINED: tuple[tuple[str, str], ...] = (
     ("unemployment rate", "an unemployment rate"),
+    ("unemployment", "an unemployment rate"),
+    ("unemployed", "an unemployment rate"),
     ("municipal budget", "municipal budgets"),
     ("election results", "election results"),
     ("procurement", "procurement spend"),
@@ -127,6 +131,22 @@ _WORK_MODE = {
     "onsite": "onsite",
 }
 
+# Longer phrases first. A single named type is a filter. Two types stay unset.
+_OPPORTUNITY_PHRASES: tuple[tuple[str, str], ...] = (
+    ("graduate programmes", "graduate_programme"),
+    ("graduate programs", "graduate_programme"),
+    ("graduate programme", "graduate_programme"),
+    ("graduate program", "graduate_programme"),
+    ("learnerships", "learnership"),
+    ("learnership", "learnership"),
+    ("bursaries", "bursary"),
+    ("bursary", "bursary"),
+    ("internships", "internship"),
+    ("internship", "internship"),
+    ("interns", "internship"),
+    ("intern", "internship"),
+)
+
 _STOP = frozenset({
     "a", "an", "the", "in", "on", "at", "for", "to", "of", "and", "or", "me", "my",
     "show", "find", "search", "what", "which", "are", "is", "there", "any", "please",
@@ -161,6 +181,7 @@ class Understood:
     work_mode: str | None = None
     max_age_days: int | None = None
     careers_link_only: bool = False
+    opportunity_type: str | None = None
     looking_for: str = "both"
     declined: tuple[str, ...] = ()
     prompt: bool = False
@@ -169,7 +190,8 @@ class Understood:
     def has_filter(self) -> bool:
         return bool(
             self.keywords or self.country or self.province or self.city or self.employer
-            or self.source_types or self.employment_type or self.work_mode or self.careers_link_only
+            or self.source_types or self.employment_type or self.work_mode
+            or self.careers_link_only or self.opportunity_type
         )
 
 
@@ -189,6 +211,8 @@ class IntelligenceAnswer:
     employer_count: int = 0
     with_link_count: int = 0
     counted_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    dataset_id: str | None = None
+    citation: dict | None = None
 
 
 def _like(value: str) -> str:
@@ -328,6 +352,16 @@ def parse_question(question: str, country_names: list[str]) -> Understood:
         careers_link_only = True
         text = re.sub(r"\bcareers?\s+links?\b", " ", text)
 
+    opportunity_type = None
+    for phrase, kind in _OPPORTUNITY_PHRASES:
+        if _contained(text, phrase):
+            if opportunity_type is None:
+                opportunity_type = kind
+            elif opportunity_type != kind:
+                opportunity_type = None
+                break
+            text = _cut(text, phrase)
+
     asks_roles = bool(re.search(
         r"\b(jobs?|roles?|vacancies|vacancy|openings?|internships?|learnerships?|bursar(?:y|ies)|scholarships?)\b",
         text,
@@ -362,7 +396,9 @@ def parse_question(question: str, country_names: list[str]) -> Understood:
         # filter would drop roles whose type was never filled in.
         employment = None
 
-    if source_label and not asks_roles:
+    if opportunity_type:
+        looking_for = "roles"
+    elif source_label and not asks_roles:
         looking_for = "employers"
     elif asks_employers and not asks_roles:
         looking_for = "employers"
@@ -383,6 +419,7 @@ def parse_question(question: str, country_names: list[str]) -> Understood:
         work_mode=work_mode,
         max_age_days=max_age,
         careers_link_only=careers_link_only,
+        opportunity_type=opportunity_type,
         looking_for=looking_for,
         declined=tuple(declined),
         supported=True,
@@ -460,6 +497,8 @@ def _vacancy_query(db: Session, understood: Understood):
     if understood.max_age_days is not None:
         cutoff = datetime.now(timezone.utc) - timedelta(days=understood.max_age_days)
         query = query.filter(Vacancy.last_seen_at >= cutoff)
+    if understood.opportunity_type:
+        query = query.filter(Vacancy.opportunity_type == understood.opportunity_type)
     return query
 
 
@@ -548,6 +587,8 @@ def _reading(understood: Understood) -> str:
         parts.append(f"Work mode contains “{understood.work_mode}”.")
     if understood.max_age_days:
         parts.append(f"Last seen within {understood.max_age_days} days.")
+    if understood.opportunity_type:
+        parts.append(f"Opportunity type: {type_label(understood.opportunity_type)}.")
     if understood.careers_link_only:
         parts.append("Only employers with a careers link stored.")
     if understood.looking_for == "roles":
@@ -567,7 +608,10 @@ def _summary(understood: Understood, vacancy_count: int, employer_count: int, wi
         return f"Not enough data. Sospana Sonke does not have {topic}. This search did not guess an answer."
     sentences: list[str] = []
     if understood.looking_for != "employers":
-        if vacancy_count == 0:
+        if vacancy_count == 0 and understood.opportunity_type:
+            label = type_label(understood.opportunity_type)
+            sentences.append(f"Not enough data. No stored {label} matches this question.")
+        elif vacancy_count == 0:
             sentences.append("No open role in the store matches this question.")
         else:
             word = "role" if vacancy_count == 1 else "roles"
@@ -594,9 +638,16 @@ def _summary(understood: Understood, vacancy_count: int, employer_count: int, wi
     if vacancy_count == 0 and (understood.looking_for == "roles" or employer_count == 0):
         sentences.append("Not enough data to answer this from the directory or the stored roles.")
     if understood.declined:
-        sentences.append(
-            "This does not include " + ", ".join(understood.declined) + ". That dataset is not in Sospana Sonke."
-        )
+        other = [label for label in understood.declined if label != "an unemployment rate"]
+        if "an unemployment rate" in understood.declined:
+            sentences.append(
+                "This does not include an unemployment rate. Those official rates are a separate table "
+                "and are not mixed into this job count."
+            )
+        if other:
+            sentences.append(
+                "This does not include " + ", ".join(other) + ". That dataset is not in Sospana Sonke."
+            )
     return " ".join(sentences)
 
 
@@ -681,8 +732,215 @@ def _follow_ups(db: Session, understood: Understood, names: list[str], vacancy_c
     return found
 
 
+_LABOUR_STOP = frozenset({
+    "a", "an", "the", "in", "on", "at", "for", "to", "of", "and", "or", "me", "my",
+    "show", "what", "which", "is", "are", "there", "any", "please", "how", "many",
+    "does", "do", "rate", "rates", "official", "labour", "labor", "force", "survey",
+    "qlfs", "stats", "statssa", "statistics", "province", "provinces", "latest",
+    "current", "percent", "percentage", "level", "levels", "figure", "figures",
+    "people", "high", "south", "africa", "sa", "unemployment", "unemployed",
+    "email", "e-mail", "mail", "call", "phone", "contact", "number", "name",
+    "expanded", "combined", "potential", "underutilisation", "underutilization",
+    "lu1", "lu3", "by", "from", "between", "versus", "vs", "national", "country",
+    "provincial", "table", "was", "were", "during", "quarter", "latest",
+})
+_JOB_TOPIC = re.compile(
+    r"\b(jobs?|roles?|vacancies|vacancy|openings?|employers?|companies|hiring|"
+    r"internships?|learnerships?|bursar(?:y|ies)|scholarships?|nurses?|nursing)\b",
+    re.IGNORECASE,
+)
+_EXPANDED = re.compile(
+    r"\b(expanded|combined|lu3|potential labour|potential labor|underutilis\w*|underutiliz\w*)\b",
+    re.IGNORECASE,
+)
+
+
+def _labour_limitations(table: dict) -> list[str]:
+    return [
+        "These figures are copied from Statistics South Africa. Sospana Sonke did not re-estimate them.",
+        "This presentation is Sospana Sonke's own application of the published table. It is not a Statistics South Africa publication.",
+        table["official_definition"],
+        table["expanded_definition"],
+        "A difference between quarters is not an explanation of why the rate changed.",
+        table["coverage"],
+        table["history_note"],
+        "Sampling variability is in the statistical release and is not reprinted here.",
+        "This is not a count of vacancies stored by Sospana Sonke.",
+        "A downloadable file is not offered. The notice permits this free display when the source is named, and it forbids selling the data.",
+    ]
+
+
+def _citation(table: dict, row: dict, series: str) -> dict:
+    points = []
+    for period, official, expanded in zip(table["periods"], row["official"], row["expanded"]):
+        points.append({
+            "period": period["quarter"],
+            "label": period["label"],
+            "rate": official if series == "official" else expanded,
+        })
+    return {
+        "publisher": table["publisher"],
+        "title": table["title"],
+        "url": table["release_url"],
+        "licence_url": table["licence_url"],
+        "release_date": table["release_date"],
+        "table": table["table"],
+        "place": row["place"],
+        "series": series,
+        "points": points,
+    }
+
+
+def _labour_reply(question: str, country_names: list[str]) -> IntelligenceAnswer | None:
+    """Answer a labour-rate question from the stored table, or None when it is a job question."""
+    raw = " ".join((question or "").strip().split())[:200]
+    if not raw or not re.search(r"\bunemploy", raw, flags=re.IGNORECASE):
+        return None
+    if _JOB_TOPIC.search(raw):
+        return None
+    lowered = raw.lower().replace("'s", " ").replace("’s", " ")
+    lowered = re.sub(r"[?!,;:]+", " ", lowered)
+    lowered = " ".join(lowered.split())
+    for phrase, _label in _DECLINED:
+        if phrase.startswith("unemployment"):
+            continue
+        if _contained(lowered, phrase):
+            return None
+
+    counted_at = datetime.now(timezone.utc)
+    table = load_table()
+    bare = Understood(supported=False, declined=("an unemployment rate",), looking_for="both")
+
+    def refuse(summary: str, *, province: str | None = None, country: str | None = None) -> IntelligenceAnswer:
+        understood = replace(bare, province=province, country=country)
+        limitations = [
+            "No number was estimated for a place or a group the stored table does not print.",
+        ]
+        reading = "The stored labour table is Statistics South Africa Table E, for South Africa and its nine provinces."
+        dataset_id = None
+        if table is not None:
+            limitations = _labour_limitations(table) + limitations
+            dataset_id = table["id"]
+            reading = (
+                f"The stored table is {table['table']} in {table['title']} "
+                f"({table['release_url']}). It does not contain the figure this question asked for."
+            )
+        return IntelligenceAnswer(
+            question=raw,
+            understood=understood,
+            enough_data=False,
+            summary=summary,
+            reading=reading,
+            limitations=limitations,
+            counted_at=counted_at,
+            dataset_id=dataset_id,
+            citation=None,
+        )
+
+    if table is None:
+        return refuse("Not enough data. The labour table is not loaded. This search did not guess a rate.")
+
+    text = lowered
+    city = None
+    for phrase in sorted(_CITY_TO_PROVINCE, key=len, reverse=True):
+        if _contained(text, phrase):
+            city = phrase
+            text = _cut(text, phrase)
+            break
+    if city:
+        return refuse(
+            f"Not enough data. The stored table has no rate for {city.title()}. "
+            "It prints the nine provinces and South Africa, and this search did not substitute a province."
+        )
+
+    other_country = None
+    for phrase, canon in _country_phrases(country_names):
+        if canon == "South Africa":
+            continue
+        if _contained(text, phrase):
+            other_country = canon
+            break
+    if other_country:
+        return refuse(
+            f"Not enough data. The stored table covers South Africa, not {other_country}. "
+            "This search did not guess a rate.",
+            country=other_country,
+        )
+
+    province = None
+    for phrase, canon in sorted(_PROVINCE_ALIASES, key=lambda item: len(item[0]), reverse=True):
+        if _contained(text, phrase):
+            province = canon
+            text = _cut(text, phrase)
+            break
+    for phrase in ("south africa", "south african"):
+        if _contained(text, phrase):
+            text = _cut(text, phrase)
+
+    leftover = [
+        word for word in text.split()
+        if "@" not in word and word.isalpha() and word not in _LABOUR_STOP and len(word) > 2
+    ]
+    if leftover:
+        shown = " ".join(leftover[:4])
+        return refuse(
+            f"Not enough data. The stored table is the official rate for people aged 15 to 64. "
+            f"It does not print a separate rate for {shown}. This search did not guess one."
+        )
+
+    place = province or "South Africa"
+    row = place_row(place)
+    if row is None:
+        return refuse("Not enough data. That place is not in the stored table. This search did not guess a rate.")
+
+    series = "expanded" if _EXPANDED.search(raw) else "official"
+    series_name = (
+        "combined rate of unemployment and the potential labour force"
+        if series == "expanded"
+        else "official unemployment rate"
+    )
+    current = latest_rate(row, series)
+    latest = table["periods"][-1]
+    earlier = []
+    for period, value in zip(table["periods"][:-1], row[series][:-1]):
+        earlier.append(f"{value}% in {period['label']}")
+    history = ""
+    if earlier:
+        history = " In the same table it was " + " and ".join(earlier) + "."
+    where = "South Africa" if place == "South Africa" else place
+    summary = (
+        f"In {where}, the {series_name} was {current}% in {latest['label']} "
+        f"({latest['quarter']}).{history} "
+        f"Source: {table['publisher']}, {table['title']}, {table['table']}, "
+        f"released {table['release_date']}."
+    )
+    understood = Understood(
+        country="South Africa",
+        province=province,
+        looking_for="both",
+        supported=True,
+    )
+    return IntelligenceAnswer(
+        question=raw,
+        understood=understood,
+        enough_data=True,
+        summary=summary,
+        reading=(
+            "The figure is the one printed for that place. "
+            "Open the statistical release for the sampling error and the full definitions."
+        ),
+        limitations=_labour_limitations(table),
+        counted_at=counted_at,
+        dataset_id=table["id"],
+        citation=_citation(table, row, series),
+    )
+
+
 def answer_question(db: Session, question: str) -> IntelligenceAnswer:
     names = load_country_names(db)
+    labour = _labour_reply(question, names)
+    if labour is not None:
+        return labour
     understood = parse_question(question, names)
     counted_at = datetime.now(timezone.utc)
     if understood.prompt or not understood.supported:
@@ -758,7 +1016,9 @@ def answer_question(db: Session, question: str) -> IntelligenceAnswer:
     known = companies_with_known_vacancy_count(db, ids)
     employers = [_public_employer(company, counts, known) for company in employer_rows]
 
-    if understood.looking_for == "roles":
+    if understood.opportunity_type:
+        enough = vacancy_count > 0
+    elif understood.looking_for == "roles":
         enough = vacancy_count > 0
     elif understood.looking_for == "employers":
         enough = employer_count > 0

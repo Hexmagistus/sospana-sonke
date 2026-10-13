@@ -22,6 +22,7 @@ export const SITE_KEYWORDS = [
 export const PUBLIC_ROUTES = [
   "/",
   "/jobs",
+  "/opportunities",
   "/countries",
   "/employers",
   "/donate",

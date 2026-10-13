@@ -55,6 +55,7 @@ class Vacancy(UUIDMixin, TimestampMixin, Base):
     __tablename__ = "vacancies"
     __table_args__ = (
         Index("ix_vacancies_open_closing", "is_open", "closing_date"),
+        Index("ix_vacancies_open_type", "is_open", "opportunity_type"),
         # Directory count: company_id IN (...) AND is_open AND deleted_at IS NULL.
         Index("ix_vacancies_company_open", "company_id", "is_open", "deleted_at"),
     )
@@ -70,6 +71,14 @@ class Vacancy(UUIDMixin, TimestampMixin, Base):
     # end. varchar(200) rejected a real Absa path (230 chars) and aborted the scan.
     external_id: Mapped[str | None] = mapped_column(String(2000), index=True, nullable=True)
     title: Mapped[str] = mapped_column(String(300), nullable=False)
+    # job | internship | learnership | bursary | graduate_programme.
+    # Existing rows stay job until the title or description names one type.
+    opportunity_type: Mapped[str] = mapped_column(String(32), default="job", nullable=False)
+    field_of_study: Mapped[str | None] = mapped_column(String(400), nullable=True)
+    stipend_text: Mapped[str | None] = mapped_column(String(240), nullable=True)
+    verified_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    # Bookkeeping for the one-time label pass. Not shown to candidates.
+    opportunity_reviewed: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     department: Mapped[str | None] = mapped_column(String(200), nullable=True)
     location: Mapped[str | None] = mapped_column(String(200), nullable=True)
     work_mode: Mapped[str | None] = mapped_column(String(20), nullable=True)   # remote|hybrid|onsite

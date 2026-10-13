@@ -8,6 +8,7 @@ from dataclasses import asdict
 from datetime import datetime, timedelta, timezone, date
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, status
+from sqlalchemy import case, func
 from sqlalchemy.orm import Session, defer
 
 from app.core.deps import get_current_user, require_admin
@@ -24,8 +25,9 @@ from app.schemas.vacancy import (
     VacancyReportCreate, VacancyReportResponse, DuplicateGroupResponse,
     ExternalIdDuplicateGroupResponse,
     MergeDuplicatesRequest, MergeDuplicatesResponse,
-    PublicJobResponse, PublicJobListResponse,
+    PublicJobResponse, PublicJobListResponse, OpportunityCountResponse,
 )
+from app.services.opportunity_type import OPPORTUNITY_TYPES
 from app.services.scan_service import scan_company
 from app.services.duplicate_service import find_duplicate_groups, find_external_id_groups, merge_duplicates
 from app.services.vacancy_report_service import create_vacancy_report
@@ -116,7 +118,38 @@ def _public_job(vacancy: Vacancy, company: Company) -> PublicJobResponse:
         last_seen_at=vacancy.last_seen_at,
         application_url=_apply_link(vacancy),
         is_open=vacancy.is_open,
+        opportunity_type=vacancy.opportunity_type or "job",
+        field_of_study=vacancy.field_of_study,
+        stipend_text=vacancy.stipend_text,
+        verified_at=vacancy.verified_at,
     )
+
+
+def _open_public(query):
+    today = date.today()
+    return (
+        query.filter(Vacancy.deleted_at.is_(None), Company.deleted_at.is_(None))
+        .filter(Vacancy.is_open.is_(True))
+        .filter((Vacancy.closing_date.is_(None)) | (Vacancy.closing_date >= today))
+    )
+
+
+@router.get("/jobs/counts", response_model=OpportunityCountResponse)
+@limiter.limit("60/minute")
+def public_job_counts(request: Request, response: Response, db: Session = Depends(get_db)):
+    """How many open stored rows there are of each opportunity type."""
+    response.headers["Cache-Control"] = "public, max-age=60"
+    rows = (
+        _open_public(db.query(Vacancy.opportunity_type, func.count(Vacancy.id))
+                     .join(Company, Company.id == Vacancy.company_id))
+        .group_by(Vacancy.opportunity_type)
+        .all()
+    )
+    counts = {kind: 0 for kind in OPPORTUNITY_TYPES}
+    for kind, total in rows:
+        key = kind if kind in counts else "job"
+        counts[key] += int(total or 0)
+    return OpportunityCountResponse(counts=counts)
 
 
 @router.get("/jobs", response_model=PublicJobListResponse)
@@ -128,9 +161,17 @@ def list_public_jobs(
     q: str | None = Query(default=None, max_length=80, description="Words in the job title"),
     country: str | None = Query(default=None, max_length=80, description="Employer country or the role's country"),
     employer: str | None = Query(default=None, max_length=80, description="Words in the employer name"),
+    opportunity_type: str | None = Query(
+        default=None, max_length=32,
+        description="job, internship, learnership, bursary, or graduate_programme",
+    ),
     max_age_days: int | None = Query(
         default=None, ge=1, le=365,
         description="Only roles last seen on the employer site within this many days",
+    ),
+    sort: str | None = Query(
+        default=None, max_length=20,
+        description="closing puts a stated closing date first. Anything else uses last seen.",
     ),
     limit: int = Query(default=30, ge=1, le=50),
     offset: int = Query(default=0, ge=0, le=500),
@@ -152,11 +193,27 @@ def list_public_jobs(
         query = query.filter((Company.country == name) | (Vacancy.country == name))
     if employer and employer.strip():
         query = query.filter(Company.company_name.ilike(_like_fragment(employer)))
+    if opportunity_type and opportunity_type.strip():
+        kind = opportunity_type.strip().lower().replace("-", "_").replace(" ", "_")
+        if kind == "graduate_program":
+            kind = "graduate_programme"
+        if kind not in OPPORTUNITY_TYPES:
+            raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                                detail="Unknown opportunity type.")
+        query = query.filter(Vacancy.opportunity_type == kind)
     if max_age_days is not None:
         cutoff = datetime.now(timezone.utc) - timedelta(days=max_age_days)
         query = query.filter(Vacancy.last_seen_at >= cutoff)
     matched = query.count()
-    rows = query.order_by(Vacancy.last_seen_at.desc()).offset(offset).limit(limit).all()
+    if sort and sort.strip().lower() == "closing":
+        order = (
+            case((Vacancy.closing_date.is_(None), 1), else_=0),
+            Vacancy.closing_date.asc(),
+            Vacancy.last_seen_at.desc(),
+        )
+    else:
+        order = (Vacancy.last_seen_at.desc(),)
+    rows = query.order_by(*order).offset(offset).limit(limit).all()
     return PublicJobListResponse(
         jobs=[_public_job(vacancy, company) for vacancy, company in rows],
         matched=matched,

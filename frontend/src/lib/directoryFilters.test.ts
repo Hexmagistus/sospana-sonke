@@ -34,6 +34,7 @@ import "./countryPage.test.js";
 import "./returnPath.test.js";
 import "./jobPosting.test.js";
 import "./employerPage.test.js";
+import "./opportunity.test.js";
 
 describe("directory country stays when the category changes", () => {
   it("keeps South Africa when a category is chosen", () => {
