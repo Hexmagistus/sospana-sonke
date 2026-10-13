@@ -1,8 +1,9 @@
-import type { Metadata } from "next";
+import { Suspense } from "react";
 import Link from "next/link";
 import { ApplySteps } from "@/components/ApplySteps";
 import type { PublicJob } from "@/lib/jobPosting";
 import { PROGRAMME_PAGES } from "@/lib/jobLandings";
+import { LIST_PAGE, listOffset } from "@/lib/listWindow";
 import { OPPORTUNITY_TABS, opportunityLabel, statedDate } from "@/lib/opportunity";
 import { SITE_NAME, SITE_URL } from "@/lib/seo";
 
@@ -10,22 +11,11 @@ export const dynamic = "force-dynamic";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
 
-export const metadata: Metadata = {
-  title: "Internships, learnerships, bursaries and graduate programmes",
-  description:
-    "Internships, learnerships, bursaries and graduate programmes Sospana Sonke has stored from official pages. A closing date is shown only when the source stated one. Jobs are in the same store.",
-  alternates: { canonical: "/opportunities" },
-  openGraph: {
-    title: `Opportunities · ${SITE_NAME}`,
-    description: "Stored programmes, with the type, the organisation, the source link and the last checked date.",
-    url: "/opportunities",
-  },
-};
-
 type Search = {
   type?: string;
   q?: string;
   sort?: string;
+  offset?: string;
 };
 
 type Load = { ok: true; jobs: PublicJob[]; matched: number } | { ok: false };
@@ -43,7 +33,8 @@ async function loadJobs(search: Search): Promise<Load> {
   if (kind) params.set("opportunity_type", kind);
   if (search.q?.trim()) params.set("q", search.q.trim().slice(0, 80));
   params.set("sort", search.sort === "checked" ? "checked" : "closing");
-  params.set("limit", "30");
+  params.set("limit", String(LIST_PAGE));
+  params.set("offset", String(listOffset(search.offset)));
   try {
     const res = await fetch(`${API}/jobs?${params.toString()}`, { cache: "no-store" });
     if (!res.ok) return { ok: false };
@@ -55,6 +46,16 @@ async function loadJobs(search: Search): Promise<Load> {
   }
 }
 
+function pageHref(type: string, q: string, sort: string, offset: number): string {
+  const params = new URLSearchParams();
+  if (type) params.set("type", type);
+  if (q) params.set("q", q);
+  if (sort === "checked") params.set("sort", "checked");
+  if (offset > 0) params.set("offset", String(offset));
+  const query = params.toString();
+  return query ? `/opportunities?${query}` : "/opportunities";
+}
+
 function tabHref(type: string, q: string, sort: string): string {
   const params = new URLSearchParams();
   if (type) params.set("type", type);
@@ -64,12 +65,8 @@ function tabHref(type: string, q: string, sort: string): string {
   return query ? `/opportunities?${query}` : "/opportunities";
 }
 
-export default async function OpportunitiesPage({ searchParams }: { searchParams: Promise<Search> }) {
-  const search = await searchParams;
-  const type = chosenType(search.type);
-  const q = (search.q || "").trim();
-  const sort = search.sort === "checked" ? "checked" : "closing";
-  const loaded = await loadJobs({ type, q, sort });
+async function ProgrammeResults({ type, q, sort, offset }: { type: string; q: string; sort: string; offset: number }) {
+  const loaded = await loadJobs({ type, q, sort, offset: String(offset) });
   const jsonLd = loaded.ok && loaded.jobs.length > 0
     ? {
         "@context": "https://schema.org",
@@ -85,10 +82,107 @@ export default async function OpportunitiesPage({ searchParams }: { searchParams
     : null;
 
   return (
-    <div className="space-y-6">
+    <>
       {jsonLd ? (
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       ) : null}
+      {!loaded.ok ? (
+        <div className="ss-empty" role="status">
+          <p className="text-base font-semibold text-ss-text">The list could not be reached</p>
+          <p className="mt-2 text-sm text-ss-muted">Employer careers pages are still in the directory.</p>
+          <Link href="/countries" className="mt-4 inline-flex text-sm font-semibold text-[#0f766e] underline">
+            Browse employers by country
+          </Link>
+        </div>
+      ) : loaded.matched === 0 ? (
+        <div className="ss-empty" role="status">
+          <p className="text-base font-semibold text-ss-text">Not enough data</p>
+          <p className="mt-2 max-w-lg text-sm leading-relaxed text-ss-muted">
+            No stored programme matches these filters. That does not mean the organisation has no opening. Check the source page.
+          </p>
+        </div>
+      ) : loaded.jobs.length === 0 ? (
+        <div className="ss-empty" role="status">
+          <p className="text-base font-semibold text-ss-text">This page is past the last stored programme</p>
+          <Link href={pageHref(type, q, sort, 0)} className="mt-4 inline-flex text-sm font-semibold text-[#0f766e] underline">
+            Back to the first page
+          </Link>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          <p className="text-sm text-ss-muted">
+            Showing {(offset + 1).toLocaleString("en-US")}–{(offset + loaded.jobs.length).toLocaleString("en-US")} of {loaded.matched.toLocaleString("en-US")}.
+            {sort === "closing" ? " Closing dates that were not stated are listed last." : " Sorted by the date we last checked the row."}
+          </p>
+          <ul className="grid gap-3">
+            {loaded.jobs.map((job) => (
+              <li key={job.id} className="ss-intel-card border border-[#0c1b33]/10">
+                <p className="text-sm font-semibold text-[#0f766e]">{opportunityLabel(job.opportunity_type)}</p>
+                <h2 className="mt-1 font-display text-xl font-bold text-[#0c1b33]">
+                  <Link href={`/jobs/${job.id}`} className="underline">{job.title}</Link>
+                </h2>
+                <p className="mt-1 text-sm text-[#3f4a5c]">
+                  {job.company_id ? (
+                    <Link href={`/employers/${job.company_id}`} className="font-semibold text-[#0c1b33] underline">
+                      {job.company_name}
+                    </Link>
+                  ) : job.company_name}
+                </p>
+                <dl className="mt-3 grid gap-1 text-sm text-[#1c2430] sm:grid-cols-2">
+                  <div>
+                    <dt className="font-semibold">Closing date</dt>
+                    <dd>{statedDate(job.closing_date)}</dd>
+                  </div>
+                  <div>
+                    <dt className="font-semibold">Last checked</dt>
+                    <dd>{statedDate(job.last_seen_at)}</dd>
+                  </div>
+                </dl>
+                <ApplySteps applicationUrl={job.application_url} vacancyId={job.id} />
+                {job.application_url ? (
+                  <a
+                    href={job.application_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    data-count-target="vacancy"
+                    data-count-id={job.id}
+                    className="mt-3 inline-flex min-h-11 items-center rounded-xl bg-[#5eead4] px-4 py-2 text-sm font-semibold text-[#0c1b33]"
+                  >
+                    Source page
+                  </a>
+                ) : (
+                  <p className="mt-3 text-sm text-[#3f4a5c]">No source link was stored.</p>
+                )}
+              </li>
+            ))}
+          </ul>
+          <nav aria-label="More stored programmes" className="flex flex-wrap gap-4 text-sm">
+            {offset > 0 ? (
+              <Link href={pageHref(type, q, sort, offset - LIST_PAGE)} className="font-semibold text-[#0f766e] underline">
+                Previous {LIST_PAGE}
+              </Link>
+            ) : null}
+            {offset + loaded.jobs.length < loaded.matched ? (
+              <Link href={pageHref(type, q, sort, offset + LIST_PAGE)} className="font-semibold text-[#0f766e] underline">
+                Next {LIST_PAGE}
+              </Link>
+            ) : null}
+          </nav>
+        </div>
+      )}
+    </>
+  );
+}
+
+export default async function OpportunitiesPage({ searchParams }: { searchParams: Promise<Search> }) {
+  const search = await searchParams;
+  const type = chosenType(search.type);
+  const q = (search.q || "").trim();
+  const sort = search.sort === "checked" ? "checked" : "closing";
+  const offset = listOffset(search.offset);
+
+  return (
+    <div className="space-y-6">
       <header className="ss-hero ss-intel rounded-3xl px-5 py-8 sm:px-8">
         <p className="text-sm font-semibold uppercase tracking-wide ss-intel-accent">South Africa first</p>
         <h1 className="ss-intel-title mt-1 font-display text-3xl font-extrabold tracking-tight sm:text-4xl">
@@ -147,71 +241,9 @@ export default async function OpportunitiesPage({ searchParams }: { searchParams
         </button>
       </form>
 
-      {!loaded.ok ? (
-        <div className="ss-empty" role="status">
-          <p className="text-base font-semibold text-ss-text">The list could not be reached</p>
-          <p className="mt-2 text-sm text-ss-muted">Employer careers pages are still in the directory.</p>
-          <Link href="/countries" className="mt-4 inline-flex text-sm font-semibold text-[#0f766e] underline">
-            Browse employers by country
-          </Link>
-        </div>
-      ) : loaded.matched === 0 ? (
-        <div className="ss-empty" role="status">
-          <p className="text-base font-semibold text-ss-text">Not enough data</p>
-          <p className="mt-2 max-w-lg text-sm leading-relaxed text-ss-muted">
-            No stored programme matches these filters. That does not mean the organisation has no opening. Check the source page.
-          </p>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          <p className="text-sm text-ss-muted">
-            Showing {loaded.jobs.length.toLocaleString("en-US")} of {loaded.matched.toLocaleString("en-US")}.
-            {sort === "closing" ? " Closing dates that were not stated are listed last." : " Sorted by the date we last checked the row."}
-          </p>
-          <ul className="grid gap-3">
-            {loaded.jobs.map((job) => (
-              <li key={job.id} className="ss-intel-card border border-[#0c1b33]/10">
-                <p className="text-sm font-semibold text-[#0f766e]">{opportunityLabel(job.opportunity_type)}</p>
-                <h2 className="mt-1 font-display text-xl font-bold text-[#0c1b33]">
-                  <Link href={`/jobs/${job.id}`} className="underline">{job.title}</Link>
-                </h2>
-                <p className="mt-1 text-sm text-[#3f4a5c]">
-                  {job.company_id ? (
-                    <Link href={`/employers/${job.company_id}`} className="font-semibold text-[#0c1b33] underline">
-                      {job.company_name}
-                    </Link>
-                  ) : job.company_name}
-                </p>
-                <dl className="mt-3 grid gap-1 text-sm text-[#1c2430] sm:grid-cols-2">
-                  <div>
-                    <dt className="font-semibold">Closing date</dt>
-                    <dd>{statedDate(job.closing_date)}</dd>
-                  </div>
-                  <div>
-                    <dt className="font-semibold">Last checked</dt>
-                    <dd>{statedDate(job.last_seen_at)}</dd>
-                  </div>
-                </dl>
-                <ApplySteps applicationUrl={job.application_url} vacancyId={job.id} />
-                {job.application_url ? (
-                  <a
-                    href={job.application_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    data-count-target="vacancy"
-                    data-count-id={job.id}
-                    className="mt-3 inline-flex min-h-11 items-center rounded-xl bg-[#5eead4] px-4 py-2 text-sm font-semibold text-[#0c1b33]"
-                  >
-                    Source page
-                  </a>
-                ) : (
-                  <p className="mt-3 text-sm text-[#3f4a5c]">No source link was stored.</p>
-                )}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+      <Suspense fallback={<p className="text-sm text-ss-muted" role="status">Loading stored programmes.</p>}>
+        <ProgrammeResults type={type} q={q} sort={sort} offset={offset} />
+      </Suspense>
     </div>
   );
 }
