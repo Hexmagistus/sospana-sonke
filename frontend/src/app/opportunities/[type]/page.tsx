@@ -54,7 +54,7 @@ export default async function ProgrammeLanding({ params }: Props) {
           {loaded
             ? `${loaded.matched.toLocaleString("en-US")} open ${page.label.toLowerCase()} are in the index right now.`
             : "The index could not be reached, so no count is shown."}{" "}
-          This is not every {page.label.toLowerCase()} in the country. {SITE_NAME} does not send an application for you.
+          South Africa is listed first. This is not every {page.label.toLowerCase()} in the country. {SITE_NAME} does not send an application for you.
         </p>
       </PageHeader>
       {!loaded ? (

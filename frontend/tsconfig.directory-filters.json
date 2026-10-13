@@ -63,6 +63,8 @@
     "src/lib/showpieceGate.ts",
     "src/lib/showpieceGate.test.ts",
     "src/lib/publicCache.ts",
-    "src/lib/publicCache.test.ts"
+    "src/lib/publicCache.test.ts",
+    "src/lib/flagship.ts",
+    "src/lib/flagship.test.ts"
   ]
 }

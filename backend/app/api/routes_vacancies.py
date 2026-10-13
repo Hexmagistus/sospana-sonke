@@ -29,6 +29,7 @@ from app.schemas.vacancy import (
     JobFacetsResponse, JobFacetCount, JobSuggestResponse, JobIdListResponse,
     SavedOpportunityCreate,
 )
+from app.services.flagship import FLAGSHIP_COUNTRY, countries_flagship_first, flagship_role_rank
 from app.services.opportunity_type import OPPORTUNITY_TYPES
 from app.services.search_terms import expand_title_terms, opportunity_types_for
 from app.models.saved_opportunity import SavedOpportunity
@@ -199,7 +200,8 @@ def list_public_jobs(
         if types:
             likes.append(Vacancy.opportunity_type.in_(types))
         query = query.filter(or_(*likes))
-    if country and country.strip():
+    named_country = bool(country and country.strip())
+    if named_country:
         name = country.strip()[:80]
         query = query.filter((Company.country == name) | (Vacancy.country == name))
     if employer and employer.strip():
@@ -226,6 +228,8 @@ def list_public_jobs(
         )
     else:
         order = (Vacancy.last_seen_at.desc(),)
+    if not named_country:
+        order = (flagship_role_rank(), *order)
     rows = query.order_by(*order).offset(offset).limit(limit).all()
     jobs = [_public_job(vacancy, company) for vacancy, company in rows]
     from app.services.employer_service import (
@@ -341,7 +345,7 @@ def suggest_public_jobs(
     return JobSuggestResponse(
         titles=names(Vacancy.title),
         employers=names(Company.company_name),
-        countries=names(Company.country),
+        countries=countries_flagship_first(names(Company.country)),
     )
 
 
@@ -373,7 +377,7 @@ def public_job_facets(request: Request, response: Response, db: Session = Depend
         for name, total in category_rows
         if name and name.strip() and len(name.strip()) <= 40 and int(total) >= 2
     ]
-    countries.sort(key=lambda row: (-row.count, row.name))
+    countries.sort(key=lambda row: (0 if row.name == FLAGSHIP_COUNTRY else 1, -row.count, row.name))
     categories.sort(key=lambda row: (-row.count, row.name))
     return JobFacetsResponse(countries=countries, categories=categories[:40])
 
