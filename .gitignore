@@ -20,6 +20,9 @@ venv/
 node_modules/
 .next/
 frontend/.notice-target-test/
+frontend/test-results/
+frontend/playwright-report/
+frontend/blob-report/
 
 # Test DB artifacts
 *.db-journal

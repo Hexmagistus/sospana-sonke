@@ -75,6 +75,9 @@ A careers landing page is enough for that same set, even when the HTML lists no 
 
 ## Session Log
 
+### 2026-10-13 — Cursor (Grok 4.7) — Quality gates
+CI builds the site and runs Playwright against that build: search, programmes, an employer page taken from a live stored role, the sign-up form without creating an account, and the signed-out alerts page, which returns to sign-in. Mobile Lighthouse on `/` is three simulated runs. The median performance score must be at least 90, and every accessibility score must be 100. On this machine, Lighthouse 12.8.2 recorded performance 92, 92 and 92, and accessibility 100, 100 and 100. The same production build printed homepage first-load JavaScript of 154 kB, and the check fails above that figure. The GitHub Actions run recorded first-load JavaScript 154 kB, Playwright 5 passed, and Lighthouse performance 92, 92 and 85 (median 92) with accessibility 100, 100 and 100. `pip-audit` on 2026-10-13 named PyJWT 2.13.0, orjson 3.10.15 and pypdf 6.18.1. Those pins are now PyJWT 2.15.1, orjson 3.11.6 and pypdf 6.19.0. A second audit found no known vulnerabilities. The PDF text test and the auth tests passed on those versions. `npm audit --audit-level=high` is unchanged. Pull requests #69 and #70 were not touched.
+
 ### 2026-10-13 — Cursor (Grok 4.7) — Public pages cache for 60 or 300 seconds
 Job, programme, role, and feed responses reuse the API for 60 seconds. The labour table, pricing, and employer pages stay at 300 seconds. The sitemap still renders on request. `Cache-Control` on those paths uses the same windows. A SQLite `EXPLAIN QUERY PLAN` of the open-role list used the existing `ix_vacancies_open_last_seen` index, so no new index was added. The live p95 before this change is the 2026-10-13 sample: jobs list 382.2 ms, health 195.5 ms, company stats 337.5 ms. The after sample waits until this is deployed. Pull requests #69 and #70 were not touched.
 
