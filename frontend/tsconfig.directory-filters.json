@@ -59,6 +59,8 @@
     "src/lib/employerPage.ts",
     "src/lib/employerPage.test.ts",
     "src/lib/opportunity.ts",
-    "src/lib/opportunity.test.ts"
+    "src/lib/opportunity.test.ts",
+    "src/lib/showpieceGate.ts",
+    "src/lib/showpieceGate.test.ts"
   ]
 }

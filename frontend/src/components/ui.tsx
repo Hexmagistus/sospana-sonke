@@ -152,7 +152,7 @@ export function Button({
     <button
       {...props}
       disabled={props.disabled || loading}
-      className={`group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-lg font-medium transition-all duration-150 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-70 disabled:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${sizes} ${styles} ${props.className || ""}`}
+      className={`ss-press group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-lg font-medium transition-all duration-150 disabled:cursor-not-allowed disabled:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${sizes} ${styles} ${props.className || ""}`}
     >
       {loading && (
         <svg className="h-3.5 w-3.5 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">

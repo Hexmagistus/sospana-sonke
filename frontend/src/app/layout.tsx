@@ -17,6 +17,7 @@ import CopyGuard from "@/components/CopyGuard";
 import PhotoWash from "@/components/PhotoWash";
 import WelcomeNote from "@/components/WelcomeNote";
 import { OutboundClickListener } from "@/components/CountOutboundLink";
+import { CardTilt } from "@/components/CardTilt";
 import { SITE_URL, SITE_NAME, SITE_TAGLINE, SITE_DESCRIPTION, SITE_KEYWORDS } from "@/lib/seo";
 
 // Type pairing (self-hosted by next/font at build time, no runtime request to Google):
@@ -157,6 +158,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <PwaRegister />
         <CopyGuard />
         <OutboundClickListener />
+        <CardTilt />
         <a
           href="#main-content"
           className="sr-only focus-visible:not-sr-only focus-visible:fixed focus-visible:left-4 focus-visible:top-4 focus-visible:z-50 focus-visible:rounded-md focus-visible:bg-navy focus-visible:px-4 focus-visible:py-2 focus-visible:text-white"

@@ -17,6 +17,7 @@ import {
 } from "@/lib/landingStats";
 import DailySparkTease from "@/components/DailySparkTease";
 import { CountryJump } from "@/components/CountryJump";
+import { HeroShowpiece } from "@/components/home/HeroShowpiece";
 
 const CoverageWorldMap = dynamic(() => import("@/components/CoverageWorldMap"), {
   ssr: false,
@@ -113,23 +114,39 @@ function CountUp({ target, suffix = "" }: { target: number; suffix?: string; dur
   return <span>{target}{suffix}</span>;
 }
 
+function tiltAllowed(pointerType: string): boolean {
+  if (pointerType === "touch") return false;
+  if (typeof window === "undefined") return false;
+  return (
+    window.matchMedia("(hover: hover) and (pointer: fine)").matches &&
+    !window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  );
+}
+
 function TiltCard({ children, className = "" }: { children: ReactNode; className?: string }) {
   const ref = useRef<HTMLDivElement | null>(null);
-  function onMove(e: React.MouseEvent<HTMLDivElement>) {
+  function onMove(e: React.PointerEvent<HTMLDivElement>) {
     const el = ref.current;
-    if (!el) return;
+    if (!el || !tiltAllowed(e.pointerType)) return;
     const r = el.getBoundingClientRect();
     const px = (e.clientX - r.left) / r.width - 0.5;
     const py = (e.clientY - r.top) / r.height - 0.5;
-    el.style.transform = `perspective(900px) rotateX(${-py * 7}deg) rotateY(${px * 9}deg) translateY(-6px)`;
+    el.style.transform = `perspective(900px) rotateX(${(-py * 4).toFixed(2)}deg) rotateY(${(px * 5).toFixed(2)}deg)`;
   }
   function onLeave() {
     const el = ref.current;
     if (!el) return;
-    el.style.transform = "perspective(900px) rotateX(0deg) rotateY(0deg) translateY(0px)";
+    el.style.transform = "";
   }
   return (
-    <div ref={ref} onMouseMove={onMove} onMouseLeave={onLeave} className={`transition-transform duration-200 ease-out will-change-transform ${className}`}>
+    <div
+      ref={ref}
+      data-tilt-root=""
+      onPointerMove={onMove}
+      onPointerLeave={onLeave}
+      onPointerCancel={onLeave}
+      className={`ss-tilt transition-transform duration-200 ease-out ${className}`}
+    >
       {children}
     </div>
   );
@@ -555,6 +572,7 @@ export default function Home({ children }: { children?: ReactNode }) {
                 <b className="ss-intel-accent">Free to use</b> · Stored jobs and programmes, direct employer links, the Stats SA labour table, a CV you tailor yourself, and a tracker for the roles you choose. Nothing is sent for you.
               </p>
           </div>
+          <HeroShowpiece />
         </div>
       </section>
 

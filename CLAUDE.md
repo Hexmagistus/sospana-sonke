@@ -75,6 +75,9 @@ A careers landing page is enough for that same set, even when the HTML lists no 
 
 ## Session Log
 
+### 2026-10-13 — Cursor (Grok 4.7) — Dimensional surfaces and a gated hero globe
+Shared cards now carry a top highlight and a stacked shadow. Teal buttons and the shared button press inward. A fine pointer tilts a card a few degrees. Touch does not. The homepage hero includes a painted globe in the HTML. WebGL (`three` and `@react-three/fiber`) loads only after idle, and only on a wide screen with a fine pointer, no data-saver, no slow connection, at least four cores, and motion allowed. The canvas uses the same box as the painting. Labour bars stay flat: the length is the printed rate, and the table is unchanged. The decision is `docs/adr/0001-dimensional-surfaces.md`. Pull requests #69 and #70 were not touched.
+
 ### 2026-10-13 — Cursor (Grok 4.7) — Faster public role lists
 Mobile Lighthouse on `/jobs` was performance 78 because two long tasks sat on the document (total blocking time 680 ms). The homepage, which does not paint the photograph, stayed at 92 with accessibility 100. The role and programme lists no longer paint that full-width photograph, and each “Open the source page” link is ordinary HTML. One listener still records the anonymous click. A role detail page keeps the photograph. Each list shows 10 roles, with previous and next links for the rest. The jobs heading is sent before the list. A sponsored row stays in its own list. Pull requests #69 and #70 were not touched.
 
