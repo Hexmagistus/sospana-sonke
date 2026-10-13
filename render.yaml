@@ -62,6 +62,8 @@ services:
         value: "true"
       - key: PUBLIC_API_URL
         value: https://sospana-sonke-api-fra.onrender.com
+      - key: SENTRY_DSN
+        sync: false                 # Optional. Sentry DSN from a free-plan project. Unset leaves error tracking off.
       - key: CRON_SECRET
         sync: false                 # long random string; set the SAME value as the GitHub repo secret CRON_SECRET.
                                      # Enables scheduled scraping (.github/workflows/scrape.yml). Until set, the cron endpoint is 404 (off).
