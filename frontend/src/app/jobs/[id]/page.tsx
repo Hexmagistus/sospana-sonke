@@ -68,7 +68,7 @@ export default async function JobDetailPage({ params }: Props) {
           {job.closing_date ? ` · Closes ${job.closing_date}` : " · No closing date was stored"}
         </p>
         <ApplySteps applicationUrl={job.application_url} vacancyId={job.id} />
-        <SaveRoleButton id={job.id} />
+        <SaveRoleButton id={job.id} title={job.title} company={job.company_name} />
       </section>
     </article>
   );

@@ -3,10 +3,21 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { api, getToken } from "@/lib/api";
+import { OFFLINE_KEY, cacheRoleMessage, readOfflineRoles, rememberOfflineRole } from "@/lib/offlineCache";
 
 const KEY = "ss-recent-roles";
 
 type Recent = { id: string; title: string; company: string };
+
+function keepOnDevice(id: string) {
+  const message = cacheRoleMessage(id);
+  if (!message || !("serviceWorker" in navigator)) return;
+  navigator.serviceWorker.ready
+    .then((registration) => registration.active?.postMessage(message))
+    .catch(() => {
+      /* the page still opens online */
+    });
+}
 
 function readRecent(): Recent[] {
   try {
@@ -33,6 +44,7 @@ export function RememberRole({ id, title, company }: Recent) {
     } catch {
       /* private mode: the page still works */
     }
+    keepOnDevice(id);
   }, [id, title, company]);
   return null;
 }
@@ -61,7 +73,26 @@ export function SavedRoles() {
   useEffect(() => {
     if (!getToken()) return;
     api.get<Array<{ id: string; title: string; company_name: string; is_open: boolean }>>("/saved-opportunities")
-      .then((data) => setRows(Array.isArray(data) ? data : []))
+      .then((data) => {
+        const list = Array.isArray(data) ? data : [];
+        setRows(list);
+        let stored: unknown = [];
+        try {
+          stored = JSON.parse(window.localStorage.getItem(OFFLINE_KEY) || "[]");
+        } catch {
+          stored = [];
+        }
+        for (const row of list.slice(0, 8)) {
+          stored = rememberOfflineRole(stored, { id: row.id, title: row.title, company: row.company_name });
+        }
+        const kept = readOfflineRoles(stored);
+        for (const row of kept) keepOnDevice(row.id);
+        try {
+          window.localStorage.setItem(OFFLINE_KEY, JSON.stringify(kept));
+        } catch {
+          /* the account list still shows while online */
+        }
+      })
       .catch(() => setRows([]));
   }, []);
   if (rows.length === 0) return null;
@@ -80,7 +111,7 @@ export function SavedRoles() {
   );
 }
 
-export function SaveRoleButton({ id }: { id: string }) {
+export function SaveRoleButton({ id, title, company }: { id: string; title: string; company: string }) {
   const [message, setMessage] = useState("");
   async function save() {
     if (!getToken()) {
@@ -89,7 +120,19 @@ export function SaveRoleButton({ id }: { id: string }) {
     }
     try {
       await api.post("/saved-opportunities", { vacancy_id: id });
-      setMessage("Saved to your account.");
+      let stored: unknown = [];
+      try {
+        stored = JSON.parse(window.localStorage.getItem(OFFLINE_KEY) || "[]");
+      } catch {
+        stored = [];
+      }
+      try {
+        window.localStorage.setItem(OFFLINE_KEY, JSON.stringify(rememberOfflineRole(stored, { id, title, company })));
+      } catch {
+        /* the account save still stands */
+      }
+      keepOnDevice(id);
+      setMessage("Saved to your account. This page is also kept on this device for offline reading.");
     } catch {
       setMessage("Could not save that role. It may no longer be open.");
     }

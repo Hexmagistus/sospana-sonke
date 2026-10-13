@@ -119,7 +119,7 @@ export default function PwaExtras() {
     <>
       {offline && (
         <div className="fixed inset-x-0 top-0 z-[70] bg-amber-500 px-3 py-1.5 text-center text-xs font-semibold text-black">
-          📡 You&apos;re offline. Showing employers saved on this device.
+          You&apos;re offline. Roles you already opened can still be read on this device.
         </div>
       )}
 

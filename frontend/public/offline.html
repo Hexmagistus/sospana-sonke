@@ -1,8 +1,50 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Offline · Sospana Sonke</title>
-<style>body{font-family:system-ui,sans-serif;background:#0c1b33;color:#ffffff;display:flex;min-height:100vh;align-items:center;justify-content:center;margin:0;padding:24px;text-align:center}
-.c{max-width:380px}h1{font-size:22px;margin:8px 0}p{color:#d5dde8;line-height:1.5}a{display:inline-block;margin:14px 8px 0;background:#5eead4;color:#0c1b33;padding:10px 16px;border-radius:10px;text-decoration:none;font-weight:700}</style></head>
-<body><div class="c"><div style="font-size:42px">📡</div><h1>You're offline</h1>
-<p>No signal right now. Pages you already opened, including stored roles, can still open from this device. Everything else comes back when you're online.</p>
-<a href="/jobs">Stored roles</a><a href="/companies">Employers</a></div></body></html>
+<style>
+body{font:16px/1.45 system-ui,sans-serif;margin:1rem;color:#0b1220;background:#f7f5f0}
+a{color:#0f766e}
+h1{font-size:1.4rem}
+ul{padding-left:1.2rem}
+</style>
+</head>
+<body>
+<h1>You're offline</h1>
+<p>No signal right now. Roles you opened or saved on this device can still open. Other pages come back when you are online.</p>
+<ul id="roles"></ul>
+<p id="empty">No role is stored on this device yet.</p>
+<p><a href="/jobs">Stored roles</a> · <a href="/">Home</a></p>
+<script>
+(function () {
+  var keys = ["ss-recent-roles", "ss-offline-roles"];
+  var seen = {};
+  var list = document.getElementById("roles");
+  var empty = document.getElementById("empty");
+  keys.forEach(function (key) {
+    var rows = [];
+    try { rows = JSON.parse(localStorage.getItem(key) || "[]"); } catch (e) { rows = []; }
+    if (!Array.isArray(rows)) return;
+    rows.forEach(function (row) {
+      if (!row || seen[row.id]) return;
+      if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(row.id || "")) return;
+      var title = typeof row.title === "string" ? row.title : "";
+      if (!title) return;
+      seen[row.id] = true;
+      var item = document.createElement("li");
+      var link = document.createElement("a");
+      link.href = "/jobs/" + row.id;
+      link.textContent = title.slice(0, 160);
+      item.appendChild(link);
+      var company = typeof row.company === "string" ? row.company : row.company_name;
+      if (typeof company === "string" && company) item.appendChild(document.createTextNode(" · " + company.slice(0, 80)));
+      list.appendChild(item);
+    });
+  });
+  if (Object.keys(seen).length) empty.hidden = true;
+})();
+</script>
+</body>
+</html>
