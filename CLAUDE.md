@@ -75,6 +75,9 @@ A careers landing page is enough for that same set, even when the HTML lists no 
 
 ## Session Log
 
+### 2026-10-13 — Cursor (Grok 4.7) — Faster public role lists
+Mobile Lighthouse on `/jobs` was performance 78 because two long tasks sat on the document (total blocking time 680 ms). The homepage, which does not paint the photograph, stayed at 92 with accessibility 100. The role and programme lists no longer paint that full-width photograph, and each “Open the source page” link is ordinary HTML. One listener still records the anonymous click. A role detail page keeps the photograph. Each list shows 10 roles, with previous and next links for the rest. The jobs heading is sent before the list. A sponsored row stays in its own list. Pull requests #69 and #70 were not touched.
+
 ### 2026-10-13 — Cursor (Grok 4.7) — Employer accounts, plans, and sponsored listings
 Organisation accounts are a separate role from job seekers. A claim is confirmed by an email on the directory row's own careers or website domain, or an administrator approves it. The free plan can correct details and submit a limited number of opportunities. Every organisation post is checked before it is listed and labelled employer-submitted. Employer Pro and a featured listing keep ZAR prices in admin config. The seeded paid amounts are null and the note is "TBD by owner". The public pricing page says "Pricing coming soon" until the owner publishes a price. A featured row is labelled Sponsored, capped at two per results page, and returned in a separate list that has to match the same filters. The organic order is unchanged. Paystack checkout runs only with a test key pair. A missing or live key returns 503 and no payment URL. The webhook checks the signature, grants an entitlement once, and a refund ends it. Card data is not stored. Job-seeker search, alerts, and CV tools stay free. Terms, privacy, and /ranking say how sponsored rows work. Pull requests #69 and #70 were not touched.
 

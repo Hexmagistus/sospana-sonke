@@ -29,6 +29,17 @@ const FALLBACK: Scene = { src: "/photos/mara-sunset.jpg", position: "center" };
 
 function sceneFor(path: string): Scene | null {
   if (path === "/" || path.startsWith("/login") || path.startsWith("/register") || path.startsWith("/forgot-password") || path.startsWith("/reset-password")) return null;
+  // Long public lists already have the navy header. A full-width photograph
+  // there became the largest paint and stretched the main thread.
+  if (
+    path === "/jobs"
+    || path === "/opportunities"
+    || path.startsWith("/jobs/in/")
+    || path.startsWith("/jobs/category/")
+    || (path.startsWith("/opportunities/") && path.length > "/opportunities/".length)
+  ) {
+    return null;
+  }
   return SCENES.find((s) => s.test(path))?.scene ?? FALLBACK;
 }
 
