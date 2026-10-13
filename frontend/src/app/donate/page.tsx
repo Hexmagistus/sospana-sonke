@@ -72,9 +72,9 @@ export default function DonatePage() {
       <div>
         <h1 className="text-2xl font-bold text-ss-text">Help keep Sospana Sonke free</h1>
         <p className="mt-1.5 text-sm text-ss-muted">
-          Sospana Sonke doesn&apos;t charge jobseekers anything. If it&apos;s helped you, a small
+          Sospana Sonke doesn&apos;t charge people anything. If it&apos;s helped you, a small
           voluntary donation helps cover hosting. It does not unlock features, and it is not a payment
-          for a job. We never see or store your card or bank details.
+          for a place. We never see or store your card or bank details.
         </p>
       </div>
 

@@ -1,7 +1,8 @@
 # Daily digest ("Your daily updates")
 
 One email per opted-in user per day, 08:00 South Africa time. It is the only email
-that carries opportunities. Verification, password reset and the other account mail
+that carries opportunities. A new opening can be a job, an internship, a learnership,
+a bursary or a graduate programme. Verification, password reset and the other account mail
 stay immediate.
 
 ## Why it exists

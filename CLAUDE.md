@@ -75,6 +75,9 @@ A careers landing page is enough for that same set, even when the HTML lists no 
 
 ## Session Log
 
+### 2026-10-13 — Cursor (Grok 4.7) — Copy for jobs, programmes, labour data and search
+Public pages, titles, descriptions, Open Graph text and the site schema now say the product stores jobs, internships, learnerships, bursaries and graduate programmes, shows the Statistics South Africa labour table, and answers search only from what is stored. The three-line hero stays. Counts on a page still come from the live directory or the dated snapshot. There is no fixed programme total in the copy. There is no About page and no FAQ page. The daily email names the five types and still starts with "Your daily updates". Pull requests #69 and #70 were not touched.
+
 ### 2026-10-13 — Cursor (Grok 4.7) — PR #70 merged with main again
 Merged `origin/main` (`26aceb7`, pull requests #120 through #125) into `cursor/high-findings-auth-ssrf-ci-c8df`. The only content conflict was `CLAUDE.md`: main's six new session-log entries stay above the earlier update note. `main.py` merged on its own. The unverified-account limit stays, and the public labour route is registered beside it. The four fixes stayed. Google sign-in still reclaims an unverified account and asks for a code when 2FA is already on. Administrator routes stay closed until TOTP is enrolled. The careers-URL tester and the page hasher still follow redirects through `safe_fetch`. Dependabot and the pip-audit CI step stayed. Backend pytest: 717 passed, 2 skipped. `pip-audit` reported no known vulnerabilities. Frontend `tsc --noEmit`, the directory-filter suite (213), the landing suite (9), and the notice-target suite (9) passed. `npm audit --audit-level=high` was clean and `next build` completed. Pull request #70 stays a draft.
 

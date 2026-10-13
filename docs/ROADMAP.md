@@ -1,5 +1,7 @@
 # Roadmap
 
+This note is the 11 October 2026 review. It is not the current product description. Since then the public site stores jobs, internships, learnerships, bursaries and graduate programmes, shows the Statistics South Africa labour table, and answers search only from what is stored. Counts on the live pages come from the directory response or the dated snapshot, not from the figures in this file.
+
 Reviewed 11 October 2026 against the public sites of GoToCareer, JobSpotter, Unlisted, JobLarper and ScoutJobs (now NeverApply, with scoutjob.me as a separate tech radar), and against the live Sospana Sonke homepage plus this codebase.
 
 Figures below are counted, not estimated. The seed file on this branch has **11,876** employer rows, **231** country names and **5,387** careers URLs (6,489 rows still have no careers URL). The public homepage does not show that total. Until the live directory answers, it shows the built-in snapshot from **7 October 2026**: **3,439** employers with a direct careers link across **187** countries. The homepage replaces those numbers when `GET /companies/stats` answers. Country pages in this change use the snapshot on purpose, and they say the date.

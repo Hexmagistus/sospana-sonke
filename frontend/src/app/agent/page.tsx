@@ -447,7 +447,7 @@ function AgentInner() {
     // Job matching was removed: point to employers' own careers pages instead of scoring listings.
     const { employers, country } = await employersFromProfile(6);
     pushAgent({
-      text: `I no longer score vacancies against your profile. Based on your profile, here are employers in ${country} whose careers pages are worth checking directly:`,
+      text: `I no longer score stored roles against your profile. Based on your profile, here are employers in ${country} whose careers pages are worth checking directly:`,
       employers: employers.length ? employers : undefined,
       cta: [
         { label: `Browse all employers in ${country} →`, href: directoryHref(country) },
@@ -588,7 +588,7 @@ function AgentInner() {
       });
     } else if (employers.length > 0) {
       pushAgent({
-        text: `I don't have live vacancy listings indexed for "${label}"${where} yet — most employers here advertise on their own careers pages rather than a shared feed. Here are employers you can check directly:`,
+        text: `I don't have stored openings for "${label}"${where} yet — most employers here advertise on their own careers pages rather than a shared feed. Here are employers you can check directly:`,
         employers, cta,
       });
     } else {
@@ -642,9 +642,10 @@ function AgentInner() {
         <p className="text-sm font-semibold uppercase tracking-wide text-ss-muted">Career Agent</p>
         <h1 className="mt-1 font-display text-3xl font-extrabold tracking-tight text-ss-text">Career Agent</h1>
         <p className="mt-3 text-base leading-relaxed text-ss-muted">
-          Ask in plain English. I search the live employer directory and any vacancies we have indexed, and I
-          link you to the employer&rsquo;s own careers page. I do not score you against a job, and I do not invent listings.
-          Stored roles you can filter without signing in are on the public jobs page.
+          Ask in plain English. I search the live employer directory and any jobs, internships, learnerships,
+          bursaries and graduate programmes we have stored, and I link you to the organisation&rsquo;s own page.
+          I do not score you against a role, and I do not invent listings.
+          Stored roles you can filter without signing in are on the public jobs page, and programmes have their own page.
         </p>
       </header>
 

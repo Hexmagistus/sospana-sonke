@@ -44,7 +44,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return { title: "Employer" };
   }
   const description =
-    `${loaded.company_name} (${loaded.country}): careers link, category, and open roles stored by ${SITE_NAME}. Apply on the employer's site.`;
+    `${loaded.company_name} (${loaded.country}): careers link, category, and stored jobs or programmes from ${SITE_NAME}. Apply on the source page.`;
   return {
     title: `${loaded.company_name} careers`,
     description,
@@ -124,8 +124,8 @@ export default async function EmployerPage({ params }: Props) {
       </nav>
       <PageHeader eyebrow={category} title={employer.company_name}>
         <p>
-          {employer.country}. {storedScopeText(employer.careers_scope)} You apply on the employer&apos;s site.{" "}
-          {SITE_NAME} does not send an application for you.
+          {employer.country}. {storedScopeText(employer.careers_scope)} A stored role can be a job or a programme.
+          You apply on the source page. {SITE_NAME} does not send an application for you.
         </p>
       </PageHeader>
       <section className="ss-card space-y-2">

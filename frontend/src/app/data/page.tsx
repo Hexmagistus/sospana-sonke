@@ -68,8 +68,8 @@ export default async function LabourDataPage() {
     <div className="space-y-6">
       <PageHeader eyebrow="Official statistics" title="Unemployment rates in South Africa">
         <p>
-          This page shows one published table. It does not explain why a rate changed, and it is not a count of
-          vacancies {SITE_NAME} has stored.
+          This page shows one published table from Statistics South Africa. It does not explain why a rate changed, and it is not a count of
+          roles {SITE_NAME} has stored.
         </p>
       </PageHeader>
 
@@ -191,7 +191,7 @@ export default async function LabourDataPage() {
             </p>
             <p className="text-sm font-semibold">
               <Link href="/jobs" className="text-navy underline">
-                Search stored vacancies
+                Search stored roles
               </Link>
             </p>
           </section>

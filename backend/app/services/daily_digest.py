@@ -325,6 +325,7 @@ def render_digest(user: User, content: DigestContent, *, now: datetime, max_item
         "",
         f"Here is what is new for you in the last {window_hours} hours: "
         f"{total} item{'s' if total != 1 else ''}.",
+        "A new opening can be a job, an internship, a learnership, a bursary or a graduate programme.",
         "",
     ]
     listed = 0

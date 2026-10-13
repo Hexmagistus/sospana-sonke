@@ -12,7 +12,7 @@ const PAGE = 50;
 export const metadata: Metadata = {
   title: "Employers with a careers link",
   description:
-    `Public pages for employers whose own careers link is stored by ${SITE_NAME}. Each page shows the link, when it was checked, and open roles the scanner has stored.`,
+    `Public pages for employers whose own careers link is stored by ${SITE_NAME}. Each page shows the link, when it was checked, and stored jobs or programmes.`,
   alternates: { canonical: "/employers" },
   openGraph: {
     title: `Employers with a careers link · ${SITE_NAME}`,
@@ -50,6 +50,7 @@ export default async function EmployersIndex({ searchParams }: { searchParams: P
         <p>
           These pages are only for employers that have a careers link stored. Each one shows the name,
           country, category, the link and when it was checked, and open roles the scanner has stored.
+          A role can be a job, an internship, a learnership, a bursary or a graduate programme.
           You apply on the employer&apos;s site.
         </p>
       </PageHeader>
