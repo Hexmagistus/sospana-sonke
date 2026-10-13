@@ -192,6 +192,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 {" · "}
                 <a href="/data" className="underline hover:text-ss-text">Labour data</a>
                 {" · "}
+                <a href="/feed.xml" className="underline hover:text-ss-text">New roles feed</a>
+                {" · "}
                 <a href="/privacy" className="underline hover:text-ss-text">Privacy</a>
                 {" · "}
                 <a href="/terms" className="underline hover:text-ss-text">Terms</a>

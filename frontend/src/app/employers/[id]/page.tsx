@@ -10,7 +10,6 @@ import {
   urlScopeText,
   type PublicEmployer,
 } from "@/lib/employerPage";
-import { jobPosting } from "@/lib/jobPosting";
 import { SITE_NAME, SITE_URL } from "@/lib/seo";
 
 export const revalidate = 300;
@@ -91,20 +90,8 @@ export default async function EmployerPage({ params }: Props) {
         itemListElement: employer.roles.map((role, index) => ({
           "@type": "ListItem",
           position: index + 1,
-          item: jobPosting({
-            ...role,
-            title: role.title,
-            company_name: employer.company_name,
-            company_country: employer.country,
-            employment_type: null,
-            work_mode: null,
-            salary: null,
-            salary_min: null,
-            salary_max: null,
-            salary_currency: null,
-            posting_date: null,
-            is_open: true,
-          }),
+          name: role.title,
+          url: `${SITE_URL}/jobs/${role.id}`,
         })),
       }
     : null;

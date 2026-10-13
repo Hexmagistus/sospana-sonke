@@ -2,9 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import CountOutboundLink from "@/components/CountOutboundLink";
 import { ApplySteps } from "@/components/ApplySteps";
-import { jobPosting, type PublicJob } from "@/lib/jobPosting";
+import type { PublicJob } from "@/lib/jobPosting";
+import { PROGRAMME_PAGES } from "@/lib/jobLandings";
 import { OPPORTUNITY_TABS, opportunityLabel, statedDate } from "@/lib/opportunity";
-import { SITE_NAME } from "@/lib/seo";
+import { SITE_NAME, SITE_URL } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
@@ -78,7 +79,8 @@ export default async function OpportunitiesPage({ searchParams }: { searchParams
         itemListElement: loaded.jobs.map((job, index) => ({
           "@type": "ListItem",
           position: index + 1,
-          item: jobPosting(job),
+          url: `${SITE_URL}/jobs/${job.id}`,
+          name: job.title,
         })),
       }
     : null;
@@ -99,6 +101,14 @@ export default async function OpportunitiesPage({ searchParams }: { searchParams
           You apply on the source page. {SITE_NAME} does not send an application for you.
         </p>
       </header>
+
+      <nav aria-label="Programme pages" className="flex flex-wrap gap-3 text-sm">
+        {PROGRAMME_PAGES.map((page) => (
+          <Link key={page.slug} href={`/opportunities/${page.slug}`} className="font-semibold text-[#0f766e] underline">
+            {page.label}
+          </Link>
+        ))}
+      </nav>
 
       <nav aria-label="Opportunity type" className="flex flex-wrap gap-2">
         {OPPORTUNITY_TABS.map((tab) => {
@@ -163,7 +173,9 @@ export default async function OpportunitiesPage({ searchParams }: { searchParams
             {loaded.jobs.map((job) => (
               <li key={job.id} className="ss-intel-card border border-[#0c1b33]/10">
                 <p className="text-sm font-semibold text-[#0f766e]">{opportunityLabel(job.opportunity_type)}</p>
-                <h2 className="mt-1 font-display text-xl font-bold text-[#0c1b33]">{job.title}</h2>
+                <h2 className="mt-1 font-display text-xl font-bold text-[#0c1b33]">
+                  <Link href={`/jobs/${job.id}`} className="underline">{job.title}</Link>
+                </h2>
                 <p className="mt-1 text-sm text-[#3f4a5c]">
                   {job.company_id ? (
                     <Link href={`/employers/${job.company_id}`} className="font-semibold text-[#0c1b33] underline">

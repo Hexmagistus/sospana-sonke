@@ -7,7 +7,7 @@ export function ApplySteps({
   onDark = false,
 }: {
   applicationUrl: string | null;
-  vacancyId?: string;
+  vacancyId: string;
   /** Teal-on-navy when the card sits on the midnight band. */
   onDark?: boolean;
 }) {

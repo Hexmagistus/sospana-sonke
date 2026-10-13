@@ -18,6 +18,10 @@ class Settings(BaseSettings):
     # Public base URL of THIS API, used to build clickable email links
     # (e.g. the account-verification link). Set to the deployed API URL in prod.
     PUBLIC_API_URL: str = "http://localhost:8000"
+    # The public website. IndexNow pings this host. The key is empty unless set,
+    # so a normal boot does not call IndexNow.
+    PUBLIC_SITE_URL: str = "https://sospana-sonke.vercel.app"
+    INDEXNOW_KEY: str = "a7c3e91b4d2f8065a1b9c0d4e6f81234"
     # Comma-separated list of allowed browser origins (the frontend URL in production).
     CORS_ORIGINS: str = "http://localhost:3000"
 

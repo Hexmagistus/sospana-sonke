@@ -75,6 +75,9 @@ A careers landing page is enough for that same set, even when the HTML lists no 
 
 ## Session Log
 
+### 2026-10-13 — Cursor (Grok 4.7) — Public role pages, feeds and saved roles
+Each open stored role has a public page at `/jobs/{id}` with JobPosting markup built from stored fields. `directApply` is false. A closing date is included only when one was stored. A closed or expired role is not served as an active posting. Programme pages (`/opportunities/learnerships` and the other three types), country pages (`/jobs/in/{country}`) and employment-type pages (`/jobs/category/{category}`) are generated from the live index and left out of the sitemap when the count is zero. The sitemap also lists roles seen in the last 14 days. `/feed.xml` and `/feed.json` list roles seen in the last seven days. IndexNow is pinged after a closing date is marked expired, at most once every six hours, and not during tests. The site is English only, so there is no hreflang. A signed-in person can save a role. Recently viewed roles stay in this browser. Search treats learnership and learnerships, and a one-letter misspelling of those programme words, as the same query. Suggestions come from stored titles, employers and countries.
+
 ### 2026-10-13 — Cursor (Grok 4.7) — Shared navy and teal chrome
 Page titles that use the shared header now sit on the midnight navy band with electric teal text. Primary buttons use that teal fill with navy text. Cards keep a teal top edge, and table headers use a teal tint. With no saved theme, the app follows the system light or dark setting. The landing, sign-in and password pages stay bright. A signed-out phone gets a bottom bar for Home, Jobs, Programmes, Countries and Sign in. Job and programme cards list the three apply steps and link to the source page. Search on those pages stays on screen while you scroll. A first-visit note can be hidden, and that choice stays on the device.
 

@@ -3,8 +3,10 @@ import Link from "next/link";
 import { PageHeader } from "@/components/PageHeader";
 import IntelligenceSearch from "@/components/home/IntelligenceSearch";
 import { ApplySteps } from "@/components/ApplySteps";
-import { jobPosting, jobSummary, type PublicJob } from "@/lib/jobPosting";
-import { SITE_NAME } from "@/lib/seo";
+import { jobSummary, type PublicJob } from "@/lib/jobPosting";
+import { SITE_NAME, SITE_URL } from "@/lib/seo";
+import { RoleSuggestInput } from "@/components/RoleSuggestInput";
+import { RecentRoles, SavedRoles } from "@/components/RoleExtras";
 
 export const dynamic = "force-dynamic";
 
@@ -75,7 +77,8 @@ export default async function JobsPage({ searchParams }: { searchParams: Promise
         itemListElement: loaded.jobs.map((job, index) => ({
           "@type": "ListItem",
           position: index + 1,
-          item: jobPosting(job),
+          url: `${SITE_URL}/jobs/${job.id}`,
+          name: job.title,
         })),
       }
     : null;
@@ -98,12 +101,14 @@ export default async function JobsPage({ searchParams }: { searchParams: Promise
         </p>
       </PageHeader>
 
+      <SavedRoles />
+      <RecentRoles />
       <IntelligenceSearch showAccountLinks={false} />
 
       <form method="get" action="/jobs" className="ss-card ss-sticky-search grid gap-4 sm:grid-cols-2">
         <label className="block text-sm font-semibold text-ss-text">
           Keyword
-          <input name="q" defaultValue={q} placeholder="Title, for example nurse" className={fieldClass} />
+          <RoleSuggestInput defaultValue={q} className={fieldClass} />
         </label>
         <label className="block text-sm font-semibold text-ss-text">
           Country
@@ -158,7 +163,9 @@ export default async function JobsPage({ searchParams }: { searchParams: Promise
           <ul className="grid gap-3">
             {loaded.jobs.map((job) => (
               <li key={job.id} className="ss-card">
-                <h2 className="font-display text-xl font-bold text-ss-text">{job.title}</h2>
+                <h2 className="font-display text-xl font-bold text-ss-text">
+                  <Link href={`/jobs/${job.id}`} className="underline">{job.title}</Link>
+                </h2>
                 <p className="mt-1 text-sm text-ss-muted">
                   {job.company_id ? (
                     <Link href={`/employers/${job.company_id}`} className="font-semibold text-navy underline">
