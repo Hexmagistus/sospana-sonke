@@ -75,6 +75,9 @@ A careers landing page is enough for that same set, even when the HTML lists no 
 
 ## Session Log
 
+### 2026-10-13 — Cursor (Grok 4.7) — Stats SA unemployment table
+The data page and the public search use Table E of Statistics South Africa, Quarterly Labour Force Survey, Quarter 2: 2026 (statistical release P0211, released 11 August 2026). The rates are the printed official rate and the combined rate (LU3) for South Africa and the nine provinces, including the two earlier quarters printed in that same table. The metadata notice allows this free display when Stats SA is named as the source and the presentation is identified as ours, and it forbids selling the data. There is no downloadable file. A question such as unemployment in Limpopo returns those figures and the citation. A city, another country, a subgroup, or any other dataset still says there is not enough data. Pull requests #69 and #70 were not touched.
+
 ### 2026-10-12 — Cursor (Grok 4.7) — Anonymous search and click counts
 The public search adds one daily total of the filters it understood: country, category, intent, whether the answer was empty, not enough data, or had results, and a band for the result count. The question, the IP address, and any account id are not stored. An outbound careers or application link adds a daily count for that employer or role. Do Not Track and Global Privacy Control leave the visit out. Totals older than 90 days are deleted. The privacy page states this in the same release. Administrators see the four rates on the dashboard. `usage_search_daily` and `usage_click_daily` are created on boot and dropped by the migration's downgrade. Pull requests #69 and #70 were not touched.
 
