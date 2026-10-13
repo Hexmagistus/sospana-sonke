@@ -75,6 +75,9 @@ A careers landing page is enough for that same set, even when the HTML lists no 
 
 ## Session Log
 
+### 2026-10-13 — Cursor (Grok 4.7) — Status page, request ids, measured latency
+`/status` reads `GET /api/v1/status`: a `SELECT 1`, the newest finished scan, and a count of sources already at the failure threshold of 3. The scanner is stale after 120 minutes, which is eight runs of the 15-minute scan cron. `/health` still does not touch the database. Each request gets an `X-Request-ID` and one JSON access line with method, path, status and duration. The query string is not logged. Sentry stays off until `SENTRY_DSN` is set on the Frankfurt service. A 15-sample baseline from this environment on 2026-10-13 is in `docs/SLO.md`: health p95 195.5 ms, jobs list p95 382.2 ms, company stats p95 337.5 ms, all HTTP 200. Pull requests #69 and #70 were not touched.
+
 ### 2026-10-13 — Cursor (Grok 4.7) — Dimensional surfaces and a gated hero globe
 Shared cards now carry a top highlight and a stacked shadow. Teal buttons and the shared button press inward. A fine pointer tilts a card a few degrees. Touch does not. The homepage hero includes a painted globe in the HTML. WebGL (`three` and `@react-three/fiber`) loads only after idle, and only on a wide screen with a fine pointer, no data-saver, no slow connection, at least four cores, and motion allowed. The canvas uses the same box as the painting. Labour bars stay flat: the length is the printed rate, and the table is unchanged. The decision is `docs/adr/0001-dimensional-surfaces.md`. Pull requests #69 and #70 were not touched.
 

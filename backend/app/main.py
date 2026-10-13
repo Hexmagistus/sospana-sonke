@@ -3,7 +3,8 @@ import logging
 import os
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, Response
+from fastapi import Depends, FastAPI, Response
+from sqlalchemy.orm import Session
 from fastapi.middleware.cors import CORSMiddleware
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
@@ -13,10 +14,11 @@ from starlette.middleware.gzip import GZipMiddleware
 
 from app.core.config import settings
 from app.core.logging import configure_logging, install_uvicorn_scrubbers
+from app.core.request_id import RequestTimer, access_line, access_log, request_id_from
 from app.core.memory import limit_malloc_arenas
 from app.core.origins import VERCEL_ORIGIN_REGEX
 from app.core.rate_limit import limiter
-from app.db.session import describe_database, init_db
+from app.db.session import describe_database, get_db, init_db
 from app.api import (
     routes_auth, routes_companies, routes_profile, routes_cv, routes_vacancies, routes_matches,
     routes_documents, routes_applications, routes_subscription, routes_donation, routes_dashboard,
@@ -125,6 +127,24 @@ def create_app() -> FastAPI:
             raise
 
     @app.middleware("http")
+    async def assign_request_id(request, call_next):
+        # The id is on the response, and one JSON line records method, path,
+        # status and duration. The query string is not logged.
+        request_id = request_id_from(request.headers.get("x-request-id"))
+        request.state.request_id = request_id
+        timer = RequestTimer()
+        status_code = 500
+        try:
+            response = await call_next(request)
+            status_code = response.status_code
+            response.headers["X-Request-ID"] = request_id
+            return response
+        finally:
+            access_log.info(access_line(
+                request_id, request.method, request.url.path, status_code, timer.elapsed_ms(),
+            ))
+
+    @app.middleware("http")
     async def add_security_headers(request, call_next):
         response = await call_next(request)
         response.headers["X-Content-Type-Options"] = "nosniff"
@@ -151,6 +171,13 @@ def create_app() -> FastAPI:
         return JSONResponse(status_code=410, content={
             "detail": "This file is no longer available: it was lost in a server restart before "
                       "storage was made permanent. Please re-upload your CV or generate the document again."})
+
+    @app.get("/api/v1/status", tags=["system"])
+    def service_status(response: Response, db: Session = Depends(get_db)) -> dict:
+        """Database ping and scanner freshness. /health stays free of that I/O."""
+        from app.services.status_report import status_report
+        response.headers["Cache-Control"] = "no-store"
+        return status_report(db)
 
     @app.get("/health", tags=["system"])
     async def health(response: Response) -> dict:
