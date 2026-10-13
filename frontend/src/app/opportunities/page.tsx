@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import CountOutboundLink from "@/components/CountOutboundLink";
-import { jobPosting, type PublicJob } from "@/lib/jobPosting";
+import { ApplySteps } from "@/components/ApplySteps";
+import type { PublicJob } from "@/lib/jobPosting";
+import { PROGRAMME_PAGES } from "@/lib/jobLandings";
 import { OPPORTUNITY_TABS, opportunityLabel, statedDate } from "@/lib/opportunity";
-import { SITE_NAME } from "@/lib/seo";
+import { SITE_NAME, SITE_URL } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
@@ -77,7 +79,8 @@ export default async function OpportunitiesPage({ searchParams }: { searchParams
         itemListElement: loaded.jobs.map((job, index) => ({
           "@type": "ListItem",
           position: index + 1,
-          item: jobPosting(job),
+          url: `${SITE_URL}/jobs/${job.id}`,
+          name: job.title,
         })),
       }
     : null;
@@ -99,6 +102,14 @@ export default async function OpportunitiesPage({ searchParams }: { searchParams
         </p>
       </header>
 
+      <nav aria-label="Programme pages" className="flex flex-wrap gap-3 text-sm">
+        {PROGRAMME_PAGES.map((page) => (
+          <Link key={page.slug} href={`/opportunities/${page.slug}`} className="font-semibold text-[#0f766e] underline">
+            {page.label}
+          </Link>
+        ))}
+      </nav>
+
       <nav aria-label="Opportunity type" className="flex flex-wrap gap-2">
         {OPPORTUNITY_TABS.map((tab) => {
           const current = tab.value === type;
@@ -119,7 +130,7 @@ export default async function OpportunitiesPage({ searchParams }: { searchParams
         })}
       </nav>
 
-      <form method="get" action="/opportunities" className="ss-card flex flex-col gap-3 sm:flex-row sm:items-end">
+      <form method="get" action="/opportunities" className="ss-card ss-sticky-search flex flex-col gap-3 sm:flex-row sm:items-end">
         {type ? <input type="hidden" name="type" value={type} /> : null}
         <label className="block flex-1 text-sm font-semibold text-ss-text">
           Keyword
@@ -162,7 +173,9 @@ export default async function OpportunitiesPage({ searchParams }: { searchParams
             {loaded.jobs.map((job) => (
               <li key={job.id} className="ss-intel-card border border-[#0c1b33]/10">
                 <p className="text-sm font-semibold text-[#0f766e]">{opportunityLabel(job.opportunity_type)}</p>
-                <h2 className="mt-1 font-display text-xl font-bold text-[#0c1b33]">{job.title}</h2>
+                <h2 className="mt-1 font-display text-xl font-bold text-[#0c1b33]">
+                  <Link href={`/jobs/${job.id}`} className="underline">{job.title}</Link>
+                </h2>
                 <p className="mt-1 text-sm text-[#3f4a5c]">
                   {job.company_id ? (
                     <Link href={`/employers/${job.company_id}`} className="font-semibold text-[#0c1b33] underline">
@@ -180,12 +193,13 @@ export default async function OpportunitiesPage({ searchParams }: { searchParams
                     <dd>{statedDate(job.last_seen_at)}</dd>
                   </div>
                 </dl>
+                <ApplySteps applicationUrl={job.application_url} vacancyId={job.id} />
                 {job.application_url ? (
                   <CountOutboundLink
                     href={job.application_url}
                     targetKind="vacancy"
                     targetId={job.id}
-                    className="mt-3 inline-flex min-h-11 items-center rounded-xl bg-[#0c1b33] px-4 py-2 text-sm font-semibold text-white"
+                    className="mt-3 inline-flex min-h-11 items-center rounded-xl bg-[#5eead4] px-4 py-2 text-sm font-semibold text-[#0c1b33]"
                   >
                     Source page
                   </CountOutboundLink>

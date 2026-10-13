@@ -19,6 +19,7 @@ from app.models.spark import SparkOpen
 from app.models.user import User
 from app.models.admin_ops import UserTag
 from app.models.role_alert import RoleAlert
+from app.models.saved_opportunity import SavedOpportunity
 from app.schemas.auth import NotificationPreferencesRequest, OpportunityAlertsRequest, UserResponse
 from app.models.cv import CV
 from app.models.document import CVVersion, CoverLetter
@@ -240,6 +241,7 @@ def delete_my_account(request: Request, body: DeleteRequest, db: Session = Depen
     db.query(PushToken).filter(PushToken.user_id == user.id).delete(synchronize_session=False)
     db.query(UserTag).filter(UserTag.user_id == user.id).delete(synchronize_session=False)
     db.query(RoleAlert).filter(RoleAlert.user_id == user.id).delete(synchronize_session=False)
+    db.query(SavedOpportunity).filter(SavedOpportunity.user_id == user.id).delete(synchronize_session=False)
     _erase_documents_and_profile(db, user)
     user.token_version = (user.token_version or 0) + 1  # kill every session now
     user.email = f"deleted-{user.id}@deleted.invalid"

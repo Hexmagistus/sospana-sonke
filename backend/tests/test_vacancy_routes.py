@@ -217,3 +217,30 @@ def test_public_jobs_filters_stored_roles_without_auth(client, db_engine):
     none = client.get("/api/v1/jobs", params={"q": "no-such-role"}).json()
     assert none["matched"] == 0
     assert none["jobs"] == []
+
+    detail = client.get(f"/api/v1/jobs/{open_id}")
+    assert detail.status_code == 200, detail.text
+    assert "Operations Manager" in detail.json()["summary"]
+    assert "description" not in detail.json()
+    assert client.get(f"/api/v1/jobs/{expired_id}").status_code == 404
+
+    _, programme_id = _seed_vacancy(
+        db_engine, company_name="Seta Works", content_hash="hash-learn",
+        title="Electrical Learnership", opportunity_type="learnership",
+        description="<p>A twelve-month learnership in Johannesburg.</p>",
+    )
+    plural = client.get("/api/v1/jobs", params={"q": "learnerships"}).json()
+    assert programme_id in {job["id"] for job in plural["jobs"]}
+    body = client.get(f"/api/v1/jobs/{programme_id}").json()
+    assert "<p>" not in body["summary"]
+    assert "twelve-month learnership" in body["summary"]
+
+    suggest = client.get("/api/v1/jobs/suggest", params={"q": "Elec"}).json()
+    assert any("Electrical" in title for title in suggest["titles"])
+
+    _, tokens = register_and_login(client)
+    saved = client.post("/api/v1/saved-opportunities", json={"vacancy_id": open_id}, headers=_auth(tokens))
+    assert saved.status_code == 201, saved.text
+    listed_saved = client.get("/api/v1/saved-opportunities", headers=_auth(tokens)).json()
+    assert {job["id"] for job in listed_saved} == {open_id}
+    assert client.delete(f"/api/v1/saved-opportunities/{open_id}", headers=_auth(tokens)).status_code == 204

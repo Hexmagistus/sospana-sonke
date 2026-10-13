@@ -8,7 +8,7 @@ from dataclasses import asdict
 from datetime import datetime, timedelta, timezone, date
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, status
-from sqlalchemy import case, func
+from sqlalchemy import case, func, or_
 from sqlalchemy.orm import Session, defer
 
 from app.core.deps import get_current_user, require_admin
@@ -25,9 +25,14 @@ from app.schemas.vacancy import (
     VacancyReportCreate, VacancyReportResponse, DuplicateGroupResponse,
     ExternalIdDuplicateGroupResponse,
     MergeDuplicatesRequest, MergeDuplicatesResponse,
-    PublicJobResponse, PublicJobListResponse, OpportunityCountResponse,
+    PublicJobResponse, PublicJobListResponse, PublicJobDetailResponse, OpportunityCountResponse,
+    JobFacetsResponse, JobFacetCount, JobSuggestResponse, JobIdListResponse,
+    SavedOpportunityCreate,
 )
 from app.services.opportunity_type import OPPORTUNITY_TYPES
+from app.services.search_terms import expand_title_terms, opportunity_types_for
+from app.models.saved_opportunity import SavedOpportunity
+import re
 from app.services.scan_service import scan_company
 from app.services.duplicate_service import find_duplicate_groups, find_external_id_groups, merge_duplicates
 from app.services.vacancy_report_service import create_vacancy_report
@@ -161,6 +166,7 @@ def list_public_jobs(
     q: str | None = Query(default=None, max_length=80, description="Words in the job title"),
     country: str | None = Query(default=None, max_length=80, description="Employer country or the role's country"),
     employer: str | None = Query(default=None, max_length=80, description="Words in the employer name"),
+    employment_type: str | None = Query(default=None, max_length=40, description="Exact stored employment type"),
     opportunity_type: str | None = Query(
         default=None, max_length=32,
         description="job, internship, learnership, bursary, or graduate_programme",
@@ -187,12 +193,19 @@ def list_public_jobs(
         .filter((Vacancy.closing_date.is_(None)) | (Vacancy.closing_date >= today))
     )
     if q and q.strip():
-        query = query.filter(Vacancy.title.ilike(_like_fragment(q)))
+        phrases = expand_title_terms(q)
+        likes = [Vacancy.title.ilike(_like_fragment(phrase)) for phrase in phrases]
+        types = opportunity_types_for(q)
+        if types:
+            likes.append(Vacancy.opportunity_type.in_(types))
+        query = query.filter(or_(*likes))
     if country and country.strip():
         name = country.strip()[:80]
         query = query.filter((Company.country == name) | (Vacancy.country == name))
     if employer and employer.strip():
         query = query.filter(Company.company_name.ilike(_like_fragment(employer)))
+    if employment_type and employment_type.strip():
+        query = query.filter(Vacancy.employment_type == employment_type.strip()[:40])
     if opportunity_type and opportunity_type.strip():
         kind = opportunity_type.strip().lower().replace("-", "_").replace(" ", "_")
         if kind == "graduate_program":
@@ -219,6 +232,216 @@ def list_public_jobs(
         matched=matched,
         limit=limit,
     )
+
+
+def _plain_excerpt(text: str | None, limit: int = 1200) -> str | None:
+    if not text:
+        return None
+    plain = re.sub(r"<[^>]+>", " ", text)
+    plain = re.sub(r"\s+", " ", plain).strip()
+    if not plain:
+        return None
+    if len(plain) <= limit:
+        return plain
+    cut = plain[:limit].rsplit(" ", 1)[0]
+    return f"{cut}…"
+
+
+def _public_summary(vacancy: Vacancy, company: Company) -> str:
+    excerpt = _plain_excerpt(vacancy.description)
+    if excerpt:
+        return excerpt
+    place = vacancy.location or vacancy.country or company.country
+    bits = [f"{vacancy.title} at {company.company_name}."]
+    if place:
+        bits.append(f"Location: {place}.")
+    if vacancy.opportunity_type and vacancy.opportunity_type != "job":
+        bits.append(f"Type: {vacancy.opportunity_type.replace('_', ' ')}.")
+    bits.append("The stored advert had no description text.")
+    return " ".join(bits)
+
+
+def _public_detail(vacancy: Vacancy, company: Company) -> PublicJobDetailResponse:
+    job = _public_job(vacancy, company)
+    if vacancy.closing_date is not None and vacancy.closing_date < date.today():
+        job.is_open = False
+    return PublicJobDetailResponse(**job.model_dump(), summary=_public_summary(vacancy, company))
+
+
+def _load_public_pair(db: Session, job_id: str) -> tuple[Vacancy, Company] | None:
+    row = (
+        db.query(Vacancy, Company)
+        .join(Company, Company.id == Vacancy.company_id)
+        .filter(Vacancy.id == job_id, Vacancy.deleted_at.is_(None), Company.deleted_at.is_(None))
+        .one_or_none()
+    )
+    if row is None:
+        return None
+    vacancy, company = row
+    if not vacancy.is_open:
+        return None
+    if vacancy.closing_date is not None and vacancy.closing_date < date.today():
+        return None
+    return vacancy, company
+
+
+@router.get("/jobs/suggest", response_model=JobSuggestResponse)
+@limiter.limit("60/minute")
+def suggest_public_jobs(
+    request: Request,
+    response: Response,
+    db: Session = Depends(get_db),
+    q: str = Query(min_length=2, max_length=80),
+):
+    """Titles, employers and countries from open stored roles. Prefix match only."""
+    response.headers["Cache-Control"] = "public, max-age=60"
+    needle = _like_fragment(q)
+    # A prefix is more useful than a contains-match for a short suggestion list.
+    prefix = needle[1:] if needle.startswith("%") else needle
+
+    def names(column):
+        query = _open_public(
+            db.query(column)
+            .select_from(Vacancy)
+            .join(Company, Company.id == Vacancy.company_id)
+        )
+        rows = query.filter(column.ilike(prefix)).distinct().limit(5).all()
+        return [row[0] for row in rows if row[0]]
+
+    return JobSuggestResponse(
+        titles=names(Vacancy.title),
+        employers=names(Company.company_name),
+        countries=names(Company.country),
+    )
+
+
+@router.get("/jobs/facets", response_model=JobFacetsResponse)
+@limiter.limit("30/minute")
+def public_job_facets(request: Request, response: Response, db: Session = Depends(get_db)):
+    """Countries and employment categories that have at least one open stored role."""
+    response.headers["Cache-Control"] = "public, max-age=300"
+    country_rows = (
+        _open_public(db.query(Company.country, func.count(Vacancy.id))
+                     .join(Company, Company.id == Vacancy.company_id))
+        .group_by(Company.country)
+        .all()
+    )
+    category_rows = (
+        _open_public(db.query(Vacancy.employment_type, func.count(Vacancy.id))
+                     .join(Company, Company.id == Vacancy.company_id))
+        .filter(Vacancy.employment_type.isnot(None), Vacancy.employment_type != "")
+        .group_by(Vacancy.employment_type)
+        .all()
+    )
+    countries = [
+        JobFacetCount(name=name, count=int(total))
+        for name, total in country_rows
+        if name and int(total) > 0
+    ]
+    categories = [
+        JobFacetCount(name=name.strip(), count=int(total))
+        for name, total in category_rows
+        if name and name.strip() and len(name.strip()) <= 40 and int(total) >= 2
+    ]
+    countries.sort(key=lambda row: (-row.count, row.name))
+    categories.sort(key=lambda row: (-row.count, row.name))
+    return JobFacetsResponse(countries=countries, categories=categories[:40])
+
+
+@router.get("/jobs/ids", response_model=JobIdListResponse)
+@limiter.limit("30/minute")
+def public_job_ids(
+    request: Request,
+    response: Response,
+    db: Session = Depends(get_db),
+    max_age_days: int = Query(default=14, ge=1, le=60),
+    limit: int = Query(default=1000, ge=1, le=2000),
+    offset: int = Query(default=0, ge=0, le=20000),
+):
+    """Ids of open roles last seen within max_age_days, for the sitemap. Newest first."""
+    response.headers["Cache-Control"] = "public, max-age=3600"
+    cutoff = datetime.now(timezone.utc) - timedelta(days=max_age_days)
+    query = (
+        _open_public(db.query(Vacancy.id).join(Company, Company.id == Vacancy.company_id))
+        .filter(Vacancy.last_seen_at >= cutoff)
+    )
+    matched = query.count()
+    rows = query.order_by(Vacancy.last_seen_at.desc()).offset(offset).limit(limit).all()
+    return JobIdListResponse(ids=[row[0] for row in rows], matched=matched)
+
+
+@router.get("/jobs/{job_id}", response_model=PublicJobDetailResponse)
+@limiter.limit("60/minute")
+def get_public_job(job_id: str, request: Request, response: Response, db: Session = Depends(get_db)):
+    """One open stored role. A closed, expired or missing role is a 404, not an active posting."""
+    response.headers["Cache-Control"] = "public, max-age=60"
+    pair = _load_public_pair(db, job_id)
+    if pair is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="That open role is not stored.")
+    return _public_detail(*pair)
+
+
+@router.get("/saved-opportunities", response_model=list[PublicJobDetailResponse])
+@limiter.limit("60/minute")
+def list_saved_opportunities(
+    request: Request,
+    response: Response,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    """Roles this person saved. A role that has since closed stays in the list and is marked closed."""
+    private_short_cache(response)
+    rows = (
+        db.query(SavedOpportunity, Vacancy, Company)
+        .join(Vacancy, Vacancy.id == SavedOpportunity.vacancy_id)
+        .join(Company, Company.id == Vacancy.company_id)
+        .filter(SavedOpportunity.user_id == user.id, Vacancy.deleted_at.is_(None), Company.deleted_at.is_(None))
+        .order_by(SavedOpportunity.created_at.desc())
+        .limit(100)
+        .all()
+    )
+    return [_public_detail(vacancy, company) for _, vacancy, company in rows]
+
+
+@router.post("/saved-opportunities", response_model=PublicJobDetailResponse, status_code=status.HTTP_201_CREATED)
+@limiter.limit("60/minute")
+def save_opportunity(
+    body: SavedOpportunityCreate,
+    request: Request,
+    response: Response,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    pair = _load_public_pair(db, body.vacancy_id.strip())
+    if pair is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="That open role is not stored.")
+    existing = (
+        db.query(SavedOpportunity)
+        .filter(SavedOpportunity.user_id == user.id, SavedOpportunity.vacancy_id == pair[0].id)
+        .one_or_none()
+    )
+    if existing is None:
+        count = db.query(SavedOpportunity).filter(SavedOpportunity.user_id == user.id).count()
+        if count >= 100:
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="The saved list is full (100).")
+        db.add(SavedOpportunity(user_id=user.id, vacancy_id=pair[0].id))
+        db.commit()
+    return _public_detail(*pair)
+
+
+@router.delete("/saved-opportunities/{vacancy_id}", status_code=status.HTTP_204_NO_CONTENT)
+@limiter.limit("60/minute")
+def unsave_opportunity(
+    vacancy_id: str,
+    request: Request,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    db.query(SavedOpportunity).filter(
+        SavedOpportunity.user_id == user.id,
+        SavedOpportunity.vacancy_id == vacancy_id,
+    ).delete(synchronize_session=False)
+    db.commit()
 
 
 @router.get("/vacancies", response_model=list[VacancyResponse])

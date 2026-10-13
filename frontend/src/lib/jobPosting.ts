@@ -22,7 +22,32 @@ export type PublicJob = {
   is_open: boolean;
   opportunity_type?: string | null;
   verified_at?: string | null;
+  /** Plain text from the stored advert, when the detail page has it. */
+  summary?: string | null;
 };
+
+const SITE = "https://sospana-sonke.vercel.app";
+
+function schemaEmployment(raw: string | null | undefined): string | undefined {
+  if (!raw) return undefined;
+  const value = raw.toLowerCase();
+  if (value.includes("intern")) return "INTERN";
+  if (value.includes("part")) return "PART_TIME";
+  if (value.includes("contract")) return "CONTRACTOR";
+  if (value.includes("temp") || value.includes("casual")) return "TEMPORARY";
+  if (value.includes("volunteer")) return "VOLUNTEER";
+  if (value.includes("full") || value.includes("permanent")) return "FULL_TIME";
+  return undefined;
+}
+
+function salaryUnit(text: string | null): "HOUR" | "MONTH" | "YEAR" | undefined {
+  if (!text) return undefined;
+  const value = text.toLowerCase();
+  if (value.includes("hour")) return "HOUR";
+  if (value.includes("year") || value.includes("annum") || /\bpa\b/.test(value)) return "YEAR";
+  if (value.includes("month") || /\bpm\b/.test(value)) return "MONTH";
+  return undefined;
+}
 
 export function jobSummary(job: PublicJob): string {
   const place = job.country || job.company_country;
@@ -46,21 +71,27 @@ export function jobPosting(job: PublicJob): Record<string, unknown> {
   const place = job.country || job.company_country;
   const address: Record<string, unknown> = { "@type": "PostalAddress", addressCountry: place };
   if (job.location) address.addressLocality = job.location;
+  const description = job.summary?.trim()
+    ? `${job.summary.trim()} Apply on the source page. Sospana Sonke does not take the application.`
+    : jobSummary(job);
   const node: Record<string, unknown> = {
     "@context": "https://schema.org",
     "@type": "JobPosting",
     title: job.title,
-    description: jobSummary(job),
+    description,
     datePosted: job.posting_date || job.first_seen_at.slice(0, 10),
     hiringOrganization: { "@type": "Organization", name: job.company_name },
     jobLocation: { "@type": "Place", address },
     directApply: false,
+    url: `${SITE}/jobs/${job.id}`,
+    identifier: { "@type": "PropertyValue", name: "Sospana Sonke", value: job.id },
   };
   if (job.closing_date) node.validThrough = job.closing_date;
-  if (job.employment_type) node.employmentType = job.employment_type;
-  if (job.application_url) node.url = job.application_url;
-  if (job.salary_min != null || job.salary_max != null) {
-    const value: Record<string, unknown> = { "@type": "QuantitativeValue", unitText: "MONTH" };
+  const employment = schemaEmployment(job.employment_type);
+  if (employment) node.employmentType = employment;
+  const unit = salaryUnit(job.salary);
+  if (unit && (job.salary_min != null || job.salary_max != null)) {
+    const value: Record<string, unknown> = { "@type": "QuantitativeValue", unitText: unit };
     if (job.salary_min != null) value.minValue = job.salary_min;
     if (job.salary_max != null) value.maxValue = job.salary_max;
     const salary: Record<string, unknown> = { "@type": "MonetaryAmount", value };

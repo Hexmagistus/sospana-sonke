@@ -262,6 +262,12 @@ def close_expired_vacancies(db: Session, job_run_id: str | None = None) -> dict:
         vac.is_open = False
         vac.lifecycle_status = "EXPIRED"
     db.commit()
+    if stale:
+        try:
+            from app.services.indexnow import ping_indexnow
+            ping_indexnow()
+        except Exception:
+            pass
     return {"vacancies_closed": len(stale)}
 
 

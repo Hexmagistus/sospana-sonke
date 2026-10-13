@@ -144,6 +144,36 @@ class PublicJobListResponse(BaseModel):
     limit: int
 
 
+class PublicJobDetailResponse(PublicJobResponse):
+    """One open role. summary is plain text from the stored advert, or a short line from the stored fields."""
+    summary: str
+
+
+class JobFacetCount(BaseModel):
+    name: str
+    count: int
+
+
+class JobFacetsResponse(BaseModel):
+    countries: list[JobFacetCount]
+    categories: list[JobFacetCount]
+
+
+class JobSuggestResponse(BaseModel):
+    titles: list[str]
+    employers: list[str]
+    countries: list[str]
+
+
+class JobIdListResponse(BaseModel):
+    ids: list[str]
+    matched: int
+
+
+class SavedOpportunityCreate(BaseModel):
+    vacancy_id: str
+
+
 class OpportunityCountResponse(BaseModel):
     """Open stored rows by type. A type with none is 0, not omitted."""
     counts: dict[str, int]

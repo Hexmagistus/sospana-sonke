@@ -15,6 +15,7 @@ import MentionPopup from "@/components/MentionPopup";
 import PwaExtras from "@/components/PwaExtras";
 import CopyGuard from "@/components/CopyGuard";
 import PhotoWash from "@/components/PhotoWash";
+import WelcomeNote from "@/components/WelcomeNote";
 import { SITE_URL, SITE_NAME, SITE_TAGLINE, SITE_DESCRIPTION, SITE_KEYWORDS } from "@/lib/seo";
 
 // Type pairing (self-hosted by next/font at build time, no runtime request to Google):
@@ -166,6 +167,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <main id="main-content" className="relative z-0 mx-auto max-w-6xl px-4 py-6 pb-24 md:pb-6">
               <PhotoWash />
               {children}
+              <WelcomeNote />
             </main>
             <footer className="mx-auto max-w-6xl px-4 pb-28 pt-8 md:pb-12">
               <div
@@ -189,6 +191,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <a href="/opportunities" className="underline hover:text-ss-text">Opportunities</a>
                 {" · "}
                 <a href="/data" className="underline hover:text-ss-text">Labour data</a>
+                {" · "}
+                <a href="/feed.xml" className="underline hover:text-ss-text">New roles feed</a>
                 {" · "}
                 <a href="/privacy" className="underline hover:text-ss-text">Privacy</a>
                 {" · "}

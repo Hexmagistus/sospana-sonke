@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import CountOutboundLink from "@/components/CountOutboundLink";
 import { PageHeader } from "@/components/PageHeader";
 import IntelligenceSearch from "@/components/home/IntelligenceSearch";
-import { jobPosting, jobSummary, type PublicJob } from "@/lib/jobPosting";
-import { SITE_NAME } from "@/lib/seo";
+import { ApplySteps } from "@/components/ApplySteps";
+import { jobSummary, type PublicJob } from "@/lib/jobPosting";
+import { SITE_NAME, SITE_URL } from "@/lib/seo";
+import { RoleSuggestInput } from "@/components/RoleSuggestInput";
+import { RecentRoles, SavedRoles } from "@/components/RoleExtras";
 
 export const dynamic = "force-dynamic";
 
@@ -75,7 +77,8 @@ export default async function JobsPage({ searchParams }: { searchParams: Promise
         itemListElement: loaded.jobs.map((job, index) => ({
           "@type": "ListItem",
           position: index + 1,
-          item: jobPosting(job),
+          url: `${SITE_URL}/jobs/${job.id}`,
+          name: job.title,
         })),
       }
     : null;
@@ -91,19 +94,21 @@ export default async function JobsPage({ searchParams }: { searchParams: Promise
           The list is not every opening in a country.
           If nothing is here, the scanner has not stored a matching open role. Check the organisation&apos;s own page.
           You apply there. {SITE_NAME} does not send an application for you.{" "}
-          <Link href="/opportunities" className="font-semibold text-navy underline">
+          <Link href="/opportunities" className="underline">
             The same list, with type tabs
           </Link>
           , sorts by closing date.
         </p>
       </PageHeader>
 
+      <SavedRoles />
+      <RecentRoles />
       <IntelligenceSearch showAccountLinks={false} />
 
-      <form method="get" action="/jobs" className="ss-card grid gap-4 sm:grid-cols-2">
+      <form method="get" action="/jobs" className="ss-card ss-sticky-search grid gap-4 sm:grid-cols-2">
         <label className="block text-sm font-semibold text-ss-text">
           Keyword
-          <input name="q" defaultValue={q} placeholder="Title, for example nurse" className={fieldClass} />
+          <RoleSuggestInput defaultValue={q} className={fieldClass} />
         </label>
         <label className="block text-sm font-semibold text-ss-text">
           Country
@@ -125,7 +130,7 @@ export default async function JobsPage({ searchParams }: { searchParams: Promise
         <div className="sm:col-span-2">
           <button
             type="submit"
-            className="rounded-xl bg-gold px-5 py-2.5 text-sm font-semibold text-navy shadow-sm ring-1 ring-navy/30"
+            className="ss-intel-button min-h-11"
           >
             Search stored roles
           </button>
@@ -158,7 +163,9 @@ export default async function JobsPage({ searchParams }: { searchParams: Promise
           <ul className="grid gap-3">
             {loaded.jobs.map((job) => (
               <li key={job.id} className="ss-card">
-                <h2 className="font-display text-xl font-bold text-ss-text">{job.title}</h2>
+                <h2 className="font-display text-xl font-bold text-ss-text">
+                  <Link href={`/jobs/${job.id}`} className="underline">{job.title}</Link>
+                </h2>
                 <p className="mt-1 text-sm text-ss-muted">
                   {job.company_id ? (
                     <Link href={`/employers/${job.company_id}`} className="font-semibold text-navy underline">
@@ -173,18 +180,7 @@ export default async function JobsPage({ searchParams }: { searchParams: Promise
                   Last seen on the employer site {job.last_seen_at.slice(0, 10)}
                   {job.closing_date ? ` · Closes ${job.closing_date}` : ""}
                 </p>
-                {job.application_url ? (
-                  <CountOutboundLink
-                    href={job.application_url}
-                    targetKind="vacancy"
-                    targetId={job.id}
-                    className="mt-3 inline-flex min-h-11 items-center rounded-xl bg-navy px-4 py-2 text-sm font-semibold text-white"
-                  >
-                    Open on the employer site
-                  </CountOutboundLink>
-                ) : (
-                  <p className="mt-3 text-sm text-ss-muted">No application link was stored for this role.</p>
-                )}
+                <ApplySteps applicationUrl={job.application_url} vacancyId={job.id} />
               </li>
             ))}
           </ul>

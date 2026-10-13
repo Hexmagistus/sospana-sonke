@@ -1,7 +1,7 @@
 // Sospana Sonke service worker: installable + works offline for browsing employers.
 // Caches only public, non-personal data (static assets, pages, the employer directory).
 // Never caches messages, notifications, account, tips or any other personal API call.
-const VERSION = "v2";
+const VERSION = "v3";
 const STATIC = `ss-static-${VERSION}`;
 const PAGES = `ss-pages-${VERSION}`;
 const DATA = `ss-data-${VERSION}`;
