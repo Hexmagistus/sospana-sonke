@@ -3,16 +3,17 @@ export const SITE_URL = "https://sospana-sonke.vercel.app";
 export const SITE_NAME = "Sospana Sonke";
 export const SITE_TAGLINE = "Born in SADC, built for the world";
 export const SITE_DESCRIPTION =
-  "Sospana Sonke started in the SADC region. It lists employers with a direct link to their own careers page across Africa, Oceania, Europe, South America, North America and Asia. You apply on the employer's site. The tools are free. We do not promise a job.";
+  "Sospana Sonke started in the SADC region. It stores jobs, internships, learnerships, bursaries and graduate programmes from official pages, lists employers with a direct careers link, and shows the Statistics South Africa labour table. A search answer uses only what is stored. You apply on the source page. The tools are free. We do not promise a place.";
 export const SITE_KEYWORDS = [
-  "jobs in Africa",
-  "African job vacancies",
+  "jobs in South Africa",
+  "learnerships",
+  "bursaries",
+  "graduate programmes",
+  "internships",
   "government jobs",
-  "municipality vacancies",
-  "state-owned enterprise jobs",
   "careers pages",
+  "Stats SA unemployment",
   "apply directly",
-  "South Africa jobs",
   "SADC jobs",
   "verified employers",
   "Sospana Sonke",

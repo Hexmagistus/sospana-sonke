@@ -88,8 +88,8 @@ describe("CategoryListPanel markup", () => {
   });
 
   it("NCY carries a tooltip and the legend explains it", () => {
-    assert.match(out, /<abbr title="NCY = Not counted yet[^"]*not “no jobs”/);
-    assert.match(text, /NCY = Not counted yet, not “no jobs”/);
+    assert.match(out, /<abbr title="NCY = Not counted yet[^"]*not “nothing open”/);
+    assert.match(text, /NCY = Not counted yet, not “nothing open”/);
   });
 
   it("names open the careers page in a new tab, safely", () => {

@@ -13,12 +13,12 @@ const API = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
 export const metadata: Metadata = {
   title: "Open roles the scanner has stored",
   description:
-    "Search vacancies Sospana Sonke has already read from employer careers pages. Filter by country, employer, keyword and how recently the role was seen. Apply on the employer's site.",
+    "Search jobs, internships, learnerships, bursaries and graduate programmes Sospana Sonke has already read from official pages. Filter by country, employer, keyword and how recently the role was seen. Apply on the source page.",
   alternates: { canonical: "/jobs" },
   openGraph: {
     title: `Open roles · ${SITE_NAME}`,
     description:
-      "Roles the scanner has stored. A missing role here does not mean the employer has no vacancies.",
+      "Stored openings of every type. A missing role here does not mean the organisation has nothing open.",
     url: "/jobs",
   },
 };
@@ -85,15 +85,16 @@ export default async function JobsPage({ searchParams }: { searchParams: Promise
       {jsonLd ? (
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       ) : null}
-      <PageHeader eyebrow="Vacancies" title="Open roles the scanner has stored">
+      <PageHeader eyebrow="Stored openings" title="Open roles the scanner has stored">
         <p>
-          These are jobs already saved from employer careers pages. The list is not every vacancy in a country.
-          If nothing is here, the scanner has not stored a matching open role. Check the employer&apos;s own page.
+          These are jobs, internships, learnerships, bursaries and graduate programmes already saved from official pages.
+          The list is not every opening in a country.
+          If nothing is here, the scanner has not stored a matching open role. Check the organisation&apos;s own page.
           You apply there. {SITE_NAME} does not send an application for you.{" "}
           <Link href="/opportunities" className="font-semibold text-navy underline">
-            Learnerships, bursaries and graduate programmes
-          </Link>{" "}
-          are listed separately.
+            The same list, with type tabs
+          </Link>
+          , sorts by closing date.
         </p>
       </PageHeader>
 
@@ -133,7 +134,7 @@ export default async function JobsPage({ searchParams }: { searchParams: Promise
 
       {!loaded.ok ? (
         <div className="ss-empty" role="status">
-          <p className="text-base font-semibold text-ss-text">The job index could not be reached</p>
+          <p className="text-base font-semibold text-ss-text">The role index could not be reached</p>
           <p className="mt-2 max-w-lg text-sm leading-relaxed text-ss-muted">
             The directory of employer careers pages is still available. This page only lists roles the scanner has already stored.
           </p>
@@ -146,7 +147,7 @@ export default async function JobsPage({ searchParams }: { searchParams: Promise
           <p className="text-base font-semibold text-ss-text">No stored roles match</p>
           <p className="mt-2 max-w-lg text-sm leading-relaxed text-ss-muted">
             Nothing open in the scanner&apos;s index matches these filters. That can mean the index is empty, or that the wording differs.
-            It does not mean those employers have no vacancies.
+            It does not mean those employers have nothing open.
           </p>
         </div>
       ) : (

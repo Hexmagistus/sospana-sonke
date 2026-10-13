@@ -1,7 +1,8 @@
 # Sospana Sonke — Frontend (Next.js)
 
-The candidate + admin web app for the Sospana Sonke platform, wired to the FastAPI
-backend in `../backend`. Built with Next.js (App Router), TypeScript and Tailwind CSS.
+The web app for Sospana Sonke, wired to the FastAPI backend in `../backend`. Built with Next.js (App Router), TypeScript and Tailwind CSS.
+
+The public site stores jobs, internships, learnerships, bursaries and graduate programmes, lists employers with a direct careers link, shows the Statistics South Africa labour table, and answers search only from what is stored. The list under "What's here" is the original candidate journey. Job matching is no longer a page.
 
 ## What's here
 

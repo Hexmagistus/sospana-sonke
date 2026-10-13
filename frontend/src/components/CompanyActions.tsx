@@ -73,10 +73,10 @@ export function OpenVacancyCount({ company }: { company: Company }) {
   const n = company.open_vacancies ?? 0;
   if (isNotCounted(company)) return <NotCountedBadge />;
   const label = n === 0
-    ? "0 vacancies found"
+    ? "0 roles found"
     : n === 1
-      ? "1 open vacancy we found"
-      : `${n} open vacancies we found`;
+      ? "1 open role we found"
+      : `${n} open roles we found`;
   const checked = timeAgo(company.last_checked);
   return (
     <span className="text-xs">

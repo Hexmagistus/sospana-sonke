@@ -189,7 +189,7 @@ export default function RoleAlerts() {
     <section className="rounded-2xl border border-ss-border bg-ss-surface p-4 shadow-sm sm:p-5" aria-labelledby="role-alerts-heading">
       <h2 id="role-alerts-heading" className="text-lg font-semibold text-ss-text">Daily role alerts</h2>
       <p className="mt-1 text-sm text-ss-muted">
-        Save a country, a category, a keyword, an opportunity type, or any mix. Leave the type blank for any type. This is a separate choice from the administrator
+        Save a country, a category, a keyword, an opportunity type, or any mix. Leave the type blank for any type, or save a type on its own. A match can be a job, an internship, a learnership, a bursary or a graduate programme. This is a separate choice from the administrator
         alerts above. We send one email a day, and only when a new stored role matches. Each role includes
         the employer&apos;s link and the date we last saw it. A day with no match stays quiet. The alert
         starts when you press Save this alert.

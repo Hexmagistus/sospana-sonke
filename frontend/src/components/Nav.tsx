@@ -13,6 +13,9 @@ import { EXPLORER_NAV } from "@/lib/explorer/categoryGroups";
 
 const LINKS = [
   { href: "/dashboard", label: "Dashboard" },
+  { href: "/jobs", label: "Jobs" },
+  { href: "/opportunities", label: "Opportunities" },
+  { href: "/data", label: "Labour data" },
   { href: "/agent", label: "Career Agent" },
   { href: "/applications", label: "My Applications" },
   // Companies, Universities, Colleges & SETAs, Hospitals, NGOs, Government (lib/explorer/categoryGroups.ts).

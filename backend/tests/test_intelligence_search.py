@@ -127,7 +127,7 @@ def test_search_counts_stored_roles_and_hides_notes(client, db_engine):
     assert "internal research" not in listed.text
     assert body["understood"]["country"] == "South Africa"
     assert body["understood"]["keywords"] == "nurse"
-    assert any("not every vacancy" in line for line in body["limitations"])
+    assert any("not every opening" in line for line in body["limitations"])
     assert any("language-model" in line for line in body["limitations"])
     assert closed_id not in {row["id"] for row in body["vacancies"]}
 

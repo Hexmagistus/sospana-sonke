@@ -83,7 +83,7 @@ export type DirectoryFilter = (typeof DIRECTORY_FILTERS)[number];
 export const DIRECTORY_GUIDE_STEPS = [
   "Choose your country",
   "Pick a category",
-  "Open an employer's careers link to see open vacancies",
+  "Open an employer's careers link to see openings we have stored",
   "Save or tailor your CV for roles you like",
 ] as const;
 

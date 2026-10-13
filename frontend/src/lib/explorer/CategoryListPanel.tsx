@@ -17,7 +17,7 @@ function Entry({ item }: { item: CategoryListItem }) {
     <span className="tabular-nums text-ss-primary">({item.value})</span>
   ) : (
     <span className="text-ss-muted">
-      (<abbr title={`NCY = ${NOT_COUNTED_LABEL}. We cannot read their vacancies yet. This is not “no jobs”: check their careers page.`} className="cursor-help no-underline decoration-dotted underline-offset-2 hover:underline">NCY</abbr>)
+      (<abbr title={`NCY = ${NOT_COUNTED_LABEL}. We cannot read their roles yet. This is not “nothing open”: check their careers page.`} className="cursor-help no-underline decoration-dotted underline-offset-2 hover:underline">NCY</abbr>)
     </span>
   );
   return (
@@ -61,7 +61,7 @@ export function CategoryListPanel({ items, category, country, noun = "companies"
           {category} · <span data-testid="category-list-count">{items.length}</span> {items.length === 1 ? noun.replace(/ies$/, "y").replace(/s$/, "") : noun}
         </h3>
         <p className="mb-1.5 mt-0.5 text-[11px] leading-snug text-ss-muted">
-          (number) = vacancies counted. <abbr title="Not counted yet" className="no-underline">NCY</abbr> = {NOT_COUNTED_LABEL}, not “no jobs”.
+          (number) = roles counted. <abbr title="Not counted yet" className="no-underline">NCY</abbr> = {NOT_COUNTED_LABEL}, not “nothing open”.
         </p>
         <ul className="space-y-0">{left.map((i) => <Entry key={i.id} item={i} />)}</ul>
       </div>

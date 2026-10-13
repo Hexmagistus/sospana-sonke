@@ -194,7 +194,7 @@ export function CountrySidebar({
                             </span>
                             {r.selectable && r.counted > 0 && (
                               <span
-                                title={`${r.counted} of ${r.employers} have a counted vacancy result. The rest say “Not counted yet”.`}
+                                title={`${r.counted} of ${r.employers} have a counted role result. The rest say “Not counted yet”.`}
                                 className="shrink-0 rounded-full border border-gold/60 bg-gold/15 px-1.5 py-0.5 text-[10px] font-bold tabular-nums text-ss-primary"
                               >
                                 {r.counted} counted
