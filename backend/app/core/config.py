@@ -61,6 +61,14 @@ class Settings(BaseSettings):
     # disable the endpoint entirely.
     CRON_SECRET: str | None = None
 
+    # USSD and WhatsApp stay off until the owner has an account. No shortcode is stored here.
+    USSD_ENABLED: bool = False
+    USSD_CALLBACK_SECRET: str | None = None
+    WHATSAPP_VERIFY_TOKEN: str | None = None
+    WHATSAPP_TOKEN: str | None = None
+    WHATSAPP_PHONE_NUMBER_ID: str | None = None
+    WHATSAPP_APP_SECRET: str | None = None
+
     # JavaScript-rendered careers pages (Phase 2). Uses headless Chromium — heavier,
     # so OFF by default (enable on infrastructure with enough memory).
     JS_RENDER_ENABLED: bool = False
