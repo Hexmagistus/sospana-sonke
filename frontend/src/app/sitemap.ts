@@ -136,6 +136,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return [
     entry("/", 1.0, "weekly"),
     entry("/jobs", 0.9, "daily"),
+    entry("/lite", 0.7, "daily"),
+    entry("/lite/opportunities", 0.7, "daily"),
     entry("/opportunities", 0.9, "daily"),
     entry("/feed.xml", 0.4, "daily"),
     ...await roleEntries(now),

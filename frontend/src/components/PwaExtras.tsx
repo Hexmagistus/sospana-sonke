@@ -38,10 +38,15 @@ export default function PwaExtras() {
   const [typing, setTyping] = useState(false);
   const [dock, setDock] = useState<"bottom" | "top">("bottom");
   const [coversField, setCoversField] = useState(false);
+  const [liteHint, setLiteHint] = useState(false);
 
   useEffect(() => {
     setOffline(!navigator.onLine);
     setSaver(isDataSaver());
+    const connection = (navigator as Navigator & { connection?: { effectiveType?: string; saveData?: boolean } }).connection;
+    const slow = connection?.effectiveType === "slow-2g" || connection?.effectiveType === "2g";
+    const choseFull = document.cookie.split(";").some((part) => part.trim() === "ss-site=full");
+    setLiteHint(!choseFull && (slow || connection?.saveData === true || isDataSaver()));
     const on = () => setOffline(false);
     const off = () => setOffline(true);
     const sync = () => setSaver(isDataSaver());
@@ -144,6 +149,15 @@ export default function PwaExtras() {
         </div>
       )}
 
+      {liteHint ? (
+        <p className="mx-auto mt-2 max-w-6xl px-4 text-center text-sm text-ss-text">
+          <a className="font-semibold text-[#0f766e] underline" href={`/lite/choice?to=lite&next=${encodeURIComponent(pathname || "/")}`}>
+            Text-only site
+          </a>
+          {" "}
+          uses less data. Pictures, sound, and the 3D globe stay off.
+        </p>
+      ) : null}
       <div className="mx-auto mt-2 flex max-w-6xl justify-center px-4 pb-24 md:pb-4">
         <button
           onClick={() => setDataSaver(!saver)}

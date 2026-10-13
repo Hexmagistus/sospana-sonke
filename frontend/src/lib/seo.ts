@@ -23,6 +23,8 @@ export const SITE_KEYWORDS = [
 export const PUBLIC_ROUTES = [
   "/",
   "/jobs",
+  "/lite",
+  "/lite/opportunities",
   "/opportunities",
   "/countries",
   "/employers",

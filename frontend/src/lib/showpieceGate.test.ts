@@ -19,6 +19,13 @@ describe("hero showpiece gate", () => {
     assert.equal(canMountShowpiece({ ...capable, cores: 0 }), true);
   });
 
+  it("treats the data-saver switch and a lite path as Save-Data", () => {
+    const source = readFileSync(resolve(process.cwd(), "src/lib/showpieceGate.ts"), "utf8");
+    assert.match(source, /blocksHeavyMedia/);
+    assert.match(source, /ss-data-saver/);
+    assert.match(source, /\/lite/);
+  });
+
   it("keeps the painted globe for phones, motion limits, and slow links", () => {
     assert.equal(canMountShowpiece({ ...capable, wide: false }), false);
     assert.equal(canMountShowpiece({ ...capable, finePointer: false }), false);
