@@ -15,6 +15,7 @@ from app.models.user import User
 from app.models.vacancy import Vacancy
 from app.schemas.career import CareerExplorerResponse, CareerFamilyResponse, CareerOption
 from app.services.career_taxonomy import find_career_families
+from app.services.opportunity_expiry import public_role_clauses
 
 router = APIRouter(tags=["career"])
 
@@ -40,8 +41,7 @@ def _default_basis(db: Session, user: User) -> str | None:
 
 def _open_vacancy_count(db: Session, title: str) -> int:
     return (db.query(Vacancy)
-            .filter(Vacancy.is_open.is_(True), Vacancy.deleted_at.is_(None),
-                    Vacancy.title.ilike(f"%{title}%"))
+            .filter(*public_role_clauses(), Vacancy.title.ilike(f"%{title}%"))
             .count())
 
 

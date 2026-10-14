@@ -5,7 +5,7 @@ available to any authenticated user (candidates browse matched vacancies; the
 matching module will layer per-candidate scoring on top in the next step).
 """
 from dataclasses import asdict
-from datetime import datetime, timedelta, timezone, date
+from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, status
 from sqlalchemy import case, func, or_
@@ -27,9 +27,10 @@ from app.schemas.vacancy import (
     MergeDuplicatesRequest, MergeDuplicatesResponse,
     PublicJobResponse, PublicJobListResponse, PublicJobDetailResponse, OpportunityCountResponse,
     JobFacetsResponse, JobFacetCount, JobSuggestResponse, JobIdListResponse,
-    SavedOpportunityCreate,
+    SavedOpportunityCreate, AdminVacancyListResponse, AdminVacancyRow,
 )
 from app.services.flagship import FLAGSHIP_COUNTRY, countries_flagship_first, flagship_role_rank
+from app.services.opportunity_expiry import expired_role_clauses, is_publicly_listed, public_role_clauses
 from app.services.opportunity_type import OPPORTUNITY_TYPES
 from app.services.search_terms import expand_title_terms, opportunity_types_for
 from app.models.saved_opportunity import SavedOpportunity
@@ -79,17 +80,16 @@ def list_sources(company_id: str, db: Session = Depends(get_db)):
 
 @router.get("/companies/{company_id}/vacancies", response_model=list[VacancyResponse])
 def list_company_vacancies(company_id: str, response: Response, db: Session = Depends(get_db),
-                           _: User = Depends(get_current_user),
+                           user: User = Depends(get_current_user),
                            is_open: bool | None = Query(default=True)):
     private_short_cache(response)
     q = db.query(Vacancy).options(*_LIST_DEFER).filter(Vacancy.company_id == company_id)
-    if is_open is not None:
-        q = q.filter(Vacancy.is_open == is_open)
-    if is_open:
-        # Even a role a scan hasn't re-checked yet drops off once its own
-        # advertised closing date has passed -- see list_vacancies below.
-        today = date.today()
-        q = q.filter((Vacancy.closing_date.is_(None)) | (Vacancy.closing_date >= today))
+    if user.role != "admin":
+        q = q.filter(*public_role_clauses())
+    elif is_open is False:
+        q = q.filter(or_(Vacancy.status == "expired", Vacancy.is_open.is_(False)))
+    elif is_open is not False:
+        q = q.filter(*public_role_clauses())
     return [VacancyResponse.model_validate(v) for v in q.order_by(Vacancy.last_seen_at.desc()).all()]
 
 
@@ -132,12 +132,7 @@ def _public_job(vacancy: Vacancy, company: Company) -> PublicJobResponse:
 
 
 def _open_public(query):
-    today = date.today()
-    return (
-        query.filter(Vacancy.deleted_at.is_(None), Company.deleted_at.is_(None))
-        .filter(Vacancy.is_open.is_(True))
-        .filter((Vacancy.closing_date.is_(None)) | (Vacancy.closing_date >= today))
-    )
+    return query.filter(Company.deleted_at.is_(None), *public_role_clauses())
 
 
 @router.get("/jobs/counts", response_model=OpportunityCountResponse)
@@ -185,13 +180,10 @@ def list_public_jobs(
 ):
     """Open roles the scanner has already stored. No sign-in. No advert body."""
     response.headers["Cache-Control"] = "public, max-age=60"
-    today = date.today()
     query = (
         db.query(Vacancy, Company)
         .join(Company, Company.id == Vacancy.company_id)
-        .filter(Vacancy.deleted_at.is_(None), Company.deleted_at.is_(None))
-        .filter(Vacancy.is_open.is_(True))
-        .filter((Vacancy.closing_date.is_(None)) | (Vacancy.closing_date >= today))
+        .filter(Company.deleted_at.is_(None), *public_role_clauses())
     )
     if q and q.strip():
         phrases = expand_title_terms(q)
@@ -297,12 +289,13 @@ def _public_summary(vacancy: Vacancy, company: Company) -> str:
 
 def _public_detail(vacancy: Vacancy, company: Company) -> PublicJobDetailResponse:
     job = _public_job(vacancy, company)
-    if vacancy.closing_date is not None and vacancy.closing_date < date.today():
+    if not is_publicly_listed(vacancy):
         job.is_open = False
     return PublicJobDetailResponse(**job.model_dump(), summary=_public_summary(vacancy, company))
 
 
-def _load_public_pair(db: Session, job_id: str) -> tuple[Vacancy, Company] | None:
+def _load_stored_pair(db: Session, job_id: str) -> tuple[Vacancy, Company] | None:
+    """The stored row, including one that has expired. Missing rows are None."""
     row = (
         db.query(Vacancy, Company)
         .join(Company, Company.id == Vacancy.company_id)
@@ -311,12 +304,14 @@ def _load_public_pair(db: Session, job_id: str) -> tuple[Vacancy, Company] | Non
     )
     if row is None:
         return None
-    vacancy, company = row
-    if not vacancy.is_open:
+    return row[0], row[1]
+
+
+def _load_public_pair(db: Session, job_id: str) -> tuple[Vacancy, Company] | None:
+    pair = _load_stored_pair(db, job_id)
+    if pair is None or not is_publicly_listed(pair[0]):
         return None
-    if vacancy.closing_date is not None and vacancy.closing_date < date.today():
-        return None
-    return vacancy, company
+    return pair
 
 
 @router.get("/jobs/suggest", response_model=JobSuggestResponse)
@@ -407,11 +402,17 @@ def public_job_ids(
 @router.get("/jobs/{job_id}", response_model=PublicJobDetailResponse)
 @limiter.limit("60/minute")
 def get_public_job(job_id: str, request: Request, response: Response, db: Session = Depends(get_db)):
-    """One open stored role. A closed, expired or missing role is a 404, not an active posting."""
+    """One open stored role. An expired role is 410. A missing role is 404."""
     response.headers["Cache-Control"] = "public, max-age=60"
-    pair = _load_public_pair(db, job_id)
+    pair = _load_stored_pair(db, job_id)
     if pair is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="That open role is not stored.")
+    if not is_publicly_listed(pair[0]):
+        raise HTTPException(
+            status_code=status.HTTP_410_GONE,
+            detail="This opportunity has closed.",
+            headers={"X-Robots-Tag": "noindex"},
+        )
     return _public_detail(*pair)
 
 
@@ -481,7 +482,7 @@ def unsave_opportunity(
 @router.get("/vacancies", response_model=list[VacancyResponse])
 @limiter.limit("600/hour", key_func=user_or_ip_key)
 def list_vacancies(request: Request, response: Response, db: Session = Depends(get_db),
-                   _: User = Depends(get_current_user),
+                   user: User = Depends(get_current_user),
                    q: str | None = Query(default=None, description="Search in title"),
                    is_open: bool | None = Query(default=True),
                    province: str | None = Query(
@@ -501,18 +502,12 @@ def list_vacancies(request: Request, response: Response, db: Session = Depends(g
                    limit: int = Query(default=50, le=200), offset: int = Query(default=0, ge=0)):
     private_short_cache(response)
     query = db.query(Vacancy).options(*_LIST_DEFER)
-    if is_open is not None:
-        query = query.filter(Vacancy.is_open == is_open)
-    if is_open:
-        # Exclude outdated ads by default: a listing whose own advertised
-        # closing date has passed drops out of results even if a re-scan
-        # hasn't yet confirmed the role is gone (is_open only flips to False
-        # once a fresh scan of the source no longer sees it -- see
-        # scan_service.scan_source). Applied unconditionally, not just under
-        # max_age_days, so callers get outdated-ad exclusion without having
-        # to opt in.
-        today = date.today()
-        query = query.filter((Vacancy.closing_date.is_(None)) | (Vacancy.closing_date >= today))
+    if user.role != "admin":
+        query = query.filter(*public_role_clauses())
+    elif is_open is False:
+        query = query.filter(or_(Vacancy.status == "expired", Vacancy.is_open.is_(False)))
+    elif is_open is not False:
+        query = query.filter(*public_role_clauses())
     if q:
         query = query.filter(Vacancy.title.ilike(f"%{q}%"))
     if province:
@@ -544,11 +539,72 @@ def list_vacancies(request: Request, response: Response, db: Session = Depends(g
     return [VacancyResponse.model_validate(v) for v in query.all()]
 
 
+@router.get("/admin/vacancies", response_model=AdminVacancyListResponse)
+def list_admin_vacancies(
+    db: Session = Depends(get_db),
+    _: User = Depends(require_admin),
+    status_filter: str = Query(default="expired", alias="status", pattern="^(active|expired|all)$"),
+    q: str | None = Query(default=None, max_length=80),
+    limit: int = Query(default=50, ge=1, le=200),
+):
+    """Stored roles, including expired ones. Nothing is deleted."""
+    active = (
+        db.query(func.count(Vacancy.id))
+        .join(Company, Company.id == Vacancy.company_id)
+        .filter(Company.deleted_at.is_(None), *public_role_clauses())
+        .scalar()
+        or 0
+    )
+    expired = (
+        db.query(func.count(Vacancy.id))
+        .filter(*expired_role_clauses())
+        .scalar()
+        or 0
+    )
+    query = (
+        db.query(Vacancy, Company)
+        .join(Company, Company.id == Vacancy.company_id)
+        .filter(Vacancy.deleted_at.is_(None), Company.deleted_at.is_(None))
+    )
+    if status_filter == "expired":
+        query = query.filter(*expired_role_clauses())
+    elif status_filter == "active":
+        query = query.filter(*public_role_clauses())
+    if q and q.strip():
+        query = query.filter(Vacancy.title.ilike(f"%{q.strip()[:80]}%"))
+    rows = query.order_by(Vacancy.expired_at.desc(), Vacancy.last_seen_at.desc()).limit(limit).all()
+    return AdminVacancyListResponse(
+        status=status_filter,
+        active=int(active),
+        expired=int(expired),
+        rows=[
+            AdminVacancyRow(
+                id=vacancy.id,
+                title=vacancy.title,
+                company_name=company.company_name,
+                company_id=company.id,
+                status="active" if is_publicly_listed(vacancy) else "expired",
+                expired_at=vacancy.expired_at,
+                closing_date=vacancy.closing_date,
+                lifecycle_status=vacancy.lifecycle_status,
+                is_open=vacancy.is_open,
+            )
+            for vacancy, company in rows
+        ],
+    )
+
+
 @router.get("/vacancies/{vacancy_id}", response_model=VacancyDetailResponse)
-def get_vacancy(vacancy_id: str, db: Session = Depends(get_db), _: User = Depends(get_current_user)):
+def get_vacancy(vacancy_id: str, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
     vac = db.get(Vacancy, vacancy_id)
     if vac is None or vac.deleted_at is not None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Vacancy not found.")
+    if user.role != "admin" and not is_publicly_listed(vac):
+        raise HTTPException(
+            status_code=status.HTTP_410_GONE,
+            detail="This opportunity has closed.",
+            headers={"X-Robots-Tag": "noindex"},
+        )
     return VacancyDetailResponse.model_validate(vac)
 
 

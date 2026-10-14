@@ -319,8 +319,9 @@ def apply_fetch(db: Session, source: VacancySource, outcome: FetchOutcome) -> Sc
                 continue
             vac.consecutive_misses = (vac.consecutive_misses or 0) + 1
             if vac.consecutive_misses >= MISS_CLOSE_AFTER:
-                vac.is_open = False
+                from app.services.opportunity_expiry import mark_expired
                 vac.lifecycle_status = "REMOVED"
+                mark_expired(vac, now)
                 report.closed += 1
 
     prev_count = source.last_vacancy_count
@@ -414,12 +415,13 @@ def _apply_fields(vac: Vacancy, fields: dict, now: datetime) -> None:
     vac.stipend_text = stated_stipend(fields.get("title"), fields.get("description"))
     vac.verified_at = now if kind != "job" else None
     vac.opportunity_reviewed = True
-    if fields["lifecycle_status"] == "CLOSED":
-        vac.is_open = False
-        vac.lifecycle_status = "CLOSED"
+    from app.services.opportunity_expiry import closing_has_passed, mark_active, mark_expired
+    if fields["lifecycle_status"] == "CLOSED" or closing_has_passed(vac.closing_date):
+        if fields["lifecycle_status"] == "CLOSED":
+            vac.lifecycle_status = "CLOSED"
+        mark_expired(vac, now)
     else:
-        vac.is_open = True
-        vac.lifecycle_status = "ACTIVE"
+        mark_active(vac)
 
 
 def _replace_requirements(db: Session, vac: Vacancy, rows: list[dict]) -> None:

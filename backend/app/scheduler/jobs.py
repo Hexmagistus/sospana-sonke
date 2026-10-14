@@ -253,22 +253,15 @@ def close_expired_vacancies(db: Session, job_run_id: str | None = None) -> dict:
     (listings) without waiting on the scan rotation, and always
     finishes well within any scheduler's timeout.
     """
-    today = date.today()
-    stale = (db.query(Vacancy)
-             .filter(Vacancy.is_open.is_(True), Vacancy.closing_date.isnot(None),
-                     Vacancy.closing_date < today)
-             .all())
-    for vac in stale:
-        vac.is_open = False
-        vac.lifecycle_status = "EXPIRED"
-    db.commit()
-    if stale:
+    from app.services.opportunity_expiry import stamp_expired
+    closed = stamp_expired(db)
+    if closed:
         try:
             from app.services.indexnow import ping_indexnow
             ping_indexnow()
         except Exception:
             pass
-    return {"vacancies_closed": len(stale)}
+    return {"vacancies_closed": closed}
 
 
 DISABLED_MATCHING = {

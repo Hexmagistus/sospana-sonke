@@ -147,8 +147,11 @@ def _store_one(db: Session, record: dict, verified_on: datetime) -> str:
     existing.posting_date = None
     existing.content_hash = digest
     existing.fingerprint = digest
-    existing.is_open = True
-    existing.lifecycle_status = "ACTIVE"
+    from app.services.opportunity_expiry import closing_has_passed, mark_active, mark_expired
+    if closing_has_passed(existing.closing_date):
+        mark_expired(existing, verified_on)
+    else:
+        mark_active(existing)
     existing.verification_state = existing.verification_state or "DISCOVERED"
     existing.opportunity_reviewed = True
     existing.verified_at = verified_on

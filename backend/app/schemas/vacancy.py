@@ -41,6 +41,8 @@ class VacancyResponse(BaseModel):
     lifecycle_status: str | None = None
     verification_state: str | None = None
     quality_score: int | None = None
+    status: str = "active"
+    expired_at: datetime | None = None
     is_open: bool
     first_seen_at: datetime
     last_seen_at: datetime
@@ -157,6 +159,26 @@ class PublicJobListResponse(BaseModel):
 class PublicJobDetailResponse(PublicJobResponse):
     """One open role. summary is plain text from the stored advert, or a short line from the stored fields."""
     summary: str
+
+
+class AdminVacancyRow(BaseModel):
+    """A stored role for an admin, including one that has expired."""
+    id: str
+    title: str
+    company_name: str
+    company_id: str
+    status: str
+    expired_at: datetime | None = None
+    closing_date: date | None = None
+    lifecycle_status: str | None = None
+    is_open: bool
+
+
+class AdminVacancyListResponse(BaseModel):
+    status: str
+    active: int
+    expired: int
+    rows: list[AdminVacancyRow]
 
 
 class JobFacetCount(BaseModel):

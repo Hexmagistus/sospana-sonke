@@ -23,6 +23,7 @@ from app.services.country_names import COUNTRY_ALIASES, NON_COUNTRY_BUCKETS, can
 from app.services.flagship import flagship_employer_rank, flagship_role_rank
 from app.services.labour_stats import latest_rate, load_table, place_row
 from app.services.opportunity_type import type_label
+from app.services.opportunity_expiry import public_role_clauses
 from app.services.vacancy_counts import companies_with_known_vacancy_count, open_vacancy_counts
 
 SAMPLE = 8
@@ -461,7 +462,6 @@ def _vacancy_query(db: Session, understood: Understood):
     the job title. A role question puts each title word on the vacancy, not on
     the employer name.
     """
-    today = date.today()
     query = (
         db.query(Vacancy, Company)
         .join(Company, Company.id == Vacancy.company_id)
@@ -474,9 +474,7 @@ def _vacancy_query(db: Session, understood: Understood):
             defer(Company.notes),
             defer(Company.favicon_data),
         )
-        .filter(Vacancy.deleted_at.is_(None), Company.deleted_at.is_(None))
-        .filter(Vacancy.is_open.is_(True))
-        .filter(or_(Vacancy.closing_date.is_(None), Vacancy.closing_date >= today))
+        .filter(Company.deleted_at.is_(None), *public_role_clauses())
     )
     narrowed = replace(understood, country=None, keywords=None)
     query = _apply_company_filters(query, narrowed, name_keyword=False)

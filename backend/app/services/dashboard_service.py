@@ -16,6 +16,7 @@ from app.models.profile import CandidateProfile, Education, Skill, WorkExperienc
 from app.models.subscription import Subscription
 from app.models.user import User
 from app.models.vacancy import Vacancy, VacancySource
+from app.services.opportunity_expiry import public_role_clauses
 
 _AWAITING = ("AWAITING_APPROVAL", "CANDIDATE_ACTION_REQUIRED")
 
@@ -76,7 +77,7 @@ def candidate_dashboard(db: Session, user: User) -> dict:
     open_n, listings_updated_at = db.query(
         func.count(Vacancy.id),
         func.max(Vacancy.last_seen_at),
-    ).filter(Vacancy.is_open.is_(True)).one()
+    ).filter(*public_role_clauses()).one()
 
     return {
         "vacancies_open": _as_int(open_n),
@@ -146,7 +147,7 @@ def admin_dashboard(db: Session) -> dict:
         "companies_active": db.query(func.count(Company.id)).filter(Company.active.is_(True)).scalar() or 0,
         "sources_failing": (db.query(func.count(VacancySource.id))
                             .filter(VacancySource.consecutive_failures > 0).scalar() or 0),
-        "vacancies_open": db.query(func.count(Vacancy.id)).filter(Vacancy.is_open.is_(True)).scalar() or 0,
+        "vacancies_open": db.query(func.count(Vacancy.id)).filter(*public_role_clauses()).scalar() or 0,
         "vacancies_total": db.query(func.count(Vacancy.id)).scalar() or 0,
         "applications_total": db.query(func.count(Application.id)).scalar() or 0,
         "applications_by_status": by_status_counts(),

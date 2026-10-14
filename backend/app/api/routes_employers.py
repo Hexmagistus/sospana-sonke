@@ -1,6 +1,4 @@
 """Public pages for employers that have a careers link. No sign-in. No notes."""
-from datetime import date
-
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, status
 from sqlalchemy import func
 from sqlalchemy.orm import Session, defer
@@ -16,6 +14,7 @@ from app.schemas.employer import (
     PublicEmployerResponse,
     PublicEmployerSummary,
 )
+from app.services.opportunity_expiry import public_role_clauses
 from app.services.scan_runner import country_band
 
 router = APIRouter(prefix="/employers", tags=["employers"])
@@ -129,16 +128,10 @@ def public_employer(
         or not url
     ):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No public employer page.")
-    today = date.today()
     roles = (
         db.query(Vacancy)
         .options(*_LIST_DEFER)
-        .filter(
-            Vacancy.company_id == company.id,
-            Vacancy.deleted_at.is_(None),
-            Vacancy.is_open.is_(True),
-            (Vacancy.closing_date.is_(None)) | (Vacancy.closing_date >= today),
-        )
+        .filter(Vacancy.company_id == company.id, *public_role_clauses())
         .order_by(Vacancy.last_seen_at.desc())
     )
     count = roles.count()

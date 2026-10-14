@@ -33,6 +33,7 @@ import "./directoryQuery.test.js";
 import "./countryPage.test.js";
 import "./returnPath.test.js";
 import "./jobPosting.test.js";
+import "./expiredOpportunity.test.js";
 import "./employerPage.test.js";
 import "./opportunity.test.js";
 import "./showpieceGate.test.js";

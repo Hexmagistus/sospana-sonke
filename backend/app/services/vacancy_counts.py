@@ -10,11 +10,7 @@ from sqlalchemy.orm import Session
 
 from app.models.company import Company
 from app.models.vacancy import Vacancy, VacancySource
-
-# Rows written by the scanner use ACTIVE. Older rows leave lifecycle_status
-# null and rely on is_open. OPEN is included so a row that uses that word
-# is still counted. CLOSED, EXPIRED, REMOVED, and UNKNOWN are not.
-_OPEN_LIFECYCLE = ("ACTIVE", "OPEN")
+from app.services.opportunity_expiry import public_role_clauses
 
 # A structured parser that returned a list has counted the board. An empty
 # static or JS read has not: the heuristic often misses a script-loaded list.
@@ -31,15 +27,7 @@ def open_vacancy_counts(db: Session, company_ids: list[str]) -> dict[str, int]:
         return {}
     rows = (
         db.query(Vacancy.company_id, func.count(Vacancy.id))
-        .filter(
-            Vacancy.company_id.in_(company_ids),
-            Vacancy.is_open.is_(True),
-            Vacancy.deleted_at.is_(None),
-            or_(
-                Vacancy.lifecycle_status.is_(None),
-                Vacancy.lifecycle_status.in_(_OPEN_LIFECYCLE),
-            ),
-        )
+        .filter(Vacancy.company_id.in_(company_ids), *public_role_clauses())
         .group_by(Vacancy.company_id)
         .all()
     )
@@ -85,11 +73,7 @@ def country_vacancy_rollup(db: Session) -> dict[str, tuple[int, int]]:
     """
     open_sq = (
         db.query(Vacancy.company_id.label("company_id"), func.count(Vacancy.id).label("n"))
-        .filter(
-            Vacancy.is_open.is_(True),
-            Vacancy.deleted_at.is_(None),
-            or_(Vacancy.lifecycle_status.is_(None), Vacancy.lifecycle_status.in_(_OPEN_LIFECYCLE)),
-        )
+        .filter(*public_role_clauses())
         .group_by(Vacancy.company_id)
         .subquery()
     )

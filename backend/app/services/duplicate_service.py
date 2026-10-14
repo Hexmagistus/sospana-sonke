@@ -107,7 +107,9 @@ def merge_duplicates(db: Session, keep_id: str, duplicate_ids: list[str]) -> int
         dup = db.get(Vacancy, dup_id)
         if dup is None or dup.company_id != keep.company_id:
             continue  # never merge across different employers, even if asked
-        dup.is_open = False
+        from app.services.opportunity_expiry import mark_expired
+        dup.lifecycle_status = dup.lifecycle_status or "REMOVED"
+        mark_expired(dup, now)
         dup.deleted_at = now
         dup.duplicate_of_id = keep_id
         merged += 1

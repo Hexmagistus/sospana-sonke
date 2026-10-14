@@ -355,6 +355,70 @@ function SourceHealthCard() {
   );
 }
 
+function ExpiredVacancies() {
+  const [status, setStatus] = useState<"expired" | "active" | "all">("expired");
+  const [rows, setRows] = useState<Array<{ id: string; title: string; company_name: string; status: string; closing_date: string | null; expired_at: string | null }>>([]);
+  const [counts, setCounts] = useState<{ active: number; expired: number } | null>(null);
+  const [err, setErr] = useState("");
+
+  useEffect(() => {
+    api.get<{ active: number; expired: number; rows: typeof rows }>(`/admin/vacancies?status=${status}`)
+      .then((data) => {
+        setRows(data.rows);
+        setCounts({ active: data.active, expired: data.expired });
+        setErr("");
+      })
+      .catch((e) => setErr(e instanceof Error ? e.message : "Could not load opportunities"));
+  }, [status]);
+
+  return (
+    <Card>
+      <h2 className="mb-1 font-semibold">Expired opportunities</h2>
+      <p className="mb-3 text-sm text-ss-muted">
+        A closed role stays in the database. It leaves search, public pages, feeds and the sitemap.
+        {counts ? ` ${counts.active} active · ${counts.expired} expired.` : ""}
+      </p>
+      {err && <Alert kind="error">{err}</Alert>}
+      <label className="mb-3 block text-sm text-ss-text">
+        Show{" "}
+        <select
+          className="rounded border border-ss-border bg-ss-surface px-2 py-1"
+          value={status}
+          onChange={(event) => setStatus(event.target.value as "expired" | "active" | "all")}
+        >
+          <option value="expired">Expired</option>
+          <option value="active">Active</option>
+          <option value="all">All</option>
+        </select>
+      </label>
+      {rows.length === 0 ? <p className="text-sm text-ss-muted">None in this filter.</p> : (
+        <div className="admin-scroll overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="text-left text-ss-muted">
+                <th className="py-2 pr-3">Role</th>
+                <th className="py-2 pr-3">Employer</th>
+                <th className="py-2 pr-3">Status</th>
+                <th className="py-2 pr-3">Closing day</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((row) => (
+                <tr key={row.id} className="border-t border-ss-border">
+                  <td className="py-2 pr-3">{row.title}</td>
+                  <td className="py-2 pr-3">{row.company_name}</td>
+                  <td className="py-2 pr-3">{row.status}</td>
+                  <td className="py-2 pr-3 text-ss-muted">{row.closing_date || "—"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </Card>
+  );
+}
+
 function AdminInner() {
   const [d, setD] = useState<AdminDashboard | null>(null);
   const [users, setUsers] = useState<AdminUser[]>([]);
@@ -513,6 +577,7 @@ function AdminInner() {
       </Card>
 
       <SourceHealthCard />
+      <ExpiredVacancies />
 
       <Card>
         <h2 className="mb-1 font-semibold">Suggest a post or link</h2>
