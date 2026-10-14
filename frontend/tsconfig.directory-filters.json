@@ -66,6 +66,8 @@
     "src/lib/publicCache.ts",
     "src/lib/publicCache.test.ts",
     "src/lib/flagship.ts",
-    "src/lib/flagship.test.ts"
+    "src/lib/flagship.test.ts",
+    "src/lib/listWindow.ts",
+    "src/lib/listWindow.test.ts"
   ]
 }

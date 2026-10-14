@@ -10,7 +10,7 @@ from __future__ import annotations
 from datetime import date, datetime, timezone
 from zoneinfo import ZoneInfo
 
-from sqlalchemy import and_, case, func, or_
+from sqlalchemy import and_, case, func, not_, or_
 from sqlalchemy.orm import Session
 
 from app.models.vacancy import Vacancy
@@ -47,6 +47,7 @@ def scanner_marked_gone(vacancy: Vacancy) -> bool:
 
 def is_publicly_listed(vacancy: Vacancy, today: date | None = None) -> bool:
     """The same rule as ``public_role_clauses``, for one loaded row."""
+    day = today if today is not None else sa_today()
     if vacancy.deleted_at is not None:
         return False
     if (getattr(vacancy, "status", None) or STATUS_ACTIVE) == STATUS_EXPIRED:
@@ -56,13 +57,18 @@ def is_publicly_listed(vacancy: Vacancy, today: date | None = None) -> bool:
     life = (vacancy.lifecycle_status or "ACTIVE").upper()
     if life not in _STILL_OPEN:
         return False
-    if closing_has_passed(vacancy.closing_date, today):
+    if closing_has_passed(vacancy.closing_date, day):
+        return False
+    from app.services.listing_quality import removal_reasons_for
+    if removal_reasons_for(vacancy, day):
         return False
     return True
 
 
 def expired_role_clauses(today: date | None = None):
     """Rows kept in the database that must not appear on a public page."""
+    from app.services.listing_quality import quality_failure_clause
+
     day = today if today is not None else sa_today()
     return (
         Vacancy.deleted_at.is_(None),
@@ -71,6 +77,7 @@ def expired_role_clauses(today: date | None = None):
             Vacancy.is_open.is_(False),
             func.upper(func.coalesce(Vacancy.lifecycle_status, "")).in_(_SCANNER_GONE),
             and_(Vacancy.closing_date.isnot(None), Vacancy.closing_date < day),
+            quality_failure_clause(day),
         ),
     )
 
@@ -90,6 +97,8 @@ def due_for_deletion_clauses(today: date | None = None):
 
 def public_role_clauses(today: date | None = None):
     """SQL filters for a role that may still be shown on a public page."""
+    from app.services.listing_quality import quality_failure_clause
+
     day = today if today is not None else sa_today()
     return (
         Vacancy.deleted_at.is_(None),
@@ -97,6 +106,7 @@ def public_role_clauses(today: date | None = None):
         Vacancy.is_open.is_(True),
         or_(Vacancy.lifecycle_status.is_(None), Vacancy.lifecycle_status.in_(_STILL_OPEN)),
         or_(Vacancy.closing_date.is_(None), Vacancy.closing_date >= day),
+        not_(quality_failure_clause(day)),
     )
 
 
