@@ -75,6 +75,9 @@ A careers landing page is enough for that same set, even when the HTML lists no 
 
 ## Session Log
 
+### 2026-10-14 — Cursor (Grok 4.7) — Scan keeps going if the purge job is not deployed yet
+The careers-page workflow calls `purge_expired_opportunities` after the usual scan. A response that names an unknown job means Frankfurt is still on an older build, and that run does not fail the scan. Any other purge error still fails the workflow. The first successful response is the backup-then-delete run.
+
 ### 2026-10-14 — Cursor (Grok 4.7) — Expired opportunities are deleted after a private backup
 A role is expired after the end of its closing day in South Africa, or when the scanner has marked it closed or gone. Public search, intelligence answers, `/jobs`, `/opportunities`, employer pages and counts, the sitemap, RSS and JSON feeds, JobPosting data, alert digests, featured slots, and homepage open-role counts hide it immediately. `purge_expired_opportunities` then writes a gzip JSON backup and deletes the row, its bookmarks, its click totals, and ends a featured placement first. The backup key is `private/expired-opportunities/…json.gz` in the private `stored_files` table in production (or `STORAGE_DIR`, or the configured S3 bucket). No public route serves it. A tombstone keeps only a hash of the public id, the employer listing id, or the listing address, plus `deleted_at`. The scanner and the verified-programme import do not insert that role again. An expired or deleted detail URL is HTTP 410 with `noindex` and "This opportunity has closed". The privacy page and the retention schedule say expired opportunities are deleted. The homepage snapshot counts employers, not roles. Lite and USSD are not on main; Lite reads `/jobs`, so a deleted role stays off that list when the branch lands.
 
