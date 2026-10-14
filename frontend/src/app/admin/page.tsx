@@ -375,7 +375,7 @@ function ExpiredVacancies() {
     <Card>
       <h2 className="mb-1 font-semibold">Expired opportunities</h2>
       <p className="mb-3 text-sm text-ss-muted">
-        A closed role stays in the database. It leaves search, public pages, feeds and the sitemap.
+        A closed role stays off search, public pages, feeds and the sitemap. After a private backup it is deleted. Until that cleanup runs, it is listed here.
         {counts ? ` ${counts.active} active · ${counts.expired} expired.` : ""}
       </p>
       {err && <Alert kind="error">{err}</Alert>}

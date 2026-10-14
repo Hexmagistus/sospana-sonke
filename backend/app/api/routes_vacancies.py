@@ -31,6 +31,7 @@ from app.schemas.vacancy import (
 )
 from app.services.flagship import FLAGSHIP_COUNTRY, countries_flagship_first, flagship_role_rank
 from app.services.opportunity_expiry import expired_role_clauses, is_publicly_listed, public_role_clauses
+from app.services.opportunity_tombstone import public_id_was_deleted
 from app.services.opportunity_type import OPPORTUNITY_TYPES
 from app.services.search_terms import expand_title_terms, opportunity_types_for
 from app.models.saved_opportunity import SavedOpportunity
@@ -406,6 +407,12 @@ def get_public_job(job_id: str, request: Request, response: Response, db: Sessio
     response.headers["Cache-Control"] = "public, max-age=60"
     pair = _load_stored_pair(db, job_id)
     if pair is None:
+        if public_id_was_deleted(db, job_id):
+            raise HTTPException(
+                status_code=status.HTTP_410_GONE,
+                detail="This opportunity has closed.",
+                headers={"X-Robots-Tag": "noindex"},
+            )
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="That open role is not stored.")
     if not is_publicly_listed(pair[0]):
         raise HTTPException(
@@ -598,6 +605,12 @@ def list_admin_vacancies(
 def get_vacancy(vacancy_id: str, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
     vac = db.get(Vacancy, vacancy_id)
     if vac is None or vac.deleted_at is not None:
+        if public_id_was_deleted(db, vacancy_id):
+            raise HTTPException(
+                status_code=status.HTTP_410_GONE,
+                detail="This opportunity has closed.",
+                headers={"X-Robots-Tag": "noindex"},
+            )
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Vacancy not found.")
     if user.role != "admin" and not is_publicly_listed(vac):
         raise HTTPException(

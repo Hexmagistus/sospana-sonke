@@ -284,6 +284,19 @@ def apply_fetch(db: Session, source: VacancySource, outcome: FetchOutcome) -> Sc
             if fields["lifecycle_status"] == "CLOSED" and was_open:
                 report.closed += 1
         else:
+            from app.services.opportunity_tombstone import listing_was_deleted
+            if listing_was_deleted(
+                db,
+                company_id=source.company_id,
+                external_id=fields.get("external_id"),
+                source_url=fields.get("source_url"),
+                canonical_url=fields.get("canonical_url"),
+                application_url=fields.get("application_url"),
+                fingerprint=fields.get("fingerprint"),
+                board_url=source.url,
+            ):
+                report.duplicates_prevented += 1
+                continue
             trust_flags = scan_for_trust_flags(
                 title=fields["title"], description=fields["description"],
                 salary_min=fields["salary_min"], salary_max=fields["salary_max"],

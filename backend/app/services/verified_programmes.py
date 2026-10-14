@@ -119,6 +119,18 @@ def _store_one(db: Session, record: dict, verified_on: datetime) -> str:
         )
         if same_title is not None:
             return "skipped_duplicate_title"
+        from app.services.opportunity_tombstone import listing_was_deleted
+        if listing_was_deleted(
+            db,
+            company_id=company.id,
+            external_id=external_id,
+            source_url=source_url,
+            canonical_url=source_url,
+            application_url=source_url,
+            fingerprint=None,
+            board_url=None,
+        ):
+            return "skipped_expired"
         existing = Vacancy(
             company_id=company.id,
             source_id=source.id,

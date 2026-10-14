@@ -1,8 +1,9 @@
-"""Public listings stop when a role has closed. The row stays.
+"""Public listings stop when a role has closed.
 
 A role is expired at the end of its closing day in South Africa, or when the
 scanner has marked it closed or gone. ``status`` is ``active`` or ``expired``.
-``expired_at`` is the first time that was recorded. Nothing here deletes a row.
+``expired_at`` is the first time that was recorded. Rows stay hidden until the
+purge job has written a backup and deleted them.
 """
 from __future__ import annotations
 
@@ -65,6 +66,19 @@ def expired_role_clauses(today: date | None = None):
     day = today if today is not None else sa_today()
     return (
         Vacancy.deleted_at.is_(None),
+        or_(
+            Vacancy.status == STATUS_EXPIRED,
+            Vacancy.is_open.is_(False),
+            func.upper(func.coalesce(Vacancy.lifecycle_status, "")).in_(_SCANNER_GONE),
+            and_(Vacancy.closing_date.isnot(None), Vacancy.closing_date < day),
+        ),
+    )
+
+
+def due_for_deletion_clauses(today: date | None = None):
+    """Expired rows, including ones already soft-deleted. The purge job uses this."""
+    day = today if today is not None else sa_today()
+    return (
         or_(
             Vacancy.status == STATUS_EXPIRED,
             Vacancy.is_open.is_(False),

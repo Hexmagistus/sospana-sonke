@@ -264,6 +264,17 @@ def close_expired_vacancies(db: Session, job_run_id: str | None = None) -> dict:
     return {"vacancies_closed": closed}
 
 
+def purge_expired_opportunities(db: Session, job_run_id: str | None = None) -> dict:
+    """Delete expired opportunities after a private backup has been stored.
+
+    Featured placements are ended first. Bookmarks and click totals that
+    point at those rows are deleted with them. A tombstone keeps a hash and
+    the deletion time so the scanner does not insert the same role again.
+    """
+    from app.services.opportunity_purge import purge_expired_opportunities as _purge
+    return _purge(db)
+
+
 DISABLED_MATCHING = {
     "status": "disabled",
     "detail": "Job matching has been removed; this job does nothing. "

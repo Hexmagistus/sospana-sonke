@@ -29,5 +29,8 @@ describe("expired opportunities stay off public pages", () => {
     assert.match(source("src/lib/loadPublicJob.ts"), /res\.status === 410/);
     assert.match(source("src/app/jobs/[id]/opengraph-image.tsx"), /CLOSED_OPPORTUNITY_HEADING/);
     assert.match(source("src/app/admin/page.tsx"), /\/admin\/vacancies\?status=/);
+    assert.match(source("src/app/admin/page.tsx"), /private backup/);
+    assert.match(source("src/app/privacy/page.tsx"), /An opportunity is deleted after/);
+    assert.match(source("../docs/Sospana_Sonke_Legal_Pack.md"), /Expired opportunities are deleted/);
   });
 });

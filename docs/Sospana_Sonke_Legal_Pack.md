@@ -78,7 +78,7 @@ We share information only as needed to run the service, with vendors acting as o
 Some operators may process information **outside South Africa**. Where this happens, we ensure a lawful basis under POPIA section 72 — typically your consent and/or a contract that requires the recipient to uphold protections comparable to POPIA. Our current processing locations are described at `[LINK / APPENDIX]`. **⚖️ ATTORNEY: confirm each vendor's processing location and the transfer mechanism relied on.**
 
 ### 2.7 How long we keep it (retention)
-We keep your information only as long as necessary (see the retention schedule in §8). In summary: while your account is active and for a defined period afterwards for legal, audit, and dispute purposes, after which it is deleted or anonymised. **We do not keep your uploaded documents indefinitely.**
+We keep your information only as long as necessary (see the retention schedule in §8). In summary: while your account is active and for a defined period afterwards for legal, audit, and dispute purposes, after which it is deleted or anonymised. **We do not keep your uploaded documents indefinitely.** Expired opportunities are deleted after a private compressed backup: once the closing day has ended in South Africa, or the scanner has confirmed the listing is closed or gone. A tombstone keeps only a hash of the listing id or address and the deletion date.
 
 ### 2.8 How we protect it
 We apply encryption in transit and at rest, strong password hashing, access controls on a least-privilege basis, malware scanning of uploads, audit logging, and regular backups. No system is perfectly secure, but we take reasonable, appropriate, and up-to-date measures as POPIA requires.
@@ -197,6 +197,7 @@ Every vendor that processes candidate personal information on your behalf (cloud
 | Security & access logs | `[e.g. 6–12 months]` | Rotated/deleted |
 | AI request/response logs | `[e.g. 3–6 months]` (cost/audit) | Deleted |
 | Backups | `[e.g. 30–90 days]` rolling | Overwritten |
+| Expired opportunities (listing text, saved bookmarks, click totals, featured placement) | Until the closing day ends in South Africa, or the scanner confirms the listing is closed or gone | Deleted after a private compressed backup. A tombstone keeps only a hash of the listing id or address and the deletion date. The backup is not published. |
 
 On a valid **deletion request**, personal information is deleted or anonymised except where the law requires us to retain specific records (e.g. financial). **⚖️ ATTORNEY: confirm the statutory minimum retention periods that override deletion.**
 

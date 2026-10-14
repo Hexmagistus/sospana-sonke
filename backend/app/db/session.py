@@ -115,6 +115,7 @@ def init_db() -> None:
     from app.db.migrations.employer_plans import upgrade as upgrade_employer_plans
     from app.db.migrations.verified_programmes import upgrade as upgrade_verified_programmes
     from app.db.migrations.opportunity_expiry import upgrade as upgrade_opportunity_expiry
+    from app.db.migrations.opportunity_tombstones import upgrade as upgrade_opportunity_tombstones
     upgrade_role_alerts(engine)
     upgrade_alert_opportunity_type(engine)
     upgrade_usage_counts(engine)
@@ -122,6 +123,7 @@ def init_db() -> None:
     upgrade_verified_programmes(engine)
     upgrade_employer_plans(engine)
     upgrade_opportunity_expiry(engine)
+    upgrade_opportunity_tombstones(engine)
     _add_new_columns()
     _widen_external_id()
     _ensure_indexes()
