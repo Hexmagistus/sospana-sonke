@@ -177,7 +177,7 @@ def list_public_jobs(
         description="closing puts a stated closing date first. Anything else uses last seen.",
     ),
     limit: int = Query(default=30, ge=1, le=50),
-    offset: int = Query(default=0, ge=0, le=500),
+    offset: int = Query(default=0, ge=0, le=100_000),
 ):
     """Open roles the scanner has already stored. No sign-in. No advert body."""
     response.headers["Cache-Control"] = "public, max-age=60"

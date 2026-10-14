@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session
 from app.models.match import SystemSetting
 from app.scheduler.jobs import (
     scan_all_companies, scan_south_africa, scan_due_companies, match_all_candidates, check_link_changes,
-    test_all_urls, close_expired_vacancies, purge_expired_opportunities, run_daily_agent, purge_expired_messages,
+    test_all_urls, close_expired_vacancies, purge_expired_opportunities, review_listing_quality, run_daily_agent, purge_expired_messages,
     send_admin_login_digest, send_daily_digest,
     discover_company_icons,
 )
@@ -23,6 +23,7 @@ JOBS = {
     "scan_due_companies": scan_due_companies,   # fast rotating batch (external cron)
     "close_expired_vacancies": close_expired_vacancies,  # DB-only sweep: is_open=False past closing_date
     "purge_expired_opportunities": purge_expired_opportunities,  # backup, then delete expired rows
+    "review_listing_quality": review_listing_quality,  # hide non-jobs, stale posts and dead links
     "discover_company_icons": discover_company_icons,  # polite fetch-once icon store (robots.txt, rate-limited, small batch)
     "match_all_candidates": match_all_candidates,  # RETIRED: harmless "disabled" reply so a scheduler that still calls it gets a 200
     "check_link_changes": check_link_changes,   # fast rotating batch: page-hash "did it change" check
@@ -38,6 +39,7 @@ DEFAULT_SCHEDULE = {
     "scan_all_companies": "0 */6 * * *",         # every 6 hours
     "close_expired_vacancies": "0 1 * * *",      # nightly at 01:00 — keeps is_open accurate
     "purge_expired_opportunities": "30 1 * * *",  # 01:30 — backup, then delete expired rows
+    "review_listing_quality": "15 1 * * *",  # 01:15 — quality pass before the purge
     "discover_company_icons": "*/30 * * * *",      # ~12 companies per run, spaced out; never on a page view
     "check_link_changes": "0 */4 * * *",         # every 4 hours — rotates through the list
     "test_all_urls": "0 4 * * *",                # daily 04:00 — rotating careers-URL health check

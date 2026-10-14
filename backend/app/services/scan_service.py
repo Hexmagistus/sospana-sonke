@@ -429,12 +429,14 @@ def _apply_fields(vac: Vacancy, fields: dict, now: datetime) -> None:
     vac.verified_at = now if kind != "job" else None
     vac.opportunity_reviewed = True
     from app.services.opportunity_expiry import closing_has_passed, mark_active, mark_expired
+    from app.services.listing_quality import apply_listing_quality
     if fields["lifecycle_status"] == "CLOSED" or closing_has_passed(vac.closing_date):
         if fields["lifecycle_status"] == "CLOSED":
             vac.lifecycle_status = "CLOSED"
         mark_expired(vac, now)
     else:
         mark_active(vac)
+    apply_listing_quality(vac, now)
 
 
 def _replace_requirements(db: Session, vac: Vacancy, rows: list[dict]) -> None:

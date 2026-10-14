@@ -128,6 +128,11 @@ class Vacancy(UUIDMixin, TimestampMixin, Base):
     # does not mark VERIFIED on its own.
     verification_state: Mapped[str | None] = mapped_column(String(20), nullable=True)
     quality_score: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    # Reasons from the listing-quality pass: not_an_opportunity, past_year,
+    # stale_posting, dead_link. Empty means the completeness score still applies.
+    quality_flags: Mapped[list | None] = mapped_column(JSON, nullable=True)
+    link_http_status: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    link_checked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     consecutive_misses: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
 
     # Original advertisement content, retained for re-analysis (section 6).

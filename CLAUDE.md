@@ -75,6 +75,9 @@ A careers landing page is enough for that same set, even when the HTML lists no 
 
 ## Session Log
 
+### 2026-10-14 — Cursor (Grok 4.7) — Listing quality and jobs paging
+Public pages hide a stored row when it is a news article, a blog post, or a generic careers page; when it was posted more than 120 days ago and has no closing date; when the title or body contains a year from 2019 through the year before today; or when its own link answers 404 or 410. `review_listing_quality` stamps those rows expired, writes the counts on an admin audit row, and checks a batch of links. The existing purge then backs them up and deletes them. The quality score starts at 100. A past year costs 80, a stale posting costs 70, and a non-opportunity or a dead link costs 100. `GET /jobs` accepts an offset up to 100000, so offset 550 is a normal page. On the current public API, before this is deployed, a title search found 482 distinct open listings whose titles contain a year from 2019 to 2025. That sample also included generic careers pages and appointment headlines. Body-only years, stale posting dates, and dead links are not in that 482. Pull requests #69 and #70 were not touched.
+
 ### 2026-10-14 — Cursor (Grok 4.7) — Scan keeps going if the purge job is not deployed yet
 The careers-page workflow calls `purge_expired_opportunities` after the usual scan. A response that names an unknown job means Frankfurt is still on an older build, and that run does not fail the scan. Any other purge error still fails the workflow. The first successful response is the backup-then-delete run.
 

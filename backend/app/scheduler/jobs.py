@@ -254,14 +254,16 @@ def close_expired_vacancies(db: Session, job_run_id: str | None = None) -> dict:
     finishes well within any scheduler's timeout.
     """
     from app.services.opportunity_expiry import stamp_expired
+    from app.services.listing_quality import stamp_text_failures
     closed = stamp_expired(db)
-    if closed:
+    quality = stamp_text_failures(db)
+    if closed or quality["hidden"]:
         try:
             from app.services.indexnow import ping_indexnow
             ping_indexnow()
         except Exception:
             pass
-    return {"vacancies_closed": closed}
+    return {"vacancies_closed": closed, "quality_hidden": quality["hidden"]}
 
 
 def purge_expired_opportunities(db: Session, job_run_id: str | None = None) -> dict:
@@ -273,6 +275,12 @@ def purge_expired_opportunities(db: Session, job_run_id: str | None = None) -> d
     """
     from app.services.opportunity_purge import purge_expired_opportunities as _purge
     return _purge(db)
+
+
+def review_listing_quality(db: Session, job_run_id: str | None = None) -> dict:
+    """Hide non-opportunities, stale posts and dead links, and record the counts."""
+    from app.services.listing_quality import review_listing_quality as _review
+    return _review(db)
 
 
 DISABLED_MATCHING = {
