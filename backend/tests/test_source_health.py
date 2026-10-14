@@ -1,3 +1,4 @@
+import pytest
 """Admin source-health summary and the dashboard freshness stamp."""
 from datetime import datetime, timezone
 
@@ -81,3 +82,11 @@ def test_source_health_is_admin_only_and_reports_the_latest_read(client, db_engi
     again = client.get("/api/v1/admin/source-health", headers=_auth(admin)).json()
     assert again["recent"][0]["active"] is True
     assert again["recent"][0]["scraper_status"] is None
+
+
+@pytest.fixture(autouse=True)
+def _fixed_dates_are_not_stale(monkeypatch):
+    # These fixtures use fixed calendar dates; the 7-day staleness rule has its
+    # own tests in test_outdated_never_listed.py.
+    from app.services import opportunity_expiry
+    monkeypatch.setattr(opportunity_expiry, "STALE_AFTER_DAYS", 100000)

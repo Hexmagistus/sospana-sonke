@@ -192,7 +192,9 @@ def test_public_jobs_filters_stored_roles_without_auth(client, db_engine):
     ids = {job["id"] for job in body["jobs"]}
     assert open_id in ids and other_country_id in ids
     assert expired_id not in ids
-    assert body["matched"] == 3
+    # Not seen on the employer's site for 40 days: outdated, never listed.
+    assert stale_id not in ids
+    assert body["matched"] == 2
     open_job = next(job for job in body["jobs"] if job["id"] == open_id)
     assert open_job["company_name"] == "Acme Mines"
     assert open_job["company_country"] == "South Africa"
@@ -202,7 +204,7 @@ def test_public_jobs_filters_stored_roles_without_auth(client, db_engine):
     assert "trust_flags" not in open_job
 
     by_title = client.get("/api/v1/jobs", params={"q": "operations"}).json()
-    assert {job["id"] for job in by_title["jobs"]} == {open_id, other_country_id, stale_id}
+    assert {job["id"] for job in by_title["jobs"]} == {open_id, other_country_id}
 
     by_country = client.get("/api/v1/jobs", params={"country": "Kenya"}).json()
     assert {job["id"] for job in by_country["jobs"]} == {other_country_id}

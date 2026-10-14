@@ -303,6 +303,12 @@ def _delete(db: Session, ids: list[str], when: datetime) -> dict:
 
 def purge_expired_opportunities(db: Session, when: datetime | None = None) -> dict:
     """Back up expired rows, then delete them. Returns counts and the backup key."""
+    import os
+    if os.getenv("OPPORTUNITY_PURGE_ENABLED", "").strip().lower() not in ("1", "true", "yes"):
+        # Off unless the owner switches it on. Closed rows are already hidden
+        # from every public page; deleting them is a separate decision.
+        return {"deleted": 0, "backup": None, "bookmarks": 0, "clicks": 0,
+                "featured_ended": 0, "disabled": True}
     moment = when or datetime.now(timezone.utc)
     today = sa_today(moment)
     selected = [row[0] for row in db.query(Vacancy.id).filter(*due_for_deletion_clauses(today)).all()]

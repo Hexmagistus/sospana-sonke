@@ -1,3 +1,4 @@
+import pytest
 """Saved daily role alerts: validation, digest filtering, unsubscribe, migration."""
 from datetime import datetime, timedelta, timezone
 
@@ -269,3 +270,11 @@ def test_role_alerts_migration_upgrades_and_rolls_back():
     with engine.begin() as conn:
         assert conn.execute(text("SELECT COUNT(*) FROM role_alerts")).scalar() == 0
     engine.dispose()
+
+
+@pytest.fixture(autouse=True)
+def _fixed_dates_are_not_stale(monkeypatch):
+    # These fixtures use fixed calendar dates; the 7-day staleness rule has its
+    # own tests in test_outdated_never_listed.py.
+    from app.services import opportunity_expiry
+    monkeypatch.setattr(opportunity_expiry, "STALE_AFTER_DAYS", 100000)

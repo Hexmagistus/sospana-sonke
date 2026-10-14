@@ -1,3 +1,4 @@
+import pytest
 """Listing quality: hide non-jobs, stale posts and dead links, then purge them."""
 from datetime import datetime, timedelta, timezone
 
@@ -225,3 +226,8 @@ def test_dead_link_is_hidden_and_a_live_link_stays(db):
 def test_quality_job_is_scheduled():
     assert "review_listing_quality" in JOBS
     assert DEFAULT_SCHEDULE["review_listing_quality"] == "15 1 * * *"
+
+
+@pytest.fixture(autouse=True)
+def _purge_switched_on(monkeypatch):
+    monkeypatch.setenv("OPPORTUNITY_PURGE_ENABLED", "true")

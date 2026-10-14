@@ -208,7 +208,7 @@ def _seed_plan(conn, row_id, code, amount, post_limit, duration, label, note, pu
             "duration": duration,
             "label": label,
             "note": note,
-            "published": published,
+            "published": bool(published),
             "includes": includes,
         },
     )
