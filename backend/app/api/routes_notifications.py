@@ -261,9 +261,9 @@ def source_health(db: Session = Depends(get_db)):
     week_start = now - timedelta(days=7)
     sources = db.query(func.count(VacancySource.id)).scalar() or 0
     employers = (db.query(func.count(Company.id)).filter(Company.deleted_at.is_(None)).scalar() or 0)
-    open_vacancies = (db.query(func.count(Vacancy.id)).filter(Vacancy.is_open.is_(True)).scalar() or 0)
-    expired = (db.query(func.count(Vacancy.id))
-               .filter(Vacancy.lifecycle_status == "EXPIRED").scalar() or 0)
+    from app.services.opportunity_expiry import expired_role_clauses, public_role_clauses
+    open_vacancies = (db.query(func.count(Vacancy.id)).filter(*public_role_clauses()).scalar() or 0)
+    expired = (db.query(func.count(Vacancy.id)).filter(*expired_role_clauses()).scalar() or 0)
     new_today = (db.query(func.count(Vacancy.id))
                  .filter(Vacancy.first_seen_at >= today_start).scalar() or 0)
     new_week = (db.query(func.count(Vacancy.id))

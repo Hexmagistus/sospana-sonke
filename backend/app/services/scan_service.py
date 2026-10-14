@@ -284,6 +284,19 @@ def apply_fetch(db: Session, source: VacancySource, outcome: FetchOutcome) -> Sc
             if fields["lifecycle_status"] == "CLOSED" and was_open:
                 report.closed += 1
         else:
+            from app.services.opportunity_tombstone import listing_was_deleted
+            if listing_was_deleted(
+                db,
+                company_id=source.company_id,
+                external_id=fields.get("external_id"),
+                source_url=fields.get("source_url"),
+                canonical_url=fields.get("canonical_url"),
+                application_url=fields.get("application_url"),
+                fingerprint=fields.get("fingerprint"),
+                board_url=source.url,
+            ):
+                report.duplicates_prevented += 1
+                continue
             trust_flags = scan_for_trust_flags(
                 title=fields["title"], description=fields["description"],
                 salary_min=fields["salary_min"], salary_max=fields["salary_max"],
@@ -319,8 +332,9 @@ def apply_fetch(db: Session, source: VacancySource, outcome: FetchOutcome) -> Sc
                 continue
             vac.consecutive_misses = (vac.consecutive_misses or 0) + 1
             if vac.consecutive_misses >= MISS_CLOSE_AFTER:
-                vac.is_open = False
+                from app.services.opportunity_expiry import mark_expired
                 vac.lifecycle_status = "REMOVED"
+                mark_expired(vac, now)
                 report.closed += 1
 
     prev_count = source.last_vacancy_count
@@ -414,12 +428,13 @@ def _apply_fields(vac: Vacancy, fields: dict, now: datetime) -> None:
     vac.stipend_text = stated_stipend(fields.get("title"), fields.get("description"))
     vac.verified_at = now if kind != "job" else None
     vac.opportunity_reviewed = True
-    if fields["lifecycle_status"] == "CLOSED":
-        vac.is_open = False
-        vac.lifecycle_status = "CLOSED"
+    from app.services.opportunity_expiry import closing_has_passed, mark_active, mark_expired
+    if fields["lifecycle_status"] == "CLOSED" or closing_has_passed(vac.closing_date):
+        if fields["lifecycle_status"] == "CLOSED":
+            vac.lifecycle_status = "CLOSED"
+        mark_expired(vac, now)
     else:
-        vac.is_open = True
-        vac.lifecycle_status = "ACTIVE"
+        mark_active(vac)
 
 
 def _replace_requirements(db: Session, vac: Vacancy, rows: list[dict]) -> None:

@@ -622,8 +622,9 @@ def moderate_post(db: Session, admin: User, post_id: str, *, approve: bool, note
         if row.vacancy_id:
             vacancy = db.get(Vacancy, row.vacancy_id)
             if vacancy is not None:
-                vacancy.is_open = False
+                from app.services.opportunity_expiry import mark_expired
                 vacancy.lifecycle_status = "REMOVED"
+                mark_expired(vacancy)
         action = "post_rejected"
     audit(db, actor_id=admin.id, action=action, account_id=row.account_id,
           target_id=row.id, detail=f"status={row.status}")
@@ -693,8 +694,11 @@ def _publish_vacancy(db: Session, row: EmployerOpportunity) -> Vacancy:
     vacancy.stipend_text = row.stipend_text
     vacancy.content_hash = digest
     vacancy.fingerprint = digest
-    vacancy.is_open = True
-    vacancy.lifecycle_status = "ACTIVE"
+    from app.services.opportunity_expiry import closing_has_passed, mark_active, mark_expired
+    if closing_has_passed(vacancy.closing_date):
+        mark_expired(vacancy, now)
+    else:
+        mark_active(vacancy)
     vacancy.verification_state = "DISCOVERED"
     vacancy.opportunity_reviewed = True
     vacancy.last_seen_at = now
@@ -784,9 +788,11 @@ def featured_matches(db: Session, filtered_query) -> list[tuple[Vacancy, Company
     if not entitlements:
         return []
     ids = [row.vacancy_id for row in entitlements if row.vacancy_id]
+    from app.services.opportunity_expiry import is_publicly_listed, public_role_clauses
     matched = {
         vacancy.id: (vacancy, company)
-        for vacancy, company in filtered_query.filter(Vacancy.id.in_(ids)).all()
+        for vacancy, company in filtered_query.filter(Vacancy.id.in_(ids), *public_role_clauses()).all()
+        if is_publicly_listed(vacancy)
     }
     chosen: list[tuple[Vacancy, Company, datetime]] = []
     for row in entitlements:

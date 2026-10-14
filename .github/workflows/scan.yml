@@ -57,7 +57,7 @@ jobs:
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
         run: |
           fail=0
-          for job in scan_due_companies close_expired_vacancies; do
+          for job in scan_due_companies close_expired_vacancies purge_expired_opportunities; do
             code=$(curl -sS -o "resp-$job.json" -w "%{http_code}" --max-time 100 \
               -X POST "https://sospana-sonke-api-fra.onrender.com/api/v1/cron/run/$job" \
               -H "X-Cron-Secret: $CRON_SECRET" || echo "000")

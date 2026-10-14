@@ -176,7 +176,15 @@ export default function PrivacyPage() {
           <p>
             We keep your information while your account is active. When you delete your account we delete
             or anonymise your profile, CVs and application records, except where the law requires us to
-            keep something for longer.
+            keep something for longer. An opportunity is deleted after the end of its closing day in
+            South Africa, or when the scanner has confirmed that the employer removed it or marked it
+            closed. Before that deletion we store a compressed backup in private storage (the
+            database file store, or a private bucket when one is configured). That backup is not
+            published. We keep a tombstone that is only a hash of the employer&apos;s listing id or the
+            listing&apos;s own address, plus the date of deletion, so the same closed role is not added
+            again. The title, description and other content are not kept in that tombstone. Saved
+            bookmarks, click totals and a featured placement for that listing end with it. A link to
+            a deleted opportunity says it has closed and is not indexed as a live listing.
           </p>
 
           <h2 className="pt-2 text-lg font-semibold text-ss-text">Your rights</h2>

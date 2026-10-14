@@ -45,6 +45,9 @@ jobs:
           curl -sS -m 120 -X POST \
             -H "X-Cron-Secret: $CRON_SECRET" \
             "https://sospana-sonke-api-fra.onrender.com/api/v1/cron/run/close_expired_vacancies"
+          curl -sS -m 180 -X POST \
+            -H "X-Cron-Secret: $CRON_SECRET" \
+            "https://sospana-sonke-api-fra.onrender.com/api/v1/cron/run/purge_expired_opportunities"
 
       - name: Run the daily agent (match, draft, queue for review)
         env:

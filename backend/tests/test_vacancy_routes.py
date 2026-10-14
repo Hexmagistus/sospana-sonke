@@ -143,11 +143,11 @@ def test_list_vacancies_excludes_outdated_ads_by_default(client, db_engine):
     assert expired_id not in ids
     assert live_id in ids and no_date_id in ids
 
-    # A caller explicitly asking for closed listings (is_open=False) should
-    # not have the closing-date filter applied -- it isn't relevant to them.
+    # A candidate cannot list a role whose closing day has ended, even by
+    # asking for closed rows. Admins use GET /admin/vacancies for that.
     by_company = client.get(f"/api/v1/companies/{company_id}/vacancies",
                             params={"is_open": False}, headers=_auth(tokens)).json()
-    assert by_company == []  # this seeded vacancy is still is_open=True, just past its closing date
+    assert by_company == []
 
     by_company_open = client.get(f"/api/v1/companies/{company_id}/vacancies", headers=_auth(tokens)).json()
     assert expired_id not in {v["id"] for v in by_company_open}
@@ -222,7 +222,10 @@ def test_public_jobs_filters_stored_roles_without_auth(client, db_engine):
     assert detail.status_code == 200, detail.text
     assert "Operations Manager" in detail.json()["summary"]
     assert "description" not in detail.json()
-    assert client.get(f"/api/v1/jobs/{expired_id}").status_code == 404
+    closed = client.get(f"/api/v1/jobs/{expired_id}")
+    assert closed.status_code == 410
+    assert closed.json()["detail"] == "This opportunity has closed."
+    assert "noindex" in closed.headers.get("x-robots-tag", "")
 
     _, programme_id = _seed_vacancy(
         db_engine, company_name="Seta Works", content_hash="hash-learn",

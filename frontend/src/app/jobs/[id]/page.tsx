@@ -5,7 +5,7 @@ import { ApplySteps } from "@/components/ApplySteps";
 import { PageHeader } from "@/components/PageHeader";
 import { RememberRole, SaveRoleButton } from "@/components/RoleExtras";
 import { jobPosting } from "@/lib/jobPosting";
-import { loadPublicJob } from "@/lib/loadPublicJob";
+import { CLOSED_OPPORTUNITY_HEADING, loadPublicJob } from "@/lib/loadPublicJob";
 import { opportunityLabel } from "@/lib/opportunity";
 import { SITE_NAME } from "@/lib/seo";
 
@@ -18,6 +18,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const job = await loadPublicJob(id);
   if (job === "down") {
     return { title: "Role index unavailable", robots: { index: false, follow: false } };
+  }
+  if (job === "closed") {
+    return {
+      title: CLOSED_OPPORTUNITY_HEADING,
+      description: "This stored opportunity is no longer open. The record is kept, and it is not a live listing.",
+      robots: { index: false, follow: false },
+    };
   }
   if (!job) return { title: "Role not found" };
   const description = job.summary.slice(0, 180);
@@ -44,6 +51,18 @@ export default async function JobDetailPage({ params }: Props) {
         <p className="mt-2 text-sm text-ss-muted">Nothing was invented in its place.</p>
         <Link href="/jobs" className="mt-4 font-semibold text-[#0f766e] underline">Back to stored roles</Link>
       </div>
+    );
+  }
+  if (job === "closed") {
+    return (
+      <article className="space-y-6">
+        <PageHeader eyebrow="Closed" title={CLOSED_OPPORTUNITY_HEADING}>
+          <p>The record is kept. It is not listed in search, and there is no application link here.</p>
+        </PageHeader>
+        <p>
+          <Link href="/jobs" className="font-semibold text-[#0f766e] underline">Back to stored roles</Link>
+        </p>
+      </article>
     );
   }
   if (!job) notFound();

@@ -18,6 +18,7 @@ from app.models.user import User
 from app.models.vacancy import Vacancy
 from app.services.category_groups import canonical_type, stored_values_for
 from app.services.country_names import canonical_country, is_country, spellings_for
+from app.services.opportunity_expiry import public_role_clauses, sa_today
 from app.services.opportunity_type import OPPORTUNITY_TYPES
 
 MAX_ALERTS = 8
@@ -202,7 +203,6 @@ def open_matches(db: Session, alerts: list[RoleAlert], *, limit: int = OPEN_SAMP
     clauses = [c for c in (_alert_clause(a) for a in alerts if a.active and a.deleted_at is None) if c is not None]
     if not clauses:
         return []
-    today = datetime.now(timezone.utc).date()
     return (db.query(Vacancy, Company)
             .options(
                 defer(Vacancy.description), defer(Vacancy.raw_content),
@@ -211,10 +211,9 @@ def open_matches(db: Session, alerts: list[RoleAlert], *, limit: int = OPEN_SAMP
             )
             .join(Company, Company.id == Vacancy.company_id)
             .filter(
-                Vacancy.deleted_at.is_(None), Company.deleted_at.is_(None),
-                Vacancy.is_open.is_(True), Vacancy.duplicate_of_id.is_(None),
-                or_(Vacancy.lifecycle_status.is_(None), Vacancy.lifecycle_status == "ACTIVE"),
-                or_(Vacancy.closing_date.is_(None), Vacancy.closing_date >= today),
+                Company.deleted_at.is_(None),
+                Vacancy.duplicate_of_id.is_(None),
+                *public_role_clauses(sa_today()),
                 or_(*clauses),
             )
             .order_by(Vacancy.last_seen_at.desc(), Vacancy.title)

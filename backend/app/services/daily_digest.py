@@ -54,6 +54,7 @@ from app.models.user import User
 from app.models.vacancy import Vacancy
 from app.models.watch import CompanyWatch
 from app.notifications.email import get_email_provider
+from app.services.opportunity_expiry import public_role_clauses, sa_today
 
 logger = logging.getLogger(__name__)
 
@@ -191,12 +192,12 @@ def _open_vacancy_rows(db: Session, since: datetime, until: datetime):
     oldest_post = (_aware(until) - timedelta(days=MAX_POSTING_AGE_DAYS)).date()
     return (db.query(Vacancy, Company)
             .join(Company, Company.id == Vacancy.company_id)
-            .filter(Vacancy.deleted_at.is_(None), Company.deleted_at.is_(None),
-                    Vacancy.is_open.is_(True), Vacancy.duplicate_of_id.is_(None),
-                    or_(Vacancy.lifecycle_status.is_(None), Vacancy.lifecycle_status == "ACTIVE"),
+            .filter(Company.deleted_at.is_(None),
+                    Vacancy.duplicate_of_id.is_(None),
                     or_(Vacancy.posting_date.is_(None), Vacancy.posting_date >= oldest_post),
-                    or_(Vacancy.closing_date.is_(None), Vacancy.closing_date >= _aware(until).date()),
-                    Vacancy.first_seen_at > since, Vacancy.first_seen_at <= until))
+                    Vacancy.first_seen_at > since, Vacancy.first_seen_at <= until,
+                    *public_role_clauses(sa_today(until)))
+            )
 
 
 def _scope(db: Session, user: User, profile: CandidateProfile | None):

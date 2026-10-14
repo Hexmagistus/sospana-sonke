@@ -253,22 +253,26 @@ def close_expired_vacancies(db: Session, job_run_id: str | None = None) -> dict:
     (listings) without waiting on the scan rotation, and always
     finishes well within any scheduler's timeout.
     """
-    today = date.today()
-    stale = (db.query(Vacancy)
-             .filter(Vacancy.is_open.is_(True), Vacancy.closing_date.isnot(None),
-                     Vacancy.closing_date < today)
-             .all())
-    for vac in stale:
-        vac.is_open = False
-        vac.lifecycle_status = "EXPIRED"
-    db.commit()
-    if stale:
+    from app.services.opportunity_expiry import stamp_expired
+    closed = stamp_expired(db)
+    if closed:
         try:
             from app.services.indexnow import ping_indexnow
             ping_indexnow()
         except Exception:
             pass
-    return {"vacancies_closed": len(stale)}
+    return {"vacancies_closed": closed}
+
+
+def purge_expired_opportunities(db: Session, job_run_id: str | None = None) -> dict:
+    """Delete expired opportunities after a private backup has been stored.
+
+    Featured placements are ended first. Bookmarks and click totals that
+    point at those rows are deleted with them. A tombstone keeps a hash and
+    the deletion time so the scanner does not insert the same role again.
+    """
+    from app.services.opportunity_purge import purge_expired_opportunities as _purge
+    return _purge(db)
 
 
 DISABLED_MATCHING = {

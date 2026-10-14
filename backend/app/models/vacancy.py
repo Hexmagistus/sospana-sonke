@@ -58,6 +58,7 @@ class Vacancy(UUIDMixin, TimestampMixin, Base):
         Index("ix_vacancies_open_type", "is_open", "opportunity_type"),
         # Directory count: company_id IN (...) AND is_open AND deleted_at IS NULL.
         Index("ix_vacancies_company_open", "company_id", "is_open", "deleted_at"),
+        Index("ix_vacancies_status", "status"),
     )
 
     company_id: Mapped[str] = mapped_column(
@@ -135,6 +136,9 @@ class Vacancy(UUIDMixin, TimestampMixin, Base):
 
     # Lifecycle / change detection
     is_open: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    # active | expired. Expired rows stay. Public pages do not list them.
+    status: Mapped[str] = mapped_column(String(20), default="active", server_default="active", nullable=False)
+    expired_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     first_seen_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     last_seen_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
