@@ -26,7 +26,7 @@ EXPECTED = {
 
 # South Africa includes the two simplify.hr fills plus Adapt IT from the blank-link pass.
 LINKED = {
-    'South Africa': 817,
+    'South Africa': 876,
     'Chile': 46,
 }
 
