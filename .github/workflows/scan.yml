@@ -32,7 +32,7 @@ concurrency:
 jobs:
   scan:
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 15
     steps:
       - name: Require CRON_SECRET
         env:
@@ -57,7 +57,7 @@ jobs:
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
         run: |
           fail=0
-          for job in scan_due_companies close_expired_vacancies purge_expired_opportunities; do
+          for job in scan_due_companies close_expired_vacancies; do
             code=$(curl -sS -o "resp-$job.json" -w "%{http_code}" --max-time 100 \
               -X POST "https://sospana-sonke-api-fra.onrender.com/api/v1/cron/run/$job" \
               -H "X-Cron-Secret: $CRON_SECRET" || echo "000")
@@ -72,4 +72,18 @@ jobs:
               fail=1
             fi
           done
+          code=$(curl -sS -o resp-purge_expired_opportunities.json -w "%{http_code}" --max-time 300 \
+            -X POST "https://sospana-sonke-api-fra.onrender.com/api/v1/cron/run/purge_expired_opportunities" \
+            -H "X-Cron-Secret: $CRON_SECRET" || echo "000")
+          echo "purge_expired_opportunities HTTP $code"
+          cat resp-purge_expired_opportunities.json 2>/dev/null || true
+          echo
+          if [ "$code" != "200" ]; then
+            if grep -q "Unknown job" resp-purge_expired_opportunities.json 2>/dev/null; then
+              echo "The Frankfurt API does not have the purge job yet. Scanning continues."
+            else
+              echo "::error::purge_expired_opportunities returned HTTP $code."
+              fail=1
+            fi
+          fi
           exit $fail

@@ -9,7 +9,7 @@ Security:
   parameter used to be accepted too, but secrets in URLs end up in proxy/access
   logs and browser history -- flagged by the 2026-09-24 DAST scan -- so it's gone.)
   Compared with hmac.compare_digest (constant time) and rate-limited per IP.
-- Only reads public listings / runs known jobs — no destructive actions.
+- Only runs known jobs. purge_expired_opportunities deletes expired listings after it has stored a backup.
 """
 import hmac
 
