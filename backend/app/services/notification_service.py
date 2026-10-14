@@ -166,7 +166,9 @@ def notify_new_jobs_broadcast(db, *, vacancy_ids: list[str], job_run_id: str) ->
     from app.models.user import User
     from app.models.vacancy import Vacancy
 
-    vacancies = db.query(Vacancy).filter(Vacancy.id.in_(vacancy_ids)).all()
+    from app.services.opportunity_expiry import is_publicly_listed
+    vacancies = [v for v in db.query(Vacancy).filter(Vacancy.id.in_(vacancy_ids)).all()
+                 if is_publicly_listed(v)]
     if not vacancies:
         return 0
     companies = {

@@ -108,6 +108,10 @@ def init_db() -> None:
     from app.db.base import Base
     from app import models  # noqa: F401  (ensures models are registered)
     Base.metadata.create_all(bind=engine)
+    # Columns first: the upgrades below query the Vacancy model, so every
+    # mapped column must exist before they run (a missing quality_flags
+    # column stopped every deploy from 13 Oct).
+    _add_new_columns()
     from app.db.migrations.alert_opportunity_type import upgrade as upgrade_alert_opportunity_type
     from app.db.migrations.opportunity_types import upgrade as upgrade_opportunity_types
     from app.db.migrations.role_alerts import upgrade as upgrade_role_alerts

@@ -193,3 +193,8 @@ def test_purge_job_is_scheduled():
     assert DEFAULT_SCHEDULE["purge_expired_opportunities"] == "30 1 * * *"
     workflow = Path(__file__).resolve().parents[2].joinpath(".github/workflows/scan.yml").read_text()
     assert "purge_expired_opportunities" in workflow
+
+
+@pytest.fixture(autouse=True)
+def _purge_switched_on(monkeypatch):
+    monkeypatch.setenv("OPPORTUNITY_PURGE_ENABLED", "true")

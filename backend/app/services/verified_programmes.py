@@ -131,6 +131,9 @@ def _store_one(db: Session, record: dict, verified_on: datetime) -> str:
             board_url=None,
         ):
             return "skipped_expired"
+        from app.services.opportunity_expiry import closing_value_has_passed
+        if closing_value_has_passed(_stated_closing(record.get("closing_date"), verified_on)):
+            return "skipped_expired"
         existing = Vacancy(
             company_id=company.id,
             source_id=source.id,

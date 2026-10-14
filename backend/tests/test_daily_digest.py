@@ -544,3 +544,11 @@ def test_account_mail_stays_immediate(client):
     subjects = [m["subject"] for m in ConsoleEmailProvider.outbox]
     assert any(s.startswith("Verify your") for s in subjects)
     assert any(s.startswith("Reset your") for s in subjects)
+
+
+@pytest.fixture(autouse=True)
+def _fixed_dates_are_not_stale(monkeypatch):
+    # These fixtures use fixed calendar dates; the 7-day staleness rule has its
+    # own tests in test_outdated_never_listed.py.
+    from app.services import opportunity_expiry
+    monkeypatch.setattr(opportunity_expiry, "STALE_AFTER_DAYS", 100000)

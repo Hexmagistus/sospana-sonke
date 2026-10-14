@@ -57,6 +57,7 @@ class ScanReport:
     closed: int = 0
     total_seen: int = 0
     duplicates_prevented: int = 0
+    skipped_expired: int = 0
     error: str | None = None
     warnings: list[str] = field(default_factory=list)
     # Ids of vacancies newly created by this scan (not previously seen), so callers
@@ -284,6 +285,12 @@ def apply_fetch(db: Session, source: VacancySource, outcome: FetchOutcome) -> Sc
             if fields["lifecycle_status"] == "CLOSED" and was_open:
                 report.closed += 1
         else:
+            from app.services.opportunity_expiry import closing_value_has_passed
+            if fields.get("lifecycle_status") == "CLOSED" or closing_value_has_passed(fields.get("closing_date")):
+                # A new posting that has already closed is never stored, so it
+                # can never be listed. Outdated jobs chase people away.
+                report.skipped_expired += 1
+                continue
             from app.services.opportunity_tombstone import listing_was_deleted
             if listing_was_deleted(
                 db,

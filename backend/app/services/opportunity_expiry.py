@@ -7,7 +7,7 @@ purge job has written a backup and deleted them.
 """
 from __future__ import annotations
 
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 
 from sqlalchemy import and_, case, func, not_, or_
@@ -21,6 +21,47 @@ STATUS_EXPIRED = "expired"
 # Scanner words that mean the listing is closed or no longer on the board.
 _SCANNER_GONE = ("CLOSED", "EXPIRED", "REMOVED")
 _STILL_OPEN = ("ACTIVE", "OPEN")
+# Matches the weekly clean-up: a role not seen on the employer's own site for
+# more than this many days is outdated and never shown.
+STALE_AFTER_DAYS = 7
+
+
+def stale_cutoff(moment: datetime | None = None, today: date | None = None) -> datetime:
+    """Rows last seen before this instant are outdated.
+
+    With ``today`` (a South African calendar day) the cutoff is measured from
+    the end of that day, so callers that pass a fixed day get a fixed rule.
+    """
+    if moment is None and today is not None:
+        moment = datetime.combine(today + timedelta(days=1), datetime.min.time(), SA_ZONE)
+    when = moment or datetime.now(timezone.utc)
+    if when.tzinfo is None:
+        when = when.replace(tzinfo=timezone.utc)
+    return when - timedelta(days=STALE_AFTER_DAYS)
+
+
+def seen_too_long_ago(last_seen: datetime | None, moment: datetime | None = None) -> bool:
+    if last_seen is None:
+        return False
+    if last_seen.tzinfo is None:
+        last_seen = last_seen.replace(tzinfo=timezone.utc)
+    return last_seen < stale_cutoff(moment)
+
+
+def closing_value_has_passed(value, today: date | None = None) -> bool:
+    """closing_has_passed for a raw scraped value (date, datetime, ISO text or None)."""
+    if value is None or value == "":
+        return False
+    if isinstance(value, datetime):
+        value = value.date()
+    elif isinstance(value, str):
+        try:
+            value = date.fromisoformat(value.strip()[:10])
+        except ValueError:
+            return False
+    if not isinstance(value, date):
+        return False
+    return closing_has_passed(value, today)
 
 
 def sa_today(moment: datetime | None = None) -> date:
@@ -59,6 +100,9 @@ def is_publicly_listed(vacancy: Vacancy, today: date | None = None) -> bool:
         return False
     if closing_has_passed(vacancy.closing_date, day):
         return False
+    end_of_day = None if today is None else datetime.combine(today + timedelta(days=1), datetime.min.time(), SA_ZONE)
+    if seen_too_long_ago(vacancy.last_seen_at, end_of_day):
+        return False
     from app.services.listing_quality import removal_reasons_for
     if removal_reasons_for(vacancy, day):
         return False
@@ -77,6 +121,7 @@ def expired_role_clauses(today: date | None = None):
             Vacancy.is_open.is_(False),
             func.upper(func.coalesce(Vacancy.lifecycle_status, "")).in_(_SCANNER_GONE),
             and_(Vacancy.closing_date.isnot(None), Vacancy.closing_date < day),
+            and_(Vacancy.last_seen_at.isnot(None), Vacancy.last_seen_at < stale_cutoff(today=today)),
             quality_failure_clause(day),
         ),
     )
@@ -106,6 +151,7 @@ def public_role_clauses(today: date | None = None):
         Vacancy.is_open.is_(True),
         or_(Vacancy.lifecycle_status.is_(None), Vacancy.lifecycle_status.in_(_STILL_OPEN)),
         or_(Vacancy.closing_date.is_(None), Vacancy.closing_date >= day),
+        or_(Vacancy.last_seen_at.is_(None), Vacancy.last_seen_at >= stale_cutoff(today=today)),
         not_(quality_failure_clause(day)),
     )
 
