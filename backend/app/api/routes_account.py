@@ -211,6 +211,9 @@ def _erase_documents_and_profile(db: Session, user: User) -> None:
         letter.storage_key_pdf = letter.storage_key_docx = None
         letter.body, letter.label = "", "deleted"
         letter.deleted_at = letter.deleted_at or now
+    from app.models.cv_audit import CVAudit
+    # Audits hold a full copy of the CV's content — hard-delete them.
+    db.query(CVAudit).filter(CVAudit.user_id == user.id).delete(synchronize_session=False)
     for profile in db.query(CandidateProfile).filter(CandidateProfile.user_id == user.id).all():
         for child in (Education, Certification, WorkExperience, Skill):
             db.query(child).filter(child.profile_id == profile.id).delete(synchronize_session=False)

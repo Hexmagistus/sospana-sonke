@@ -34,6 +34,7 @@ const BASE_COMMANDS: CommandItem[] = [
   { id: "explorer", label: "Explore my qualification", hint: "Career Explorer", run: toAgent("career explorer") },
   { id: "applications", label: "Open my applications", hint: "Application tracker", run: (r) => r.push("/tailor/applications") },
   { id: "cv", label: "Build my CV", hint: "CV Builder", run: (r) => r.push("/master-cv") },
+  { id: "cv-audit", label: "Audit & rebuild my CV for ATS", hint: "CV Audit", run: (r) => r.push("/cv-audit") },
   { id: "companies", label: "Browse the employer directory", hint: "Companies", run: (r) => r.push("/companies") },
   { id: "universities", label: "Browse universities", hint: "Universities", run: (r) => r.push("/universities") },
   { id: "colleges", label: "Browse colleges & SETAs", hint: "Colleges & SETAs", run: (r) => r.push("/colleges") },

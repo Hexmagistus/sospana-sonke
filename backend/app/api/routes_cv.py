@@ -177,6 +177,9 @@ def delete_cv(cv_id: str, db: Session = Depends(get_db), user: User = Depends(ge
     # Soft-delete the record; remove the stored file (data-minimisation, POPIA).
     from datetime import datetime, timezone
     cv.deleted_at = datetime.now(timezone.utc)
+    # Audits of this CV hold a copy of its content; remove them with it (POPIA).
+    from app.models.cv_audit import CVAudit
+    db.query(CVAudit).filter(CVAudit.cv_id == cv.id).delete(synchronize_session=False)
     try:
         get_storage().delete(cv.storage_key)
     except Exception:

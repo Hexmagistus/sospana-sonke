@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { api } from "@/lib/api";
 import { Card, Button, Alert, Spinner } from "@/components/ui";
@@ -172,6 +173,11 @@ export function CvUpload({ onApplied }: { onApplied?: () => void }) {
                 <button onClick={() => api.download(`/cv/${cv.id}/download`, cv.original_filename)} className="font-medium text-brand hover:underline">
                   Download
                 </button>
+                {cv.parse_status !== "failed" && (
+                  <Link href={`/cv-audit?cv=${cv.id}`} className="font-medium text-brand hover:underline">
+                    Audit &amp; rebuild
+                  </Link>
+                )}
                 {cv.parse_status === "parsed" && (
                   <button onClick={() => reapply(cv.id)} className="font-medium text-brand hover:underline" disabled={busy}>
                     Import again

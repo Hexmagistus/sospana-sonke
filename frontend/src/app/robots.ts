@@ -23,6 +23,7 @@ export default function robots(): MetadataRoute.Robots {
           "/notifications",
           "/subscription",
           "/tailor",
+          "/cv-audit",
           "/security",
           "/companies",
           "/coverage",

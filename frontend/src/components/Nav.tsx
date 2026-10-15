@@ -21,6 +21,7 @@ const LINKS = [
   // Companies, Universities, Colleges & SETAs, Hospitals, NGOs, Government (lib/explorer/categoryGroups.ts).
   ...EXPLORER_NAV,
   { href: "/tailor", label: "CV Builder" },
+  { href: "/cv-audit", label: "CV Audit" },
   { href: "/profile", label: "Profile" },
   { href: "/preferences", label: "Preferences" },
   { href: "/messages", label: "Messages" },

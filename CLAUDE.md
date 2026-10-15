@@ -75,6 +75,28 @@ A careers landing page is enough for that same set, even when the HTML lists no 
 
 ## Session Log
 
+### 2026-10-15 — Claude (Cowork, Opus 5.5) — NEW: ATS CV Audit & Rebuild ("CV Doctor", /cv-audit)
+Lungani sent a 7-phase "Professional ATS CV audit, optimisation and executive-level redesign" master
+prompt and said "add this skill to sospana sonke" — built it as a platform feature, not a one-off.
+- Backend package `app/documents/cv_audit/` (inspect → parse → rewrite → render → scoring → stress →
+  directions/checklist → report), `CVAudit` model (new `cv_audits` table, create_all handles it),
+  `services/cv_audit_service.py`, `api/routes_cv_audit.py` (`/cv-audits`: run, list, get, PUT edits,
+  `file/{docx|pdf|report}`, delete). Fully deterministic — no AI call, no cost.
+- Truthfulness: never adds numbers/titles/qualifications; verbs never upgraded ("assisted" stays);
+  qualification status kept (completed / in progress / awaiting conferral / to be confirmed);
+  sensitive personal data (ID, DOB, gender, marital status…) and referees dropped and listed in the
+  checklist. Test `test_rebuild_never_invents_numbers_or_upgrades_verbs` enforces this.
+- PDF uses bundled Carlito TTF (SIL OFL, `app/documents/fonts/`) so text extracts cleanly (Helvetica
+  turned bullets into `\x7f` for pypdf). Stress test re-extracts both files and re-parses them.
+- POPIA: audits hard-deleted with their CV and on account erasure. Rate limits on run/edit/download.
+- Frontend: `app/cv-audit/page.tsx` (scores, findings, editable rebuilt CV, stress test, checklist,
+  career directions, downloads), Nav "CV Audit", Command Palette entry, "Audit & rebuild" link on each
+  uploaded CV in `CvUpload.tsx`, robots disallow. `tsc` + `next build` clean (font stubbed locally only).
+- Tests: `tests/test_cv_audit.py` (8) + full backend suite green.
+- Next ideas: optional Claude-polish of bullets behind the numeric guard; feed the rebuilt CV into the
+  profile/Master CV with one click.
+
+
 ### 2026-10-14 — Cursor (Grok 4.7) — Listing quality and jobs paging
 Public pages hide a stored row when it is a news article, a blog post, or a generic careers page; when it was posted more than 120 days ago and has no closing date; when the title or body contains a year from 2019 through the year before today; or when its own link answers 404 or 410. `review_listing_quality` stamps those rows expired, writes the counts on an admin audit row, and checks a batch of links. The existing purge then backs them up and deletes them. The quality score starts at 100. A past year costs 80, a stale posting costs 70, and a non-opportunity or a dead link costs 100. `GET /jobs` accepts an offset up to 100000, so offset 550 is a normal page. On the current public API, before this is deployed, a title search found 482 distinct open listings whose titles contain a year from 2019 to 2025. That sample also included generic careers pages and appointment headlines. Body-only years, stale posting dates, and dead links are not in that 482. Pull requests #69 and #70 were not touched.
 

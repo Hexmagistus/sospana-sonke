@@ -36,3 +36,4 @@ from app.models.organisation import (  # noqa: F401
     EmployerAccount, EmployerPlanConfig, EmployerOpportunity, EmployerEntitlement,
     EmployerInvoice, EmployerPaymentEvent, EmployerCorrection, EmployerAuditEvent,
 )
+from app.models.cv_audit import CVAudit  # noqa: F401
