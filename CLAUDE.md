@@ -98,6 +98,19 @@ prompt and said "add this skill to sospana sonke" — built it as a platform fea
   confirmed rows never touched, unconfirmed matching roles only get empty fields filled, scalar
   profile fields only filled when empty. Non-completed qualifications keep their status in the title
   ("… (in progress)", "… (completed – awaiting conferral)") so the Master CV can't present them as awarded.
+- Later the same day (Lungani: "100% ATS compliant all the time" and "include references, SA standard"):
+  new `cv_audit/compliance.py` — `sanitize_cv` runs inside both renderers and on every save (strips
+  emoji/icons/Word symbol bullets/control chars/rating stars, one date format, splits >32-char
+  tokens that PDF wrapping would break, caps lengths, dedupes bullets). `stress.py` is now a gate:
+  ATS-format checks (files open, clean encoding, name first, standard headings in order, contact in
+  body, roles/qualifications/keywords/referees extract in reading order, no tables/text boxes/
+  columns/images/header-footer, consistent dates) must all pass, with a re-render fallback;
+  `content_blockers` lists what only the candidate can supply (email, phone, titles, dates) — never
+  invented. Result fields `ats_compliant` / `ats_ready`. A seeded fuzz test (30 hostile CVs; 175
+  checked locally) proves every render passes. References are now KEPT (SA standard): parsed into
+  {name, details, phone, email} (labelled, one-line and multi-line layouts; stray text dropped),
+  rendered last under "References", editable on the page; the checklist asks for 2–3 if fewer;
+  a referee's number is never taken as the candidate's phone.
 - Next idea: optional Claude-polish of bullets behind the numeric guard.
 
 

@@ -27,7 +27,9 @@ type Rebuilt = {
   education: Education[]; current_studies: Education[]; certifications: Cert[]; short_courses: Cert[];
   in_progress_certs: Cert[]; registrations: Cert[]; projects: string[]; achievements: string[];
   languages: string[]; drivers_licence: string | null;
+  references: Referee[]; references_on_request: boolean;
 };
+type Referee = { name: string | null; details: string | null; phone: string | null; email: string | null };
 type Check = { area: string; ok: boolean; detail: string };
 type ChecklistItem = { category: string; item: string; why: string; priority: "high" | "medium" | "low" };
 type Direction = { id: string; title: string; why: string; emphasise: string[]; credentials: string[]; targeted_cv: string };
@@ -44,7 +46,11 @@ type Audit = AuditSummary & {
   document_facts: Record<string, unknown>; findings: Finding[];
   weaknesses: { issue: string; impact: string; severity: string }[];
   rebuilt: Rebuilt; change_log: { area: string; change: string }[];
-  stress: { checks: Check[]; passed: number; total: number; pages: number; compact: boolean; extracted_text_preview: string };
+  stress: {
+    checks: Check[]; passed: number; total: number; pages: number; compact: boolean; extracted_text_preview: string;
+    ats_compliant?: boolean; ats_ready?: boolean; length_note?: string | null;
+    content_blockers?: { field: string; message: string }[];
+  };
   pages: number; limitations: string[]; checklist: ChecklistItem[]; directions: Direction[];
 };
 
@@ -302,6 +308,18 @@ function CvAuditInner() {
                 </Button>
               </div>
             </div>
+            {(audit.stress.content_blockers?.length ?? 0) > 0 && (
+              <div className="mt-3">
+                <Alert kind="info">
+                  <span className="font-semibold">The format is fully ATS-compliant. To make it ATS-ready, only you can add:</span>
+                  <ul className="mt-1 list-disc pl-5">
+                    {audit.stress.content_blockers!.map((b, i) => <li key={i}>{b.message}</li>)}
+                  </ul>
+                  <button className="mt-1 font-semibold underline" onClick={() => setTab("Rebuilt CV")}>Add them on the Rebuilt CV tab</button>
+                  {" "}— we never make these up.
+                </Alert>
+              </div>
+            )}
             {applied && (
               <div className="mt-3">
                 <Alert kind="success">
@@ -327,8 +345,11 @@ function CvAuditInner() {
             )}
             <p className="mt-3 text-xs text-ss-muted">{audit.final_scores.disclaimer}</p>
             <div className="mt-2 flex flex-wrap gap-2 text-xs">
-              <StatusBadge tone={audit.stress.passed === audit.stress.total ? "verified" : "closing"}>
-                {`Stress test ${audit.stress.passed}/${audit.stress.total}`}
+              <StatusBadge tone={audit.stress.ats_compliant ? "verified" : "closing"}>
+                {audit.stress.ats_compliant ? "ATS format: 100% compliant" : `Stress test ${audit.stress.passed}/${audit.stress.total}`}
+              </StatusBadge>
+              <StatusBadge tone={audit.stress.ats_ready ? "live" : "new"}>
+                {audit.stress.ats_ready ? "ATS-ready" : "Details needed"}
               </StatusBadge>
               <StatusBadge tone="neutral">{`${audit.pages} page${audit.pages === 1 ? "" : "s"}`}</StatusBadge>
               {audit.checklist.some((c) => c.priority === "high") && (
@@ -590,6 +611,39 @@ function RebuiltEditor({ draft, setDraft, dirty, saving, onSave, onReset }: {
             <Textarea rows={3} value={draft.projects.join("\n")} onChange={(e) => set("projects", e.target.value.split("\n"))} onBlur={(e) => set("projects", lines(e.target.value))} />
           </Field>
         </div>
+      </Card>
+
+      <Card>
+        <h2 className="mb-1 font-semibold text-ss-text">References</h2>
+        <p className="mb-3 text-sm text-ss-muted">
+          South African employers expect two or three referees. Ask each person&apos;s permission first and prefer recent supervisors.
+        </p>
+        <div className="space-y-4">
+          {(draft.references || []).map((r, i) => {
+            const setRef = (patch: Partial<Referee>) =>
+              set("references", draft.references.map((x, j) => (j === i ? { ...x, ...patch } : x)));
+            return (
+              <div key={i} className="grid gap-3 rounded-xl border border-ss-border p-3 md:grid-cols-2">
+                <Field label="Name"><Input value={r.name || ""} maxLength={120} onChange={(e) => setRef({ name: e.target.value })} /></Field>
+                <Field label="Job title and organisation"><Input value={r.details || ""} maxLength={200} onChange={(e) => setRef({ details: e.target.value || null })} /></Field>
+                <Field label="Phone"><Input value={r.phone || ""} maxLength={40} onChange={(e) => setRef({ phone: e.target.value || null })} /></Field>
+                <Field label="Email (optional)"><Input value={r.email || ""} maxLength={160} onChange={(e) => setRef({ email: e.target.value || null })} /></Field>
+                <div className="md:col-span-2">
+                  <button className="text-sm font-medium text-ss-danger hover:underline"
+                    onClick={() => set("references", draft.references.filter((_, j) => j !== i))}>Remove referee</button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        {(draft.references || []).length < 5 && (
+          <div className="mt-3">
+            <Button variant="secondary" size="sm"
+              onClick={() => set("references", [...(draft.references || []), { name: "", details: null, phone: null, email: null }])}>
+              Add a referee
+            </Button>
+          </div>
+        )}
       </Card>
 
       <div className="sticky bottom-20 z-10 flex flex-wrap items-center justify-end gap-2 rounded-2xl border border-ss-border bg-ss-surface p-3 shadow-lg md:bottom-4">

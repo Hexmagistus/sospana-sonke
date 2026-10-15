@@ -17,6 +17,8 @@ import io
 import re
 from xml.sax.saxutils import escape
 
+from app.documents.cv_audit.compliance import sanitize_cv
+
 NAVY = (0x1B, 0x2A, 0x4A)
 CHARCOAL = (0x33, 0x3D, 0x4A)
 ACCENT = (0x0F, 0x76, 0x6E)
@@ -132,13 +134,24 @@ def sections(cv: dict) -> list[dict]:
         extra.append({"type": "labelled", "label": "Driver’s licence", "text": cv["drivers_licence"]})
     if extra:
         out.append({"title": "Additional Information", "blocks": extra})
+
+    # South African CVs carry referees at the end (the local standard).
+    refs = [r for r in cv.get("references") or [] if r.get("name")]
+    if refs:
+        blocks = []
+        for r in refs:
+            meta = "  |  ".join(x for x in [r.get("details"), r.get("phone"), r.get("email")] if x)
+            blocks.append({"type": "entry", "title": r["name"], "meta": meta})
+        out.append({"title": "References", "blocks": blocks})
+    elif cv.get("references_on_request"):
+        out.append({"title": "References", "blocks": [{"type": "para", "text": "Available on request."}]})
     return out
 
 
 # ---- DOCX -------------------------------------------------------------------------
 
 def render_docx(cv: dict, compact: bool = False) -> bytes:
-    cv = _safe(cv)
+    cv = _safe(sanitize_cv(cv))
     from docx import Document
     from docx.enum.text import WD_ALIGN_PARAGRAPH
     from docx.oxml import OxmlElement
@@ -288,7 +301,7 @@ def _pdf_fonts() -> dict[str, str]:
     return _FONTS
 
 def render_pdf(cv: dict, compact: bool = False) -> bytes:
-    cv = _safe(cv)
+    cv = _safe(sanitize_cv(cv))
     from reportlab.lib import colors
     from reportlab.lib.pagesizes import A4
     from reportlab.lib.styles import ParagraphStyle

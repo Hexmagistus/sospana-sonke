@@ -45,6 +45,12 @@ def _impact_for(area: str) -> str:
 
 def limitations(rebuilt: dict, stress: dict, checklist: list[dict]) -> list[str]:
     out = []
+    if stress.get("ats_compliant"):
+        out.append("ATS format: fully compliant — every format check on the finished DOCX and PDF passed.")
+    for b in stress.get("content_blockers") or []:
+        out.append(f"Needed for an ATS-ready CV: {b['message']}")
+    if stress.get("length_note"):
+        out.append(stress["length_note"])
     failed = [c for c in stress["checks"] if not c["ok"]]
     for c in failed:
         out.append(f"{c['area']}: {c['detail']}")

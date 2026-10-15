@@ -615,6 +615,87 @@ def _parse_list(lines: list[str]) -> list[str]:
     return out
 
 
+_REF_LABEL = re.compile(r"^\s*(name|referee|contact person|position|title|designation|relationship|company|"
+                        r"organi[sz]ation|employer|tel(?:ephone)?|phone|cell(?:phone)?|mobile|contact(?: no| number)?|"
+                        r"e-?mail)\s*[:\-–]\s*(.+)$", re.I)
+_REF_ON_REQUEST = re.compile(r"\b(?:available|furnished|provided)\s+(?:up)?on\s+request\b", re.I)
+
+
+def _parse_references(lines: list[str]) -> tuple[list[dict], bool]:
+    """Referees as {name, details, phone, email}. Returns (referees, 'available on request')."""
+    refs: list[dict] = []
+    cur: dict | None = None
+    on_request = False
+
+    def flush():
+        nonlocal cur
+        if cur and (cur["name"] or cur["phone"] or cur["email"]):
+            cur["details"] = ", ".join(d for d in cur["details"] if d)
+            name = cur["name"] or ""
+            plausible = bool(cur["phone"] or cur["email"]) or bool(
+                re.match(r"(?i)^(?:mr|mrs|ms|miss|dr|prof|rev|adv)\.?\s", name)) or _looks_like_name(name)
+            # Text that drifted under the heading (e.g. a skills table a DOCX
+            # extractor appends at the end) is not a referee.
+            if plausible:
+                refs.append(cur)
+        cur = None
+
+    def new():
+        return {"name": None, "details": [], "phone": None, "email": None}
+
+    for raw in lines:
+        line = _strip_bullet(raw) if _is_bullet(raw) else _clean(raw)
+        if not line:
+            continue
+        if _REF_ON_REQUEST.search(line):
+            on_request = True
+            continue
+        m = _REF_LABEL.match(line)
+        if m:
+            key, val = m.group(1).lower(), m.group(2).strip()
+            if key in ("name", "referee", "contact person"):
+                if cur and (cur["name"] or cur["phone"]):
+                    flush()
+                cur = cur or new()
+                cur["name"] = val
+            elif key.startswith(("tel", "phone", "cell", "mobile", "contact")):
+                cur = cur or new()
+                ph = PHONE.search(val)
+                cur["phone"] = _clean(ph.group(0)) if ph else val
+            elif key.startswith(("e-mail", "email", "e mail")) or "mail" in key:
+                cur = cur or new()
+                em = EMAIL.search(val)
+                cur["email"] = em.group(0) if em else val
+            else:
+                cur = cur or new()
+                cur["details"].append(val)
+            continue
+        em = EMAIL.search(line)
+        ph = PHONE.search(line)
+        rest = line
+        if em:
+            rest = rest.replace(em.group(0), " ")
+        if ph:
+            rest = rest.replace(ph.group(0), " ")
+        rest = re.sub(r"\b(?:tel|cell|phone|mobile|e-?mail|contact)\b\s*[:.]?", " ", rest, flags=re.I)
+        pieces = [p.strip(" ,;|-–—:()") for p in re.split(r"\s*[,|;]\s*|\s[–—-]\s", rest) if p.strip(" ,;|-–—:()")]
+        if cur and (cur["phone"] or cur["email"]) and pieces and cur["name"]:
+            flush()  # contact details close a referee; a new named line starts the next one
+        cur = cur or new()
+        if pieces:
+            if not cur["name"]:
+                cur["name"] = pieces[0]
+                cur["details"] += pieces[1:]
+            else:
+                cur["details"] += pieces
+        if ph and not cur["phone"]:
+            cur["phone"] = _clean(ph.group(0))
+        if em and not cur["email"]:
+            cur["email"] = em.group(0)
+    flush()
+    return refs[:5], on_request
+
+
 def parse_cv_text(text: str) -> dict:
     raw_lines = normalise_lines(text.splitlines())
     sections, headings = _sections(raw_lines)
@@ -624,7 +705,8 @@ def parse_cv_text(text: str) -> dict:
         "linkedin_url": None, "links": [], "summary": None, "skills": [], "software": [],
         "experience": [], "education": [], "certifications": [], "languages": [],
         "drivers_licence": None, "projects": [], "achievements": [], "memberships": [], "interests": [],
-        "sensitive": [], "references_present": False, "headings": headings,
+        "sensitive": [], "references_present": False, "references": [], "references_on_request": False,
+        "headings": headings,
     }
 
     # ---- Contact (anywhere in the document) ----
@@ -632,9 +714,13 @@ def parse_cv_text(text: str) -> dict:
     cv["email"] = em.group(0) if em else None
     li = LINKEDIN.search(text)
     cv["linkedin_url"] = li.group(0).rstrip(".") if li else None
+    # Referees' numbers are not the candidate's: skip those sections.
+    referee_text = {x for canon, body in sections if canon == "references" for x in body}
     for raw in raw_lines:
         if cv["phone"]:
             break
+        if raw in referee_text:
+            continue
         if SA_ID.search(raw) and re.search(r"\bid\b|identity", raw, re.I):
             continue
         for m in PHONE.finditer(raw):
@@ -736,7 +822,10 @@ def parse_cv_text(text: str) -> dict:
         elif canon == "languages":
             cv["languages"] += [x for x in _parse_list(body) if x not in cv["languages"]]
         elif canon == "references":
-            cv["references_present"] = True
+            refs, on_request = _parse_references(body)
+            cv["references"] += refs
+            cv["references_on_request"] = cv["references_on_request"] or on_request
+            cv["references_present"] = bool(cv["references"]) or on_request
         elif canon == "interests":
             cv["interests"] += _parse_list(body)
 

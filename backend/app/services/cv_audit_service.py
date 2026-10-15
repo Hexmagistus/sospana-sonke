@@ -6,6 +6,7 @@ import logging
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
+from app.documents.cv_audit.compliance import sanitize_cv
 from app.documents.cv_audit.directions import build_checklist, career_directions
 from app.documents.cv_audit.inspect import inspect_document
 from app.documents.cv_audit.parse import parse_cv_text
@@ -86,7 +87,7 @@ def run_audit(db: Session, user: User, cv_id: str) -> CVAudit:
     # Normalise through the same schema the edit endpoint uses so the stored
     # shape never differs between a fresh audit and an edited one.
     from app.schemas.cv_audit import RebuiltCV
-    rebuilt = RebuiltCV.model_validate(_fit(rebuilt)).model_dump()
+    rebuilt = sanitize_cv(RebuiltCV.model_validate(_fit(rebuilt)).model_dump())
 
     audit = CVAudit(
         user_id=user.id, cv_id=cv.id, source_filename=cv.original_filename,
@@ -138,7 +139,7 @@ def update_rebuilt(db: Session, user: User, audit_id: str, rebuilt: dict) -> CVA
     rebuilt["competencies"] = comp
     rebuilt["experience"] = [{**e, "bullets": [b.strip() for b in e.get("bullets", []) if b and b.strip()]}
                              for e in rebuilt.get("experience", [])]
-    audit.rebuilt = rebuilt
+    audit.rebuilt = sanitize_cv(rebuilt)
     audit.edited_by_candidate = True
     _finalise(audit)
     db.commit()

@@ -50,7 +50,7 @@ def view_from_parsed(parsed: dict, text: str, findings: list[dict]) -> dict:
         "headings": parsed.get("headings", []), "skills": parsed.get("skills", []),
         "experience": parsed.get("experience", []), "education": parsed.get("education", []),
         "certifications": parsed.get("certifications", []), "bullets": bullets,
-        "sensitive": parsed.get("sensitive", []), "references": parsed.get("references_present", False),
+        "sensitive": parsed.get("sensitive", []), "references": len(parsed.get("references", [])),
         "findings": findings, "text": text, "date_formats": date_formats(text), "parsed": parsed,
         "rebuilt": False,
     }
@@ -67,7 +67,7 @@ def view_from_rebuilt(cv: dict, text: str, findings: list[dict], parsed: dict) -
         "skills": skills, "experience": cv.get("experience", []),
         "education": (cv.get("education", []) + cv.get("current_studies", [])),
         "certifications": cv.get("certifications", []), "bullets": bullets,
-        "sensitive": [], "references": False, "findings": findings, "text": text,
+        "sensitive": [], "references": len(cv.get("references") or []), "findings": findings, "text": text,
         "date_formats": date_formats(text), "parsed": parsed, "rebuilt": True,
     }
 
@@ -80,7 +80,7 @@ def _ats(v: dict) -> tuple[int, list[str]]:
         d = {"high": 15, "medium": 8, "low": 3}.get(f["severity"], 3)
         score -= d
         basis.append(f"−{d}: {f['message']}")
-    nonstd = [h for h in v["headings"] if h["canonical"] in ("_other", "personal", "references", "declaration",
+    nonstd = [h for h in v["headings"] if h["canonical"] in ("_other", "personal", "declaration",
                                                              "contact")]
     if nonstd:
         d = min(12, 4 * len(nonstd))
@@ -148,9 +148,6 @@ def _content(v: dict) -> tuple[int, list[str]]:
         d = min(12, 3 * len(v["sensitive"]))
         score -= d
         basis.append(f"−{d}: unnecessary personal data ({', '.join(s['label'] for s in v['sensitive'][:4])}).")
-    if v["references"]:
-        score -= 3
-        basis.append("−3: referee details listed in full (an outdated use of space).")
     if not v["experience"]:
         score -= 20
         basis.append("−20: no work experience entries could be identified.")
@@ -213,9 +210,6 @@ def _presentation(v: dict) -> tuple[int, list[str]]:
     if v["sensitive"]:
         score -= 6
         basis.append("−6: a personal-details block takes prime space at the top of the CV.")
-    if v["references"]:
-        score -= 3
-        basis.append("−3: full referee list adds length without adding value at screening stage.")
     long_bullets = [b for b in v["bullets"] if len(b.split()) > 32]
     if long_bullets:
         score -= min(8, 2 * len(long_bullets))
@@ -226,7 +220,7 @@ def _presentation(v: dict) -> tuple[int, list[str]]:
 
 
 def _effectiveness(v: dict) -> tuple[int, list[str]]:
-    score, basis = 34.0, []
+    score, basis = 30.0, []
     if v["headline"]:
         score += 10
         basis.append("+10: a headline states your professional identity at a glance.")
@@ -249,6 +243,11 @@ def _effectiveness(v: dict) -> tuple[int, list[str]]:
         score += add
         basis.append(f"+{add}: {quantified} of {len(bullets)} bullet points carry a verified figure or outcome"
                      + (" — add real numbers where you can evidence them." if quantified < len(bullets) / 3 else "."))
+    if v["references"] >= 2:
+        score += 4
+        basis.append(f"+4: {v['references']} referees listed, as South African employers expect.")
+    else:
+        basis.append("+0: fewer than two referees listed — South African employers usually expect two or three.")
     dated = [e for e in v["experience"] if e.get("start")]
     if v["experience"] and len(dated) == len(v["experience"]):
         score += 6

@@ -225,9 +225,19 @@ def build_checklist(parsed: dict, rebuilt: dict) -> list[dict]:
             + ". Supply these only if an application form specifically asks.",
             "They are not needed to assess your suitability and can expose you to bias; some South African "
             "employers request ID or equity information on the application form instead of the CV.", "low")
-    if parsed.get("references_present"):
-        add("References", "Prepare two or three referees (name, role, relationship, phone) to send on request.",
-            "Referee details were removed from the CV to save space and protect their privacy.", "low")
+    refs = rebuilt.get("references") or []
+    if len(refs) < 2:
+        add("References", f"Add {'two or three' if not refs else 'one or two more'} referees: name, job title, "
+                          "organisation and phone number (or email).",
+            "South African employers expect references on the CV. Ask each referee's permission first, and "
+            "prefer recent supervisors over friends or family.", "high")
+    for r in refs:
+        if not (r.get("phone") or r.get("email")):
+            add("References", f"Add a phone number or email for {r.get('name') or 'one referee'}.",
+                "A referee without contact details cannot be checked.", "medium")
+        if not r.get("details"):
+            add("References", f"Add the job title and organisation for {r.get('name') or 'one referee'}.",
+                "Recruiters want to see how the referee knows your work.", "low")
     if not parsed.get("achievements"):
         add("Achievements", "Do you have awards, recognition, improvement projects or commendations to add?",
             "None were found; a short Achievements section strengthens a technical CV.", "low")

@@ -59,6 +59,13 @@ class CertIn(BaseModel):
     status: str = Field(default="completed", max_length=20)
 
 
+class RefereeIn(BaseModel):
+    name: str | None = Field(default=None, max_length=120)
+    details: str | None = Field(default=None, max_length=200)
+    phone: str | None = Field(default=None, max_length=40)
+    email: str | None = Field(default=None, max_length=160)
+
+
 class RebuiltCV(BaseModel):
     """What the candidate may edit before downloading. Every string is capped
     so a hostile client can't push a multi-MB document through the renderer."""
@@ -83,6 +90,8 @@ class RebuiltCV(BaseModel):
     achievements: list[str] = Field(default_factory=list, max_length=10)
     languages: list[str] = Field(default_factory=list, max_length=12)
     drivers_licence: str | None = Field(default=None, max_length=60)
+    references: list[RefereeIn] = Field(default_factory=list, max_length=5)
+    references_on_request: bool = False
 
 
 class CVAuditSummary(BaseModel):

@@ -54,6 +54,7 @@ def test_parser_extracts_roles_dates_and_statuses():
     kinds = {s["kind"] for s in cv["sensitive"]}
     assert {"id_number", "date_of_birth", "gender", "marital_status"} <= kinds
     assert cv["references_present"] is True
+    assert cv["phone"] == "082 555 0199"
 
 
 def test_parser_repairs_pdf_bullet_artefacts():
@@ -87,8 +88,13 @@ def test_rebuild_never_invents_numbers_or_upgrades_verbs():
     assert [e["position"] for e in cv["experience"]][1] == "Rolls Plant Process Controller"
     assert cv["current_studies"][0]["qualification"] == "Postgraduate Diploma in Operations Management"
     # Sensitive data never reaches the rebuilt CV.
-    blob = repr(cv)
-    assert "9001015009087" not in blob and "Married" not in blob and "Mokoena" not in blob
+    blob = repr({k: v for k, v in cv.items() if k != "references"})
+    assert "9001015009087" not in blob and "Married" not in blob
+    # References are the South African standard: kept, and the referee's number is never
+    # mistaken for the candidate's own.
+    assert cv["references"] == [{"name": "Mr T. Mokoena", "details": "Shift Supervisor",
+                                 "phone": "016 555 0100", "email": None}]
+    assert cv["phone"] == "082 555 0199"
     # Acronyms spelt out once, in reading order (competencies come before experience).
     comps = [t for ts in cv["competencies"].values() for t in ts]
     assert "Supervisory Control and Data Acquisition (SCADA)" in comps
@@ -230,3 +236,111 @@ def test_apply_rebuilt_cv_to_profile_is_add_only_and_keeps_status(client):
     _, other = register_and_login(client, email="nosy@example.com")
     assert client.post(f"/api/v1/cv-audits/{audit['id']}/apply-to-profile", headers=_auth(other),
                        json={}).status_code == 404
+
+
+# ---- ATS compliance guarantee ------------------------------------------------------------
+
+_HOSTILE_BITS = ["🚀 ", "★★★☆☆ ", "\t", "  ", "• ", " ", "➤ ", "<b>", "&", "​", "\x07", "✔ ",
+                 "“quoted”", "R12 500", "x" * 60, "Ñandú – São Tomé", "isiZulu", "50%"]
+_ODD_DATES = ["03/2021", "January 2020", "2019/05", "2018", "Sept 2017", "present", "", None, "to date"]
+
+
+def _hostile_cv(rng) -> dict:
+    def txt(base: str) -> str:
+        return base + "".join(rng.choice(_HOSTILE_BITS) for _ in range(rng.randint(0, 3)))
+
+    roles = []
+    for i in range(rng.randint(0, 14)):
+        current = i == 0 and rng.random() < 0.6
+        roles.append({
+            "position": txt(rng.choice(["Process Controller", "Lab Analyst", "Ops Lead", ""])) or None,
+            "employer": txt(rng.choice(["Rand Water", "Acme (Pty) Ltd", "Société Générale", ""])) or None,
+            "location": rng.choice([None, "Vereeniging, Gauteng", "Paris"]),
+            "start": rng.choice(_ODD_DATES), "end": rng.choice(_ODD_DATES), "is_current": current,
+            "bullets": [txt(rng.choice(["Monitored tanks.", "- Ran SCADA", "• Did QA & QC", "x" * 500]))
+                        for _ in range(rng.randint(0, 25))],
+        })
+    edu = [{"qualification": txt("National Diploma: Biotechnology"), "institution": rng.choice(["VUT", None]),
+            "date_text": rng.choice(["2016", "Jan 2014 - Dec 2016", "03/2021", None]),
+            "status": rng.choice(["completed", "in_progress", "awaiting_conferral", "unverified"])}
+           for _ in range(rng.randint(0, 5))]
+    return {
+        "full_name": rng.choice([txt("Nomvula Mthembu-Ndlovu"), None, "José da Silva 😀"]),
+        "headline": txt("Process Controller | Water"),
+        "email": rng.choice(["n.mthembu@example.com", None]), "phone": rng.choice(["082 555 0199", None]),
+        "location": rng.choice(["Vereeniging, Gauteng", None]),
+        "summary": txt("Experienced operator. " * rng.randint(0, 40)),
+        "competencies": {txt("Water & Wastewater"): [txt("Jar testing"), txt("SCADA"), txt("Chemical dosing")]
+                         for _ in range(rng.randint(0, 2))},
+        "software": [txt("Microsoft Excel")], "experience": roles, "education": edu,
+        "current_studies": edu[:1], "certifications": [{"name": txt("First Aid Level 1"), "issuer": None,
+                                                         "year": "2023", "kind": "short_course",
+                                                         "status": "completed"}],
+        "languages": [txt("English"), "isiZulu"], "drivers_licence": rng.choice([None, "Code 10 (C1)"]),
+        "projects": [txt("Commissioned filter 5")], "achievements": [],
+        "references": [{"name": txt("Mr T. Mokoena"), "details": txt("Shift Supervisor, Rand Water"),
+                        "phone": rng.choice(["016 555 0100", None]), "email": rng.choice([None, "t@rw.co.za"])}
+                       for _ in range(rng.randint(0, 4))],
+    }
+
+
+def test_every_rebuilt_cv_is_ats_compliant_even_with_hostile_input():
+    """Whatever the parser found or the candidate typed — emoji, rating stars, Word
+    symbol bullets, tabs, HTML-ish text, odd date formats, 14 roles with 25 bullets,
+    missing fields — the generated files must pass every ATS-format check."""
+    import random
+    from app.documents.cv_audit.stress import stress_test
+    rng = random.Random(20261015)
+    for case in range(30):
+        cv = _hostile_cv(rng)
+        result = stress_test(cv)
+        failed = [c for c in result["checks"] if not c["ok"]]
+        assert result["ats_compliant"], (case, failed)
+        assert not re.search(r"[\U0001f000-\U0001faff★☆\x07​]", result["pdf_text"]), case
+
+
+def test_missing_contact_is_a_content_blocker_not_invented():
+    from app.documents.cv_audit.parse import parse_cv_text
+    from app.documents.cv_audit.rewrite import build_rebuilt_cv
+    from app.documents.cv_audit.stress import stress_test
+    text = SOURCE.replace("Cell: 082 555 0199 | Email: sipho.nkosi@example.com", "")
+    cv, _ = build_rebuilt_cv(parse_cv_text(text), text)
+    result = stress_test(cv)
+    assert result["ats_compliant"] is True
+    assert result["ats_ready"] is False
+    fields = {b["field"] for b in result["content_blockers"]}
+    assert {"email", "phone"} <= fields
+    assert "@" not in result["pdf_text"]
+
+
+def test_references_parse_in_common_south_african_layouts():
+    from app.documents.cv_audit.parse import _parse_references
+    refs, _ = _parse_references([
+        "1. John Smith – Production Manager, ABC Foods – 082 123 4567 – john@abc.co.za",
+        "2. Lerato Mokoena, HR Officer, Rand Water, 016 421 0000"])
+    assert [(r["name"], r["phone"]) for r in refs] == [("John Smith", "082 123 4567"),
+                                                        ("Lerato Mokoena", "016 421 0000")]
+    refs, _ = _parse_references(["Name: Mrs P Dlamini", "Position: Plant Manager", "Company: Sasol",
+                                 "Tel: 011 555 1234", "Name: Mr J Naidoo", "Email: j.naidoo@example.com"])
+    assert [r["name"] for r in refs] == ["Mrs P Dlamini", "Mr J Naidoo"]
+    assert refs[0]["details"] == "Plant Manager, Sasol"
+    assert _parse_references(["Available on request"]) == ([], True)
+    # Stray text under the heading (a DOCX skills table extracted at the end) is not a referee.
+    refs, _ = _parse_references(["Mr T. Mokoena, Shift Supervisor, 016 555 0100",
+                                 "Process monitoring ★★★★☆  SCADA  Jar testing"])
+    assert [r["name"] for r in refs] == ["Mr T. Mokoena"]
+
+
+def test_references_render_and_missing_ones_are_flagged():
+    from app.documents.cv_audit.parse import parse_cv_text
+    from app.documents.cv_audit.rewrite import build_rebuilt_cv
+    from app.documents.cv_audit.directions import build_checklist
+    from app.documents.cv_audit.stress import stress_test
+    parsed = parse_cv_text(SOURCE)
+    cv, _ = build_rebuilt_cv(parsed, SOURCE)
+    result = stress_test(cv)
+    assert result["ats_compliant"]
+    tail = result["pdf_text"][result["pdf_text"].find("REFERENCES"):]
+    assert "Mr T. Mokoena" in tail and "016 555 0100" in tail
+    items = [i["item"] for i in build_checklist(parsed, cv) if i["category"] == "References"]
+    assert any("one or two more" in i for i in items)   # only one referee given

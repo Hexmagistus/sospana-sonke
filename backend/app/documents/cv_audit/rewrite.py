@@ -629,8 +629,9 @@ def build_rebuilt_cv(parsed: dict, source_text: str) -> tuple[dict, list[dict]]:
     if parsed.get("sensitive"):
         log.append({"area": "Personal details", "change": "Removed: " + ", ".join(s["label"] for s in parsed["sensitive"])
                     + ". Not required on a professional CV and a POPIA/discrimination risk."})
-    if parsed.get("references_present"):
-        log.append({"area": "References", "change": "Referee names and numbers removed — provide them when requested."})
+    if parsed.get("references"):
+        log.append({"area": "References", "change": f"{len(parsed['references'])} referee(s) kept in a standard "
+                    "References section at the end, as South African employers expect."})
 
     edu = parsed.get("education", [])
     completed = [e for e in edu if e.get("status") == "completed"]
@@ -659,5 +660,7 @@ def build_rebuilt_cv(parsed: dict, source_text: str) -> tuple[dict, list[dict]]:
         "achievements": [polish_bullet(a, False)[0] for a in parsed.get("achievements", [])][:6],
         "languages": parsed.get("languages", []),
         "drivers_licence": parsed.get("drivers_licence"),
+        "references": [dict(r) for r in parsed.get("references", [])],
+        "references_on_request": bool(parsed.get("references_on_request")) and not parsed.get("references"),
     }
     return cv, log
