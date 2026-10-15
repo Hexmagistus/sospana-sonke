@@ -31,7 +31,7 @@ export default function WelcomeNote() {
   if (!open && !toast) return null;
 
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-20 z-30 mx-auto w-full max-w-lg space-y-2 px-4 md:bottom-6">
+    <div className="mx-auto mt-6 w-full max-w-lg space-y-2 md:pointer-events-none md:fixed md:inset-x-0 md:bottom-6 md:z-30 md:mt-0 md:px-4">
       {open ? (
         <aside className="ss-intel-card pointer-events-auto shadow-lg" aria-label="Welcome">
           <p className="text-base font-bold text-[#0c1b33]">New here? Three steps.</p>
