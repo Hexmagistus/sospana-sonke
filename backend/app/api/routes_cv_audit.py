@@ -4,6 +4,7 @@ POST   /cv-audits                 run the full audit + rebuild on one uploaded C
 GET    /cv-audits                 list the candidate's audits
 GET    /cv-audits/{id}            full result (findings, scores, rebuilt CV, checklist…)
 PUT    /cv-audits/{id}/cv         save the candidate's edits; re-runs stress test & scores
+POST   /cv-audits/{id}/apply-to-profile  copy the rebuilt CV into the profile (add-only, unconfirmed)
 GET    /cv-audits/{id}/file/{kind}  download: docx | pdf | report
 DELETE /cv-audits/{id}
 """
@@ -14,7 +15,9 @@ from app.core.deps import get_current_user
 from app.core.rate_limit import limiter, user_or_ip_key
 from app.db.session import get_db
 from app.models.user import User
-from app.schemas.cv_audit import CVAuditResponse, CVAuditSummary, RebuiltCV, RunAuditRequest
+from app.schemas.cv_audit import (
+    ApplyToProfileOptions, ApplyToProfileResult, CVAuditResponse, CVAuditSummary, RebuiltCV, RunAuditRequest,
+)
 from app.services import cv_audit_service as svc
 
 router = APIRouter(prefix="/cv-audits", tags=["cv-audit"])
@@ -42,6 +45,14 @@ def get_audit(audit_id: str, db: Session = Depends(get_db), user: User = Depends
 def update_cv(request: Request, audit_id: str, body: RebuiltCV, db: Session = Depends(get_db),
               user: User = Depends(get_current_user)):
     return CVAuditResponse.model_validate(svc.update_rebuilt(db, user, audit_id, body.model_dump()))
+
+
+@router.post("/{audit_id}/apply-to-profile", response_model=ApplyToProfileResult)
+@limiter.limit("30/hour", key_func=user_or_ip_key)
+def apply_to_profile(request: Request, audit_id: str, body: ApplyToProfileOptions | None = None,
+                     db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    opts = (body or ApplyToProfileOptions()).model_dump()
+    return ApplyToProfileResult(**svc.apply_audit_to_profile(db, user, audit_id, opts))
 
 
 @router.get("/{audit_id}/file/{kind}")

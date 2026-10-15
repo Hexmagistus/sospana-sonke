@@ -32,6 +32,10 @@ type Check = { area: string; ok: boolean; detail: string };
 type ChecklistItem = { category: string; item: string; why: string; priority: "high" | "medium" | "low" };
 type Direction = { id: string; title: string; why: string; emphasise: string[]; credentials: string[]; targeted_cv: string };
 type Finding = { code: string; severity: "high" | "medium" | "low"; area: string; message: string; impact: string };
+type ApplyResult = {
+  skills: number; work_experience: number; work_experience_updated: number; education: number;
+  certifications: number; profile_fields: string[]; skipped_duplicates: number;
+};
 type AuditSummary = {
   id: string; cv_id: string; source_filename: string; original_scores: Scores; final_scores: Scores;
   edited_by_candidate: boolean; created_at: string;
@@ -111,6 +115,8 @@ function CvAuditInner() {
   const [err, setErr] = useState("");
   const [msg, setMsg] = useState("");
   const [line, setLine] = useState(0);
+  const [applying, setApplying] = useState(false);
+  const [applied, setApplied] = useState<ApplyResult | null>(null);
 
   useEffect(() => {
     api.get<UploadedCv[]>("/cv").then((rows) => {
@@ -129,6 +135,7 @@ function CvAuditInner() {
   }, [busy]);
 
   function open(a: Audit) {
+    setApplied(null);
     setAudit(a);
     setDraft(JSON.parse(JSON.stringify(a.rebuilt)));
     setTab("Overview");
@@ -186,6 +193,23 @@ function CvAuditInner() {
       setErr((e as Error).message);
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function applyToProfile() {
+    if (!audit) return;
+    if (dirty && !window.confirm("You have unsaved edits. Only the last saved version is copied — continue anyway?")) return;
+    if (!window.confirm(
+      "Copy this rebuilt CV into your profile?\n\nWe only ADD: nothing already in your profile is changed or deleted, " +
+      "duplicates are skipped, and everything new is marked “from CV” until you confirm it. " +
+      "Qualifications that aren't completed keep their status in the title.")) return;
+    setApplying(true); setErr(""); setMsg(""); setApplied(null);
+    try {
+      setApplied(await api.post<ApplyResult>(`/cv-audits/${audit.id}/apply-to-profile`, {}));
+    } catch (e) {
+      setErr((e as Error).message);
+    } finally {
+      setApplying(false);
     }
   }
 
@@ -273,8 +297,34 @@ function CvAuditInner() {
                 <Button onClick={() => dl("docx")}>Download Word (.docx)</Button>
                 <Button variant="secondary" onClick={() => dl("pdf")}>Download PDF</Button>
                 <Button variant="ghost" onClick={() => dl("report")}>Audit report (PDF)</Button>
+                <Button variant="secondary" onClick={applyToProfile} loading={applying} disabled={applying}>
+                  Add to my profile
+                </Button>
               </div>
             </div>
+            {applied && (
+              <div className="mt-3">
+                <Alert kind="success">
+                  {(() => {
+                    const added = applied.skills + applied.work_experience + applied.education + applied.certifications;
+                    const parts = [
+                      applied.work_experience && `${applied.work_experience} role${applied.work_experience === 1 ? "" : "s"}`,
+                      applied.work_experience_updated && `${applied.work_experience_updated} existing role${applied.work_experience_updated === 1 ? "" : "s"} filled in`,
+                      applied.education && `${applied.education} qualification${applied.education === 1 ? "" : "s"}`,
+                      applied.certifications && `${applied.certifications} certificate${applied.certifications === 1 ? "" : "s"}`,
+                      applied.skills && `${applied.skills} skill${applied.skills === 1 ? "" : "s"}`,
+                      applied.profile_fields.length > 0 && `${applied.profile_fields.length} profile detail${applied.profile_fields.length === 1 ? "" : "s"}`,
+                    ].filter(Boolean);
+                    return added + applied.work_experience_updated + applied.profile_fields.length === 0
+                      ? "Your profile already has everything in this CV — nothing new to add."
+                      : `Added to your profile: ${parts.join(", ")}.${applied.skipped_duplicates ? ` ${applied.skipped_duplicates} item${applied.skipped_duplicates === 1 ? " was" : "s were"} already there and left untouched.` : ""} New items show as “from CV” until you confirm them.`;
+                  })()}{" "}
+                  <Link href="/profile" className="font-semibold underline">Review on your profile</Link>
+                  {" · "}
+                  <Link href="/master-cv" className="font-semibold underline">See your Master CV</Link>
+                </Alert>
+              </div>
+            )}
             <p className="mt-3 text-xs text-ss-muted">{audit.final_scores.disclaimer}</p>
             <div className="mt-2 flex flex-wrap gap-2 text-xs">
               <StatusBadge tone={audit.stress.passed === audit.stress.total ? "verified" : "closing"}>

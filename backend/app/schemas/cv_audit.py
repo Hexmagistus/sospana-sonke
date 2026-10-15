@@ -13,6 +13,24 @@ class RunAuditRequest(BaseModel):
     cv_id: str = Field(min_length=1, max_length=36)
 
 
+class ApplyToProfileOptions(BaseModel):
+    contact: bool = True
+    skills: bool = True
+    experience: bool = True
+    education: bool = True
+    certifications: bool = True
+
+
+class ApplyToProfileResult(BaseModel):
+    skills: int
+    work_experience: int
+    work_experience_updated: int
+    education: int
+    certifications: int
+    profile_fields: list[str]
+    skipped_duplicates: int
+
+
 class ExperienceIn(BaseModel):
     position: str | None = Field(default=None, max_length=_S)
     employer: str | None = Field(default=None, max_length=_S)

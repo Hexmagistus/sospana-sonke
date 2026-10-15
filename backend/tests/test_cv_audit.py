@@ -193,3 +193,40 @@ def test_unreadable_cv_is_refused(client):
     assert up.status_code == 201
     r = client.post("/api/v1/cv-audits", headers=_auth(tokens), json={"cv_id": up.json()["id"]})
     assert r.status_code == 409
+
+
+def test_apply_rebuilt_cv_to_profile_is_add_only_and_keeps_status(client):
+    _, tokens = register_and_login(client)
+    h = _auth(tokens)
+    # A role the candidate already confirmed by hand must never be touched.
+    client.post("/api/v1/profile/experience", headers=h, json={
+        "employer": "Barloworld Ingrain SA", "position": "Rolls Plant Process Controller",
+        "responsibilities": "My own wording."})
+    client.post("/api/v1/profile/skills", headers=h, json={"name": "Chemical dosing", "category": "technical"})
+    _, audit = _upload_and_audit(client, tokens)
+
+    r = client.post(f"/api/v1/cv-audits/{audit['id']}/apply-to-profile", headers=h, json={})
+    assert r.status_code == 200, r.text
+    res = r.json()
+    assert res["work_experience"] == 2 and res["skipped_duplicates"] >= 2
+    assert res["education"] == 4 and res["certifications"] == 3
+    assert "current_occupation" in res["profile_fields"]
+
+    facts = client.get("/api/v1/profile/master-cv", headers=h).json()
+    work = {w["employer"]: w for w in facts["experience"]}
+    assert work["Barloworld Ingrain SA"]["responsibilities"] == "My own wording."
+    rand = work["Rand Water"]
+    assert rand["is_current"] is True and rand["start_date"] == "2022-03-01"
+    assert rand["confirmed_by_candidate"] is False
+    quals = [e["qualification"] for e in facts["education"]]
+    assert "Postgraduate Diploma in Operations Management (completed – awaiting conferral)" in quals
+    assert "National Diploma: Biotechnology" in quals
+    assert [s for s in facts["skills"] if s.lower() == "chemical dosing"] == ["Chemical dosing"]
+
+    # Applying twice adds nothing new.
+    again = client.post(f"/api/v1/cv-audits/{audit['id']}/apply-to-profile", headers=h, json={}).json()
+    assert again["skills"] == again["work_experience"] == again["education"] == again["certifications"] == 0
+
+    _, other = register_and_login(client, email="nosy@example.com")
+    assert client.post(f"/api/v1/cv-audits/{audit['id']}/apply-to-profile", headers=_auth(other),
+                       json={}).status_code == 404

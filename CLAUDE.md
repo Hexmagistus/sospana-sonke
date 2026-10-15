@@ -93,8 +93,12 @@ prompt and said "add this skill to sospana sonke" — built it as a platform fea
   career directions, downloads), Nav "CV Audit", Command Palette entry, "Audit & rebuild" link on each
   uploaded CV in `CvUpload.tsx`, robots disallow. `tsc` + `next build` clean (font stubbed locally only).
 - Tests: `tests/test_cv_audit.py` (8) + full backend suite green.
-- Next ideas: optional Claude-polish of bullets behind the numeric guard; feed the rebuilt CV into the
-  profile/Master CV with one click.
+- Follow-up the same day: "Add to my profile" button → `POST /cv-audits/{id}/apply-to-profile`
+  (`apply_audit_to_profile`). Add-only: new rows are unconfirmed ("from CV"), duplicates skipped,
+  confirmed rows never touched, unconfirmed matching roles only get empty fields filled, scalar
+  profile fields only filled when empty. Non-completed qualifications keep their status in the title
+  ("… (in progress)", "… (completed – awaiting conferral)") so the Master CV can't present them as awarded.
+- Next idea: optional Claude-polish of bullets behind the numeric guard.
 
 
 ### 2026-10-14 — Cursor (Grok 4.7) — Listing quality and jobs paging
