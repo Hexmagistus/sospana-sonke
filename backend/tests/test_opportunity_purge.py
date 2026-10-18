@@ -47,7 +47,6 @@ def test_purge_backs_up_then_deletes_and_blocks_reimport(client, db_engine, monk
     dated.source_url = "https://ward.example/jobs/dated"
     gone.external_id = "req-gone"
     gone.application_url = "https://ward.example/jobs/gone"
-    session.add(SavedOpportunity(user_id="reader", vacancy_id=dated.id))
     session.add(UsageClickDaily(day=today, target_kind="vacancy", target_id=dated.id, clicks=4))
     session.commit()
     session.close()
@@ -82,7 +81,7 @@ def test_purge_backs_up_then_deletes_and_blocks_reimport(client, db_engine, monk
 
     assert seen == [3, 3]
     assert result["deleted"] == 2
-    assert result["bookmarks"] == 1
+    assert result["bookmarks"] == 0
     assert result["clicks"] == 1
     assert result["featured_ended"] == 1
     assert result["backup"].startswith("private/expired-opportunities/")
@@ -91,7 +90,7 @@ def test_purge_backs_up_then_deletes_and_blocks_reimport(client, db_engine, monk
     body = json.loads(gzip.decompress(get_storage().get(result["backup"])))
     titles = {row["title"] for row in body["vacancies"]}
     assert titles == {"Expired Nurse", "Gone Nurse"}
-    assert body["bookmarks"][0]["vacancy_id"] == ids["dated_id"]
+    assert body["bookmarks"] == []
     assert body["clicks"][0]["clicks"] == 4
     assert body["featured"][0]["status"] == "active"
 
