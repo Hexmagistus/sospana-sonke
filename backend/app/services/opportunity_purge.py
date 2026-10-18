@@ -16,9 +16,22 @@ The key prefix is ``private/expired-opportunities/``. The archive holds the
 rows being deleted. The tombstone that remains is only a hash and a timestamp.
 
 Order: write the archive, read it back, end featured placements, delete
-bookmarks, click totals and other rows that reference the vacancy, write
-tombstones, then delete the vacancies. A backup that does not read back
-stops the run with every row still in place.
+click totals and other rows that reference the vacancy, write tombstones,
+then delete the vacancies. A backup that does not read back stops the run
+with every row still in place.
+
+Safety rules:
+
+- A listing that any user has applied to or bookmarked is never deleted. It
+  stays hidden by the public listing rule. Its applications, answers, events
+  and bookmarks are untouched.
+- Every row the delete removes or changes is in the archive first. That
+  includes rows a database cascade or SET NULL would reach.
+  ``BACKED_UP_TABLES`` names them, and a test fails if a foreign key reaches a
+  table that is not on that list.
+- One run handles at most ``OPPORTUNITY_PURGE_BATCH`` listings (default
+  1,000). The rest wait for the next run, so the archive stays small enough
+  for a 512 MB server.
 """
 from __future__ import annotations
 
@@ -29,6 +42,7 @@ import os
 import tempfile
 from datetime import date, datetime, timezone
 
+from sqlalchemy import exists, func, not_, or_
 from sqlalchemy.orm import Session
 
 from app.models.admin_ops import AdminAuditLog
@@ -49,6 +63,43 @@ from app.services.storage import get_storage
 # Cron has no signed-in administrator. The audit column is a 36-character id.
 _SYSTEM_ACTOR = "00000000-0000-0000-0000-000000000000"
 _CHUNK = 200
+DEFAULT_BATCH = 1000
+MAX_BATCH = 5000
+
+# Every table the delete removes rows from or changes. Each one is in the archive.
+BACKED_UP_TABLES = frozenset({
+    "vacancies",               # deleted, and duplicate_of_id cleared on others
+    "vacancy_requirements",    # deleted (cascade)
+    "vacancy_reports",         # deleted (cascade)
+    "candidate_matches",       # deleted (cascade)
+    "saved_opportunities",     # never touched: bookmarked listings are kept
+    "applications",            # never deleted; match_id may be cleared
+    "application_answers",     # never touched: applied-to listings are kept
+    "application_events",      # never touched: applied-to listings are kept
+    "usage_click_daily",       # deleted (no foreign key)
+    "employer_entitlements",   # featured placement ended (no foreign key)
+    "employer_opportunities",  # vacancy_id cleared (no foreign key)
+    "cv_versions",             # vacancy_id / match_id cleared
+    "cover_letters",           # vacancy_id / match_id cleared
+    "interview_preps",         # vacancy_id / match_id cleared
+})
+
+
+def batch_size() -> int:
+    raw = os.getenv("OPPORTUNITY_PURGE_BATCH", "").strip()
+    try:
+        value = int(raw) if raw else DEFAULT_BATCH
+    except ValueError:
+        value = DEFAULT_BATCH
+    return max(1, min(value, MAX_BATCH))
+
+
+def has_user_records():
+    """SQL clause: someone applied to or bookmarked this listing."""
+    return or_(
+        exists().where(Application.vacancy_id == Vacancy.id),
+        exists().where(SavedOpportunity.vacancy_id == Vacancy.id),
+    )
 
 
 def _chunks(values: list[str], size: int = _CHUNK):
@@ -119,6 +170,60 @@ def _write_query(archive: _Archive, rows) -> int:
     return count
 
 
+def _match_ids(db: Session, ids: list[str]) -> list[str]:
+    found = []
+    for chunk in _chunks(ids):
+        found.extend(row[0] for row in db.query(CandidateMatch.id).filter(CandidateMatch.vacancy_id.in_(chunk)).all())
+    return found
+
+
+def _sections():
+    """(archive name, model, column matched to listing ids, column matched to match ids).
+
+    Every table the delete removes rows from or changes is here.
+    Answers and events are selected through the archived applications.
+    """
+    return (
+        ("bookmarks", SavedOpportunity, SavedOpportunity.vacancy_id, None),
+        ("clicks", UsageClickDaily, UsageClickDaily.target_id, None),
+        ("featured", EmployerEntitlement, EmployerEntitlement.vacancy_id, None),
+        ("employer_opportunities", EmployerOpportunity, EmployerOpportunity.vacancy_id, None),
+        ("requirements", VacancyRequirement, VacancyRequirement.vacancy_id, None),
+        ("reports", VacancyReport, VacancyReport.vacancy_id, None),
+        ("matches", CandidateMatch, CandidateMatch.vacancy_id, None),
+        ("duplicates", Vacancy, Vacancy.duplicate_of_id, None),
+        ("applications", Application, Application.vacancy_id, Application.match_id),
+        ("application_answers", ApplicationAnswer, None, None),
+        ("application_events", ApplicationEvent, None, None),
+        ("cv_versions", CVVersion, CVVersion.vacancy_id, CVVersion.match_id),
+        ("cover_letters", CoverLetter, CoverLetter.vacancy_id, CoverLetter.match_id),
+        ("interview_preps", InterviewPrep, InterviewPrep.vacancy_id, InterviewPrep.match_id),
+    )
+
+
+def _section_rows(db: Session, model, vac_col, match_col, ids, match_ids, application_ids):
+    """Yield each row once, chunk by chunk, so memory stays flat."""
+    if model in (ApplicationAnswer, ApplicationEvent):
+        passes = [(model.application_id, application_ids)]
+    else:
+        passes = [(vac_col, ids)]
+        if match_col is not None:
+            passes.append((match_col, match_ids))
+    seen: set = set()
+    for column, values in passes:
+        for chunk in _chunks(values):
+            query = db.query(model).filter(column.in_(chunk))
+            if model is UsageClickDaily:
+                query = query.filter(UsageClickDaily.target_kind == "vacancy")
+            for row in query.all():
+                identity = tuple(getattr(row, c.name) for c in model.__table__.primary_key.columns)
+                if identity in seen:
+                    continue
+                seen.add(identity)
+                yield row
+            db.expire_all()
+
+
 def _backup(db: Session, ids: list[str], when: datetime) -> tuple[str, dict]:
     stamp = when.strftime("%Y%m%dT%H%M%SZ")
     key = f"private/expired-opportunities/{stamp}-{len(ids)}.json.gz"
@@ -126,21 +231,16 @@ def _backup(db: Session, ids: list[str], when: datetime) -> tuple[str, dict]:
     path = handle.name
     handle.close()
     archive = _Archive(path)
-    counts = {
-        "vacancies": 0,
-        "bookmarks": 0,
-        "clicks": 0,
-        "featured": 0,
-        "requirements": 0,
-        "reports": 0,
-        "matches": 0,
-        "applications": 0,
-    }
+    match_ids = _match_ids(db, ids)
+    sections = _sections()
+    counts = {"vacancies": 0, **{name: 0 for name, *_rest in sections}}
+    application_ids: list[str] = []
     try:
         archive.field("generated_at", when.isoformat())
         archive.field(
             "rule",
-            "closing day ended in Africa/Johannesburg, or the scanner marked the role closed or gone",
+            "closing day ended in Africa/Johannesburg, or the scanner marked the role closed or gone; "
+            "listings with an application or bookmark are kept",
         )
         archive.start_array("vacancies")
         for chunk in _chunks(ids):
@@ -148,23 +248,13 @@ def _backup(db: Session, ids: list[str], when: datetime) -> tuple[str, dict]:
             counts["vacancies"] += _write_query(archive, rows)
             db.expire_all()
         archive.end_array(last=False)
-        sections = (
-            ("bookmarks", SavedOpportunity, SavedOpportunity.vacancy_id, "bookmarks"),
-            ("clicks", UsageClickDaily, UsageClickDaily.target_id, "clicks"),
-            ("featured", EmployerEntitlement, EmployerEntitlement.vacancy_id, "featured"),
-            ("requirements", VacancyRequirement, VacancyRequirement.vacancy_id, "requirements"),
-            ("reports", VacancyReport, VacancyReport.vacancy_id, "reports"),
-            ("matches", CandidateMatch, CandidateMatch.vacancy_id, "matches"),
-            ("applications", Application, Application.vacancy_id, "applications"),
-        )
-        for index, (name, model, column, count_key) in enumerate(sections):
+        for index, (name, model, vac_col, match_col) in enumerate(sections):
             archive.start_array(name)
-            for chunk in _chunks(ids):
-                query = db.query(model).filter(column.in_(chunk))
-                if model is UsageClickDaily:
-                    query = query.filter(UsageClickDaily.target_kind == "vacancy")
-                counts[count_key] += _write_query(archive, query.all())
-                db.expire_all()
+            for row in _section_rows(db, model, vac_col, match_col, ids, match_ids, application_ids):
+                archive.item(_plain(row))
+                counts[name] += 1
+                if model is Application:
+                    application_ids.append(row.id)
             archive.end_array(last=index == len(sections) - 1)
         payload = archive.close()
     finally:
@@ -181,6 +271,7 @@ def _backup(db: Session, ids: list[str], when: datetime) -> tuple[str, dict]:
         body = json.loads(gz.read().decode("utf-8"))
     if len(body.get("vacancies") or []) != len(ids):
         raise RuntimeError("Expired-opportunity backup did not list every selected row.")
+    del body, stored, payload
     counts["backup"] = key
     return key, counts
 
@@ -189,7 +280,7 @@ def _still_due(db: Session, ids: list[str], today: date) -> list[str]:
     due = []
     clauses = due_for_deletion_clauses(today)
     for chunk in _chunks(ids):
-        rows = db.query(Vacancy.id).filter(Vacancy.id.in_(chunk), *clauses).all()
+        rows = db.query(Vacancy.id).filter(Vacancy.id.in_(chunk), *clauses, not_(has_user_records())).all()
         due.extend(row[0] for row in rows)
     return due
 
@@ -216,6 +307,13 @@ def _delete(db: Session, ids: list[str], when: datetime) -> dict:
     ended = 0
     bookmarks = 0
     clicks = 0
+    # Never delete a listing someone applied to or bookmarked. The selection
+    # already leaves them out; check every chunk before the first change.
+    for chunk in _chunks(ids):
+        if db.query(Application.id).filter(Application.vacancy_id.in_(chunk)).first() is not None:
+            raise RuntimeError("Purge selected a listing with an application; nothing was deleted.")
+        if db.query(SavedOpportunity.id).filter(SavedOpportunity.vacancy_id.in_(chunk)).first() is not None:
+            raise RuntimeError("Purge selected a bookmarked listing; nothing was deleted.")
     for chunk in _chunks(ids):
         featured = (
             db.query(EmployerEntitlement)
@@ -238,11 +336,6 @@ def _delete(db: Session, ids: list[str], when: datetime) -> dict:
             .filter(UsageClickDaily.target_kind == "vacancy", UsageClickDaily.target_id.in_(chunk))
             .delete(synchronize_session=False)
         )
-        bookmarks += (
-            db.query(SavedOpportunity)
-            .filter(SavedOpportunity.vacancy_id.in_(chunk))
-            .delete(synchronize_session=False)
-        )
         db.query(EmployerOpportunity).filter(EmployerOpportunity.vacancy_id.in_(chunk)).update(
             {EmployerOpportunity.vacancy_id: None}, synchronize_session=False,
         )
@@ -258,18 +351,6 @@ def _delete(db: Session, ids: list[str], when: datetime) -> dict:
         db.query(Vacancy).filter(Vacancy.duplicate_of_id.in_(chunk)).update(
             {Vacancy.duplicate_of_id: None}, synchronize_session=False,
         )
-        application_ids = [
-            row[0]
-            for row in db.query(Application.id).filter(Application.vacancy_id.in_(chunk)).all()
-        ]
-        if application_ids:
-            db.query(ApplicationAnswer).filter(ApplicationAnswer.application_id.in_(application_ids)).delete(
-                synchronize_session=False,
-            )
-            db.query(ApplicationEvent).filter(ApplicationEvent.application_id.in_(application_ids)).delete(
-                synchronize_session=False,
-            )
-            db.query(Application).filter(Application.id.in_(application_ids)).delete(synchronize_session=False)
         db.query(VacancyReport).filter(VacancyReport.vacancy_id.in_(chunk)).delete(synchronize_session=False)
         match_ids = [
             row[0]
@@ -284,6 +365,9 @@ def _delete(db: Session, ids: list[str], when: datetime) -> dict:
             )
             db.query(InterviewPrep).filter(InterviewPrep.match_id.in_(match_ids)).update(
                 {InterviewPrep.match_id: None}, synchronize_session=False,
+            )
+            db.query(Application).filter(Application.match_id.in_(match_ids)).update(
+                {Application.match_id: None}, synchronize_session=False,
             )
         db.query(CandidateMatch).filter(CandidateMatch.vacancy_id.in_(chunk)).delete(synchronize_session=False)
         db.query(VacancyRequirement).filter(VacancyRequirement.vacancy_id.in_(chunk)).delete(
@@ -301,25 +385,41 @@ def _delete(db: Session, ids: list[str], when: datetime) -> dict:
     return {"deleted": len(ids), "bookmarks": bookmarks, "clicks": clicks, "featured_ended": ended}
 
 
-def purge_expired_opportunities(db: Session, when: datetime | None = None) -> dict:
-    """Back up expired rows, then delete them. Returns counts and the backup key."""
-    import os
+def _empty(**extra) -> dict:
+    return {"deleted": 0, "backup": None, "bookmarks": 0, "clicks": 0, "featured_ended": 0, **extra}
+
+
+def purge_counts(db: Session, today: date) -> dict:
+    """How many expired listings are waiting, and how many are kept for users."""
+    due = db.query(func.count(Vacancy.id)).filter(*due_for_deletion_clauses(today))
+    kept = int(due.filter(has_user_records()).scalar() or 0)
+    total = int(due.scalar() or 0)
+    return {"due": total - kept, "kept_for_users": kept}
+
+
+def purge_expired_opportunities(db: Session, when: datetime | None = None, limit: int | None = None) -> dict:
+    """Back up one batch of expired rows, then delete them.
+
+    Listings with an application or a bookmark are skipped. Returns counts,
+    the backup key and how many deletable listings are still waiting.
+    """
     if os.getenv("OPPORTUNITY_PURGE_ENABLED", "").strip().lower() not in ("1", "true", "yes"):
         # Off unless the owner switches it on. Closed rows are already hidden
         # from every public page; deleting them is a separate decision.
-        return {"deleted": 0, "backup": None, "bookmarks": 0, "clicks": 0,
-                "featured_ended": 0, "disabled": True}
+        return _empty(disabled=True)
     moment = when or datetime.now(timezone.utc)
     today = sa_today(moment)
-    selected = [row[0] for row in db.query(Vacancy.id).filter(*due_for_deletion_clauses(today)).all()]
+    size = max(1, min(limit, MAX_BATCH)) if limit else batch_size()
+    selected = [
+        row[0]
+        for row in db.query(Vacancy.id)
+        .filter(*due_for_deletion_clauses(today), not_(has_user_records()))
+        .order_by(Vacancy.id)
+        .limit(size)
+        .all()
+    ]
     if not selected:
-        return {
-            "deleted": 0,
-            "backup": None,
-            "bookmarks": 0,
-            "clicks": 0,
-            "featured_ended": 0,
-        }
+        return _empty(**purge_counts(db, today), batch_limit=size)
     key, backed_up = _backup(db, selected, moment)
     due = _still_due(db, selected, today)
     if not due:
@@ -330,18 +430,12 @@ def purge_expired_opportunities(db: Session, when: datetime | None = None) -> di
             detail=f"deleted=0 backup={key} reopened_before_delete={len(selected)}"[:500],
         ))
         db.commit()
-        return {
-            "deleted": 0,
-            "backup": key,
-            "bookmarks": 0,
-            "clicks": 0,
-            "featured_ended": 0,
-        }
+        return {**_empty(), "backup": key, **purge_counts(db, today), "batch_limit": size}
     removed = _delete(db, due, moment)
     detail = (
         f"deleted={removed['deleted']} backup={key} "
         f"bookmarks={removed['bookmarks']} clicks={removed['clicks']} "
-        f"featured_ended={removed['featured_ended']}"
+        f"featured_ended={removed['featured_ended']} matches={backed_up['matches']}"
     )
     db.add(AdminAuditLog(
         admin_id=_SYSTEM_ACTOR,
@@ -351,4 +445,13 @@ def purge_expired_opportunities(db: Session, when: datetime | None = None) -> di
     ))
     db.commit()
     db.expire_all()
-    return {"backup": key, **removed, "backed_up": backed_up["vacancies"]}
+    left = purge_counts(db, today)
+    return {
+        "backup": key,
+        **removed,
+        "backed_up": backed_up["vacancies"],
+        "matches_backed_up": backed_up["matches"],
+        "batch_limit": size,
+        "remaining": left["due"],
+        "kept_for_users": left["kept_for_users"],
+    }
