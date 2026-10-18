@@ -40,9 +40,10 @@ import io
 import json
 import os
 import tempfile
+import uuid
 from datetime import date, datetime, timezone
 
-from sqlalchemy import exists, func, not_, or_
+from sqlalchemy import exists, func, insert, not_, or_
 from sqlalchemy.orm import Session
 
 from app.models.admin_ops import AdminAuditLog
@@ -57,7 +58,7 @@ from app.models.usage_count import UsageClickDaily
 from app.models.vacancy import Vacancy, VacancyRequirement, VacancySource
 from app.models.vacancy_report import VacancyReport
 from app.services.opportunity_expiry import due_for_deletion_clauses, sa_today
-from app.services.opportunity_tombstone import identity_hashes, public_id_hash
+from app.services.opportunity_tombstone import identity_hashes, public_id_hash, url_hash
 from app.services.storage import get_storage
 
 # Cron has no signed-in administrator. The audit column is a 36-character id.
@@ -226,7 +227,9 @@ def _section_rows(db: Session, model, vac_col, match_col, ids, match_ids, applic
 
 def _backup(db: Session, ids: list[str], when: datetime) -> tuple[str, dict]:
     stamp = when.strftime("%Y%m%dT%H%M%SZ")
-    key = f"private/expired-opportunities/{stamp}-{len(ids)}.json.gz"
+    # A random suffix keeps every run's key unique, so a backup left by a run
+    # that rolled back is never reused or overwritten by the next run.
+    key = f"private/expired-opportunities/{stamp}-{len(ids)}-{uuid.uuid4().hex[:8]}.json.gz"
     handle = tempfile.NamedTemporaryFile(prefix="expired-opportunities-", suffix=".json.gz", delete=False)
     path = handle.name
     handle.close()
@@ -285,7 +288,82 @@ def _still_due(db: Session, ids: list[str], today: date) -> list[str]:
     return due
 
 
-def _remember(db: Session, vacancies: list[Vacancy], board_urls: dict[str, str], when: datetime) -> None:
+def _url_columns(vacancy, board: str) -> list[str]:
+    found = []
+    for url in (vacancy.canonical_url, vacancy.application_url, vacancy.source_url):
+        cleaned = (url or "").strip()
+        if cleaned and cleaned != board and cleaned not in found:
+            found.append(cleaned)
+    return found
+
+
+def _shared_url_hashes(db: Session, vacancies: list[Vacancy], board_urls: dict[str, str]) -> set[str]:
+    """URL hashes that more than one listing of the same employer uses.
+
+    Such an address is a general careers or search page, not one role's own
+    address. A tombstone on it would block every future role from that
+    employer that links to the same page, so it is left out. The role's id,
+    employer reference and fingerprint hashes are still written.
+    """
+    users: dict[tuple[str, str], set[str]] = {}
+    wanted: set[str] = set()
+    for vacancy in vacancies:
+        for url in _url_columns(vacancy, (board_urls.get(vacancy.source_id) or "").strip()):
+            users.setdefault((vacancy.company_id, url), set()).add(vacancy.id)
+            wanted.add(url)
+    urls = sorted(wanted)
+    for chunk in _chunks(urls):
+        for column in (Vacancy.canonical_url, Vacancy.application_url, Vacancy.source_url):
+            for vacancy_id, company_id, value in (
+                db.query(Vacancy.id, Vacancy.company_id, column).filter(column.in_(chunk)).all()
+            ):
+                key = (company_id, (value or "").strip())
+                if key in users:
+                    users[key].add(vacancy_id)
+    return {url_hash(company_id, url) for (company_id, url), ids in users.items() if len(ids) > 1}
+
+
+def _insert_tombstones(db: Session, digests: list[str], when: datetime) -> int:
+    """Insert new tombstones. One that already exists is left as it is."""
+    written = 0
+    dialect = db.get_bind().dialect.name
+    for chunk in _chunks(digests):
+        rows = [{"key_hash": digest, "deleted_at": when} for digest in chunk]
+        if dialect == "postgresql":
+            from sqlalchemy.dialects.postgresql import insert as dialect_insert
+        elif dialect == "sqlite":
+            from sqlalchemy.dialects.sqlite import insert as dialect_insert
+        else:
+            dialect_insert = None
+        if dialect_insert is not None:
+            stmt = dialect_insert(OpportunityTombstone).values(rows).on_conflict_do_nothing(
+                index_elements=["key_hash"],
+            )
+            result = db.execute(stmt)
+            written += max(result.rowcount or 0, 0)
+            continue
+        present = {
+            row[0]
+            for row in db.query(OpportunityTombstone.key_hash).filter(OpportunityTombstone.key_hash.in_(chunk)).all()
+        }
+        fresh = [row for row in rows if row["key_hash"] not in present]
+        if fresh:
+            db.execute(insert(OpportunityTombstone), fresh)
+            written += len(fresh)
+    return written
+
+
+def _remember(
+    db: Session, vacancies: list[Vacancy], board_urls: dict[str, str], when: datetime, seen: set[str],
+) -> int:
+    """Write each tombstone hash once per batch; existing ones are kept.
+
+    Several listings in one batch can share a hash (the same address or
+    fingerprint). ``seen`` holds every hash already sent in this batch, so
+    the insert never carries the same key twice.
+    """
+    shared = _shared_url_hashes(db, vacancies, board_urls)
+    digests: list[str] = []
     for vacancy in vacancies:
         hashes = [public_id_hash(vacancy.id)]
         hashes.extend(identity_hashes(
@@ -297,9 +375,12 @@ def _remember(db: Session, vacancies: list[Vacancy], board_urls: dict[str, str],
             fingerprint=vacancy.fingerprint,
             board_url=board_urls.get(vacancy.source_id),
         ))
-        for digest in dict.fromkeys(hashes):
-            if db.get(OpportunityTombstone, digest) is None:
-                db.add(OpportunityTombstone(key_hash=digest, deleted_at=when))
+        for digest in hashes:
+            if digest in seen or digest in shared:
+                continue
+            seen.add(digest)
+            digests.append(digest)
+    return _insert_tombstones(db, digests, when)
 
 
 def _delete(db: Session, ids: list[str], when: datetime) -> dict:
@@ -307,6 +388,8 @@ def _delete(db: Session, ids: list[str], when: datetime) -> dict:
     ended = 0
     bookmarks = 0
     clicks = 0
+    tombstones = 0
+    seen: set[str] = set()
     # Never delete a listing someone applied to or bookmarked. The selection
     # already leaves them out; check every chunk before the first change.
     for chunk in _chunks(ids):
@@ -379,14 +462,20 @@ def _delete(db: Session, ids: list[str], when: datetime) -> dict:
             row.id: row.url
             for row in db.query(VacancySource.id, VacancySource.url).filter(VacancySource.id.in_(source_ids)).all()
         } if source_ids else {}
-        _remember(db, vacancies, boards, when)
+        tombstones += _remember(db, vacancies, boards, when, seen)
         db.flush()
         db.query(Vacancy).filter(Vacancy.id.in_(chunk)).delete(synchronize_session=False)
-    return {"deleted": len(ids), "bookmarks": bookmarks, "clicks": clicks, "featured_ended": ended}
+    return {
+        "deleted": len(ids), "bookmarks": bookmarks, "clicks": clicks, "featured_ended": ended,
+        "tombstones": tombstones,
+    }
 
 
 def _empty(**extra) -> dict:
-    return {"deleted": 0, "backup": None, "bookmarks": 0, "clicks": 0, "featured_ended": 0, **extra}
+    return {
+        "deleted": 0, "backup": None, "bookmarks": 0, "clicks": 0, "featured_ended": 0, "tombstones": 0,
+        **extra,
+    }
 
 
 def purge_counts(db: Session, today: date) -> dict:
@@ -435,7 +524,8 @@ def purge_expired_opportunities(db: Session, when: datetime | None = None, limit
     detail = (
         f"deleted={removed['deleted']} backup={key} "
         f"bookmarks={removed['bookmarks']} clicks={removed['clicks']} "
-        f"featured_ended={removed['featured_ended']} matches={backed_up['matches']}"
+        f"featured_ended={removed['featured_ended']} matches={backed_up['matches']} "
+        f"tombstones={removed['tombstones']}"
     )
     db.add(AdminAuditLog(
         admin_id=_SYSTEM_ACTOR,
