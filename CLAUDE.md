@@ -75,6 +75,9 @@ A careers landing page is enough for that same set, even when the HTML lists no 
 
 ## Session Log
 
+### 2026-10-13 — Cursor (Grok 4.7) — Zero-rating action list
+`docs/ZERO_RATING_AND_USSD.md` now records the ICASA application (Gazette 50612, email zeroratingapplications@icasa.org.za), Vodacom ConnectU, MoyaApp, and Datafree. The current site is on Vercel, is not `.gov.za`, and has no SARS public-benefit proof in this repo, so the note says not to file the ICASA form yet. Commercial content is excluded on the GCIS page. No MTN, Telkom or Cell C application form for a private website was found. Pull requests #69 and #70 were not touched.
+
 ### 2026-10-13 — Cursor (Grok 4.7) — USSD and WhatsApp callbacks, still off
 `POST /api/v1/ussd` answers 404 until `USSD_ENABLED` and `USSD_CALLBACK_SECRET` are set. The menu searches stored South African roles by category and province, lists learnerships and bursaries, and can save a phone number. It does not send an SMS and it does not name a shortcode. WhatsApp answers 404 until the verify token, token, phone number id and app secret are all set. Prices fetched the same day are in `docs/ZERO_RATING_AND_USSD.md`: Africa's Talking shared USSD monthly ZAR 1,000 and dedicated setup and monthly ZAR 5,000, outgoing SMS ZAR 0.24. The Meta pricing page returned 403, so no Meta per-message rate is written down. Pull requests #69 and #70 were not touched.
 
