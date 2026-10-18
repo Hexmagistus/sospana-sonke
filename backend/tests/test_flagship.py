@@ -9,7 +9,10 @@ from app.services.flagship import FLAGSHIP_COUNTRY, countries_flagship_first
 from app.services.intelligence_search import answer_question
 
 
-NOW = datetime(2026, 10, 13, 12, 0, tzinfo=timezone.utc)
+# Relative to the real clock: public lists hide roles not seen for 7 days and
+# roles whose closing day has passed, so a fixed date here expires the test.
+NOW = datetime.now(timezone.utc) - timedelta(minutes=5)
+TODAY = date.today()
 
 
 def _role(session, name, country, title, *, seen, closing=None, role_country=None):
@@ -72,11 +75,11 @@ def test_closing_sort_still_puts_south_africa_first(client, db_engine):
     try:
         _role(
             s, "Nairobi Works", "Kenya", "Soon Abroad",
-            seen=NOW, closing=date(2026, 10, 20),
+            seen=NOW, closing=TODAY + timedelta(days=7),
         )
         _role(
             s, "Cape Works", "South Africa", "Later At Home",
-            seen=NOW - timedelta(days=2), closing=date(2026, 11, 1),
+            seen=NOW - timedelta(days=2), closing=TODAY + timedelta(days=19),
         )
     finally:
         s.close()

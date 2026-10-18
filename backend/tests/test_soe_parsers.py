@@ -555,7 +555,11 @@ def _company(db, name, url):
     return company
 
 
-def test_scan_stores_roles_and_marks_the_count_known(db):
+def test_scan_stores_roles_and_marks_the_count_known(db, monkeypatch):
+    # The fixture was fetched on 2026-10-03 and carries real closing dates. The
+    # scanner skips roles whose closing day has passed, so scan as on that day.
+    from datetime import date
+    monkeypatch.setattr("app.services.opportunity_expiry.sa_today", lambda moment=None: date(2026, 10, 3))
     company = _company(db, "SACAA", "https://sacaa.mcidirecthire.com/External/CurrentOpportunities")
     source = ensure_source(db, company)
     assert source.ats_type == "mci"

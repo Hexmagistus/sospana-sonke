@@ -57,6 +57,7 @@ def import_verified_programmes(
         "skipped_missing_company": 0,
         "skipped_duplicate_title": 0,
         "skipped_invalid": 0,
+        "skipped_expired": 0,
     }
     db = Session(bind=bind)
     try:
