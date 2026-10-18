@@ -19,6 +19,11 @@ def public_id_hash(vacancy_id: str) -> str:
     return _sha(f"id\n{vacancy_id}")
 
 
+def url_hash(company_id: str, url: str) -> str:
+    """Hash of one employer's listing address, already stripped."""
+    return _sha(f"url\n{company_id}\n{url}")
+
+
 def identity_hashes(
     *,
     company_id: str,
@@ -41,7 +46,7 @@ def identity_hashes(
         if not cleaned or cleaned == board or cleaned in seen:
             continue
         seen.add(cleaned)
-        found.append(_sha(f"url\n{company_id}\n{cleaned}"))
+        found.append(url_hash(company_id, cleaned))
     if not external and fingerprint:
         found.append(_sha(f"fingerprint\n{fingerprint}"))
     return found
