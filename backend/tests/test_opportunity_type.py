@@ -1,5 +1,5 @@
 """Opportunity type: conservative labels, a reversible migration, public counts."""
-from datetime import datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 
 from sqlalchemy import create_engine, inspect
 from sqlalchemy.orm import sessionmaker
@@ -15,7 +15,9 @@ from app.services.opportunity_type import (
 from app.services.scan_service import _COPY_IF_PRESENT, _apply_fields
 
 
-NOW = datetime(2026, 10, 13, 8, 0, tzinfo=timezone.utc)
+# Relative to the real clock: public lists hide roles not seen for 7 days
+# and roles whose closing day has passed.
+NOW = datetime.now(timezone.utc).replace(microsecond=0) - timedelta(minutes=5)
 
 
 def test_title_names_one_programme_and_unclear_text_stays_a_job():
@@ -167,9 +169,9 @@ def test_public_jobs_filter_and_counts_by_type(client, db_engine):
     from datetime import date as date_cls
     s = S()
     soon = s.get(Vacancy, ids["internship"])
-    soon.closing_date = date_cls(2026, 12, 1)
+    soon.closing_date = date.today() + timedelta(days=30)
     later = s.get(Vacancy, ids["learnership"])
-    later.closing_date = date_cls(2026, 12, 20)
+    later.closing_date = date.today() + timedelta(days=50)
     s.commit()
     s.close()
     dated = client.get("/api/v1/jobs", params={"sort": "closing"})
