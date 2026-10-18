@@ -1,5 +1,7 @@
 """Official programme pages: store named open calls, and a closing date only when stated."""
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
+
+import pytest
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -15,6 +17,19 @@ from app.services.verified_programmes import (
 
 
 VERIFIED_ON = datetime(2026, 10, 13, tzinfo=timezone.utc)
+
+
+@pytest.fixture(autouse=True)
+def _on_the_verified_day(monkeypatch):
+    """Run the import as on the day the file was checked.
+
+    The shipped file holds real closing dates. Once a date passes the importer
+    skips that row, so without a fixed day these counts would change over time.
+    """
+    monkeypatch.setattr(
+        "app.services.opportunity_expiry.sa_today",
+        lambda moment=None: VERIFIED_ON.date(),
+    )
 
 
 def _as_utc(value):
@@ -259,5 +274,34 @@ def test_downgrade_removes_only_the_verified_rows():
     db = S()
     assert db.query(Vacancy).filter(Vacancy.external_id.like("verified:%")).count() == 5
     assert db.get(Vacancy, kept_id).title == "Teller"
+    db.close()
+    engine.dispose()
+
+
+def test_a_closing_date_that_has_passed_is_skipped_and_counted(monkeypatch):
+    monkeypatch.setattr(
+        "app.services.opportunity_expiry.sa_today",
+        lambda moment=None: date(2026, 10, 23) + timedelta(days=1),
+    )
+    engine = _engine()
+    S = sessionmaker(bind=engine)
+    db = S()
+    _company(db, "Absa Group")
+    db.close()
+    counts = import_verified_programmes(engine, verified_on=VERIFIED_ON, records=[
+        {
+            "company_name": "Absa Group",
+            "country": "South Africa",
+            "title": "ICT Intern",
+            "opportunity_type": "internship",
+            "source_url": "https://chieta.org.za/job/24-months-internship-ict-intern/",
+            "description": "24 MONTHS INTERNSHIP: ICT INTERN.",
+            "closing_date": "2026-10-23",
+        },
+    ])
+    assert counts["skipped_expired"] == 1
+    assert counts["created"] == 0
+    db = S()
+    assert db.query(Vacancy).count() == 0
     db.close()
     engine.dispose()
