@@ -8,6 +8,7 @@ written, and the whole call (selection, fetches, writes, release) fits in
 ``max_seconds``. These tests use a real local server that never answers.
 """
 import functools
+import gc
 import inspect
 import socket
 import threading
@@ -24,6 +25,25 @@ from app.services import scan_batch
 from app.services.scan_batch import FetchBudget, make_scan_client, run_scan_batch
 
 ROBOTS_TIMEOUT_SECONDS = 5.0   # RobotsChecker's own per-request timeout (scraper/politeness.py)
+
+
+@pytest.fixture()
+def no_gc_pause():
+    """Keep a full garbage collection out of the timed window.
+
+    These tests give the batch a 2 s budget and a 0.6 s window to start its
+    fetches. Late in a full CI run the heap is large, and a generation-2
+    collection that happens to fire inside that window pauses the main thread
+    for ~0.9 s (measured on the GitHub runner), so the run under test never
+    gets to start the fetches it is meant to cut short. Collect first, then
+    hold the collector off until the run returns.
+    """
+    gc.collect()
+    gc.disable()
+    try:
+        yield
+    finally:
+        gc.enable()
 
 
 def test_default_budget_accounts_for_in_flight_fetch_timeouts():
@@ -128,7 +148,8 @@ def _scaled_budget(monkeypatch):
         monkeypatch.setattr(scan_batch, name, value)
 
 
-def test_run_returns_within_budget_with_hanging_sites_in_flight(db, local_server, monkeypatch):
+def test_run_returns_within_budget_with_hanging_sites_in_flight(db, local_server, monkeypatch,
+                                                                no_gc_pause):
     _scaled_budget(monkeypatch)
     old = datetime.now(timezone.utc) - timedelta(days=3)
     hanging, healthy = [], []
@@ -145,58 +166,12 @@ def test_run_returns_within_budget_with_hanging_sites_in_flight(db, local_server
         healthy.append(c)
     db.commit()
 
-    db_seconds = []
-    for name in ("claim_source", "ensure_source", "select_due"):
-        real = getattr(scan_batch, name)
-
-        def timed(*a, _real=real, _name=name, **k):
-            t = time.monotonic()
-            try:
-                return _real(*a, **k)
-            finally:
-                db_seconds.append((_name, round(time.monotonic() - t, 3)))
-        monkeypatch.setattr(scan_batch, name, timed)
-
-    import gc
-    import app.services.scan_service as _ss
-    for mod, name in ((_ss, "detect_ats"),):
-        real = getattr(mod, name)
-
-        def timed2(*a, _real=real, _name=name, **k):
-            t = time.monotonic()
-            try:
-                return _real(*a, **k)
-            finally:
-                db_seconds.append((_name, round(time.monotonic() - t, 3)))
-        monkeypatch.setattr(mod, name, timed2)
-    for meth in ("commit", "refresh", "query"):
-        real = getattr(db, meth)
-
-        def timed3(*a, _real=real, _name=meth, **k):
-            t = time.monotonic()
-            try:
-                return _real(*a, **k)
-            finally:
-                d = time.monotonic() - t
-                if d > 0.02:
-                    db_seconds.append(("db." + _name, round(d, 3)))
-        monkeypatch.setattr(db, meth, timed3)
-    gc_t = {}
-
-    def gc_cb(phase, info):
-        if phase == "start":
-            gc_t["t"] = time.monotonic()
-        elif "t" in gc_t and time.monotonic() - gc_t["t"] > 0.02:
-            db_seconds.append(("gc%d" % info["generation"], round(time.monotonic() - gc_t["t"], 3)))
-    gc.callbacks.append(gc_cb)
     t0 = time.monotonic()
     out = run_scan_batch(db, max_seconds=2.0, workers=6)   # real fetch_source, robots.txt on
-    gc.callbacks.remove(gc_cb)
     elapsed = time.monotonic() - t0
-    diag = (out, db_seconds)
-    assert elapsed <= 2.0 + 0.25, (elapsed, diag)
-    assert out["cut_short_by_budget"] == 4 and out["released_unfinished"] == 4, diag
-    assert out["companies_scanned"] == 3 and out["sources_failed"] == 0, diag
+    assert elapsed <= 2.0 + 0.25, elapsed
+    assert out["cut_short_by_budget"] == 4 and out["released_unfinished"] == 4, out
+    assert out["companies_scanned"] == 3 and out["sources_failed"] == 0, out
     db.expire_all()
     for c in hanging:     # cut off by the budget: not a TIMEOUT failure, place kept
         src = db.query(VacancySource).filter_by(company_id=c.id).one()
@@ -206,7 +181,7 @@ def test_run_returns_within_budget_with_hanging_sites_in_flight(db, local_server
         assert db.query(VacancySource).filter_by(company_id=c.id).one().last_status == "empty"
 
 
-def test_late_results_are_released_not_written_past_the_budget(db, monkeypatch):
+def test_late_results_are_released_not_written_past_the_budget(db, monkeypatch, no_gc_pause):
     _scaled_budget(monkeypatch)
     monkeypatch.setattr(scan_batch, "APPLY_PER_VACANCY_SECONDS", 1.0)   # "a big board"
     c = Company(company_name="Big", careers_url="https://big.example.org/jobs", active=True)
@@ -236,7 +211,7 @@ def test_late_results_are_released_not_written_past_the_budget(db, monkeypatch):
 
 
 def test_cron_endpoint_answers_within_budget_including_wrap_up(client, db, local_server,
-                                                               monkeypatch):
+                                                               monkeypatch, no_gc_pause):
     """End to end: HTTP request -> run_job -> batch -> JobRun commit -> response."""
     from app.core.config import settings
     from app.scheduler import registry
