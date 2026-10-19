@@ -99,9 +99,10 @@ def test_colliding_listings_are_purged_with_one_tombstone_each(db_engine):
 
 def test_a_run_after_a_rolled_back_run_uses_a_new_backup_key(db_engine):
     _seed(db_engine)
-    when = datetime(2026, 10, 18, 19, 16, 42, tzinfo=timezone.utc)
+    # Pinned to the current second: the seeded rows are dated from today.
+    when = datetime.now(timezone.utc).replace(microsecond=0)
     # The rolled-back run left its backup behind under the old key format.
-    leftover = "private/expired-opportunities/20261018T191642Z-2.json.gz"
+    leftover = f"private/expired-opportunities/{when:%Y%m%dT%H%M%SZ}-2.json.gz"
     get_storage().put(leftover, b"left over")
     session = sessionmaker(bind=db_engine)()
     try:
