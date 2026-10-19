@@ -58,6 +58,7 @@ def import_verified_programmes(
         "skipped_duplicate_title": 0,
         "skipped_invalid": 0,
         "skipped_expired": 0,
+        "skipped_closed": 0,
     }
     db = Session(bind=bind)
     try:
@@ -107,6 +108,9 @@ def _store_one(db: Session, record: dict, verified_on: datetime) -> str:
         .filter(Vacancy.external_id == external_id, Vacancy.deleted_at.is_(None))
         .first()
     )
+    if existing is not None and "manual_close" in list(existing.quality_flags or []):
+        # Closed after a check found no sign it is open. A boot must not reopen it.
+        return "skipped_closed"
     if existing is None:
         same_title = (
             db.query(Vacancy)
