@@ -3,7 +3,14 @@
 A row is removed from public pages when it is a news article, a blog post, or
 a generic page; when it was posted more than 120 days ago and has no closing
 date; when the title or body contains a past year from 2019 through last year;
-or when its own link answers HTTP 404 or 410. The same rows are stamped
+when the title, or the file name or upload folder in its own link, names a
+year from 2000 through last year; when the title or the file name names a day
+that has passed, or a month that ended more than 30 days ago; or when its own
+link answers HTTP 404 or 410.
+
+The year-in-link and passed-date rules run in Python only. They are applied
+when the scanner stores a row, by the daily quality pass, and by
+``is_publicly_listed``; a stamped row is expired, so every SQL list hides it. The same rows are stamped
 expired so the existing backup-then-delete job removes them.
 
 The quality score starts at 100. A past year costs 80, a stale posting costs
@@ -14,9 +21,10 @@ scanner already stored.
 from __future__ import annotations
 
 import logging
+import re
 import time
 from datetime import date, datetime, timedelta, timezone
-from urllib.parse import urlparse
+from urllib.parse import unquote, urlparse
 
 import httpx
 from sqlalchemy import and_, func, not_, or_
@@ -32,6 +40,10 @@ logger = logging.getLogger(__name__)
 
 STALE_POSTING_DAYS = 120
 PAST_YEAR_START = 2019
+# Titles and link file names are checked further back than descriptions, where
+# old years are often law names ("Act 3 of 2000").
+OLD_ADVERT_YEAR_START = 2000
+PAST_MONTH_GRACE_DAYS = 30
 DEAD_LINK_STATUSES = (404, 410)
 _SYSTEM_ACTOR = "00000000-0000-0000-0000-000000000000"
 
@@ -54,7 +66,9 @@ _NEWS_URL_BITS = (
 _URL_COLUMNS = ("application_url", "canonical_url", "source_url")
 
 _SCORE_PENALTY = {
+    "manual_close": 100,
     "not_an_opportunity": 100,
+    "past_date": 80,
     "dead_link": 100,
     "past_year": 80,
     "stale_posting": 70,
@@ -75,6 +89,160 @@ def listing_quality_score(flags: list[str]) -> int:
     for flag in dict.fromkeys(flags):
         score -= _SCORE_PENALTY.get(flag, 50)
     return max(0, score)
+
+
+_MONTHS = {
+    "jan": 1, "january": 1, "feb": 2, "february": 2, "mar": 3, "march": 3,
+    "apr": 4, "april": 4, "may": 5, "jun": 6, "june": 6, "jul": 7, "july": 7,
+    "aug": 8, "august": 8, "sep": 9, "sept": 9, "september": 9, "oct": 10,
+    "october": 10, "nov": 11, "november": 11, "dec": 12, "december": 12,
+}
+_MONTH_RE = "|".join(sorted(_MONTHS, key=len, reverse=True))
+_SEP = r"[\s\-_.,/]*"
+_DAY_MONTH_YEAR = re.compile(
+    rf"(?<![0-9])(\d{{1,2}})(?:st|nd|rd|th)?{_SEP}({_MONTH_RE})(?![a-z]){_SEP}(20\d\d)(?![0-9])",
+    re.IGNORECASE,
+)
+_MONTH_YEAR = re.compile(rf"(?<![a-z])({_MONTH_RE})(?![a-z]){_SEP}(20\d\d)(?![0-9])", re.IGNORECASE)
+_ISO_DATE = re.compile(r"(?<![0-9])(20\d\d)-(\d\d)-(\d\d)(?![0-9])")
+# A year on its own: not part of a longer number, not an ISO standard edition
+# ("9001:2015"), not an Australian postcode ("NSW 2000").
+_TITLE_YEAR = re.compile(r"(?<![0-9:])(?<!NSW )(?<!VIC )(?<!ACT )(20\d\d)(?![0-9])", re.IGNORECASE)
+_FILE_YEAR = re.compile(r"(?<![0-9a-z])(20\d\d)(?![0-9])", re.IGNORECASE)
+_UPLOAD_FOLDER = re.compile(r"/(20\d\d)[/-](0[1-9]|1[0-2])(?:/|$)")
+_UUID = re.compile(r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}", re.IGNORECASE)
+_LINK_COLUMNS = ("application_url", "canonical_url")
+
+
+def _is_old_year(year: int, today: date) -> bool:
+    return OLD_ADVERT_YEAR_START <= year < today.year
+
+
+def _title_has_old_year(title: str | None, today: date) -> bool:
+    return any(_is_old_year(int(m.group(1)), today) for m in _TITLE_YEAR.finditer(title or ""))
+
+
+def link_name_parts(url: str | None) -> tuple[str, str]:
+    """(path, last segment with query) of a link, decoded, ids removed."""
+    if not url:
+        return "", ""
+    try:
+        parsed = urlparse(url.strip())
+    except ValueError:
+        return "", ""
+    path = _UUID.sub(" ", unquote(parsed.path or ""))
+    query = _UUID.sub(" ", unquote(parsed.query or ""))
+    segments = [seg for seg in path.split("/") if seg]
+    last = segments[-1] if segments else ""
+    return path, f"{last} {query}".strip()
+
+
+def _link_has_old_year(url: str | None, today: date) -> bool:
+    path, name = link_name_parts(url)
+    if not path and not name:
+        return False
+    for match in _UPLOAD_FOLDER.finditer(path):
+        if _is_old_year(int(match.group(1)), today):
+            return True
+    return any(_is_old_year(int(m.group(1)), today) for m in _FILE_YEAR.finditer(name))
+
+
+def _month_end(year: int, month: int) -> date:
+    if month == 12:
+        return date(year, 12, 31)
+    return date(year, month + 1, 1) - timedelta(days=1)
+
+
+_POSTED_LABEL = re.compile(
+    r"(publish|posted|post date|posting date|created|updated|listed|date opened|opening date)", re.IGNORECASE,
+)
+_CLOSING_LABEL = re.compile(r"(clos|expir|deadline|apply by|due|until|before)", re.IGNORECASE)
+# An advert date with no label is usually the day it went up. It only counts
+# once it is this old; a labelled closing date counts the day after it.
+UNLABELLED_DATE_GRACE_DAYS = 30
+
+
+def _label_before(pattern, text: str, start: int) -> bool:
+    return bool(pattern.search(text[max(0, start - 25):start]))
+
+
+def named_dates(text: str | None) -> list[tuple[date, str]]:
+    """Dates a text names, as (date, kind). kind is closing, day or month.
+
+    A month is returned as its last day. Dates labelled as the publishing day
+    are left out; the stale-posting rule covers those.
+    """
+    if not text:
+        return []
+    found: list[tuple[date, str]] = []
+    spans = []
+    day_matches = [(m, int(m.group(3)), _MONTHS[m.group(2).lower()], int(m.group(1)))
+                   for m in _DAY_MONTH_YEAR.finditer(text)]
+    iso_matches = [(m, int(m.group(1)), int(m.group(2)), int(m.group(3))) for m in _ISO_DATE.finditer(text)]
+    for match, year, month, day in day_matches + iso_matches:
+        spans.append(match.span())
+        if _label_before(_POSTED_LABEL, text, match.start()):
+            continue
+        try:
+            named = date(year, month, day)
+        except ValueError:
+            continue
+        kind = "closing" if _label_before(_CLOSING_LABEL, text, match.start()) else "day"
+        found.append((named, kind))
+    for match in _MONTH_YEAR.finditer(text):
+        if any(start <= match.start() < end for start, end in spans):
+            continue
+        if _label_before(_POSTED_LABEL, text, match.start()):
+            continue
+        found.append((_month_end(int(match.group(2)), _MONTHS[match.group(1).lower()]), "month"))
+    return found
+
+
+def dates_have_passed(dates: list[tuple[date, str]], today: date) -> bool:
+    """True when the named dates show the advert is over.
+
+    Any date from today on means the advert may still be open (it is usually
+    the closing date), so nothing is flagged.
+    """
+    if not dates or any(named >= today for named, _kind in dates):
+        return False
+    for named, kind in dates:
+        if kind == "closing":
+            return True
+        if kind == "day" and named < today - timedelta(days=UNLABELLED_DATE_GRACE_DAYS):
+            return True
+        if kind == "month" and named + timedelta(days=PAST_MONTH_GRACE_DAYS) < today:
+            return True
+    return False
+
+
+def text_names_passed_date(text: str | None, today: date) -> bool:
+    """True when one text names a closing day that has passed, or an old advert date."""
+    return dates_have_passed(named_dates(text), today)
+
+
+def _readable_name(name: str) -> str:
+    return re.sub(r"[_\-+]+", " ", name)
+
+
+def old_advert_reasons(
+    title: str | None,
+    urls: tuple[str | None, ...],
+    today: date,
+) -> list[str]:
+    """past_year / past_date found in the title or the advert's own link name."""
+    reasons: list[str] = []
+    dates = named_dates(title)
+    for url in urls:
+        dates.extend(named_dates(_readable_name(link_name_parts(url)[1])))
+    names_future_day = any(named >= today for named, _kind in dates)
+    if _title_has_old_year(title, today) or (
+        not names_future_day and any(_link_has_old_year(url, today) for url in urls)
+    ):
+        reasons.append("past_year")
+    if dates_have_passed(dates, today):
+        reasons.append("past_date")
+    return reasons
 
 
 def _norm_title(title: str | None) -> str:
@@ -159,6 +327,9 @@ def removal_reasons(
         reasons.append("not_an_opportunity")
     if _text_has_past_year(title, description, day):
         reasons.append("past_year")
+    for reason in old_advert_reasons(title, (application_url, canonical_url), day):
+        if reason not in reasons:
+            reasons.append(reason)
     if _is_stale_posting(posting_date, closing_date, day):
         reasons.append("stale_posting")
     if link_http_status in DEAD_LINK_STATUSES:
@@ -229,18 +400,50 @@ def quality_failure_clause(today: date):
     return or_(*parts)
 
 
+def is_manually_closed(vacancy: Vacancy) -> bool:
+    """An operator closed this row after checking it. A rescan must not reopen it."""
+    return "manual_close" in list(vacancy.quality_flags or [])
+
+
 def apply_listing_quality(vacancy: Vacancy, when: datetime | None = None, today: date | None = None) -> list[str]:
     """Stamp a scanned row. A removal reason expires it so the purge can delete it."""
     from app.services.opportunity_expiry import mark_expired, sa_today
 
     day = today or sa_today(when)
     reasons = removal_reasons_for(vacancy, day)
+    if is_manually_closed(vacancy):
+        reasons = ["manual_close", *[r for r in reasons if r != "manual_close"]]
     vacancy.quality_flags = reasons or None
     if not reasons:
         return []
     vacancy.quality_score = listing_quality_score(reasons)
     mark_expired(vacancy, when)
     return reasons
+
+
+def _rows_with_old_advert_names(db: Session, day: date, skip: set, expired_status: str) -> list[Vacancy]:
+    """Rows whose title or link names an old year or a passed date.
+
+    These rules are not expressible in portable SQL, so the light columns are
+    read in pages and checked in Python. Only the matching rows are loaded.
+    """
+    light = (
+        db.query(Vacancy.id, Vacancy.title, Vacancy.application_url, Vacancy.canonical_url)
+        .filter(
+            Vacancy.deleted_at.is_(None),
+            or_(Vacancy.status.is_(None), Vacancy.status != expired_status),
+        )
+        .yield_per(2000)
+    )
+    ids = [
+        row.id for row in light
+        if row.id not in skip and old_advert_reasons(row.title, (row.application_url, row.canonical_url), day)
+    ]
+    found: list[Vacancy] = []
+    for start in range(0, len(ids), 500):
+        chunk = ids[start:start + 500]
+        found.extend(db.query(Vacancy).filter(Vacancy.id.in_(chunk)).all())
+    return found
 
 
 def stamp_text_failures(db: Session, today: date | None = None, when: datetime | None = None) -> dict:
@@ -258,7 +461,12 @@ def stamp_text_failures(db: Session, today: date | None = None, when: datetime |
         )
         .all()
     )
-    counts = {"not_an_opportunity": 0, "past_year": 0, "stale_posting": 0, "dead_link": 0, "hidden": 0}
+    seen = {vacancy.id for vacancy in rows}
+    rows.extend(_rows_with_old_advert_names(db, day, seen, STATUS_EXPIRED))
+    counts = {
+        "not_an_opportunity": 0, "past_year": 0, "past_date": 0,
+        "stale_posting": 0, "dead_link": 0, "hidden": 0,
+    }
     for vacancy in rows:
         reasons = removal_reasons_for(vacancy, day)
         if not reasons:
@@ -266,6 +474,8 @@ def stamp_text_failures(db: Session, today: date | None = None, when: datetime |
         for reason in reasons:
             if reason in counts:
                 counts[reason] += 1
+        if is_manually_closed(vacancy) and "manual_close" not in reasons:
+            reasons = ["manual_close", *reasons]
         vacancy.quality_flags = reasons
         vacancy.quality_score = listing_quality_score(reasons)
         mark_expired(vacancy, moment)
@@ -390,6 +600,7 @@ def review_listing_quality(
     summary = {
         "not_an_opportunity": text["not_an_opportunity"],
         "past_year": text["past_year"],
+        "past_date": text["past_date"],
         "stale_posting": text["stale_posting"],
         "dead_link": text["dead_link"] + links["dead_link"],
         "hidden": text["hidden"] + links["dead_link"],
@@ -397,7 +608,7 @@ def review_listing_quality(
     }
     detail = (
         f"hidden={summary['hidden']} not_an_opportunity={summary['not_an_opportunity']} "
-        f"past_year={summary['past_year']} stale_posting={summary['stale_posting']} "
+        f"past_year={summary['past_year']} past_date={summary['past_date']} stale_posting={summary['stale_posting']} "
         f"dead_link={summary['dead_link']} links_checked={summary['links_checked']}"
     )
     db.add(AdminAuditLog(admin_id=_SYSTEM_ACTOR, action="review_listing_quality", detail=detail[:500]))

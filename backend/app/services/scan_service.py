@@ -285,8 +285,17 @@ def apply_fetch(db: Session, source: VacancySource, outcome: FetchOutcome) -> Sc
             if fields["lifecycle_status"] == "CLOSED" and was_open:
                 report.closed += 1
         else:
-            from app.services.opportunity_expiry import closing_value_has_passed
-            if fields.get("lifecycle_status") == "CLOSED" or closing_value_has_passed(fields.get("closing_date")):
+            from app.services.opportunity_expiry import closing_value_has_passed, sa_today
+            from app.services.listing_quality import old_advert_reasons
+            if (
+                fields.get("lifecycle_status") == "CLOSED"
+                or closing_value_has_passed(fields.get("closing_date"))
+                or old_advert_reasons(
+                    fields.get("title"),
+                    (fields.get("application_url"), fields.get("canonical_url")),
+                    sa_today(now),
+                )
+            ):
                 # A new posting that has already closed is never stored, so it
                 # can never be listed. Outdated jobs chase people away.
                 report.skipped_expired += 1
@@ -436,8 +445,14 @@ def _apply_fields(vac: Vacancy, fields: dict, now: datetime) -> None:
     vac.verified_at = now if kind != "job" else None
     vac.opportunity_reviewed = True
     from app.services.opportunity_expiry import closing_has_passed, mark_active, mark_expired
-    from app.services.listing_quality import apply_listing_quality
-    if fields["lifecycle_status"] == "CLOSED" or closing_has_passed(vac.closing_date):
+    from app.services.listing_quality import apply_listing_quality, is_manually_closed
+    held = is_manually_closed(vac)
+    if held:
+        # An operator closed this row after checking it. Seeing it again on
+        # the board does not make it open: it stays removed for the purge.
+        vac.lifecycle_status = "REMOVED"
+        mark_expired(vac, now)
+    elif fields["lifecycle_status"] == "CLOSED" or closing_has_passed(vac.closing_date):
         if fields["lifecycle_status"] == "CLOSED":
             vac.lifecycle_status = "CLOSED"
         mark_expired(vac, now)
