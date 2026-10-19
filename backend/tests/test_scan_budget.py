@@ -157,8 +157,41 @@ def test_run_returns_within_budget_with_hanging_sites_in_flight(db, local_server
                 db_seconds.append((_name, round(time.monotonic() - t, 3)))
         monkeypatch.setattr(scan_batch, name, timed)
 
+    import gc
+    import app.services.scan_service as _ss
+    for mod, name in ((_ss, "detect_ats"),):
+        real = getattr(mod, name)
+
+        def timed2(*a, _real=real, _name=name, **k):
+            t = time.monotonic()
+            try:
+                return _real(*a, **k)
+            finally:
+                db_seconds.append((_name, round(time.monotonic() - t, 3)))
+        monkeypatch.setattr(mod, name, timed2)
+    for meth in ("commit", "refresh", "query"):
+        real = getattr(db, meth)
+
+        def timed3(*a, _real=real, _name=meth, **k):
+            t = time.monotonic()
+            try:
+                return _real(*a, **k)
+            finally:
+                d = time.monotonic() - t
+                if d > 0.02:
+                    db_seconds.append(("db." + _name, round(d, 3)))
+        monkeypatch.setattr(db, meth, timed3)
+    gc_t = {}
+
+    def gc_cb(phase, info):
+        if phase == "start":
+            gc_t["t"] = time.monotonic()
+        elif "t" in gc_t and time.monotonic() - gc_t["t"] > 0.02:
+            db_seconds.append(("gc%d" % info["generation"], round(time.monotonic() - gc_t["t"], 3)))
+    gc.callbacks.append(gc_cb)
     t0 = time.monotonic()
     out = run_scan_batch(db, max_seconds=2.0, workers=6)   # real fetch_source, robots.txt on
+    gc.callbacks.remove(gc_cb)
     elapsed = time.monotonic() - t0
     diag = (out, db_seconds)
     assert elapsed <= 2.0 + 0.25, (elapsed, diag)
