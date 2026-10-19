@@ -105,6 +105,9 @@ _DAY_MONTH_YEAR = re.compile(
 )
 _MONTH_YEAR = re.compile(rf"(?<![a-z])({_MONTH_RE})(?![a-z]){_SEP}(20\d\d)(?![0-9])", re.IGNORECASE)
 _ISO_DATE = re.compile(r"(?<![0-9])(20\d\d)-(\d\d)-(\d\d)(?![0-9])")
+# Scanner and phone file names: DOC-20220810-WA0017.pdf, 20260217090757606.pdf
+_COMPACT_DATE = re.compile(r"(?<![0-9])(20\d\d)(0[1-9]|1[0-2])([0-3]\d)")
+UPLOAD_MONTH_GRACE_DAYS = 90
 # A year on its own: not part of a longer number, not an ISO standard edition
 # ("9001:2015"), not an Australian postcode ("NSW 2000").
 _TITLE_YEAR = re.compile(r"(?<![0-9:])(?<!NSW )(?<!VIC )(?<!ACT )(20\d\d)(?![0-9])", re.IGNORECASE)
@@ -169,6 +172,8 @@ def _label_before(pattern, text: str, start: int) -> bool:
 def named_dates(text: str | None) -> list[tuple[date, str]]:
     """Dates a text names, as (date, kind). kind is closing, day or month.
 
+    ``old_advert_reasons`` adds ``upload`` for a /YYYY/MM/ upload folder.
+
     A month is returned as its last day. Dates labelled as the publishing day
     are left out; the stale-posting rule covers those.
     """
@@ -179,7 +184,8 @@ def named_dates(text: str | None) -> list[tuple[date, str]]:
     day_matches = [(m, int(m.group(3)), _MONTHS[m.group(2).lower()], int(m.group(1)))
                    for m in _DAY_MONTH_YEAR.finditer(text)]
     iso_matches = [(m, int(m.group(1)), int(m.group(2)), int(m.group(3))) for m in _ISO_DATE.finditer(text)]
-    for match, year, month, day in day_matches + iso_matches:
+    compact = [(m, int(m.group(1)), int(m.group(2)), int(m.group(3))) for m in _COMPACT_DATE.finditer(text)]
+    for match, year, month, day in day_matches + iso_matches + compact:
         spans.append(match.span())
         if _label_before(_POSTED_LABEL, text, match.start()):
             continue
@@ -213,6 +219,8 @@ def dates_have_passed(dates: list[tuple[date, str]], today: date) -> bool:
             return True
         if kind == "month" and named + timedelta(days=PAST_MONTH_GRACE_DAYS) < today:
             return True
+        if kind == "upload" and named + timedelta(days=UPLOAD_MONTH_GRACE_DAYS) < today:
+            return True
     return False
 
 
@@ -234,7 +242,14 @@ def old_advert_reasons(
     reasons: list[str] = []
     dates = named_dates(title)
     for url in urls:
-        dates.extend(named_dates(_readable_name(link_name_parts(url)[1])))
+        path, name = link_name_parts(url)
+        dates.extend(named_dates(_readable_name(name)))
+        for match in _UPLOAD_FOLDER.finditer(path):
+            year, month = int(match.group(1)), int(match.group(2))
+            if year == today.year:
+                # The month the file went up. An advert this old has closed
+                # unless the text names a later date.
+                dates.append((_month_end(year, month), "upload"))
     names_future_day = any(named >= today for named, _kind in dates)
     if _title_has_old_year(title, today) or (
         not names_future_day and any(_link_has_old_year(url, today) for url in urls)

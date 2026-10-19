@@ -38,6 +38,9 @@ def test_programme_check_examples_are_caught():
         ("Bursary Form", "http://www.mkhondo.gov.za/wp-content/uploads/2025/01/BURSARY-APPLICATION-FORM-2025-1.pdf"),
         ("Drivers | Closing: 25 October 2018", "https://www.mopani.gov.za/docs/vacancies/Monapni17102018.pdf"),
         ("Trainee Traffic Officer 05 August 2005", None),
+        ("DIRECTORATE: OFFICE OF THE MUNICIPAL MANAGER", "https://www.mopani.gov.za/docs/DOC-20220810-WA0017.pdf"),
+        ("Advert PL1 Lecturer.", "https://www.vhembecollege.edu.za/wp-content/uploads/2026/06/Advert-PL1-Lecturer-1.pdf"),
+        ("Recruit Holdings Announces Executive Appointments", "https://recruit-holdings.com/en/newsroom/20260209_0002/"),
         ("Traffic Officers - Speed Violations X3",
          "https://www.knysna.gov.za/wp-content/uploads/2026/04/Traffic-Officers-speed-violations_Apr-2026.pdf"),
         ("Traffic Officer Post",
@@ -61,6 +64,8 @@ def test_current_adverts_stay():
         ("Quality Auditor ISO 9001:2015", "https://ward.example/jobs/42"),
         ("Graduate Programme closing 30 November 2026", None),
         ("Intake starts September 2026", None),
+        ("Bursary closes 30 November 2026", "https://x.example/wp-content/uploads/2026/05/bursary.pdf"),
+        ("Lecturer", "https://x.example/wp-content/uploads/2026/08/lecturer.pdf"),
         ("THW Client Co-op (January 2027 - Rochester, NY)",
          "https://x.wd1.myworkdayjobs.com/careers/job/New-York/THW-Client-Co-op--January-2026-_R031672"),
     ]
@@ -78,7 +83,7 @@ def test_passed_dates():
     assert text_names_passed_date("ADVERT TRAINEE TRAFFIC OFFICERS AUG 2026", TODAY)
     assert not text_names_passed_date("Advert September 2026", TODAY)
     assert not text_names_passed_date("31 February 2027 typo", TODAY)
-    assert old_advert_reasons("Nurse", ("https://x.example/uploads/2026/05/nurse.pdf",), TODAY) == []
+    assert old_advert_reasons("Nurse", ("https://x.example/uploads/2026/08/nurse.pdf",), TODAY) == []
 
 
 def _source(db):
