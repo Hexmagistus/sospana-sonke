@@ -305,3 +305,27 @@ def test_a_closing_date_that_has_passed_is_skipped_and_counted(monkeypatch):
     assert db.query(Vacancy).count() == 0
     db.close()
     engine.dispose()
+
+
+def test_a_manually_closed_programme_is_not_reopened_on_boot():
+    engine = _engine()
+    S = sessionmaker(bind=engine)
+    db = S()
+    _company(db, "Absa Group")
+    db.close()
+    import_verified_programmes(engine)
+    db = S()
+    row = db.query(Vacancy).filter(Vacancy.title == "SAICA Trainee Programme").one()
+    row.quality_flags = ["manual_close"]
+    row.is_open = False
+    row.status = "expired"
+    row.lifecycle_status = "REMOVED"
+    db.commit()
+    db.close()
+    again = import_verified_programmes(engine)
+    assert again["skipped_closed"] == 1
+    db = S()
+    row = db.query(Vacancy).filter(Vacancy.title == "SAICA Trainee Programme").one()
+    assert row.is_open is False and row.status == "expired" and row.lifecycle_status == "REMOVED"
+    db.close()
+    engine.dispose()

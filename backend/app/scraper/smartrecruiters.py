@@ -7,6 +7,15 @@ from app.scraper.base import ScrapeStrategy, RawVacancy, html_to_text
 from app.scraper.politeness import request_with_backoff
 
 
+def _posting_page(token: str, posting: dict) -> str | None:
+    """The employer's public advert page. ``ref`` is the JSON API, not a page."""
+    posting_id = posting.get("id")
+    if posting_id:
+        return f"https://jobs.smartrecruiters.com/{token}/{posting_id}"
+    ref = posting.get("ref") or ""
+    return None if "api.smartrecruiters.com" in ref else (ref or None)
+
+
 class SmartRecruitersStrategy(ScrapeStrategy):
     ats_type = "smartrecruiters"
 
@@ -39,8 +48,8 @@ class SmartRecruitersStrategy(ScrapeStrategy):
                     department=(p.get("department") or {}).get("label"),
                     posting_date=p.get("releasedDate"),
                     description=html_to_text((p.get("jobAd") or {}).get("sections", {}).get("jobDescription", {}).get("text")),
-                    application_url=p.get("applyUrl") or p.get("ref"),
-                    source_url=p.get("ref"),
+                    application_url=p.get("applyUrl") or _posting_page(token, p),
+                    source_url=_posting_page(token, p),
                     raw={"id": p.get("id"), "name": p.get("name")},
                 ))
             offset += len(page)

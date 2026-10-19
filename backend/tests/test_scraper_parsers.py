@@ -411,6 +411,10 @@ def test_smartrecruiters_reads_saved_page():
         vacs = SmartRecruitersStrategy().fetch(src, c)
     assert vacs[0].title == "Life Sales Advisor"
     assert vacs[0].location == "Pretoria, South Africa"
+    for vac in vacs:
+        assert "api.smartrecruiters.com" not in (vac.application_url or "")
+        assert "api.smartrecruiters.com" not in (vac.source_url or "")
+    assert vacs[0].application_url.startswith("https://jobs.smartrecruiters.com/OUTsurance/")
     bosch = detect_ats("https://careers.smartrecruiters.com/BoschGroup/south-africa")
     assert bosch[1]["token"] == "BoschGroup" and bosch[1]["country"] == "za"
 
