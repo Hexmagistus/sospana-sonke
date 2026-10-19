@@ -145,12 +145,25 @@ def test_run_returns_within_budget_with_hanging_sites_in_flight(db, local_server
         healthy.append(c)
     db.commit()
 
+    db_seconds = []
+    for name in ("claim_source", "ensure_source", "select_due"):
+        real = getattr(scan_batch, name)
+
+        def timed(*a, _real=real, _name=name, **k):
+            t = time.monotonic()
+            try:
+                return _real(*a, **k)
+            finally:
+                db_seconds.append((_name, round(time.monotonic() - t, 3)))
+        monkeypatch.setattr(scan_batch, name, timed)
+
     t0 = time.monotonic()
     out = run_scan_batch(db, max_seconds=2.0, workers=6)   # real fetch_source, robots.txt on
     elapsed = time.monotonic() - t0
-    assert elapsed <= 2.0 + 0.25, elapsed
-    assert out["cut_short_by_budget"] == 4 and out["released_unfinished"] == 4
-    assert out["companies_scanned"] == 3 and out["sources_failed"] == 0
+    diag = (out, db_seconds)
+    assert elapsed <= 2.0 + 0.25, (elapsed, diag)
+    assert out["cut_short_by_budget"] == 4 and out["released_unfinished"] == 4, diag
+    assert out["companies_scanned"] == 3 and out["sources_failed"] == 0, diag
     db.expire_all()
     for c in hanging:     # cut off by the budget: not a TIMEOUT failure, place kept
         src = db.query(VacancySource).filter_by(company_id=c.id).one()
