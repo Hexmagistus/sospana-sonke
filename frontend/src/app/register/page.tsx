@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth";
+import { AuthMaintenanceBanner, isMaintenanceError, useAuthPaused } from "@/components/AuthMaintenance";
 import { Card, Field, Input, Select, Button, Alert } from "@/components/ui";
 import { POST_TYPES } from "@/lib/preferences";
 import { WhatsAppChannelButton } from "@/components/WhatsAppChannel";
@@ -32,6 +33,7 @@ function YesNo({
 export default function RegisterPage() {
   const { register } = useAuth();
   const router = useRouter();
+  const { paused, pause } = useAuthPaused();
   const [form, setForm] = useState({
     first_name: "", last_name: "", email: "", password: "", mobile_number: "",
     preferred_position: "", qualification_name: "",
@@ -52,6 +54,7 @@ export default function RegisterPage() {
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
+    if (paused) return;
     setError("");
     if (!consent) {
       setError("Please accept the Privacy Policy and Terms to create your account.");
@@ -71,6 +74,7 @@ export default function RegisterPage() {
       await successPause();
       router.push("/companies");
     } catch (err) {
+      if (isMaintenanceError(err)) pause();
       setBusy(false);
       setError(friendlyAuthError(err instanceof Error ? err.message : "Registration failed"));
     }
@@ -120,7 +124,8 @@ export default function RegisterPage() {
       <GlowFrame>
         <Card className="auth-panel">
           <form onSubmit={submit} className="space-y-4">
-            {error && <Alert kind="error">{error}</Alert>}
+            {paused && <AuthMaintenanceBanner />}
+            {error && !paused && <Alert kind="error">{error}</Alert>}
             <div className="grid grid-cols-2 gap-3">
               <Field label="First name">
                 <Input value={form.first_name} onChange={(e) => set("first_name", e.target.value)} required />
@@ -206,7 +211,7 @@ export default function RegisterPage() {
                 onChange={setAlerts}
               />
             </fieldset>
-            <Button type="submit" loading={busy} disabled={busy || !consent} glow className="w-full">
+            <Button type="submit" loading={busy} disabled={busy || !consent || paused} glow className="w-full">
               {busy ? "Creating…" : "Create account"}
             </Button>
           </form>
