@@ -10,6 +10,7 @@ import { RoleSuggestInput } from "@/components/RoleSuggestInput";
 import { RecentRoles, SavedRoles } from "@/components/RoleExtras";
 import { FLAGSHIP_COUNTRY, flagshipCountry, flagshipQuery } from "@/lib/flagship";
 import { LIST_PAGE, listOffset } from "@/lib/listWindow";
+import { SA_CAREERS_ENABLED } from "@/lib/maintenance";
 import { unexpiredJobs } from "@/lib/offlineJobs";
 import { ExpiryGuard, JobTitleLink, OfflineBanner, OfflineJobsFallback, SaveJobs } from "@/components/OfflineJobs";
 
@@ -212,6 +213,16 @@ export default async function JobsPage({ searchParams }: { searchParams: Promise
           , sorts by closing date.
         </p>
       </PageHeader>
+
+      {SA_CAREERS_ENABLED && (
+        // TEMPORARY maintenance link, see src/lib/maintenance.ts
+        <Link
+          href="/sa-careers"
+          className="block rounded-2xl border-2 border-[#f5b301] bg-[#0b2447] px-4 py-3 text-center text-base font-extrabold text-white shadow hover:bg-[#13315c] sm:text-lg"
+        >
+          🇿🇦 <span className="text-[#f5b301]">Open to all during maintenance:</span> every South African careers page, by category →
+        </Link>
+      )}
 
       <SavedRoles />
       <RecentRoles />

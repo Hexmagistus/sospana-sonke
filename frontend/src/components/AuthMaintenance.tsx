@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { API_BASE } from "@/lib/api";
+import { SA_CAREERS_ENABLED } from "@/lib/maintenance";
 
 export const AUTH_PAUSED_MESSAGE =
   "Sign-in is paused during maintenance. You can still browse today's jobs, no account needed.";
@@ -76,6 +77,15 @@ export function SiteMaintenanceBanner() {
       >
         Browse jobs
       </Link>
+      {SA_CAREERS_ENABLED && (
+        // TEMPORARY maintenance link, see src/lib/maintenance.ts
+        <Link
+          href="/sa-careers"
+          className="ml-0 mt-3 inline-block rounded-2xl border-2 border-[#f5b301] bg-white px-8 py-3 text-lg font-extrabold text-[#0b2447] shadow-lg hover:bg-[#fff8e1] sm:ml-3 sm:text-xl"
+        >
+          🇿🇦 SA careers pages
+        </Link>
+      )}
     </div>
   );
 }
