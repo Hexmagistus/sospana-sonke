@@ -14,6 +14,7 @@ import TaggingChoiceBanner from "@/components/TaggingChoiceBanner";
 import MentionPopup from "@/components/MentionPopup";
 import PwaExtras from "@/components/PwaExtras";
 import CopyGuard from "@/components/CopyGuard";
+import { SiteMaintenanceBanner } from "@/components/AuthMaintenance";
 import PhotoWash from "@/components/PhotoWash";
 import WelcomeNote from "@/components/WelcomeNote";
 import { OutboundClickListener } from "@/components/CountOutboundLink";
@@ -167,6 +168,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </a>
         <ThemeProvider>
           <AuthProvider>
+            <SiteMaintenanceBanner />
             <Nav />
             <main id="main-content" className="relative z-0 mx-auto max-w-6xl px-4 py-6 pb-24 md:pb-6">
               <PhotoWash />

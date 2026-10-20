@@ -59,3 +59,23 @@ export function AuthMaintenanceBanner() {
     </div>
   );
 }
+
+/** Site-wide banner, top of every page, while the database is down or the device is offline. */
+export function SiteMaintenanceBanner() {
+  const { paused } = useAuthPaused();
+  if (!paused) return null;
+  return (
+    <div role="status" className="w-full border-b-4 border-[#f5b301] bg-[#0b2447] px-4 py-4 text-center text-white sm:py-5">
+      <p className="mx-auto max-w-3xl text-lg font-extrabold leading-snug sm:text-2xl">
+        🛠️ <span className="text-[#f5b301]">Under maintenance:</span> we&apos;re upgrading our servers. You can still browse
+        today&apos;s checked jobs, no account needed.
+      </p>
+      <Link
+        href="/jobs"
+        className="mt-3 inline-block rounded-2xl bg-[#f5b301] px-8 py-3 text-lg font-extrabold text-[#0b2447] shadow-lg hover:bg-[#ffc933] sm:text-xl"
+      >
+        Browse jobs
+      </Link>
+    </div>
+  );
+}
