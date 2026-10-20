@@ -86,6 +86,14 @@ export function SiteMaintenanceBanner() {
           🇿🇦 SA careers pages
         </Link>
       )}
+      {SA_CAREERS_ENABLED && (
+        <Link
+          href="/offline-guide"
+          className="ml-0 mt-3 inline-block rounded-2xl border-2 border-[#f5b301] bg-white px-8 py-3 text-lg font-extrabold text-[#0b2447] shadow-lg hover:bg-[#fff8e1] sm:ml-3 sm:text-xl"
+        >
+          📘 Offline guide
+        </Link>
+      )}
     </div>
   );
 }
