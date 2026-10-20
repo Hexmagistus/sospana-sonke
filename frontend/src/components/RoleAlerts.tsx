@@ -1,5 +1,6 @@
 "use client";
 
+import { isVisibleCountry } from "@/lib/visibleCountries";
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { Button, Field, Input, Select } from "@/components/ui";
@@ -98,7 +99,7 @@ export default function RoleAlerts() {
     api.get<{ by_country?: Record<string, number> }>("/companies/stats")
       .then((stats) => {
         if (gone) return;
-        const names = Object.keys(stats.by_country || {}).filter((name) => name && !SKIP_COUNTRIES.has(name));
+        const names = Object.keys(stats.by_country || {}).filter((name) => name && !SKIP_COUNTRIES.has(name) && isVisibleCountry(name));
         setCountries(sortCountries(names));
       })
       .catch(() => {

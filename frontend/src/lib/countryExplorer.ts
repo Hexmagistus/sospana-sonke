@@ -5,6 +5,7 @@ Order is the standing rule, always: South Africa, the rest of SADC, the rest of
 Africa, then every other region. Counts are whatever the API sent; this file
 never makes up a number. */
 
+import { isVisibleCountry } from "./visibleCountries";
 import { countryBand } from "./directoryFilters";
 import { countryCode, countryFlag, resolveCountryParam } from "./countryCodes";
 import { OTHER_AFRICA, SADC } from "./regions";
@@ -81,9 +82,11 @@ export function compareRows(a: CountryRow, b: CountryRow): number {
  * yet (dimmed, not selectable). Non-African countries with no employers are
  * not listed: the directory has no list of them to be honest about.
  */
-export function buildCountryRows(input: CountryInputs, opts: { includeEmptyAfrican?: boolean } = {}): CountryRow[] {
+export function buildCountryRows(input: CountryInputs, opts: { includeEmptyAfrican?: boolean; visibleOnly?: boolean } = {}): CountryRow[] {
   const names = new Set(Object.keys(input.employers).filter((n) => (input.employers[n] ?? 0) > 0));
   if (opts.includeEmptyAfrican) for (const n of AFRICAN_COUNTRY_NAMES) names.add(n);
+  // Country focus filter (src/lib/visibleCountries.ts): hidden countries are left out.
+  if (opts.visibleOnly) for (const n of Array.from(names)) if (!isVisibleCountry(n)) names.delete(n);
   const rows = Array.from(names).map((name): CountryRow => {
     const employers = input.employers[name] ?? 0;
     return {

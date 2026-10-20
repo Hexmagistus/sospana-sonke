@@ -11,7 +11,9 @@
  * date and the exact rule. The last live answer is also kept in this browser,
  * so a returning visitor sees recent numbers straight away.
  */
-import snapshot from "../data/directory-snapshot.json";
+// Trimmed to visible countries; see src/lib/visibleCountries.ts to undo.
+import { isVisibleCountry } from "./visibleCountries";
+import snapshot from "../data/directory-snapshot-visible.json";
 import { COUNTRY_FLAGS } from "./countryFlags";
 import { NON_COUNTRY, coverageText } from "./regions";
 
@@ -102,7 +104,7 @@ export function parseStats(raw: unknown): LandingStats | null {
   if (!map || typeof map !== "object" || Array.isArray(map)) return null;
   const byCountry: Record<string, number> = {};
   for (const [name, n] of Object.entries(map as Record<string, unknown>)) {
-    if (typeof n === "number" && Number.isFinite(n) && n > 0) byCountry[name] = Math.floor(n);
+    if (typeof n === "number" && Number.isFinite(n) && n > 0 && isVisibleCountry(name)) byCountry[name] = Math.floor(n);
   }
   if (Object.keys(byCountry).length === 0) return null;
   const extra = raw as { employers?: unknown; countries?: unknown };

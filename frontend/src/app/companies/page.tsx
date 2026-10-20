@@ -282,7 +282,7 @@ function CompaniesDirectoryInner() {
       withLinks: facets?.country_with_links,
       counted: facets?.country_counted,
       openVacancies: facets?.country_open_vacancies,
-    }, { includeEmptyAfrican: true }),
+    }, { includeEmptyAfrican: true, visibleOnly: true }),
     [facets],
   );
 
