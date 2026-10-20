@@ -1,17 +1,48 @@
 {
   "name": "Sospana Sonke",
   "short_name": "Sospana Sonke",
-  "description": "Jobs, internships, learnerships, bursaries and graduate programmes from official pages, plus employer careers links and the Stats SA labour table. You apply on the source page.",
+  "description": "Jobs, internships, learnerships, bursaries and graduate programmes from official pages. Works offline with the last saved list; expired roles are never shown.",
   "start_url": "/dashboard",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#f4f7f8",
+  "background_color": "#fffdf5",
   "theme_color": "#0c1b33",
-  "categories": ["business", "productivity"],
+  "categories": [
+    "business",
+    "productivity"
+  ],
   "icons": [
-    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-    { "src": "/icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Open roles",
+      "short_name": "Jobs",
+      "url": "/jobs",
+      "icons": [
+        {
+          "src": "/icons/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
   ]
 }

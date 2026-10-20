@@ -68,6 +68,8 @@
     "src/lib/flagship.ts",
     "src/lib/flagship.test.ts",
     "src/lib/listWindow.ts",
-    "src/lib/listWindow.test.ts"
+    "src/lib/listWindow.test.ts",
+    "src/lib/offlineJobs.ts",
+    "src/lib/offlineJobs.test.ts"
   ]
 }

@@ -154,6 +154,9 @@ class PublicJobListResponse(BaseModel):
         "Sponsored rows are a separate list. They match these filters, they are capped, "
         "and the order of the other rows is unchanged."
     )
+    # True when the database could not answer and this is the last saved list.
+    from_snapshot: bool = False
+    snapshot_saved_at: str | None = None
 
 
 class PublicJobDetailResponse(PublicJobResponse):

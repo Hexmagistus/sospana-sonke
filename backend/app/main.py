@@ -177,8 +177,22 @@ def create_app() -> FastAPI:
     def service_status(response: Response, db: Session = Depends(get_db)) -> dict:
         """Database ping and scanner freshness. /health stays free of that I/O."""
         from app.services.status_report import status_report
-        response.headers["Cache-Control"] = "no-store"
-        return status_report(db)
+        response.headers["Cache-Control"] = "public, max-age=30, s-maxage=600, stale-while-revalidate=600"
+        try:
+            return status_report(db)
+        except Exception:
+            # A database block must not turn the status page into a 500.
+            from datetime import datetime, timezone
+            try:
+                db.rollback()
+            except Exception:
+                pass
+            return {
+                "status": "down",
+                "checked_at": datetime.now(timezone.utc).isoformat(),
+                "components": {"api": {"status": "ok"}, "database": {"status": "down"},
+                               "scanner": {"status": "unknown"}},
+            }
 
     @app.get("/health", tags=["system"])
     async def health(response: Response) -> dict:

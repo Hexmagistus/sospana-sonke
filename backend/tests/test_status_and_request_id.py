@@ -74,7 +74,7 @@ def test_status_reports_a_live_database_and_a_fresh_scan(client, db_engine):
 
     response = client.get("/api/v1/status")
     assert response.status_code == 200
-    assert response.headers["cache-control"] == "no-store"
+    assert "s-maxage=600" in response.headers["cache-control"]
     body = response.json()
     assert body["components"]["database"]["status"] == "ok"
     assert body["components"]["api"]["status"] == "ok"
