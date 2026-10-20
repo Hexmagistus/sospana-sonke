@@ -1,7 +1,8 @@
 /** Countries that have a public page. Counts are the built-in with-link snapshot,
 the same figures the homepage shows before the live directory answers. */
 
-import snapshot from "@/data/directory-snapshot.json";
+// Trimmed to visible countries; see src/lib/visibleCountries.ts to undo.
+import snapshot from "@/data/directory-snapshot-visible.json";
 import { countryFlag, countryCode } from "@/lib/countryCodes";
 import { countryFromSlug, countrySlug } from "@/lib/countryPage";
 import { compareCountries } from "@/lib/directoryFilters";

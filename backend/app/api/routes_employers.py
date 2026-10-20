@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response,
 from sqlalchemy import func
 from sqlalchemy.orm import Session, defer
 
+from app.services.visible_countries import visible_country_clause
 from app.api.routes_vacancies import _public_job
 from app.core.rate_limit import limiter
 from app.db.session import get_db
@@ -35,6 +36,7 @@ def _linked():
         Company.active.is_(True),
         Company.careers_url.isnot(None),
         func.length(func.trim(Company.careers_url)) > 0,
+        visible_country_clause(Company.country),
     )
 
 

@@ -27,6 +27,7 @@ from app.schemas.company import (
 from app.schemas.link_report import LinkReportCreateRequest, LinkReportResponse
 from app.services.category_groups import CATEGORY_GROUPS, canonical_type, stored_values_for, types_for_group
 from app.services.country_names import canonical_country, is_country, spellings_for
+from app.services.visible_countries import visible_country_clause
 from app.services import icon_cache
 from app.services.csv_import import import_companies_from_csv
 from app.services.link_report_service import create_link_report
@@ -109,7 +110,8 @@ def list_companies(
     offset: int = Query(default=0, ge=0),
 ):
     private_short_cache(response)
-    query = db.query(Company).options(*_LIST_DEFER).filter(Company.deleted_at.is_(None))
+    query = db.query(Company).options(*_LIST_DEFER).filter(Company.deleted_at.is_(None),
+                                                           visible_country_clause(Company.country))
     if source_type:
         # The code plus its aliases (category_groups.ALIASES), e.g. SOE also finds PARASTATAL.
         query = query.filter(func.upper(Company.source_type).in_(stored_values_for(source_type)))
@@ -167,7 +169,7 @@ def invalidate_directory_stats_cache() -> None:
 def _country_counts(db: Session, *conditions) -> dict[str, int]:
     rows = (db.query(Company.country, func.count(Company.id))
             .filter(Company.deleted_at.is_(None), Company.country.isnot(None),
-                    Company.country != "", *conditions)
+                    Company.country != "", visible_country_clause(Company.country), *conditions)
             .group_by(Company.country).all())
     out: dict[str, int] = {}
     for country, n in rows:
@@ -231,7 +233,7 @@ def company_facets(db: Session = Depends(get_db), _: User = Depends(get_current_
     rows = (db.query(Company.country, Company.source_type,
                      func.count(Company.id),
                      func.count(case((func.length(func.coalesce(Company.careers_url, "")) > 0, 1))))
-            .filter(Company.deleted_at.is_(None))
+            .filter(Company.deleted_at.is_(None), visible_country_clause(Company.country))
             .group_by(Company.country, Company.source_type).all())
     country_counts: dict[str, int] = {}
     country_with_links: dict[str, int] = {}
@@ -314,7 +316,7 @@ def coverage_map(db: Session = Depends(get_db), _: User = Depends(get_current_us
             func.sum(case((Company.scraping_status == "pending", 1), else_=0)),
             func.sum(case((Company.scraping_status.in_(tuple(_NEEDS_ATTENTION)), 1), else_=0)),
         )
-        .filter(Company.deleted_at.is_(None))
+        .filter(Company.deleted_at.is_(None), visible_country_clause(Company.country))
         .group_by(country_expr, type_expr)
         .order_by(country_expr, type_expr)
         .all()

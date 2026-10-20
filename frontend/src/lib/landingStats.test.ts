@@ -22,17 +22,18 @@ describe("landing stats", () => {
     assert.equal(snap.source, "snapshot");
     // with_link stays well under the all-rows directory total, so a payload that
     // counts employers with no careers link cannot pass as `total`.
-    assert.ok(snap.total > 4000 && snap.total < 8000, `with-link total ${snap.total}`);
-    assert.ok(snap.directoryTotal != null && snap.directoryTotal > 10000, `directory total ${snap.directoryTotal}`);
+    assert.ok(snap.total > 3000 && snap.total < 8000, `with-link total ${snap.total}`);
+    assert.ok(snap.directoryTotal != null && snap.directoryTotal > 7000, `directory total ${snap.directoryTotal}`);
     assert.ok(snap.directoryTotal > snap.total);
-    assert.equal(snap.countriesWithLink, 207);
-    assert.equal(snap.directoryCountries, 229);
+    // Trimmed to visible countries (src/lib/visibleCountries.ts).
+    assert.equal(snap.countriesWithLink, 81);
+    assert.equal(snap.directoryCountries, 91);
   });
 
   it("directory metadata uses the snapshot, not an old Africa-only count", () => {
     const text = snapshotDirectoryDescription();
-    assert.match(text, /4,999 employers with a direct careers link/);
-    assert.match(text, /11,986 employers in total/);
+    assert.match(text, /3,906 employers with a direct careers link/);
+    assert.match(text, /7,928 employers in total/);
     assert.match(text, /South America/);
     assert.match(text, /12 October 2026/);
     assert.doesNotMatch(text, /2,400/);
@@ -59,8 +60,8 @@ describe("landing stats", () => {
     assert.equal(parseStats({ with_link: 10, by_country_with_link: [] }), null);
     assert.equal(parseStats(null), null);
     assert.equal(parseStats("x"), null);
-    const odd = parseStats({ with_link: 5, by_country_with_link: { A: 2, B: "7", C: -1, D: 0 } });
-    assert.deepEqual(odd?.byCountry, { A: 2 });
+    const odd = parseStats({ with_link: 5, by_country_with_link: { Kenya: 2, Germany: 3, B: "7", C: -1, D: 0 } });
+    assert.deepEqual(odd?.byCountry, { Kenya: 2 });
   });
 
   it("keeps the last live answer in the browser for a week", () => {

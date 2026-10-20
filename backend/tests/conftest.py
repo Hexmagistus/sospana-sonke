@@ -8,6 +8,8 @@ os.environ.setdefault("SECRET_KEY", "test-secret-key-not-for-production")
 # in the whole pytest run, so per-IP counters would otherwise accumulate across
 # hundreds of unrelated test cases and cause flaky, unrelated 429 failures.
 os.environ.setdefault("ENV", "test")
+# Country focus filter off by default in tests; test_visible_countries turns it on.
+os.environ.setdefault("HIDE_NON_ENGLISH_COUNTRIES", "0")
 
 import pytest
 from fastapi.testclient import TestClient

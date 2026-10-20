@@ -2,7 +2,7 @@
 // Caches only public, non-personal data (static assets, pages, the employer directory).
 // Also keeps the public jobs list (stale-while-revalidate) so /jobs works offline.
 // Never caches messages, notifications, account, tips or any other personal API call.
-const VERSION = "v7";
+const VERSION = "v8";
 const STATIC = `ss-static-${VERSION}`;
 const PAGES = `ss-pages-${VERSION}`;
 const DATA = `ss-data-${VERSION}`;

@@ -29,6 +29,7 @@ from app.schemas.vacancy import (
     JobFacetsResponse, JobFacetCount, JobSuggestResponse, JobIdListResponse,
     SavedOpportunityCreate, AdminVacancyListResponse, AdminVacancyRow,
 )
+from app.services.visible_countries import visible_country_clause
 from app.services.flagship import FLAGSHIP_COUNTRY, countries_flagship_first, flagship_role_rank
 from app.services.opportunity_expiry import expired_role_clauses, is_publicly_listed, public_role_clauses
 from app.services.opportunity_tombstone import public_id_was_deleted
@@ -142,7 +143,7 @@ def _public_job(vacancy: Vacancy, company: Company) -> PublicJobResponse:
 
 
 def _open_public(query):
-    return query.filter(Company.deleted_at.is_(None), *public_role_clauses())
+    return query.filter(Company.deleted_at.is_(None), visible_country_clause(Company.country), *public_role_clauses())
 
 
 @router.get("/jobs/counts", response_model=OpportunityCountResponse)
@@ -231,7 +232,7 @@ def _query_public_jobs(db: Session, q, country, employer, employment_type, oppor
     query = (
         db.query(Vacancy, Company)
         .join(Company, Company.id == Vacancy.company_id)
-        .filter(Company.deleted_at.is_(None), *public_role_clauses())
+        .filter(Company.deleted_at.is_(None), visible_country_clause(Company.country), *public_role_clauses())
     )
     if q and q.strip():
         phrases = expand_title_terms(q)

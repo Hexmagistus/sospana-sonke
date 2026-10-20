@@ -146,7 +146,7 @@ function GroupDirectoryInner({ group }: { group: CategoryGroup }) {
       if (c.open_vacancies_known) counted[k] = (counted[k] || 0) + 1;
       openVacancies[k] = (openVacancies[k] || 0) + (c.open_vacancies || 0);
     }
-    return buildCountryRows({ employers, withLinks, counted, openVacancies });
+    return buildCountryRows({ employers, withLinks, counted, openVacancies }, { visibleOnly: true });
   }, [inCategory]);
 
   // Picking a country (list or map) updates the page and the address bar
