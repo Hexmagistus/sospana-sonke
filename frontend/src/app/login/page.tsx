@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { safeInternalPath } from "@/lib/returnPath";
 import { useAuth } from "@/lib/auth";
+import { AuthMaintenanceBanner, isMaintenanceError, useAuthPaused } from "@/components/AuthMaintenance";
 import { Card, Field, Input, Button, Alert } from "@/components/ui";
 import { CircuitOverlay, GlowFrame, LogoGlow } from "@/components/HighTech";
 import { CircuitMascot, GreetingLine, LitCircuits, friendlyAuthError, successPause } from "@/components/AuthDelight";
@@ -55,6 +56,7 @@ function AuthLoader() {
 export default function LoginPage() {
   const { login, loginWithGoogle } = useAuth();
   const router = useRouter();
+  const { paused, pause } = useAuthPaused();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [otp, setOtp] = useState("");
@@ -96,6 +98,7 @@ export default function LoginPage() {
             await successPause();
             router.push(safeInternalPath(new URLSearchParams(window.location.search).get("next")) ?? "/companies");
           } catch (err) {
+      if (isMaintenanceError(err)) pause();
             setAuthing(false);
             setError(err instanceof Error ? err.message : "Google sign-in failed.");
           }
@@ -106,10 +109,11 @@ export default function LoginPage() {
     };
     document.body.appendChild(script);
     return () => { script.remove(); };
-  }, [loginWithGoogle, router]);
+  }, [loginWithGoogle, router, pause]);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
+    if (paused) return;
     setError("");
     setBusy(true);
     setAuthing(true);
@@ -121,6 +125,7 @@ export default function LoginPage() {
       await successPause();
       router.push(safeInternalPath(new URLSearchParams(window.location.search).get("next")) ?? "/companies");
     } catch (err) {
+      if (isMaintenanceError(err)) pause();
       const msg = err instanceof Error ? err.message : "Login failed";
       setAuthing(false);
       setBusy(false);
@@ -185,7 +190,8 @@ export default function LoginPage() {
           <h2 className="text-2xl font-extrabold">Sign in</h2>
           <p className="mb-4 mt-1 text-sm text-ss-muted">Welcome back — your opportunities missed you. 👋</p>
           <form onSubmit={submit} className="space-y-4">
-            {error && <Alert kind="error">{error}</Alert>}
+            {paused && <AuthMaintenanceBanner />}
+            {error && !paused && <Alert kind="error">{error}</Alert>}
             <Field label="Email">
               <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
             </Field>
@@ -205,7 +211,7 @@ export default function LoginPage() {
                 <Input value={otp} onChange={(e) => setOtp(e.target.value)} inputMode="numeric" placeholder="6-digit code" />
               </Field>
             )}
-            <Button type="submit" loading={busy} disabled={busy} glow className="w-full">
+            <Button type="submit" loading={busy} disabled={busy || paused} glow className="w-full">
               {busy ? "Signing in…" : "Sign in"}
             </Button>
             <p className="text-center text-sm">

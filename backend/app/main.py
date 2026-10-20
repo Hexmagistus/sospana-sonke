@@ -180,6 +180,25 @@ def create_app() -> FastAPI:
             "detail": "This file is no longer available: it was lost in a server restart before "
                       "storage was made permanent. Please re-upload your CV or generate the document again."})
 
+    # Database unreachable (e.g. a provider quota block): sign-in and sign-up must
+    # answer with a clear 503 and a friendly message, never a bare 500.
+    from sqlalchemy.exc import DBAPIError, OperationalError as _SAOperationalError
+
+    AUTH_PAUSED_MESSAGE = ("Sign-in is paused during maintenance. You can still browse "
+                           "today's jobs, no account needed.")
+
+    async def _db_unavailable(request, exc):
+        from fastapi.responses import JSONResponse
+        if request.url.path.startswith(f"{settings.API_V1_PREFIX}/auth"):
+            return JSONResponse(status_code=503, headers={"Retry-After": "3600"},
+                                content={"detail": AUTH_PAUSED_MESSAGE, "code": "maintenance"})
+        return JSONResponse(status_code=503, headers={"Retry-After": "3600"},
+                            content={"detail": "The service is under maintenance. Please try again later.",
+                                     "code": "maintenance"})
+
+    app.add_exception_handler(_SAOperationalError, _db_unavailable)
+    app.add_exception_handler(DBAPIError, _db_unavailable)
+
     @app.get("/api/v1/status", tags=["system"])
     def service_status(response: Response, db: Session = Depends(get_db)) -> dict:
         """Database ping and scanner freshness. /health stays free of that I/O."""
