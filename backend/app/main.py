@@ -40,7 +40,14 @@ limit_malloc_arenas()
 async def lifespan(app: FastAPI):
     # Again here, in case the server configured its loggers after import.
     install_uvicorn_scrubbers()
-    init_db()
+    try:
+        init_db()
+    except Exception:
+        # The database can be unreachable (for example a provider quota block).
+        # Boot anyway: /health answers, and /jobs serves its saved snapshot
+        # until the database is back. A real schema problem still shows in the
+        # logs and on every database request.
+        logger.exception("init_db failed; starting in degraded mode without the database")
     # First-boot bootstrap (seed companies + create admin) when configured.
     try:
         from app.db.session import SessionLocal
