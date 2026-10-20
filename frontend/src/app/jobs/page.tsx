@@ -223,6 +223,11 @@ export default async function JobsPage({ searchParams }: { searchParams: Promise
           🇿🇦 <span className="text-[#f5b301]">Open to all during maintenance:</span> every South African careers page, by category →
         </Link>
       )}
+      {SA_CAREERS_ENABLED && (
+        <Link href="/offline-guide" className="block text-center text-base font-bold text-[#0b2447] underline decoration-[#f5b301]">
+          📘 No data? Read the offline guide
+        </Link>
+      )}
 
       <SavedRoles />
       <RecentRoles />

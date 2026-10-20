@@ -28,6 +28,9 @@ export default function SaCareersPage() {
         <Link href="/jobs" className="mt-3 inline-block rounded-xl bg-[#0b2447] px-5 py-2 font-bold text-[#f5b301]">
           ← Browse jobs
         </Link>
+        <Link href="/offline-guide" className="ml-2 mt-3 inline-block rounded-xl border-2 border-[#f5b301] bg-white px-5 py-2 font-bold">
+          📘 Offline guide
+        </Link>
       </div>
       <div className="space-y-3">
         {cats.map((c) => (

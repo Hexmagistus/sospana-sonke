@@ -2,14 +2,14 @@
 // Caches only public, non-personal data (static assets, pages, the employer directory).
 // Also keeps the public jobs list (stale-while-revalidate) so /jobs works offline.
 // Never caches messages, notifications, account, tips or any other personal API call.
-const VERSION = "v6";
+const VERSION = "v7";
 const STATIC = `ss-static-${VERSION}`;
 const PAGES = `ss-pages-${VERSION}`;
 const DATA = `ss-data-${VERSION}`;
 const KEEP = [STATIC, PAGES, DATA];
 const PUBLIC_API = /\/api\/v1\/(companies(\/trending)?|jobs)(\?|$)/;
 // App shell: opened once on install so the site starts with no signal.
-const SHELL = ["/offline.html", "/", "/jobs", "/login", "/register", "/sa-careers", "/manifest.webmanifest", "/icons/icon-192.png", "/logo-mark.png"];
+const SHELL = ["/offline.html", "/", "/jobs", "/login", "/register", "/sa-careers", "/offline-guide", "/manifest.webmanifest", "/icons/icon-192.png", "/logo-mark.png"];
 
 self.addEventListener("install", (e) => {
   e.waitUntil(
