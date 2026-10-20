@@ -37,6 +37,15 @@ from app.services.search_terms import expand_title_terms, opportunity_types_for
 from app.models.saved_opportunity import SavedOpportunity
 import re
 from app.services.scan_service import scan_company
+from app.services import jobs_snapshot
+import logging
+from sqlalchemy.exc import SQLAlchemyError
+
+log = logging.getLogger(__name__)
+
+# Cuts database egress: Vercel's data cache and any shared cache keep a list for
+# ten minutes and may serve it stale while one request refreshes it.
+JOBS_CACHE_CONTROL = "public, max-age=60, s-maxage=600, stale-while-revalidate=600"
 from app.services.duplicate_service import find_duplicate_groups, find_external_id_groups, merge_duplicates
 from app.services.vacancy_report_service import create_vacancy_report
 
@@ -179,8 +188,46 @@ def list_public_jobs(
     limit: int = Query(default=30, ge=1, le=50),
     offset: int = Query(default=0, ge=0, le=100_000),
 ):
-    """Open roles the scanner has already stored. No sign-in. No advert body."""
-    response.headers["Cache-Control"] = "public, max-age=60"
+    """Open roles the scanner has already stored. No sign-in. No advert body.
+
+    When the database errors (for example a provider quota block) this serves the
+    last good snapshot with expired roles removed, instead of a 500.
+    """
+    response.headers["Cache-Control"] = JOBS_CACHE_CONTROL
+    try:
+        result = _query_public_jobs(db, q, country, employer, employment_type, opportunity_type,
+                                    max_age_days, sort, limit, offset)
+    except SQLAlchemyError:
+        log.warning("jobs query failed; serving snapshot", exc_info=True)
+        try:
+            db.rollback()
+        except Exception:
+            pass
+        return _snapshot_response(response, q, country, employer, opportunity_type, limit, offset)
+    if offset == 0 and not any(
+        (value or "").strip() for value in (q, country, employer, employment_type, opportunity_type)
+    ) and max_age_days is None and result.jobs:
+        jobs_snapshot.save([job.model_dump(mode="json") for job in result.jobs])
+    return result
+
+
+def _snapshot_response(response: Response, q, country, employer, opportunity_type,
+                       limit: int, offset: int) -> PublicJobListResponse:
+    from app.services.employer_service import RANKING_NOTE, SPONSORED_CAP
+    jobs, saved_at = jobs_snapshot.load()
+    kind = (opportunity_type or "").strip().lower().replace("-", "_").replace(" ", "_") or None
+    picked = [job for job in jobs if jobs_snapshot.matches(job, q, country, employer, kind)]
+    response.headers["Cache-Control"] = "public, max-age=60, s-maxage=120"
+    response.headers["X-Jobs-Source"] = "snapshot"
+    return PublicJobListResponse(
+        jobs=[PublicJobResponse(**job) for job in picked[offset:offset + limit]],
+        matched=len(picked), limit=limit, sponsored=[], sponsored_cap=SPONSORED_CAP,
+        ranking_note=RANKING_NOTE, from_snapshot=True, snapshot_saved_at=saved_at,
+    )
+
+
+def _query_public_jobs(db: Session, q, country, employer, employment_type, opportunity_type,
+                       max_age_days, sort, limit: int, offset: int) -> PublicJobListResponse:
     query = (
         db.query(Vacancy, Company)
         .join(Company, Company.id == Vacancy.company_id)

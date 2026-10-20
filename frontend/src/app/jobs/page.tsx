@@ -10,6 +10,8 @@ import { RoleSuggestInput } from "@/components/RoleSuggestInput";
 import { RecentRoles, SavedRoles } from "@/components/RoleExtras";
 import { FLAGSHIP_COUNTRY, flagshipCountry, flagshipQuery } from "@/lib/flagship";
 import { LIST_PAGE, listOffset } from "@/lib/listWindow";
+import { unexpiredJobs } from "@/lib/offlineJobs";
+import { ExpiryGuard, JobTitleLink, OfflineBanner, OfflineJobsFallback, SaveJobs } from "@/components/OfflineJobs";
 
 export const revalidate = 60;
 
@@ -24,7 +26,7 @@ type Search = {
 };
 
 type Load =
-  | { ok: true; jobs: PublicJob[]; sponsored: PublicJob[]; matched: number }
+  | { ok: true; jobs: PublicJob[]; sponsored: PublicJob[]; matched: number; savedAt: string | null }
   | { ok: false };
 
 function freshnessDays(value: string | undefined): string | null {
@@ -45,13 +47,18 @@ async function loadJobs(search: Search): Promise<Load> {
   try {
     const res = await fetch(`${API}/jobs?${params.toString()}`, { next: { revalidate: 60 } });
     if (!res.ok) return { ok: false };
-    const data = (await res.json()) as { jobs?: PublicJob[]; sponsored?: PublicJob[]; matched?: number };
+    const data = (await res.json()) as {
+      jobs?: PublicJob[]; sponsored?: PublicJob[]; matched?: number;
+      from_snapshot?: boolean; snapshot_saved_at?: string | null;
+    };
     if (!data || !Array.isArray(data.jobs) || typeof data.matched !== "number") return { ok: false };
     return {
       ok: true,
-      jobs: data.jobs,
-      sponsored: Array.isArray(data.sponsored) ? data.sponsored : [],
+      // Never show an expired role, even if the API slipped one through.
+      jobs: unexpiredJobs(data.jobs),
+      sponsored: unexpiredJobs(Array.isArray(data.sponsored) ? data.sponsored : []),
       matched: data.matched,
+      savedAt: data.from_snapshot ? data.snapshot_saved_at || new Date().toISOString() : null,
     };
   } catch {
     return { ok: false };
@@ -93,6 +100,7 @@ async function JobResults({ search }: { search: Search }) {
 
   if (!loaded.ok) {
     return (
+      <OfflineJobsFallback>
       <div className="ss-empty" role="status">
         <p className="text-base font-semibold text-ss-text">The role index could not be reached</p>
         <p className="mt-2 max-w-lg text-sm leading-relaxed text-ss-muted">
@@ -102,6 +110,7 @@ async function JobResults({ search }: { search: Search }) {
           Browse employers by country
         </Link>
       </div>
+      </OfflineJobsFallback>
     );
   }
   if (loaded.matched === 0) {
@@ -130,17 +139,20 @@ async function JobResults({ search }: { search: Search }) {
       {jsonLd ? (
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       ) : null}
+      <ExpiryGuard />
+      {loaded.savedAt ? <OfflineBanner savedAt={loaded.savedAt} /> : null}
+      {!loaded.savedAt && offset === 0 ? <SaveJobs jobs={loaded.jobs} /> : null}
       <SponsoredStrip jobs={loaded.sponsored} />
       <p className="text-sm text-ss-muted">
         Showing {(offset + 1).toLocaleString("en-US")}–{(offset + loaded.jobs.length).toLocaleString("en-US")} of {loaded.matched.toLocaleString("en-US")} open roles that match.
       </p>
       <ul className="grid gap-3">
         {loaded.jobs.map((job) => (
-          <li key={job.id} className="ss-card">
+          <li key={job.id} className="ss-card" data-closes={job.closing_date ?? undefined}>
             {job.sponsored ? <p className="text-sm font-semibold text-ss-primary">Sponsored</p> : null}
             {job.employer_submitted ? <p className="text-sm text-ss-muted">Employer-submitted</p> : null}
             <h2 className="font-display text-xl font-bold text-ss-text">
-              <Link href={`/jobs/${job.id}`} className="underline">{job.title}</Link>
+              <JobTitleLink job={job} />
             </h2>
             <p className="mt-1 text-sm text-ss-muted">
               {job.company_id ? (
