@@ -13,6 +13,7 @@ from sqlalchemy.orm import Session, defer
 
 from app.core.deps import get_current_user, require_admin
 from app.core.http_cache import private_short_cache
+from app.core.internal_key import require_internal_key
 from app.core.rate_limit import limiter, user_or_ip_key
 from app.db.session import get_db
 from app.models.admin_ops import AdminAuditLog
@@ -187,7 +188,7 @@ def list_public_jobs(
         description="closing puts a stated closing date first. Anything else uses last seen.",
     ),
     limit: int = Query(default=30, ge=1, le=50),
-    offset: int = Query(default=0, ge=0, le=100_000),
+    offset: int = Query(default=0, ge=0, le=1_000),
 ):
     """Open roles the scanner has already stored. No sign-in. No advert body.
 
@@ -426,14 +427,14 @@ def public_job_facets(request: Request, response: Response, db: Session = Depend
     return JobFacetsResponse(countries=countries, categories=categories[:40])
 
 
-@router.get("/jobs/ids", response_model=JobIdListResponse)
+@router.get("/jobs/ids", response_model=JobIdListResponse, dependencies=[Depends(require_internal_key)])
 @limiter.limit("30/minute")
 def public_job_ids(
     request: Request,
     response: Response,
     db: Session = Depends(get_db),
     max_age_days: int = Query(default=14, ge=1, le=60),
-    limit: int = Query(default=1000, ge=1, le=2000),
+    limit: int = Query(default=500, ge=1, le=500),
     offset: int = Query(default=0, ge=0, le=20000),
 ):
     """Ids of open roles last seen within max_age_days, for the sitemap. Newest first."""

@@ -38,6 +38,10 @@ class Settings(BaseSettings):
     # How many reverse proxies sit in front of this app and append to
     # X-Forwarded-For (Render: 1). 0 = trust nothing, use the socket address.
     TRUSTED_PROXY_HOPS: int = 1
+    # Shared secret for server-only bulk id routes (/employers/ids, /jobs/ids).
+    # Sent by the Next.js sitemap as X-Internal-Key. Never expose it to the browser.
+    # Empty: allowed in development/test, refused (404) in production.
+    SITEMAP_API_KEY: str = ""
     # Per-account brute-force lockout (complements the per-IP rate limit, which
     # a credential-stuffing botnet spreads across thousands of IPs).
     LOGIN_MAX_FAILURES: int = 10

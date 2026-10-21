@@ -13,12 +13,16 @@ import { SITE_URL } from "@/lib/seo";
 export const dynamic = "force-dynamic";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
+// Server-only secret (no NEXT_PUBLIC_ prefix): the API's /ids routes refuse calls without it.
+const INTERNAL_HEADERS: Record<string, string> = process.env.SITEMAP_API_KEY
+  ? { "X-Internal-Key": process.env.SITEMAP_API_KEY }
+  : {};
 
 async function fetchEmployerIds(): Promise<string[]> {
   const ids: string[] = [];
-  const limit = 5000;
+  const limit = 500;
   for (let offset = 0; offset < 20000; offset += limit) {
-    const res = await fetch(`${API}/employers/ids?limit=${limit}&offset=${offset}`, { cache: "no-store" });
+    const res = await fetch(`${API}/employers/ids?limit=${limit}&offset=${offset}`, { cache: "no-store", headers: INTERNAL_HEADERS });
     if (!res.ok) throw new Error(`employers ${res.status}`);
     const data = (await res.json()) as { ids?: unknown; matched?: unknown };
     const rows = Array.isArray(data.ids) ? data.ids.filter((id): id is string => typeof id === "string" && id.length > 0) : [];
@@ -78,7 +82,7 @@ async function roleEntries(modified: Date): Promise<MetadataRoute.Sitemap> {
         });
       }
     }
-    const idsRes = await fetch(`${API}/jobs/ids?limit=2000&max_age_days=14`, { cache: "no-store" });
+    const idsRes = await fetch(`${API}/jobs/ids?limit=500&max_age_days=14`, { cache: "no-store", headers: INTERNAL_HEADERS });
     if (idsRes.ok) {
       const data = (await idsRes.json()) as { ids?: unknown };
       const ids = Array.isArray(data.ids) ? data.ids.filter((id): id is string => typeof id === "string") : [];
