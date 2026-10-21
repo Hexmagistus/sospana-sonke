@@ -72,17 +72,20 @@ jobs:
               fail=1
             fi
           done
-          code=$(curl -sS -o resp-review_listing_quality.json -w "%{http_code}" --max-time 90 \
-            -X POST "https://sospana-sonke-api-fra.onrender.com/api/v1/cron/run/review_listing_quality" \
+          # Listing text rules run once a day (daily-agent): that pass reads every
+          # stored title and link, which every 15 minutes used up the Neon
+          # free network allowance. Here only one batch of links is checked.
+          code=$(curl -sS -o resp-check_listing_links.json -w "%{http_code}" --max-time 90 \
+            -X POST "https://sospana-sonke-api-fra.onrender.com/api/v1/cron/run/check_listing_links" \
             -H "X-Cron-Secret: $CRON_SECRET" || echo "000")
-          echo "review_listing_quality HTTP $code"
-          cat resp-review_listing_quality.json 2>/dev/null || true
+          echo "check_listing_links HTTP $code"
+          cat resp-check_listing_links.json 2>/dev/null || true
           echo
           if [ "$code" != "200" ]; then
-            if grep -q "Unknown job" resp-review_listing_quality.json 2>/dev/null; then
-              echo "The Frankfurt API does not have the listing-quality job yet. Scanning continues."
+            if grep -q "Unknown job" resp-check_listing_links.json 2>/dev/null; then
+              echo "The Frankfurt API does not have the link-check job yet. Scanning continues."
             else
-              echo "::error::review_listing_quality returned HTTP $code."
+              echo "::error::check_listing_links returned HTTP $code."
               fail=1
             fi
           fi

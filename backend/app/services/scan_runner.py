@@ -260,6 +260,40 @@ def _is_slow(row) -> bool:
     return elapsed_ms >= SLOW_SOURCE_MS or category == "TIMEOUT"
 
 
+# The due queue reads every active company and every source (two light
+# columns sets, but about 12,000 rows each). Building it on every 15-minute
+# call was a large share of the database's monthly network transfer, so one
+# ordered queue is kept in this process and handed out in slices until it is
+# DUE_CACHE_TTL_SECONDS old or used up. A slice is still claimed with
+# compare-and-set on last_checked, so a source scanned since the queue was
+# built is skipped, never scanned twice. A source that becomes due later
+# waits for the next rebuild, at most this long.
+DUE_CACHE_TTL_SECONDS = 3600.0
+_due_cache: dict = {"at": 0.0, "items": [], "next": 0}
+
+
+def invalidate_due_cache() -> None:
+    _due_cache["at"] = 0.0
+    _due_cache["items"] = []
+    _due_cache["next"] = 0
+
+
+def select_due_cached(db: Session, limit: int, now: datetime | None = None) -> list[DueItem]:
+    """select_due, built at most once an hour and handed out in slices."""
+    clock = time.monotonic()
+    items = _due_cache["items"]
+    start = _due_cache["next"]
+    if not items or start >= len(items) or clock - _due_cache["at"] >= DUE_CACHE_TTL_SECONDS:
+        # Large enough for four 15-minute calls; the rest wait for the rebuild.
+        items = select_due(db, max(limit, 1) * 4, now)
+        _due_cache["at"] = clock
+        _due_cache["items"] = items
+        start = 0
+    batch = items[start:start + limit]
+    _due_cache["next"] = start + len(batch)
+    return batch
+
+
 def select_due_company_ids(db: Session, limit: int, now: datetime | None = None) -> list[str]:
     """Company ids of select_due, in the same order."""
     return [item.company_id for item in select_due(db, limit, now)]

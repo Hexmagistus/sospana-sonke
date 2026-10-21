@@ -17,8 +17,8 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 
 import httpx
-from sqlalchemy import func
-from sqlalchemy.orm import Session
+from sqlalchemy import func, update
+from sqlalchemy.orm import Session, load_only
 
 from app.core.config import settings
 from app.models.company import Company
@@ -269,13 +269,16 @@ def apply_fetch(db: Session, source: VacancySource, outcome: FetchOutcome) -> Sc
         )
         if "title" in adapter.validate(fields):
             continue
-        matches = _identity_matches(db, source, fields)
-        if matches:
-            existing = matches[0]
+        match_ids = _identity_match_ids(db, source, fields)
+        if match_ids:
             # Other open rows with the same employer id stay. They are reported,
             # not closed or deleted, when this scan recognises the id.
-            for extra in matches:
-                seen_ids.add(extra.id)
+            seen_ids.update(match_ids)
+            if _touch_if_unchanged(db, match_ids[0], fields, now):
+                report.updated += 1
+                report.duplicates_prevented += 1
+                continue
+            existing = db.get(Vacancy, match_ids[0])
             was_open = existing.is_open
             _apply_fields(existing, fields, now)
             _replace_requirements(db, existing, fields["requirement_rows"])
@@ -340,7 +343,11 @@ def apply_fetch(db: Session, source: VacancySource, outcome: FetchOutcome) -> Sc
     # The row is closed only after MISS_CLOSE_AFTER such scans. An empty
     # result is "couldn't read the page", not "every role closed".
     if raw_list:
+        # Only the columns the miss counter and mark_expired use. The full row
+        # (description, raw content) is not sent back from the database.
         stale = (db.query(Vacancy)
+                 .options(load_only(Vacancy.id, Vacancy.consecutive_misses, Vacancy.is_open,
+                                    Vacancy.status, Vacancy.expired_at, Vacancy.lifecycle_status))
                  .filter(Vacancy.source_id == source.id, Vacancy.is_open.is_(True))
                  .all())
         for vac in stale:
@@ -393,16 +400,17 @@ def _external_key(value: str | None) -> str:
     return (value or "").strip().casefold()
 
 
-def _identity_matches(db: Session, source: VacancySource, fields: dict) -> list[Vacancy]:
-    """Open rows this listing already is. The first row is the one to update.
+def _identity_match_ids(db: Session, source: VacancySource, fields: dict) -> list[str]:
+    """Ids of the open rows this listing already is. The first id is the one to update.
 
     An employer id is the identity, including a difference of case or surrounding
     space. Every open row that shares it is returned so a later miss does not
     close the extras. Those extras are left in place for the duplicate report.
+    Only ids are read, so an unchanged listing costs no row transfer.
     """
     key = _external_key(fields.get("external_id"))
     if key:
-        rows = (db.query(Vacancy)
+        rows = (db.query(Vacancy.id)
                 .filter(Vacancy.company_id == source.company_id,
                         Vacancy.deleted_at.is_(None),
                         Vacancy.is_open.is_(True),
@@ -411,19 +419,69 @@ def _identity_matches(db: Session, source: VacancySource, fields: dict) -> list[
                 .order_by(Vacancy.first_seen_at.asc(), Vacancy.id.asc())
                 .all())
         if rows:
-            return rows
-    existing = (db.query(Vacancy)
+            return [row[0] for row in rows]
+    existing = (db.query(Vacancy.id)
                 .filter(Vacancy.company_id == source.company_id,
                         Vacancy.deleted_at.is_(None),
                         Vacancy.fingerprint == fields["fingerprint"])
                 .first())
     if existing is None and not key:
-        existing = (db.query(Vacancy)
+        existing = (db.query(Vacancy.id)
                     .filter(Vacancy.company_id == source.company_id,
                             Vacancy.deleted_at.is_(None),
                             Vacancy.content_hash == fields["content_hash"])
                     .first())
-    return [existing] if existing is not None else []
+    return [existing[0]] if existing is not None else []
+
+
+def _identity_matches(db: Session, source: VacancySource, fields: dict) -> list[Vacancy]:
+    """Full rows for _identity_match_ids, in the same order."""
+    ids = _identity_match_ids(db, source, fields)
+    return [row for row in (db.get(Vacancy, i) for i in ids) if row is not None]
+
+
+def _touch_if_unchanged(db: Session, vacancy_id: str, fields: dict, now: datetime) -> bool:
+    """Stamp last seen on a row the listing would not change. True when done.
+
+    The comparison runs in the database: the new values go in and only the id
+    comes back, so a rescan of an unchanged board does not read descriptions
+    out of Neon. Anything that differs, a closed listing, a passed closing day,
+    or a row that is not plainly active falls through to the full update.
+    """
+    from app.services.opportunity_expiry import STATUS_ACTIVE, closing_has_passed
+
+    if fields.get("lifecycle_status") == "CLOSED" or not fields.get("is_open", True):
+        return False
+    if closing_has_passed(fields.get("closing_date")):
+        return False
+    conditions = [
+        Vacancy.id == vacancy_id,
+        Vacancy.is_open.is_(True),
+        Vacancy.status == STATUS_ACTIVE,
+        Vacancy.lifecycle_status == "ACTIVE",
+        Vacancy.expired_at.is_(None),
+        Vacancy.opportunity_reviewed.is_(True),
+        Vacancy.verification_state.isnot(None),
+        Vacancy.title == fields["title"],
+        Vacancy.content_hash == fields["content_hash"],
+        Vacancy.fingerprint == fields["fingerprint"],
+        Vacancy.quality_score.is_not_distinct_from(fields["quality_score"]),
+    ]
+    for key in _COPY_IF_PRESENT:
+        value = fields.get(key)
+        if value is not None:
+            conditions.append(getattr(Vacancy, key).is_not_distinct_from(value))
+    row = (db.query(Vacancy.id, Vacancy.quality_flags, Vacancy.opportunity_type)
+           .filter(*conditions)
+           .first())
+    if row is None or row[1]:
+        return False
+    values = {"last_seen_at": now, "consecutive_misses": 0}
+    if row[2] and row[2] != "job":
+        values["verified_at"] = now
+    db.execute(update(Vacancy).where(Vacancy.id == vacancy_id).values(**values)
+               .execution_options(synchronize_session=False))
+    return True
 
 
 def _apply_fields(vac: Vacancy, fields: dict, now: datetime) -> None:

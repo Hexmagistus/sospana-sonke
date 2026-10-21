@@ -45,6 +45,10 @@ jobs:
           curl -sS -m 120 -X POST \
             -H "X-Cron-Secret: $CRON_SECRET" \
             "https://sospana-sonke-api-fra.onrender.com/api/v1/cron/run/close_expired_vacancies"
+          # Once a day: the listing text pass (old years, passed dates, non-jobs).
+          curl -sS -m 180 -X POST \
+            -H "X-Cron-Secret: $CRON_SECRET" \
+            "https://sospana-sonke-api-fra.onrender.com/api/v1/cron/run/review_listing_quality"
           curl -sS -m 180 -X POST \
             -H "X-Cron-Secret: $CRON_SECRET" \
             "https://sospana-sonke-api-fra.onrender.com/api/v1/cron/run/purge_expired_opportunities"

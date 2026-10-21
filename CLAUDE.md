@@ -75,6 +75,14 @@ A careers landing page is enough for that same set, even when the HTML lists no 
 
 ## Session Log
 
+### 2026-10-21 — Claude (Cowork, Opus 5.5) — Cut Neon network transfer (free 5 GB/month ran out 17 Oct)
+Neon emailed on 17 October that project `sospana-sonke` used 100% of its 5 GB monthly public network transfer, so queries fail until the reset or an upgrade. Vercel separately reported 75% of the 10 GB free deployment storage on 20 October (old builds; no code change here). The transfer comes from Frankfurt reading Neon, and the 15-minute cron was the steady reader:
+- `review_listing_quality` ran every 15 minutes and paged id, title and two URLs of every non-expired vacancy each time. It now runs once a day from `daily-agent.yml` (its registry slot was already 01:15). The scan workflow calls a new `check_listing_links` job instead (one batch of 25 unchecked links, same 404/410 expiry).
+- `select_due` read every active company and every source on each call. `select_due_cached` (production only; tests still use `select_due`) builds one ordered queue of 4x the batch and hands it out in slices for up to an hour. Claims still compare-and-set on `last_checked`, so a source scanned since the build is skipped. `invalidate_due_cache()` resets it.
+- A rescan matched each listing by loading the full row (description, raw content). `_identity_match_ids` now reads ids only, and `_touch_if_unchanged` compares title, hashes, quality score and every copied field in SQL (`IS NOT DISTINCT FROM`, values go in, only the id comes back). An unchanged, plainly active row gets one UPDATE of `last_seen_at`, `consecutive_misses`, and `verified_at` for programmes. Anything different, closed, flagged, or past its closing day takes the old full path. The miss counter query loads six columns instead of the row.
+- Tests: `tests/test_scan_transfer.py` (5). Scanner, identity, fairness and runner suites pass.
+Next: check the Neon dashboard after a few days on this build. If transfer is still high, the public `/jobs/{id}` pages (crawlers) and CV files in `stored_files` are the next suspects; moving files to R2 is on the security roadmap.
+
 ### 2026-10-15 — Claude (Cowork, Opus 5.5) — NEW: ATS CV Audit & Rebuild ("CV Doctor", /cv-audit)
 Lungani sent a 7-phase "Professional ATS CV audit, optimisation and executive-level redesign" master
 prompt and said "add this skill to sospana sonke" — built it as a platform feature, not a one-off.

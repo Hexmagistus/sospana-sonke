@@ -54,7 +54,7 @@ from app.models.vacancy import VacancySource
 from app.scraper import aia
 from app.scraper.politeness import backoff_retry_cap
 from app.services.scan_runner import (
-    DueItem, _stamp_failure, claim_source, release_claims, select_due,
+    DueItem, _stamp_failure, claim_source, release_claims, select_due, select_due_cached,
 )
 from app.services.scan_service import (
     FetchOutcome, SourceSnapshot, apply_fetch, ensure_source, fetch_source, snapshot_of,
@@ -329,7 +329,10 @@ def run_scan_batch(db: Session, limit: int = 60, max_seconds: float = 18.0,
     submit_until = fetch_deadline - SUBMIT_RESERVE_SECONDS
     write_until = end - RELEASE_RESERVE_SECONDS
     now = now or datetime.now(timezone.utc)
-    queue: deque[DueItem] = deque(select_due(db, limit, now))
+    # Production reuses one hourly queue (select_due_cached) so the full
+    # company and source lists are not read from the database every call.
+    pick = select_due if settings.ENV == "test" else select_due_cached
+    queue: deque[DueItem] = deque(pick(db, limit, now))
     selected = len(queue)
     inflight: dict = {}             # future -> (item, source_id, previous)
     inflight_hosts: set[str] = set()

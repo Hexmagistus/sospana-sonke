@@ -283,6 +283,17 @@ def review_listing_quality(db: Session, job_run_id: str | None = None) -> dict:
     return _review(db)
 
 
+def check_listing_links(db: Session, job_run_id: str | None = None) -> dict:
+    """Check one batch of unchecked listing links. 404 and 410 expire the row.
+
+    The 15-minute scan workflow calls this instead of review_listing_quality.
+    The text pass reads every stored title and link, so it runs once a day
+    (daily-agent workflow) to keep the database's network transfer down.
+    """
+    from app.services.listing_quality import check_dead_links
+    return check_dead_links(db)
+
+
 DISABLED_MATCHING = {
     "status": "disabled",
     "detail": "Job matching has been removed; this job does nothing. "
