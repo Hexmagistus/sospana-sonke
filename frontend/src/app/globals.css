@@ -706,7 +706,7 @@ body {
 }
 
 h1, h2, h3, h4, .font-display {
-  font-family: var(--font-display), var(--font-text), ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-text), ui-sans-serif, system-ui, sans-serif;
   letter-spacing: -0.015em;
   text-wrap: balance;
 }
