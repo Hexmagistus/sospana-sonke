@@ -520,13 +520,6 @@ export default function Home({ children }: { children?: ReactNode }) {
             </span>
           </div>
           <div className="flex shrink-0 items-center gap-1 sm:gap-2">
-            <Link
-              href="/jobs"
-              className="whitespace-nowrap rounded-xl px-2 py-2.5 text-[13px] font-bold text-white min-[360px]:px-2.5 shadow-sm transition hover:brightness-110 sm:px-4 sm:text-sm"
-              style={{ background: C.navy }}
-            >
-              Browse jobs
-            </Link>
           </div>
         </div>
         <nav aria-label="Site" className="mx-auto flex max-w-6xl flex-wrap gap-x-4 gap-y-1 px-3 pb-2 text-sm font-semibold sm:px-4" style={{ color: C.navy }}>

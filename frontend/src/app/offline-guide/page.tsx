@@ -95,7 +95,7 @@ export default function OfflineGuidePage() {
       </Section>
 
       <Section n={6} title="Login and sign-up are paused" icon={<svg viewBox="0 0 50 50" className="h-12 w-12 shrink-0" aria-hidden="true"><rect x="8" y="22" width="34" height="24" rx="5" fill="#07284C" /><path d="M15 22 v-7 a10 10 0 0 1 20 0 v7" stroke="#07284C" strokeWidth="5" fill="none" /><circle cx="25" cy="34" r="4" fill="#FCC033" /></svg>}>
-        <p>While we upgrade, you can&apos;t log in or create an account. You don&apos;t need one to browse jobs or the SA careers list. Your account will be back after maintenance.</p>
+        <p>While we upgrade, you can&apos;t log in or create an account. You don&apos;t need one to view jobs or the SA careers list. Your account will be back after maintenance.</p>
       </Section>
 
       <Section n={7} title="Tips to save data" icon={<svg viewBox="0 0 50 50" className="h-12 w-12 shrink-0" aria-hidden="true"><circle cx="25" cy="25" r="22" fill="#FCC033" /><text x="25" y="33" textAnchor="middle" fontSize="22" fontWeight="bold" fill="#07284C">R</text></svg>}>
