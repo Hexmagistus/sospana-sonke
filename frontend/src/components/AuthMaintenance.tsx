@@ -48,12 +48,12 @@ export function AuthMaintenanceBanner() {
   return (
     <div
       role="status"
-      className="mb-4 rounded-2xl border-2 border-[#f5b301] bg-[#fff8e1] p-4 text-center text-[#0b2447] shadow-md"
+      className="mb-4 rounded-2xl border-2 border-[#FCC033] bg-[#fff8e1] p-4 text-center text-[#07284C] shadow-md"
     >
       <p className="mb-3 text-base font-bold">🛠️ {AUTH_PAUSED_MESSAGE}</p>
       <Link
         href="/jobs"
-        className="inline-block rounded-xl bg-[#0b2447] px-6 py-3 text-base font-extrabold text-[#f5b301] shadow hover:bg-[#13315c]"
+        className="inline-block rounded-xl bg-[#07284C] px-6 py-3 text-base font-extrabold text-[#FCC033] shadow hover:bg-[#0D3A66]"
       >
         Browse jobs
       </Link>
@@ -66,14 +66,14 @@ export function SiteMaintenanceBanner() {
   const { paused } = useAuthPaused();
   if (!paused) return null;
   return (
-    <div role="status" className="w-full border-b-4 border-[#f5b301] bg-[#0b2447] px-4 py-4 text-center text-white sm:py-5">
+    <div role="status" className="w-full border-b-4 border-[#FCC033] bg-[#07284C] px-4 py-4 text-center text-white sm:py-5">
       <p className="mx-auto max-w-3xl text-lg font-extrabold leading-snug sm:text-2xl">
-        🛠️ <span className="text-[#f5b301]">Under maintenance:</span> we&apos;re upgrading our servers. You can still browse
+        🛠️ <span className="text-[#FCC033]">Under maintenance:</span> we&apos;re upgrading our servers. You can still browse
         today&apos;s checked jobs, no account needed.
       </p>
       <Link
         href="/jobs"
-        className="mt-3 inline-block rounded-2xl bg-[#f5b301] px-8 py-3 text-lg font-extrabold text-[#0b2447] shadow-lg hover:bg-[#ffc933] sm:text-xl"
+        className="mt-3 inline-block rounded-2xl bg-[#FD6948] px-8 py-3 text-lg font-extrabold text-[#07284C] shadow-lg hover:bg-[#FF7D60] sm:text-xl"
       >
         Browse jobs
       </Link>
@@ -81,7 +81,7 @@ export function SiteMaintenanceBanner() {
         // TEMPORARY maintenance link, see src/lib/maintenance.ts
         <Link
           href="/sa-careers"
-          className="ml-0 mt-3 inline-block rounded-2xl border-2 border-[#f5b301] bg-white px-8 py-3 text-lg font-extrabold text-[#0b2447] shadow-lg hover:bg-[#fff8e1] sm:ml-3 sm:text-xl"
+          className="ml-0 mt-3 inline-block rounded-2xl border-2 border-[#FCC033] bg-white px-8 py-3 text-lg font-extrabold text-[#07284C] shadow-lg hover:bg-[#fff8e1] sm:ml-3 sm:text-xl"
         >
           🇿🇦 SA careers pages
         </Link>
@@ -89,7 +89,7 @@ export function SiteMaintenanceBanner() {
       {SA_CAREERS_ENABLED && (
         <Link
           href="/offline-guide"
-          className="ml-0 mt-3 inline-block rounded-2xl border-2 border-[#f5b301] bg-white px-8 py-3 text-lg font-extrabold text-[#0b2447] shadow-lg hover:bg-[#fff8e1] sm:ml-3 sm:text-xl"
+          className="ml-0 mt-3 inline-block rounded-2xl border-2 border-[#FCC033] bg-white px-8 py-3 text-lg font-extrabold text-[#07284C] shadow-lg hover:bg-[#fff8e1] sm:ml-3 sm:text-xl"
         >
           📘 Offline guide
         </Link>

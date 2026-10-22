@@ -45,7 +45,7 @@ export function SaveJobs({ jobs }: { jobs: PublicJob[] }) {
 
 export function OfflineBanner({ savedAt }: { savedAt: string }) {
   return (
-    <p role="status" className="rounded-xl border-2 border-[#d4a017] bg-[#fff8e1] px-4 py-2 text-sm font-semibold text-[#0c1b33]">
+    <p role="status" className="rounded-xl border-2 border-[#d4a017] bg-[#fff8e1] px-4 py-2 text-sm font-semibold text-[#07284C]">
       {offlineBanner(savedAt)}
     </p>
   );

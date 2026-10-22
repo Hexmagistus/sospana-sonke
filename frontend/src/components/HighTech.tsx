@@ -14,7 +14,7 @@ export function CircuitOverlay({
   className = "",
   opacity = 0.14,
   stroke = "#ffffff",
-  dotColor = "#f5b301",
+  dotColor = "#FCC033",
 }: {
   className?: string;
   opacity?: number;
@@ -55,7 +55,7 @@ export function CircuitOverlay({
 export function GlowFrame({
   children,
   className = "",
-  colors = ["#f5b301", "#1a9e5f", "#e4322b", "#2f9bf6", "#f5b301"],
+  colors = ["#FCC033", "#269958", "#e4322b", "#1184F0", "#FCC033"],
   ringClassName = "rounded-2xl",
 }: {
   children: ReactNode;
@@ -78,7 +78,7 @@ export function GlowFrame({
 /** Soft pulsing glow ring behind a logo mark, matching the homepage header. */
 export function LogoGlow({
   children,
-  color = "#f5b301",
+  color = "#FCC033",
   className = "",
 }: {
   children: ReactNode;

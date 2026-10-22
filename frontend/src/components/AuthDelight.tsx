@@ -70,24 +70,24 @@ export function CircuitMascot({
       role="img"
       aria-label={celebrate ? "Signed in" : coverEyes ? "Looking away from the password" : "Ready"}
     >
-      <circle cx="36" cy="36" r="30" fill="#0b1f3a" stroke="#f5b301" strokeWidth="2" />
-      <path d="M14 36h10M48 36h10M36 12v8M36 52v8" stroke="#f5b301" strokeWidth="1.4" strokeLinecap="round" opacity="0.85" />
+      <circle cx="36" cy="36" r="30" fill="#07284C" stroke="#FCC033" strokeWidth="2" />
+      <path d="M14 36h10M48 36h10M36 12v8M36 52v8" stroke="#FCC033" strokeWidth="1.4" strokeLinecap="round" opacity="0.85" />
       {coverEyes ? (
         <g>
           <path d="M20 32c6 6 12 6 16 0" fill="none" stroke="#f4f8ff" strokeWidth="2.4" strokeLinecap="round" />
           <path d="M36 32c6 6 12 6 16 0" fill="none" stroke="#f4f8ff" strokeWidth="2.4" strokeLinecap="round" />
-          <path d="M18 28h16M38 28h16" stroke="#f5b301" strokeWidth="3" strokeLinecap="round" />
+          <path d="M18 28h16M38 28h16" stroke="#FCC033" strokeWidth="3" strokeLinecap="round" />
         </g>
       ) : (
         <g>
           <circle cx="27" cy="32" r="4.2" fill="#f4f8ff" />
           <circle cx="45" cy="32" r="4.2" fill="#f4f8ff" />
-          <circle cx="28" cy="32" r="1.6" fill="#0b1f3a" />
-          <circle cx="46" cy="32" r="1.6" fill="#0b1f3a" />
+          <circle cx="28" cy="32" r="1.6" fill="#07284C" />
+          <circle cx="46" cy="32" r="1.6" fill="#07284C" />
         </g>
       )}
       {celebrate ? (
-        <path d="M24 46c4 6 20 6 24 0" fill="none" stroke="#f5b301" strokeWidth="2.4" strokeLinecap="round" />
+        <path d="M24 46c4 6 20 6 24 0" fill="none" stroke="#FCC033" strokeWidth="2.4" strokeLinecap="round" />
       ) : (
         <path d="M28 46h16" stroke="#9ad7ff" strokeWidth="2" strokeLinecap="round" />
       )}
@@ -105,7 +105,7 @@ export function LitCircuits({ lit, total }: { lit: number; total: number }) {
         <span
           key={i}
           className="h-1.5 w-8 rounded-full transition-colors duration-200 motion-reduce:transition-none"
-          style={{ background: i < on ? "#f5b301" : "var(--ss-border)" }}
+          style={{ background: i < on ? "#FCC033" : "var(--ss-border)" }}
         />
       ))}
     </div>
@@ -142,7 +142,7 @@ export function PasswordMeter({ password }: { password: string }) {
           <span
             key={n}
             className={`h-1.5 flex-1 rounded-full ${n <= score ? "" : "bg-ss-border"}`}
-            style={n <= score ? { background: score >= 4 ? "#1a9e5f" : "#f5b301" } : undefined}
+            style={n <= score ? { background: score >= 4 ? "#269958" : "#FCC033" } : undefined}
           />
         ))}
       </div>

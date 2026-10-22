@@ -15,7 +15,7 @@ export function GlobeFallback() {
         </radialGradient>
         <linearGradient id="ss-globe-land" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor="#7dffe8" />
-          <stop offset="100%" stopColor="#0f766e" />
+          <stop offset="100%" stopColor="#067589" />
         </linearGradient>
         <clipPath id="ss-globe-clip">
           <circle cx="100" cy="96" r="68" />

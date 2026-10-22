@@ -34,10 +34,10 @@ export default function WelcomeNote() {
     <div className="mx-auto mt-6 w-full max-w-lg space-y-2 md:pointer-events-none md:fixed md:inset-x-0 md:bottom-6 md:z-30 md:mt-0 md:px-4">
       {open ? (
         <aside className="ss-intel-card pointer-events-auto shadow-lg" aria-label="Welcome">
-          <p className="text-base font-bold text-[#0c1b33]">New here? Three steps.</p>
+          <p className="text-base font-bold text-[#07284C]">New here? Three steps.</p>
           <ol className="mt-2 list-decimal space-y-1 pl-5 text-sm leading-relaxed text-[#3f4a5c]">
             <li>
-              <Link href="/jobs" className="font-semibold text-[#0f766e] underline">Search stored roles</Link>
+              <Link href="/jobs" className="font-semibold text-[#067589] underline">Search stored roles</Link>
               , including internships, learnerships, bursaries and graduate programmes.
             </li>
             <li>Open the employer&apos;s own page from the result.</li>
@@ -46,14 +46,14 @@ export default function WelcomeNote() {
           <button
             type="button"
             onClick={dismiss}
-            className="mt-3 inline-flex min-h-11 items-center rounded-xl bg-[#0c1b33] px-4 py-2 text-sm font-semibold text-white"
+            className="mt-3 inline-flex min-h-11 items-center rounded-xl bg-[#07284C] px-4 py-2 text-sm font-semibold text-white"
           >
             Hide this note
           </button>
         </aside>
       ) : null}
       {toast ? (
-        <p role="status" className="pointer-events-auto rounded-xl bg-[#0c1b33] px-4 py-3 text-sm font-semibold text-white">
+        <p role="status" className="pointer-events-auto rounded-xl bg-[#07284C] px-4 py-3 text-sm font-semibold text-white">
           {toast}
         </p>
       ) : null}

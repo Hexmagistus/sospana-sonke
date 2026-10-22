@@ -106,7 +106,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0f766e",
+  themeColor: "#067589",
   width: "device-width",
   initialScale: 1,
 };
@@ -186,7 +186,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               >
                 <p className="text-sm font-semibold leading-relaxed sm:text-base">
                   <span className="text-xl align-middle">🐢💨</span>{" "}
-                  <span className="animate-gradient-text bg-gradient-to-r from-[#0b5e58] via-[#6b4700] to-[#5b3fd6] bg-clip-text font-extrabold text-transparent dark:from-[#22d3ee] dark:via-[#f5b301] dark:to-[#a78bfa]">
+                  <span className="animate-gradient-text bg-gradient-to-r from-[#05606F] via-[#6b4700] to-[#5b3fd6] bg-clip-text font-extrabold text-transparent dark:from-[#22d3ee] dark:via-[#FCC033] dark:to-[#a78bfa]">
                     Our server rides the free tier
                   </span>{" "}
                   — so it can be a little slow to wake up, and we&apos;re actively speeding it up. We keep Sospana Sonke{" "}

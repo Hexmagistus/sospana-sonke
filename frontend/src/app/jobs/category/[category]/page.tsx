@@ -70,7 +70,7 @@ export default async function JobsCategory({ params }: Props) {
         <div className="ss-empty" role="status">
           <p className="font-semibold text-ss-text">No stored role is listed for this type</p>
           <p className="mt-2 text-sm text-ss-muted">The index may be briefly unavailable. Browse all stored roles.</p>
-          <Link href="/jobs" className="mt-3 inline-flex font-semibold text-[#0f766e] underline">All stored roles</Link>
+          <Link href="/jobs" className="mt-3 inline-flex font-semibold text-[#067589] underline">All stored roles</Link>
         </div>
       ) : (
         <ul className="grid gap-3">

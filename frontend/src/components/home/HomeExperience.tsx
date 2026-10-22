@@ -28,7 +28,7 @@ function WorldMapSkeleton() {
   return (
     <div className="w-full" aria-hidden="true">
       <div className="h-7 w-56 rounded-lg bg-ss-surface" />
-      <div className="mt-3 aspect-[960/500] w-full rounded-2xl border border-ss-border bg-[#071528] motion-safe:animate-pulse" />
+      <div className="mt-3 aspect-[960/500] w-full rounded-2xl border border-ss-border bg-[#04172C] motion-safe:animate-pulse" />
       <div className="mt-3 h-40 rounded-xl bg-ss-surface" />
     </div>
   );
@@ -38,11 +38,11 @@ const C = {
   goldText: "#6b4700",
   // Darker twins of the brand colours for TEXT on light surfaces (>= 4.5:1 on white and cream)
   // and for fills that carry white text. Use DARK_OF[colour] rather than the bright colour.
-  tealText: "#0b5e58", greenText: "#166534", skyText: "#14568f", plumText: "#5b21b6",
+  tealText: "#05606F", greenText: "#166534", skyText: "#14568f", plumText: "#5b21b6",
   sunText: "#9a3412", redText: "#b91c1c",
-  navy: "#0b1f3a", ink: "#071528", gold: "#f5b301", amber: "#ff9e2c",
-  teal: "#0f9d8f", mint: "#5fe0d0", red: "#e4322b", green: "#1a9e5f",
-  sky: "#2f9bf6", plum: "#7c3aed", sun: "#ff7a1a", cream: "#faf6ee",
+  navy: "#07284C", ink: "#04172C", gold: "#FCC033", amber: "#ff9e2c",
+  teal: "#0f9d8f", mint: "#5fe0d0", red: "#e4322b", green: "#269958",
+  sky: "#1184F0", plum: "#7c3aed", sun: "#ff7a1a", cream: "#faf6ee",
 };
 
 const DARK_OF: Record<string, string> = {
@@ -742,13 +742,13 @@ export default function Home({ children }: { children?: ReactNode }) {
                         <svg viewBox="0 0 72 52" className="h-14 w-full" aria-hidden="true">{w.art}</svg>
                       </div>
                     )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#071528]/95 via-[#071528]/25 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#04172C]/95 via-[#04172C]/25 to-transparent" />
                     <div
                       className="absolute inset-x-0 top-0 h-1 animate-shimmer opacity-80"
                       style={{ backgroundImage: `linear-gradient(90deg,${C.gold},${C.green},${C.red},${C.gold})` }}
                       aria-hidden="true"
                     />
-                    <div className="absolute inset-x-0 bottom-0 bg-[#071528]/85 p-3">
+                    <div className="absolute inset-x-0 bottom-0 bg-[#04172C]/85 p-3">
                       <div className="text-sm font-bold text-white [text-shadow:0_1px_3px_rgba(0,0,0,.7)]">{w.name}</div>
                       <div className="text-xs text-white [text-shadow:0_1px_3px_rgba(0,0,0,.7)]">{w.place}</div>
                     </div>
@@ -969,7 +969,7 @@ function HeritageCard({ site, i }: { site: HeritageSite; i: number }) {
             >
               <CircuitOverlay className="opacity-60" opacity={0.18} />
               <svg viewBox="0 0 48 48" className="relative h-14 w-14" aria-hidden="true">
-                <rect x="9" y="9" width="30" height="30" rx="3" transform="rotate(45 24 24)" fill="none" stroke="#0b2447" strokeWidth="2.5" />
+                <rect x="9" y="9" width="30" height="30" rx="3" transform="rotate(45 24 24)" fill="none" stroke="#07284C" strokeWidth="2.5" />
                 <rect x="17" y="17" width="14" height="14" rx="2" transform="rotate(45 24 24)" fill="none" stroke={C.gold} strokeWidth="1.5" opacity="0.7" />
                 <circle cx="24" cy="24" r="3" fill={C.gold} />
               </svg>

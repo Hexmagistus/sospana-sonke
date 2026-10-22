@@ -9,15 +9,15 @@
 // for sections that want a bolder, more colourful accent.
 const PALETTES: Record<string, { bg: string; tri: string }[]> = {
   classic: [
-    { bg: "#e4322b", tri: "#f5b301" }, // red / gold
-    { bg: "#0b1f3a", tri: "#2f9bf6" }, // navy / sky
-    { bg: "#1a9e5f", tri: "#ff7a1a" }, // green / sun
+    { bg: "#e4322b", tri: "#FCC033" }, // red / gold
+    { bg: "#07284C", tri: "#1184F0" }, // navy / sky
+    { bg: "#269958", tri: "#ff7a1a" }, // green / sun
   ],
   vivid: [
-    { bg: "#e4322b", tri: "#f5b301" }, // red / gold
-    { bg: "#f5b301", tri: "#0b1f3a" }, // gold / navy
-    { bg: "#2f9bf6", tri: "#ffffff" }, // sky / white
-    { bg: "#1a9e5f", tri: "#ff7a1a" }, // green / sun
+    { bg: "#e4322b", tri: "#FCC033" }, // red / gold
+    { bg: "#FCC033", tri: "#07284C" }, // gold / navy
+    { bg: "#1184F0", tri: "#ffffff" }, // sky / white
+    { bg: "#269958", tri: "#ff7a1a" }, // green / sun
     { bg: "#ff7a1a", tri: "#e4322b" }, // sun / red
   ],
 };

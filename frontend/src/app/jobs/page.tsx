@@ -129,7 +129,7 @@ async function JobResults({ search }: { search: Search }) {
     return (
       <div className="ss-empty" role="status">
         <p className="text-base font-semibold text-ss-text">This page is past the last stored role</p>
-        <Link href={jobsHref(search, 0)} className="mt-4 inline-flex text-sm font-semibold text-[#0f766e] underline">
+        <Link href={jobsHref(search, 0)} className="mt-4 inline-flex text-sm font-semibold text-[#067589] underline">
           Back to the first page
         </Link>
       </div>
@@ -175,12 +175,12 @@ async function JobResults({ search }: { search: Search }) {
       </ul>
       <nav aria-label="More stored roles" className="flex flex-wrap gap-4 text-sm">
         {offset > 0 ? (
-          <Link href={jobsHref(search, offset - LIST_PAGE)} className="font-semibold text-[#0f766e] underline">
+          <Link href={jobsHref(search, offset - LIST_PAGE)} className="font-semibold text-[#067589] underline">
             Previous {LIST_PAGE}
           </Link>
         ) : null}
         {offset + loaded.jobs.length < loaded.matched ? (
-          <Link href={jobsHref(search, offset + LIST_PAGE)} className="font-semibold text-[#0f766e] underline">
+          <Link href={jobsHref(search, offset + LIST_PAGE)} className="font-semibold text-[#067589] underline">
             Next {LIST_PAGE}
           </Link>
         ) : null}
@@ -218,13 +218,13 @@ export default async function JobsPage({ searchParams }: { searchParams: Promise
         // TEMPORARY maintenance link, see src/lib/maintenance.ts
         <Link
           href="/sa-careers"
-          className="block rounded-2xl border-2 border-[#f5b301] bg-[#0b2447] px-4 py-3 text-center text-base font-extrabold text-white shadow hover:bg-[#13315c] sm:text-lg"
+          className="block rounded-2xl border-2 border-[#FCC033] bg-[#07284C] px-4 py-3 text-center text-base font-extrabold text-white shadow hover:bg-[#0D3A66] sm:text-lg"
         >
-          🇿🇦 <span className="text-[#f5b301]">Open to all during maintenance:</span> every South African careers page, by category →
+          🇿🇦 <span className="text-[#FCC033]">Open to all during maintenance:</span> every South African careers page, by category →
         </Link>
       )}
       {SA_CAREERS_ENABLED && (
-        <Link href="/offline-guide" className="block text-center text-base font-bold text-[#0b2447] underline decoration-[#f5b301]">
+        <Link href="/offline-guide" className="block text-center text-base font-bold text-[#07284C] underline decoration-[#FCC033]">
           📘 No data? Read the offline guide
         </Link>
       )}
@@ -260,7 +260,7 @@ export default async function JobsPage({ searchParams }: { searchParams: Promise
             Search stored roles
           </button>
           {country ? (
-            <Link href={jobsHref({ ...search, country: "all" }, 0)} className="ml-4 text-sm font-semibold text-[#0f766e] underline">
+            <Link href={jobsHref({ ...search, country: "all" }, 0)} className="ml-4 text-sm font-semibold text-[#067589] underline">
               All countries
             </Link>
           ) : (

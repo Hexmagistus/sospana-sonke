@@ -68,7 +68,7 @@ export default function DonatePage() {
 
   return (
     <div className="relative mx-auto max-w-xl space-y-5">
-      <CircuitOverlay className="-z-10 opacity-70" opacity={0.1} stroke="#0b1f3a" dotColor="#f5b301" />
+      <CircuitOverlay className="-z-10 opacity-70" opacity={0.1} stroke="#07284C" dotColor="#FCC033" />
       <div>
         <h1 className="text-2xl font-bold text-ss-text">Help keep Sospana Sonke free</h1>
         <p className="mt-1.5 text-sm text-ss-muted">

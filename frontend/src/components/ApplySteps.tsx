@@ -24,7 +24,7 @@ export function ApplySteps({
               rel="noopener noreferrer"
               data-count-target="vacancy"
               data-count-id={vacancyId}
-              className={onDark ? "font-semibold text-[#5eead4] underline" : "font-semibold text-[#0f766e] underline"}
+              className={onDark ? "font-semibold text-[#5eead4] underline" : "font-semibold text-[#067589] underline"}
             >
               Open the source page
             </a>
