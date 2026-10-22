@@ -51,7 +51,7 @@ const config: Config = {
       },
       fontFamily: {
         // Headings / display moments.
-        display: ["var(--font-display)", "var(--font-text)", "ui-sans-serif", "system-ui", "sans-serif"],
+        display: ["var(--font-text)", "ui-sans-serif", "system-ui", "sans-serif"],
         // UI + body. Overrides Tailwind's default sans so the whole app follows.
         sans: [
           "var(--font-text)", "ui-sans-serif", "system-ui", "-apple-system", "Segoe UI",

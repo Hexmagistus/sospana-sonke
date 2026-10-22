@@ -117,8 +117,8 @@ export default function Nav() {
             <Link
               href={c.href}
               aria-current={active ? "page" : undefined}
-              className={`inline-flex items-center gap-1 whitespace-nowrap rounded px-1.5 py-0.5 text-[11px] leading-4 transition xl:text-xs ${
-                active ? "bg-gold font-semibold text-navy" : "text-ss-text hover:bg-ss-primary-soft"
+              className={`inline-flex items-center gap-1 whitespace-nowrap rounded-md px-1.5 py-0.5 text-[11px] font-medium leading-4 transition-colors motion-reduce:transition-none xl:text-xs ${
+                active ? "bg-gold font-semibold text-navy" : "text-ss-muted hover:bg-ss-primary-soft hover:text-ss-text"
               }`}
             >
               <span aria-hidden="true">{c.flag}</span>

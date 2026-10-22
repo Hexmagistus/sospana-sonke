@@ -1011,3 +1011,19 @@ summary:focus-visible {
   --ss-primary-soft: rgba(255, 255, 255, 0.12);
   color: #ffffff;
 }
+
+/* Corporate polish (global): one typeface (Inter), tighter headings, calmer
+   cards, crisp 1px borders, quieter shadows. Colour palette unchanged. */
+body { font-feature-settings: "cv11", "ss01"; -webkit-font-smoothing: antialiased; }
+h1, h2, h3 { letter-spacing: -0.02em; line-height: 1.15; }
+.ss-card {
+  border-radius: 0.625rem;
+  border-top-width: 1px;
+  box-shadow: 0 1px 2px rgba(7, 40, 76, 0.06), 0 8px 24px -16px rgba(7, 40, 76, 0.25);
+}
+:root:not([data-theme="dark"]) .ss-navbar {
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.06), 0 6px 18px -12px rgba(7, 40, 76, 0.6);
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+}
