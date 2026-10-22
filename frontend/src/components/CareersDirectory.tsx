@@ -23,10 +23,7 @@ export default function CareersDirectory({ flag, title, cats }: { flag: string; 
             checked, and we&apos;re still adding them. This page is free for everyone, no login needed.
           </p>
         )}
-        <Link href="/jobs" className="mt-3 inline-block rounded-xl bg-[#07284C] px-5 py-2 font-bold text-[#FCC033]">
-          ← Browse jobs
-        </Link>
-        <Link href="/offline-guide" className="ml-2 mt-3 inline-block rounded-xl border-2 border-[#FCC033] bg-white px-5 py-2 font-bold">
+        <Link href="/offline-guide" className="mt-3 inline-block rounded-xl border-2 border-[#FCC033] bg-white px-5 py-2 font-bold">
           📘 Offline guide
         </Link>
       </div>

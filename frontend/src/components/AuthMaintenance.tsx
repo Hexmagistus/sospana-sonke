@@ -51,12 +51,6 @@ export function AuthMaintenanceBanner() {
       className="mb-4 rounded-2xl border-2 border-[#FCC033] bg-[#fff8e1] p-4 text-center text-[#07284C] shadow-md"
     >
       <p className="mb-3 text-base font-bold">🛠️ {AUTH_PAUSED_MESSAGE}</p>
-      <Link
-        href="/jobs"
-        className="inline-block rounded-xl bg-[#07284C] px-6 py-3 text-base font-extrabold text-[#FCC033] shadow hover:bg-[#0D3A66]"
-      >
-        Browse jobs
-      </Link>
     </div>
   );
 }
@@ -71,12 +65,6 @@ export function SiteMaintenanceBanner() {
         🛠️ <span className="text-[#FCC033]">Under maintenance:</span> we&apos;re upgrading our servers. You can still browse
         today&apos;s checked jobs, no account needed.
       </p>
-      <Link
-        href="/jobs"
-        className="mt-3 inline-block rounded-2xl bg-[#FD6948] px-8 py-3 text-lg font-extrabold text-[#07284C] shadow-lg hover:bg-[#FF7D60] sm:text-xl"
-      >
-        Browse jobs
-      </Link>
       {SA_CAREERS_ENABLED && (
         // TEMPORARY maintenance link, see src/lib/maintenance.ts
         <Link
