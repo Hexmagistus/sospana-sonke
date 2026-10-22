@@ -111,7 +111,6 @@ export default function OfflineGuidePage() {
       </Section>
 
       <div className="flex flex-wrap gap-3 pb-4">
-        <Link href="/jobs" className="rounded-xl bg-[#07284C] px-5 py-3 font-extrabold text-[#FCC033]">Browse jobs</Link>
         <Link href="/sa-careers" className="rounded-xl border-2 border-[#FCC033] bg-white px-5 py-3 font-extrabold">🇿🇦 SA careers pages</Link>
       </div>
     </main>
