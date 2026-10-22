@@ -9,14 +9,14 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        brand: { DEFAULT: "#0f766e", dark: "#115e59", light: "#5eead4" },
-        navy: { DEFAULT: "#0b2447", light: "#123a6b" },
+        brand: { DEFAULT: "#067589", dark: "#05606F", light: "#5eead4" },
+        navy: { DEFAULT: "#07284C", light: "#0D3A66" },
         // gold.dark is the AA-safe gold for TEXT on light surfaces (5.9:1 on white);
         // plain gold is for fills, borders and text on navy/dark.
-        gold: { DEFAULT: "#f5b301", light: "#ffd76a", dark: "#8a5a00" },
-        coral: "#ff6b5b",
-        purple: "#7c5cff",
-        sky: "#2f9bf6",
+        gold: { DEFAULT: "#FCC033", light: "#FFD877", dark: "#8a5a00" },
+        coral: "#FD6948",
+        purple: "#8450E4",
+        sky: "#1184F0",
         // SOSPANA SONKE // FUTURE OF WORK design tokens -- CSS variables
         // (see globals.css), so these utilities self-adapt to the active
         // theme without needing a dark: variant on every usage.

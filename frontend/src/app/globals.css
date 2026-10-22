@@ -10,51 +10,51 @@
    deliberately-designed "Deep Space" theme, not an inverted palette --
    see lib/theme.tsx for the toggle that flips [data-theme] on <html>. */
 :root {
-  --ss-bg: #f4f7f8;
+  --ss-bg: #FCF6EC;
   --ss-surface: #ffffff;
   --ss-surface-elevated: #ffffff;
   --ss-glass: rgba(255, 255, 255, 0.94);
   --ss-panel: rgba(255, 255, 255, 0.95);
-  --ss-border: rgba(12, 27, 51, 0.18);
-  --ss-text: #0c1b33;
+  --ss-border: rgba(7, 40, 76, 0.18);
+  --ss-text: #07284C;
   --ss-text-muted: #3f4a5c;
-  --ss-primary: #f5b301;
-  --ss-primary-glow: rgba(245, 179, 1, 0.35);
-  --ss-tech: #0f766e;
-  --ss-tech-glow: rgba(15, 118, 110, 0.30);
-  --ss-success: #16a34a;
+  --ss-primary: #FD6948;
+  --ss-primary-glow: rgba(253, 105, 72, 0.35);
+  --ss-tech: #067589;
+  --ss-tech-glow: rgba(6, 117, 137, 0.30);
+  --ss-success: #269958;
   --ss-warning: #b45309;
   --ss-danger: #dc2626;
   /* Pre-mixed translucent variants -- Tailwind's opacity-modifier syntax
      (e.g. bg-ss-primary/10) can't reliably apply to a color defined as a
      bare var(...) reference, so these tints are baked in per-theme instead
      of relying on that modifier at the call site. */
-  --ss-primary-soft: rgba(245, 179, 1, 0.10);
-  --ss-primary-soft-strong: rgba(245, 179, 1, 0.18);
-  --ss-primary-border-soft: rgba(245, 179, 1, 0.35);
+  --ss-primary-soft: rgba(252, 192, 51, 0.10);
+  --ss-primary-soft-strong: rgba(252, 192, 51, 0.18);
+  --ss-primary-border-soft: rgba(252, 192, 51, 0.35);
   --ss-danger-soft: rgba(220, 38, 38, 0.06);
   --ss-danger-soft-border: rgba(220, 38, 38, 0.28);
 }
 
 :root[data-theme="dark"] {
-  --ss-bg: #060b16;
-  --ss-surface: #0f1b30;
-  --ss-surface-elevated: #16233d;
-  --ss-glass: rgba(10, 18, 32, 0.72);
-  --ss-panel: rgba(7, 21, 40, 0.9);
+  --ss-bg: #04172C;
+  --ss-surface: #0A2442;
+  --ss-surface-elevated: #11305A;
+  --ss-glass: rgba(5, 26, 50, 0.72);
+  --ss-panel: rgba(5, 30, 58, 0.9);
   --ss-border: rgba(255, 255, 255, 0.10);
   --ss-text: #eef2f8;
   --ss-text-muted: #94a3b8;
-  --ss-primary: #f5b301;
-  --ss-primary-glow: rgba(245, 179, 1, 0.45);
+  --ss-primary: #FD6948;
+  --ss-primary-glow: rgba(253, 105, 72, 0.45);
   --ss-tech: #22d3ee;
   --ss-tech-glow: rgba(34, 211, 238, 0.35);
   --ss-success: #22c55e;
   --ss-warning: #fbbf24;
   --ss-danger: #f87171;
-  --ss-primary-soft: rgba(245, 179, 1, 0.16);
-  --ss-primary-soft-strong: rgba(245, 179, 1, 0.26);
-  --ss-primary-border-soft: rgba(245, 179, 1, 0.45);
+  --ss-primary-soft: rgba(252, 192, 51, 0.16);
+  --ss-primary-soft-strong: rgba(252, 192, 51, 0.26);
+  --ss-primary-border-soft: rgba(252, 192, 51, 0.45);
   --ss-danger-soft: rgba(248, 113, 113, 0.10);
   --ss-danger-soft-border: rgba(248, 113, 113, 0.35);
 }
@@ -83,10 +83,10 @@ html { font-size: 17.5px; }
   padding: 1.25rem;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.92),
-    inset 0 -1px 0 rgba(12, 27, 51, 0.05),
-    0 1px 1px rgba(12, 27, 51, 0.05),
-    0 14px 30px -20px rgba(12, 27, 51, 0.4),
-    0 32px 50px -36px rgba(15, 118, 110, 0.28);
+    inset 0 -1px 0 rgba(7, 40, 76, 0.05),
+    0 1px 1px rgba(7, 40, 76, 0.05),
+    0 14px 30px -20px rgba(7, 40, 76, 0.4),
+    0 32px 50px -36px rgba(6, 117, 137, 0.28);
   transform-style: preserve-3d;
 }
 :root[data-theme="dark"] .ss-card {
@@ -113,7 +113,7 @@ html { font-size: 17.5px; }
 }
 .ss-hero {
   background:
-    linear-gradient(180deg, rgba(245, 179, 1, 0.08), transparent 42%),
+    linear-gradient(180deg, rgba(252, 192, 51, 0.08), transparent 42%),
     var(--ss-surface);
 }
 
@@ -122,15 +122,15 @@ html { font-size: 17.5px; }
    the deep teal; the bright teal is a fill on navy, where the contrast holds. */
 :root,
 .ss-intel {
-  --ss-intel-navy: #0c1b33;
+  --ss-intel-navy: #07284C;
   --ss-intel-charcoal: #1c2430;
   --ss-intel-white: #ffffff;
-  --ss-intel-paper: #f4f7f8;
+  --ss-intel-paper: #FCF6EC;
   --ss-intel-text: #ffffff;
   --ss-intel-muted: #d5dde8;
   --ss-intel-teal: #5eead4;
-  --ss-intel-teal-deep: #0f766e;
-  --ss-intel-ink: #0b1220;
+  --ss-intel-teal-deep: #067589;
+  --ss-intel-ink: #07284C;
   --ss-intel-card-muted: #3f4a5c;
 }
 .ss-hero.ss-intel {
@@ -191,7 +191,7 @@ html { font-size: 17.5px; }
   border-radius: 999px;
   background: var(--ss-intel-paper);
   color: var(--ss-intel-ink);
-  border: 1px solid rgba(12, 27, 51, 0.16);
+  border: 1px solid rgba(7, 40, 76, 0.16);
   padding: 0.35rem 0.85rem;
   font-size: 0.875rem;
   font-weight: 600;
@@ -223,14 +223,14 @@ html { font-size: 17.5px; }
   font-weight: 800;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.72),
-    0 1px 0 rgba(12, 27, 51, 0.28),
-    0 10px 16px -10px rgba(12, 27, 51, 0.55);
+    0 1px 0 rgba(7, 40, 76, 0.28),
+    0 10px 16px -10px rgba(7, 40, 76, 0.55);
 }
 .ss-press {
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.45),
-    0 1px 0 rgba(12, 27, 51, 0.2),
-    0 10px 16px -12px rgba(12, 27, 51, 0.45);
+    0 1px 0 rgba(7, 40, 76, 0.2),
+    0 10px 16px -12px rgba(7, 40, 76, 0.45);
 }
 .ss-intel-button:disabled {
   opacity: 0.7;
@@ -244,8 +244,8 @@ html { font-size: 17.5px; }
   .ss-press:active {
     transform: translateY(1px);
     box-shadow:
-      inset 0 2px 4px rgba(12, 27, 51, 0.28),
-      0 1px 0 rgba(12, 27, 51, 0.2);
+      inset 0 2px 4px rgba(7, 40, 76, 0.28),
+      0 1px 0 rgba(7, 40, 76, 0.2);
   }
 }
 .ss-rate-track {
@@ -254,14 +254,14 @@ html { font-size: 17.5px; }
   flex: 1;
   min-width: 0;
   border-radius: 999px;
-  background: linear-gradient(180deg, rgba(12, 27, 51, 0.14), rgba(255, 255, 255, 0.85));
-  box-shadow: inset 0 2px 3px rgba(12, 27, 51, 0.2), inset 0 -1px 0 rgba(255, 255, 255, 0.85);
+  background: linear-gradient(180deg, rgba(7, 40, 76, 0.14), rgba(255, 255, 255, 0.85));
+  box-shadow: inset 0 2px 3px rgba(7, 40, 76, 0.2), inset 0 -1px 0 rgba(255, 255, 255, 0.85);
 }
 .ss-rate-fill {
   display: block;
   height: 100%;
   border-radius: 999px;
-  background: linear-gradient(180deg, #3d6eae, #0c1b33 58%, #0f766e);
+  background: linear-gradient(180deg, #2C5C93, #07284C 58%, #067589);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4);
 }
 .ss-intel :focus-visible {
@@ -279,9 +279,9 @@ body {
   min-height: 100vh;
   color: var(--ss-text);
   background:
-    radial-gradient(900px 520px at 100% -8%, rgba(245, 179, 1, 0.12), transparent 60%),
-    radial-gradient(760px 520px at -12% 6%, rgba(15, 118, 110, 0.12), transparent 60%),
-    radial-gradient(820px 620px at 50% 118%, rgba(124, 92, 255, 0.10), transparent 62%),
+    radial-gradient(900px 520px at 100% -8%, rgba(252, 192, 51, 0.12), transparent 60%),
+    radial-gradient(760px 520px at -12% 6%, rgba(6, 117, 137, 0.12), transparent 60%),
+    radial-gradient(820px 620px at 50% 118%, rgba(132, 80, 228, 0.10), transparent 62%),
     var(--ss-bg);
   background-attachment: scroll;
   transition: background-color 0.25s ease, color 0.25s ease;
@@ -300,7 +300,7 @@ select:focus-visible,
 textarea:focus-visible,
 [tabindex]:focus-visible,
 summary:focus-visible {
-  outline: 2px solid #f5b301;
+  outline: 2px solid #FCC033;
   outline-offset: 2px;
   border-radius: 4px;
 }
@@ -319,7 +319,7 @@ main h1::after {
   height: 5px;
   margin-top: 10px;
   border-radius: 6px;
-  background: linear-gradient(90deg, #ff6b5b, #f5b301, #0f766e, #2f9bf6);
+  background: linear-gradient(90deg, #FD6948, #FCC033, #067589, #1184F0);
   background-size: 220% auto;
   animation: gradient-shift 6s ease-in-out infinite;
   box-shadow: 0 0 16px var(--ss-primary-glow);
@@ -396,8 +396,8 @@ main h1::after {
 }
 
 @keyframes node-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(245, 179, 1, 0.45); }
-  50% { box-shadow: 0 0 0 7px rgba(245, 179, 1, 0); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(252, 192, 51, 0.45); }
+  50% { box-shadow: 0 0 0 7px rgba(252, 192, 51, 0); }
 }
 .animate-node-pulse { animation: node-pulse 2.2s ease-in-out infinite; }
 
@@ -523,10 +523,10 @@ body::before {
 /* ------------------------------------------------------------------ */
 body {
   background-image:
-    radial-gradient(900px 520px at 100% -8%, rgba(245, 179, 1, 0.14), transparent 60%),
-    radial-gradient(760px 520px at -12% 6%, rgba(15, 118, 110, 0.12), transparent 60%),
-    radial-gradient(820px 620px at 50% 118%, rgba(124, 92, 255, 0.10), transparent 62%),
-    linear-gradient(180deg, rgba(247, 245, 240, 0.96), rgba(247, 245, 240, 0.98)),
+    radial-gradient(900px 520px at 100% -8%, rgba(252, 192, 51, 0.14), transparent 60%),
+    radial-gradient(760px 520px at -12% 6%, rgba(6, 117, 137, 0.12), transparent 60%),
+    radial-gradient(820px 620px at 50% 118%, rgba(132, 80, 228, 0.10), transparent 62%),
+    linear-gradient(180deg, rgba(252, 246, 236, 0.96), rgba(252, 246, 236, 0.98)),
     url("/photos/mara-sunset.jpg");
   background-size: auto, auto, auto, auto, cover;
   background-attachment: scroll;
@@ -540,10 +540,10 @@ body:has(.landing) {
 }
 :root[data-theme="dark"] body {
   background-image:
-    radial-gradient(900px 520px at 100% -8%, rgba(245, 179, 1, 0.16), transparent 60%),
+    radial-gradient(900px 520px at 100% -8%, rgba(252, 192, 51, 0.16), transparent 60%),
     radial-gradient(760px 520px at -12% 6%, rgba(34, 211, 238, 0.12), transparent 60%),
-    radial-gradient(820px 620px at 50% 118%, rgba(124, 92, 255, 0.16), transparent 62%),
-    linear-gradient(180deg, rgba(6, 11, 22, 0.88), rgba(6, 11, 22, 0.94)),
+    radial-gradient(820px 620px at 50% 118%, rgba(132, 80, 228, 0.16), transparent 62%),
+    linear-gradient(180deg, rgba(4, 23, 44, 0.88), rgba(4, 23, 44, 0.94)),
     url("/photos/cape-town-mountain.jpg");
 }
 
@@ -567,16 +567,16 @@ main#main-content {
 .photo-wash-scrim {
   background: linear-gradient(
     180deg,
-    rgba(247, 245, 240, 0.7) 0%,
-    rgba(247, 245, 240, 0.9) 42%,
+    rgba(252, 246, 236, 0.7) 0%,
+    rgba(252, 246, 236, 0.9) 42%,
     var(--ss-bg) 100%
   );
 }
 :root[data-theme="dark"] .photo-wash-scrim {
   background: linear-gradient(
     180deg,
-    rgba(6, 11, 22, 0.38) 0%,
-    rgba(6, 11, 22, 0.78) 46%,
+    rgba(4, 23, 44, 0.38) 0%,
+    rgba(4, 23, 44, 0.78) 46%,
     var(--ss-bg) 100%
   );
 }
@@ -605,7 +605,7 @@ main tbody tr {
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.93) 0%, rgba(255, 255, 255, 0.86) 42%, var(--ss-bg) 100%);
 }
 :root[data-theme="dark"] .auth-stage-scrim {
-  background: linear-gradient(180deg, rgba(7, 21, 40, 0.55) 0%, rgba(11, 31, 58, 0.32) 42%, var(--ss-bg) 100%);
+  background: linear-gradient(180deg, rgba(5, 30, 58, 0.55) 0%, rgba(11, 31, 58, 0.32) 42%, var(--ss-bg) 100%);
 }
 
 @keyframes auth-float {
@@ -668,18 +668,18 @@ main tbody tr {
   /* --- Contrast-corrected text tokens (WCAG AA on --ss-bg / --ss-surface). --- */
   --ss-text-muted: #3f4a5c;      /* 8.5:1 on white, 7.9:1 on the page background */
   --ss-success: #166534;         /* 7.1:1 on white */
-  --ss-primary-text: #6b4700;    /* gold, but readable as TEXT on light surfaces (7.9:1 on white) */
-  --ss-tech: #0b5e58;            /* teal for text and rules on light surfaces */
+  --ss-primary-text: #A63A1E;    /* coral, readable as TEXT on light surfaces (6.6:1 on white) */
+  --ss-tech: #05606F;            /* teal for text and rules on light surfaces */
   --ss-danger: #b91c1c;
   --ss-warning: #92400e;
 
   /* --- Focus: a dark ring with a gold halo is visible on light AND photo
         backgrounds; plain gold on white was only 1.8:1. --- */
-  --ss-focus: #0b2447;
-  --ss-focus-halo: #f5b301;
+  --ss-focus: #07284C;
+  --ss-focus-halo: #FCC033;
 
   /* --- Circuit-board motif (corner trace on cards), tinted by theme. --- */
-  --ss-circuit: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='90' viewBox='0 0 140 90' fill='none' stroke='%23f5b301' stroke-opacity='.38' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M140 14H108L96 26H72'/%3E%3Cpath d='M140 36H120L110 46'/%3E%3Cpath d='M140 60H100'/%3E%3Ccircle cx='70' cy='26' r='2.6' fill='%23f5b301' fill-opacity='.45'/%3E%3Ccircle cx='108' cy='48' r='2.6' fill='%23f5b301' fill-opacity='.45'/%3E%3Ccircle cx='98' cy='60' r='2.6' fill='%23f5b301' fill-opacity='.45'/%3E%3C/svg%3E");
+  --ss-circuit: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='90' viewBox='0 0 140 90' fill='none' stroke='%23FCC033' stroke-opacity='.38' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M140 14H108L96 26H72'/%3E%3Cpath d='M140 36H120L110 46'/%3E%3Cpath d='M140 60H100'/%3E%3Ccircle cx='70' cy='26' r='2.6' fill='%23FCC033' fill-opacity='.45'/%3E%3Ccircle cx='108' cy='48' r='2.6' fill='%23FCC033' fill-opacity='.45'/%3E%3Ccircle cx='98' cy='60' r='2.6' fill='%23FCC033' fill-opacity='.45'/%3E%3C/svg%3E");
 }
 
 :root[data-theme="dark"] {
@@ -688,9 +688,9 @@ main tbody tr {
   --ss-danger: #f87171;
   --ss-warning: #fbbf24;
   --ss-success: #22c55e;
-  --ss-primary-text: #f5b301;    /* 9.3:1 on --ss-surface */
-  --ss-focus: #f5b301;
-  --ss-focus-halo: #0b2447;
+  --ss-primary-text: #FD6948;    /* 5.4:1 on --ss-surface */
+  --ss-focus: #FCC033;
+  --ss-focus-halo: #07284C;
 }
 
 /* ---- Typography ---- */
@@ -892,23 +892,23 @@ summary:focus-visible {
 
 /* ---- Accent colours used as TEXT: darker on light surfaces (7:1 on white), the
    original bright values on dark. Fills and borders keep the brand colours. ---- */
-.text-coral { color: #a3281c; }
-.text-brand { color: #0b5e58; }
-.text-sky { color: #14568f; }
-.text-purple { color: #5b3fd6; }
+.text-coral { color: #A63A1E; }
+.text-brand { color: #05606F; }
+.text-sky { color: #0D5CA8; }
+.text-purple { color: #6A35C9; }
 .text-gold-dark { color: #6b4700; }
 .text-gold { color: #6b4700; }
 .text-yellow-700 { color: #854d0e; }
 .text-green-700 { color: #166534; }
-:root[data-theme="dark"] .text-coral { color: #ff8a7d; }
+:root[data-theme="dark"] .text-coral { color: #FF8F72; }
 :root[data-theme="dark"] .text-brand { color: #5eead4; }
 :root[data-theme="dark"] .text-sky { color: #7cc4ff; }
 :root[data-theme="dark"] .text-purple { color: #b3a4ff; }
-:root[data-theme="dark"] .text-gold-dark, :root[data-theme="dark"] .text-gold { color: #f5b301; }
+:root[data-theme="dark"] .text-gold-dark, :root[data-theme="dark"] .text-gold { color: #FCC033; }
 :root[data-theme="dark"] .text-yellow-700 { color: #fde047; }
 :root[data-theme="dark"] .text-green-700 { color: #86efac; }
 /* Gold text that sits on a navy or gold fill is meant to stay bright. */
-.bg-navy .text-gold, .bg-navy.text-gold { color: #f5b301; }
+.bg-navy .text-gold, .bg-navy.text-gold { color: #FCC033; }
 
 /* ---- Bright legibility floor ----
    Captions were 9-13px. Nothing is smaller than 14px now, and the old 13px
@@ -931,9 +931,9 @@ summary:focus-visible {
   --map-land: #ffffff;
   --map-land-stroke: #7d8fa8;
   --map-covered-stroke: #3d5f8f;
-  --map-select-stroke: #0b2447;
-  --map-pin: #0b2447;
-  --map-circuit: #0b2447;
+  --map-select-stroke: #07284C;
+  --map-pin: #07284C;
+  --map-circuit: #07284C;
   --map-circuit-opacity: 0.07;
   --map-covered-opacity: 0.75;
   --map-label-bg: rgba(255,255,255,0.96);
@@ -945,7 +945,7 @@ summary:focus-visible {
   --map-covered-stroke: #3a5f94;
   --map-select-stroke: #fff8e1;
   --map-pin: #fff8e1;
-  --map-circuit: #f5b301;
+  --map-circuit: #FCC033;
   --map-circuit-opacity: 0.22;
   --map-covered-opacity: 0.35;
   --map-label-bg: rgba(7,21,40,0.92);
@@ -988,3 +988,13 @@ summary:focus-visible {
 .ss-bal[data-motion="reduced"] .ss-bal-sprite { animation: none !important; }
 .ss-bal[data-motion="reduced"] .ss-bal-pace { left: 50%; margin-left: calc(var(--bw) / -2); }
 .ss-bal[data-motion="reduced"] .ss-bal-sprite { background-position-x: calc(var(--bw) * -2); }
+
+/* Reference palette (navy / coral / golden yellow / teal / green / purple / blue on
+   warm cream). Primary CTAs use gold-on-navy-text classes across the app; recolour
+   them to coral with navy text (5.2:1, WCAG AA) without touching markup. Yellow
+   stays for accents, counts and highlights. */
+.bg-gold.text-navy { background-color: #FD6948; }
+.bg-gold.text-navy:hover { background-color: #FF7D60; }
+:root { --ss-accent-yellow: #FCC033; --ss-accent-teal: #0198AF; --ss-accent-green: #269958;
+  --ss-accent-purple: #8450E4; --ss-accent-blue: #1184F0; --ss-tint-blue: #EAF4FC;
+  --ss-tint-yellow: #FCF5E5; --ss-tint-green: #EEF6ED; --ss-tint-mint: #D4F6F1; }
