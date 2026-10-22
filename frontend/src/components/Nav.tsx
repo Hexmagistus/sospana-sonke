@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { api } from "@/lib/api";
@@ -30,6 +30,10 @@ const LINKS = [
   { href: "/donate", label: "Donate" },
 ];
 
+const ACCOUNT_ONLY = new Set([
+  "/dashboard", "/applications", "/profile", "/preferences", "/messages", "/notifications", "/security",
+]);
+
 /** Sun/moon toggle with its "Adjust brightness" caption under the icon (see lib/ThemeToggleButton). */
 function ThemeToggle({ className = "" }: { className?: string }) {
   const { theme, toggleTheme } = useTheme();
@@ -37,9 +41,8 @@ function ThemeToggle({ className = "" }: { className?: string }) {
 }
 
 export default function Nav() {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const pathname = usePathname();
-  const router = useRouter();
   const [unread, setUnread] = useState(0);
   const [unreadMsgs, setUnreadMsgs] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -103,7 +106,8 @@ export default function Nav() {
     return () => document.removeEventListener("keydown", onKey);
   }, [drawerOpen]);
 
-  if (!user) return null;
+  // Everyone sees the nav now. Account-only pages are listed only for an existing session.
+  const links = user ? LINKS : LINKS.filter((l) => !ACCOUNT_ONLY.has(l.href));
 
   const linkClass = (active: boolean) =>
     `rounded-md px-2 py-1.5 text-sm whitespace-nowrap transition xl:px-3 ${
@@ -137,31 +141,21 @@ export default function Nav() {
 
         {/* Desktop / tablet: full link row */}
         <div className="hidden min-w-0 flex-1 flex-wrap items-center gap-x-0.5 gap-y-1 lg:flex xl:gap-x-1">
-          {LINKS.map((l) => renderLink(l))}
-          {user.role === "admin" && (
+          {links.map((l) => renderLink(l))}
+          {user?.role === "admin" && (
             <Link href="/admin" className={linkClass(pathname.startsWith("/admin"))}>
               Admin
             </Link>
           )}
           <div className="ml-auto flex shrink-0 items-center gap-3 whitespace-nowrap pl-2">
-            <NotificationBell unread={unread} />
+            {user && <NotificationBell unread={unread} />}
             <ThemeToggle />
-            <span className="hidden max-w-[9rem] truncate text-xs text-ss-muted xl:inline" title={user.email}>{user.email}</span>
-            <button
-              onClick={() => {
-                logout();
-                router.push("/login");
-              }}
-              className="text-sm font-semibold text-ss-text underline-offset-2 hover:underline"
-            >
-              Sign out
-            </button>
           </div>
         </div>
 
         {/* Mobile: theme toggle + hamburger, pushed to the right */}
         <div className="ml-auto flex items-center gap-0 min-[360px]:gap-1 lg:hidden">
-          <NotificationBell unread={unread} />
+          {user && <NotificationBell unread={unread} />}
           <ThemeToggle />
           <button
             type="button"
@@ -187,8 +181,8 @@ export default function Nav() {
       {menuOpen && (
         <div className="border-t border-ss-border px-4 pb-3 pt-2 lg:hidden">
           <div className="flex flex-col gap-1">
-            {LINKS.map((l) => renderLink(l, () => setMenuOpen(false)))}
-            {user.role === "admin" && (
+            {links.map((l) => renderLink(l, () => setMenuOpen(false)))}
+            {user?.role === "admin" && (
               <Link
                 href="/admin"
                 onClick={() => setMenuOpen(false)}
@@ -197,18 +191,6 @@ export default function Nav() {
                 Admin
               </Link>
             )}
-          </div>
-          <div className="mt-3 flex items-center justify-between border-t border-ss-border pt-3">
-            <span className="truncate text-xs text-ss-muted">{user.email}</span>
-            <button
-              onClick={() => {
-                logout();
-                router.push("/login");
-              }}
-              className="text-sm font-semibold text-ss-text underline-offset-2 hover:underline"
-            >
-              Sign out
-            </button>
           </div>
         </div>
       )}
@@ -241,28 +223,16 @@ export default function Nav() {
             </button>
           </div>
           <div className="flex flex-col gap-1">
-            {LINKS.map((l) => renderLink(l, () => setDrawerOpen(false)))}
-            {user.role === "admin" && (
+            {links.map((l) => renderLink(l, () => setDrawerOpen(false)))}
+            {user?.role === "admin" && (
               <Link href="/admin" onClick={() => setDrawerOpen(false)} className={linkClass(pathname.startsWith("/admin"))}>
                 Admin
               </Link>
             )}
           </div>
           <div className="mt-4 flex items-center gap-3 border-t border-ss-border pt-3">
-            <NotificationBell unread={unread} />
+            {user && <NotificationBell unread={unread} />}
             <ThemeToggle />
-          </div>
-          <div className="mt-3 flex items-center justify-between gap-2">
-            <span className="min-w-0 truncate text-xs text-ss-muted" title={user.email}>{user.email}</span>
-            <button
-              onClick={() => {
-                logout();
-                router.push("/login");
-              }}
-              className="shrink-0 text-sm font-semibold text-ss-text underline-offset-2 hover:underline"
-            >
-              Sign out
-            </button>
           </div>
         </aside>
       </div>

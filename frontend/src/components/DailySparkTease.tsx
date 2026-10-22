@@ -22,21 +22,12 @@ export default function DailySparkTease() {
               Daily Spark ✨
             </h2>
             <p className="mt-2 max-w-prose text-step-0 text-ss-text">
-              A clean joke and a line of wisdom to start the job-hunt day, from African proverbs to Mandela, Maathai and Achebe. Free for members.
+              A clean joke and a line of wisdom to start the job-hunt day, from African proverbs to Mandela, Maathai and Achebe.
             </p>
             <div className="mt-5 flex flex-wrap gap-3">
-              <Link
-                href="/register"
+              <Link href="/jobs"
                 className="rounded-lg bg-[#f5b301] px-4 py-2 text-sm font-bold text-[#0b2447] shadow-md transition-all duration-ss hover:brightness-105"
-              >
-                Join free to reveal it
-              </Link>
-              <Link
-                href="/login"
-                className="rounded-lg px-4 py-2 text-sm font-semibold text-navy ring-2 ring-navy/60 transition-all duration-ss hover:bg-white"
-              >
-                I already have an account
-              </Link>
+              >Browse today’s jobs</Link>
             </div>
           </div>
           <div className="space-y-3">
