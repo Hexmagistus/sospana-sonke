@@ -36,7 +36,7 @@ export default function CountriesIndexPage() {
             : ""}, including those whose link is still blank.
           These country pages do not list openings. Employers that already have a careers link also have a{" "}
           <Link href="/employers" className="underline">public page</Link>
-          {" "}with that link and any roles the scanner has stored. Sign in to browse the full directory.
+          {" "}with that link and any roles the scanner has stored. Anyone can browse the full directory.
         </p>
       </PageHeader>
       <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
