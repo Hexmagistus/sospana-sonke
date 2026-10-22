@@ -5,8 +5,6 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { api } from "@/lib/api";
-import { useTheme } from "@/lib/theme";
-import ThemeToggleButton from "@/lib/ThemeToggleButton";
 import NotificationBell from "@/components/NotificationBell";
 import { isExplorerPath, OPEN_MENU_EVENT } from "@/lib/explorer/explorerPaths";
 import { publicCountries } from "@/lib/countryPageData";
@@ -33,11 +31,6 @@ const ACCOUNT_ONLY = new Set([
   "/dashboard", "/applications", "/profile", "/preferences", "/messages", "/notifications", "/security",
 ]);
 
-/** Sun/moon toggle with its "Adjust brightness" caption under the icon (see lib/ThemeToggleButton). */
-function ThemeToggle({ className = "" }: { className?: string }) {
-  const { theme, toggleTheme } = useTheme();
-  return <ThemeToggleButton theme={theme === "dark" ? "dark" : "light"} onToggle={toggleTheme} className={className} />;
-}
 
 export default function Nav() {
   const { user } = useAuth();
@@ -173,14 +166,12 @@ export default function Nav() {
           )}
           <div className="ml-auto flex shrink-0 items-center gap-3 whitespace-nowrap pl-2">
             {user && <NotificationBell unread={unread} />}
-            <ThemeToggle />
           </div>
         </div>
 
         {/* Mobile: theme toggle + hamburger, pushed to the right */}
         <div className="ml-auto flex items-center gap-0 min-[360px]:gap-1 lg:hidden">
           {user && <NotificationBell unread={unread} />}
-          <ThemeToggle />
           {(links.length > 0 || user?.role === "admin") && (
           <button
             type="button"
@@ -265,7 +256,6 @@ export default function Nav() {
           </div>
           <div className="mt-4 flex items-center gap-3 border-t border-ss-border pt-3">
             {user && <NotificationBell unread={unread} />}
-            <ThemeToggle />
           </div>
         </aside>
       </div>
