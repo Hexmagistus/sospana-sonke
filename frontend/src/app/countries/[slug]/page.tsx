@@ -65,15 +65,15 @@ export default async function CountryPage({ params }: Props) {
         </p>
       </header>
       <p className="ss-card text-sm leading-relaxed">
-        Employers whose careers link is still being checked are in the signed-in directory and are not
+        Employers whose careers link is still being checked are in the full directory and are not
         part of this number.
       </p>
       <div className="flex flex-wrap gap-3">
         <Link
-          href={`/login?next=${encodeURIComponent(directoryPath)}`}
+          href={directoryPath}
           className="inline-flex items-center rounded-xl bg-gold px-4 py-2.5 text-sm font-semibold text-navy shadow-sm ring-1 ring-navy/30"
         >
-          Sign in to browse employers
+          Browse employers
         </Link>
         <Link
           href="/countries"

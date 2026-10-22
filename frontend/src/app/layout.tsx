@@ -15,6 +15,8 @@ import MentionPopup from "@/components/MentionPopup";
 import PwaExtras from "@/components/PwaExtras";
 import CopyGuard from "@/components/CopyGuard";
 import { SiteMaintenanceBanner } from "@/components/AuthMaintenance";
+import { Analytics } from "@vercel/analytics/next";
+import VisitCounter from "@/components/VisitCounter";
 import PhotoWash from "@/components/PhotoWash";
 import WelcomeNote from "@/components/WelcomeNote";
 import { OutboundClickListener } from "@/components/CountOutboundLink";
@@ -160,6 +162,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <CopyGuard />
         <OutboundClickListener />
         <CardTilt />
+        <VisitCounter />
+        <Analytics />
         <a
           href="#main-content"
           className="sr-only focus-visible:not-sr-only focus-visible:fixed focus-visible:left-4 focus-visible:top-4 focus-visible:z-50 focus-visible:rounded-md focus-visible:bg-navy focus-visible:px-4 focus-visible:py-2 focus-visible:text-white"

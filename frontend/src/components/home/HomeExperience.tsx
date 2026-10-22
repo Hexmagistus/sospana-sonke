@@ -520,15 +520,12 @@ export default function Home({ children }: { children?: ReactNode }) {
             </span>
           </div>
           <div className="flex shrink-0 items-center gap-1 sm:gap-2">
-            <Link href="/login" className="rounded-xl px-1.5 py-2.5 text-[13px] font-semibold transition hover:bg-black/5 min-[360px]:px-2 sm:px-4 sm:text-sm" style={{ color: C.navy }}>
-              Log in
-            </Link>
             <Link
-              href="/register"
+              href="/jobs"
               className="whitespace-nowrap rounded-xl px-2 py-2.5 text-[13px] font-bold text-white min-[360px]:px-2.5 shadow-sm transition hover:brightness-110 sm:px-4 sm:text-sm"
               style={{ background: C.navy }}
             >
-              Get started
+              Browse jobs
             </Link>
           </div>
         </div>
@@ -917,7 +914,7 @@ export default function Home({ children }: { children?: ReactNode }) {
                 <h2 className="font-display text-3xl font-extrabold sm:text-4xl" style={{ color: "#1a0f00" }}>Your ambition deserves a real platform.</h2>
                 <p className="mx-auto mt-3 max-w-xl text-lg" style={{ color: "#1a0f00" }}>Build your profile, look through stored openings, and apply on the source page.</p>
                 <Link
-                  href="/register"
+                  href="/jobs"
                   className="group relative mt-7 inline-block overflow-hidden rounded-xl px-8 py-4 text-lg font-extrabold text-white shadow-lg transition hover:-translate-y-0.5 hover:brightness-110"
                   style={{ background: C.navy }}
                 >

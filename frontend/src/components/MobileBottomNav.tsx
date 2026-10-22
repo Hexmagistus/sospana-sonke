@@ -77,16 +77,6 @@ const PUBLIC_ITEMS: Item[] = [
       </svg>
     ),
   },
-  {
-    href: "/login",
-    label: "Sign in",
-    icon: (a) => (
-      <svg {...iconProps(a)} aria-hidden="true">
-        <circle cx="12" cy="8.5" r="3.5" />
-        <path d="M4.5 20a7.5 7.5 0 0 1 15 0" />
-      </svg>
-    ),
-  },
 ];
 
 const ITEMS: Item[] = [

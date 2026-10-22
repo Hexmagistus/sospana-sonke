@@ -102,7 +102,7 @@ export function SaveRoleButton({ id }: { id: string }) {
       {message ? (
         <p role="status" className="mt-2 text-sm text-ss-text">
           {message}{" "}
-          {!getToken() ? <Link href="/login" className="font-semibold text-[#0f766e] underline">Sign in</Link> : null}
+          
         </p>
       ) : (
         <p className="mt-2 text-sm text-ss-muted">Saved roles stay on your account. Recently viewed stays on this device.</p>

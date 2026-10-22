@@ -128,11 +128,8 @@ export default function OrganisationHomePage() {
     return (
       <article className="mx-auto max-w-xl space-y-3">
         <h1 className="font-display text-3xl font-bold text-ss-text">Organisation home</h1>
-        <p className="text-sm text-ss-muted">Sign in with an organisation account to claim a page.</p>
-        <p className="flex flex-wrap gap-3 text-sm">
-          <Link href="/login" className="font-semibold text-navy underline">Sign in</Link>
-          <Link href="/organisation/register" className="font-semibold text-navy underline">Create an organisation account</Link>
-        </p>
+        <p className="text-sm text-ss-muted">Organisation pages are being reworked. Browse the public directory in the meantime.</p>
+        <p className="text-sm"><Link href="/companies" className="font-semibold text-navy underline">Browse companies</Link></p>
       </article>
     );
   }

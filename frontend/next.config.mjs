@@ -38,6 +38,14 @@ const nextConfig = {
   reactStrictMode: true,
   // Lint is run separately; don't fail production builds on lint.
   eslint: { ignoreDuringBuilds: true },
+  // Sign-in is switched off: every page is public, so the account pages send people home.
+  async redirects() {
+    return ["/login", "/register", "/forgot-password", "/reset-password", "/organisation/register"].map((source) => ({
+      source,
+      destination: "/",
+      permanent: false,
+    }));
+  },
   async headers() {
     return [
       {
