@@ -152,7 +152,7 @@ export default function Nav() {
 
   return (
     <>
-    <nav className={`sticky top-0 z-30 border-b-2 border-gold bg-ss-surface shadow-[0_8px_24px_-18px_rgba(11,36,71,0.5)] ${explorer ? "lg:hidden" : ""}`}>
+    <nav className={`ss-navbar sticky top-0 z-30 border-b-2 border-gold bg-ss-surface shadow-[0_8px_24px_-18px_rgba(11,36,71,0.5)] ${explorer ? "lg:hidden" : ""}`}>
       <div className="mx-auto flex w-full max-w-6xl items-center gap-1 px-3 py-2.5 min-[360px]:px-4">
         <Link href="/companies" className="mr-1 flex shrink-0 items-center gap-1.5 whitespace-nowrap min-[360px]:gap-2 sm:mr-3">
           {/* eslint-disable-next-line @next/next/no-img-element */}

@@ -998,3 +998,16 @@ summary:focus-visible {
 :root { --ss-accent-yellow: #FCC033; --ss-accent-teal: #0198AF; --ss-accent-green: #269958;
   --ss-accent-purple: #8450E4; --ss-accent-blue: #1184F0; --ss-tint-blue: #EAF4FC;
   --ss-tint-yellow: #FCF5E5; --ss-tint-green: #EEF6ED; --ss-tint-mint: #D4F6F1; }
+
+/* Navy header (reference palette). Re-scopes the theme tokens inside the top
+   nav so every existing text-ss-text / bg-ss-surface utility flips to white
+   on navy without touching markup. */
+:root:not([data-theme="dark"]) .ss-navbar {
+  --ss-surface: #07284C;
+  --ss-text: #ffffff;
+  --ss-text-muted: #d5dde8;
+  --ss-primary-text: #FCC033;
+  --ss-border: rgba(255, 255, 255, 0.18);
+  --ss-primary-soft: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+}
