@@ -66,7 +66,7 @@ export function ShowpieceCanvas() {
       <Globe />
       <mesh rotation={[Math.PI / 2.15, 0.4, 0.2]}>
         <torusGeometry args={[1.42, 0.012, 8, 64]} />
-        <meshStandardMaterial color="#5eead4" metalness={0.45} roughness={0.28} emissive="#0f766e" emissiveIntensity={0.25} />
+        <meshStandardMaterial color="#5eead4" metalness={0.45} roughness={0.28} emissive="#067589" emissiveIntensity={0.25} />
       </mesh>
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.28, 0]}>
         <circleGeometry args={[0.62, 28]} />

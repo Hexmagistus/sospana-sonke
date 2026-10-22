@@ -97,7 +97,7 @@ async function ProgrammeResults({ type, q, country, sort, offset }: { type: stri
         <div className="ss-empty" role="status">
           <p className="text-base font-semibold text-ss-text">The list could not be reached</p>
           <p className="mt-2 text-sm text-ss-muted">Employer careers pages are still in the directory.</p>
-          <Link href="/countries" className="mt-4 inline-flex text-sm font-semibold text-[#0f766e] underline">
+          <Link href="/countries" className="mt-4 inline-flex text-sm font-semibold text-[#067589] underline">
             Browse employers by country
           </Link>
         </div>
@@ -111,7 +111,7 @@ async function ProgrammeResults({ type, q, country, sort, offset }: { type: stri
       ) : loaded.jobs.length === 0 ? (
         <div className="ss-empty" role="status">
           <p className="text-base font-semibold text-ss-text">This page is past the last stored programme</p>
-          <Link href={pageHref(type, q, country, sort, 0)} className="mt-4 inline-flex text-sm font-semibold text-[#0f766e] underline">
+          <Link href={pageHref(type, q, country, sort, 0)} className="mt-4 inline-flex text-sm font-semibold text-[#067589] underline">
             Back to the first page
           </Link>
         </div>
@@ -125,17 +125,17 @@ async function ProgrammeResults({ type, q, country, sort, offset }: { type: stri
           </p>
           <ul className="grid gap-3">
             {loaded.jobs.map((job) => (
-              <li key={job.id} className="ss-intel-card border border-[#0c1b33]/10">
+              <li key={job.id} className="ss-intel-card border border-[#07284C]/10">
                 {job.sponsored ? <p className="text-sm font-semibold text-ss-primary">Sponsored</p> : null}
                 {job.employer_submitted ? <p className="text-sm text-ss-muted">Employer-submitted</p> : null}
-                <p className="text-sm font-semibold text-[#0f766e]">{opportunityLabel(job.opportunity_type)}</p>
-                <h2 className="mt-1 font-display text-xl font-bold text-[#0c1b33]">
+                <p className="text-sm font-semibold text-[#067589]">{opportunityLabel(job.opportunity_type)}</p>
+                <h2 className="mt-1 font-display text-xl font-bold text-[#07284C]">
                   <Link href={`/jobs/${job.id}`} className="underline">{job.title}</Link>
                 </h2>
                 <p className="mt-1 text-sm text-[#3f4a5c]">
                   {job.company_country ? `${job.company_country} · ` : ""}
                   {job.company_id ? (
-                    <Link href={`/employers/${job.company_id}`} className="font-semibold text-[#0c1b33] underline">
+                    <Link href={`/employers/${job.company_id}`} className="font-semibold text-[#07284C] underline">
                       {job.company_name}
                     </Link>
                   ) : job.company_name}
@@ -158,7 +158,7 @@ async function ProgrammeResults({ type, q, country, sort, offset }: { type: stri
                     rel="noopener noreferrer"
                     data-count-target="vacancy"
                     data-count-id={job.id}
-                    className="mt-3 inline-flex min-h-11 items-center rounded-xl bg-[#5eead4] px-4 py-2 text-sm font-semibold text-[#0c1b33]"
+                    className="mt-3 inline-flex min-h-11 items-center rounded-xl bg-[#5eead4] px-4 py-2 text-sm font-semibold text-[#07284C]"
                   >
                     Source page
                   </a>
@@ -170,12 +170,12 @@ async function ProgrammeResults({ type, q, country, sort, offset }: { type: stri
           </ul>
           <nav aria-label="More stored programmes" className="flex flex-wrap gap-4 text-sm">
             {offset > 0 ? (
-              <Link href={pageHref(type, q, country, sort, offset - LIST_PAGE)} className="font-semibold text-[#0f766e] underline">
+              <Link href={pageHref(type, q, country, sort, offset - LIST_PAGE)} className="font-semibold text-[#067589] underline">
                 Previous {LIST_PAGE}
               </Link>
             ) : null}
             {offset + loaded.jobs.length < loaded.matched ? (
-              <Link href={pageHref(type, q, country, sort, offset + LIST_PAGE)} className="font-semibold text-[#0f766e] underline">
+              <Link href={pageHref(type, q, country, sort, offset + LIST_PAGE)} className="font-semibold text-[#067589] underline">
                 Next {LIST_PAGE}
               </Link>
             ) : null}
@@ -209,7 +209,7 @@ export default async function OpportunitiesPage({ searchParams }: { searchParams
 
       <nav aria-label="Programme pages" className="flex flex-wrap gap-3 text-sm">
         {PROGRAMME_PAGES.map((page) => (
-          <Link key={page.slug} href={`/opportunities/${page.slug}`} className="font-semibold text-[#0f766e] underline">
+          <Link key={page.slug} href={`/opportunities/${page.slug}`} className="font-semibold text-[#067589] underline">
             {page.label}
           </Link>
         ))}
@@ -225,8 +225,8 @@ export default async function OpportunitiesPage({ searchParams }: { searchParams
               aria-current={current ? "page" : undefined}
               className={
                 current
-                  ? "inline-flex min-h-11 items-center rounded-full bg-[#0c1b33] px-4 text-sm font-semibold text-white"
-                  : "inline-flex min-h-11 items-center rounded-full border border-[#0c1b33]/20 bg-white px-4 text-sm font-semibold text-[#0c1b33]"
+                  ? "inline-flex min-h-11 items-center rounded-full bg-[#07284C] px-4 text-sm font-semibold text-white"
+                  : "inline-flex min-h-11 items-center rounded-full border border-[#07284C]/20 bg-white px-4 text-sm font-semibold text-[#07284C]"
               }
             >
               {tab.label}
@@ -256,7 +256,7 @@ export default async function OpportunitiesPage({ searchParams }: { searchParams
           Show stored programmes
         </button>
         {flagshipCountry(search.country) ? (
-          <Link href={pageHref(type, q, "all", sort, 0)} className="text-sm font-semibold text-[#0f766e] underline">
+          <Link href={pageHref(type, q, "all", sort, 0)} className="text-sm font-semibold text-[#067589] underline">
             All countries
           </Link>
         ) : null}

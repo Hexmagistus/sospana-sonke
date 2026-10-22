@@ -97,7 +97,7 @@ export default function RegisterPage() {
       <div className="auth-stage-scrim absolute inset-0" />
       <div className="pointer-events-none absolute inset-0 bg-noise opacity-20 mix-blend-overlay" />
       <div className="relative mx-auto max-w-md">
-      <CircuitOverlay className="-z-10 opacity-40" opacity={0.12} stroke="#0b2447" dotColor="#f5b301" />
+      <CircuitOverlay className="-z-10 opacity-40" opacity={0.12} stroke="#07284C" dotColor="#FCC033" />
       <GreetingLine />
       <div className="mb-4 flex items-center justify-center gap-4">
         <LogoGlow>
@@ -172,7 +172,7 @@ export default function RegisterPage() {
                 type="checkbox"
                 checked={consent}
                 onChange={(e) => setConsent(e.target.checked)}
-                className="mt-1 h-4 w-4 shrink-0 accent-[#f5b301]"
+                className="mt-1 h-4 w-4 shrink-0 accent-[#FCC033]"
                 required
               />
               <span>

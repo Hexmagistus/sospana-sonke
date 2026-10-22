@@ -26,7 +26,7 @@ export default function DailySparkTease() {
             </p>
             <div className="mt-5 flex flex-wrap gap-3">
               <Link href="/jobs"
-                className="rounded-lg bg-[#f5b301] px-4 py-2 text-sm font-bold text-[#0b2447] shadow-md transition-all duration-ss hover:brightness-105"
+                className="rounded-lg bg-[#FCC033] px-4 py-2 text-sm font-bold text-[#07284C] shadow-md transition-all duration-ss hover:brightness-105"
               >Browse today’s jobs</Link>
             </div>
           </div>

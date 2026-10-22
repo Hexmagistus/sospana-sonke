@@ -23,7 +23,7 @@ export default async function Image({ params }: { params: Promise<{ id: string }
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
-          background: "#0c1b33",
+          background: "#07284C",
           color: "#ffffff",
           padding: 72,
         }}

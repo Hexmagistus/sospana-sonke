@@ -54,7 +54,7 @@ const AVATAR_GRADIENTS = [
 
 // A restrained pull from the Ndebele strip's palette, used as a rotating
 // per-card left-edge accent so colour carries through the whole grid.
-const CARD_ACCENTS = ["#e4322b", "#f5b301", "#2f9bf6", "#1a9e5f", "#ff7a1a"];
+const CARD_ACCENTS = ["#e4322b", "#FCC033", "#1184F0", "#269958", "#ff7a1a"];
 
 function hashCode(s: string): number {
   let h = 0;

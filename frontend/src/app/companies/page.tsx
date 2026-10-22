@@ -102,7 +102,7 @@ const TYPE_BADGE: Record<string, { label: string; cls: string }> = {
   UNI: { label: "🎓 University", cls: "bg-sky/10 text-sky" },
   COLLEGE: { label: "🏫 College", cls: "bg-teal/10 text-teal" },
   HOSPITAL: { label: "🏥 Hospital", cls: "bg-coral/10 text-coral" },
-  SETA: { label: "🛠️ SETA", cls: "bg-[#1a9e5f]/10 text-[#137a48]" },
+  SETA: { label: "🛠️ SETA", cls: "bg-[#269958]/10 text-[#137a48]" },
   SPORT: { label: "🏅 Sports association", cls: "bg-gold/20 text-[#a9791a]" },
   FED: { label: "🌐 Federation", cls: "bg-gold/20 text-[#a9791a]" },
   MUSIC: { label: "🎵 Music industry", cls: "bg-gold/20 text-[#a9791a]" },
@@ -116,7 +116,7 @@ function typeBadge(sourceType: string | null | undefined) {
 
 // A restrained pull from the Ndebele strip's palette, used as a rotating
 // per-card left-edge accent so colour carries through the whole grid.
-const CARD_ACCENTS = ["#e4322b", "#f5b301", "#2f9bf6", "#1a9e5f", "#ff7a1a"];
+const CARD_ACCENTS = ["#e4322b", "#FCC033", "#1184F0", "#269958", "#ff7a1a"];
 
 function hashCode(s: string): number {
   let h = 0;
@@ -374,7 +374,7 @@ function CompaniesDirectoryInner() {
 
   return (
     <div className="relative">
-      <CircuitOverlay className="-z-10 opacity-70" opacity={0.07} stroke="#0b1f3a" dotColor="#f5b301" />
+      <CircuitOverlay className="-z-10 opacity-70" opacity={0.07} stroke="#07284C" dotColor="#FCC033" />
       {/* Full-page decoration: the selected country's flag, watermarked across the page */}
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-0 overflow-hidden">
         <span className="absolute -right-16 top-16 select-none text-[18rem] leading-none opacity-[0.06]">{flag}</span>
