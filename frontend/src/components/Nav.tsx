@@ -9,25 +9,24 @@ import { useTheme } from "@/lib/theme";
 import ThemeToggleButton from "@/lib/ThemeToggleButton";
 import NotificationBell from "@/components/NotificationBell";
 import { isExplorerPath, OPEN_MENU_EVENT } from "@/lib/explorer/explorerPaths";
-import { EXPLORER_NAV } from "@/lib/explorer/categoryGroups";
+import { publicCountries } from "@/lib/countryPageData";
 
+/** Countries the site covers; South Africa has its own careers page. */
+const COUNTRIES = publicCountries().map((c) => ({
+  href: c.slug === "south-africa" ? "/sa-careers" : `/countries/${c.slug}`,
+  name: c.name,
+  flag: c.flag,
+}));
+
+// Account pages only; the public header row lists countries instead.
 const LINKS = [
   { href: "/dashboard", label: "Dashboard" },
-  { href: "/jobs", label: "Jobs" },
-  { href: "/opportunities", label: "Opportunities" },
-  { href: "/data", label: "Labour data" },
-  { href: "/agent", label: "Career Agent" },
   { href: "/applications", label: "My Applications" },
-  // Companies, Universities, Colleges & SETAs, Hospitals, NGOs, Government (lib/explorer/categoryGroups.ts).
-  ...EXPLORER_NAV,
-  { href: "/tailor", label: "CV Builder" },
-  { href: "/cv-audit", label: "CV Audit" },
   { href: "/profile", label: "Profile" },
   { href: "/preferences", label: "Preferences" },
   { href: "/messages", label: "Messages" },
   { href: "/notifications", label: "Notifications" },
   { href: "/security", label: "Security" },
-  { href: "/donate", label: "Donate" },
 ];
 
 const ACCOUNT_ONLY = new Set([
@@ -109,6 +108,28 @@ export default function Nav() {
   // Everyone sees the nav now. Account-only pages are listed only for an existing session.
   const links = user ? LINKS : LINKS.filter((l) => !ACCOUNT_ONLY.has(l.href));
 
+  const countryList = (cls: string) => (
+    <ul className={cls} aria-label="Countries covered">
+      {COUNTRIES.map((c) => {
+        const active = pathname === c.href;
+        return (
+          <li key={c.href}>
+            <Link
+              href={c.href}
+              aria-current={active ? "page" : undefined}
+              className={`inline-flex items-center gap-1 whitespace-nowrap rounded px-1.5 py-0.5 text-[11px] leading-4 transition xl:text-xs ${
+                active ? "bg-gold font-semibold text-navy" : "text-ss-text hover:bg-ss-primary-soft"
+              }`}
+            >
+              <span aria-hidden="true">{c.flag}</span>
+              {c.name}
+            </Link>
+          </li>
+        );
+      })}
+    </ul>
+  );
+
   const linkClass = (active: boolean) =>
     `rounded-md px-2 py-1.5 text-sm whitespace-nowrap transition xl:px-3 ${
       active ? "bg-gold font-semibold text-navy shadow-sm" : "text-ss-text hover:bg-ss-primary-soft"
@@ -140,7 +161,10 @@ export default function Nav() {
         </Link>
 
         {/* Desktop / tablet: full link row */}
-        <div className="hidden min-w-0 flex-1 flex-wrap items-center gap-x-0.5 gap-y-1 lg:flex xl:gap-x-1">
+        <div className="hidden min-w-0 flex-1 items-center gap-x-1 lg:flex">
+          <nav aria-label="Countries" className="min-w-0 flex-1">
+            {countryList("flex flex-wrap items-center gap-x-0.5 gap-y-0.5")}
+          </nav>
           {links.map((l) => renderLink(l))}
           {user?.role === "admin" && (
             <Link href="/admin" className={linkClass(pathname.startsWith("/admin"))}>
@@ -157,6 +181,7 @@ export default function Nav() {
         <div className="ml-auto flex items-center gap-0 min-[360px]:gap-1 lg:hidden">
           {user && <NotificationBell unread={unread} />}
           <ThemeToggle />
+          {(links.length > 0 || user?.role === "admin") && (
           <button
             type="button"
             aria-label={menuOpen ? "Close menu" : "Open menu"}
@@ -174,11 +199,19 @@ export default function Nav() {
               </svg>
             )}
           </button>
+          )}
         </div>
       </div>
 
+      {/* Mobile: countries in one horizontally scrollable row */}
+      <div className="border-t border-ss-border px-3 py-1.5 lg:hidden">
+        <nav aria-label="Countries" className="overflow-x-auto">
+          {countryList("flex w-max items-center gap-x-0.5")}
+        </nav>
+      </div>
+
       {/* Mobile: stacked dropdown panel */}
-      {menuOpen && (
+      {menuOpen && (links.length > 0 || user?.role === "admin") && (
         <div className="border-t border-ss-border px-4 pb-3 pt-2 lg:hidden">
           <div className="flex flex-col gap-1">
             {links.map((l) => renderLink(l, () => setMenuOpen(false)))}
