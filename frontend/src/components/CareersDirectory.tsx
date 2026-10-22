@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { WhatsAppIcon } from "./WhatsAppChannel";
+import { WHATSAPP_CHANNEL_URL } from "@/lib/social";
 import { createHash } from "node:crypto";
 
 // Invisible per-page fingerprint: a stable token unique to each directory page, carried in
@@ -47,6 +49,14 @@ export default function CareersDirectory({ flag, title, cats, wmKey }: { flag: s
         <Link href="/offline-guide" className="mt-4 inline-flex items-center gap-2 rounded-md bg-[#B8432A] px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#9A3722] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#07284C] motion-reduce:transition-none">
           📘 Offline guide
         </Link>
+        <a
+          href={WHATSAPP_CHANNEL_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="ml-3 mt-4 inline-flex items-center gap-2 rounded-md bg-[#25D366] px-4 py-2 text-sm font-semibold text-[#07284C] shadow-sm transition-colors hover:bg-[#1EBE5A] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#07284C] motion-reduce:transition-none"
+        >
+          <WhatsAppIcon className="h-4 w-4" /> Join our WhatsApp channel
+        </a>
       </div>
       <div className="space-y-4">
         {shown.map((c, i) => {

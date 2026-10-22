@@ -214,6 +214,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 {" · "}
                 <a href="/status" className="underline hover:text-ss-text">Status</a>
                 {" · "}
+                <a href="https://whatsapp.com/channel/0029VbDRxdBFy72Keo1GCv11" target="_blank" rel="noopener noreferrer" className="underline hover:text-ss-text">WhatsApp channel</a>
+                {" · "}
                 <a href="/privacy" className="underline hover:text-ss-text">Privacy</a>
                 {" · "}
                 <a href="/terms" className="underline hover:text-ss-text">Terms</a>
