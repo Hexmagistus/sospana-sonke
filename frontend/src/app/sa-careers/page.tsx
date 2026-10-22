@@ -13,5 +13,5 @@ export const metadata: Metadata = {
 export default function SaCareersPage() {
   if (!SA_CAREERS_ENABLED) notFound();
   const cats = (data as { categories: CareersCat[] }).categories;
-  return <CareersDirectory flag="🇿🇦" title="South African careers pages" cats={cats} />;
+  return <CareersDirectory flag="🇿🇦" title="South African careers pages" cats={cats} wmKey="sa-careers" />;
 }

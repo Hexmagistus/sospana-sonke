@@ -33,5 +33,5 @@ export default async function CountryPage({ params }: Props) {
   const row = publicCountry(slug);
   if (!row) notFound();
   const cats = CAREERS[row.slug]?.categories ?? [];
-  return <CareersDirectory flag={row.flag} title={`${row.name} careers pages`} cats={cats} />;
+  return <CareersDirectory flag={row.flag} title={`${row.name} careers pages`} cats={cats} wmKey={`countries/${row.slug}`} />;
 }
