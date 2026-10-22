@@ -1,4 +1,11 @@
 import Link from "next/link";
+import { createHash } from "node:crypto";
+
+// Invisible per-page fingerprint: a stable token unique to each directory page, carried in
+// data attributes only (no visible text, no fake entries). Lets a copied page be traced back.
+export function watermark(key: string): string {
+  return "ssk-" + createHash("sha256").update(`sospana-sonke-wm-2026:${key}`).digest("hex").slice(0, 16);
+}
 
 export type CareersItem = { a: string; n: string; u: string };
 export type CareersCat = { key: string; name: string; items: CareersItem[] };
@@ -17,11 +24,12 @@ const BLOCK_COLOURS = [
   { bar: "border-l-[#1F64B5]", pill: "bg-[#1F64B5] text-white", tint: "bg-[#EDF3FB]", link: "hover:border-[#1F64B5]" },
 ];
 
-export default function CareersDirectory({ flag, title, cats }: { flag: string; title: string; cats: CareersCat[] }) {
+export default function CareersDirectory({ flag, title, cats, wmKey }: { flag: string; title: string; cats: CareersCat[]; wmKey: string }) {
   const shown = cats.filter((c) => c.items.length > 0);
   const total = shown.reduce((s, c) => s + c.items.length, 0);
+  const wm = watermark(wmKey);
   return (
-    <main className="mx-auto max-w-5xl px-4 py-8 font-sans text-[#07284C] sm:px-6">
+    <main data-ss-wm={wm} data-ss-owner="Sospana Sonke" className="mx-auto max-w-5xl px-4 py-8 font-sans text-[#07284C] sm:px-6">
       <div className="mb-6 rounded-lg border border-[#07284C]/10 border-t-4 border-t-[#E2AE3C] bg-white p-5 shadow-sm sm:p-6">
         <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{flag} {title}</h1>
         {total > 0 ? (
@@ -53,6 +61,7 @@ export default function CareersDirectory({ flag, title, cats }: { flag: string; 
                 <li key={it.u}>
                   <a
                     href={it.u}
+                    data-ss-ref={wm}
                     target="_blank"
                     rel="noopener noreferrer"
                     title={it.n}

@@ -53,6 +53,15 @@ const nextConfig = {
         headers: securityHeaders,
       },
       {
+        // AI-training opt-out on the careers directory. Not noindex: Google keeps indexing.
+        source: "/countries/:path*",
+        headers: [{ key: "X-Robots-Tag", value: "noai, noimageai" }],
+      },
+      {
+        source: "/sa-careers",
+        headers: [{ key: "X-Robots-Tag", value: "noai, noimageai" }],
+      },
+      {
         source: "/",
         headers: [{ key: "Cache-Control", value: "public, s-maxage=300, stale-while-revalidate=600" }],
       },

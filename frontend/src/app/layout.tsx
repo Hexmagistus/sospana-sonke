@@ -100,6 +100,8 @@ export const metadata: Metadata = {
       "max-video-preview": -1,
     },
   },
+  // Opt-out signals for AI training / image datasets (ignored by search engines' indexing).
+  other: { robots: "noai, noimageai", copyright: "© 2026 Sospana Sonke. All rights reserved." },
   verification: {
     google: "MyvgoPaRTncHGCuCDG_i2ibqlRPZ02uCdjVLOsrzbcg",
   },
@@ -215,6 +217,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <a href="/privacy" className="underline hover:text-ss-text">Privacy</a>
                 {" · "}
                 <a href="/terms" className="underline hover:text-ss-text">Terms</a>
+              </p>
+              <p className="mx-auto mt-3 max-w-2xl text-center text-xs leading-relaxed text-ss-muted">
+                © 2026 Sospana Sonke. All rights reserved. Directory compilation protected under the Copyright Act 98 of 1978
+                (South Africa). Sospana Sonke™
               </p>
             </footer>
             <PwaExtras />
