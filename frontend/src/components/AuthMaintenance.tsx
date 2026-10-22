@@ -69,7 +69,7 @@ export function SiteMaintenanceBanner() {
         // TEMPORARY maintenance link, see src/lib/maintenance.ts
         <Link
           href="/sa-careers"
-          className="ml-0 mt-3 inline-block rounded-2xl border-2 border-[#FCC033] bg-white px-8 py-3 text-lg font-extrabold text-[#07284C] shadow-lg hover:bg-[#fff8e1] sm:ml-3 sm:text-xl"
+          className="ml-0 mt-3 inline-block rounded-2xl border-2 border-[#FCC033] bg-[#FD6948] px-8 py-3 text-lg font-extrabold text-[#07284C] shadow-lg hover:bg-[#FCC033] sm:ml-3 sm:text-xl"
         >
           🇿🇦 SA careers pages
         </Link>
@@ -77,7 +77,7 @@ export function SiteMaintenanceBanner() {
       {SA_CAREERS_ENABLED && (
         <Link
           href="/offline-guide"
-          className="ml-0 mt-3 inline-block rounded-2xl border-2 border-[#FCC033] bg-white px-8 py-3 text-lg font-extrabold text-[#07284C] shadow-lg hover:bg-[#fff8e1] sm:ml-3 sm:text-xl"
+          className="ml-0 mt-3 inline-block rounded-2xl border-2 border-[#FCC033] bg-[#FD6948] px-8 py-3 text-lg font-extrabold text-[#07284C] shadow-lg hover:bg-[#FCC033] sm:ml-3 sm:text-xl"
         >
           📘 Offline guide
         </Link>
