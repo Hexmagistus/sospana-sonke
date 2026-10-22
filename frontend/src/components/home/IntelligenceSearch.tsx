@@ -215,9 +215,6 @@ export default function IntelligenceSearch({ showAccountLinks = true }: { showAc
 
       {showAccountLinks ? (
         <p className="mt-5 flex flex-wrap gap-x-4 gap-y-2 text-sm font-semibold">
-          <Link href="/register" style={{ color: "var(--ss-intel-teal-deep)" }}>
-            Create your free account
-          </Link>
           <Link href="/companies" style={{ color: "var(--ss-intel-teal-deep)" }}>
             Browse companies
           </Link>

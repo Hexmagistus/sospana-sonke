@@ -1,45 +1,40 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { api } from "@/lib/api";
-import { useTheme } from "@/lib/theme";
-import ThemeToggleButton from "@/lib/ThemeToggleButton";
 import NotificationBell from "@/components/NotificationBell";
 import { isExplorerPath, OPEN_MENU_EVENT } from "@/lib/explorer/explorerPaths";
-import { EXPLORER_NAV } from "@/lib/explorer/categoryGroups";
+import { publicCountries } from "@/lib/countryPageData";
 
+/** Countries the site covers; South Africa has its own careers page. */
+const COUNTRIES = publicCountries().map((c) => ({
+  href: c.slug === "south-africa" ? "/sa-careers" : `/countries/${c.slug}`,
+  name: c.name,
+  flag: c.flag,
+}));
+
+// Account pages only; the public header row lists countries instead.
 const LINKS = [
   { href: "/dashboard", label: "Dashboard" },
-  { href: "/jobs", label: "Jobs" },
-  { href: "/opportunities", label: "Opportunities" },
-  { href: "/data", label: "Labour data" },
-  { href: "/agent", label: "Career Agent" },
   { href: "/applications", label: "My Applications" },
-  // Companies, Universities, Colleges & SETAs, Hospitals, NGOs, Government (lib/explorer/categoryGroups.ts).
-  ...EXPLORER_NAV,
-  { href: "/tailor", label: "CV Builder" },
-  { href: "/cv-audit", label: "CV Audit" },
   { href: "/profile", label: "Profile" },
   { href: "/preferences", label: "Preferences" },
   { href: "/messages", label: "Messages" },
   { href: "/notifications", label: "Notifications" },
   { href: "/security", label: "Security" },
-  { href: "/donate", label: "Donate" },
 ];
 
-/** Sun/moon toggle with its "Adjust brightness" caption under the icon (see lib/ThemeToggleButton). */
-function ThemeToggle({ className = "" }: { className?: string }) {
-  const { theme, toggleTheme } = useTheme();
-  return <ThemeToggleButton theme={theme === "dark" ? "dark" : "light"} onToggle={toggleTheme} className={className} />;
-}
+const ACCOUNT_ONLY = new Set([
+  "/dashboard", "/applications", "/profile", "/preferences", "/messages", "/notifications", "/security",
+]);
+
 
 export default function Nav() {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const pathname = usePathname();
-  const router = useRouter();
   const [unread, setUnread] = useState(0);
   const [unreadMsgs, setUnreadMsgs] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -103,7 +98,30 @@ export default function Nav() {
     return () => document.removeEventListener("keydown", onKey);
   }, [drawerOpen]);
 
-  if (!user) return null;
+  // Everyone sees the nav now. Account-only pages are listed only for an existing session.
+  const links = user ? LINKS : LINKS.filter((l) => !ACCOUNT_ONLY.has(l.href));
+
+  const countryList = (cls: string) => (
+    <ul className={cls} aria-label="Countries covered">
+      {COUNTRIES.map((c) => {
+        const active = pathname === c.href;
+        return (
+          <li key={c.href}>
+            <Link
+              href={c.href}
+              aria-current={active ? "page" : undefined}
+              className={`inline-flex items-center gap-1 whitespace-nowrap rounded-md px-1.5 py-0.5 text-[11px] font-medium leading-4 transition-colors motion-reduce:transition-none xl:text-xs ${
+                active ? "bg-gold font-semibold text-navy" : "text-ss-muted hover:bg-ss-primary-soft hover:text-ss-text"
+              }`}
+            >
+              <span aria-hidden="true">{c.flag}</span>
+              {c.name}
+            </Link>
+          </li>
+        );
+      })}
+    </ul>
+  );
 
   const linkClass = (active: boolean) =>
     `rounded-md px-2 py-1.5 text-sm whitespace-nowrap transition xl:px-3 ${
@@ -127,7 +145,7 @@ export default function Nav() {
 
   return (
     <>
-    <nav className={`sticky top-0 z-30 border-b-2 border-gold bg-ss-surface shadow-[0_8px_24px_-18px_rgba(11,36,71,0.5)] ${explorer ? "lg:hidden" : ""}`}>
+    <nav className={`ss-navbar sticky top-0 z-30 border-b-2 border-gold bg-ss-surface shadow-[0_8px_24px_-18px_rgba(11,36,71,0.5)] ${explorer ? "lg:hidden" : ""}`}>
       <div className="mx-auto flex w-full max-w-6xl items-center gap-1 px-3 py-2.5 min-[360px]:px-4">
         <Link href="/companies" className="mr-1 flex shrink-0 items-center gap-1.5 whitespace-nowrap min-[360px]:gap-2 sm:mr-3">
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -136,33 +154,25 @@ export default function Nav() {
         </Link>
 
         {/* Desktop / tablet: full link row */}
-        <div className="hidden min-w-0 flex-1 flex-wrap items-center gap-x-0.5 gap-y-1 lg:flex xl:gap-x-1">
-          {LINKS.map((l) => renderLink(l))}
-          {user.role === "admin" && (
+        <div className="hidden min-w-0 flex-1 items-center gap-x-1 lg:flex">
+          <nav aria-label="Countries" className="min-w-0 flex-1">
+            {countryList("flex flex-wrap items-center gap-x-0.5 gap-y-0.5")}
+          </nav>
+          {links.map((l) => renderLink(l))}
+          {user?.role === "admin" && (
             <Link href="/admin" className={linkClass(pathname.startsWith("/admin"))}>
               Admin
             </Link>
           )}
           <div className="ml-auto flex shrink-0 items-center gap-3 whitespace-nowrap pl-2">
-            <NotificationBell unread={unread} />
-            <ThemeToggle />
-            <span className="hidden max-w-[9rem] truncate text-xs text-ss-muted xl:inline" title={user.email}>{user.email}</span>
-            <button
-              onClick={() => {
-                logout();
-                router.push("/login");
-              }}
-              className="text-sm font-semibold text-ss-text underline-offset-2 hover:underline"
-            >
-              Sign out
-            </button>
+            {user && <NotificationBell unread={unread} />}
           </div>
         </div>
 
         {/* Mobile: theme toggle + hamburger, pushed to the right */}
         <div className="ml-auto flex items-center gap-0 min-[360px]:gap-1 lg:hidden">
-          <NotificationBell unread={unread} />
-          <ThemeToggle />
+          {user && <NotificationBell unread={unread} />}
+          {(links.length > 0 || user?.role === "admin") && (
           <button
             type="button"
             aria-label={menuOpen ? "Close menu" : "Open menu"}
@@ -180,15 +190,23 @@ export default function Nav() {
               </svg>
             )}
           </button>
+          )}
         </div>
       </div>
 
+      {/* Mobile: countries in one horizontally scrollable row */}
+      <div className="border-t border-ss-border px-3 py-1.5 lg:hidden">
+        <nav aria-label="Countries" className="overflow-x-auto">
+          {countryList("flex w-max items-center gap-x-0.5")}
+        </nav>
+      </div>
+
       {/* Mobile: stacked dropdown panel */}
-      {menuOpen && (
+      {menuOpen && (links.length > 0 || user?.role === "admin") && (
         <div className="border-t border-ss-border px-4 pb-3 pt-2 lg:hidden">
           <div className="flex flex-col gap-1">
-            {LINKS.map((l) => renderLink(l, () => setMenuOpen(false)))}
-            {user.role === "admin" && (
+            {links.map((l) => renderLink(l, () => setMenuOpen(false)))}
+            {user?.role === "admin" && (
               <Link
                 href="/admin"
                 onClick={() => setMenuOpen(false)}
@@ -197,18 +215,6 @@ export default function Nav() {
                 Admin
               </Link>
             )}
-          </div>
-          <div className="mt-3 flex items-center justify-between border-t border-ss-border pt-3">
-            <span className="truncate text-xs text-ss-muted">{user.email}</span>
-            <button
-              onClick={() => {
-                logout();
-                router.push("/login");
-              }}
-              className="text-sm font-semibold text-ss-text underline-offset-2 hover:underline"
-            >
-              Sign out
-            </button>
           </div>
         </div>
       )}
@@ -241,28 +247,15 @@ export default function Nav() {
             </button>
           </div>
           <div className="flex flex-col gap-1">
-            {LINKS.map((l) => renderLink(l, () => setDrawerOpen(false)))}
-            {user.role === "admin" && (
+            {links.map((l) => renderLink(l, () => setDrawerOpen(false)))}
+            {user?.role === "admin" && (
               <Link href="/admin" onClick={() => setDrawerOpen(false)} className={linkClass(pathname.startsWith("/admin"))}>
                 Admin
               </Link>
             )}
           </div>
           <div className="mt-4 flex items-center gap-3 border-t border-ss-border pt-3">
-            <NotificationBell unread={unread} />
-            <ThemeToggle />
-          </div>
-          <div className="mt-3 flex items-center justify-between gap-2">
-            <span className="min-w-0 truncate text-xs text-ss-muted" title={user.email}>{user.email}</span>
-            <button
-              onClick={() => {
-                logout();
-                router.push("/login");
-              }}
-              className="shrink-0 text-sm font-semibold text-ss-text underline-offset-2 hover:underline"
-            >
-              Sign out
-            </button>
+            {user && <NotificationBell unread={unread} />}
           </div>
         </aside>
       </div>

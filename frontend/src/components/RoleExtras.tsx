@@ -47,7 +47,7 @@ export function RecentRoles() {
       <ul className="mt-2 space-y-1 text-sm">
         {rows.map((row) => (
           <li key={row.id}>
-            <Link href={`/jobs/${row.id}`} className="font-semibold text-[#0f766e] underline">{row.title}</Link>
+            <Link href={`/jobs/${row.id}`} className="font-semibold text-[#067589] underline">{row.title}</Link>
             <span className="text-ss-muted"> · {row.company}</span>
           </li>
         ))}
@@ -71,7 +71,7 @@ export function SavedRoles() {
       <ul className="mt-2 space-y-1 text-sm">
         {rows.map((row) => (
           <li key={row.id}>
-            <Link href={`/jobs/${row.id}`} className="font-semibold text-[#0f766e] underline">{row.title}</Link>
+            <Link href={`/jobs/${row.id}`} className="font-semibold text-[#067589] underline">{row.title}</Link>
             <span className="text-ss-muted"> · {row.company_name}{row.is_open ? "" : " · closed"}</span>
           </li>
         ))}
@@ -102,7 +102,7 @@ export function SaveRoleButton({ id }: { id: string }) {
       {message ? (
         <p role="status" className="mt-2 text-sm text-ss-text">
           {message}{" "}
-          {!getToken() ? <Link href="/login" className="font-semibold text-[#0f766e] underline">Sign in</Link> : null}
+          
         </p>
       ) : (
         <p className="mt-2 text-sm text-ss-muted">Saved roles stay on your account. Recently viewed stays on this device.</p>

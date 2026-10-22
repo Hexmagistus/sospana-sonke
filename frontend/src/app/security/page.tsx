@@ -64,7 +64,7 @@ function SecurityInner() {
     try {
       await api.post("/auth/logout-all");
       logout();
-      router.push("/login");
+      router.push("/");
     } catch (e) {
       setErr(e instanceof Error ? e.message : "Could not sign out other devices");
     }
@@ -74,7 +74,7 @@ function SecurityInner() {
     try {
       await api.post("/account/delete", { password: delPw });
       logout();
-      router.push("/login");
+      router.push("/");
     } catch (e) {
       setErr(e instanceof Error ? e.message : "Could not delete your account");
     }

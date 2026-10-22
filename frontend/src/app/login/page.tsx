@@ -40,13 +40,13 @@ function AuthLoader() {
       <div className="w-full max-w-sm rounded-2xl border border-ss-border bg-ss-surface p-8 text-center shadow-xl">
         <svg viewBox="0 0 50 50" className="auth-spin mx-auto mb-5 h-14 w-14 animate-spin" style={{ animationDuration: "1.1s" }}>
           <circle cx="25" cy="25" r="20" fill="none" stroke="var(--ss-border)" strokeWidth="5" />
-          <circle cx="25" cy="25" r="20" fill="none" stroke="#0f766e" strokeWidth="5" strokeLinecap="round" strokeDasharray="90 160" />
+          <circle cx="25" cy="25" r="20" fill="none" stroke="#067589" strokeWidth="5" strokeLinecap="round" strokeDasharray="90 160" />
         </svg>
         <p className="mb-1 font-semibold text-ss-text">{messages[mi]}</p>
         <p className="mb-5 text-xs text-ss-muted">This can take up to a minute the first time — hang tight.</p>
         <div className="h-2 w-full overflow-hidden rounded-full bg-ss-border">
           <div className="h-full rounded-full transition-all duration-200 ease-out"
-               style={{ width: pct + "%", background: "#0f766e" }} />
+               style={{ width: pct + "%", background: "#067589" }} />
         </div>
       </div>
     </div>
@@ -154,7 +154,7 @@ export default function LoginPage() {
       <div className="relative mx-auto grid max-w-md gap-6 xl:max-w-none xl:grid-cols-[minmax(0,15rem)_minmax(0,28rem)_minmax(0,15rem)] xl:justify-center xl:gap-10">
       <div className="min-w-0 xl:col-start-2 xl:row-start-1">
       {authing && <AuthLoader />}
-      <CircuitOverlay className="-z-10 opacity-40" opacity={0.12} stroke="#0b2447" dotColor="#f5b301" />
+      <CircuitOverlay className="-z-10 opacity-40" opacity={0.12} stroke="#07284C" dotColor="#FCC033" />
       <p className="mb-3 text-center text-xs font-semibold uppercase tracking-[0.18em] text-ss-primary">Born in SADC, built for the world</p>
       <GreetingLine />
       <div className="mb-4 flex items-center justify-center gap-4">

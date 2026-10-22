@@ -169,7 +169,7 @@ export default function CoverageWorldMap({ countries }: { countries: MapCountry[
       <p className="mt-1 max-w-3xl text-sm leading-relaxed text-ss-muted">
         Real country borders. Gold marks South Africa, then the rest of SADC, then the rest of Africa.
         Other colours mark Oceania, Europe, South America, North America and Asia.
-        Choosing a country opens its employer list. Sign in if you are not already.
+        Choosing a country opens its employer list.
       </p>
 
       <div

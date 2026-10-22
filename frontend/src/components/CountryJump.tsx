@@ -28,7 +28,7 @@ export function CountryJump({ countries }: { countries: readonly CountryJumpRow[
         Look up a country
       </label>
       <p className="mt-1 text-sm text-ss-muted">
-        Opens a public page for that country. The employer list itself is available after you sign in.
+        Opens a public page for that country. The employer list is open to everyone, no account needed.
       </p>
       <input
         id={listId}

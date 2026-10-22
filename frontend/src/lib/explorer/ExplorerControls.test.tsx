@@ -77,7 +77,7 @@ describe("HowToUseCard (hero banner)", () => {
   it("uses the theme tokens (bright card, dark text by default), never fixed navy or white", () => {
     assert.match(open, /bg-ss-panel/);
     assert.match(open, /text-ss-text/);
-    assert.ok(!open.includes("bg-[#071528]"));
+    assert.ok(!open.includes("bg-[#04172C]"));
     assert.ok(!open.includes("text-white"));
   });
 

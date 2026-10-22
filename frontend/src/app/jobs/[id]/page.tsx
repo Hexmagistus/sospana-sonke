@@ -49,7 +49,7 @@ export default async function JobDetailPage({ params }: Props) {
       <div className="ss-empty" role="status">
         <p className="text-base font-semibold text-ss-text">The role index could not be reached</p>
         <p className="mt-2 text-sm text-ss-muted">Nothing was invented in its place.</p>
-        <Link href="/jobs" className="mt-4 font-semibold text-[#0f766e] underline">Back to stored roles</Link>
+        <Link href="/jobs" className="mt-4 font-semibold text-[#067589] underline">Back to stored roles</Link>
       </div>
     );
   }
@@ -60,7 +60,7 @@ export default async function JobDetailPage({ params }: Props) {
           <p>The record is kept. It is not listed in search, and there is no application link here.</p>
         </PageHeader>
         <p>
-          <Link href="/jobs" className="font-semibold text-[#0f766e] underline">Back to stored roles</Link>
+          <Link href="/jobs" className="font-semibold text-[#067589] underline">Back to stored roles</Link>
         </p>
       </article>
     );

@@ -15,6 +15,8 @@ import MentionPopup from "@/components/MentionPopup";
 import PwaExtras from "@/components/PwaExtras";
 import CopyGuard from "@/components/CopyGuard";
 import { SiteMaintenanceBanner } from "@/components/AuthMaintenance";
+import { Analytics } from "@vercel/analytics/next";
+import VisitCounter from "@/components/VisitCounter";
 import PhotoWash from "@/components/PhotoWash";
 import WelcomeNote from "@/components/WelcomeNote";
 import { OutboundClickListener } from "@/components/CountOutboundLink";
@@ -98,13 +100,15 @@ export const metadata: Metadata = {
       "max-video-preview": -1,
     },
   },
+  // Opt-out signals for AI training / image datasets (ignored by search engines' indexing).
+  other: { robots: "noai, noimageai", copyright: "© 2026 Sospana Sonke. All rights reserved." },
   verification: {
     google: "MyvgoPaRTncHGCuCDG_i2ibqlRPZ02uCdjVLOsrzbcg",
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0f766e",
+  themeColor: "#067589",
   width: "device-width",
   initialScale: 1,
 };
@@ -160,6 +164,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <CopyGuard />
         <OutboundClickListener />
         <CardTilt />
+        <VisitCounter />
+        <Analytics />
         <a
           href="#main-content"
           className="sr-only focus-visible:not-sr-only focus-visible:fixed focus-visible:left-4 focus-visible:top-4 focus-visible:z-50 focus-visible:rounded-md focus-visible:bg-navy focus-visible:px-4 focus-visible:py-2 focus-visible:text-white"
@@ -182,7 +188,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               >
                 <p className="text-sm font-semibold leading-relaxed sm:text-base">
                   <span className="text-xl align-middle">🐢💨</span>{" "}
-                  <span className="animate-gradient-text bg-gradient-to-r from-[#0b5e58] via-[#6b4700] to-[#5b3fd6] bg-clip-text font-extrabold text-transparent dark:from-[#22d3ee] dark:via-[#f5b301] dark:to-[#a78bfa]">
+                  <span className="animate-gradient-text bg-gradient-to-r from-[#05606F] via-[#6b4700] to-[#5b3fd6] bg-clip-text font-extrabold text-transparent dark:from-[#22d3ee] dark:via-[#FCC033] dark:to-[#a78bfa]">
                     Our server rides the free tier
                   </span>{" "}
                   — so it can be a little slow to wake up, and we&apos;re actively speeding it up. We keep Sospana Sonke{" "}
@@ -211,6 +217,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <a href="/privacy" className="underline hover:text-ss-text">Privacy</a>
                 {" · "}
                 <a href="/terms" className="underline hover:text-ss-text">Terms</a>
+              </p>
+              <p className="mx-auto mt-3 max-w-2xl text-center text-xs leading-relaxed text-ss-muted">
+                © 2026 Sospana Sonke. All rights reserved. Directory compilation protected under the Copyright Act 98 of 1978
+                (South Africa). Sospana Sonke™
               </p>
             </footer>
             <PwaExtras />
