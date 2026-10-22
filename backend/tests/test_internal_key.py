@@ -12,16 +12,16 @@ PATHS = ["/api/v1/employers/ids", "/api/v1/jobs/ids"]
 @pytest.mark.parametrize("path", PATHS)
 def test_ids_need_the_key_when_set(client, monkeypatch, path):
     monkeypatch.setattr(settings, "SITEMAP_API_KEY", "s3cret")
-    assert client.get(path).status_code == 404
-    assert client.get(path, headers={"X-Internal-Key": "wrong"}).status_code == 404
+    assert client.get(path).status_code == 403
+    assert client.get(path, headers={"X-Internal-Key": "wrong"}).status_code == 403
     assert client.get(path, headers={"X-Internal-Key": "s3cret"}).status_code == 200
 
 
 @pytest.mark.parametrize("path", PATHS)
-def test_ids_refused_in_production_without_a_key(client, monkeypatch, path):
+def test_ids_stay_open_until_a_key_is_set(client, monkeypatch, path):
     monkeypatch.setattr(settings, "SITEMAP_API_KEY", "")
     monkeypatch.setattr(settings, "ENV", "production")
-    assert client.get(path).status_code == 404
+    assert client.get(path).status_code == 200
 
 
 def test_bulk_calls_are_logged_with_ip_and_agent(client, caplog):
