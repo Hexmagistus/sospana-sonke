@@ -4,50 +4,51 @@ export type CareersItem = { a: string; n: string; u: string };
 export type CareersCat = { key: string; name: string; items: CareersItem[] };
 
 /** Shared layout for /sa-careers and /countries/<slug>: header card, then collapsible category blocks. */
-/* Reference palette, cycled per category block. Text colour picked for WCAG AA
-   (white on teal/purple 4.9:1+; navy on coral/yellow 5.1:1+; white on green/blue
-   3.6:1+, AA for the large bold summary text). Tint = pastel list bg. */
+/* Corporate palette: deeper, calmer tones of the reference colours, cycled per
+   category block. Each block is a white card with a coloured left accent bar,
+   a soft tinted header and a solid count pill. Pill text contrast (WCAG AA):
+   white on teal 6.7, coral 5.4, green 5.3, purple 6.5, blue 5.9; navy on gold 7.3. */
 const BLOCK_COLOURS = [
-  { bg: "bg-[#067589]", text: "text-white", tint: "bg-[#e3f3f5]", border: "border-[#067589]" },
-  { bg: "bg-[#FD6948]", text: "text-[#07284C]", tint: "bg-[#ffeae4]", border: "border-[#FD6948]" },
-  { bg: "bg-[#FCC033]", text: "text-[#07284C]", tint: "bg-[#fff6dc]", border: "border-[#FCC033]" },
-  { bg: "bg-[#269958]", text: "text-white", tint: "bg-[#e3f4ea]", border: "border-[#269958]" },
-  { bg: "bg-[#8450E4]", text: "text-white", tint: "bg-[#efe8fc]", border: "border-[#8450E4]" },
-  { bg: "bg-[#1184F0]", text: "text-white", tint: "bg-[#e2f0fd]", border: "border-[#1184F0]" },
+  { bar: "border-l-[#0B6575]", pill: "bg-[#0B6575] text-white", tint: "bg-[#EEF6F7]", link: "hover:border-[#0B6575]" },
+  { bar: "border-l-[#B8432A]", pill: "bg-[#B8432A] text-white", tint: "bg-[#FBF0EC]", link: "hover:border-[#B8432A]" },
+  { bar: "border-l-[#E2AE3C]", pill: "bg-[#E2AE3C] text-[#07284C]", tint: "bg-[#FDF7E7]", link: "hover:border-[#E2AE3C]" },
+  { bar: "border-l-[#1E7A47]", pill: "bg-[#1E7A47] text-white", tint: "bg-[#EDF6F0]", link: "hover:border-[#1E7A47]" },
+  { bar: "border-l-[#6B44C2]", pill: "bg-[#6B44C2] text-white", tint: "bg-[#F3EFFB]", link: "hover:border-[#6B44C2]" },
+  { bar: "border-l-[#1F64B5]", pill: "bg-[#1F64B5] text-white", tint: "bg-[#EDF3FB]", link: "hover:border-[#1F64B5]" },
 ];
 
 export default function CareersDirectory({ flag, title, cats }: { flag: string; title: string; cats: CareersCat[] }) {
   const shown = cats.filter((c) => c.items.length > 0);
   const total = shown.reduce((s, c) => s + c.items.length, 0);
   return (
-    <main className="mx-auto max-w-5xl px-4 py-6 text-[#07284C]">
-      <div className="mb-5 rounded-2xl border-2 border-[#FCC033] bg-[#fff8e1] p-4">
-        <h1 className="text-2xl font-extrabold sm:text-3xl">{flag} {title}</h1>
+    <main className="mx-auto max-w-5xl px-4 py-8 font-sans text-[#07284C] sm:px-6">
+      <div className="mb-6 rounded-lg border border-[#07284C]/10 border-t-4 border-t-[#E2AE3C] bg-white p-5 shadow-sm sm:p-6">
+        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{flag} {title}</h1>
         {total > 0 ? (
-          <p className="mt-1 text-base">
+          <p className="mt-2 max-w-3xl text-base leading-relaxed text-slate-700">
             While we&apos;re under maintenance, here are {total} direct careers links in {shown.length}{" "}
             {shown.length === 1 ? "category" : "categories"}, free for everyone, no login needed. Tap a name to open the
             employer&apos;s own careers page.
           </p>
         ) : (
-          <p className="mt-1 text-base">
+          <p className="mt-2 max-w-3xl text-base leading-relaxed text-slate-700">
             No direct careers links yet for this country. We only list employers&apos; own careers pages that we have
             checked, and we&apos;re still adding them. This page is free for everyone, no login needed.
           </p>
         )}
-        <Link href="/offline-guide" className="mt-3 inline-block rounded-xl border-2 border-[#FD6948] bg-[#FD6948] px-5 py-2 font-bold text-[#07284C] hover:bg-[#FCC033]">
+        <Link href="/offline-guide" className="mt-4 inline-flex items-center gap-2 rounded-md bg-[#B8432A] px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#9A3722] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#07284C] motion-reduce:transition-none">
           📘 Offline guide
         </Link>
       </div>
-      <div className="space-y-3">
+      <div className="space-y-4">
         {shown.map((c, i) => {
           const col = BLOCK_COLOURS[i % BLOCK_COLOURS.length];
           return (
-          <details key={c.key} className={`rounded-2xl border-2 ${col.border} ${col.tint} shadow-sm`}>
-            <summary className={`cursor-pointer select-none rounded-xl ${col.bg} px-4 py-3 text-lg font-extrabold ${col.text}`}>
-              {c.name} <span>({c.items.length})</span>
+          <details key={c.key} className={`group overflow-hidden rounded-lg border border-[#07284C]/10 border-l-[6px] ${col.bar} bg-white shadow-sm`}>
+            <summary className={`flex cursor-pointer select-none items-center justify-between gap-3 ${col.tint} px-5 py-3.5 text-base font-semibold tracking-tight text-[#07284C] sm:text-lg`}>
+              <span>{c.name}</span> <span className={`rounded-full px-2.5 py-0.5 text-sm font-semibold tabular-nums ${col.pill}`}>({c.items.length})</span>
             </summary>
-            <ul className="grid grid-cols-2 gap-2 p-3 sm:grid-cols-3 lg:grid-cols-4">
+            <ul className="grid grid-cols-2 gap-3 border-t border-[#07284C]/10 p-4 sm:grid-cols-3 lg:grid-cols-4">
               {c.items.map((it) => (
                 <li key={it.u}>
                   <a
@@ -55,9 +56,9 @@ export default function CareersDirectory({ flag, title, cats }: { flag: string; 
                     target="_blank"
                     rel="noopener noreferrer"
                     title={it.n}
-                    className={`block rounded-xl border ${col.border} bg-white px-3 py-2 hover:bg-[#fff1c2]`}
+                    className={`block rounded-md border border-[#07284C]/12 bg-white px-3 py-2 transition-colors ${col.link} hover:bg-slate-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#07284C] motion-reduce:transition-none`}
                   >
-                    <span className="block font-extrabold text-[#07284C] underline decoration-[#FCC033]">{it.a}</span>
+                    <span className="block font-semibold text-[#07284C]">{it.a}</span>
                     <span className="block truncate text-xs text-slate-700">{it.n}</span>
                   </a>
                 </li>

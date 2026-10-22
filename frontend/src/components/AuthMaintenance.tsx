@@ -61,7 +61,7 @@ export function SiteMaintenanceBanner() {
   if (!paused) return null;
   return (
     <div role="status" className="w-full border-b-4 border-[#FCC033] bg-[#07284C] px-4 py-4 text-center text-white sm:py-5">
-      <p className="mx-auto max-w-3xl text-lg font-extrabold leading-snug sm:text-2xl">
+      <p className="mx-auto max-w-3xl text-base font-semibold leading-snug tracking-tight sm:text-xl">
         🛠️ <span className="text-[#FCC033]">Under maintenance:</span> we&apos;re upgrading our servers. You can still browse
         today&apos;s checked jobs, no account needed.
       </p>
@@ -69,7 +69,7 @@ export function SiteMaintenanceBanner() {
         // TEMPORARY maintenance link, see src/lib/maintenance.ts
         <Link
           href="/sa-careers"
-          className="ml-0 mt-3 inline-block rounded-2xl border-2 border-[#FCC033] bg-[#FD6948] px-8 py-3 text-lg font-extrabold text-[#07284C] shadow-lg hover:bg-[#FCC033] sm:ml-3 sm:text-xl"
+          className="ml-0 mt-3 inline-block rounded-md border border-[#B8432A] bg-[#B8432A] px-6 py-2.5 text-base font-semibold text-white shadow-sm transition-colors hover:bg-[#9A3722] motion-reduce:transition-none sm:ml-3"
         >
           🇿🇦 SA careers pages
         </Link>
@@ -77,7 +77,7 @@ export function SiteMaintenanceBanner() {
       {SA_CAREERS_ENABLED && (
         <Link
           href="/offline-guide"
-          className="ml-0 mt-3 inline-block rounded-2xl border-2 border-[#FCC033] bg-[#FD6948] px-8 py-3 text-lg font-extrabold text-[#07284C] shadow-lg hover:bg-[#FCC033] sm:ml-3 sm:text-xl"
+          className="ml-0 mt-3 inline-block rounded-md border border-[#B8432A] bg-[#B8432A] px-6 py-2.5 text-base font-semibold text-white shadow-sm transition-colors hover:bg-[#9A3722] motion-reduce:transition-none sm:ml-3"
         >
           📘 Offline guide
         </Link>
