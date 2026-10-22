@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import { WhatsAppIcon } from "./WhatsAppChannel";
+import { WHATSAPP_CHANNEL_URL } from "@/lib/social";
 import { API_BASE } from "@/lib/api";
 import { SA_CAREERS_ENABLED } from "@/lib/maintenance";
 
@@ -82,6 +84,11 @@ export function SiteMaintenanceBanner() {
           📘 Offline guide
         </Link>
       )}
+      <p className="mt-3 text-sm">
+        <a href={WHATSAPP_CHANNEL_URL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 font-semibold text-[#25D366] underline underline-offset-2 hover:text-white">
+          <WhatsAppIcon className="h-4 w-4" /> Join our WhatsApp channel
+        </a>
+      </p>
     </div>
   );
 }
