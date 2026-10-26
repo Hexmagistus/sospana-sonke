@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "node:crypto";
-import { hashVisitor, recordVisits, saDay, visitStoreConfigured, type Visit } from "@/lib/visitStore";
+import { hashVisitor, readPublicSummary, recordVisits, saDay, visitStoreConfigured, type Visit } from "@/lib/visitStore";
 
 export const dynamic = "force-dynamic";
 
@@ -42,4 +42,21 @@ export async function POST(req: NextRequest) {
     res.cookies.set(COOKIE, id, { httpOnly: true, sameSite: "lax", secure: true, path: "/", maxAge: 365 * 86400 });
   }
   return res;
+}
+
+/**
+ * Public totals for the visitor strip (counts only). Cached at the edge for 5 minutes, so the
+ * strip costs the store at most a few reads an hour. 204 when there is nothing real to show.
+ */
+export async function GET() {
+  if (!visitStoreConfigured) return new NextResponse(null, { status: 204 });
+  try {
+    const summary = await readPublicSummary();
+    if (!summary) return new NextResponse(null, { status: 204 });
+    return NextResponse.json(summary, {
+      headers: { "Cache-Control": "public, max-age=60, s-maxage=300, stale-while-revalidate=300" },
+    });
+  } catch {
+    return new NextResponse(null, { status: 204 });
+  }
 }

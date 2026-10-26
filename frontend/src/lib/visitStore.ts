@@ -71,3 +71,24 @@ export async function readStats(days = 30) {
     daily: ds.map((day, i) => ({ day, views: Number(r[3 + i * 2] || 0), visitors: Number(r[4 + i * 2] || 0) })),
   };
 }
+
+/**
+ * Public-safe totals for the visitor strip: counts only, no paths, no ids. `since` is the first
+ * day (SAST) with a recorded view inside the last `lookbackDays`, so the label never claims a
+ * start date the store cannot prove. Returns null when the store is not set up or has no views.
+ */
+export async function readPublicSummary(lookbackDays = 120) {
+  const ds = lastDays(lookbackDays);
+  const cmds: Cmd[] = [["GET", "visits:total"], ["PFCOUNT", "visitors:all"]];
+  for (const d of ds) cmds.push(["GET", `visits:day:${d}`]);
+  const r = await pipeline(cmds);
+  if (!r) return null;
+  const views = Number(r[0] || 0);
+  const visitors = Number(r[1] || 0);
+  if (!(views > 0) || !(visitors > 0)) return null;
+  let since: string | null = null;
+  for (let i = ds.length - 1; i >= 0; i--) {
+    if (Number(r[2 + i] || 0) > 0) { since = ds[i]; break; }
+  }
+  return { views, visitors, since };
+}
