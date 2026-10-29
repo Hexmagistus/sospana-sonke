@@ -5,7 +5,7 @@
      (that is how the 34 WebP plates get cached lazily as the visitor runs through the areas)
    * navigation fallback: offline + page not cached -> cached index.html
    * versioned cache name: ghr-<BUILD>; old caches are deleted on activate.  BUILD is rewritten by tools/build_pwa.py. */
-const BUILD = "3.2-3b53d3c1d4";
+const BUILD = "3.2-523f24f640";
 const CACHE = "ghr-" + BUILD;
 const CODE_RE = /\.(?:html|js|css|json|webmanifest)$/i;
 
