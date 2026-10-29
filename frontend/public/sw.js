@@ -40,6 +40,8 @@ self.addEventListener("fetch", (event) => {
   const req = event.request;
   if (req.method !== "GET") return;
   const url = new URL(req.url);
+  // The game at /game/ has its own service worker (scope /game/); never touch it here.
+  if (url.origin === self.location.origin && url.pathname.startsWith("/game/")) return;
 
   // Employer directory and jobs list (public): stale-while-revalidate so they open
   // instantly and offline. The page filters expired roles before showing them.
