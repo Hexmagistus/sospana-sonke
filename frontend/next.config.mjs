@@ -58,6 +58,18 @@ const nextConfig = {
         headers: [{ key: "X-Robots-Tag", value: "noai, noimageai" }],
       },
       {
+        // Game service worker + precache list must update quickly.
+        source: "/game/sw.js",
+        headers: [
+          { key: "Cache-Control", value: "no-cache, max-age=0, must-revalidate" },
+          { key: "Service-Worker-Allowed", value: "/game/" },
+        ],
+      },
+      {
+        source: "/game/precache.json",
+        headers: [{ key: "Cache-Control", value: "no-cache, max-age=0, must-revalidate" }],
+      },
+      {
         source: "/sa-careers",
         headers: [{ key: "X-Robots-Tag", value: "noai, noimageai" }],
       },
