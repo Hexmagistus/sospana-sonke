@@ -1,5 +1,6 @@
 import Link from "next/link";
 import OpportunitiesTodayLink from "./OpportunitiesTodayLink";
+import JobAlertsLink from "./JobAlertsLink";
 import { WhatsAppIcon } from "./WhatsAppChannel";
 import { WHATSAPP_CHANNEL_URL } from "@/lib/social";
 import { createHash } from "node:crypto";
@@ -59,7 +60,8 @@ export default function CareersDirectory({ flag, title, cats, wmKey }: { flag: s
           <WhatsAppIcon className="h-4 w-4" /> Join our WhatsApp channel
         </a>
       </div>
-      {wmKey === "sa-careers" && <OpportunitiesTodayLink className="mb-6" />}
+      {wmKey === "sa-careers" && <OpportunitiesTodayLink className="mb-4" />}
+      {wmKey === "sa-careers" && <JobAlertsLink className="mb-6" />}
       <div className="space-y-4">
         {shown.map((c, i) => {
           const col = BLOCK_COLOURS[i % BLOCK_COLOURS.length];
