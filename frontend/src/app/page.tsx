@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import OpportunitiesTodayLink from "@/components/OpportunitiesTodayLink";
+import JobAlertsLink from "@/components/JobAlertsLink";
 import HomeExperience from "@/components/home/HomeExperience";
 import { countryRows, snapshotStats } from "@/lib/landingStats";
 import { coverageText } from "@/lib/regions";
@@ -18,6 +19,7 @@ export default function HomePage() {
     <HomeExperience>
       <div className="ss-lcp grid min-w-0 grid-cols-[minmax(0,1fr)]">
         <OpportunitiesTodayLink className="mt-4 max-w-xl" />
+        <JobAlertsLink className="mt-3 max-w-xl" />
         <h1 className="ss-intel-title mt-6 text-4xl font-extrabold leading-[1.08] tracking-tight sm:text-5xl">
           Discover what&apos;s possible.
           <br />
