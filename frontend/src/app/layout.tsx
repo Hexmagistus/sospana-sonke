@@ -217,6 +217,19 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 {" · "}
                 <a href="/terms" className="underline hover:text-ss-text">Terms</a>
               </p>
+              <div className="mx-auto mt-6 flex max-w-2xl flex-col items-center gap-3 text-center">
+                <a
+                  href="https://whatsapp.com/channel/0029VbDRxdBFy72Keo1GCv11"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-full bg-[#25D366] px-5 py-2.5 text-sm font-bold text-[#1F2328] shadow-md transition-colors hover:bg-[#1EBE5A] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1F2328] motion-reduce:transition-none"
+                >
+                  <span aria-hidden="true">💬</span> Join our WhatsApp channel
+                </a>
+                <p className="text-sm font-bold uppercase tracking-[0.12em] text-[#7A5200]">
+                  Informed citizens. Transparent development. A stronger South Africa.
+                </p>
+              </div>
               <p className="mx-auto mt-3 max-w-2xl text-center text-xs leading-relaxed text-ss-muted">
                 © 2026 Sospana Sonke. All rights reserved. Directory compilation protected under the Copyright Act 98 of 1978
                 (South Africa). Sospana Sonke™

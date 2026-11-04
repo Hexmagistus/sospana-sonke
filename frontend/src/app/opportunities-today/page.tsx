@@ -3,6 +3,8 @@ import Link from "next/link";
 import data from "@/data/opportunitiesToday.json";
 import { WhatsAppIcon } from "@/components/WhatsAppChannel";
 import { WHATSAPP_CHANNEL_URL } from "@/lib/social";
+import OpportunityFilter from "@/components/OpportunityFilter";
+import { PROVINCES, provinceOf } from "@/lib/province";
 
 // Static data (no database/backend). Re-rendered hourly so posts whose closing date has passed drop off.
 export const revalidate = 3600;
@@ -96,14 +98,15 @@ export default function OpportunitiesTodayPage() {
             </a>
           </div>
         </div>
+        <OpportunityFilter categories={categories} provinces={PROVINCES} total={posts.length} />
         {sections.map((sec) => (
-          <div key={sec.heading} className="mb-8">
+          <div key={sec.heading} className="mb-8" data-opp-section="">
             <h2 className="mb-3 text-xl font-bold tracking-tight sm:text-2xl">{sec.heading}</h2>
         <div className="space-y-4">
           {sec.groups.map((g, i) => {
             const col = BLOCK_COLOURS[i % BLOCK_COLOURS.length];
             return (
-              <details key={g.employer} id={anchor(g.employer)} open={g.posts.length <= 5} className={`group scroll-mt-24 overflow-hidden rounded-lg border border-[#1F2328]/10 border-l-[6px] ${col.bar} bg-white shadow-sm`}>
+              <details key={g.employer} data-opp-group="" id={anchor(g.employer)} open={g.posts.length <= 5} className={`group scroll-mt-24 overflow-hidden rounded-lg border border-[#1F2328]/10 border-l-[6px] ${col.bar} bg-white shadow-sm`}>
                 <summary className={`flex cursor-pointer list-none items-center justify-between gap-3 ${col.tint} px-5 py-3.5 text-base font-semibold tracking-tight sm:text-lg`}>
                   <h3 className="font-semibold">{g.employer}</h3>
                   <span className="flex items-center gap-2">
@@ -113,7 +116,7 @@ export default function OpportunitiesTodayPage() {
                 </summary>
                 <ul className="grid gap-3 border-t border-[#1F2328]/10 p-4 sm:grid-cols-2">
                   {g.posts.map((p) => (
-                    <li key={p.url + p.title}>
+                    <li key={p.url + p.title} data-opp="" data-q={`${p.title} ${g.employer} ${p.location ?? ""}`.toLowerCase()} data-cat={p.category ?? "Other"} data-prov={provinceOf(p.location) ?? ""}>
                       <a
                         href={p.url}
                         target="_blank"

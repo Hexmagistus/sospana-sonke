@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { api } from "@/lib/api";
 import NotificationBell from "@/components/NotificationBell";
+import HeaderCompanySelect from "@/components/HeaderCompanySelect";
 import { isExplorerPath, OPEN_MENU_EVENT } from "@/lib/explorer/explorerPaths";
 import { publicCountries } from "@/lib/countryPageData";
 
@@ -139,10 +140,13 @@ export default function Nav() {
     <>
     <nav className={`ss-navbar sticky top-0 z-30 border-b-2 border-gold bg-ss-surface shadow-[0_8px_24px_-18px_rgba(11,36,71,0.5)] ${explorer ? "lg:hidden" : ""}`}>
       <div className="mx-auto flex w-full max-w-6xl items-center gap-1 px-3 py-2.5 min-[360px]:px-4">
-        <Link href="/companies" className="mr-1 flex shrink-0 items-center gap-1.5 whitespace-nowrap min-[360px]:gap-2 sm:mr-3">
+        <Link href="/" aria-label="Sospana Sonke home" className="mr-1 flex shrink-0 items-center gap-1.5 whitespace-nowrap min-[360px]:gap-2 sm:mr-3">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logo-mark.png" alt="Sospana Sonke" className="block h-8 w-8 max-w-none shrink-0 aspect-square rounded-xl min-[360px]:h-9 min-[360px]:w-9 object-cover shadow-[0_0_22px_-2px_var(--ss-primary-glow)] ring-1 ring-gold/50" />
-          <span className="text-[0.78rem] font-bold text-ss-text min-[360px]:text-[0.9rem] min-[400px]:text-base">Sospana&nbsp;Sonke</span>
+          <span className="flex flex-col leading-tight">
+            <span className="text-[0.78rem] font-bold text-ss-text min-[360px]:text-[0.9rem] min-[400px]:text-base">Sospana&nbsp;Sonke</span>
+            <span className="hidden text-[10px] font-semibold uppercase tracking-[0.12em] text-[#7A5200] sm:block">Research • Opportunity • Impact</span>
+          </span>
         </Link>
         <a
           href="/game/play.html"
@@ -154,8 +158,8 @@ export default function Nav() {
 
         {/* Desktop / tablet: full link row */}
         <div className="hidden min-w-0 flex-1 items-center gap-x-1 lg:flex">
-          <nav aria-label="Countries" className="min-w-0 flex-1">
-            {countryList("flex flex-wrap items-center gap-x-0.5 gap-y-0.5")}
+          <nav aria-label="Countries" className="min-w-0 flex-1 overflow-x-auto">
+            {countryList("flex w-max items-center gap-x-0.5")}
           </nav>
           {links.map((l) => renderLink(l))}
           {user?.role === "admin" && (
@@ -163,6 +167,7 @@ export default function Nav() {
               Admin
             </Link>
           )}
+          <HeaderCompanySelect className="w-48 shrink-0 xl:w-56" />
           <div className="ml-auto flex shrink-0 items-center gap-3 whitespace-nowrap pl-2">
             {user && <NotificationBell unread={unread} />}
           </div>
