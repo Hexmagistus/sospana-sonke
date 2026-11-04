@@ -97,11 +97,14 @@ export default function OpportunitiesTodayPage() {
           {sec.groups.map((g, i) => {
             const col = BLOCK_COLOURS[i % BLOCK_COLOURS.length];
             return (
-              <section key={g.employer} className={`overflow-hidden rounded-lg border border-[#07284C]/10 border-l-[6px] ${col.bar} bg-white shadow-sm`}>
-                <h3 className={`flex items-center justify-between gap-3 ${col.tint} px-5 py-3.5 text-base font-semibold tracking-tight sm:text-lg`}>
-                  <span>{g.employer}</span>
-                  <span className={`rounded-full px-2.5 py-0.5 text-sm font-semibold tabular-nums ${col.pill}`}>({g.posts.length})</span>
-                </h3>
+              <details key={g.employer} open={g.posts.length <= 5} className={`group overflow-hidden rounded-lg border border-[#07284C]/10 border-l-[6px] ${col.bar} bg-white shadow-sm`}>
+                <summary className={`flex cursor-pointer list-none items-center justify-between gap-3 ${col.tint} px-5 py-3.5 text-base font-semibold tracking-tight sm:text-lg`}>
+                  <h3 className="font-semibold">{g.employer}</h3>
+                  <span className="flex items-center gap-2">
+                    <span className={`rounded-full px-2.5 py-0.5 text-sm font-semibold tabular-nums ${col.pill}`}>({g.posts.length})</span>
+                    <span aria-hidden="true" className="text-sm transition-transform group-open:rotate-180 motion-reduce:transition-none">▾</span>
+                  </span>
+                </summary>
                 <ul className="grid gap-3 border-t border-[#07284C]/10 p-4 sm:grid-cols-2">
                   {g.posts.map((p) => (
                     <li key={p.url + p.title}>
@@ -120,7 +123,7 @@ export default function OpportunitiesTodayPage() {
                     </li>
                   ))}
                 </ul>
-              </section>
+              </details>
             );
           })}
         </div>
