@@ -51,7 +51,7 @@ export default function VisitorStrip() {
   return (
     <div
       role="status"
-      className="w-full border-b border-[#FCC033] bg-[#FFF4D1] px-3 py-1 text-center text-xs font-semibold text-[#07284C] sm:text-sm"
+      className="w-full border-b border-[#FCC033] bg-[#FFF4D1] px-3 py-1 text-center text-xs font-semibold text-[#1F2328] sm:text-sm"
       title="Approximate. Counted per browser, no personal data stored."
     >
       👥 <span className="tabular-nums">{data.visitors.toLocaleString("en-ZA")}</span> visitors ·{" "}

@@ -12,13 +12,13 @@ export interface MonogramColours {
 }
 
 export const MONOGRAM_PALETTE: readonly MonogramColours[] = [
-  { bg: "#07284C", fg: "#FCC033", ring: "#FCC033" }, // navy / gold
-  { bg: "#FCC033", fg: "#07284C", ring: "#07284C" }, // gold / navy
+  { bg: "#05606F", fg: "#FFFFFF", ring: "#FCC033" }, // navy / gold
+  { bg: "#FCC033", fg: "#1F2328", ring: "#1F2328" }, // gold / navy
   { bg: "#19376d", fg: "#ffd666", ring: "#FCC033" }, // royal navy / light gold
-  { bg: "#ffd666", fg: "#07284C", ring: "#19376d" }, // light gold / navy
-  { bg: "#07284C", fg: "#ffffff", ring: "#ffd666" }, // navy / white
+  { bg: "#ffd666", fg: "#1F2328", ring: "#19376d" }, // light gold / navy
+  { bg: "#B8432A", fg: "#ffffff", ring: "#ffd666" }, // navy / white
   { bg: "#12355b", fg: "#FCC033", ring: "#ffd666" }, // deep blue / gold
-  { bg: "#f8e3a1", fg: "#07284C", ring: "#07284C" }, // pale gold / navy
+  { bg: "#f8e3a1", fg: "#1F2328", ring: "#1F2328" }, // pale gold / navy
   { bg: "#27498a", fg: "#ffffff", ring: "#FCC033" }, // steel navy / white
 ];
 

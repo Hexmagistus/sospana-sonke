@@ -138,7 +138,7 @@ export function Button({
   glow?: boolean;
 } & ButtonHTMLAttributes<HTMLButtonElement>) {
   const styles = {
-    primary: "bg-[#5eead4] font-semibold text-[#07284C] shadow-[0_8px_20px_-12px_rgba(12,27,51,0.45)] ring-1 ring-[#07284C]/25 hover:brightness-105 focus-visible:ring-[#067589]",
+    primary: "bg-[#5eead4] font-semibold text-[#1F2328] shadow-[0_8px_20px_-12px_rgba(12,27,51,0.45)] ring-1 ring-[#07284C]/25 hover:brightness-105 focus-visible:ring-[#067589]",
     secondary: "bg-ss-primary-soft text-ss-text shadow-sm ring-1 ring-ss-primary-border-soft hover:bg-ss-primary-soft-strong focus-visible:ring-navy dark:focus-visible:ring-gold",
     ghost: "border border-ss-border bg-ss-glass text-ss-text shadow-sm backdrop-blur-md hover:border-navy hover:bg-ss-primary-soft hover:text-ss-text focus-visible:ring-brand/30",
     danger: "bg-ss-danger text-white hover:brightness-110 focus-visible:ring-ss-danger dark:text-slate-900",

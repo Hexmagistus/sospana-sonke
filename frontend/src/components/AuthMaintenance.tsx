@@ -50,45 +50,10 @@ export function AuthMaintenanceBanner() {
   return (
     <div
       role="status"
-      className="mb-4 rounded-2xl border-2 border-[#FCC033] bg-[#fff8e1] p-4 text-center text-[#07284C] shadow-md"
+      className="mb-4 rounded-2xl border-2 border-[#FCC033] bg-[#fff8e1] p-4 text-center text-[#1F2328] shadow-md"
     >
       <p className="mb-3 text-base font-bold">🛠️ {AUTH_PAUSED_MESSAGE}</p>
     </div>
   );
 }
 
-/** Site-wide banner, top of every page, while the database is down or the device is offline. */
-export function SiteMaintenanceBanner() {
-  const { paused } = useAuthPaused();
-  if (!paused) return null;
-  return (
-    <div role="status" className="w-full border-b-4 border-[#FCC033] bg-[#07284C] px-4 py-4 text-center text-white sm:py-5">
-      <p className="mx-auto max-w-3xl text-base font-semibold leading-snug tracking-tight sm:text-xl">
-        🛠️ <span className="text-[#FCC033]">Under maintenance:</span> we&apos;re upgrading our servers. You can still browse
-        today&apos;s checked jobs, no account needed.
-      </p>
-      {SA_CAREERS_ENABLED && (
-        // TEMPORARY maintenance link, see src/lib/maintenance.ts
-        <Link
-          href="/sa-careers"
-          className="ml-0 mt-3 inline-block rounded-md border border-[#B8432A] bg-[#B8432A] px-6 py-2.5 text-base font-semibold text-white shadow-sm transition-colors hover:bg-[#9A3722] motion-reduce:transition-none sm:ml-3"
-        >
-          🇿🇦 SA careers pages
-        </Link>
-      )}
-      {SA_CAREERS_ENABLED && (
-        <Link
-          href="/offline-guide"
-          className="ml-0 mt-3 inline-block rounded-md border border-[#B8432A] bg-[#B8432A] px-6 py-2.5 text-base font-semibold text-white shadow-sm transition-colors hover:bg-[#9A3722] motion-reduce:transition-none sm:ml-3"
-        >
-          📘 Offline guide
-        </Link>
-      )}
-      <p className="mt-3 text-sm">
-        <a href={WHATSAPP_CHANNEL_URL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 font-semibold text-[#25D366] underline underline-offset-2 hover:text-white">
-          <WhatsAppIcon className="h-4 w-4" /> Join our WhatsApp channel
-        </a>
-      </p>
-    </div>
-  );
-}

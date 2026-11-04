@@ -10,7 +10,6 @@ function source(path: string): string {
 describe("expired opportunities stay off public pages", () => {
   it("search, programmes, feeds, sitemap and employer pages read the public job API", () => {
     assert.match(source("src/app/jobs/page.tsx"), /\/jobs\?/);
-    assert.match(source("src/app/opportunities/page.tsx"), /\/jobs\?/);
     assert.match(source("src/app/feed.xml/route.ts"), /\/jobs\?limit=30/);
     assert.match(source("src/app/feed.json/route.ts"), /\/jobs\?limit=30/);
     assert.match(source("src/app/sitemap.ts"), /\/jobs\/ids/);

@@ -14,7 +14,6 @@ import TaggingChoiceBanner from "@/components/TaggingChoiceBanner";
 import MentionPopup from "@/components/MentionPopup";
 import PwaExtras from "@/components/PwaExtras";
 import CopyGuard from "@/components/CopyGuard";
-import { SiteMaintenanceBanner } from "@/components/AuthMaintenance";
 import { Analytics } from "@vercel/analytics/next";
 import VisitCounter from "@/components/VisitCounter";
 import VisitorStrip from "@/components/VisitorStrip";
@@ -175,7 +174,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </a>
         <ThemeProvider>
           <AuthProvider>
-            <SiteMaintenanceBanner />
             <VisitorStrip />
             <Nav />
             <main id="main-content" className="relative z-0 mx-auto max-w-6xl px-4 py-6 pb-24 md:pb-6">
@@ -202,7 +200,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 partnership or endorsement.{" "}
                 <a href="/jobs" className="underline hover:text-ss-text">Jobs</a>
                 {" · "}
-                <a href="/opportunities" className="underline hover:text-ss-text">Opportunities</a>
+                <a href="/opportunities-today" className="underline hover:text-ss-text">Opportunities today</a>
                 {" · "}
                 <a href="/data" className="underline hover:text-ss-text">Labour data</a>
                 {" · "}

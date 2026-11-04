@@ -16,7 +16,7 @@
   --ss-glass: rgba(255, 255, 255, 0.94);
   --ss-panel: rgba(255, 255, 255, 0.95);
   --ss-border: rgba(7, 40, 76, 0.18);
-  --ss-text: #07284C;
+  --ss-text: #1F2328;
   --ss-text-muted: #3f4a5c;
   --ss-primary: #FD6948;
   --ss-primary-glow: rgba(253, 105, 72, 0.35);
@@ -122,15 +122,15 @@ html { font-size: 17.5px; }
    the deep teal; the bright teal is a fill on navy, where the contrast holds. */
 :root,
 .ss-intel {
-  --ss-intel-navy: #07284C;
+  --ss-intel-navy: #FFF8EC;
   --ss-intel-charcoal: #1c2430;
   --ss-intel-white: #ffffff;
   --ss-intel-paper: #FCF6EC;
-  --ss-intel-text: #ffffff;
-  --ss-intel-muted: #d5dde8;
-  --ss-intel-teal: #FCC033;
+  --ss-intel-text: #1F2328;
+  --ss-intel-muted: #3f4a5c;
+  --ss-intel-teal: #05606F;
   --ss-intel-teal-deep: #067589;
-  --ss-intel-ink: #07284C;
+  --ss-intel-ink: #1F2328;
   --ss-intel-card-muted: #3f4a5c;
 }
 .ss-hero.ss-intel {
@@ -142,8 +142,8 @@ html { font-size: 17.5px; }
   color: var(--ss-intel-text);
   border-color: transparent;
   box-shadow:
-    inset 0 1px 0 rgba(94, 234, 212, 0.45),
-    0 22px 44px -28px rgba(4, 10, 20, 0.85);
+    inset 0 0 0 1px rgba(31, 35, 40, 0.08),
+    0 18px 36px -28px rgba(31, 35, 40, 0.35);
 }
 .ss-showpiece {
   position: relative;
@@ -261,7 +261,7 @@ html { font-size: 17.5px; }
   display: block;
   height: 100%;
   border-radius: 999px;
-  background: linear-gradient(180deg, #2C5C93, #07284C 58%, #067589);
+  background: linear-gradient(180deg, #FCC033, #FD6948 58%, #067589);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4);
 }
 .ss-intel :focus-visible {
@@ -675,7 +675,7 @@ main tbody tr {
 
   /* --- Focus: a dark ring with a gold halo is visible on light AND photo
         backgrounds; plain gold on white was only 1.8:1. --- */
-  --ss-focus: #07284C;
+  --ss-focus: #1F2328;
   --ss-focus-halo: #FCC033;
 
   /* --- Circuit-board motif (corner trace on cards), tinted by theme. --- */
@@ -690,7 +690,7 @@ main tbody tr {
   --ss-success: #22c55e;
   --ss-primary-text: #FD6948;    /* 5.4:1 on --ss-surface */
   --ss-focus: #FCC033;
-  --ss-focus-halo: #07284C;
+  --ss-focus-halo: #1F2328;
 }
 
 /* ---- Typography ---- */
@@ -908,7 +908,7 @@ summary:focus-visible {
 :root[data-theme="dark"] .text-yellow-700 { color: #fde047; }
 :root[data-theme="dark"] .text-green-700 { color: #86efac; }
 /* Gold text that sits on a navy or gold fill is meant to stay bright. */
-.bg-navy .text-gold, .bg-navy.text-gold { color: #FCC033; }
+.bg-navy .text-gold, .bg-navy.text-gold { color: #8a5a00; }
 
 /* ---- Bright legibility floor ----
    Captions were 9-13px. Nothing is smaller than 14px now, and the old 13px
@@ -999,18 +999,6 @@ summary:focus-visible {
   --ss-accent-purple: #8450E4; --ss-accent-blue: #1184F0; --ss-tint-blue: #EAF4FC;
   --ss-tint-yellow: #FCF5E5; --ss-tint-green: #EEF6ED; --ss-tint-mint: #D4F6F1; }
 
-/* Navy header (reference palette). Re-scopes the theme tokens inside the top
-   nav so every existing text-ss-text / bg-ss-surface utility flips to white
-   on navy without touching markup. */
-:root:not([data-theme="dark"]) .ss-navbar {
-  --ss-surface: #07284C;
-  --ss-text: #ffffff;
-  --ss-text-muted: #d5dde8;
-  --ss-primary-text: #FCC033;
-  --ss-border: rgba(255, 255, 255, 0.18);
-  --ss-primary-soft: rgba(255, 255, 255, 0.12);
-  color: #ffffff;
-}
 
 /* Corporate polish (global): one typeface (Inter), tighter headings, calmer
    cards, crisp 1px borders, quieter shadows. Colour palette unchanged. */
@@ -1022,8 +1010,25 @@ h1, h2, h3 { letter-spacing: -0.02em; line-height: 1.15; }
   box-shadow: 0 1px 2px rgba(7, 40, 76, 0.06), 0 8px 24px -16px rgba(7, 40, 76, 0.25);
 }
 :root:not([data-theme="dark"]) .ss-navbar {
-  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.06), 0 6px 18px -12px rgba(7, 40, 76, 0.6);
+  box-shadow: 0 1px 0 rgba(31, 35, 40, 0.06), 0 6px 18px -12px rgba(31, 35, 40, 0.25);
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
 }
+
+/* Light-only palette (owner request, Nov 2026): no navy fills anywhere. Every
+   former navy / midnight block becomes warm cream with charcoal text (14:1);
+   coral, gold, teal and green stay as accents. Elements with their own fill
+   (buttons, pills) keep their colours. */
+.bg-navy, .bg-navy-light, .bg-\[\#07284C\], .bg-\[\#04172C\], .bg-\[\#0B3A6B\], .bg-\[\#0D3A66\], .bg-slate-900,
+.bg-\[\#04172C\]\/85, .bg-\[\#04172C\]\/75, .bg-\[\#07284C\]\/90 {
+  background-color: #FFF8EC !important;
+  color: #1F2328 !important;
+}
+.hover\:bg-\[\#0D3A66\]:hover, .hover\:bg-navy-light:hover, .hover\:bg-navy:hover { background-color: #FCEBD6 !important; }
+:is(.bg-navy, .bg-navy-light, .bg-\[\#07284C\], .bg-\[\#04172C\], .bg-\[\#0B3A6B\], .bg-\[\#0D3A66\], .bg-slate-900, .bg-\[\#04172C\]\/85) :is(.text-white, .text-slate-100, .text-slate-200, .text-slate-300, .text-white\/80, .text-white\/90):not([class*="bg-"]) { color: #1F2328 !important; }
+:is(.bg-navy, .bg-navy-light, .bg-\[\#07284C\], .bg-\[\#04172C\], .bg-\[\#0B3A6B\], .bg-\[\#0D3A66\], .bg-slate-900).text-white { color: #1F2328 !important; }
+:is(.bg-navy, .bg-navy-light, .bg-\[\#07284C\], .bg-\[\#04172C\], .bg-\[\#0B3A6B\], .bg-\[\#0D3A66\], .bg-slate-900) :is(.text-\[\#FCC033\], .text-gold, .text-\[\#5eead4\]):not([class*="bg-"]) { color: #8a5a00 !important; }
+.from-\[\#04172C\]\/95 { --tw-gradient-from: rgba(255, 248, 236, 0.9) var(--tw-gradient-from-position) !important; --tw-gradient-to: rgba(255,248,236,0) var(--tw-gradient-to-position) !important; --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important; }
+.via-\[\#04172C\]\/25 { --tw-gradient-stops: var(--tw-gradient-from), rgba(255,248,236,0.2) var(--tw-gradient-via-position), var(--tw-gradient-to) !important; }
+.bg-\[\#04172C\]\/85 [class*="text-white"] { color: #1F2328 !important; text-shadow: none !important; }

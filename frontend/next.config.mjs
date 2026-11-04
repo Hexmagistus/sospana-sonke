@@ -40,11 +40,16 @@ const nextConfig = {
   eslint: { ignoreDuringBuilds: true },
   // Sign-in is switched off: every page is public, so the account pages send people home.
   async redirects() {
-    return ["/login", "/register", "/forgot-password", "/reset-password", "/organisation/register"].map((source) => ({
-      source,
-      destination: "/",
-      permanent: false,
-    }));
+    return [
+      ...["/login", "/register", "/forgot-password", "/reset-password", "/organisation/register"].map((source) => ({
+        source,
+        destination: "/",
+        permanent: false,
+      })),
+      // The programmes page was retired (Nov 2026); old links land on today's checked posts.
+      { source: "/opportunities", destination: "/opportunities-today", permanent: true },
+      { source: "/opportunities/:path*", destination: "/opportunities-today", permanent: true },
+    ];
   },
   async headers() {
     return [

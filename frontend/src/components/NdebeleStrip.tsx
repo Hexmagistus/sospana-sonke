@@ -10,7 +10,7 @@
 const PALETTES: Record<string, { bg: string; tri: string }[]> = {
   classic: [
     { bg: "#e4322b", tri: "#FCC033" }, // red / gold
-    { bg: "#07284C", tri: "#1184F0" }, // navy / sky
+    { bg: "#0198AF", tri: "#FCF6EC" }, // navy / sky
     { bg: "#269958", tri: "#ff7a1a" }, // green / sun
   ],
   vivid: [

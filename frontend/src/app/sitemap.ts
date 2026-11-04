@@ -4,7 +4,7 @@ import { publicCountries } from "@/lib/countryPageData";
 import { employerPath } from "@/lib/employerPage";
 import { SNAPSHOT_AS_OF } from "@/lib/landingStats";
 import { countrySlug } from "@/lib/countryPage";
-import { facetSlug, PROGRAMME_PAGES } from "@/lib/jobLandings";
+import { facetSlug } from "@/lib/jobLandings";
 import { SITE_URL } from "@/lib/seo";
 
 // The build can finish before Frankfurt is serving /employers. A static sitemap
@@ -40,19 +40,8 @@ async function roleEntries(modified: Date): Promise<MetadataRoute.Sitemap> {
   const rows: MetadataRoute.Sitemap = [];
   try {
     const countsRes = await fetch(`${API}/jobs/counts`, { cache: "no-store" });
-    if (countsRes.ok) {
-      const data = (await countsRes.json()) as { counts?: Record<string, number> };
-      for (const page of PROGRAMME_PAGES) {
-        if ((data.counts?.[page.type] || 0) > 0) {
-          rows.push({
-            url: `${SITE_URL}/opportunities/${page.slug}`,
-            lastModified: modified,
-            changeFrequency: "daily",
-            priority: 0.8,
-          });
-        }
-      }
-    }
+    // Programme pages were retired (Nov 2026); the counts call only confirms the API is up.
+    if (!countsRes.ok) return rows;
     const facetsRes = await fetch(`${API}/jobs/facets`, { cache: "no-store" });
     if (facetsRes.ok) {
       const data = (await facetsRes.json()) as {
@@ -140,7 +129,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return [
     entry("/", 1.0, "weekly"),
     entry("/jobs", 0.9, "daily"),
-    entry("/opportunities", 0.9, "daily"),
+    entry("/opportunities-today", 0.9, "daily"),
     entry("/feed.xml", 0.4, "daily"),
     ...await roleEntries(now),
     entry("/data", 0.6, "monthly"),

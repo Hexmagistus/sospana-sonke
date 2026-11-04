@@ -10,7 +10,7 @@ const config: Config = {
     extend: {
       colors: {
         brand: { DEFAULT: "#067589", dark: "#05606F", light: "#5eead4" },
-        navy: { DEFAULT: "#07284C", light: "#0D3A66" },
+        navy: { DEFAULT: "#1F2328", light: "#3A3F47" },
         // gold.dark is the AA-safe gold for TEXT on light surfaces (5.9:1 on white);
         // plain gold is for fills, borders and text on navy/dark.
         gold: { DEFAULT: "#FCC033", light: "#FFD877", dark: "#8a5a00" },

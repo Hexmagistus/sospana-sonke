@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { SponsoredStrip } from "@/components/organisation/SponsoredStrip";
 import { PageHeader } from "@/components/PageHeader";
-import IntelligenceSearch from "@/components/home/IntelligenceSearch";
+import CompanyPicker from "@/components/CompanyPicker";
 import { ApplySteps } from "@/components/ApplySteps";
 import { jobSummary, type PublicJob } from "@/lib/jobPosting";
 import { SITE_NAME, SITE_URL } from "@/lib/seo";
@@ -206,32 +206,18 @@ export default async function JobsPage({ searchParams }: { searchParams: Promise
           If nothing is here, the scanner has not stored a matching open role. Check the organisation&apos;s own page.
           You apply there. {SITE_NAME} does not send an application for you.
           A sponsored row, when one matches, sits in its own list and does not move these rows.{" "}
-          <Link href="/ranking" className="underline">How ranking works</Link>.{" "}
-          <Link href="/opportunities" className="underline">
-            The same list, with type tabs
-          </Link>
-          , sorts by closing date.
+          <Link href="/ranking" className="underline">How ranking works</Link>.
         </p>
       </PageHeader>
-
       {SA_CAREERS_ENABLED && (
-        // TEMPORARY maintenance link, see src/lib/maintenance.ts
-        <Link
-          href="/sa-careers"
-          className="block rounded-2xl border-2 border-[#FCC033] bg-[#07284C] px-4 py-3 text-center text-base font-extrabold text-white shadow hover:bg-[#0D3A66] sm:text-lg"
-        >
-          🇿🇦 <span className="text-[#FCC033]">Open to all during maintenance:</span> every South African careers page, by category →
-        </Link>
-      )}
-      {SA_CAREERS_ENABLED && (
-        <Link href="/offline-guide" className="block text-center text-base font-bold text-[#07284C] underline decoration-[#FCC033]">
+        <Link href="/offline-guide" className="block text-center text-base font-bold text-[#1F2328] underline decoration-[#FCC033]">
           📘 No data? Read the offline guide
         </Link>
       )}
 
       <SavedRoles />
       <RecentRoles />
-      <IntelligenceSearch showAccountLinks={false} />
+      <CompanyPicker />
 
       <form method="get" action="/jobs" className="ss-card ss-sticky-search grid gap-4 sm:grid-cols-2">
         <label className="block text-sm font-semibold text-ss-text">

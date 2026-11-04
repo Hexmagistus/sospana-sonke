@@ -14,19 +14,6 @@ test("search submits a keyword and shows the stored-role result", async ({ page 
   ).toBeVisible();
 });
 
-test("opportunities search keeps the programme heading", async ({ page }) => {
-  await page.goto("/opportunities");
-  await expect(
-    page.getByRole("heading", { name: "Internships, learnerships, bursaries and graduate programmes" }),
-  ).toBeVisible();
-  await page.getByLabel("Keyword").fill("engineering");
-  await page.getByRole("button", { name: "Show stored programmes" }).click();
-  await expect(page).toHaveURL(/\/opportunities\?.*q=engineering/);
-  await expect(
-    page.getByText(/Closing dates that were not stated|Not enough data|The list could not be reached/),
-  ).toBeVisible();
-});
-
 test("an employer page shows the stored careers link", async ({ page }) => {
   const response = await fetch(`${API}/jobs?limit=1`);
   // The live database can be blocked by its provider (HTTP 402 quota). The API then

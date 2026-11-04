@@ -55,9 +55,9 @@ const PUBLIC_ITEMS: Item[] = [
     ),
   },
   {
-    href: "/opportunities",
-    label: "Programmes",
-    match: "/opportunities",
+    href: "/opportunities-today",
+    label: "Today",
+    match: "/opportunities-today",
     icon: (a) => (
       <svg {...iconProps(a)} aria-hidden="true">
         <path d="M4 19V6.5A1.5 1.5 0 0 1 5.5 5H20v12.5" />
@@ -132,7 +132,7 @@ export default function MobileBottomNav() {
   return (
     <nav
       aria-label="Primary"
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-[#07284C]/15 bg-ss-glass shadow-[0_-12px_40px_-18px_rgba(12,27,51,0.35)] backdrop-blur-xl md:hidden"
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-[#1F2328]/15 bg-ss-glass shadow-[0_-12px_40px_-18px_rgba(12,27,51,0.35)] backdrop-blur-xl md:hidden"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
       <div className="mx-auto flex max-w-6xl items-stretch justify-between px-1">

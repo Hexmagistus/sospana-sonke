@@ -7,7 +7,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth";
 import { API_BASE } from "@/lib/api";
-import IntelligenceSearch from "@/components/home/IntelligenceSearch";
+import CompanyPicker from "@/components/CompanyPicker";
 import { HERITAGE_GROUPS, HERITAGE_SITES, type HeritageSite } from "@/data/heritageSites";
 import { READABLE_CAREERS_NOTE } from "@/lib/notCounted";
 import { coverageText, tierOf, TIERS, TIER_RANK } from "@/lib/regions";
@@ -28,7 +28,7 @@ function WorldMapSkeleton() {
   return (
     <div className="w-full" aria-hidden="true">
       <div className="h-7 w-56 rounded-lg bg-ss-surface" />
-      <div className="mt-3 aspect-[960/500] w-full rounded-2xl border border-ss-border bg-[#04172C] motion-safe:animate-pulse" />
+      <div className="mt-3 aspect-[960/500] w-full rounded-2xl border border-ss-border bg-[#FFF8EC] motion-safe:animate-pulse" />
       <div className="mt-3 h-40 rounded-xl bg-ss-surface" />
     </div>
   );
@@ -40,7 +40,7 @@ const C = {
   // and for fills that carry white text. Use DARK_OF[colour] rather than the bright colour.
   tealText: "#05606F", greenText: "#166534", skyText: "#14568f", plumText: "#5b21b6",
   sunText: "#9a3412", redText: "#b91c1c",
-  navy: "#07284C", ink: "#04172C", gold: "#FCC033", amber: "#ff9e2c",
+  navy: "#1F2328", ink: "#1F2328", gold: "#FCC033", amber: "#ff9e2c",
   teal: "#0f9d8f", mint: "#5fe0d0", red: "#e4322b", green: "#269958",
   sky: "#1184F0", plum: "#7c3aed", sun: "#ff7a1a", cream: "#faf6ee",
 };
@@ -524,7 +524,7 @@ export default function Home({ children }: { children?: ReactNode }) {
         </div>
         <nav aria-label="Site" className="mx-auto flex max-w-6xl flex-wrap gap-x-4 gap-y-1 px-3 pb-2 text-sm font-semibold sm:px-4" style={{ color: C.navy }}>
           <Link href="/jobs" className="underline-offset-2 hover:underline">Jobs</Link>
-          <Link href="/opportunities" className="underline-offset-2 hover:underline">Opportunities</Link>
+          <Link href="/opportunities-today" className="underline-offset-2 hover:underline">Opportunities today</Link>
           <Link href="/data" className="underline-offset-2 hover:underline">Labour data</Link>
         </nav>
       </header>
@@ -547,7 +547,7 @@ export default function Home({ children }: { children?: ReactNode }) {
 
               {children}
 
-              <IntelligenceSearch />
+              <CompanyPicker className="mt-6" />
 
               <blockquote className="ss-intel-quote">
                 <p className="text-base italic leading-relaxed sm:text-lg">
@@ -909,7 +909,7 @@ export default function Home({ children }: { children?: ReactNode }) {
                 <Link
                   href="/jobs"
                   className="group relative mt-7 inline-block overflow-hidden rounded-xl px-8 py-4 text-lg font-extrabold text-white shadow-lg transition hover:-translate-y-0.5 hover:brightness-110"
-                  style={{ background: C.navy }}
+                  style={{ background: "#B8432A" }}
                 >
                   <span className="relative z-10">Get started today →</span>
                   <span className="pointer-events-none absolute inset-0 -translate-x-full skew-x-[-20deg] bg-white/25 opacity-0 transition-all duration-700 group-hover:translate-x-full group-hover:opacity-100" />
@@ -924,7 +924,7 @@ export default function Home({ children }: { children?: ReactNode }) {
         <span>© 2026 Sospana Sonke · Born in SADC</span>
         <div className="flex items-center gap-4">
           <Link href="/jobs" className="hover:text-ss-text">Jobs</Link>
-          <Link href="/opportunities" className="hover:text-ss-text">Opportunities</Link>
+          <Link href="/opportunities-today" className="hover:text-ss-text">Opportunities today</Link>
           <Link href="/data" className="hover:text-ss-text">Labour data</Link>
           <Link href="/donate" className="hover:text-ss-text">Donate</Link>
           <a href="/privacy" className="hover:text-ss-text">Privacy Policy</a>

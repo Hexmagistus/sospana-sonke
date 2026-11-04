@@ -33,10 +33,9 @@ function sceneFor(path: string): Scene | null {
   // there became the largest paint and stretched the main thread.
   if (
     path === "/jobs"
-    || path === "/opportunities"
+    || path === "/opportunities-today"
     || path.startsWith("/jobs/in/")
     || path.startsWith("/jobs/category/")
-    || (path.startsWith("/opportunities/") && path.length > "/opportunities/".length)
   ) {
     return null;
   }

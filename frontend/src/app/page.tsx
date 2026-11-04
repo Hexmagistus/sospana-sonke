@@ -33,10 +33,7 @@ export default function HomePage() {
         </p>
         <p className="ss-intel-lead mt-3 max-w-xl text-base leading-relaxed">
           South Africa is the featured country. Search, programmes and the labour table open there, and stored South African roles are listed first. Other countries stay in the directory.{" "}
-          Ask in the box below. The answer uses jobs, internships, learnerships, bursaries and graduate
-          programmes the scanner has stored, employers in the directory, and the Stats SA labour table, with
-          the source and the date we last saw them. Employers are listed across {coverage}. If the data is
-          not there, the answer says so. We do not promise you a place.
+          Pick any company in the list below to open its own careers page. Employers are listed across {coverage}. We do not promise you a place.
         </p>
         <noscript>
           <p className="ss-intel-lead mt-4 text-base">

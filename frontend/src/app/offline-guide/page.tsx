@@ -3,9 +3,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SA_CAREERS_ENABLED } from "@/lib/maintenance";
 
-// TEMPORARY maintenance guide, gated by SA_CAREERS_ENABLED (see src/lib/maintenance.ts).
+// Offline guide, gated by SA_CAREERS_ENABLED (see src/lib/maintenance.ts).
 export const metadata: Metadata = {
-  title: "How to use Sospana Sonke offline during maintenance",
+  title: "How to use Sospana Sonke offline",
   description: "Simple steps to save Sospana Sonke on your phone and use it with no data while we upgrade.",
 };
 
@@ -22,11 +22,11 @@ function Phone({ children }: { children: React.ReactNode }) {
 
 function Section({ n, title, icon, children }: { n: number; title: string; icon: React.ReactNode; children: React.ReactNode }) {
   return (
-    <section className="rounded-2xl border border-[#07284C]/15 bg-white p-4 shadow-sm">
+    <section className="rounded-2xl border border-[#1F2328]/15 bg-white p-4 shadow-sm">
       <div className="mb-2 flex items-center gap-3">
         {icon}
         <h2 className="text-lg font-extrabold sm:text-xl">
-          <span className="mr-2 inline-flex h-8 w-8 items-center justify-center rounded-full bg-[#FCC033] text-[#07284C]">{n}</span>
+          <span className="mr-2 inline-flex h-8 w-8 items-center justify-center rounded-full bg-[#FCC033] text-[#1F2328]">{n}</span>
           {title}
         </h2>
       </div>
@@ -40,9 +40,9 @@ const ol = "list-decimal space-y-1 pl-6";
 export default function OfflineGuidePage() {
   if (!SA_CAREERS_ENABLED) notFound();
   return (
-    <main className="mx-auto max-w-3xl space-y-4 px-4 py-6 text-[#07284C]">
+    <main className="mx-auto max-w-3xl space-y-4 px-4 py-6 text-[#1F2328]">
       <div className="rounded-2xl border-2 border-[#FCC033] bg-[#fff8e1] p-4">
-        <h1 className="text-2xl font-extrabold sm:text-3xl">📘 How to use Sospana Sonke offline during maintenance</h1>
+        <h1 className="text-2xl font-extrabold sm:text-3xl">📘 How to use Sospana Sonke offline</h1>
         <p className="mt-2">We&apos;re upgrading our servers. The site keeps working on your phone, even with no data. Follow these short steps.</p>
       </div>
 
@@ -95,7 +95,7 @@ export default function OfflineGuidePage() {
       </Section>
 
       <Section n={6} title="Login and sign-up are paused" icon={<svg viewBox="0 0 50 50" className="h-12 w-12 shrink-0" aria-hidden="true"><rect x="8" y="22" width="34" height="24" rx="5" fill="#07284C" /><path d="M15 22 v-7 a10 10 0 0 1 20 0 v7" stroke="#07284C" strokeWidth="5" fill="none" /><circle cx="25" cy="34" r="4" fill="#FCC033" /></svg>}>
-        <p>While we upgrade, you can&apos;t log in or create an account. You don&apos;t need one to view jobs or the SA careers list. Your account will be back after maintenance.</p>
+        <p>You don&apos;t need an account to view jobs or the SA careers list.</p>
       </Section>
 
       <Section n={7} title="Tips to save data" icon={<svg viewBox="0 0 50 50" className="h-12 w-12 shrink-0" aria-hidden="true"><circle cx="25" cy="25" r="22" fill="#FCC033" /><text x="25" y="33" textAnchor="middle" fontSize="22" fontWeight="bold" fill="#07284C">R</text></svg>}>

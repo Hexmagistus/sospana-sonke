@@ -7,7 +7,7 @@ import CareersDirectory, { type CareersCat } from "@/components/CareersDirectory
 // TEMPORARY: maintenance-mode directory, gated by SA_CAREERS_ENABLED (see src/lib/maintenance.ts).
 export const metadata: Metadata = {
   title: "South African careers pages | Sospana Sonke",
-  description: "Direct careers links for South African employers, open to everyone during maintenance.",
+  description: "Direct careers links for South African employers, free for everyone, no login needed.",
 };
 
 export default function SaCareersPage() {
