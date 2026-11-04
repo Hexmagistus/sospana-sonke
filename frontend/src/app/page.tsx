@@ -18,7 +18,18 @@ export default function HomePage() {
   return (
     <HomeExperience>
       <div className="ss-lcp grid min-w-0 grid-cols-[minmax(0,1fr)]">
-        <OpportunitiesTodayLink className="mt-4 max-w-xl" />
+        <a
+          href="/game/play.html"
+          className="group mt-4 flex max-w-xl items-center gap-4 rounded-2xl border-2 border-gold bg-gradient-to-r from-[#FFF8EC] to-white p-4 shadow-md transition hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#067589]"
+        >
+          <span aria-hidden="true" className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#067589] text-2xl">🎮</span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-lg font-extrabold text-[#1F2328]">Play Gauteng Hustle Run</span>
+            <span className="block text-sm text-[#4A4F57]">Free game. Run, collect coins, dodge obstacles. Works offline.</span>
+          </span>
+          <span className="shrink-0 rounded-full bg-[#A63A1E] px-4 py-2 text-sm font-bold text-white group-hover:bg-[#8A2F17]">Play now</span>
+        </a>
+        <OpportunitiesTodayLink className="mt-3 max-w-xl" />
         <JobAlertsLink className="mt-3 max-w-xl" />
         <h1 className="ss-intel-title mt-6 text-4xl font-extrabold leading-[1.08] tracking-tight sm:text-5xl">
           Discover what&apos;s possible.

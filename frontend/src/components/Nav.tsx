@@ -144,6 +144,13 @@ export default function Nav() {
           <img src="/logo-mark.png" alt="Sospana Sonke" className="block h-8 w-8 max-w-none shrink-0 aspect-square rounded-xl min-[360px]:h-9 min-[360px]:w-9 object-cover shadow-[0_0_22px_-2px_var(--ss-primary-glow)] ring-1 ring-gold/50" />
           <span className="text-[0.78rem] font-bold text-ss-text min-[360px]:text-[0.9rem] min-[400px]:text-base">Sospana&nbsp;Sonke</span>
         </Link>
+        <a
+          href="/game/play.html"
+          aria-label="Play the Gauteng Hustle Run game"
+          className="ss-play-btn mr-1 inline-flex h-9 shrink-0 items-center gap-1 whitespace-nowrap rounded-full bg-[#A63A1E] px-3 text-sm font-bold text-white shadow-sm ring-2 ring-gold/60 hover:bg-[#8A2F17] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#067589]"
+        >
+          <span aria-hidden="true">🎮</span> Play
+        </a>
 
         {/* Desktop / tablet: full link row */}
         <div className="hidden min-w-0 flex-1 items-center gap-x-1 lg:flex">
