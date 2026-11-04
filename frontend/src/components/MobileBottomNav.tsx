@@ -54,17 +54,6 @@ const PUBLIC_ITEMS: Item[] = [
     ),
   },
   {
-    href: "/jobs",
-    label: "Jobs",
-    match: "/jobs",
-    icon: (a) => (
-      <svg {...iconProps(a)} aria-hidden="true">
-        <circle cx="11" cy="11" r="6.5" />
-        <path d="m20 20-3.5-3.5" />
-      </svg>
-    ),
-  },
-  {
     href: "/opportunities-today",
     label: "Today",
     match: "/opportunities-today",
@@ -109,8 +98,8 @@ const ITEMS: Item[] = [
     ),
   },
   {
-    href: "/jobs",
-    label: "Search",
+    href: "/opportunities-today",
+    label: "Today",
     icon: (a) => (
       <svg {...iconProps(a)} aria-hidden="true">
         <circle cx="11" cy="11" r="6.5" />

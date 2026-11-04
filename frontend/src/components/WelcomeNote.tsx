@@ -37,7 +37,7 @@ export default function WelcomeNote() {
           <p className="text-base font-bold text-[#1F2328]">New here? Three steps.</p>
           <ol className="mt-2 list-decimal space-y-1 pl-5 text-sm leading-relaxed text-[#3f4a5c]">
             <li>
-              <Link href="/jobs" className="font-semibold text-[#067589] underline">Search stored roles</Link>
+              <Link href="/opportunities-today" className="font-semibold text-[#067589] underline">Search stored roles</Link>
               , including internships, learnerships, bursaries and graduate programmes.
             </li>
             <li>Open the employer&apos;s own page from the result.</li>

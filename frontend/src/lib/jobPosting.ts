@@ -87,7 +87,7 @@ export function jobPosting(job: PublicJob): Record<string, unknown> {
     hiringOrganization: { "@type": "Organization", name: job.company_name },
     jobLocation: { "@type": "Place", address },
     directApply: false,
-    url: `${SITE}/jobs/${job.id}`,
+    url: job.application_url || `${SITE}/opportunities-today`,
     identifier: { "@type": "PropertyValue", name: "Sospana Sonke", value: job.id },
   };
   if (job.closing_date) node.validThrough = job.closing_date;

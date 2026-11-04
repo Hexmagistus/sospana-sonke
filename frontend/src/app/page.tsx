@@ -48,8 +48,8 @@ export default function HomePage() {
         </p>
         <noscript>
           <p className="ss-intel-lead mt-4 text-base">
-            <a className="ss-intel-accent underline" href="/jobs">
-              Search stored roles without JavaScript
+            <a className="ss-intel-accent underline" href="/opportunities-today">
+              See today's opportunities without JavaScript
             </a>
           </p>
         </noscript>

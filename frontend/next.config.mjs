@@ -41,6 +41,9 @@ const nextConfig = {
   // Sign-in is switched off: every page is public, so the account pages send people home.
   async redirects() {
     return [
+      // The /jobs listing and job detail pages were removed (Nov 2026).
+      { source: "/jobs", destination: "/opportunities-today", permanent: true },
+      { source: "/jobs/:path*", destination: "/opportunities-today", permanent: true },
       // Account and admin pages were removed (Nov 2026); old links go home.
       { source: "/login", destination: "/", permanent: true },
       { source: "/login/:path*", destination: "/", permanent: true },
@@ -113,16 +116,6 @@ const nextConfig = {
       {
         source: "/",
         headers: [{ key: "Cache-Control", value: "public, s-maxage=300, stale-while-revalidate=600" }],
-      },
-      {
-        // Public HTML. s-maxage matches the page revalidate: 60s for lists, 300s for
-        // the labour table, pricing, and employer pages. Authenticated routes are not listed.
-        source: "/jobs",
-        headers: [{ key: "Cache-Control", value: "public, s-maxage=60, stale-while-revalidate=120" }],
-      },
-      {
-        source: "/jobs/:path*",
-        headers: [{ key: "Cache-Control", value: "public, s-maxage=60, stale-while-revalidate=120" }],
       },
       {
         source: "/opportunities",

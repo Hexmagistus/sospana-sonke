@@ -25,7 +25,7 @@ export default function DailySparkTease() {
               A clean joke and a line of wisdom to start the job-hunt day, from African proverbs to Mandela, Maathai and Achebe.
             </p>
             <div className="mt-5 flex flex-wrap gap-3">
-              <Link href="/jobs"
+              <Link href="/opportunities-today"
                 className="rounded-lg bg-[#FCC033] px-4 py-2 text-sm font-bold text-[#1F2328] shadow-md transition-all duration-ss hover:brightness-105"
               >Browse today’s jobs</Link>
             </div>

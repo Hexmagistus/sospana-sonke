@@ -3,8 +3,6 @@ import { unstable_cache } from "next/cache";
 import { publicCountries } from "@/lib/countryPageData";
 import { employerPath } from "@/lib/employerPage";
 import { SNAPSHOT_AS_OF } from "@/lib/landingStats";
-import { countrySlug } from "@/lib/countryPage";
-import { facetSlug } from "@/lib/jobLandings";
 import { SITE_URL } from "@/lib/seo";
 
 // The build can finish before Frankfurt is serving /employers. A static sitemap
@@ -35,60 +33,6 @@ async function fetchEmployerIds(): Promise<string[]> {
 
 const cachedEmployerIds = unstable_cache(fetchEmployerIds, ["public-employer-sitemap-ids"], { revalidate: 3600 });
 
-/** Programme, country, category and recent role URLs. An unreachable API adds none. */
-async function roleEntries(modified: Date): Promise<MetadataRoute.Sitemap> {
-  const rows: MetadataRoute.Sitemap = [];
-  try {
-    const countsRes = await fetch(`${API}/jobs/counts`, { cache: "no-store" });
-    // Programme pages were retired (Nov 2026); the counts call only confirms the API is up.
-    if (!countsRes.ok) return rows;
-    const facetsRes = await fetch(`${API}/jobs/facets`, { cache: "no-store" });
-    if (facetsRes.ok) {
-      const data = (await facetsRes.json()) as {
-        countries?: { name?: string }[];
-        categories?: { name?: string }[];
-      };
-      for (const row of data.countries || []) {
-        if (!row.name) continue;
-        rows.push({
-          url: `${SITE_URL}/jobs/in/${countrySlug(row.name)}`,
-          lastModified: modified,
-          changeFrequency: "daily",
-          priority: 0.7,
-        });
-      }
-      const seen = new Set<string>();
-      for (const row of data.categories || []) {
-        if (!row.name) continue;
-        const slug = facetSlug(row.name);
-        if (seen.has(slug)) continue;
-        seen.add(slug);
-        rows.push({
-          url: `${SITE_URL}/jobs/category/${slug}`,
-          lastModified: modified,
-          changeFrequency: "weekly",
-          priority: 0.6,
-        });
-      }
-    }
-    const idsRes = await fetch(`${API}/jobs/ids?limit=500&max_age_days=14`, { cache: "no-store", headers: INTERNAL_HEADERS });
-    if (idsRes.ok) {
-      const data = (await idsRes.json()) as { ids?: unknown };
-      const ids = Array.isArray(data.ids) ? data.ids.filter((id): id is string => typeof id === "string") : [];
-      for (const id of ids) {
-        rows.push({
-          url: `${SITE_URL}/jobs/${id}`,
-          lastModified: modified,
-          changeFrequency: "daily",
-          priority: 0.5,
-        });
-      }
-    }
-  } catch {
-    return rows;
-  }
-  return rows;
-}
 
 /** Employer URLs for rows that have a careers link. An unreachable API adds none. */
 async function employerEntries(modified: Date): Promise<MetadataRoute.Sitemap> {
@@ -128,10 +72,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   return [
     entry("/", 1.0, "weekly"),
-    entry("/jobs", 0.9, "daily"),
     entry("/opportunities-today", 0.9, "daily"),
     entry("/feed.xml", 0.4, "daily"),
-    ...await roleEntries(now),
     entry("/data", 0.6, "monthly"),
     // /companies requires login (<Guard>) -- not listed here since a crawler
     // would just hit a login redirect; see robots.ts's disallow list.

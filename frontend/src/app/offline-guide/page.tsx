@@ -50,7 +50,7 @@ export default function OfflineGuidePage() {
         <ol className={ol}>
           <li>Switch on data or Wi-Fi.</li>
           <li>Open <b>sospana-sonke.vercel.app</b> in Chrome (Android) or Safari (iPhone).</li>
-          <li>Open the <Link href="/jobs" className="font-bold underline">jobs page</Link> and the <Link href="/sa-careers" className="font-bold underline">SA careers pages</Link> list.</li>
+          <li>Open the <Link href="/opportunities-today" className="font-bold underline">jobs page</Link> and the <Link href="/sa-careers" className="font-bold underline">SA careers pages</Link> list.</li>
           <li>Wait a few seconds. Your phone now keeps a copy of the jobs page, the SA careers list, this guide and the login page.</li>
         </ol>
       </Section>

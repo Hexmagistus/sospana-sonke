@@ -3,15 +3,9 @@ import { expect, test } from "@playwright/test";
 const API =
   process.env.NEXT_PUBLIC_API_URL || "https://sospana-sonke-api-fra.onrender.com/api/v1";
 
-test("search submits a keyword and shows the stored-role result", async ({ page }) => {
-  await page.goto("/jobs");
-  await expect(page.getByRole("heading", { name: "Open roles the scanner has stored" })).toBeVisible();
-  await page.getByLabel("Keyword").fill("nurse");
-  await page.getByRole("button", { name: "Search stored roles" }).click();
-  await expect(page).toHaveURL(/\/jobs\?.*q=nurse/);
-  await expect(
-    page.getByText(/open roles that match|No stored roles match|The role index could not be reached/),
-  ).toBeVisible();
+test("/jobs redirects to today's opportunities", async ({ page }) => {
+  await page.goto("/jobs?offset=10");
+  await expect(page).toHaveURL(/\/opportunities-today/);
 });
 
 test("an employer page shows the stored careers link", async ({ page }) => {

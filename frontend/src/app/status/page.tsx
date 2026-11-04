@@ -90,7 +90,7 @@ export default async function StatusPage() {
         </dl>
       )}
       <p className="text-sm text-ss-muted">
-        <Link href="/jobs" className="font-semibold text-navy underline">Jobs</Link>
+        <Link href="/opportunities-today" className="font-semibold text-navy underline">Jobs</Link>
         {" · "}
         <a href={`${API}/status`} className="font-semibold text-navy underline">API status</a>
       </p>

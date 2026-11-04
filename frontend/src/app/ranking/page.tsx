@@ -40,7 +40,7 @@ export default function RankingPage() {
         </p>
       </div>
       <p className="text-sm text-ss-muted">
-        <Link href="/jobs" className="font-semibold text-navy underline">Jobs</Link>
+        <Link href="/opportunities-today" className="font-semibold text-navy underline">Jobs</Link>
         {" · "}
         <Link href="/terms" className="font-semibold text-navy underline">Terms</Link>
       </p>

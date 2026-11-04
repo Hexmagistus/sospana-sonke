@@ -22,7 +22,6 @@ export const SITE_KEYWORDS = [
 // see the disallow list in robots.ts, which this should stay consistent with.
 export const PUBLIC_ROUTES = [
   "/",
-  "/jobs",
   "/opportunities-today",
   "/countries",
   "/employers",

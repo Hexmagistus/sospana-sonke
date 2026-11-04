@@ -523,7 +523,6 @@ export default function Home({ children }: { children?: ReactNode }) {
           </div>
         </div>
         <nav aria-label="Site" className="mx-auto flex max-w-6xl flex-wrap gap-x-4 gap-y-1 px-3 pb-2 text-sm font-semibold sm:px-4" style={{ color: C.navy }}>
-          <Link href="/jobs" className="underline-offset-2 hover:underline">Jobs</Link>
           <Link href="/opportunities-today" className="underline-offset-2 hover:underline">Opportunities today</Link>
           <Link href="/data" className="underline-offset-2 hover:underline">Labour data</Link>
         </nav>
@@ -905,9 +904,9 @@ export default function Home({ children }: { children?: ReactNode }) {
               <div className="pointer-events-none absolute -inset-1 animate-pulse-glow rounded-[2rem]" style={{ boxShadow: `0 0 90px 10px ${C.gold}66` }} />
               <div className="relative">
                 <h2 className="font-display text-3xl font-extrabold sm:text-4xl" style={{ color: "#1a0f00" }}>Your ambition deserves a real platform.</h2>
-                <p className="mx-auto mt-3 max-w-xl text-lg" style={{ color: "#1a0f00" }}>Build your profile, look through stored openings, and apply on the source page.</p>
+                <p className="mx-auto mt-3 max-w-xl text-lg" style={{ color: "#1a0f00" }}>Build your profile, look through today's openings, and apply on the source page.</p>
                 <Link
-                  href="/jobs"
+                  href="/opportunities-today"
                   className="group relative mt-7 inline-block overflow-hidden rounded-xl px-8 py-4 text-lg font-extrabold text-white shadow-lg transition hover:-translate-y-0.5 hover:brightness-110"
                   style={{ background: "#B8432A" }}
                 >
@@ -923,7 +922,6 @@ export default function Home({ children }: { children?: ReactNode }) {
       <footer className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-4 py-8 text-sm text-ss-muted">
         <span>© 2026 Sospana Sonke · Born in SADC</span>
         <div className="flex items-center gap-4">
-          <Link href="/jobs" className="hover:text-ss-text">Jobs</Link>
           <Link href="/opportunities-today" className="hover:text-ss-text">Opportunities today</Link>
           <Link href="/data" className="hover:text-ss-text">Labour data</Link>
           <Link href="/donate" className="hover:text-ss-text">Donate</Link>

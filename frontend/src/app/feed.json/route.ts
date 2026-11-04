@@ -19,12 +19,12 @@ export async function GET() {
   const body = {
     version: "https://jsonfeed.org/version/1.1",
     title: `${SITE_NAME} new stored roles`,
-    home_page_url: `${SITE_URL}/jobs`,
+    home_page_url: `${SITE_URL}/opportunities-today`,
     feed_url: `${SITE_URL}/feed.json`,
     description: "Open roles last seen on the employer site within seven days. A closed role is not included.",
     items: jobs.map((job) => ({
       id: `${SITE_URL}/jobs/${job.id}`,
-      url: `${SITE_URL}/jobs/${job.id}`,
+      url: job.application_url || `${SITE_URL}/opportunities-today`,
       title: job.title,
       content_text: jobSummary(job),
       date_modified: job.last_seen_at,
