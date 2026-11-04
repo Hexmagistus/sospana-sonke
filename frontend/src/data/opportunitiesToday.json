@@ -1,404 +1,1445 @@
 {
- "date": "2026-10-30",
- "posts": [
-  {
-   "employer": "DBSA",
-   "title": "Principal Deal Originator Mining & Critical Minerals",
-   "location": "Midrand",
-   "closingDate": "2026-11-02",
-   "url": "https://dbsa.erecruit.co/candidateapp/Jobs/View/DBS250917-9"
-  },
-  {
-   "employer": "DBSA",
-   "title": "Senior Audiovisual Specialist",
-   "location": "Midrand",
-   "closingDate": "2026-11-03",
-   "url": "https://dbsa.erecruit.co/candidateapp/Jobs/View/DBS261019-1"
-  },
-  {
-   "employer": "DBSA",
-   "title": "Programme Manager (Partner-A-District)",
-   "location": "Midrand",
-   "closingDate": "2026-11-04",
-   "url": "https://dbsa.erecruit.co/candidateapp/Jobs/View/DBS260929-2"
-  },
-  {
-   "employer": "DBSA",
-   "title": "Client Solution Specialist",
-   "location": "Midrand",
-   "closingDate": "2026-11-05",
-   "url": "https://dbsa.erecruit.co/candidateapp/Jobs/View/DBS261022-1"
-  },
-  {
-   "employer": "DBSA",
-   "title": "Team Administrator (Shared)",
-   "location": "Midrand",
-   "closingDate": "2026-11-06",
-   "url": "https://dbsa.erecruit.co/candidateapp/Jobs/View/DBS261020-1"
-  },
-  {
-   "employer": "DBSA",
-   "title": "Principal Deal Originator Transport & Logistics",
-   "location": "Midrand",
-   "closingDate": "2026-11-11",
-   "url": "https://dbsa.erecruit.co/candidateapp/Jobs/View/DBS250917-8"
-  },
-  {
-   "employer": "DBSA",
-   "title": "Project Development Specialist (IDD)",
-   "location": "Midrand",
-   "closingDate": "2026-11-11",
-   "url": "https://dbsa.erecruit.co/candidateapp/Jobs/View/DBS251127-2"
-  },
-  {
-   "employer": "DBSA",
-   "title": "Senior Legal Advisor (IPP Office) x 3",
-   "location": "Centurion",
-   "closingDate": "2026-11-11",
-   "url": "https://dbsa.erecruit.co/candidateapp/Jobs/View/DBS251203-3"
-  },
-  {
-   "employer": "DBSA",
-   "title": "Senior Legal Advisor: Corporate Operations",
-   "location": "Midrand",
-   "closingDate": "2026-11-12",
-   "url": "https://dbsa.erecruit.co/candidateapp/Jobs/View/DBS261021-1"
-  },
-  {
-   "employer": "DBSA",
-   "title": "Senior Compliance Officer",
-   "location": "Midrand",
-   "closingDate": "2026-11-12",
-   "url": "https://dbsa.erecruit.co/candidateapp/Jobs/View/DBS261021-2"
-  },
-  {
-   "employer": "SANRAL",
-   "title": "Procurement Officer X32 (12-month contract)",
-   "location": "Multiple provinces",
-   "closingDate": null,
-   "url": "https://www.nra.co.za/sanral-careers/detail/procurement-officer-x32"
-  },
-  {
-   "employer": "SANRAL",
-   "title": "Procurement Administrator X10 (12-month contract)",
-   "location": "Multiple provinces",
-   "closingDate": null,
-   "url": "https://www.nra.co.za/sanral-careers/detail/procurement-administrator-x10"
-  },
-  {
-   "employer": "SANRAL",
-   "title": "Manager: Asset Management and Maintenance",
-   "location": "Gauteng",
-   "closingDate": null,
-   "url": "https://www.nra.co.za/sanral-careers/detail/manager-asset-management-and-maintenance"
-  },
-  {
-   "employer": "Armscor",
-   "title": "Observation Personnel",
-   "location": "Alkantpan",
-   "closingDate": "2026-11-06",
-   "url": "https://armscor.co.za/career-view/?id=89"
-  },
-  {
-   "employer": "Armscor",
-   "title": "Assistant Manager: Management Accounting",
-   "location": "Simon's Town",
-   "closingDate": "2026-11-16",
-   "url": "https://armscor.co.za/career-view/?id=90"
-  },
-  {
-   "employer": "University of the Witwatersrand (Wits)",
-   "title": "Professor (AC.05.3)",
-   "location": "School of Business Sciences – Johannesburg",
-   "closingDate": "2026-11-02",
-   "url": "https://irec.wits.ac.za/OA_HTML/OA.jsp?page=/oracle/apps/irc/candidateSelfService/webui/VisVacDispPG&IRC_EXT_SITE_VISITOR_APP=IRC_VIS_VAC_DISPLAY&p_svid=107638&p_spid=5218847"
-  },
-  {
-   "employer": "University of the Witwatersrand (Wits)",
-   "title": "Associate Professor (AC.06.3)",
-   "location": "School of Business Sciences – Johannesburg",
-   "closingDate": "2026-11-02",
-   "url": "https://irec.wits.ac.za/OA_HTML/OA.jsp?page=/oracle/apps/irc/candidateSelfService/webui/VisVacDispPG&IRC_EXT_SITE_VISITOR_APP=IRC_VIS_VAC_DISPLAY&p_svid=107637&p_spid=5218846"
-  },
-  {
-   "employer": "University of the Witwatersrand (Wits)",
-   "title": "Clinical Educator (Lecturer) (AC.08.4)",
-   "location": "Emergency Medicine – Johannesburg",
-   "closingDate": "2026-11-04",
-   "url": "https://irec.wits.ac.za/OA_HTML/OA.jsp?page=/oracle/apps/irc/candidateSelfService/webui/VisVacDispPG&IRC_EXT_SITE_VISITOR_APP=IRC_VIS_VAC_DISPLAY&p_svid=107957&p_spid=5235846"
-  },
-  {
-   "employer": "University of the Witwatersrand (Wits)",
-   "title": "LECTURER.2.01 (AC.08.4)",
-   "location": "Academic Development Unit – Johannesburg",
-   "closingDate": "2026-11-05",
-   "url": "https://irec.wits.ac.za/OA_HTML/OA.jsp?page=/oracle/apps/irc/candidateSelfService/webui/VisVacDispPG&IRC_EXT_SITE_VISITOR_APP=IRC_VIS_VAC_DISPLAY&p_svid=107837&p_spid=5227846"
-  },
-  {
-   "employer": "University of the Witwatersrand (Wits)",
-   "title": "LECTURER.2.01 (AC.08.4)",
-   "location": "Academic Development Unit – Johannesburg",
-   "closingDate": "2026-11-05",
-   "url": "https://irec.wits.ac.za/OA_HTML/OA.jsp?page=/oracle/apps/irc/candidateSelfService/webui/VisVacDispPG&IRC_EXT_SITE_VISITOR_APP=IRC_VIS_VAC_DISPLAY&p_svid=107838&p_spid=5227847"
-  },
-  {
-   "employer": "University of the Witwatersrand (Wits)",
-   "title": "LECTURER.2.01 - LECTURER IN FINANCE (AC08) (AC.08.4)",
-   "location": "School of Economics and Finance – Johannesburg",
-   "closingDate": "2026-11-06",
-   "url": "https://irec.wits.ac.za/OA_HTML/OA.jsp?page=/oracle/apps/irc/candidateSelfService/webui/VisVacDispPG&IRC_EXT_SITE_VISITOR_APP=IRC_VIS_VAC_DISPLAY&p_svid=107357&p_spid=5203846"
-  },
-  {
-   "employer": "University of the Witwatersrand (Wits)",
-   "title": "HEAD: Campus Health & Wellness Centre (AD.06.3)",
-   "location": "Campus Health – Johannesburg",
-   "closingDate": "2026-11-10",
-   "url": "https://irec.wits.ac.za/OA_HTML/OA.jsp?page=/oracle/apps/irc/candidateSelfService/webui/VisVacDispPG&IRC_EXT_SITE_VISITOR_APP=IRC_VIS_VAC_DISPLAY&p_svid=107938&p_spid=5234846"
-  },
-  {
-   "employer": "University of the Witwatersrand (Wits)",
-   "title": "Head: Counseling & Careers Development Unit (AD.06.3)",
-   "location": "Counselling and Careers Development Unit – Johannesburg",
-   "closingDate": "2026-11-10",
-   "url": "https://irec.wits.ac.za/OA_HTML/OA.jsp?page=/oracle/apps/irc/candidateSelfService/webui/VisVacDispPG&IRC_EXT_SITE_VISITOR_APP=IRC_VIS_VAC_DISPLAY&p_svid=107937&p_spid=5233846"
-  },
-  {
-   "employer": "University of the Witwatersrand (Wits)",
-   "title": "Lecturer / Senior Lecturer: English Language Education (AC.08.4)",
-   "location": "Languages – Johannesburg",
-   "closingDate": "2026-11-13",
-   "url": "https://irec.wits.ac.za/OA_HTML/OA.jsp?page=/oracle/apps/irc/candidateSelfService/webui/VisVacDispPG&IRC_EXT_SITE_VISITOR_APP=IRC_VIS_VAC_DISPLAY&p_svid=107717&p_spid=5221846"
-  },
-  {
-   "employer": "University of the Witwatersrand (Wits)",
-   "title": "Lecturer: Research Psychology (AC.08.4)",
-   "location": "Psychology – Johannesburg",
-   "closingDate": "2026-11-16",
-   "url": "https://irec.wits.ac.za/OA_HTML/OA.jsp?page=/oracle/apps/irc/candidateSelfService/webui/VisVacDispPG&IRC_EXT_SITE_VISITOR_APP=IRC_VIS_VAC_DISPLAY&p_svid=107737&p_spid=5222846"
-  },
-  {
-   "employer": "University of the Witwatersrand (Wits)",
-   "title": "Earth Quest Solutions Manager (12 months Fixed-Term Contract)",
-   "location": "Wits Enterprise – Johannesburg",
-   "closingDate": "2026-11-20",
-   "url": "https://irec.wits.ac.za/OA_HTML/OA.jsp?page=/oracle/apps/irc/candidateSelfService/webui/VisVacDispPG&IRC_EXT_SITE_VISITOR_APP=IRC_VIS_VAC_DISPLAY&p_svid=107917&p_spid=5232846"
-  },
-  {
-   "employer": "University of the Witwatersrand (Wits)",
-   "title": "HEAD OF SCHOOL.1.01 (NS.04.3)",
-   "location": "School of Chemistry – Johannesburg",
-   "closingDate": "2026-11-30",
-   "url": "https://irec.wits.ac.za/OA_HTML/OA.jsp?page=/oracle/apps/irc/candidateSelfService/webui/VisVacDispPG&IRC_EXT_SITE_VISITOR_APP=IRC_VIS_VAC_DISPLAY&p_svid=107461&p_spid=5211850"
-  },
-  {
-   "employer": "Tshwane University of Technology (TUT)",
-   "title": "Part-time Lecturers",
-   "location": "Tourism Management (Ref 26M53) – Pretoria",
-   "closingDate": "2026-11-02",
-   "url": "https://www.tut.ac.za/media/tshwane-interim/site-content/documents/vacancies/26M53-Part-Time-Lecturers--rev-TM-13-10-2027edf.pdf"
-  },
-  {
-   "employer": "Tshwane University of Technology (TUT)",
-   "title": "Part-time Lecturers",
-   "location": "Operations Management (Ref 26M54) – Pretoria",
-   "closingDate": "2026-11-02",
-   "url": "https://www.tut.ac.za/media/tshwane-interim/site-content/documents/vacancies/26M54-Part-Time-Lectures-Ops-08-10-2027-revised-adob.pdf"
-  },
-  {
-   "employer": "Tshwane University of Technology (TUT)",
-   "title": "Part-time Lecturers",
-   "location": "Marketing, Supply Chain and Sport Management (Ref 26M51) – Pretoria",
-   "closingDate": "2026-11-02",
-   "url": "https://www.tut.ac.za/media/tshwane-interim/site-content/documents/vacancies/26M51-Part-Time-Lecturers-MSS-2027.pdf"
-  },
-  {
-   "employer": "Tshwane University of Technology (TUT)",
-   "title": "Part-Time Lecturers",
-   "location": "Hospitality Management (Ref 26M48) – Pretoria",
-   "closingDate": "2026-11-02",
-   "url": "https://www.tut.ac.za/media/tshwane-interim/site-content/documents/vacancies/26M48-Part-Time-Lecturers-in-HosM.pdf"
-  },
-  {
-   "employer": "Tshwane University of Technology (TUT)",
-   "title": "Part-time Lecturers",
-   "location": "Management and Entrepreneurship (Ref 26M47) – Pretoria",
-   "closingDate": "2026-11-02",
-   "url": "https://www.tut.ac.za/media/tshwane-interim/site-content/documents/vacancies/26M47-Part-Time-Lecturers-in-ME-2027.pdf"
-  },
-  {
-   "employer": "Tshwane University of Technology (TUT)",
-   "title": "Part-time Lecturers BIMS",
-   "location": "Business and Information Management Services (Ref 26M46) – Pretoria",
-   "closingDate": "2026-11-02",
-   "url": "https://www.tut.ac.za/media/tshwane-interim/site-content/documents/vacancies/26M46-Part-Time-Lecturers-BIMS-rev-07-10-2027.pdf"
-  },
-  {
-   "employer": "Tshwane University of Technology (TUT)",
-   "title": "Part-Time Lecturers",
-   "location": "People Management and Development (Ref 26/M45) – Pretoria",
-   "closingDate": "2026-11-02",
-   "url": "https://www.tut.ac.za/media/tshwane-interim/site-content/documents/vacancies/26-M45-Part-Time-Lecturers-PMD.pdf"
-  },
-  {
-   "employer": "Tshwane University of Technology (TUT)",
-   "title": "Part-time Lecturers x30",
-   "location": "End User Computing Unit (Ref 26/G99) – Pretoria, Soshanguve, Arcadia & Arts, Mbombela, and Ga-Rankuwa",
-   "closingDate": "2026-11-03",
-   "url": "https://www.tut.ac.za/media/tshwane-interim/site-content/documents/vacancies/Advert--Part-time-Lecturer-End-User-Computing-Unit-X30---03-November-2026..pdf"
-  },
-  {
-   "employer": "Tshwane University of Technology (TUT)",
-   "title": "Part-time Lecturers x8",
-   "location": "1st Years and Foundation Unit (Ref 26/G87) – Soshanguve South",
-   "closingDate": "2026-11-03",
-   "url": "https://www.tut.ac.za/media/tshwane-interim/site-content/documents/vacancies/Advert---Part-time-Lecturers-Communication--Languages-2027---03-November-2026.pdf"
-  },
-  {
-   "employer": "Tshwane University of Technology (TUT)",
-   "title": "Part-time Lecturers X6",
-   "location": "1st Year and Foundation Unit (Ref 26/G88) – Soshanguve South",
-   "closingDate": "2026-11-03",
-   "url": "https://www.tut.ac.za/media/tshwane-interim/site-content/documents/vacancies/Advert---Part-time-Lecturers-X6-Computing-Fundamentals.pdf"
-  },
-  {
-   "employer": "Tshwane University of Technology (TUT)",
-   "title": "Part-time Lecturers x9",
-   "location": "1st Year and Foundation Unit (Ref 26/G89) – Soshanguve South",
-   "closingDate": "2026-11-03",
-   "url": "https://www.tut.ac.za/media/tshwane-interim/site-content/documents/vacancies/Part-time-Lecturers-X9-Introduction-to-Programming.pdf"
-  },
-  {
-   "employer": "Tshwane University of Technology (TUT)",
-   "title": "Part-time Lecturers x8",
-   "location": "1st Year and Foundation Unit (Ref 26/G90) – Soshanguve South",
-   "closingDate": "2026-11-03",
-   "url": "https://www.tut.ac.za/media/tshwane-interim/site-content/documents/vacancies/Part-time-Lecturers-Computational-Maths.pdf"
-  },
-  {
-   "employer": "Tshwane University of Technology (TUT)",
-   "title": "Part-Time Accounting Lecturers (eMalahleni)",
-   "location": "Accounting (Ref 26/H19) – eMalahleni",
-   "closingDate": "2026-11-03",
-   "url": "https://www.tut.ac.za/media/tshwane-interim/site-content/documents/vacancies/Part-Time-Accounting-Lecturers-(eMalahleni).pdf"
-  },
-  {
-   "employer": "Tshwane University of Technology (TUT)",
-   "title": "Part-Time Lecturers",
-   "location": "Primary Education (Ref 26/G85) – Soshanguve North",
-   "closingDate": "2026-11-03",
-   "url": "https://www.tut.ac.za/media/tshwane-interim/site-content/documents/vacancies/Part-time-Lectuerer---Foundation-Phase-Mathematics-Didactics---05-November-2026.pdf"
-  },
-  {
-   "employer": "Tshwane University of Technology (TUT)",
-   "title": "Part-time Lecturer",
-   "location": "Mechanical and Mechatronics Engineering (Ref 26/J58) – eMalahleni",
-   "closingDate": "2026-11-04",
-   "url": "https://www.tut.ac.za/media/tshwane-interim/site-content/documents/vacancies/J58-Part-time-Lecturer-eMalahleni-Campus.pdf"
-  },
-  {
-   "employer": "Tshwane University of Technology (TUT)",
-   "title": "Part-time WIL Coordinator",
-   "location": "Public Management as well as Law, Safety and Security Management (Ref 26/D42) – Mbombela",
-   "closingDate": "2026-11-05",
-   "url": "https://www.tut.ac.za/media/tshwane-interim/site-content/documents/vacancies/D42-PART-TIME-WIL-COORDINATOR.pdf"
-  },
-  {
-   "employer": "Tshwane University of Technology (TUT)",
-   "title": "Part-Time Lecturers",
-   "location": "Public Management (Ref 26/D43) – Mbombela",
-   "closingDate": "2026-11-05",
-   "url": "https://www.tut.ac.za/media/tshwane-interim/site-content/documents/vacancies/Mbombela---PART-TIME-LECTURERS-PUBLIC-2027.pdf"
-  },
-  {
-   "employer": "Tshwane University of Technology (TUT)",
-   "title": "Part-time Lecturers x5",
-   "location": "Law (Ref 26/D41) – Mbombela",
-   "closingDate": "2026-11-05",
-   "url": "https://www.tut.ac.za/media/tshwane-interim/site-content/documents/vacancies/ADVERT-PART-TIME-LECTURERS-LAW-2027.pdf"
-  },
-  {
-   "employer": "Tshwane University of Technology (TUT)",
-   "title": "Part Time Lecturer",
-   "location": "Primary Education (Ref 26/G83) – Soshanguve North",
-   "closingDate": "2026-11-05",
-   "url": "https://www.tut.ac.za/media/tshwane-interim/site-content/documents/vacancies/Part-time-Lecturer---Foundation-Phase-Mathematics.pdf"
-  },
-  {
-   "employer": "Tshwane University of Technology (TUT)",
-   "title": "Part Time Lecturer",
-   "location": "Primary Education (Ref 26/G91) – Soshanguve North",
-   "closingDate": "2026-11-05",
-   "url": "https://www.tut.ac.za/media/tshwane-interim/site-content/documents/vacancies/Part-time-Lecturer---Social-sciences.pdf"
-  },
-  {
-   "employer": "Tshwane University of Technology (TUT)",
-   "title": "Part-time Lecturer",
-   "location": "Primary Education (Ref 26/G92) – Soshanguve North",
-   "closingDate": "2026-11-05",
-   "url": "https://www.tut.ac.za/media/tshwane-interim/site-content/documents/vacancies/Part-time-Lecturer---Professional-Studies.pdf"
-  },
-  {
-   "employer": "Tshwane University of Technology (TUT)",
-   "title": "Part Time Lecturer",
-   "location": "Primary Education (Ref 26/G86) – Soshanguve North",
-   "closingDate": "2026-11-05",
-   "url": "https://www.tut.ac.za/media/tshwane-interim/site-content/documents/vacancies/Part-time-Lecturer---Literacy-in-Education.pdf"
-  },
-  {
-   "employer": "Tshwane University of Technology (TUT)",
-   "title": "Part-time Lecturer",
-   "location": "Primary Education (Ref 26/G84) – Soshanguve North",
-   "closingDate": "2026-11-05",
-   "url": "https://www.tut.ac.za/media/tshwane-interim/site-content/documents/vacancies/Part-time-Lecturer---Learning-barriers-in-fondation-phase.pdf"
-  },
-  {
-   "employer": "Tshwane University of Technology (TUT)",
-   "title": "Part Time Lecturer",
-   "location": "Primary Education (Ref 26/G82) – Soshanguve North",
-   "closingDate": "2026-11-05",
-   "url": "https://www.tut.ac.za/media/tshwane-interim/site-content/documents/vacancies/Part-time-Lecturer---Economis--Management-Sciences---05-November-2026.pdf"
-  },
-  {
-   "employer": "Tshwane University of Technology (TUT)",
-   "title": "Administrative Assistants X4",
-   "location": "Student Support & Scholarship Management (Ref 26/A52)",
-   "closingDate": "2026-11-06",
-   "url": "https://www.tut.ac.za/media/tshwane-interim/site-content/documents/vacancies/Advert--Administrative-Assistants-X4--Full-Corrections.pdf"
-  },
-  {
-   "employer": "Tshwane University of Technology (TUT)",
-   "title": "Project Coordinator: Student and Programme Support (Ref 26/A51)",
-   "location": null,
-   "closingDate": "2026-11-06",
-   "url": "https://www.tut.ac.za/media/tshwane-interim/site-content/documents/vacancies/Project-Coordinator--SPS.pdf"
-  },
-  {
-   "employer": "Tshwane University of Technology (TUT)",
-   "title": "Project Coordinator: Financial Management and Programme Support (Ref 26/A50)",
-   "location": null,
-   "closingDate": "2026-11-06",
-   "url": "https://www.tut.ac.za/media/tshwane-interim/site-content/documents/vacancies/Project-Coordinator--finance.pdf"
-  },
-  {
-   "employer": "Tshwane University of Technology (TUT)",
-   "title": "Part Time Lecturer",
-   "location": "Law, Safety and Security (Ref 26/C18) – eMalahleni",
-   "closingDate": "2026-11-06",
-   "url": "https://www.tut.ac.za/media/tshwane-interim/site-content/documents/vacancies/26C18-PART-TIME-LECTURER.pdf"
-  },
-  {
-   "employer": "Tshwane University of Technology (TUT)",
-   "title": "Part-time Lecturers",
-   "location": "Auditing (Ref 26/Q43) – Ga-Rankuwa",
-   "closingDate": "2026-11-13",
-   "url": "https://www.tut.ac.za/media/tshwane-interim/site-content/documents/vacancies/Advert--Part-Time-Auditing-Lecturers---2027.pdf"
-  },
-  {
-   "employer": "Tshwane University of Technology (TUT)",
-   "title": "Part-time Lecturers",
-   "location": "Auditing (Ref 26/Q42) – Ga-Rankuwa",
-   "closingDate": "2026-11-13",
-   "url": "https://www.tut.ac.za/media/tshwane-interim/site-content/documents/vacancies/part--time-lecturers-q42.pdf"
-  }
- ]
+  "date": "2026-11-04",
+  "posts": [
+    {
+      "employer": "Agricultural Research Council (ARC)",
+      "title": "Junior Researcher: Agricultural Mechanization & Agro-Processing",
+      "location": "Pretoria",
+      "closingDate": "2026-11-12",
+      "url": "https://arcjobs.mcidirecthire.com/Vacancy/ViewDetails?parameters=q4%2f37VDQTFWXnK7wNIeCPbJmtl5WRPdl1QgHSbh7YBEEW%2f2d7iDAYcUFQwHwmhppSTiesciZsWhrBreYl1PbxicUDCbK2sM7UgOLBDFnk0hBvGklevpnJxH8%2bUJVGbbUdJKnsSbaQCgS1DeJyjekzQ%3d%3d",
+      "sector": "soe"
+    },
+    {
+      "employer": "Air Traffic and Navigation Services (ATNS)",
+      "title": "Employment opportunities for People with Disabilities",
+      "location": "Bedfordview",
+      "closingDate": "2026-11-12",
+      "url": "https://atns.ci.hr/applicant/index.php?controller=Listings&method=view&listingid=38b2c990-aa82-4c01-bd47-846c82300191",
+      "sector": "soe"
+    },
+    {
+      "employer": "Air Traffic and Navigation Services (ATNS)",
+      "title": "Head Knowledge Management",
+      "location": "Bedfordview",
+      "closingDate": "2026-11-12",
+      "url": "https://atns.ci.hr/applicant/index.php?controller=Listings&method=view&listingid=872a2cbe-1534-4999-806c-46bf98a90f25",
+      "sector": "soe"
+    },
+    {
+      "employer": "Air Traffic and Navigation Services (ATNS)",
+      "title": "Air Traffic Services (ATS) Bursary Program",
+      "location": "Bedfordview",
+      "closingDate": "2027-10-05",
+      "url": "https://atns.ci.hr/applicant/index.php?controller=Listings&method=view&listingid=92b701b1-d3d5-429e-8692-da7502ba9402",
+      "sector": "soe"
+    },
+    {
+      "employer": "Airports Company South Africa (ACSA)",
+      "title": "Chief Information Officer",
+      "location": "Gauteng",
+      "closingDate": "2026-11-09",
+      "url": "https://iaccgs.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1/job/749",
+      "sector": "soe"
+    },
+    {
+      "employer": "Airports Company South Africa (ACSA)",
+      "title": "Group Executive Enterprise Security and Enforcement",
+      "location": "Gauteng",
+      "closingDate": "2026-11-09",
+      "url": "https://iaccgs.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1/job/750",
+      "sector": "soe"
+    },
+    {
+      "employer": "Airports Company South Africa (ACSA)",
+      "title": "Manager Maintenance Engineering (Bloemfontein region)",
+      "location": "Free State",
+      "closingDate": "2026-11-09",
+      "url": "https://iaccgs.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1/job/748",
+      "sector": "soe"
+    },
+    {
+      "employer": "Armscor",
+      "title": "Observation Personnel",
+      "location": "Alkantpan",
+      "closingDate": "2026-11-06",
+      "url": "https://armscor.co.za/career-view/?id=89",
+      "sector": "soe"
+    },
+    {
+      "employer": "Armscor",
+      "title": "Internal Auditor",
+      "location": "Pretoria",
+      "closingDate": "2026-11-10",
+      "url": "https://armscor.co.za/career-view/?id=91",
+      "sector": "soe"
+    },
+    {
+      "employer": "Armscor",
+      "title": "Assistant Manager: Management Accounting",
+      "location": "Simon's Town",
+      "closingDate": "2026-11-16",
+      "url": "https://armscor.co.za/career-view/?id=90",
+      "sector": "soe"
+    },
+    {
+      "employer": "Auditor-General of South Africa (AGSA)",
+      "title": "Deputy Business Unit Leader: Western Cape Business Unit",
+      "location": "Cape Town",
+      "closingDate": "2026-11-09",
+      "url": "https://agsacareers.ci.hr/applicant/index.php?controller=Listings&method=view&listingid=ebf7f75c-b5c7-49a9-98f7-4447c37f18b6",
+      "sector": "soe"
+    },
+    {
+      "employer": "Auditor-General of South Africa (AGSA)",
+      "title": "Business Unit Leader: Communication",
+      "location": "Pretoria",
+      "closingDate": "2026-11-10",
+      "url": "https://agsacareers.ci.hr/applicant/index.php?controller=Listings&method=view&listingid=b145f98d-c951-444f-96b2-9d0ca66ae9eb",
+      "sector": "soe"
+    },
+    {
+      "employer": "Auditor-General of South Africa (AGSA)",
+      "title": "Audit Manager - National B",
+      "location": "Pretoria",
+      "closingDate": "2026-11-13",
+      "url": "https://agsacareers.ci.hr/applicant/index.php?controller=Listings&method=view&listingid=1ae98644-7c8c-455a-8f24-8abb4d01d06c",
+      "sector": "soe"
+    },
+    {
+      "employer": "Auditor-General of South Africa (AGSA)",
+      "title": "Junior Specialist Info Security Operations",
+      "location": "Pretoria",
+      "closingDate": "2026-11-15",
+      "url": "https://agsacareers.ci.hr/applicant/index.php?controller=Listings&method=view&listingid=abce5863-5f6a-4175-b0b5-d71a6ca7e38e",
+      "sector": "soe"
+    },
+    {
+      "employer": "Auditor-General of South Africa (AGSA)",
+      "title": "Project Manager Reporting and Methodology",
+      "location": "Pretoria",
+      "closingDate": "2026-11-16",
+      "url": "https://agsacareers.ci.hr/applicant/index.php?controller=Listings&method=view&listingid=b9b6a1d0-930d-4d30-a379-9e2a7031a322",
+      "sector": "soe"
+    },
+    {
+      "employer": "Auditor-General of South Africa (AGSA)",
+      "title": "2027 AGSA SAICA Training Contract (Young Professionals CA Programme) - Gauteng Johannesburg",
+      "location": "Waverley",
+      "closingDate": "2026-12-10",
+      "url": "https://agsacareers.ci.hr/applicant/index.php?controller=Listings&method=view&listingid=444746b6-cb60-4057-b336-2b1117a1b78a",
+      "sector": "soe"
+    },
+    {
+      "employer": "Auditor-General of South Africa (AGSA)",
+      "title": "2027 AGSA SAICA Training Contract (Young Professionals CA Programme) - Free State (Bloemfontein)",
+      "location": "Bloemfontein",
+      "closingDate": "2026-12-30",
+      "url": "https://agsacareers.ci.hr/applicant/index.php?controller=Listings&method=view&listingid=d06c63c7-58ee-41f5-a43a-b4c36f5fd3a8",
+      "sector": "soe"
+    },
+    {
+      "employer": "Auditor-General of South Africa (AGSA)",
+      "title": "2027 AGSA SAICA Training Contract (Young Professionals CA Programme) - North West (Rustenburg)",
+      "location": "Rustenburg",
+      "closingDate": "2026-12-30",
+      "url": "https://agsacareers.ci.hr/applicant/index.php?controller=Listings&method=view&listingid=d68d0aec-ae5a-4443-852e-e83818daa980",
+      "sector": "soe"
+    },
+    {
+      "employer": "Auditor-General of South Africa (AGSA)",
+      "title": "2027 AGSA SAICA Training Contract (Young Professionals CA Programme) - Northern Cape (Kimberley)",
+      "location": "Kimberley",
+      "closingDate": "2026-12-30",
+      "url": "https://agsacareers.ci.hr/applicant/index.php?controller=Listings&method=view&listingid=f640145e-3121-49b3-b9fe-8a093eaf976b",
+      "sector": "soe"
+    },
+    {
+      "employer": "Auditor-General of South Africa (AGSA)",
+      "title": "2027 AGSA SAICA Training Contract (Young Professionals CA Programme) - Western Cape",
+      "location": "Cape Town",
+      "closingDate": "2026-12-30",
+      "url": "https://agsacareers.ci.hr/applicant/index.php?controller=Listings&method=view&listingid=9476d218-2640-498d-b00f-c73e12cbf130",
+      "sector": "soe"
+    },
+    {
+      "employer": "Auditor-General of South Africa (AGSA)",
+      "title": "2027 AGSA SAICA Training Contract (Young Professionals CA Programme) - Eastern Cape (East London)",
+      "location": "East London",
+      "closingDate": "2026-12-31",
+      "url": "https://agsacareers.ci.hr/applicant/index.php?controller=Listings&method=view&listingid=8481515b-106d-4a53-a3d1-be88b4736c04",
+      "sector": "soe"
+    },
+    {
+      "employer": "Auditor-General of South Africa (AGSA)",
+      "title": "2027 AGSA SAICA Training Contract (Young Professionals CA Programme) - Limpopo",
+      "location": "Polokwane / Pietersburg",
+      "closingDate": "2026-12-31",
+      "url": "https://agsacareers.ci.hr/applicant/index.php?controller=Listings&method=view&listingid=25a4c582-e3be-4945-bc6d-59fd8d367bc0",
+      "sector": "soe"
+    },
+    {
+      "employer": "Auditor-General of South Africa (AGSA)",
+      "title": "2027 AGSA SAICA Training Contract (Young Professionals CA Programme) - Mpumalanga",
+      "location": "Nelspruit",
+      "closingDate": "2026-12-31",
+      "url": "https://agsacareers.ci.hr/applicant/index.php?controller=Listings&method=view&listingid=77ecfd66-6708-49e4-b203-548c82c8f525",
+      "sector": "soe"
+    },
+    {
+      "employer": "Auditor-General of South Africa (AGSA)",
+      "title": "2027 AGSA SAICA Training Contract (Young Professionals CA Programme) - Pretoria Head Office",
+      "location": "Pretoria",
+      "closingDate": "2026-12-31",
+      "url": "https://agsacareers.ci.hr/applicant/index.php?controller=Listings&method=view&listingid=7358ad7b-baa2-4eb7-a158-e6bca770e5e5",
+      "sector": "soe"
+    },
+    {
+      "employer": "Auditor-General of South Africa (AGSA)",
+      "title": "2029 - AGSA SAICA Training Contract (Young Professionals CA Programme) 2029",
+      "location": "Pretoria",
+      "closingDate": "2026-12-31",
+      "url": "https://agsacareers.ci.hr/applicant/index.php?controller=Listings&method=view&listingid=d66c9d1b-3a74-4eee-aef4-bbc82a55c8dd",
+      "sector": "soe"
+    },
+    {
+      "employer": "Border Management Authority (BMA)",
+      "title": "Environmental Health Practitioner: (Specialist) Durban Harbour",
+      "location": "Kwazulu Natal",
+      "closingDate": "2026-11-16",
+      "url": "https://bmajobs.mcidirecthire.com/Vacancy/ViewDetails?parameters=q4%2f37VDQTFWXnK7wNIeCPXSSDKXnWD7igt3jVxtUKjFSl3qpheANIMRC6u6Oo9kBru0p99HyvRGYHbzkmfuWRKnbSubKGW6v%2f1b2FFEFt9E7t73xEO9aSpyraLhFfuR228zVkVYoj3eTl6xrIK3CWA%3d%3d",
+      "sector": "soe"
+    },
+    {
+      "employer": "Border Management Authority (BMA)",
+      "title": "Environmental Health Practitioner: (Specialist) King Shaka: International Airport",
+      "location": "Kwazulu Natal",
+      "closingDate": "2026-11-16",
+      "url": "https://bmajobs.mcidirecthire.com/Vacancy/ViewDetails?parameters=q4%2f37VDQTFWXnK7wNIeCPXSSDKXnWD7igt3jVxtUKjFSl3qpheANIMRC6u6Oo9kBkn6Gsrh7V9bySqlbaIJxZdhx8rp%2bOVmGPCjvMcmOHxv%2fd3j3gpXPPRiaFR86DTf8b1Q%2fUx%2bcHi7cZ%2fmlThTh6Q%3d%3d",
+      "sector": "soe"
+    },
+    {
+      "employer": "Border Management Authority (BMA)",
+      "title": "Environmental Health Practitioner: (Specialist) Mahamba: Port Of Entry",
+      "location": "Mpumalanga",
+      "closingDate": "2026-11-16",
+      "url": "https://bmajobs.mcidirecthire.com/Vacancy/ViewDetails?parameters=q4%2f37VDQTFWXnK7wNIeCPXSSDKXnWD7igt3jVxtUKjFSl3qpheANIMRC6u6Oo9kBZsvXZp8%2bJNLodhQM4qgE%2fQs6NC2dlDT9zpS2kjf9hg0jBWIvKAl0F16PAavn%2fk52yalHO4cZGDuUdnApu0GRJQ%3d%3d",
+      "sector": "soe"
+    },
+    {
+      "employer": "Border Management Authority (BMA)",
+      "title": "Senior Administrative Officer: Operational Command Centre & Special Response",
+      "location": "Centurion",
+      "closingDate": "2026-11-16",
+      "url": "https://bmajobs.mcidirecthire.com/Vacancy/ViewDetails?parameters=q4%2f37VDQTFWXnK7wNIeCPXSSDKXnWD7igt3jVxtUKjFSl3qpheANIMRC6u6Oo9kBHoPc6qa0FwtFEmMp1udRHcF488hhR1M1e3j3OX6O3neG9Yv0KfKjeJXbMCeRDZC9MhlN9IXaDeI2%2fx6NYa6tfA%3d%3d",
+      "sector": "soe"
+    },
+    {
+      "employer": "Border Management Authority (BMA)",
+      "title": "Senior Administrative Officer: Operational Command Centre & Special Response",
+      "location": "Centurion",
+      "closingDate": "2026-11-16",
+      "url": "https://bmajobs.mcidirecthire.com/Vacancy/ViewDetails?parameters=q4%2f37VDQTFWXnK7wNIeCPXSSDKXnWD7igt3jVxtUKjFSl3qpheANIMRC6u6Oo9kBHHoDtNtXBLe4FmiOsb0VWt09xLaOvqUIcznRJpGyd%2bGr7ElnMSLV2KyEvChHese3qGYJJLawSO37zA90dKKKQg%3d%3d",
+      "sector": "soe"
+    },
+    {
+      "employer": "Border Management Authority (BMA)",
+      "title": "Officer: Acquisitions Management",
+      "location": "Centurion",
+      "closingDate": "2026-11-17",
+      "url": "https://bmajobs.mcidirecthire.com/Vacancy/ViewDetails?parameters=q4%2f37VDQTFWXnK7wNIeCPXSSDKXnWD7igt3jVxtUKjFSl3qpheANIMRC6u6Oo9kB3qyX87g%2bwr5XElSqJqgPCnssjfltwUT%2b2hYU%2faMQ1kKd%2bX9lj73aVMLVpjn48zHAWj%2bKw42OMzC97qL8oVSKZg%3d%3d",
+      "sector": "soe"
+    },
+    {
+      "employer": "Central Energy Fund (CEF)",
+      "title": "Executive: Legal and Compliance: CEF Trading",
+      "location": null,
+      "closingDate": "2026-11-07",
+      "url": "https://www.careers.cefgroup.co.za/jobs/executive-legal-and-compliance-cef-trading-148",
+      "sector": "soe"
+    },
+    {
+      "employer": "Companies and Intellectual Property Commission (CIPC)",
+      "title": "Customer Support Agent (x2)",
+      "location": "Pretoria",
+      "closingDate": "2026-11-16",
+      "url": "https://cipc.erecruit.co/candidateapp/Jobs/View/CIP261102-1",
+      "sector": "soe"
+    },
+    {
+      "employer": "Companies and Intellectual Property Commission (CIPC)",
+      "title": "Facilities Management Officer",
+      "location": "Pretoria",
+      "closingDate": "2026-11-17",
+      "url": "https://cipc.erecruit.co/candidateapp/Jobs/View/CIP261102-3",
+      "sector": "soe"
+    },
+    {
+      "employer": "Competition Commission",
+      "title": "The Competition Commission Internship Programme - 6 Months",
+      "location": "Pretoria",
+      "closingDate": "2026-11-06",
+      "url": "https://compcomjobs.mcidirecthire.com/Vacancy/ViewDetails?parameters=q4%2f37VDQTFWXnK7wNIeCPRw6f8fT7NUurfc5W1zLY361XJ5kvW%2f6vfY22urjJTXSnMlaEyW%2fLGWjMhRn92qwi4ztOFiZDaGwzS%2fdlc7Lad34UiF21g%2fOGqd%2fH6gBT0Zxy9RmPgx4Y28sTJ6YyTtgFSkaM9%2fNZaqF4po78yOZaZ4%3d",
+      "sector": "soe"
+    },
+    {
+      "employer": "Council for Scientific and Industrial Research (CSIR)",
+      "title": "Senior Project Coordinator",
+      "location": "Scientia, Pretoria",
+      "closingDate": "2026-11-09",
+      "url": "https://candidate.csir.co.za/psc/hr/EMPLOYEE/HRMS/c/HRS_HRAM_FL.HRS_CG_SEARCH_FL.GBL?Page=HRS_APP_SCHJOB_FL&Action=U",
+      "sector": "soe"
+    },
+    {
+      "employer": "Council for Scientific and Industrial Research (CSIR)",
+      "title": "Business Development Manager",
+      "location": "Scientia, Pretoria (Hybrid)",
+      "closingDate": "2026-11-12",
+      "url": "https://candidate.csir.co.za/psc/hr/EMPLOYEE/HRMS/c/HRS_HRAM_FL.HRS_CG_SEARCH_FL.GBL?Page=HRS_APP_SCHJOB_FL&Action=U",
+      "sector": "soe"
+    },
+    {
+      "employer": "Council for Scientific and Industrial Research (CSIR)",
+      "title": "Researcher (Pharmaceutical Technologies) – two-year contract",
+      "location": "Scientia, Pretoria",
+      "closingDate": "2026-11-12",
+      "url": "https://candidate.csir.co.za/psc/hr/EMPLOYEE/HRMS/c/HRS_HRAM_FL.HRS_CG_SEARCH_FL.GBL?Page=HRS_APP_SCHJOB_FL&Action=U",
+      "sector": "soe"
+    },
+    {
+      "employer": "Council for Scientific and Industrial Research (CSIR)",
+      "title": "Senior Project Manager",
+      "location": "Scientia, Pretoria",
+      "closingDate": "2026-11-17",
+      "url": "https://candidate.csir.co.za/psc/hr/EMPLOYEE/HRMS/c/HRS_HRAM_FL.HRS_CG_SEARCH_FL.GBL?Page=HRS_APP_SCHJOB_FL&Action=U",
+      "sector": "soe"
+    },
+    {
+      "employer": "Development Bank of Southern Africa (DBSA)",
+      "title": "Team Administrator (Shared)",
+      "location": "Midrand",
+      "closingDate": "2026-11-06",
+      "url": "https://dbsa.erecruit.co/candidateapp/Jobs/View/DBS261020-1",
+      "sector": "soe"
+    },
+    {
+      "employer": "Development Bank of Southern Africa (DBSA)",
+      "title": "Senior Legal Advisor: Corporate Transactions",
+      "location": "Midrand",
+      "closingDate": "2026-11-10",
+      "url": "https://dbsa.erecruit.co/candidateapp/Jobs/View/DBS261102-3",
+      "sector": "soe"
+    },
+    {
+      "employer": "Development Bank of Southern Africa (DBSA)",
+      "title": "Principal Deal Originator Transport & Logistics",
+      "location": "Midrand",
+      "closingDate": "2026-11-11",
+      "url": "https://dbsa.erecruit.co/candidateapp/Jobs/View/DBS250917-8",
+      "sector": "soe"
+    },
+    {
+      "employer": "Development Bank of Southern Africa (DBSA)",
+      "title": "Project Development Specialist (IDD)",
+      "location": "Midrand",
+      "closingDate": "2026-11-11",
+      "url": "https://dbsa.erecruit.co/candidateapp/Jobs/View/DBS251127-2",
+      "sector": "soe"
+    },
+    {
+      "employer": "Development Bank of Southern Africa (DBSA)",
+      "title": "Senior Legal Advisor (IPP Office) x 3",
+      "location": "Centurion",
+      "closingDate": "2026-11-11",
+      "url": "https://dbsa.erecruit.co/candidateapp/Jobs/View/DBS251203-3",
+      "sector": "soe"
+    },
+    {
+      "employer": "Development Bank of Southern Africa (DBSA)",
+      "title": "Senior Compliance Officer",
+      "location": "Midrand",
+      "closingDate": "2026-11-12",
+      "url": "https://dbsa.erecruit.co/candidateapp/Jobs/View/DBS261021-2",
+      "sector": "soe"
+    },
+    {
+      "employer": "Development Bank of Southern Africa (DBSA)",
+      "title": "Senior Legal Advisor: Corporate Operations",
+      "location": "Midrand",
+      "closingDate": "2026-11-12",
+      "url": "https://dbsa.erecruit.co/candidateapp/Jobs/View/DBS261021-1",
+      "sector": "soe"
+    },
+    {
+      "employer": "Development Bank of Southern Africa (DBSA)",
+      "title": "Data Governance Specialist",
+      "location": "Midrand",
+      "closingDate": "2026-11-16",
+      "url": "https://dbsa.erecruit.co/candidateapp/Jobs/View/DBS261021-3",
+      "sector": "soe"
+    },
+    {
+      "employer": "Development Bank of Southern Africa (DBSA)",
+      "title": "Monitoring Specialist",
+      "location": "Midrand",
+      "closingDate": "2026-11-17",
+      "url": "https://dbsa.erecruit.co/candidateapp/Jobs/View/DBS261102-2",
+      "sector": "soe"
+    },
+    {
+      "employer": "Development Bank of Southern Africa (DBSA)",
+      "title": "Senior Country Risk Officer",
+      "location": "Midrand",
+      "closingDate": "2026-11-17",
+      "url": "https://dbsa.erecruit.co/candidateapp/Jobs/View/DBS261101-1",
+      "sector": "soe"
+    },
+    {
+      "employer": "Development Bank of Southern Africa (DBSA)",
+      "title": "Senior Investments Officer",
+      "location": "Midrand",
+      "closingDate": "2026-11-17",
+      "url": "https://dbsa.erecruit.co/candidateapp/Jobs/View/DBS261030-1",
+      "sector": "soe"
+    },
+    {
+      "employer": "Development Bank of Southern Africa (DBSA)",
+      "title": "Team Administrator",
+      "location": "Midrand",
+      "closingDate": "2026-11-17",
+      "url": "https://dbsa.erecruit.co/candidateapp/Jobs/View/DBS261102-1",
+      "sector": "soe"
+    },
+    {
+      "employer": "Eskom",
+      "title": "Assistant Officer Financial Accounting and Control",
+      "location": "Sunninghill",
+      "closingDate": "2026-11-06",
+      "url": "https://eskomcareers.ci.hr/applicant/index.php?controller=Listings&method=view&listingid=0a527ea8-6cfb-4d0d-a974-58de4553e45a",
+      "sector": "soe"
+    },
+    {
+      "employer": "Eskom",
+      "title": "Chief Advisor Business Support",
+      "location": "Sunninghill",
+      "closingDate": "2026-11-06",
+      "url": "https://eskomcareers.ci.hr/applicant/index.php?controller=Listings&method=view&listingid=2fca78b2-f65e-4ac0-b087-00723e3ecb36",
+      "sector": "soe"
+    },
+    {
+      "employer": "Eskom",
+      "title": "Controller Water Treatment Plant",
+      "location": "Witbank",
+      "closingDate": "2026-11-06",
+      "url": "https://eskomcareers.ci.hr/applicant/index.php?controller=Listings&method=view&listingid=e1fbc494-3c34-4670-9dee-64f71e2f8622",
+      "sector": "soe"
+    },
+    {
+      "employer": "Eskom",
+      "title": "Engineer in Training - Gx Head Office Production and Sales",
+      "location": "Gauteng",
+      "closingDate": "2026-11-06",
+      "url": "https://eskomcareers.ci.hr/applicant/index.php?controller=Listings&method=view&listingid=9a05cd1a-4732-4113-acb7-5ab90a6ce696",
+      "sector": "soe"
+    },
+    {
+      "employer": "Eskom",
+      "title": "Graduate in Training - Gx Head Office Production and Sales",
+      "location": "Sunninghill",
+      "closingDate": "2026-11-06",
+      "url": "https://eskomcareers.ci.hr/applicant/index.php?controller=Listings&method=view&listingid=642fb2c4-8096-463e-a35f-58b67b1c94c1",
+      "sector": "soe"
+    },
+    {
+      "employer": "Eskom",
+      "title": "Middle Manager Project",
+      "location": "Sunninghill",
+      "closingDate": "2026-11-06",
+      "url": "https://eskomcareers.ci.hr/applicant/index.php?controller=Listings&method=view&listingid=5afd08e1-b6a1-46dd-83fd-d56a3a4bae51",
+      "sector": "soe"
+    },
+    {
+      "employer": "Eskom",
+      "title": "Officer IT Business Analyst",
+      "location": "Sunninghill",
+      "closingDate": "2026-11-06",
+      "url": "https://eskomcareers.ci.hr/applicant/index.php?controller=Listings&method=view&listingid=ec0fd5ae-3569-4226-98ac-b262ffe971d0",
+      "sector": "soe"
+    },
+    {
+      "employer": "Eskom",
+      "title": "Officer Security Investigations X6",
+      "location": "Sunninghill",
+      "closingDate": "2026-11-06",
+      "url": "https://eskomcareers.ci.hr/applicant/index.php?controller=Listings&method=view&listingid=4eababc0-69ff-4bd2-9095-dcdb844f3ecd",
+      "sector": "soe"
+    },
+    {
+      "employer": "Eskom",
+      "title": "Senior Manager Organisation Design and Change Management",
+      "location": "Sunninghill",
+      "closingDate": "2026-11-06",
+      "url": "https://eskomcareers.ci.hr/applicant/index.php?controller=Listings&method=view&listingid=d56b78fe-f297-4d37-a3a1-d086b18f5866",
+      "sector": "soe"
+    },
+    {
+      "employer": "Eskom",
+      "title": "Technician Chemistry",
+      "location": "Witbank",
+      "closingDate": "2026-11-06",
+      "url": "https://eskomcareers.ci.hr/applicant/index.php?controller=Listings&method=view&listingid=603174eb-4ec8-48a4-9f65-bbbdaa905f42",
+      "sector": "soe"
+    },
+    {
+      "employer": "Eskom",
+      "title": "Assistant Officer Human Resources Medupi Power Station",
+      "location": "Lephalale / Ellisras",
+      "closingDate": "2026-11-09",
+      "url": "https://eskomcareers.ci.hr/applicant/index.php?controller=Listings&method=view&listingid=7d11d9cc-04ae-4ddb-806c-9a0f6b481a73",
+      "sector": "soe"
+    },
+    {
+      "employer": "Eskom",
+      "title": "Engineer Prof Engineering x2",
+      "location": "Sunninghill",
+      "closingDate": "2026-11-09",
+      "url": "https://eskomcareers.ci.hr/applicant/index.php?controller=Listings&method=view&listingid=c504053d-bcb3-443d-8241-040bfa8ef26c",
+      "sector": "soe"
+    },
+    {
+      "employer": "Eskom",
+      "title": "Senior Advisor Education and Training (Maintenance, Engineering, Operating, Functional) x4",
+      "location": "Standerton",
+      "closingDate": "2026-11-09",
+      "url": "https://eskomcareers.ci.hr/applicant/index.php?controller=Listings&method=view&listingid=b334d953-c905-492d-98b8-d87506e4950b",
+      "sector": "soe"
+    },
+    {
+      "employer": "Eskom",
+      "title": "Snr Engineer Prof Power Stations (Process Engineering Section)",
+      "location": "Lephalale / Ellisras",
+      "closingDate": "2026-11-09",
+      "url": "https://eskomcareers.ci.hr/applicant/index.php?controller=Listings&method=view&listingid=e42a7df5-6379-48b5-90a5-7ed574483d02",
+      "sector": "soe"
+    },
+    {
+      "employer": "Eskom",
+      "title": "Tutuka Middle Manager Engineering Group",
+      "location": "Standerton",
+      "closingDate": "2026-11-09",
+      "url": "https://eskomcareers.ci.hr/applicant/index.php?controller=Listings&method=view&listingid=937fc52a-d072-415e-935d-d3e0750b04a5",
+      "sector": "soe"
+    },
+    {
+      "employer": "Eskom",
+      "title": "Learning Programme (EIT) _ Matla",
+      "location": "Kriel",
+      "closingDate": "2026-11-10",
+      "url": "https://eskomcareers.ci.hr/applicant/index.php?controller=Listings&method=view&listingid=4f21acc7-88d8-499a-abaa-2982dd480aca",
+      "sector": "soe"
+    },
+    {
+      "employer": "Eskom",
+      "title": "Readvert - Senior Advisor Security Investigations x 2",
+      "location": "Gauteng",
+      "closingDate": "2026-11-10",
+      "url": "https://eskomcareers.ci.hr/applicant/index.php?controller=Listings&method=view&listingid=06e71b03-1647-4abe-9a29-d9982f2da8ea",
+      "sector": "soe"
+    },
+    {
+      "employer": "Eskom",
+      "title": "Senior Advisor Environmental Management- Medupi",
+      "location": "Lephalale / Ellisras",
+      "closingDate": "2026-11-10",
+      "url": "https://eskomcareers.ci.hr/applicant/index.php?controller=Listings&method=view&listingid=5b26bc35-3ad2-45f2-97db-093f1b96550b",
+      "sector": "soe"
+    },
+    {
+      "employer": "Eskom",
+      "title": "Senior Manager Security Operations",
+      "location": "Sunninghill",
+      "closingDate": "2026-11-10",
+      "url": "https://eskomcareers.ci.hr/applicant/index.php?controller=Listings&method=view&listingid=aa7fd679-2924-47af-9fe5-dcd791f47531",
+      "sector": "soe"
+    },
+    {
+      "employer": "Eskom",
+      "title": "Assistant Officer General Administration",
+      "location": "Germiston",
+      "closingDate": "2026-11-11",
+      "url": "https://eskomcareers.ci.hr/applicant/index.php?controller=Listings&method=view&listingid=5376d1db-323c-4dd7-9257-e1885e5bbd5d",
+      "sector": "soe"
+    },
+    {
+      "employer": "Eskom",
+      "title": "Engineer Prof Engineering (Ancillary Services) X3",
+      "location": "Germiston",
+      "closingDate": "2026-11-11",
+      "url": "https://eskomcareers.ci.hr/applicant/index.php?controller=Listings&method=view&listingid=608d8bf3-13d3-45ed-ac54-7ab4ec519e31",
+      "sector": "soe"
+    },
+    {
+      "employer": "Eskom",
+      "title": "Officer Environmental Management",
+      "location": "Mpumalanga",
+      "closingDate": "2026-11-11",
+      "url": "https://eskomcareers.ci.hr/applicant/index.php?controller=Listings&method=view&listingid=3dbc6c15-1c40-4fc1-9252-257aaecd888c",
+      "sector": "soe"
+    },
+    {
+      "employer": "Eskom",
+      "title": "Assistant Officer Human Resource - T10",
+      "location": "Mpumalanga",
+      "closingDate": "2026-11-12",
+      "url": "https://eskomcareers.ci.hr/applicant/index.php?controller=Listings&method=view&listingid=742b08b4-725d-4ea6-9b3a-faf107f00a0a",
+      "sector": "soe"
+    },
+    {
+      "employer": "Eskom",
+      "title": "Contracts Manager",
+      "location": "Gauteng",
+      "closingDate": "2026-11-12",
+      "url": "https://eskomcareers.ci.hr/applicant/index.php?controller=Listings&method=view&listingid=545e778f-d7fc-4e54-a20e-43436be2b29a",
+      "sector": "soe"
+    },
+    {
+      "employer": "Eskom",
+      "title": "Officer Assets Disposal X2",
+      "location": "Sunninghill",
+      "closingDate": "2026-11-12",
+      "url": "https://eskomcareers.ci.hr/applicant/index.php?controller=Listings&method=view&listingid=927f2fde-780c-4ffc-bba2-49f33699234a",
+      "sector": "soe"
+    },
+    {
+      "employer": "Eskom",
+      "title": "Officer Secretariat X2",
+      "location": "Sunninghill",
+      "closingDate": "2026-11-12",
+      "url": "https://eskomcareers.ci.hr/applicant/index.php?controller=Listings&method=view&listingid=28e494f7-31a8-43d7-86c4-4d6d93baa5eb",
+      "sector": "soe"
+    },
+    {
+      "employer": "Eskom",
+      "title": "Procurement Manager - Transformer and Switchgear Services",
+      "location": "Gauteng",
+      "closingDate": "2026-11-12",
+      "url": "https://eskomcareers.ci.hr/applicant/index.php?controller=Listings&method=view&listingid=ec6719d9-2045-43b4-b199-2f722356a565",
+      "sector": "soe"
+    },
+    {
+      "employer": "Eskom",
+      "title": "Procurement Manager - Turbo Gen Services",
+      "location": "Gauteng",
+      "closingDate": "2026-11-12",
+      "url": "https://eskomcareers.ci.hr/applicant/index.php?controller=Listings&method=view&listingid=10daa404-86f9-4ee3-8766-aa94df207b5c",
+      "sector": "soe"
+    },
+    {
+      "employer": "Eskom",
+      "title": "Security Business Intelligence Analysis",
+      "location": "Sunninghill",
+      "closingDate": "2026-11-12",
+      "url": "https://eskomcareers.ci.hr/applicant/index.php?controller=Listings&method=view&listingid=34231bc2-ec4b-4a53-9a66-af0ea8de158a",
+      "sector": "soe"
+    },
+    {
+      "employer": "Eskom",
+      "title": "Senior Advisor Compliance and Governance X3",
+      "location": "Sunninghill",
+      "closingDate": "2026-11-12",
+      "url": "https://eskomcareers.ci.hr/applicant/index.php?controller=Listings&method=view&listingid=c31ff113-be40-4d67-850e-983b278899a3",
+      "sector": "soe"
+    },
+    {
+      "employer": "Eskom",
+      "title": "Senior Advisor Information Systems Support X3",
+      "location": "Sunninghill",
+      "closingDate": "2026-11-12",
+      "url": "https://eskomcareers.ci.hr/applicant/index.php?controller=Listings&method=view&listingid=74ff50df-3e00-4c60-a489-f1a9c4f35ee6",
+      "sector": "soe"
+    },
+    {
+      "employer": "Eskom",
+      "title": "Senior Advisor Procurement Business Intelligence X2",
+      "location": "Sunninghill",
+      "closingDate": "2026-11-12",
+      "url": "https://eskomcareers.ci.hr/applicant/index.php?controller=Listings&method=view&listingid=1b220510-5b7f-471c-ab67-7f7e3b43437c",
+      "sector": "soe"
+    },
+    {
+      "employer": "Eskom",
+      "title": "Senior Manager Project",
+      "location": "Sunninghill",
+      "closingDate": "2026-11-12",
+      "url": "https://eskomcareers.ci.hr/applicant/index.php?controller=Listings&method=view&listingid=362c68aa-0b5b-45db-b2dc-3d86e97eb772",
+      "sector": "soe"
+    },
+    {
+      "employer": "Eskom",
+      "title": "Senior Manager Security Solutions",
+      "location": "Sunninghill",
+      "closingDate": "2026-11-12",
+      "url": "https://eskomcareers.ci.hr/applicant/index.php?controller=Listings&method=view&listingid=060d68d6-6a47-4afa-82b0-e421a84f63f0",
+      "sector": "soe"
+    },
+    {
+      "employer": "Eskom",
+      "title": "Electrical Apprentices",
+      "location": "Northern Cape",
+      "closingDate": "2026-11-13",
+      "url": "https://eskomcareers.ci.hr/applicant/index.php?controller=Listings&method=view&listingid=158f651b-4efb-4c22-98ab-bab3169574a7",
+      "sector": "soe"
+    },
+    {
+      "employer": "Eskom",
+      "title": "Middle Manager Management Accounting",
+      "location": "Sunninghill",
+      "closingDate": "2026-11-13",
+      "url": "https://eskomcareers.ci.hr/applicant/index.php?controller=Listings&method=view&listingid=9b7d72ee-388f-4082-b9fb-7e76d68be30b",
+      "sector": "soe"
+    },
+    {
+      "employer": "Eskom",
+      "title": "Electrical Apprentices",
+      "location": "Limpopo",
+      "closingDate": "2026-11-17",
+      "url": "https://eskomcareers.ci.hr/applicant/index.php?controller=Listings&method=view&listingid=0a13a2d7-31be-4a8d-a5d5-41d8a140ff15",
+      "sector": "soe"
+    },
+    {
+      "employer": "Eskom",
+      "title": "Chief Advisor Prof Occupational Medicine Practitioner (Medical Doctor)",
+      "location": "Western Cape",
+      "closingDate": "2026-11-18",
+      "url": "https://eskomcareers.ci.hr/applicant/index.php?controller=Listings&method=view&listingid=4a777c84-d864-4401-9c09-0b9a4b9ce924",
+      "sector": "soe"
+    },
+    {
+      "employer": "Eskom",
+      "title": "Senior Advisor Business Consultant_G15",
+      "location": "Gauteng",
+      "closingDate": "2026-11-18",
+      "url": "https://eskomcareers.ci.hr/applicant/index.php?controller=Listings&method=view&listingid=5b508ae7-0167-432f-b62e-b82bf50d350e",
+      "sector": "soe"
+    },
+    {
+      "employer": "Eskom",
+      "title": "Middle Manager Procurement",
+      "location": "Sunninghill",
+      "closingDate": "2026-12-10",
+      "url": "https://eskomcareers.ci.hr/applicant/index.php?controller=Listings&method=view&listingid=df6a7e7b-750c-4ccf-8966-5a9a0fb90d4d",
+      "sector": "soe"
+    },
+    {
+      "employer": "Financial Sector Conduct Authority (FSCA)",
+      "title": "SOFTWARE DEVELOPER ICT OPERATIONS",
+      "location": "Pretoria",
+      "closingDate": "2026-11-11",
+      "url": "https://fsca.mcidirecthire.com/External/Job?Ref=TEkBhDYErs0qhHgueWeCgt_yRI-cnPLR1MRk1RR6Cpou3ktpvROhSqni_BGkK6j0ZFjYHzdS7K2yxDobOvTORtt_ld7RmqLBgqcCZ5-XcjvmvwYX2Mcic9lRDB1sdDs_pKUDQWMIt0CxqpPNH5WRYw",
+      "sector": "soe"
+    },
+    {
+      "employer": "Financial Sector Conduct Authority (FSCA)",
+      "title": "SPECIALIST SOFTWARE ENGINEER X2 (FIXED TERM CONTRACT) ICT OPERATIONS DEPARTMENT",
+      "location": "Pretoria",
+      "closingDate": "2026-11-11",
+      "url": "https://fsca.mcidirecthire.com/External/Job?Ref=TEkBhDYErs0qhHgueWeCgt_yRI-cnPLR1MRk1RR6Cpou3ktpvROhSqni_BGkK6j0FO-rdTjXpBFy_LZbkoHjKjndVbtVJ-XvRwHzo9C1sU1Fl9SGx11zXcLJ_BO-93EzMzH6_pKA91YWJPWvOG8eng",
+      "sector": "soe"
+    },
+    {
+      "employer": "Financial Sector Conduct Authority (FSCA)",
+      "title": "COMMUNICATIONS OFFICER COMMUNICATIONS DEPARTMENT",
+      "location": "Pretoria",
+      "closingDate": "2026-12-04",
+      "url": "https://fsca.mcidirecthire.com/External/Job?Ref=TEkBhDYErs0qhHgueWeCgt_yRI-cnPLR1MRk1RR6Cpou3ktpvROhSqni_BGkK6j0IocgVOYzw-mHtjOIOWEJnJWeDmSN8qb7qTu3FCARqzN1Xzno68If1w706H_7X78ugmRCHvgZfZ_jIrlGSvBKXw",
+      "sector": "soe"
+    },
+    {
+      "employer": "Financial Sector Conduct Authority (FSCA)",
+      "title": "SENIOR ANALYST INSURERS SUPERVISION DEPARTMENT",
+      "location": "Pretoria",
+      "closingDate": "2026-12-04",
+      "url": "https://fsca.mcidirecthire.com/External/Job?Ref=TEkBhDYErs0qhHgueWeCgt_yRI-cnPLR1MRk1RR6Cpou3ktpvROhSqni_BGkK6j0jZ8YMVYeHrkVdMmf3en9RDOIUQ6Ft3RB6Ptdb4vlvajqf32FnVXPtr4f-u6noCrzN_ZP0n0peM5N2w_8z0xUBg",
+      "sector": "soe"
+    },
+    {
+      "employer": "Financial Sector Conduct Authority (FSCA)",
+      "title": "SPECIALIST ANALYST INSURERS SUPERVISION DEPARTMENT",
+      "location": "Pretoria",
+      "closingDate": "2026-12-04",
+      "url": "https://fsca.mcidirecthire.com/External/Job?Ref=TEkBhDYErs0qhHgueWeCgt_yRI-cnPLR1MRk1RR6Cpou3ktpvROhSqni_BGkK6j0b2rh0wQ8ittQqtB__NIEoitENhVRrzqN-2TjzdnIDvG7rp7r21pCi6MT3edcKfoRBVeoW3oONeO1vKVnf0WSNQ",
+      "sector": "soe"
+    },
+    {
+      "employer": "Financial Sector Conduct Authority (FSCA)",
+      "title": "SPECIALIST ANALYST LICENSING: INSURERS & INVESTMENT PROVIDERS DEPARTMENT",
+      "location": "Pretoria",
+      "closingDate": "2026-12-04",
+      "url": "https://fsca.mcidirecthire.com/External/Job?Ref=TEkBhDYErs0qhHgueWeCgt_yRI-cnPLR1MRk1RR6Cpou3ktpvROhSqni_BGkK6j0P15Lro4g9ynMdNtw8V2HGw5n1Vst9pUlL5jagARfFn7k7Hjjo3W8DgEV0ek-WTSFSnZWkGsTWT6Ldd6WfvqyvA",
+      "sector": "soe"
+    },
+    {
+      "employer": "Human Sciences Research Council (HSRC)",
+      "title": "Production and Sales Coordinator (Digital & Print)",
+      "location": "Cape Town, Pretoria",
+      "closingDate": "2026-11-16",
+      "url": "https://hsrc.erecruit.co/candidateapp/Jobs/View/HSR261103-1",
+      "sector": "soe"
+    },
+    {
+      "employer": "Land Bank",
+      "title": "Relationship Manager - Cape Town",
+      "location": "Western Cape",
+      "closingDate": "2026-11-09",
+      "url": "https://landbank.erecruit.co/candidateapp/Jobs/View/LAN261103-1",
+      "sector": "soe"
+    },
+    {
+      "employer": "Mintek",
+      "title": "Head: Comminution",
+      "location": "Randburg",
+      "closingDate": "2026-11-06",
+      "url": "https://mintek.ci.hr/applicant/index.php?controller=Listings&method=view&listingid=bed625f6-e30f-4dd9-96b2-3ac566b88049",
+      "sector": "soe"
+    },
+    {
+      "employer": "Mintek",
+      "title": "Senior Scientist: Biometallurgy",
+      "location": "Randburg",
+      "closingDate": "2026-11-06",
+      "url": "https://mintek.ci.hr/applicant/index.php?controller=Listings&method=view&listingid=de8fabbc-763c-4b4a-a124-98f161d5f8cc",
+      "sector": "soe"
+    },
+    {
+      "employer": "Mintek",
+      "title": "ASSM Development Officer",
+      "location": "Randburg",
+      "closingDate": "2026-11-13",
+      "url": "https://mintek.ci.hr/applicant/index.php?controller=Listings&method=view&listingid=81088bb9-b20a-483b-9351-d77f0d0e9ccf",
+      "sector": "soe"
+    },
+    {
+      "employer": "Mintek",
+      "title": "Head: Fire Assay and Reference Material Group",
+      "location": "Randburg",
+      "closingDate": "2026-11-13",
+      "url": "https://mintek.ci.hr/applicant/index.php?controller=Listings&method=view&listingid=779efaab-1172-493b-8812-eeade9a2efbd",
+      "sector": "soe"
+    },
+    {
+      "employer": "Mintek",
+      "title": "Senior Debtors Controller (6 Months Contract) - Re-advertised",
+      "location": "Randburg",
+      "closingDate": "2026-11-13",
+      "url": "https://mintek.ci.hr/applicant/index.php?controller=Listings&method=view&listingid=53970dbc-2369-4fb0-bfca-d2e1fe62ee1a",
+      "sector": "soe"
+    },
+    {
+      "employer": "Mintek",
+      "title": "Scientist: Fire Assay & Reference Material",
+      "location": "Randburg",
+      "closingDate": "2026-11-30",
+      "url": "https://mintek.ci.hr/applicant/index.php?controller=Listings&method=view&listingid=74788696-0e5d-4e24-9465-ef5bdd69587a",
+      "sector": "soe"
+    },
+    {
+      "employer": "National Empowerment Fund (NEF)",
+      "title": "Investment Analyst",
+      "location": "Sandton",
+      "closingDate": "2026-11-06",
+      "url": "https://nefcareers.ci.hr/applicant/index.php?controller=Listings&method=view&listingid=a52f83c8-3027-4021-b7ca-499c90b4f0fa",
+      "sector": "soe"
+    },
+    {
+      "employer": "National Empowerment Fund (NEF)",
+      "title": "Investment Associate",
+      "location": "Sandton",
+      "closingDate": "2026-11-06",
+      "url": "https://nefcareers.ci.hr/applicant/index.php?controller=Listings&method=view&listingid=3c4ac196-d5f1-484e-a057-4f08653a6164",
+      "sector": "soe"
+    },
+    {
+      "employer": "National Empowerment Fund (NEF)",
+      "title": "Post Investment Associate X3",
+      "location": "Sandton",
+      "closingDate": "2026-11-06",
+      "url": "https://nefcareers.ci.hr/applicant/index.php?controller=Listings&method=view&listingid=e355cc44-a4de-44a9-93db-047ad2f3a2a5",
+      "sector": "soe"
+    },
+    {
+      "employer": "National Empowerment Fund (NEF)",
+      "title": "Investment Associate",
+      "location": "Sandton",
+      "closingDate": "2026-11-10",
+      "url": "https://nefcareers.ci.hr/applicant/index.php?controller=Listings&method=view&listingid=a1e69485-fed0-4b17-bb27-57c864f94ddc",
+      "sector": "soe"
+    },
+    {
+      "employer": "National Empowerment Fund (NEF)",
+      "title": "Investment Associate",
+      "location": "Sandton",
+      "closingDate": "2026-11-10",
+      "url": "https://nefcareers.ci.hr/applicant/index.php?controller=Listings&method=view&listingid=24be2193-1f10-4b5f-a3bc-96080599f8d2",
+      "sector": "soe"
+    },
+    {
+      "employer": "National Empowerment Fund (NEF)",
+      "title": "Investment Associate",
+      "location": "Sandton",
+      "closingDate": "2026-11-10",
+      "url": "https://nefcareers.ci.hr/applicant/index.php?controller=Listings&method=view&listingid=2843df9b-d3c5-41bf-b852-73341769aea5",
+      "sector": "soe"
+    },
+    {
+      "employer": "National Lotteries Commission (NLC)",
+      "title": "Travel Officer",
+      "location": "Head Office",
+      "closingDate": "2026-11-06",
+      "url": "https://www.nlcsa.org.za/wp-content/uploads/2026/10/NLC-Advert-Travel-Officer-2026.pdf",
+      "sector": "soe"
+    },
+    {
+      "employer": "National Regulator for Compulsory Specifications (NRCS)",
+      "title": "Intern - Automotive",
+      "location": "Pretoria",
+      "closingDate": null,
+      "url": "https://nrcsjobs.mcidirecthire.com/Vacancy/ViewDetails?parameters=q4%2f37VDQTFWXnK7wNIeCPYLTlZ%2b%2fF8nO5vnfLNWrtZ9Oz7osWpkY8zb1zOC%2fCE%2fW1%2bPPPZpTVZg3q%2bfCg%2fzmPhVlqVXVkRlEE3aqWomvna%2faRgegEaJPgKiU6mYqcwd0GCD4aDJ8TXHt8Bt4Zg9WWmcE5wLV0WNgfPQpo9yCal4%3d",
+      "sector": "soe"
+    },
+    {
+      "employer": "National Regulator for Compulsory Specifications (NRCS)",
+      "title": "Intern - Chemicals, Materials and Mechanicals (CMM)",
+      "location": "Pretoria",
+      "closingDate": null,
+      "url": "https://nrcsjobs.mcidirecthire.com/Vacancy/ViewDetails?parameters=q4%2f37VDQTFWXnK7wNIeCPYLTlZ%2b%2fF8nO5vnfLNWrtZ9Oz7osWpkY8zb1zOC%2fCE%2fW1%2bPPPZpTVZg3q%2bfCg%2fzmPtIx%2bSqMQex7LhvJVTWGOsK%2fObumrTvK35aofR3O6JuS6Ce5j91k2x3cve6a0h8JEt2iwa1z%2bC6N4e39%2fVT%2fAv4%3d",
+      "sector": "soe"
+    },
+    {
+      "employer": "National Regulator for Compulsory Specifications (NRCS)",
+      "title": "Intern - Electrotechnical",
+      "location": "Montague Gardens",
+      "closingDate": null,
+      "url": "https://nrcsjobs.mcidirecthire.com/Vacancy/ViewDetails?parameters=q4%2f37VDQTFWXnK7wNIeCPYLTlZ%2b%2fF8nO5vnfLNWrtZ9Oz7osWpkY8zb1zOC%2fCE%2fW1%2bPPPZpTVZg3q%2bfCg%2fzmPncduPgTx32F7KNc1O0bwb2e8nYmUO9MZp2cwsjytPd4OwT%2fGdtIgKI5%2bNfNdk7ytkK%2b%2fFBSTiCOCSKWboMixO8%3d",
+      "sector": "soe"
+    },
+    {
+      "employer": "National Regulator for Compulsory Specifications (NRCS)",
+      "title": "Intern - Electrotechnical",
+      "location": "Durban",
+      "closingDate": null,
+      "url": "https://nrcsjobs.mcidirecthire.com/Vacancy/ViewDetails?parameters=q4%2f37VDQTFWXnK7wNIeCPYLTlZ%2b%2fF8nO5vnfLNWrtZ9Oz7osWpkY8zb1zOC%2fCE%2fW1%2bPPPZpTVZg3q%2bfCg%2fzmPqrdjy%2fH7M50nWzMwo7XROBgJl5xfzA6t%2f3vTOVwkm487G2Wj7TKw%2bSDKt8v7v0LyN00pMhPg3vXRX6TMCUT2EQ%3d",
+      "sector": "soe"
+    },
+    {
+      "employer": "National Regulator for Compulsory Specifications (NRCS)",
+      "title": "Intern - Electrotechnical",
+      "location": "Port Elizabeth",
+      "closingDate": null,
+      "url": "https://nrcsjobs.mcidirecthire.com/Vacancy/ViewDetails?parameters=q4%2f37VDQTFWXnK7wNIeCPYLTlZ%2b%2fF8nO5vnfLNWrtZ9Oz7osWpkY8zb1zOC%2fCE%2fW1%2bPPPZpTVZg3q%2bfCg%2fzmPnTYOxg891MfFFpZrUVXPo0TU%2fobNBV8C0ak7dsj0nVQX9T20CdKyNRuJ2b3LghbJRPn8V%2fgjJqnMF%2fl7XLpguQ%3d",
+      "sector": "soe"
+    },
+    {
+      "employer": "National Regulator for Compulsory Specifications (NRCS)",
+      "title": "Intern - Food and Associated Industries (FAI)",
+      "location": "Pretoria",
+      "closingDate": null,
+      "url": "https://nrcsjobs.mcidirecthire.com/Vacancy/ViewDetails?parameters=q4%2f37VDQTFWXnK7wNIeCPYLTlZ%2b%2fF8nO5vnfLNWrtZ9Oz7osWpkY8zb1zOC%2fCE%2fW1%2bPPPZpTVZg3q%2bfCg%2fzmPnH%2fMdG7cl5QAkQTL0xcBkcJmD7s50D4jsdQD%2f9DpZwVtr4S6EhUQ25T8Dnsf0ad8SloXg%2bKMQ%2b99MRuIjjzSZc%3d",
+      "sector": "soe"
+    },
+    {
+      "employer": "National Regulator for Compulsory Specifications (NRCS)",
+      "title": "Intern - Food and Associated Industries (FAI)",
+      "location": "Montague Gardens",
+      "closingDate": null,
+      "url": "https://nrcsjobs.mcidirecthire.com/Vacancy/ViewDetails?parameters=q4%2f37VDQTFWXnK7wNIeCPYLTlZ%2b%2fF8nO5vnfLNWrtZ9Oz7osWpkY8zb1zOC%2fCE%2fW1%2bPPPZpTVZg3q%2bfCg%2fzmPle9Rgu0XUnFTP1oZw0V%2bpZJVThLE2UK5B%2bpZXZ%2f3kSCAccDVBmVlopyY7bin2btsihcsK3ZfexJx0NejG%2f3e%2bk%3d",
+      "sector": "soe"
+    },
+    {
+      "employer": "National Regulator for Compulsory Specifications (NRCS)",
+      "title": "Intern - Food and Associated Industries (FAI)",
+      "location": "Port Elizabeth",
+      "closingDate": null,
+      "url": "https://nrcsjobs.mcidirecthire.com/Vacancy/ViewDetails?parameters=q4%2f37VDQTFWXnK7wNIeCPYLTlZ%2b%2fF8nO5vnfLNWrtZ9Oz7osWpkY8zb1zOC%2fCE%2fW1%2bPPPZpTVZg3q%2bfCg%2fzmPmYwpoTht6ugH183Ib89FwDzsM12AjISC2ISqWF%2f%2fSD2f%2bLEJH5Lf9XfShYeIdsiFSyvPg3vG%2bKPRQWnE8JfSnY%3d",
+      "sector": "soe"
+    },
+    {
+      "employer": "National Regulator for Compulsory Specifications (NRCS)",
+      "title": "Intern - Legal Metrology",
+      "location": "Pretoria",
+      "closingDate": null,
+      "url": "https://nrcsjobs.mcidirecthire.com/Vacancy/ViewDetails?parameters=q4%2f37VDQTFWXnK7wNIeCPYLTlZ%2b%2fF8nO5vnfLNWrtZ9Oz7osWpkY8zb1zOC%2fCE%2fW1%2bPPPZpTVZg3q%2bfCg%2fzmPgaBr8QW3o95g2bqJGMU47QV8WPGc7loV5lErUi42E%2fXV7GaF2Q11nQ6j3GgGR9uUa6DkJ7EmeJPOfY9SEW4b14%3d",
+      "sector": "soe"
+    },
+    {
+      "employer": "National Regulator for Compulsory Specifications (NRCS)",
+      "title": "Intern - Legal Metrology",
+      "location": "Montague Gardens",
+      "closingDate": null,
+      "url": "https://nrcsjobs.mcidirecthire.com/Vacancy/ViewDetails?parameters=q4%2f37VDQTFWXnK7wNIeCPYLTlZ%2b%2fF8nO5vnfLNWrtZ9Oz7osWpkY8zb1zOC%2fCE%2fW1%2bPPPZpTVZg3q%2bfCg%2fzmPjVQJ8AgAj6DYbExAvYh6Zmokaegway2Qic6pFSK7Z9uPtNgCO3kmwOtJUNv1TWK%2b9QhiUyNAg6%2foedNv4jRFS8%3d",
+      "sector": "soe"
+    },
+    {
+      "employer": "National Regulator for Compulsory Specifications (NRCS)",
+      "title": "Internship - Electrotechnical",
+      "location": "Pretoria",
+      "closingDate": null,
+      "url": "https://nrcsjobs.mcidirecthire.com/Vacancy/ViewDetails?parameters=q4%2f37VDQTFWXnK7wNIeCPYLTlZ%2b%2fF8nO5vnfLNWrtZ9Oz7osWpkY8zb1zOC%2fCE%2fWDQYEgts7gzD8fQbEQtf9YOJAwtY1jAtADTpLdH0%2ft7xb0PkgPO7aCwH0DyzQV9OoF9c%2bk2M7FJW6%2bs6OPESmogXaXEV4yxpWPvNSsPLiv9c%3d",
+      "sector": "soe"
+    },
+    {
+      "employer": "Office of Health Standards Compliance (OHSC)",
+      "title": "Deputy Director: Health Systems Research",
+      "location": null,
+      "closingDate": "2026-11-09",
+      "url": "https://vacancies.ohsc.org.za/vacancies/deputy-director-health-systems-research/",
+      "sector": "soe"
+    },
+    {
+      "employer": "Overberg Water",
+      "title": "Maintenance Officer",
+      "location": "Duivenhoks",
+      "closingDate": "2026-11-13",
+      "url": "https://www.overbergwater.co.za/vacancies/Maintenance_Officer_Duivenhoks.pdf",
+      "sector": "soe"
+    },
+    {
+      "employer": "Overberg Water",
+      "title": "General Worker x1",
+      "location": "Duivenhoks",
+      "closingDate": "2026-11-20",
+      "url": "https://www.overbergwater.co.za/vacancies/General_Worker_Duivenhoks_.pdf",
+      "sector": "soe"
+    },
+    {
+      "employer": "Overberg Water",
+      "title": "Senior Manager: Supply Chain Management",
+      "location": "Somerset West",
+      "closingDate": "2026-11-20",
+      "url": "https://www.overbergwater.co.za/vacancies/SENIOR_MANAGER_SUPPLY_CHAIN.pdf",
+      "sector": "soe"
+    },
+    {
+      "employer": "Postbank",
+      "title": "Head: Data Management",
+      "location": "Head Office, Pretoria",
+      "closingDate": "2026-11-11",
+      "url": "https://www.postbank.co.za/careers.html",
+      "sector": "soe"
+    },
+    {
+      "employer": "Postbank",
+      "title": "Head: IT Operations",
+      "location": "Head Office, Pretoria",
+      "closingDate": "2026-11-11",
+      "url": "https://www.postbank.co.za/careers.html",
+      "sector": "soe"
+    },
+    {
+      "employer": "Postbank",
+      "title": "Head: IT Security",
+      "location": "Head Office, Pretoria",
+      "closingDate": "2026-11-11",
+      "url": "https://www.postbank.co.za/careers.html",
+      "sector": "soe"
+    },
+    {
+      "employer": "Rand Water",
+      "title": "Audit Specialist Support Services",
+      "location": "Glenvista",
+      "closingDate": "2026-11-09",
+      "url": "https://randwater.erecruit.co/candidateapp/Jobs/View/RAN261027-1",
+      "sector": "soe"
+    },
+    {
+      "employer": "Rand Water",
+      "title": "COMPLIANCE OFFICER X3",
+      "location": "Glenvista",
+      "closingDate": "2026-11-10",
+      "url": "https://randwater.erecruit.co/candidateapp/Jobs/View/RAN261028-1",
+      "sector": "soe"
+    },
+    {
+      "employer": "Rand Water",
+      "title": "Graduate Internship Programme - Civil Engineering x 3 (36 Months fixed-term contract)",
+      "location": "Glenvista",
+      "closingDate": "2026-11-11",
+      "url": "https://randwater.erecruit.co/candidateapp/Jobs/View/RAN261029-5",
+      "sector": "soe"
+    },
+    {
+      "employer": "Rand Water",
+      "title": "Graduate Internship Programme - Construction Project Management x 3 (36 Months fixed-term contract)",
+      "location": "Glenvista",
+      "closingDate": "2026-11-11",
+      "url": "https://randwater.erecruit.co/candidateapp/Jobs/View/RAN261029-9",
+      "sector": "soe"
+    },
+    {
+      "employer": "Rand Water",
+      "title": "Graduate Internship Programme - Electrical Engineering x 4 (36 Months fixed-term contract)",
+      "location": "Glenvista",
+      "closingDate": "2026-11-11",
+      "url": "https://randwater.erecruit.co/candidateapp/Jobs/View/RAN261029-3",
+      "sector": "soe"
+    },
+    {
+      "employer": "Rand Water",
+      "title": "Graduate Internship Programme - Geographic Information Systems x 3 (36 Months fixed-term contract)",
+      "location": "Glenvista",
+      "closingDate": "2026-11-11",
+      "url": "https://randwater.erecruit.co/candidateapp/Jobs/View/RAN261029-6",
+      "sector": "soe"
+    },
+    {
+      "employer": "Rand Water",
+      "title": "Graduate Internship Programme - Mechanical Engineering x 3 (36 Months fixed-term contract)",
+      "location": "Glenvista",
+      "closingDate": "2026-11-11",
+      "url": "https://randwater.erecruit.co/candidateapp/Jobs/View/RAN261029-4",
+      "sector": "soe"
+    },
+    {
+      "employer": "Rand Water",
+      "title": "Graduate Internship Programme - Natural Science x 3 (36 Months fixed-term contract)",
+      "location": "Glenvista",
+      "closingDate": "2026-11-11",
+      "url": "https://randwater.erecruit.co/candidateapp/Jobs/View/RAN261029-8",
+      "sector": "soe"
+    },
+    {
+      "employer": "Rand Water",
+      "title": "Graduate Internship Programme - Quantity Survey x 3 (36 Months fixed-term contract)",
+      "location": "Glenvista",
+      "closingDate": "2026-11-11",
+      "url": "https://randwater.erecruit.co/candidateapp/Jobs/View/RAN261029-10",
+      "sector": "soe"
+    },
+    {
+      "employer": "Rand Water",
+      "title": "Graduate Internship Programme - Town Planning x 3 (36 Months fixed-term contract)",
+      "location": "Glenvista",
+      "closingDate": "2026-11-11",
+      "url": "https://randwater.erecruit.co/candidateapp/Jobs/View/RAN261029-7",
+      "sector": "soe"
+    },
+    {
+      "employer": "Rand Water",
+      "title": "Secretary",
+      "location": "Glenvista",
+      "closingDate": "2026-11-11",
+      "url": "https://randwater.erecruit.co/candidateapp/Jobs/View/RAN261028-2",
+      "sector": "soe"
+    },
+    {
+      "employer": "Rand Water",
+      "title": "PRINCIPAL CIVIL ENGINEERING ASSISTANT",
+      "location": "Glenvista",
+      "closingDate": "2026-11-12",
+      "url": "https://randwater.erecruit.co/candidateapp/Jobs/View/RAN261030-2",
+      "sector": "soe"
+    },
+    {
+      "employer": "Rand Water",
+      "title": "SENIOR ELECTRICAL ENGINEER X3",
+      "location": "Glenvista",
+      "closingDate": "2026-11-12",
+      "url": "https://randwater.erecruit.co/candidateapp/Jobs/View/RAN261030-1",
+      "sector": "soe"
+    },
+    {
+      "employer": "Road Accident Fund (RAF)",
+      "title": "RAF Attorney: High Court x2",
+      "location": "Mmabatho, North West",
+      "closingDate": "2026-11-10",
+      "url": "https://careers.raf.co.za/job/MMABATHO-RAF-Attorney-High-Court-X2-Nort/1375082455/",
+      "sector": "soe"
+    },
+    {
+      "employer": "Sasria",
+      "title": "Head: Technology Demand and Delivery",
+      "location": "Johannesburg",
+      "closingDate": "2026-11-11",
+      "url": "https://sasria.erecruit.co/candidateapp/Jobs/View/SAS261029-1",
+      "sector": "soe"
+    },
+    {
+      "employer": "South African Civil Aviation Authority (SACAA)",
+      "title": "Tender Administrator ( 2 Years Fixed Term Contract)",
+      "location": "Centurion",
+      "closingDate": "2026-11-11",
+      "url": "https://sacaa.mcidirecthire.com/External/Job?Ref=TEkBhDYErs0qhHgueWeCgt_yRI-cnPLR1MRk1RR6Cpou3ktpvROhSqni_BGkK6j0NqPOAOAzznJUD5LR-C2UgJP0EiY37e86UF6xO6gmZOLA0OUGiPVpPbzMvmjMraVHxJW70E7XiwfLkKuff3MQgA",
+      "sector": "soe"
+    },
+    {
+      "employer": "South African Civil Aviation Authority (SACAA)",
+      "title": "ATO Inspector Pilot",
+      "location": "Gauteng",
+      "closingDate": "2026-11-13",
+      "url": "https://sacaa.mcidirecthire.com/External/Job?Ref=TEkBhDYErs0qhHgueWeCgt_yRI-cnPLR1MRk1RR6Cpou3ktpvROhSqni_BGkK6j0cXuv8faGgoo71HB8s9FH0uGysRdEPQdOKDpT2VIdH-f7TDXZFISy1TBZzbEBsyPrBeDArajyP_zbXQZoY4Chog",
+      "sector": "soe"
+    },
+    {
+      "employer": "South African Civil Aviation Authority (SACAA)",
+      "title": "Manager: Compensation and Benefits",
+      "location": "Centurion",
+      "closingDate": "2026-11-13",
+      "url": "https://sacaa.mcidirecthire.com/External/Job?Ref=TEkBhDYErs0qhHgueWeCgt_yRI-cnPLR1MRk1RR6Cpou3ktpvROhSqni_BGkK6j0DVHeDyrE-Dlex_q_qR3b52GtC17HJPVwN1fim3gEJbjo0XFB2ybMu_4JWkVj4ixfPtXG4FwWZWVeLVmkKPDbhg",
+      "sector": "soe"
+    },
+    {
+      "employer": "South African National Parks (SANParks)",
+      "title": "Officer: Administration (SCM)",
+      "location": "Groenkloof National Park (Head Office)",
+      "closingDate": "2026-11-09",
+      "url": "https://www.sanparks.org/corporate/vacancies",
+      "sector": "soe"
+    },
+    {
+      "employer": "South African National Parks (SANParks)",
+      "title": "Scientist: Vegetation Ecology",
+      "location": "Garden Route National Park",
+      "closingDate": "2026-11-09",
+      "url": "https://www.sanparks.org/corporate/vacancies",
+      "sector": "soe"
+    },
+    {
+      "employer": "South African National Parks (SANParks)",
+      "title": "Specialist: Human Capital Management Remuneration (Independent Contract)",
+      "location": "Groenkloof National Park (Head Office)",
+      "closingDate": "2026-11-09",
+      "url": "https://www.sanparks.org/corporate/vacancies",
+      "sector": "soe"
+    },
+    {
+      "employer": "South African National Parks (SANParks)",
+      "title": "Supply Chain Management Practitioner",
+      "location": null,
+      "closingDate": "2026-11-09",
+      "url": "https://www.sanparks.org/corporate/vacancies",
+      "sector": "soe"
+    },
+    {
+      "employer": "South African National Parks (SANParks)",
+      "title": "Co-Opted Member: Human Capital and Remuneration Committee (Fixed-Term Contract)",
+      "location": null,
+      "closingDate": "2026-11-17",
+      "url": "https://www.sanparks.org/corporate/vacancies",
+      "sector": "soe"
+    },
+    {
+      "employer": "South African National Parks (SANParks)",
+      "title": "Co-Opted Member: The Audit and Risk Committee (Fixed-Term Contract)",
+      "location": null,
+      "closingDate": "2026-11-17",
+      "url": "https://www.sanparks.org/corporate/vacancies",
+      "sector": "soe"
+    },
+    {
+      "employer": "South African National Roads Agency (SANRAL)",
+      "title": "Manager: Asset Management and Maintenance",
+      "location": "Gauteng",
+      "closingDate": null,
+      "url": "https://www.nra.co.za/sanral-careers/detail/manager-asset-management-and-maintenance",
+      "sector": "soe"
+    },
+    {
+      "employer": "South African National Roads Agency (SANRAL)",
+      "title": "Procurement Administrator x10 (12-month contract)",
+      "location": "Multiple provinces",
+      "closingDate": null,
+      "url": "https://www.nra.co.za/sanral-careers/detail/procurement-administrator-x10",
+      "sector": "soe"
+    },
+    {
+      "employer": "South African National Roads Agency (SANRAL)",
+      "title": "Procurement Officer x32 (12-month contract)",
+      "location": "Multiple provinces",
+      "closingDate": null,
+      "url": "https://www.nra.co.za/sanral-careers/detail/procurement-officer-x32",
+      "sector": "soe"
+    },
+    {
+      "employer": "South African National Space Agency (SANSA)",
+      "title": "Electronics Engineer at Marion Island",
+      "location": "Hermanus",
+      "closingDate": "2026-11-13",
+      "url": "https://sansajobs.mcidirecthire.com/Vacancy/ViewDetails?parameters=q4%2f37VDQTFWXnK7wNIeCPW0C7QllPbP7Mzq1htukcaEQNGungduQaTKsWxYlbyqh844ybuT5BI%2b2G2aDWlNIWNobqtMd5ON95%2fKlLBiIMEyVLhF%2br5kfx3JjQ87RgEqAjdQXmnWmRYnBJb6Wp%2bOe4g%3d%3d",
+      "sector": "soe"
+    },
+    {
+      "employer": "Technology Innovation Agency (TIA)",
+      "title": "Head: Legal, Risk and Compliance Services",
+      "location": "Pretoria",
+      "closingDate": "2026-11-11",
+      "url": "https://tia.erecruit.co/candidateapp/Jobs/View/TIA261027-1",
+      "sector": "soe"
+    },
+    {
+      "employer": "Technology Innovation Agency (TIA)",
+      "title": "Portfolio Manager Commercialisation: Energy",
+      "location": "Pretoria",
+      "closingDate": "2026-11-16",
+      "url": "https://tia.erecruit.co/candidateapp/Jobs/View/TIA261030-1",
+      "sector": "soe"
+    },
+    {
+      "employer": "Trans-Caledon Tunnel Authority (TCTA)",
+      "title": "Financial Accountant",
+      "location": "Centurion",
+      "closingDate": "2026-11-06",
+      "url": "https://tcta.mcidirecthire.com/External/Job?Ref=TEkBhDYErs0qhHgueWeCgt_yRI-cnPLR1MRk1RR6Cpou3ktpvROhSqni_BGkK6j0edYHh9rNNMnCCRVvtUKpLtNqqwbv2glXs9V7c75bHST4Rh7pLurqR9ZfKGW8nXhK-G4xmmvWcfzFuD-v37szKA",
+      "sector": "soe"
+    },
+    {
+      "employer": "Transnet",
+      "title": "Specialist: Employee Relations",
+      "location": "Durban Central",
+      "closingDate": "2026-11-06",
+      "url": "https://transnettalentportal.csod.com/ux/ats/careersite/1/home/requisition/6113?c=transnettalentportal",
+      "sector": "soe"
+    },
+    {
+      "employer": "Transnet",
+      "title": "Work Integrated Technical Learner: Diesel Mechanic",
+      "location": "Richards Bay & Durban",
+      "closingDate": "2026-11-06",
+      "url": "https://transnettalentportal.csod.com/ux/ats/careersite/1/home/requisition/6108?c=transnettalentportal",
+      "sector": "soe"
+    },
+    {
+      "employer": "Transnet",
+      "title": "Chief Flight Instructor",
+      "location": "Durban",
+      "closingDate": "2026-11-09",
+      "url": "https://transnettalentportal.csod.com/ux/ats/careersite/1/home/requisition/6120?c=transnettalentportal",
+      "sector": "soe"
+    },
+    {
+      "employer": "Transnet",
+      "title": "Master Installation Electrician x 2",
+      "location": "Ladysmith",
+      "closingDate": "2026-11-09",
+      "url": "https://transnettalentportal.csod.com/ux/ats/careersite/1/home/requisition/6130?c=transnettalentportal",
+      "sector": "soe"
+    },
+    {
+      "employer": "Transnet",
+      "title": "Pilot",
+      "location": "Richards Bay",
+      "closingDate": "2026-11-09",
+      "url": "https://transnettalentportal.csod.com/ux/ats/careersite/1/home/requisition/6146?c=transnettalentportal",
+      "sector": "soe"
+    },
+    {
+      "employer": "Wesgro",
+      "title": "Graduate (Cape Town)",
+      "location": "Cape Town",
+      "closingDate": "2026-11-13",
+      "url": "https://www.wesgro.co.za/corporate/careers/graduate-cape-town",
+      "sector": "soe"
+    },
+    {
+      "employer": "Tshwane University of Technology (TUT)",
+      "title": "Administrative Assistants X4",
+      "location": "Student Support & Scholarship Management (Ref 26/A52)",
+      "closingDate": "2026-11-06",
+      "url": "https://www.tut.ac.za/media/tshwane-interim/site-content/documents/vacancies/Advert--Administrative-Assistants-X4--Full-Corrections.pdf",
+      "sector": "university"
+    },
+    {
+      "employer": "Tshwane University of Technology (TUT)",
+      "title": "Part Time Lecturer",
+      "location": "Law, Safety and Security (Ref 26/C18) – eMalahleni",
+      "closingDate": "2026-11-06",
+      "url": "https://www.tut.ac.za/media/tshwane-interim/site-content/documents/vacancies/26C18-PART-TIME-LECTURER.pdf",
+      "sector": "university"
+    },
+    {
+      "employer": "Tshwane University of Technology (TUT)",
+      "title": "Project Coordinator: Financial Management and Programme Support (Ref 26/A50)",
+      "location": null,
+      "closingDate": "2026-11-06",
+      "url": "https://www.tut.ac.za/media/tshwane-interim/site-content/documents/vacancies/Project-Coordinator--finance.pdf",
+      "sector": "university"
+    },
+    {
+      "employer": "Tshwane University of Technology (TUT)",
+      "title": "Project Coordinator: Student and Programme Support (Ref 26/A51)",
+      "location": null,
+      "closingDate": "2026-11-06",
+      "url": "https://www.tut.ac.za/media/tshwane-interim/site-content/documents/vacancies/Project-Coordinator--SPS.pdf",
+      "sector": "university"
+    },
+    {
+      "employer": "Tshwane University of Technology (TUT)",
+      "title": "Part-time Lecturers",
+      "location": "Auditing (Ref 26/Q43) – Ga-Rankuwa",
+      "closingDate": "2026-11-13",
+      "url": "https://www.tut.ac.za/media/tshwane-interim/site-content/documents/vacancies/Advert--Part-Time-Auditing-Lecturers---2027.pdf",
+      "sector": "university"
+    },
+    {
+      "employer": "Tshwane University of Technology (TUT)",
+      "title": "Part-time Lecturers",
+      "location": "Auditing (Ref 26/Q42) – Ga-Rankuwa",
+      "closingDate": "2026-11-13",
+      "url": "https://www.tut.ac.za/media/tshwane-interim/site-content/documents/vacancies/part--time-lecturers-q42.pdf",
+      "sector": "university"
+    },
+    {
+      "employer": "University of the Witwatersrand (Wits)",
+      "title": "LECTURER.2.01 - LECTURER IN FINANCE (AC08) (AC.08.4)",
+      "location": "School of Economics and Finance – Johannesburg",
+      "closingDate": "2026-11-06",
+      "url": "https://irec.wits.ac.za/OA_HTML/OA.jsp?page=/oracle/apps/irc/candidateSelfService/webui/VisVacDispPG&IRC_EXT_SITE_VISITOR_APP=IRC_VIS_VAC_DISPLAY&p_svid=107357&p_spid=5203846",
+      "sector": "university"
+    },
+    {
+      "employer": "University of the Witwatersrand (Wits)",
+      "title": "HEAD: Campus Health & Wellness Centre (AD.06.3)",
+      "location": "Campus Health – Johannesburg",
+      "closingDate": "2026-11-10",
+      "url": "https://irec.wits.ac.za/OA_HTML/OA.jsp?page=/oracle/apps/irc/candidateSelfService/webui/VisVacDispPG&IRC_EXT_SITE_VISITOR_APP=IRC_VIS_VAC_DISPLAY&p_svid=107938&p_spid=5234846",
+      "sector": "university"
+    },
+    {
+      "employer": "University of the Witwatersrand (Wits)",
+      "title": "Head: Counseling & Careers Development Unit (AD.06.3)",
+      "location": "Counselling and Careers Development Unit – Johannesburg",
+      "closingDate": "2026-11-10",
+      "url": "https://irec.wits.ac.za/OA_HTML/OA.jsp?page=/oracle/apps/irc/candidateSelfService/webui/VisVacDispPG&IRC_EXT_SITE_VISITOR_APP=IRC_VIS_VAC_DISPLAY&p_svid=107937&p_spid=5233846",
+      "sector": "university"
+    },
+    {
+      "employer": "University of the Witwatersrand (Wits)",
+      "title": "Lecturer / Senior Lecturer: English Language Education (AC.08.4)",
+      "location": "Languages – Johannesburg",
+      "closingDate": "2026-11-13",
+      "url": "https://irec.wits.ac.za/OA_HTML/OA.jsp?page=/oracle/apps/irc/candidateSelfService/webui/VisVacDispPG&IRC_EXT_SITE_VISITOR_APP=IRC_VIS_VAC_DISPLAY&p_svid=107717&p_spid=5221846",
+      "sector": "university"
+    },
+    {
+      "employer": "University of the Witwatersrand (Wits)",
+      "title": "Lecturer: Research Psychology (AC.08.4)",
+      "location": "Psychology – Johannesburg",
+      "closingDate": "2026-11-16",
+      "url": "https://irec.wits.ac.za/OA_HTML/OA.jsp?page=/oracle/apps/irc/candidateSelfService/webui/VisVacDispPG&IRC_EXT_SITE_VISITOR_APP=IRC_VIS_VAC_DISPLAY&p_svid=107737&p_spid=5222846",
+      "sector": "university"
+    },
+    {
+      "employer": "University of the Witwatersrand (Wits)",
+      "title": "Earth Quest Solutions Manager (12 months Fixed-Term Contract)",
+      "location": "Wits Enterprise – Johannesburg",
+      "closingDate": "2026-11-20",
+      "url": "https://irec.wits.ac.za/OA_HTML/OA.jsp?page=/oracle/apps/irc/candidateSelfService/webui/VisVacDispPG&IRC_EXT_SITE_VISITOR_APP=IRC_VIS_VAC_DISPLAY&p_svid=107917&p_spid=5232846",
+      "sector": "university"
+    },
+    {
+      "employer": "University of the Witwatersrand (Wits)",
+      "title": "HEAD OF SCHOOL.1.01 (NS.04.3)",
+      "location": "School of Chemistry – Johannesburg",
+      "closingDate": "2026-11-30",
+      "url": "https://irec.wits.ac.za/OA_HTML/OA.jsp?page=/oracle/apps/irc/candidateSelfService/webui/VisVacDispPG&IRC_EXT_SITE_VISITOR_APP=IRC_VIS_VAC_DISPLAY&p_svid=107461&p_spid=5211850",
+      "sector": "university"
+    }
+  ]
 }

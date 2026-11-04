@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   description: "Open posts at South African public employers, checked on their official careers pages. Free, no login.",
 };
 
-type Post = { employer: string; title: string; location: string | null; closingDate: string | null; url: string };
+type Post = { employer: string; title: string; location: string | null; closingDate: string | null; url: string; sector?: string };
 
 const BLOCK_COLOURS = [
   { bar: "border-l-[#0B6575]", pill: "bg-[#0B6575] text-white", tint: "bg-[#EEF6F7]", link: "hover:border-[#0B6575]" },
@@ -35,17 +35,28 @@ function todaySA() {
 export default function OpportunitiesTodayPage() {
   const today = todaySA();
   const posts = (data as { date: string; posts: Post[] }).posts.filter((p) => !p.closingDate || p.closingDate >= today);
-  const groups: { employer: string; posts: Post[] }[] = [];
-  for (const p of posts) {
-    let g = groups.find((x) => x.employer === p.employer);
-    if (!g) groups.push((g = { employer: p.employer, posts: [] }));
-    g.posts.push(p);
-  }
+  const date = (data as { date: string }).date;
+  const groupBy = (list: Post[]) => {
+    const out: { employer: string; posts: Post[] }[] = [];
+    for (const p of list) {
+      let g = out.find((x) => x.employer === p.employer);
+      if (!g) out.push((g = { employer: p.employer, posts: [] }));
+      g.posts.push(p);
+    }
+    return out;
+  };
+  const soeGroups = groupBy(posts.filter((p) => p.sector !== "university"));
+  const uniGroups = groupBy(posts.filter((p) => p.sector === "university"));
+  const groups = [...soeGroups, ...uniGroups];
+  const sections = [
+    { heading: "Open vacancies at state-owned companies and public entities", groups: soeGroups },
+    { heading: "Universities", groups: uniGroups },
+  ].filter((x) => x.groups.length > 0);
   return (
     <main className="min-h-screen bg-[#FBF6EC]">
       <div className="mx-auto max-w-5xl px-4 py-8 font-sans text-[#07284C] sm:px-6">
         <div className="mb-6 rounded-lg border border-[#07284C]/10 border-t-4 border-t-[#E2AE3C] bg-white p-5 shadow-sm sm:p-6">
-          <p className="text-sm font-semibold uppercase tracking-wide text-[#B8432A]">30 October 2026</p>
+          <p className="text-sm font-semibold uppercase tracking-wide text-[#B8432A]">{fmt(date)}</p>
           <h1 className="mt-1 text-2xl font-bold tracking-tight sm:text-3xl">🇿🇦 Opportunities found today</h1>
           <p className="mt-2 max-w-3xl text-base leading-relaxed text-slate-700">
             {posts.length > 0 ? (
@@ -73,15 +84,18 @@ export default function OpportunitiesTodayPage() {
             </a>
           </div>
         </div>
+        {sections.map((sec) => (
+          <div key={sec.heading} className="mb-8">
+            <h2 className="mb-3 text-xl font-bold tracking-tight sm:text-2xl">{sec.heading}</h2>
         <div className="space-y-4">
-          {groups.map((g, i) => {
+          {sec.groups.map((g, i) => {
             const col = BLOCK_COLOURS[i % BLOCK_COLOURS.length];
             return (
               <section key={g.employer} className={`overflow-hidden rounded-lg border border-[#07284C]/10 border-l-[6px] ${col.bar} bg-white shadow-sm`}>
-                <h2 className={`flex items-center justify-between gap-3 ${col.tint} px-5 py-3.5 text-base font-semibold tracking-tight sm:text-lg`}>
+                <h3 className={`flex items-center justify-between gap-3 ${col.tint} px-5 py-3.5 text-base font-semibold tracking-tight sm:text-lg`}>
                   <span>{g.employer}</span>
                   <span className={`rounded-full px-2.5 py-0.5 text-sm font-semibold tabular-nums ${col.pill}`}>({g.posts.length})</span>
-                </h2>
+                </h3>
                 <ul className="grid gap-3 border-t border-[#07284C]/10 p-4 sm:grid-cols-2">
                   {g.posts.map((p) => (
                     <li key={p.url + p.title}>
@@ -104,6 +118,8 @@ export default function OpportunitiesTodayPage() {
             );
           })}
         </div>
+          </div>
+        ))}
         <p className="mt-6 text-sm text-slate-700">Apply only on the official links ✅ Free for all job seekers 💼</p>
       </div>
     </main>
