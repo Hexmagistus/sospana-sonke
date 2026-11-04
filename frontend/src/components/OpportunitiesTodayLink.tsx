@@ -1,7 +1,7 @@
 import Link from "next/link";
 import data from "@/data/opportunitiesToday.json";
 
-type Post = { employer: string; closingDate: string | null; sector?: string };
+type Post = { employer: string; closingDate: string | null; category?: string };
 
 /** Short display name: the abbreviation in brackets if there is one, e.g. "Eskom" or "AGSA". */
 function shortName(name: string) {
@@ -13,20 +13,18 @@ function shortName(name: string) {
 function summary() {
   const today = new Date(Date.now() + 2 * 3600 * 1000).toISOString().slice(0, 10);
   const posts = (data as { posts: Post[] }).posts.filter((p) => !p.closingDate || p.closingDate >= today);
-  const counts = new Map<string, number>();
-  let uni = 0;
-  for (const p of posts) {
-    if (p.sector === "university") uni++;
-    else counts.set(p.employer, (counts.get(p.employer) ?? 0) + 1);
-  }
   if (posts.length === 0) return "See the latest posts checked on official careers pages. Free, no login.";
-  const top = [...counts.entries()].sort((a, b) => b[1] - a[1]).map(([e]) => shortName(e));
-  const shown = top.slice(0, 4);
-  const more = top.length - shown.length;
-  let text = `${posts.length} open posts at ${shown.join(", ")}`;
-  if (more > 0) text += ` and ${more} more state-owned ${more === 1 ? "company" : "companies"}`;
-  if (uni > 0) text += ", plus universities";
-  return `${text}, checked on their official pages. Free, no login.`;
+  const counts = new Map<string, number>();
+  const cats: string[] = [];
+  for (const p of posts) {
+    counts.set(p.employer, (counts.get(p.employer) ?? 0) + 1);
+    const raw = p.category ?? "other employers";
+    const c = /^[A-Z][a-z]/.test(raw) ? raw[0].toLowerCase() + raw.slice(1) : raw;
+    if (!cats.includes(c)) cats.push(c);
+  }
+  const top = [...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 4).map(([e]) => shortName(e));
+  const catText = cats.length > 1 ? `${cats.slice(0, -1).join(", ")} and ${cats[cats.length - 1]}` : cats[0];
+  return `${posts.length} open posts at ${counts.size} employers, including ${top.join(", ")}. Covers ${catText}, checked on their official pages. Free, no login.`;
 }
 
 /** Prominent block linking to /opportunities-today (bright light card, gold top bar). */

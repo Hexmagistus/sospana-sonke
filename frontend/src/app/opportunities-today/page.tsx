@@ -9,10 +9,10 @@ export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: "Opportunities found today | Sospana Sonke",
-  description: "Open posts at South African public employers, checked on their official careers pages. Free, no login.",
+  description: "Open posts at South African employers, checked on their official careers pages. Free, no login.",
 };
 
-type Post = { employer: string; title: string; location: string | null; closingDate: string | null; url: string; sector?: string };
+type Post = { employer: string; title: string; location: string | null; closingDate: string | null; url: string; category?: string };
 
 const BLOCK_COLOURS = [
   { bar: "border-l-[#0B6575]", pill: "bg-[#0B6575] text-white", tint: "bg-[#EEF6F7]", link: "hover:border-[#0B6575]" },
@@ -45,13 +45,19 @@ export default function OpportunitiesTodayPage() {
     }
     return out;
   };
-  const soeGroups = groupBy(posts.filter((p) => p.sector !== "university"));
-  const uniGroups = groupBy(posts.filter((p) => p.sector === "university"));
-  const groups = [...soeGroups, ...uniGroups];
-  const sections = [
-    { heading: "Open vacancies at state-owned companies and public entities", groups: soeGroups },
-    { heading: "Universities", groups: uniGroups },
-  ].filter((x) => x.groups.length > 0);
+  const HEADINGS: Record<string, string> = {
+    "State-owned companies": "Open vacancies at state-owned companies and public entities",
+  };
+  const categories: string[] = [];
+  for (const p of posts) {
+    const c = p.category ?? "Other";
+    if (!categories.includes(c)) categories.push(c);
+  }
+  const sections = categories.map((c) => ({
+    heading: HEADINGS[c] ?? c,
+    groups: groupBy(posts.filter((p) => (p.category ?? "Other") === c)),
+  }));
+  const groups = sections.flatMap((x) => x.groups);
   return (
     <main className="min-h-screen bg-[#FBF6EC]">
       <div className="mx-auto max-w-5xl px-4 py-8 font-sans text-[#07284C] sm:px-6">
