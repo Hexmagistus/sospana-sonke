@@ -7,7 +7,6 @@ import { ThemeProvider } from "@/lib/theme";
 import { THEME_BOOTSTRAP_SCRIPT } from "@/lib/themeBootstrap";
 import Nav from "@/components/Nav";
 import MobileBottomNav from "@/components/MobileBottomNav";
-import CommandPalette from "@/components/CommandPalette";
 import PwaRegister from "@/components/PwaRegister";
 import PolicyConsent from "@/components/PolicyConsent";
 import TaggingChoiceBanner from "@/components/TaggingChoiceBanner";
@@ -208,8 +207,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 {" · "}
                 <a href="/for-organisations" className="underline hover:text-ss-text">For organisations</a>
                 {" · "}
-                <a href="/pricing" className="underline hover:text-ss-text">Pricing</a>
-                {" · "}
                 <a href="/ranking" className="underline hover:text-ss-text">Ranking</a>
                 {" · "}
                 <a href="/status" className="underline hover:text-ss-text">Status</a>
@@ -232,7 +229,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <PolicyConsent />
             <TaggingChoiceBanner />
             <MentionPopup />
-            <CommandPalette />
           </AuthProvider>
         </ThemeProvider>
       </body>

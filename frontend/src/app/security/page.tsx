@@ -130,17 +130,6 @@ function SecurityInner() {
       </Card>
 
       <Card>
-        <h2 className="mb-2 text-lg font-semibold text-ss-text">Preferences</h2>
-        <p className="mb-3 text-sm text-ss-muted">
-          Tagging by an administrator, the kind of post you want to be considered for, and alerts each have their own
-          page now. Each one is saved separately.
-        </p>
-        <Link href="/preferences" className="inline-flex min-h-11 items-center rounded-lg bg-ss-primary px-3 text-sm font-semibold text-navy">
-          Open my preferences
-        </Link>
-      </Card>
-
-      <Card>
         <h2 className="mb-2 text-lg font-semibold text-ss-text">Your data (POPIA)</h2>
         <p className="mb-4 text-sm text-ss-muted">
           You have the right to see the personal information we hold about you and to have it deleted.

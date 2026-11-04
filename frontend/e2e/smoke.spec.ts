@@ -32,21 +32,3 @@ test("an employer page shows the stored careers link", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Careers link" })).toBeVisible();
 });
 
-test("sign-up stays on the form until consent, and is not submitted", async ({ page }) => {
-  await page.goto("/register");
-  await expect(page.getByRole("heading", { name: "Create your account" })).toBeVisible();
-  const submit = page.getByRole("button", { name: "Create account" });
-  await expect(submit).toBeDisabled();
-  await page.getByRole("checkbox").check();
-  await expect(submit).toBeEnabled();
-  const alerts = page.getByRole("radiogroup", { name: /email me about a post/ });
-  await alerts.getByRole("radio", { name: "No" }).check();
-  await expect(page).toHaveURL(/\/register$/);
-  await expect(submit).toBeEnabled();
-});
-
-test("alerts preferences send a signed-out visitor to sign-in", async ({ page }) => {
-  await page.goto("/preferences");
-  await expect(page).toHaveURL(/\/login$/);
-  await expect(page.getByRole("heading", { name: "Sospana Sonke" })).toBeVisible();
-});

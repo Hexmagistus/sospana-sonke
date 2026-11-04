@@ -81,7 +81,7 @@ const PUBLIC_ITEMS: Item[] = [
 
 const ITEMS: Item[] = [
   {
-    href: "/dashboard",
+    href: "/",
     label: "Home",
     icon: (a) => (
       <svg {...iconProps(a)} aria-hidden="true">
@@ -91,33 +91,12 @@ const ITEMS: Item[] = [
     ),
   },
   {
-    href: "/agent",
+    href: "/jobs",
     label: "Search",
     icon: (a) => (
       <svg {...iconProps(a)} aria-hidden="true">
         <circle cx="11" cy="11" r="6.5" />
         <path d="m20 20-3.5-3.5" />
-      </svg>
-    ),
-  },
-  {
-    href: "/tailor/applications",
-    label: "Applications",
-    match: "/tailor/applications",
-    icon: (a) => (
-      <svg {...iconProps(a)} aria-hidden="true">
-        <rect x="4.5" y="3.5" width="15" height="17" rx="2" />
-        <path d="M8.5 8h7M8.5 12h7M8.5 16h4" />
-      </svg>
-    ),
-  },
-  {
-    href: "/profile",
-    label: "Profile",
-    icon: (a) => (
-      <svg {...iconProps(a)} aria-hidden="true">
-        <circle cx="12" cy="8.5" r="3.5" />
-        <path d="M4.5 20a7.5 7.5 0 0 1 15 0" />
       </svg>
     ),
   },

@@ -18,18 +18,10 @@ const COUNTRIES = publicCountries().map((c) => ({
 
 // Account pages only; the public header row lists countries instead.
 const LINKS = [
-  { href: "/dashboard", label: "Dashboard" },
-  { href: "/applications", label: "My Applications" },
-  { href: "/profile", label: "Profile" },
-  { href: "/preferences", label: "Preferences" },
-  { href: "/messages", label: "Messages" },
-  { href: "/notifications", label: "Notifications" },
   { href: "/security", label: "Security" },
 ];
 
-const ACCOUNT_ONLY = new Set([
-  "/dashboard", "/applications", "/profile", "/preferences", "/messages", "/notifications", "/security",
-]);
+const ACCOUNT_ONLY = new Set(["/security"]);
 
 
 export default function Nav() {

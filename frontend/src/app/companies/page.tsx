@@ -15,7 +15,6 @@ import { CompanyActionsRow, NotCountedNotice, OpenVacancyCount, TrendingBadge, S
 import { CompanyPreviewModal } from "@/components/CompanyPreviewModal";
 import { AnimatedNumber } from "@/components/AnimatedNumber";
 import { FunSpinner } from "@/components/FunSpinner";
-import PendingSearchBanner from "@/components/PendingSearchBanner";
 import { CategoryListPanel } from "@/lib/explorer/CategoryListPanel";
 import { categoryListItems } from "@/lib/explorer/categoryList";
 import { HowToUseCard } from "@/lib/explorer/HowToUseCard";
@@ -383,7 +382,6 @@ function CompaniesDirectoryInner() {
       </div>
 
       <div className="relative z-10 space-y-6">
-        <PendingSearchBanner />
         {/* Desktop (lg+) drops this hero: the logo, notice, How to use card and Surprise me move into the explorer. */}
         <div className="overflow-hidden rounded-2xl shadow-sm lg:hidden">
           <Banner

@@ -42,8 +42,6 @@ export default function RankingPage() {
       <p className="text-sm text-ss-muted">
         <Link href="/jobs" className="font-semibold text-navy underline">Jobs</Link>
         {" · "}
-        <Link href="/pricing" className="font-semibold text-navy underline">Pricing</Link>
-        {" · "}
         <Link href="/terms" className="font-semibold text-navy underline">Terms</Link>
       </p>
     </article>
