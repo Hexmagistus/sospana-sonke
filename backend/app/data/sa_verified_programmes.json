@@ -1,5 +1,5 @@
 {
-  "verified_on": "2026-10-13",
+  "verified_on": "2026-11-09",
   "records": [
     {
       "company_name": "Absa Group",
@@ -179,8 +179,10 @@
       "country": "South Africa",
       "title": "Bursary Programme",
       "opportunity_type": "bursary",
-      "source_url": "https://www.ey.com/en_za/careers/graduate-programmes-south-africa",
-      "description": "Bursaries are awarded to individuals who we believe have the commitment to qualify as a Chartered Accountant and an academic record which indicates the ability to do so with due regard to financial need.",
+      "source_url": "https://www.ey.com/en_za/careers/apply-for-our-bursary-program",
+      "previous_source_url": "https://www.ey.com/en_za/careers/graduate-programmes-south-africa",
+      "description": "Bursary applications are open from the 1st of July to the 30th of September 2026.",
+      "closing_date": "2026-09-30",
       "qualifications": "A valid South African identity document. Studying a CA degree at a SAICA accredited university."
     },
     {
@@ -190,7 +192,8 @@
       "opportunity_type": "bursary",
       "source_url": "https://www.nsfas.org.za/content/how-to-apply.html",
       "description": "Applications for the 2027 academic year are open from 18 September to 31 October 2026. Applying is free.",
-      "closing_date": "2026-10-31"
+      "closing_date": "2026-10-31",
+      "verified_on": "2026-10-13"
     },
     {
       "company_name": "CHIETA",
