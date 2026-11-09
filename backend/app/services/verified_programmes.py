@@ -74,6 +74,13 @@ def import_verified_programmes(
     return counts
 
 
+def _checked_on(record: dict, verified_on: datetime) -> datetime:
+    raw = record.get("verified_on")
+    if not raw:
+        return verified_on
+    return datetime.strptime(str(raw).strip(), "%Y-%m-%d").replace(tzinfo=timezone.utc)
+
+
 def _store_one(db: Session, record: dict, verified_on: datetime) -> str:
     title = (record.get("title") or "").strip()
     company_name = (record.get("company_name") or "").strip()
@@ -101,16 +108,31 @@ def _store_one(db: Session, record: dict, verified_on: datetime) -> str:
     if company.careers_url:
         ensure_source(db, company)
     source = _verified_source(db, company, source_url, verified_on)
+    checked = _checked_on(record, verified_on)
+    closing = _parse_closing(record.get("closing_date"))
+    urls = [source_url]
+    previous = (record.get("previous_source_url") or "").strip()
+    if previous.startswith("https://") and previous != source_url:
+        urls.append(previous)
     external_id = external_id_for(company.company_name, title, source_url)
     digest = hashlib.sha256(f"{title}|{source_url}|{kind}".encode()).hexdigest()
-    existing = (
-        db.query(Vacancy)
-        .filter(Vacancy.external_id == external_id, Vacancy.deleted_at.is_(None))
-        .first()
-    )
+    existing = None
+    for url in urls:
+        found = (
+            db.query(Vacancy)
+            .filter(
+                Vacancy.external_id == external_id_for(company.company_name, title, url),
+                Vacancy.deleted_at.is_(None),
+            )
+            .first()
+        )
+        if found is not None:
+            existing = found
+            break
     if existing is not None and "manual_close" in list(existing.quality_flags or []):
         # Closed after a check found no sign it is open. A boot must not reopen it.
         return "skipped_closed"
+    from app.services.opportunity_expiry import closing_has_passed, closing_value_has_passed, mark_active, mark_expired
     if existing is None:
         same_title = (
             db.query(Vacancy)
@@ -136,8 +158,8 @@ def _store_one(db: Session, record: dict, verified_on: datetime) -> str:
             board_url=None,
         ):
             return "skipped_expired"
-        from app.services.opportunity_expiry import closing_value_has_passed
-        if closing_value_has_passed(_stated_closing(record.get("closing_date"), verified_on)):
+        if closing is not None and closing_value_has_passed(closing):
+            # A new row is stored only while the call is open.
             return "skipped_expired"
         existing = Vacancy(
             company_id=company.id,
@@ -146,14 +168,15 @@ def _store_one(db: Session, record: dict, verified_on: datetime) -> str:
             title=title,
             content_hash=digest,
             is_open=True,
-            first_seen_at=verified_on,
-            last_seen_at=verified_on,
+            first_seen_at=checked,
+            last_seen_at=checked,
         )
         db.add(existing)
         outcome = "created"
     else:
         outcome = "updated"
     existing.source_id = source.id
+    existing.external_id = external_id
     existing.title = title
     existing.opportunity_type = kind
     existing.field_of_study = field
@@ -163,19 +186,18 @@ def _store_one(db: Session, record: dict, verified_on: datetime) -> str:
     existing.country = country
     existing.source_url = source_url
     existing.application_url = source_url
-    existing.closing_date = _stated_closing(record.get("closing_date"), verified_on)
+    existing.closing_date = closing
     existing.posting_date = None
     existing.content_hash = digest
     existing.fingerprint = digest
-    from app.services.opportunity_expiry import closing_has_passed, mark_active, mark_expired
     if closing_has_passed(existing.closing_date):
-        mark_expired(existing, verified_on)
+        mark_expired(existing, checked)
     else:
         mark_active(existing)
     existing.verification_state = existing.verification_state or "DISCOVERED"
     existing.opportunity_reviewed = True
-    existing.verified_at = verified_on
-    existing.last_seen_at = verified_on
+    existing.verified_at = checked
+    existing.last_seen_at = checked
     return outcome
 
 
@@ -222,20 +244,21 @@ def _verified_source(db: Session, company: Company, source_url: str, verified_on
     return source
 
 
-def _stated_closing(value, verified_on: datetime) -> date | None:
-    """Keep a closing date only when the page stated an ISO date that is still open."""
+def _parse_closing(value) -> date | None:
+    """A closing date is kept only when the page stated an ISO calendar day.
+
+    A day that has already passed is still returned. The caller marks that
+    row expired. A phrase such as "next Friday" is not a date.
+    """
     if value is None:
         return None
     text = str(value).strip()
     if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", text):
         return None
     try:
-        day = datetime.strptime(text, "%Y-%m-%d").date()
+        return datetime.strptime(text, "%Y-%m-%d").date()
     except ValueError:
         return None
-    if day < verified_on.date():
-        return None
-    return day
 
 
 def _clean(value) -> str | None:

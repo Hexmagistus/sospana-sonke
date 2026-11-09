@@ -16,7 +16,7 @@ from app.services.verified_programmes import (
 )
 
 
-VERIFIED_ON = datetime(2026, 10, 13, tzinfo=timezone.utc)
+VERIFIED_ON = datetime(2026, 11, 9, tzinfo=timezone.utc)
 
 
 @pytest.fixture(autouse=True)
@@ -72,7 +72,7 @@ def test_shipped_file_names_only_programme_types_and_open_dates():
         stated = record.get("closing_date")
         if stated is not None:
             day = datetime.strptime(stated, "%Y-%m-%d").date()
-            assert day >= verified_on.date()
+            assert day < verified_on.date()
     assert kinds == {
         "Absa Group", "Deloitte Southern Africa", "EY South Africa",
         "CHIETA", "National Student Financial Aid Scheme (NSFAS)",
@@ -99,13 +99,14 @@ def test_import_matches_existing_employers_and_leaves_closing_dates_blank():
     db.close()
 
     first = import_verified_programmes(engine)
-    assert first["created"] == 25
+    assert first["created"] == 20
+    assert first["skipped_expired"] == 5
     assert first["skipped_missing_company"] == 0
     assert first["skipped_invalid"] == 0
 
     db = S()
     rows = db.query(Vacancy).all()
-    assert len(rows) == 25
+    assert len(rows) == 20
     assert all(row.posting_date is None for row in rows)
     assert all(row.closing_date is None for row in rows if row.title in {
         "Absa Graduate Programme", "Bursary Programme",
@@ -115,11 +116,7 @@ def test_import_matches_existing_employers_and_leaves_closing_dates_blank():
     })
     assert all(_as_utc(row.verified_at) == VERIFIED_ON for row in rows)
     bursaries = [row for row in rows if row.opportunity_type == "bursary"]
-    assert {row.title for row in bursaries} == {
-        "Absa bursary Programme",
-        "Bursary Programme",
-        "Apply for NSFAS funding for the 2027 academic year",
-    }
+    assert {row.title for row in bursaries} == {"Absa bursary Programme"}
     forensic = next(row for row in rows if row.title.startswith("Forensic"))
     assert forensic.field_of_study.startswith("BCom/BCom Honours")
     assert "30 April" not in (forensic.description or "")
@@ -136,21 +133,14 @@ def test_import_matches_existing_employers_and_leaves_closing_dates_blank():
     assert absa_sources[1].active is False
     assert absa_sources[1].created_at >= absa_sources[0].created_at
 
-    nsfas = next(row for row in rows if row.title.startswith("Apply for NSFAS"))
-    assert nsfas.closing_date == date(2026, 10, 31)
-    assert nsfas.opportunity_type == "bursary"
-    ict = next(row for row in rows if row.title == "ICT Intern")
-    assert ict.closing_date == date(2026, 10, 23)
-    assert ict.stipend_text == "R7 000.00"
-    hr = next(row for row in rows if row.title == "Human Resource Intern")
-    assert hr.closing_date == date(2026, 10, 16)
     db.close()
 
     again = import_verified_programmes(engine)
     assert again["created"] == 0
-    assert again["updated"] == 25
+    assert again["updated"] == 20
+    assert again["skipped_expired"] == 5
     db = S()
-    assert db.query(Vacancy).count() == 25
+    assert db.query(Vacancy).count() == 20
     db.close()
     engine.dispose()
 
@@ -184,7 +174,11 @@ def test_unknown_company_and_duplicate_title_are_skipped():
     engine.dispose()
 
 
-def test_invalid_record_is_not_stored_and_a_stated_date_is_ignored():
+def test_invalid_record_is_not_stored_and_a_passed_date_is_not_added(monkeypatch):
+    monkeypatch.setattr(
+        "app.services.opportunity_expiry.sa_today",
+        lambda moment=None: date(2026, 10, 13),
+    )
     engine = _engine()
     S = sessionmaker(bind=engine)
     db = S()
@@ -227,17 +221,17 @@ def test_invalid_record_is_not_stored_and_a_stated_date_is_ignored():
         },
     ])
     assert counts["skipped_invalid"] == 1
-    assert counts["created"] == 3
+    assert counts["skipped_expired"] == 1
+    assert counts["created"] == 2
     db = S()
-    row = db.query(Vacancy).filter(Vacancy.title == "Absa bursary Programme").one()
-    assert row.closing_date is None
+    assert db.query(Vacancy).filter(Vacancy.title == "Absa bursary Programme").count() == 0
     ict = db.query(Vacancy).filter(Vacancy.title == "ICT Intern").one()
     assert ict.closing_date == date(2026, 10, 23)
     vague = db.query(Vacancy).filter(Vacancy.title == "Open bursary").one()
     assert vague.closing_date is None
-    assert row.external_id == external_id_for(
-        "Absa Group", "Absa bursary Programme",
-        "https://www.absa.africa/careers/graduate-opportunities/",
+    assert ict.external_id == external_id_for(
+        "Absa Group", "ICT Intern",
+        "https://chieta.org.za/job/24-months-internship-ict-intern/",
     )
     db.close()
     engine.dispose()
@@ -303,6 +297,97 @@ def test_a_closing_date_that_has_passed_is_skipped_and_counted(monkeypatch):
     assert counts["created"] == 0
     db = S()
     assert db.query(Vacancy).count() == 0
+    db.close()
+    engine.dispose()
+
+
+def test_a_call_that_closes_is_marked_expired_and_kept(monkeypatch):
+    monkeypatch.setattr(
+        "app.services.opportunity_expiry.sa_today",
+        lambda moment=None: date(2026, 9, 1),
+    )
+    engine = _engine()
+    S = sessionmaker(bind=engine)
+    db = S()
+    _company(db, "Absa Group", careers="https://www.absa.africa/careers/")
+    _company(db, "Deloitte Southern Africa", careers="https://www.deloitte.com/za/en/careers.html")
+    _company(db, "EY South Africa", active=False, careers="https://www.ey.com/en_za/careers/job-search")
+    _company(db, "CHIETA", careers="https://chieta.org.za/careers/vacancies/")
+    _company(db, "National Student Financial Aid Scheme (NSFAS)", careers="https://www.nsfas.org.za/content/careers.html")
+    db.close()
+
+    first = import_verified_programmes(engine)
+    assert first["created"] == 25
+    monkeypatch.setattr(
+        "app.services.opportunity_expiry.sa_today",
+        lambda moment=None: date(2026, 11, 9),
+    )
+    again = import_verified_programmes(engine)
+    assert again["created"] == 0
+    assert again["updated"] == 25
+    db = S()
+    assert db.query(Vacancy).filter(Vacancy.deleted_at.is_(None)).count() == 25
+    closed_titles = {
+        "Bursary Programme",
+        "Human Resource Intern",
+        "Administration Intern",
+        "ICT Intern",
+        "Apply for NSFAS funding for the 2027 academic year",
+    }
+    for row in db.query(Vacancy).all():
+        if row.title in closed_titles:
+            assert row.is_open is False and row.status == "expired" and row.deleted_at is None
+        else:
+            assert row.is_open is True and row.status == "active"
+    ey = db.query(Vacancy).filter(Vacancy.title == "Bursary Programme").one()
+    assert ey.closing_date == date(2026, 9, 30)
+    assert ey.source_url == "https://www.ey.com/en_za/careers/apply-for-our-bursary-program"
+    nsfas = db.query(Vacancy).filter(Vacancy.title.startswith("Apply for NSFAS")).one()
+    assert nsfas.closing_date == date(2026, 10, 31)
+    assert _as_utc(nsfas.verified_at) == datetime(2026, 10, 13, tzinfo=timezone.utc)
+    db.close()
+    engine.dispose()
+
+
+def test_an_existing_call_keeps_one_row_when_its_source_url_changes(monkeypatch):
+    monkeypatch.setattr(
+        "app.services.opportunity_expiry.sa_today",
+        lambda moment=None: date(2026, 11, 9),
+    )
+    engine = _engine()
+    S = sessionmaker(bind=engine)
+    db = S()
+    company = _company(db, "EY South Africa", active=False, careers="https://www.ey.com/en_za/careers/job-search")
+    source = VacancySource(company_id=company.id, url="https://www.ey.com/en_za/careers/job-search", ats_type="workday")
+    db.add(source)
+    db.commit()
+    old_url = "https://www.ey.com/en_za/careers/graduate-programmes-south-africa"
+    now = datetime(2026, 10, 13, tzinfo=timezone.utc)
+    db.add(Vacancy(
+        company_id=company.id, source_id=source.id, title="Bursary Programme",
+        content_hash="old", external_id=external_id_for("EY South Africa", "Bursary Programme", old_url),
+        is_open=True, first_seen_at=now, last_seen_at=now,
+    ))
+    db.commit()
+    db.close()
+    counts = import_verified_programmes(engine, verified_on=VERIFIED_ON, records=[{
+        "company_name": "EY South Africa",
+        "country": "South Africa",
+        "title": "Bursary Programme",
+        "opportunity_type": "bursary",
+        "source_url": "https://www.ey.com/en_za/careers/apply-for-our-bursary-program",
+        "previous_source_url": old_url,
+        "description": "Bursary applications are open from the 1st of July to the 30th of September 2026.",
+        "closing_date": "2026-09-30",
+    }])
+    assert counts["updated"] == 1
+    assert counts["created"] == 0
+    db = S()
+    rows = db.query(Vacancy).all()
+    assert len(rows) == 1
+    assert rows[0].is_open is False and rows[0].status == "expired" and rows[0].deleted_at is None
+    assert rows[0].closing_date == date(2026, 9, 30)
+    assert rows[0].source_url == "https://www.ey.com/en_za/careers/apply-for-our-bursary-program"
     db.close()
     engine.dispose()
 
