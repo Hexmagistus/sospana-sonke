@@ -43,6 +43,9 @@ def upgrade(bind: Engine) -> None:
         ))
     from app.services.opportunity_expiry import stamp_expired
 
+    present = _columns(bind)
+    if "quality_flags" not in present or "status" not in present:
+        return
     db = Session(bind)
     try:
         stamp_expired(db)

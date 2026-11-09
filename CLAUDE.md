@@ -75,6 +75,9 @@ A careers landing page is enough for that same set, even when the HTML lists no 
 
 ## Session Log
 
+### 2026-11-09 — Cursor (Grok 4.7) — Apply vacancy columns before startup queries
+Render deploys were exiting on startup because a vacancy lookup by external id selected `quality_flags` before that column existed. Boot now runs `ADD COLUMN IF NOT EXISTS` for the additive columns, and creates `opportunity_tombstones` and `stored_files` if they are missing, before `create_all` indexes and before the programme import or the expiry stamp. If those columns are still missing, those two startup queries are skipped. Render's pre-deploy command runs the same `init_db`. A test boots the app against a vacancy table that does not have the quality or expiry columns, then reads the old row by external id.
+
 ### 2026-10-21 — Claude (Cowork, Opus 5.5) — Cut Neon network transfer (free 5 GB/month ran out 17 Oct)
 Neon emailed on 17 October that project `sospana-sonke` used 100% of its 5 GB monthly public network transfer, so queries fail until the reset or an upgrade. Vercel separately reported 75% of the 10 GB free deployment storage on 20 October (old builds; no code change here). The transfer comes from Frankfurt reading Neon, and the 15-minute cron was the steady reader:
 - `review_listing_quality` ran every 15 minutes and paged id, title and two URLs of every non-expired vacancy each time. It now runs once a day from `daily-agent.yml` (its registry slot was already 01:15). The scan workflow calls a new `check_listing_links` job instead (one batch of 25 unchecked links, same 404/410 expiry).

@@ -104,14 +104,20 @@ def get_db() -> Generator[Session, None, None]:
 
 
 def init_db() -> None:
-    """Create tables. MVP bootstrap; Alembic migrations replace this in Step 0.5."""
+    """Create tables. MVP bootstrap; Alembic migrations replace this in Step 0.5.
+
+    Columns and the private archive tables are applied before ``create_all``
+    indexes and before any upgrade that selects a vacancy. Production crashed
+    when a startup lookup by ``external_id`` ran while ``quality_flags`` was
+    still missing.
+    """
     from app.db.base import Base
     from app import models  # noqa: F401  (ensures models are registered)
-    Base.metadata.create_all(bind=engine)
-    # Columns first: the upgrades below query the Vacancy model, so every
-    # mapped column must exist before they run (a missing quality_flags
-    # column stopped every deploy from 13 Oct).
     _add_new_columns()
+    _ensure_boot_tables()
+    Base.metadata.create_all(bind=engine)
+    _add_new_columns()
+    _ensure_boot_tables()
     from app.db.migrations.alert_opportunity_type import upgrade as upgrade_alert_opportunity_type
     from app.db.migrations.opportunity_types import upgrade as upgrade_opportunity_types
     from app.db.migrations.role_alerts import upgrade as upgrade_role_alerts
@@ -124,10 +130,11 @@ def init_db() -> None:
     upgrade_alert_opportunity_type(engine)
     upgrade_usage_counts(engine)
     upgrade_opportunity_types(engine)
-    upgrade_verified_programmes(engine)
     upgrade_employer_plans(engine)
-    upgrade_opportunity_expiry(engine)
     upgrade_opportunity_tombstones(engine)
+    if _vacancy_model_ready():
+        upgrade_verified_programmes(engine)
+        upgrade_opportunity_expiry(engine)
     _add_new_columns()
     _widen_external_id()
     _ensure_indexes()
@@ -331,25 +338,100 @@ def _widen_external_id() -> None:
     _execute_ddl("ALTER TABLE vacancies ALTER COLUMN external_id TYPE VARCHAR(2000)")
 
 
-def _add_new_columns() -> None:
+# Selected by the vacancy model. A startup query must not run until these exist.
+_VACANCY_READY = (
+    "external_id", "quality_score", "quality_flags", "link_http_status",
+    "link_checked_at", "status", "expired_at",
+)
+
+
+def _clear_inspector():
     from sqlalchemy import inspect
 
     inspector = inspect(engine)
-    existing_tables = set(inspector.get_table_names())
+    clear = getattr(inspector, "clear_cache", None)
+    if clear is not None:
+        clear()
+    return inspector
+
+
+def _column_names(table: str) -> set[str] | None:
+    """Live column names, or None when the table does not exist yet."""
+    inspector = _clear_inspector()
+    if table not in set(inspector.get_table_names()):
+        return None
+    return {col["name"] for col in inspector.get_columns(table)}
+
+
+def _vacancy_model_ready() -> bool:
+    """True when a ``Vacancy`` SELECT cannot name a missing column."""
+    present = _column_names("vacancies")
+    if present is None:
+        return False
+    missing = [name for name in _VACANCY_READY if name not in present]
+    if missing:
+        logger.error(
+            "Not querying vacancies at startup; still missing %s",
+            ", ".join(missing),
+        )
+        return False
+    return True
+
+
+def _ensure_boot_tables() -> None:
+    """Private tables from the expiry work. Idempotent, and not a data query."""
+    if _is_sqlite:
+        timestamp, blob = "TIMESTAMP", "BLOB"
+    else:
+        timestamp, blob = "TIMESTAMP WITH TIME ZONE", "BYTEA"
+    _execute_ddl(
+        "CREATE TABLE IF NOT EXISTS opportunity_tombstones ("
+        "key_hash VARCHAR(64) PRIMARY KEY, "
+        f"deleted_at {timestamp} NOT NULL)"
+    )
+    _execute_ddl(
+        "CREATE TABLE IF NOT EXISTS stored_files ("
+        "key VARCHAR(512) PRIMARY KEY, "
+        f"data {blob} NOT NULL, "
+        "size INTEGER NOT NULL, "
+        f"created_at {timestamp})"
+    )
+
+
+def _add_new_columns() -> None:
+    """``ADD COLUMN IF NOT EXISTS`` for every column shipped after the first boot.
+
+    The inspector is refreshed first so a cached reflection cannot skip a
+    column that production does not have yet. A missing table is left for
+    ``create_all``.
+    """
+    inspector = _clear_inspector()
+    tables = set(inspector.get_table_names())
+    seen: dict[str, set[str]] = {}
     for table, column, ddl_type in _NEW_COLUMNS:
-        if table not in existing_tables:
-            continue  # create_all just made it fresh, with every current column
-        existing_columns = {c["name"] for c in inspector.get_columns(table)}
-        if column in existing_columns:
+        if table not in tables:
             continue
-        added = _execute_ddl(f"ALTER TABLE {table} ADD COLUMN {column} {ddl_type}")
+        present = seen.get(table)
+        if present is None:
+            present = {col["name"] for col in inspector.get_columns(table)}
+            seen[table] = present
+        if column in present:
+            continue
+        # Postgres accepts IF NOT EXISTS. SQLite's ADD COLUMN does not, so the
+        # inspector check above is what keeps a second boot from failing there.
+        if _is_sqlite:
+            sql = f"ALTER TABLE {table} ADD COLUMN {column} {ddl_type}"
+        else:
+            sql = f"ALTER TABLE {table} ADD COLUMN IF NOT EXISTS {column} {ddl_type}"
+        added = _execute_ddl(sql)
         if not added:
-            # The app can boot on the previous schema. The next boot retries.
             logger.error(
-                "Column %s.%s (%s) is still missing — writes touching it may fail "
-                "until a later boot can take the lock.",
+                "Column %s.%s (%s) is still missing — startup will not query that model.",
                 table, column, ddl_type,
             )
+            continue
+        present.add(column)
+        _clear_inspector()
 
 
 # create_all() does not add indexes to tables that already exist in production.
