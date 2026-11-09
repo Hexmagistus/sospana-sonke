@@ -14,7 +14,7 @@ if (!logPath) {
 }
 
 const log = readFileSync(logPath, "utf8");
-const match = log.match(/^[┌├└]\s+[○ƒλ]\s+\/\s+[\d.]+\s*(?:kB|B)\s+([\d.]+)\s*kB\s*$/m);
+const match = log.match(/^[┌├└]\s+[○ƒλ●]\s+\/\s+[\d.]+\s*(?:kB|B)\s+([\d.]+)\s*kB\b/m);
 if (!match) {
   console.error("Could not read the homepage First Load JS line from the build log.");
   process.exit(1);
