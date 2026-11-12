@@ -75,6 +75,13 @@ A careers landing page is enough for that same set, even when the HTML lists no 
 
 ## Session Log
 
+### 2026-11-12 — Grok Bot (for Lungani) — South African careers scan, closing-date reader, navigation-title filter
+Offline scan of every South African careers link (1,041 unique URLs from 936 employers) with the repo's own fetch and normalise code, results written to Neon over HTTPS. The box cannot reach Neon port 5432, so no DB write came from `run_scan.py`.
+- New `backend/app/scraper/closing_date.py`: reads a closing date from a vacancy page or PDF text, only when it follows a whole-word label ("Closing date", "Applications close", "Deadline", ...) in the same sentence. Opening and posting dates, a date in the next sentence, a date inside "enclose" or "weekend date", impossible dates and unlabelled dates return None. Tests: `tests/test_closing_date.py`. Not yet called from the scan (it would add one request per vacancy); wiring it into `static_html` for PDF and detail pages is the next step.
+- `listing_quality`: titles that start "apply for a/an", "how to apply", "apply online" are navigation links, not roles (`not_an_opportunity`). The bare titles "test" and "test job" are whole titles only, so "Test Analyst", "Software Tester", "Latest Graduate Programme" and "Contest Administrator" stay listed. Both the Python rule and its SQL twin (`quality_failure_clause`) changed. The daily `review_listing_quality` job will now expire the City of Cape Town rows "apply for a bursary" and "apply for an executive position". `static_html` skips a link whose text starts "apply for a/an"; a role that only mentions those words later in the title is still read.
+- Known and left alone: HWSETA is stored under two employer names, and City of Cape Town under two. Merging employers needs a decision.
+
+
 ### 2026-11-09 — Cursor (Grok 4.7) — Apply vacancy columns before startup queries
 Render deploys were exiting on startup because a vacancy lookup by external id selected `quality_flags` before that column existed. Boot now runs `ADD COLUMN IF NOT EXISTS` for the additive columns, and creates `opportunity_tombstones` and `stored_files` if they are missing, before `create_all` indexes and before the programme import or the expiry stamp. If those columns are still missing, those two startup queries are skipped. Render's pre-deploy command runs the same `init_db`. A test boots the app against a vacancy table that does not have the quality or expiry columns, then reads the old row by external id. `pypdf` is 6.21.4 so the audit step can pass, and the homepage bundle check reads the extra columns Next now prints after the first-load size.
 
