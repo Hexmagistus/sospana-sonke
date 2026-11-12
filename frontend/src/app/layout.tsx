@@ -177,6 +177,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <AuthProvider>
             <VisitorStrip />
             <Nav />
+            <MusicDock />
             <main id="main-content" className="relative z-0 mx-auto max-w-6xl px-4 py-6 pb-24 md:pb-6">
               <PhotoWash />
               {children}
@@ -240,7 +241,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               </p>
             </footer>
             <PwaExtras />
-            <MusicDock />
             <MobileBottomNav />
             <PolicyConsent />
             <TaggingChoiceBanner />
