@@ -36,7 +36,7 @@ _STRONG_HREF = re.compile(r'/(detail|vacanc|requisition|position|job|opportunit|
 _BLACKLIST = ("manual", "policy", "plan", "committee", "board of", "privacy", "notice",
     "communication", "bank details", "download", "sign in", "register", "procurement",
     "standards &", "how to apply", "terms", "cookie", "contact us", "about us", "login",
-    "e-procurement", "paia")
+    "e-procurement", "paia", "apply for a ", "apply for an ")
 _STOP = {"open vacancies", "closed vacancies", "apply", "apply now", "apply online",
     "view more", "read more", "more", "home", "careers", "vacancies"}
 _A = re.compile(r'<a\b[^>]*href=["\']([^"\']+)["\'][^>]*>(.*?)</a>', re.I | re.S)

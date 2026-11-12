@@ -115,6 +115,11 @@ def test_sql_and_python_agree_on_each_sample(db):
         }, []),
         ("Tsogo Sun Gaming Careers", {"description": "The company careers page.", "closing_date": today + timedelta(days=2)}, ["not_an_opportunity"]),
         ("Careers - Heirs Holdings", {"closing_date": today + timedelta(days=2)}, ["not_an_opportunity"]),
+        ("apply for a bursary", {"closing_date": today + timedelta(days=2)}, ["not_an_opportunity"]),
+        ("apply for an executive position", {"closing_date": today + timedelta(days=2)}, ["not_an_opportunity"]),
+        ("How to apply", {"closing_date": today + timedelta(days=2)}, ["not_an_opportunity"]),
+        ("Test", {"closing_date": today + timedelta(days=2)}, ["not_an_opportunity"]),
+        ("Test Engineer", {"closing_date": today + timedelta(days=2)}, []),
         ("NFVF Announces Appointment of New Chief Executive Officer", {"closing_date": today + timedelta(days=2)}, ["not_an_opportunity"]),
         ("SIU welcomes freezing of a pension fund", {"closing_date": today + timedelta(days=2)}, ["not_an_opportunity"]),
         ("NU researcher leads a study", {

@@ -53,7 +53,13 @@ GENERIC_TITLES = (
     "about", "about us", "contact", "contact us", "news", "blog", "press",
     "media", "welcome", "our story", "sitemap", "privacy policy",
     "cookie policy", "latest news", "newsroom", "press room",
+    "test", "test job",
 )
+
+# Navigation links on a careers page, not a role: "apply for a bursary",
+# "apply for an executive position", "how to apply". Found on municipal pages
+# (City of Cape Town) where the scanner read menu items as vacancies.
+NAV_TITLE_PREFIXES = ("apply for a ", "apply for an ", "how to apply", "apply online")
 
 _ROLE_KEEP = (
     "vacanc", "position", "internship", "learnership", "bursary", "recruit", "hiring",
@@ -282,6 +288,8 @@ def _is_generic_title(title: str | None) -> bool:
         return True
     if text.startswith("careers:") or text.startswith("careers |"):
         return True
+    if text.startswith(NAV_TITLE_PREFIXES):
+        return True
     return False
 
 
@@ -393,6 +401,7 @@ def quality_failure_clause(today: date):
         lowered.like("careers –%"),
         lowered.like("careers:%"),
         lowered.like("careers |%"),
+        *(lowered.like(f"{prefix}%") for prefix in NAV_TITLE_PREFIXES),
     ))
     parts.append(and_(
         or_(*(Vacancy.title.ilike(f"%{bit}%") for bit in _NEWS_TITLE_BITS)),
