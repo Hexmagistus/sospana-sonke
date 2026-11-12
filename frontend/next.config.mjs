@@ -21,7 +21,8 @@ const contentSecurityPolicy = [
   "font-src 'self' data:",
   // Backend API (Render) + Google sign-in token endpoints.
   "connect-src 'self' https://sospana-sonke-api-fra.onrender.com https://accounts.google.com https://apis.google.com",
-  "frame-src https://accounts.google.com",
+  // Google sign-in, plus Bandcamp's official embedded player (bandcamp.com and artist subdomains).
+  "frame-src https://accounts.google.com https://bandcamp.com https://*.bandcamp.com",
 ].join("; ");
 const securityHeaders = [
   { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" },

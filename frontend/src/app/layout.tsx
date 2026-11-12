@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import Link from "next/link";
 import { Bricolage_Grotesque, Inter } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
@@ -7,6 +8,7 @@ import { ThemeProvider } from "@/lib/theme";
 import { THEME_BOOTSTRAP_SCRIPT } from "@/lib/themeBootstrap";
 import Nav from "@/components/Nav";
 import MobileBottomNav from "@/components/MobileBottomNav";
+import MusicDock from "@/components/MusicDock";
 import PwaRegister from "@/components/PwaRegister";
 import PolicyConsent from "@/components/PolicyConsent";
 import TaggingChoiceBanner from "@/components/TaggingChoiceBanner";
@@ -209,6 +211,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 {" · "}
                 <a href="/status" className="underline hover:text-ss-text">Status</a>
                 {" · "}
+                <Link href="/music" className="underline hover:text-ss-text">Music</Link>
+                {" · "}
                 <a href="/game/play.html" className="underline hover:text-ss-text">🎮 Play game</a>
                 {" · "}
                 <a href="https://whatsapp.com/channel/0029VbDRxdBFy72Keo1GCv11" target="_blank" rel="noopener noreferrer" className="underline hover:text-ss-text">WhatsApp channel</a>
@@ -236,6 +240,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               </p>
             </footer>
             <PwaExtras />
+            <MusicDock />
             <MobileBottomNav />
             <PolicyConsent />
             <TaggingChoiceBanner />
