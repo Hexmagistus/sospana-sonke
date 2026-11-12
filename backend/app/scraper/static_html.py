@@ -36,7 +36,10 @@ _STRONG_HREF = re.compile(r'/(detail|vacanc|requisition|position|job|opportunit|
 _BLACKLIST = ("manual", "policy", "plan", "committee", "board of", "privacy", "notice",
     "communication", "bank details", "download", "sign in", "register", "procurement",
     "standards &", "how to apply", "terms", "cookie", "contact us", "about us", "login",
-    "e-procurement", "paia", "apply for a ", "apply for an ")
+    "e-procurement", "paia")
+# Menu items, matched only at the start of the link text. A role whose title
+# merely mentions applying ("Senior Accountant, apply for a contract") stays.
+_NAV_LINK = ("apply for a ", "apply for an ")
 _STOP = {"open vacancies", "closed vacancies", "apply", "apply now", "apply online",
     "view more", "read more", "more", "home", "careers", "vacancies"}
 _A = re.compile(r'<a\b[^>]*href=["\']([^"\']+)["\'][^>]*>(.*?)</a>', re.I | re.S)
@@ -108,7 +111,7 @@ class StaticHTMLStrategy(ScrapeStrategy):
             hrefl = href.lower()
             if not t or len(t) < 6 or len(t) > 100:
                 continue
-            if low in _STOP or any(b in low for b in _BLACKLIST):
+            if low in _STOP or low.startswith(_NAV_LINK) or any(b in low for b in _BLACKLIST):
                 continue
             if '/list/' in hrefl or '/browse' in hrefl:
                 continue

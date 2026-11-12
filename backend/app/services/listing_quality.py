@@ -48,6 +48,8 @@ DEAD_LINK_STATUSES = (404, 410)
 _SYSTEM_ACTOR = "00000000-0000-0000-0000-000000000000"
 
 # Whole-title labels that are site pages, not a role.
+# "test" and "test job" are the entire title. A role that only contains those
+# words stays listed: "Test Analyst", "Software Tester", "Latest …", "Contest …".
 GENERIC_TITLES = (
     "careers", "jobs", "job", "vacancies", "vacancy", "home", "homepage",
     "about", "about us", "contact", "contact us", "news", "blog", "press",
