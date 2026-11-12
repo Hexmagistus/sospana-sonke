@@ -33,8 +33,9 @@ export default function MusicPage() {
         <h1 className="text-3xl font-bold text-[#1F2328]">Music</h1>
         <p className="max-w-2xl text-sm leading-relaxed text-[#3f4a5c]">
           Albums and one single by {GASTRIC_ARTIST}, newest first. Each player is Bandcamp&apos;s own,
-          so the audio stays on Bandcamp. Press play when you want sound. The Music button in the
-          corner can keep a release going while you look around the rest of the site.
+          so the audio stays on Bandcamp. Press play when you want sound. If a player says cookies
+          are disabled, Listen on Bandcamp still opens that release. The Music control under the
+          header can keep one release going while you look around the rest of the site.
         </p>
         <p>
           <a
@@ -65,7 +66,15 @@ export default function MusicPage() {
                 <p className="mt-1 text-sm text-[#3f4a5c]">
                   {GASTRIC_ARTIST} · {releaseKindLabel(release.kind)} · {formatReleaseDate(release.releasedOn)}
                 </p>
-                <p className="mt-2">
+                <p className="mt-2 flex flex-wrap gap-x-3 gap-y-1">
+                  <a
+                    href={bandcampPageUrl(release)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm font-semibold text-[#05606F] underline"
+                  >
+                    Listen on Bandcamp
+                  </a>
                   <a
                     href={bandcampPageUrl(release)}
                     target="_blank"
