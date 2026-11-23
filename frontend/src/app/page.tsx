@@ -47,6 +47,7 @@ function SourceNote({ s, className = "" }: { s: Source; className?: string }) {
 const CAT_TAG: Record<string, { label: string; cls: string }> = {
   "Government departments": { label: "Government", cls: "bg-[#EEF6F7] text-[#0B6575]" },
   "State-owned companies": { label: "State-owned", cls: "bg-[#EDF6F0] text-[#1E6B40]" },
+  Municipalities: { label: "Municipality", cls: "bg-[#EEF6F7] text-[#0B6575]" },
   Universities: { label: "Study & work", cls: "bg-[#FDF3DC] text-[#7A5200]" },
   Colleges: { label: "Study & work", cls: "bg-[#FDF3DC] text-[#7A5200]" },
   SETAs: { label: "Skills", cls: "bg-[#FDF3DC] text-[#7A5200]" },
