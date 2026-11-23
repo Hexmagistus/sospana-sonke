@@ -2,7 +2,7 @@ import { chromium } from "playwright";
 import { mkdirSync } from "node:fs";
 
 const base = process.env.CINEMA_BASE || "http://127.0.0.1:3456";
-const out = "/opt/cursor/artifacts";
+const out = process.env.CINEMA_ARTIFACTS || "/opt/cursor/artifacts";
 mkdirSync(out, { recursive: true });
 
 const browser = await chromium.launch({ headless: true });
@@ -28,11 +28,17 @@ for (const [width, height, tag] of [
   await page.screenshot({ path: `${out}/cinema-classic-${tag}.png` });
 
   await page.goto(base + "/categories/african-cinema", { waitUntil: "networkidle" });
-  await page.getByTestId("empty-category").waitFor();
+  check(`${tag} african shelf filled`, (await page.locator('a[href="/movies/october-1"]').count()) > 0, "October 1 missing from African Cinema");
   await page.screenshot({ path: `${out}/cinema-african-${tag}.png` });
 
   await page.goto(base + "/categories/south-african-movies", { waitUntil: "networkidle" });
-  check(`${tag} south africa empty`, (await page.getByTestId("empty-category").count()) === 1, "missing empty state");
+  check(`${tag} south africa filled`, (await page.locator('a[href="/movies/hopeville"]').count()) > 0 && (await page.getByTestId("empty-category").count()) === 0, "Hopeville missing");
+
+  await page.goto(base + "/watch/hopeville", { waitUntil: "domcontentloaded" });
+  check(`${tag} youtube embed`, (await page.getByTestId("player-embed").getAttribute("src")) === "https://www.youtube-nocookie.com/embed/3yQW0YYhtg0", "official embed missing");
+
+  await page.goto(base + "/kids", { waitUntil: "networkidle" });
+  check(`${tag} pending kids hidden`, !(await page.locator("main").innerHTML()).includes("/movies/ubongo-kids-"), "a pending kids title appeared in Kids Cinema");
 
   await page.goto(base + "/search?q=sherlok", { waitUntil: "networkidle" });
   await page.getByTestId("search-correction").waitFor();

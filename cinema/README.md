@@ -8,16 +8,24 @@ The simplicity it aims at is Tubi: open the site, browse, and press play when a 
 
 ## What is real in the demonstration catalogue
 
-`data/catalog.json` was built on 23 November 2026 from Internet Archive items whose own metadata carried a public-domain mark, CC0, or CC BY. Playback URLs are that item's embed player or a file on the same item. Licence evidence URLs are the Creative Commons or public-domain deeds named on those items.
+`data/catalog.json` holds 264 titles, all checked on 23 November 2026. Every title comes from one of two kinds of source:
 
-Blender Foundation open movies (Big Buck Bunny, Sintel, Elephants Dream, the two Caminandes shorts, Cosmos Laundromat) and the National Archives copy of NASA's Apollo 11 film are in that set. There is no invented South African film, African feature, or TV series. Those shelves say they are empty.
+1. **Internet Archive items (151 titles: 35 original + 116 added).** The item's own metadata `licenseurl` must be a public-domain mark, CC0 or CC BY/BY-SA. Non-commercial and no-derivatives licences are refused. Playback uses the item's embed player plus a direct file on the same item. The licence evidence URL is the deed named on the item. The 116 additions are Chaplin shorts and classic features, Sita Sings the Blues, the Fleischer Superman cartoons, Popeye and Betty Boop, other public-domain cartoons, nature and NASA documentaries, and classic TV episodes (The Beverly Hillbillies, The Lucy Show, Bonanza, Sherlock Holmes (1954) and others).
+2. **Official rights-holder YouTube embeds (113 titles).** Only full titles that the rights holder uploaded to its own channel are used, and the channel URL is the licence evidence. Each video was checked live: oEmbed returned 200, the watch page reported playable and `playableInEmbed`, and the uploading channel id matched the rights holder's channel. Playback is `https://www.youtube-nocookie.com/embed/<id>`. Nothing is downloaded or rehosted. The rights holders are Heartlines, Shuga Global (MTV Shuga), Triggerfish, Amerley Productions (An African City), KAP Stream (Kunle Afolayan), Omoni Oboli TV, Ramon Film Productions (Wakaliwood), Ubongo (Ubongo Kids, Akili and Me), Tinga Tinga Tales, Bino and Fino, Supa Strikas, Netflix (Our Planet), Bandai Namco Filmworks (GUNDAM CHANNEL INTL) and Blender Studio/Blender Foundation. Region limits are read from the watch page. Only the Gundam episodes are limited (89 countries, South Africa included).
+
+The South African (40), African (91), TV Series (99), Anime (5) and Nature and Wildlife (17) shelves are now filled from those sources. Per-row evidence is in `data/additions-evidence.json`.
+
+Children's titles from Ubongo, Akili and Me, Tinga Tinga Tales, Bino and Fino, Supa Strikas and the older public-domain cartoons are recorded as **pending manual review**. They play on general shelves, but they are not placed on any Kids Cinema shelf until a person approves them. Kids Cinema still shows only the original approved titles.
+
+Titles that were deliberately left out: Superman "Japoteurs" and "Jungle Drums" and the Betty Boop shorts "Bamboo Isle" and "I'll Be Glad When You're Dead You Rascal You" (racist caricature), an age-restricted An African City episode, an Internet Archive item falsely tagged CC0, a Shuga Naija upload that was not on the official channel, and SA indie or archive channels whose ownership of the films could not be confirmed. Movira, Moviera and Movirea sites are never used.
 
 Watch now is rendered only when a source is marked rights-verified and has an https playback URL.
 
-Regenerate the JSON and `supabase/seed.sql` with:
+To add titles, put candidate rows in `scripts/additions.py`, check them live, then regenerate the JSON and `supabase/seed.sql`:
 
 ```bash
-python3 scripts/build_catalog.py
+python3 scripts/verify_additions.py      # writes data/additions-evidence.json (needs network; pycountry)
+python3 scripts/build_catalog.py         # merges only rows whose evidence is ok
 ```
 
 ## Run it
@@ -101,7 +109,9 @@ Favourites, resume, search history and the chosen country stay in `localStorage`
 - The demonstration files are Internet Archive copies. Some are the archive's smaller MPEG-4 derivative. A few very large items (Metropolis, Safety Last!, The Phantom of the Opera, Charade, Big Buck Bunny) use the archive player only, so resume time cannot be read back from that player.
 - Public-domain status is not the same in every country. A worldwide mark on a source record is not legal advice.
 - Charade is included because the film is widely treated as public domain in the United States after a defective copyright notice, and the archive item carries a Public Domain Mark. The large file on that item is not rehosted.
-- There is no verified South African feature, African feature, anime series, or nature film in this catalogue yet. Those pages are empty on purpose.
+- YouTube embeds depend on the rights holder keeping the video public and embeddable. Run `scripts/verify_additions.py` again before a release and rebuild. A failed row is dropped automatically.
+- The Kids Cinema sub-shelves Nursery Rhymes, Educational Cartoons, African Children's Stories and Nature for Kids are still empty. Verified candidates exist (Ubongo, Akili and Me, Tinga Tinga Tales), but they wait for a person to review them.
+- Anime has only the five official Gundam episodes, because no other anime rights holder publishes full episodes worldwide on an official channel that could be verified.
 - TMDB, Mux and Cloudflare Stream are wired as optional environment variables. They are not called without keys.
 - The in-memory rate limit resets when the server process restarts and is not shared across many instances.
 - Admin edits without `SUPABASE_SERVICE_ROLE_KEY` stay in `data/runtime-state.json` on that server. They disappear on a host with an ephemeral disk unless Supabase is configured.

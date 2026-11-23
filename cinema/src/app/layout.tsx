@@ -10,7 +10,7 @@ const sans = Outfit({ subsets: ["latin"], variable: "--font-sans", display: "swa
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl()),
   title: { default: "SOSPANA CINEMA", template: "%s · SOSPANA CINEMA" },
-  description: "Free Entertainment. Everywhere. A free, no-login catalogue of public-domain and openly licensed films.",
+  description: "Free Entertainment. Everywhere. A free, no-login catalogue of public-domain, openly licensed and rights-holder-embedded films and series.",
   applicationName: "SOSPANA CINEMA",
   openGraph: {
     siteName: "SOSPANA CINEMA",

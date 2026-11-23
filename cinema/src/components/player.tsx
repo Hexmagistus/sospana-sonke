@@ -135,7 +135,7 @@ export function Player({ movie, source, countries }: { movie: Movie; source: Str
             src={source.url}
             title={`Official player for ${movie.title}`}
             className="h-full w-full"
-            allow="fullscreen"
+            allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
             allowFullScreen
             referrerPolicy="strict-origin-when-cross-origin"
           />

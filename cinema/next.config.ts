@@ -7,6 +7,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       { protocol: "https", hostname: "archive.org" },
       { protocol: "https", hostname: "**.archive.org" },
+      { protocol: "https", hostname: "i.ytimg.com" },
     ],
   },
   async headers() {
