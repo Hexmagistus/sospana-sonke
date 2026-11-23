@@ -3,6 +3,7 @@ import { newId } from "@/lib/auth";
 import { getPublicCatalog } from "@/lib/public-catalog";
 import { rateLimit } from "@/lib/rate-limit";
 import { saveTakedown } from "@/lib/store";
+import { insertTakedownRemote, supabaseUrlSet } from "@/lib/supabase-admin";
 import { validateTakedown } from "@/lib/validation";
 
 export async function POST(request: Request) {
@@ -32,38 +33,30 @@ export async function POST(request: Request) {
     status: "received" as const,
     createdAt: new Date().toISOString(),
   };
-  const supabaseUrl = process.env.SUPABASE_URL;
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (supabaseUrl && serviceKey) {
-    const response = await fetch(`${supabaseUrl.replace(/\/$/, "")}/rest/v1/takedown_requests`, {
-      method: "POST",
-      headers: {
-        apikey: serviceKey,
-        Authorization: `Bearer ${serviceKey}`,
-        "content-type": "application/json",
-        prefer: "return=representation",
-      },
-      body: JSON.stringify({
-        claimant_name: takedown.claimantName,
-        contact_email: takedown.contactEmail,
-        content_id: takedown.contentId,
-        reason: takedown.reason,
-        status: takedown.status,
-      }),
-    });
-    const text = await response.text();
-    if (!response.ok) {
-      return NextResponse.json(
-        { error: `Supabase rejected the complaint (HTTP ${response.status}): ${text.slice(0, 400)}` },
-        { status: 502 },
-      );
+  if (supabaseUrlSet()) {
+    try {
+      const via = await insertTakedownRemote(takedown);
+      return NextResponse.json({
+        id: takedown.id,
+        detail: via === "service" ? "Stored in Supabase." : "Stored in Supabase with the public insert-only policy.",
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      return NextResponse.json({ error: message }, { status: 502 });
     }
-    return NextResponse.json({ id: takedown.id, detail: "Stored in Supabase." });
   }
-  saveTakedown(takedown);
+  try {
+    saveTakedown(takedown);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    return NextResponse.json(
+      { error: `The complaint could not be saved on this server: ${message}. Set SUPABASE_URL and a Supabase key to store complaints.` },
+      { status: 503 },
+    );
+  }
   return NextResponse.json({
     id: takedown.id,
-    detail: "Stored in the demonstration file on this server. SUPABASE_SERVICE_ROLE_KEY is not set, so it was not written to Supabase.",
+    detail: "Stored in the demonstration file on this server. Supabase is not configured.",
   });
 }
 

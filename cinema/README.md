@@ -74,11 +74,17 @@ No secret belongs in source. The values in `.env.example` are demonstration valu
 ### Supabase
 
 1. Create a project.
-2. Run `supabase/migrations/202611230001_cinema.sql` in the SQL editor.
-3. Run `supabase/seed.sql` if you want the same demonstration titles in the database.
+2. Run every file in `supabase/migrations/` in order, in the SQL editor or with `supabase db push`:
+   - `0001_cinema`: tables, indexes and RLS.
+   - `0002_takedown_anon_insert`: the public complaint form can insert with the anon key.
+   - `0003_fix_rls_recursion`: replaces the 0001 read policies, which referenced each other and made Postgres fail with `infinite recursion detected in policy for relation "movies"` (42P17).
+   - `0004_revoke_default_writes`: removes the insert, update, delete and truncate rights Supabase gives `anon` by default.
+3. Run `supabase/seed.sql` if you want the same demonstration titles in the database. It is about 0.9 MB, so split it if your SQL client limits query size.
 4. Copy the project URL, the anon key, and the service role key into the host's environment. Do not put the service role key in `NEXT_PUBLIC_` variables.
 
-Row level security lets the anon key read published movies that have a verified rights row. It does not let the anon key read or write copyright complaints. Writes use the service role from the Next.js server.
+Row level security lets the anon key read published movies that have a verified rights row. The anon key can insert a complaint's four form fields, and the status always starts as `received`. It cannot read, change or delete complaints. Admin edits and the complaint list use the service role from the Next.js server.
+
+As soon as `SUPABASE_URL` and `SUPABASE_ANON_KEY` are set, the site reads the catalogue from Supabase and stores complaints there. Without `SUPABASE_SERVICE_ROLE_KEY`, the admin dashboard cannot list complaints, and admin edits return HTTP 503 with that reason. Without Supabase, edits and complaints go to `data/runtime-state.json`. That file cannot be written on Vercel, whose file system is read-only, so on that host the server reports a 503 with the reason.
 
 The column for people in a film is `cast_members` because `CAST` is reserved in SQL.
 
@@ -114,4 +120,4 @@ Favourites, resume, search history and the chosen country stay in `localStorage`
 - Anime has only the five official Gundam episodes, because no other anime rights holder publishes full episodes worldwide on an official channel that could be verified.
 - TMDB, Mux and Cloudflare Stream are wired as optional environment variables. They are not called without keys.
 - The in-memory rate limit resets when the server process restarts and is not shared across many instances.
-- Admin edits without `SUPABASE_SERVICE_ROLE_KEY` stay in `data/runtime-state.json` on that server. They disappear on a host with an ephemeral disk unless Supabase is configured.
+- Admin edits without Supabase stay in `data/runtime-state.json` on that server. They disappear on a host with an ephemeral disk, and fail on Vercel's read-only disk. Adding a playback source from the dashboard is not yet written to Supabase; the API says so with HTTP 501.

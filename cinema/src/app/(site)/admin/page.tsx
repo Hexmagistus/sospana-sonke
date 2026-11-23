@@ -5,7 +5,7 @@ import { LogoutButton } from "@/components/admin-client";
 import { isApprovedForKids } from "@/lib/catalog";
 import { getPublicCatalog } from "@/lib/public-catalog";
 import { currentAdmin } from "@/lib/session";
-import { listTakedowns } from "@/lib/store";
+import { adminTakedowns } from "@/lib/admin-takedowns";
 
 export const metadata: Metadata = { title: "Admin", robots: { index: false, follow: false } };
 
@@ -13,7 +13,7 @@ export default async function AdminHome() {
   const admin = await currentAdmin();
   if (!admin) redirect("/admin/login");
   const catalog = await getPublicCatalog();
-  const takedowns = listTakedowns();
+  const { items: takedowns } = await adminTakedowns();
   const withPlayback = catalog.movies.filter((movie) => movie.sources.some((source) => source.rightsVerified && source.playbackStatus === "available"));
   const approved = catalog.movies.filter(isApprovedForKids);
   const rejected = catalog.movies.filter((movie) => movie.review?.reviewStatus === "rejected");

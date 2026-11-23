@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-guard";
 import { movieBySlug } from "@/lib/catalog";
-import { mergeCatalog, saveMovie, saveReview } from "@/lib/store";
+import { getPublicCatalog } from "@/lib/public-catalog";
+import { saveMovie, saveReview } from "@/lib/store";
+import { pushMovieRemote, pushReviewRemote, serviceKeySet, supabaseUrlSet } from "@/lib/supabase-admin";
 import type { AgeSuitability, Movie, ReviewStatus } from "@/lib/types";
 import { validateMovieDraft } from "@/lib/validation";
 
@@ -9,7 +11,14 @@ export async function PATCH(request: Request, context: { params: Promise<{ slug:
   const denied = await requireAdmin();
   if (denied) return denied;
   const { slug } = await context.params;
-  const current = movieBySlug(mergeCatalog().movies, slug);
+  const remote = supabaseUrlSet();
+  if (remote && !serviceKeySet()) {
+    return NextResponse.json(
+      { error: "This site reads from Supabase, but SUPABASE_SERVICE_ROLE_KEY is not set, so admin edits cannot be saved." },
+      { status: 503 },
+    );
+  }
+  const current = movieBySlug((await getPublicCatalog()).movies, slug);
   if (!current) return NextResponse.json({ error: `No title with slug ${slug}.` }, { status: 404 });
   let body: Partial<Movie> & { playbackUrl?: string; licenceEvidenceUrl?: string; reviewStatus?: ReviewStatus; ageSuitability?: AgeSuitability; reviewNotes?: string };
   try {
@@ -48,7 +57,6 @@ export async function PATCH(request: Request, context: { params: Promise<{ slug:
       reviewNotes: body.reviewNotes,
       reviewedAt: new Date().toISOString().slice(0, 10),
     };
-    saveReview(next.slug, next.review);
   }
   if (body.playbackUrl && body.licenceEvidenceUrl) {
     next.sources = [
@@ -75,45 +83,31 @@ export async function PATCH(request: Request, context: { params: Promise<{ slug:
       },
     ];
   }
-  saveMovie(next);
+  if (remote) {
+    if (body.playbackUrl && body.licenceEvidenceUrl) {
+      return NextResponse.json(
+        { error: "Adding a playback source from the dashboard is not wired to Supabase yet. Add the streaming_sources row in Supabase with its licence evidence." },
+        { status: 501 },
+      );
+    }
+    try {
+      await pushMovieRemote(next);
+      if (next.review && next.review !== current.review) await pushReviewRemote(next.id, next.review);
+      return NextResponse.json({ movie: next, detail: "Saved in Supabase." });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      return NextResponse.json({ error: message }, { status: 502 });
+    }
+  }
   try {
-    const remote = await pushMovie(next);
-    return NextResponse.json({ movie: next, detail: remote });
+    if (next.review && next.review !== current.review) saveReview(next.slug, next.review);
+    saveMovie(next);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     return NextResponse.json(
-      { error: message, detail: "The demonstration file was updated. Supabase was not." },
-      { status: 502 },
+      { error: `The edit could not be saved on this server: ${message}. Configure Supabase to save admin edits.` },
+      { status: 503 },
     );
   }
-}
-
-async function pushMovie(movie: Movie): Promise<string> {
-  const url = process.env.SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !key) {
-    return "Saved in data/runtime-state.json. SUPABASE_SERVICE_ROLE_KEY is not set, so Supabase was not updated.";
-  }
-  const response = await fetch(`${url.replace(/\/$/, "")}/rest/v1/movies?slug=eq.${encodeURIComponent(movie.slug)}`, {
-    method: "PATCH",
-    headers: {
-      apikey: key,
-      Authorization: `Bearer ${key}`,
-      "content-type": "application/json",
-      prefer: "return=minimal",
-    },
-    body: JSON.stringify({
-      title: movie.title,
-      description: movie.description,
-      country: movie.country,
-      age_rating: movie.ageRating,
-      featured: movie.featured,
-      published: movie.published,
-    }),
-  });
-  if (!response.ok) {
-    const text = await response.text();
-    throw new Error(`Supabase rejected the movie update (HTTP ${response.status}): ${text.slice(0, 400)}`);
-  }
-  return "Updated the movie row in Supabase and the local demonstration store.";
+  return NextResponse.json({ movie: next, detail: "Saved in data/runtime-state.json. Supabase is not configured." });
 }
