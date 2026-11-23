@@ -202,6 +202,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 partnership or endorsement.{" "}
                 <a href="/opportunities-today" className="underline hover:text-ss-text">Opportunities today</a>
                 {" · "}
+                <a href="/recent-posts" className="underline hover:text-ss-text">Recently posted</a>
+                {" · "}
                 <a href="/data" className="underline hover:text-ss-text">Labour data</a>
                 {" · "}
                 <a href="/feed.xml" className="underline hover:text-ss-text">New roles feed</a>

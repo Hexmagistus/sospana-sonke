@@ -73,6 +73,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return [
     entry("/", 1.0, "weekly"),
     entry("/opportunities-today", 0.9, "daily"),
+    entry("/recent-posts", 0.8, "hourly"),
     entry("/feed.xml", 0.4, "daily"),
     entry("/data", 0.6, "monthly"),
     // /companies requires login (<Guard>) -- not listed here since a crawler

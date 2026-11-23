@@ -32,6 +32,7 @@ from app.schemas.vacancy import (
 )
 from app.services.visible_countries import visible_country_clause
 from app.services.flagship import FLAGSHIP_COUNTRY, countries_flagship_first, flagship_role_rank
+from app.services.recent_posts import RECENT_SORTS, recent_day_expr, region_band_rank, sort_recent
 from app.services.opportunity_expiry import expired_role_clauses, is_publicly_listed, public_role_clauses
 from app.services.opportunity_tombstone import public_id_was_deleted
 from app.services.opportunity_type import OPPORTUNITY_TYPES
@@ -185,7 +186,8 @@ def list_public_jobs(
     ),
     sort: str | None = Query(
         default=None, max_length=20,
-        description="closing puts a stated closing date first. Anything else uses last seen.",
+        description="recent (or newest): newest posted first. closing: a stated closing date first. "
+                    "Anything else uses last seen.",
     ),
     limit: int = Query(default=30, ge=1, le=50),
     offset: int = Query(default=0, ge=0, le=1_000),
@@ -205,7 +207,7 @@ def list_public_jobs(
             db.rollback()
         except Exception:
             pass
-        return _snapshot_response(response, q, country, employer, opportunity_type, limit, offset)
+        return _snapshot_response(response, q, country, employer, opportunity_type, limit, offset, sort)
     if offset == 0 and not any(
         (value or "").strip() for value in (q, country, employer, employment_type, opportunity_type)
     ) and max_age_days is None and result.jobs:
@@ -214,11 +216,13 @@ def list_public_jobs(
 
 
 def _snapshot_response(response: Response, q, country, employer, opportunity_type,
-                       limit: int, offset: int) -> PublicJobListResponse:
+                       limit: int, offset: int, sort: str | None = None) -> PublicJobListResponse:
     from app.services.employer_service import RANKING_NOTE, SPONSORED_CAP
     jobs, saved_at = jobs_snapshot.load()
     kind = (opportunity_type or "").strip().lower().replace("-", "_").replace(" ", "_") or None
     picked = [job for job in jobs if jobs_snapshot.matches(job, q, country, employer, kind)]
+    if (sort or "").strip().lower() in RECENT_SORTS:
+        picked = sort_recent(picked)
     response.headers["Cache-Control"] = "public, max-age=60, s-maxage=120"
     response.headers["X-Jobs-Source"] = "snapshot"
     return PublicJobListResponse(
@@ -262,15 +266,26 @@ def _query_public_jobs(db: Session, q, country, employer, employment_type, oppor
         cutoff = datetime.now(timezone.utc) - timedelta(days=max_age_days)
         query = query.filter(Vacancy.last_seen_at >= cutoff)
     matched = query.count()
-    if sort and sort.strip().lower() == "closing":
+    sort_key = (sort or "").strip().lower()
+    if sort_key == "closing":
         order = (
             case((Vacancy.closing_date.is_(None), 1), else_=0),
             Vacancy.closing_date.asc(),
             Vacancy.last_seen_at.desc(),
         )
+    elif sort_key in RECENT_SORTS:
+        # Newest first, strictly by recency: the employer's stated posting day,
+        # else the day our scanner first found the role. Same day: South Africa,
+        # then the rest of SADC, the rest of Africa, then other regions.
+        order = (
+            recent_day_expr().desc(),
+            Vacancy.first_seen_at.desc(),
+            region_band_rank(),
+            Vacancy.id.asc(),
+        )
     else:
         order = (Vacancy.last_seen_at.desc(),)
-    if not named_country:
+    if not named_country and sort_key not in RECENT_SORTS:
         order = (flagship_role_rank(), *order)
     rows = query.order_by(*order).offset(offset).limit(limit).all()
     jobs = [_public_job(vacancy, company) for vacancy, company in rows]

@@ -8,8 +8,10 @@ import { HeroMap, ExploreMap, type ProvinceRow } from "@/components/home2/Provin
 import { MiniBars, MiniLine, MiniStack } from "@/components/home2/MiniCharts";
 import { GHS, MYPE, NATIONAL, PROVINCE_OFFICIAL, QLFS, READING, type Source } from "@/data/officialStats";
 import { PROVINCES, provinceOf } from "@/lib/province";
+import RecentlyPosted from "@/components/home2/RecentlyPosted";
 
-// Static data only (no database/backend). Re-rendered hourly so closed posts drop off.
+// Mostly static data. "Recently posted" reads the public API (cached 15 min, falls back
+// to a message when the API is asleep). Re-rendered hourly so closed posts drop off.
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
@@ -254,6 +256,9 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* RECENTLY POSTED (live from the API, refreshed every 15 minutes) */}
+      <RecentlyPosted />
 
       {/* EXPLORE SOUTH AFRICA */}
       <section id="explore" aria-labelledby="explore-h" className="scroll-mt-24 bg-gradient-to-b from-[#FBF6EC] via-[#F3F8F6] to-[#FBF6EC] px-4 py-12">
