@@ -22,6 +22,13 @@ for (const [width, height, tag] of [
   await page.goto(base + "/", { waitUntil: "networkidle" });
   await page.getByRole("heading", { level: 1, name: "Sherlock Jr." }).waitFor();
   await page.screenshot({ path: `${out}/cinema-home-${tag}.png` });
+  check(`${tag} home anime row`, (await page.getByRole("heading", { level: 2, name: "Anime", exact: true }).count()) === 1 && (await page.locator('main a[href="/movies/black-clover-e1"]').count()) > 0, "Anime row missing on home");
+
+  await page.goto(base + "/categories/anime", { waitUntil: "networkidle" });
+  check(`${tag} anime shelf filled`, (await page.locator('a[href="/movies/mobile-suit-gundam-e1"]').count()) > 0 && (await page.getByTestId("empty-category").count()) === 0, "anime shelf empty");
+  await page.screenshot({ path: `${out}/cinema-anime-${tag}.png` });
+  await page.goto(base + "/watch/black-clover-e1", { waitUntil: "domcontentloaded" });
+  check(`${tag} anime embed`, (await page.getByTestId("player-embed").getAttribute("src")) === "https://www.youtube-nocookie.com/embed/JxpVIn26nfk", "anime embed missing");
 
   await page.goto(base + "/categories/classic-cinema", { waitUntil: "networkidle" });
   await page.getByRole("heading", { name: "Classic Cinema" }).waitFor();
@@ -38,7 +45,7 @@ for (const [width, height, tag] of [
   check(`${tag} youtube embed`, (await page.getByTestId("player-embed").getAttribute("src")) === "https://www.youtube-nocookie.com/embed/3yQW0YYhtg0", "official embed missing");
 
   await page.goto(base + "/kids", { waitUntil: "networkidle" });
-  check(`${tag} pending kids hidden`, !(await page.locator("main").innerHTML()).includes("/movies/ubongo-kids-"), "a pending kids title appeared in Kids Cinema");
+  check(`${tag} pending kids hidden`, !(await page.locator("main").innerHTML()).includes("/movies/ubongo-kids-") && !(await page.locator("main").innerHTML()).includes("/movies/pokemon-horizons-"), "a pending kids title appeared in Kids Cinema");
 
   await page.goto(base + "/search?q=sherlok", { waitUntil: "networkidle" });
   await page.getByTestId("search-correction").waitFor();

@@ -69,4 +69,16 @@ describe("demonstration catalogue", () => {
     expect(gundam!.sources[0].licenceTerritories).toContain("South Africa");
     expect(gundam!.sources[0].licenceTerritories).not.toContain("WORLD");
   });
+
+  it("has an anime shelf of official uploads that play in South Africa, with children's anime held for review", () => {
+    const anime = moviesInCategory(catalog.movies, "anime");
+    expect(anime.length).toBeGreaterThanOrEqual(30);
+    for (const movie of anime) {
+      expect(movie.sources.every((source) => source.providerSlug === "youtube")).toBe(true);
+      const territories = movie.sources[0].licenceTerritories;
+      expect(territories.includes("WORLD") || territories.includes("South Africa")).toBe(true);
+      expect(isApprovedForKids(movie)).toBe(false);
+    }
+    expect(anime.find((movie) => movie.slug === "pokemon-horizons-s1-e1-e2")?.review?.reviewStatus).toBe("pending");
+  });
 });

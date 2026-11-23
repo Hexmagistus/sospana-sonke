@@ -59,6 +59,7 @@ export default async function HomePage() {
       ) : null}
       <ContinueRow />
       <MovieRow title="Trending" movies={pick(catalog.movies, catalog.trending)} href="/movies" />
+      <MovieRow title="Anime" href="/categories/anime" movies={moviesInCategory(catalog.movies, "anime")} empty="No verified anime title is in the catalogue yet." />
       <MovieRow title="Recently added" movies={[...catalog.movies].filter((movie) => movie.published).sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 10)} href="/movies" />
       <MovieRow title="Popular" movies={pick(catalog.movies, catalog.popular)} href="/movies" />
       <MovieRow title="Kids Movies" href="/kids" movies={catalog.movies.filter(isApprovedForKids)} />

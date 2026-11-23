@@ -42,6 +42,11 @@ YT_HOLDERS = {
     "wakaliwood": ("Ramon Film Productions (Official Wakaliwood)", "UCYK-lJOeYdoKuDDdGscCFMA", "Official channel of Nabwana IGG's Wakaliwood studio, Uganda.", "https://wakaliwood.com"),
     "netflix": ("Netflix", "UCWOA1ZGywLbqmigxE4Qlvuw", "Netflix's official channel. Our Planet was released there in full for free viewing.", "https://www.netflix.com"),
     "gundam-intl": ("Bandai Namco Filmworks (GUNDAM CHANNEL INTL)", "UCejtUitnpnf8Be-v5NuDSLw", "Official international Gundam channel. Region limits are set by the rights holder.", "https://www.youtube.com/channel/UCejtUitnpnf8Be-v5NuDSLw"),
+    "crunchyroll": ("Crunchyroll (official channel)", "UC6pGDc4bFGD1_36IKv3FnYg", "Crunchyroll, the licensed anime distributor, posts free full episodes on its official channel. Region limits are set by Crunchyroll.", "https://www.youtube.com/channel/UC6pGDc4bFGD1_36IKv3FnYg"),
+    "beyblade": ("BEYBLADE English - Official Channel", "UCktgoAFaL39_rYfiMZiD9jw", "The official English Beyblade channel posts full episodes. Region limits are set by the rights holder.", "https://www.youtube.com/channel/UCktgoAFaL39_rYfiMZiD9jw"),
+    "yugioh": ("Official Yu-Gi-Oh! (Konami)", "UCZuVXrpKTUn_KEzRQgFgMWg", "The official Yu-Gi-Oh! channel posts full episodes. Region limits are set by the rights holder.", "https://www.youtube.com/channel/UCZuVXrpKTUn_KEzRQgFgMWg"),
+    "pokemon": ("The Official Pokémon YouTube channel", "UCFctpiB_Hnlk3ejWfHqSm6Q", "The Pokémon Company International posts free full episodes on its official channel.", "https://www.youtube.com/channel/UCFctpiB_Hnlk3ejWfHqSm6Q"),
+    "tezuka": ("Tezuka Productions (official channel)", "UCyach7GHJDlXTv6h3fcNwqg", "Tezuka Productions' official channel. Some episodes are posted for a limited period, so they are re-checked before each release.", "https://www.youtube.com/channel/UCyach7GHJDlXTv6h3fcNwqg"),
     "blender-studio": ("Blender Studio", "UCz75RVbH8q2jdBJ4SnwuZZQ", "Blender Foundation's film studio; official channel for its open movies.", "https://studio.blender.org"),
     "blender": ("Blender Foundation (Blender)", "UCSMOQeBJ2RAnuFungnQOxLg", "Official Blender channel.", "https://www.blender.org"),
 }
@@ -154,6 +159,74 @@ for vid, slug, title, year, ctype, blurb in [
     cats = ["anime", "animated-movies", "international-movies", "action-and-adventure"] + (["tv-series"] if ctype == "series" else [])
     yt(vid, slug, title, year, ["Anime", "Science Fiction", "Action"], "Japanese with subtitles" if "dub" not in title else "English", "Japan",
        "Yoshiyuki Tomino" if year < 2000 else "See the source record", [], ctype, "13+", cats, "gundam-intl", blurb=blurb)
+
+# Anime shelf (added 23 November 2026). Full episodes and films posted by the
+# rights holder or licensed distributor on its own official channel, with
+# embedding on and South Africa inside the allowed regions. Children's titles
+# are recorded as pending kids review. Skipped after checking: RetroCrush
+# uploads (US and Canada only), Astro Boy 1980 on RetroCrush (embedding off),
+# JUJUTSU KAISEN and The Quintessential Quintuplets on Crunchyroll (not
+# available in South Africa), Tezuka Productions' Japanese-only uploads with no
+# English captions, Muse Asia and Ani-One Asia (Asia-only uploads).
+JSUB = "Japanese with English subtitles"
+SUBDUB = "Japanese with English subtitles (English dub also on the official channel)"
+ANIME_TV = ["anime", "animated-movies", "international-movies", "tv-series"]
+for vid, slug, title, year, lang, genres, extra, age, kids, blurb in [
+    ("Jx5GcsjMOSs", "mobile-suit-gundam-e1", "Mobile Suit Gundam E1: Gundam Rises", 1979, JSUB, ["Anime", "Science Fiction", "Action"], ["action-and-adventure", "classic-cinema"], "13+", None, "The first episode of the 1979 series that started the Gundam franchise, directed by Yoshiyuki Tomino."),
+    ("8KCS-QIEg2U", "mobile-suit-gundam-the-origin-e1", "Mobile Suit Gundam: The Origin E1", 2019, JSUB, ["Anime", "Science Fiction", "Action"], ["action-and-adventure"], "13+", None, "The first episode of The Origin, Yoshikazu Yasuhiko's retelling of Char Aznable's early life."),
+    ("9isbRbLD2GE", "mobile-suit-gundam-unicorn-re0096-e1", "Mobile Suit Gundam Unicorn RE:0096 E1", 2016, JSUB, ["Anime", "Science Fiction", "Action"], ["action-and-adventure"], "13+", None, "The first episode of the television version of Gundam Unicorn."),
+    ("2B_njMCRCvU", "gundam-the-witch-from-mercury-e1", "Mobile Suit Gundam the Witch from Mercury E1", 2022, JSUB, ["Anime", "Science Fiction", "Drama"], ["action-and-adventure", "drama"], "13+", None, "The first episode of The Witch from Mercury, set at a school for mobile-suit pilots."),
+    ("U10iG69axKc", "mobile-suit-gundam-seed-hd-e1", "Mobile Suit Gundam SEED (HD Remaster) E1", 2002, JSUB, ["Anime", "Science Fiction", "Action"], ["action-and-adventure"], "13+", None, "The first episode of Gundam SEED, in the HD remaster."),
+    ("ZzckBkxy0BM", "mobile-suit-gundam-seed-e1-english-dub", "Mobile Suit Gundam SEED E1 (English dub)", 2002, "English", ["Anime", "Science Fiction", "Action"], ["action-and-adventure"], "13+", None, "The first episode of Gundam SEED, in the English dub."),
+    ("TTnmp3_vAX4", "after-war-gundam-x-e1", "After War Gundam X E1", 1996, JSUB, ["Anime", "Science Fiction", "Action"], ["action-and-adventure"], "13+", None, "The first episode of After War Gundam X, set fifteen years after a war that wrecked the Earth."),
+    ("eKFM63BIxzY", "mobile-fighter-g-gundam-e1", "Mobile Fighter G Gundam E1", 1994, JSUB, ["Anime", "Action", "Martial arts"], ["action-and-adventure"], "13+", None, "The first episode of G Gundam, where nations settle disputes with a Gundam fighting tournament."),
+    ("bktN_TdP6yI", "gundam-build-divers-e1", "Gundam Build Divers E1: Welcome to GBN", 2018, JSUB, ["Anime", "Action", "Comedy"], ["action-and-adventure", "comedy"], "9+", "9-12", "The first episode of Gundam Build Divers, about friends who battle with model kits in an online world."),
+    ("a_ai9Ekrg58", "sd-gundam-world-heroes-e1", "SD Gundam World Heroes E1: Falling Destiny", 2021, JSUB, ["Anime", "Action", "Comedy"], ["action-and-adventure", "comedy"], "9+", "9-12", "The first episode of SD Gundam World Heroes, a comic action series with super-deformed Gundams."),
+    ("TEp52IJvERA", "gundam-reconguista-in-g-e1", "Gundam Reconguista in G E1", 2014, JSUB, ["Anime", "Science Fiction", "Action"], ["action-and-adventure"], "13+", None, "The first episode of Reconguista in G, Yoshiyuki Tomino's 2014 Gundam series."),
+    ("JJMV4WrybjM", "mobile-suit-gundam-iii-encounters-in-space", "Mobile Suit Gundam III: Encounters in Space", 1982, JSUB, ["Anime", "Science Fiction", "Action"], ["action-and-adventure", "classic-cinema"], "13+", None, "The third of the three films edited from the 1979 Mobile Suit Gundam series."),
+]:
+    ctype = "movie" if "iii" in slug else "series"
+    cats = ["anime", "animated-movies", "international-movies"] + (["tv-series"] if ctype == "series" else []) + extra
+    yt(vid, slug, title, year, genres, lang, "Japan", "Yoshiyuki Tomino" if slug.startswith(("mobile-suit-gundam-e1", "mobile-suit-gundam-iii", "gundam-reconguista")) else "See the source record", [], ctype, age, cats, "gundam-intl", kids=kids, blurb=blurb)
+
+for vid, slug, title, year, country, genres, extra, age, kids in [
+    ("JxpVIn26nfk", "black-clover-e1", "Black Clover E1: Asta and Yuno", 2017, "Japan", ["Anime", "Fantasy", "Action"], ["action-and-adventure"], "13+", None),
+    ("EHRmWyzIpSw", "the-apothecary-diaries-e1", "The Apothecary Diaries E1: Maomao", 2023, "Japan", ["Anime", "Mystery", "Drama"], ["mystery-and-thriller", "drama"], "13+", None),
+    ("zL3ZY2cTsl0", "magic-knight-rayearth-e1", "Magic Knight Rayearth E1: From Another World", 1994, "Japan", ["Anime", "Fantasy", "Adventure"], ["action-and-adventure"], "9+", "9-12"),
+    ("Lzncql2NAYY", "magic-knight-rayearth-e2", "Magic Knight Rayearth E2: The Legend Begins", 1994, "Japan", ["Anime", "Fantasy", "Adventure"], ["action-and-adventure"], "9+", "9-12"),
+    ("73k_5FNpWvU", "magic-knight-rayearth-e3", "Magic Knight Rayearth E3: All in the Same Boat", 1994, "Japan", ["Anime", "Fantasy", "Adventure"], ["action-and-adventure"], "9+", "9-12"),
+    ("QxRCVPqN7lw", "witch-hat-atelier-e1", "Witch Hat Atelier E1: The Magic That Started Everything", None, "Japan", ["Anime", "Fantasy"], ["action-and-adventure"], "9+", "9-12"),
+    ("D261aPLKOuk", "gachiakuta-e1", "Gachiakuta E1: The Sphere", 2025, "Japan", ["Anime", "Action", "Fantasy"], ["action-and-adventure"], "16+", None),
+    ("UGnH_Yzmemw", "the-beginning-after-the-end-e1", "The Beginning After The End E1: The Rebirth of the King", 2025, "Japan", ["Anime", "Fantasy", "Action"], ["action-and-adventure"], "13+", None),
+    ("GYezZx5dVVc", "kaiju-girl-caramelise-e1", "Kaiju Girl Caramelise E1: The Kaiju Girl Appears in Tokyo", None, "Japan", ["Anime", "Romance", "Comedy"], ["comedy"], "13+", None),
+    ("Vb7OUP9bxfM", "goodbye-lara-e1", "Goodbye, Lara E1: Mermaid Princess Lara", None, "Japan", ["Anime", "Fantasy", "Drama"], ["drama"], "13+", None),
+    ("5LM0iTQrnP4", "overgeared-e1", "Overgeared E1: Legendary Class", None, "South Korea", ["Anime", "Fantasy", "Action"], ["action-and-adventure"], "13+", None),
+    ("9zK-on2SSd8", "psyren-e1", "PSYREN E1: Urban Legend", None, "Japan", ["Anime", "Science Fiction", "Thriller"], ["mystery-and-thriller", "action-and-adventure"], "16+", None),
+    ("eff15vYzN0o", "to-be-hero-x-e1", "TO BE HERO X E1: NICE", 2025, "China", ["Anime", "Action", "Superhero"], ["action-and-adventure"], "13+", None),
+    ("PZIy0Ct6KLo", "umamusume-pretty-derby-e1", "Umamusume: Pretty Derby E1: Gate of Dreams!", 2018, "Japan", ["Anime", "Sport", "Comedy"], ["comedy"], "9+", None),
+]:
+    series = title.split(" E")[0]
+    yt(vid, slug, title, year, genres, JSUB if slug in {"the-apothecary-diaries-e1", "umamusume-pretty-derby-e1"} else SUBDUB, country, "See the source record", [], "series", age, ANIME_TV + extra, "crunchyroll", kids=kids,
+       blurb=f"A free full episode of {series}, posted by Crunchyroll, the series' licensed distributor, on its official channel.")
+
+for vid, slug, title, year, holder, age, kids, blurb in [
+    ("q8l9UGsmvWs", "beyblade-metal-fusion-e1", "Beyblade: Metal Fusion E1: Pegasus Has Landed!", 2009, "beyblade", "9+", "9-12", "The first episode of Beyblade: Metal Fusion, in English, from the official Beyblade channel."),
+    ("dH0rb40Cca4", "beyblade-metal-masters-e1", "Beyblade: Metal Masters E1: Seeking the Legend", 2010, "beyblade", "9+", "9-12", "The first episode of Beyblade: Metal Masters, in English, from the official Beyblade channel."),
+    ("v9ok0BuXnZc", "beyblade-x-e1", "Beyblade X E1: X", 2023, "beyblade", "9+", "9-12", "The first episode of Beyblade X, in English, from the official Beyblade channel."),
+    ("x7jBM_7e4bo", "beyblade-burst-evolution-e1-e2", "Beyblade Burst Evolution E1 and E2", 2017, "beyblade", "9+", "9-12", "The first two episodes of Beyblade Burst Evolution, in English, from the official Beyblade channel."),
+    ("DdCSFeG7Ajg", "beyblade-v-force-e1-e2", "Beyblade V-Force E1 and E2", 2002, "beyblade", "9+", "9-12", "The first two episodes of Beyblade V-Force, in English, from the official Beyblade channel."),
+    ("2ot9eV9DybI", "yu-gi-oh-duel-monsters-s1-e1", "Yu-Gi-Oh! Duel Monsters S1 E1: The Heart of the Cards", 2000, "yugioh", "9+", "9-12", "The first episode of Yu-Gi-Oh! Duel Monsters, in English, from the official Yu-Gi-Oh! channel."),
+    ("XWpOWw0rU3w", "yu-gi-oh-sevens-s1-e1", "Yu-Gi-Oh! SEVENS S1 E1: Ready for the Rush!", 2020, "yugioh", "9+", "9-12", "The first episode of Yu-Gi-Oh! SEVENS, in English, from the official Yu-Gi-Oh! channel."),
+    ("1Z7saW4wwSk", "pokemon-horizons-s1-e1-e2", "Pokémon Horizons S1 E1 and E2: The Pendant That Starts It All", 2023, "pokemon", "All", "6-8", "The first two episodes of Pokémon Horizons: The Series, in English, from the official Pokémon channel."),
+    ("VmTSAWTQhmE", "pokemon-horizons-s2-e1", "Pokémon Horizons S2 E1: Welcome to Naranja Academy!", None, "pokemon", "All", "6-8", "The first episode of season 2 of Pokémon Horizons: The Series, in English, from the official Pokémon channel."),
+    ("iE-at9RW3VI", "pokemon-horizons-s3-e1", "Pokémon Horizons S3 E1: Eyes to the Skies Once Again (Part 1)", None, "pokemon", "All", "6-8", "The first episode of season 3 of Pokémon Horizons: The Series, in English, from the official Pokémon channel."),
+    ("17QAt19ivBs", "jungle-emperor-go-forward-leo-e1", "Jungle Emperor: Go Forward, Leo! E1: The White King", 1966, "tezuka", "All", "6-8", "The first episode of Jungle Emperor: Go Forward, Leo!, the 1966 sequel to Kimba the White Lion, from Tezuka Productions' official channel. Japanese audio with English captions. Tezuka Productions posts some episodes for a limited period."),
+]:
+    lang = "Japanese with English captions" if holder == "tezuka" else "English"
+    genres = ["Anime", "Adventure", "Family"] if holder in {"pokemon", "tezuka"} else ["Anime", "Action", "Sport"]
+    extra = ["action-and-adventure"]
+    yt(vid, slug, title, year, genres, lang, "Japan", "Osamu Tezuka (original work)" if holder == "tezuka" else "See the source record", [], "series", age, ANIME_TV + extra, holder, kids=kids, blurb=blurb)
+
 
 # Blender open movies (official uploads)
 BLENDER_BLURBS = {'tears-of-steel': "Blender Foundation's 2012 live-action and visual-effects short, about a group of warriors and scientists in a future Amsterdam. Released under CC BY 3.0.", 'spring-blender': "Blender Studio's 2019 short about a shepherd girl and her dog who face ancient spirits to keep the cycle of life going.", 'sprite-fright': "Blender Studio's 2021 horror-comedy short about teenagers who meet the wrong forest sprites.", 'charge-blender': "Blender Studio's 2022 action short, made entirely in Blender.", 'wing-it': "Blender Studio's 2023 comedy short about a cat and a dog who build a rocket.", 'agent-327-operation-barbershop': "Blender Animation Studio's 2017 teaser for a feature based on Martin Lodewijk's Dutch comic series Agent 327.", 'coffee-run': "Blender Studio's 2020 short about a young woman running through memories of a past relationship.", 'caminandes-llamigos': 'The third Caminandes short (2016): in a Patagonian winter, Koro the llama meets a penguin.', 'hero-blender': "Blender's 2018 Grease Pencil showcase short, a 2D action piece made inside a 3D pipeline."}

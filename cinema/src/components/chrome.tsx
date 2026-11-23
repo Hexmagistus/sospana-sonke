@@ -11,6 +11,7 @@ const links = [
   ["nav.kids", "/kids"],
   ["nav.series", "/series"],
   ["nav.african", "/categories/african-cinema"],
+  ["nav.anime", "/categories/anime"],
   ["nav.animation", "/categories/animated-movies"],
   ["nav.documentaries", "/categories/documentaries"],
   ["nav.categories", "/categories"],
