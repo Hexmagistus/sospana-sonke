@@ -101,8 +101,15 @@ def scan_due_companies(db: Session, limit: int = 60, job_run_id: str | None = No
     not the trigger for a mass email (scan_all_companies is).
     """
     from app.services.scan_batch import DEFAULT_WORKERS, run_scan_batch
-    return run_scan_batch(db, limit=limit, max_seconds=max_seconds,
-                          workers=workers or DEFAULT_WORKERS)
+    summary = run_scan_batch(db, limit=limit, max_seconds=max_seconds,
+                             workers=workers or DEFAULT_WORKERS)
+    # Called by the cron (run_job passes job_run_id): keep scanning in the
+    # background for a few minutes, because GitHub runs the */15 schedule only
+    # every few hours (app.services.scan_follow_on).
+    if job_run_id is not None:
+        from app.services.scan_follow_on import start_follow_on
+        summary["follow_on_started"] = start_follow_on()
+    return summary
 
 
 def check_link_changes(db: Session, limit: int = 25, job_run_id: str | None = None) -> dict:

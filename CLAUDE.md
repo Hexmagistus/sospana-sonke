@@ -75,10 +75,14 @@ A careers landing page is enough for that same set, even when the HTML lists no 
 
 ## Session Log
 
+### 2026-11-23 — Grok Bot (for Lungani) — South African posts kept fresh
+- Diagnosis: GitHub ran the */15 `scan.yml` only every 4–8 hours, and each run scanned one ~20 s batch, so about 100 of ~5,000 sources were checked a day (34 of 1,023 SA sources in 7 days). With the 7-day seen rule only 42 SA posts (one employer) stayed public.
+- `app/services/scan_follow_on.py`: after a cron call to `scan_due_companies`, one background thread keeps scanning due sources (batches of 60, 40 s each) for up to `SCAN_FOLLOW_ON_SECONDS` (default 480; 0 switches it off; never under ENV=test), stops when nothing is due, logs a `scan_follow_on` JobRun. Same queue order (SA, rest of SADC, rest of Africa, others) and compare-and-set claims. Done server-side because the push token cannot edit workflow files.
+- Seen rule (`opportunity_expiry.py`): `STALE_AFTER_DAYS` 7 → 21; a role whose own closing date is still ahead stays until that date if seen within `STALE_WITH_CLOSING_DATE_DAYS` (60). Same rule in `public_role_clauses`, `is_publicly_listed` and `expired_role_clauses`. Tests: `tests/test_outdated_never_listed.py`, `tests/test_scan_follow_on.py`.
 ### 2026-11-23 — Grok Bot (for Lungani) — "Recently posted" open roles
 - API: `GET /jobs?sort=recent` (alias `newest`) orders strictly by recency: `coalesce(posting_date, date(first_seen_at))` desc, then `first_seen_at` desc, then country band (SA, rest of SADC, rest of Africa, others). Helpers in `app/services/recent_posts.py`; the offline snapshot fallback sorts the same way. Default sort unchanged. Tests: `tests/test_recent_posts.py`.
 - Frontend: homepage section "Recently posted" (`components/home2/RecentlyPosted.tsx`, max 3 per employer, 18 cards) and full list `/recent-posts` (type chips, 50 per page), both server-rendered from the API with a 15-minute cache and a fallback message when the API is asleep. Footer + sitemap links.
-- Data note: public lists hide rows not seen for 7 days (`STALE_AFTER_DAYS`); on 2026-11-23 only 383 public open rows, 42 of them South African (all one employer, found 20/21 Nov).
+- Data note: public lists hid rows not seen for 7 days (`STALE_AFTER_DAYS`, now 21, see above); on 2026-11-23 only 383 public open rows, 42 of them South African (all one employer, found 20/21 Nov).
 ### 2026-11-23 — Grok Bot (for Lungani) — Gauteng Hustle Run tester-access form
 The Android game (Play Console listing "Bond Village Hustle", package `com.bondvillage.hustlerun`) is a closed test, so only tester-list emails can install it.
 - New page `/hustle-run` (`frontend/src/app/hustle-run/page.tsx`, form in `components/HustleTesterForm.tsx`, links in `lib/hustlePlay.ts`, overridable with `NEXT_PUBLIC_HUSTLE_PLAY_URL` / `NEXT_PUBLIC_HUSTLE_TESTING_URL`). Linked from the homepage game card, the footer and the sitemap.
