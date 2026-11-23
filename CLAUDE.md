@@ -75,6 +75,10 @@ A careers landing page is enough for that same set, even when the HTML lists no 
 
 ## Session Log
 
+### 2026-11-23 — Grok Bot (for Lungani) — "Recently posted" open roles
+- API: `GET /jobs?sort=recent` (alias `newest`) orders strictly by recency: `coalesce(posting_date, date(first_seen_at))` desc, then `first_seen_at` desc, then country band (SA, rest of SADC, rest of Africa, others). Helpers in `app/services/recent_posts.py`; the offline snapshot fallback sorts the same way. Default sort unchanged. Tests: `tests/test_recent_posts.py`.
+- Frontend: homepage section "Recently posted" (`components/home2/RecentlyPosted.tsx`, max 3 per employer, 18 cards) and full list `/recent-posts` (type chips, 50 per page), both server-rendered from the API with a 15-minute cache and a fallback message when the API is asleep. Footer + sitemap links.
+- Data note: public lists hide rows not seen for 7 days (`STALE_AFTER_DAYS`); on 2026-11-23 only 383 public open rows, 42 of them South African (all one employer, found 20/21 Nov).
 ### 2026-11-23 — Grok Bot (for Lungani) — Gauteng Hustle Run tester-access form
 The Android game (Play Console listing "Bond Village Hustle", package `com.bondvillage.hustlerun`) is a closed test, so only tester-list emails can install it.
 - New page `/hustle-run` (`frontend/src/app/hustle-run/page.tsx`, form in `components/HustleTesterForm.tsx`, links in `lib/hustlePlay.ts`, overridable with `NEXT_PUBLIC_HUSTLE_PLAY_URL` / `NEXT_PUBLIC_HUSTLE_TESTING_URL`). Linked from the homepage game card, the footer and the sitemap.
