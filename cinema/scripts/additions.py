@@ -24,6 +24,8 @@ person approves them.
 
 from __future__ import annotations
 
+import re
+
 # ---------------------------------------------------------------------------
 # Rights holders behind the YouTube rows. `slug` becomes a content_sources row.
 # ---------------------------------------------------------------------------
@@ -46,6 +48,9 @@ YT_HOLDERS = {
     "beyblade": ("BEYBLADE English - Official Channel", "UCktgoAFaL39_rYfiMZiD9jw", "The official English Beyblade channel posts full episodes. Region limits are set by the rights holder.", "https://www.youtube.com/channel/UCktgoAFaL39_rYfiMZiD9jw"),
     "yugioh": ("Official Yu-Gi-Oh! (Konami)", "UCZuVXrpKTUn_KEzRQgFgMWg", "The official Yu-Gi-Oh! channel posts full episodes. Region limits are set by the rights holder.", "https://www.youtube.com/channel/UCZuVXrpKTUn_KEzRQgFgMWg"),
     "pokemon": ("The Official Pokémon YouTube channel", "UCFctpiB_Hnlk3ejWfHqSm6Q", "The Pokémon Company International posts free full episodes on its official channel.", "https://www.youtube.com/channel/UCFctpiB_Hnlk3ejWfHqSm6Q"),
+    "crunchyroll-dubs": ("Crunchyroll Dubs (official channel)", "UCVi2lI40LetxLBKn-rtWC3A", "Crunchyroll's official English-dub channel posts free full episodes. Region limits are set by Crunchyroll.", "https://www.youtube.com/channel/UCVi2lI40LetxLBKn-rtWC3A"),
+    "toei": ("Toei Animation (official channel)", "UCQYYekTKCb1y12sas08T6gQ", "Toei Animation, the studio and rights holder, posts free full episodes on its official channel. Region limits are set by Toei.", "https://www.youtube.com/channel/UCQYYekTKCb1y12sas08T6gQ"),
+    "vanguard": ("Bushiroad (official Cardfight!! Vanguard channel)", "UCyaL8QllDEAYiqpFz0tBWog", "Bushiroad, the rights holder, posts full Cardfight!! Vanguard episodes on its official channel.", "https://www.youtube.com/channel/UCyaL8QllDEAYiqpFz0tBWog"),
     "tezuka": ("Tezuka Productions (official channel)", "UCyach7GHJDlXTv6h3fcNwqg", "Tezuka Productions' official channel. Some episodes are posted for a limited period, so they are re-checked before each release.", "https://www.youtube.com/channel/UCyach7GHJDlXTv6h3fcNwqg"),
     "blender-studio": ("Blender Studio", "UCz75RVbH8q2jdBJ4SnwuZZQ", "Blender Foundation's film studio; official channel for its open movies.", "https://studio.blender.org"),
     "blender": ("Blender Foundation (Blender)", "UCSMOQeBJ2RAnuFungnQOxLg", "Official Blender channel.", "https://www.blender.org"),
@@ -226,6 +231,80 @@ for vid, slug, title, year, holder, age, kids, blurb in [
     genres = ["Anime", "Adventure", "Family"] if holder in {"pokemon", "tezuka"} else ["Anime", "Action", "Sport"]
     extra = ["action-and-adventure"]
     yt(vid, slug, title, year, genres, lang, "Japan", "Osamu Tezuka (original work)" if holder == "tezuka" else "See the source record", [], "series", age, ANIME_TV + extra, holder, kids=kids, blurb=blurb)
+
+
+# More English anime (added 23 November 2026): English-dub and English-subtitled
+# full episodes from official channels, all checked as embeddable and playable
+# in South Africa. Skipped after checking: most first episodes in Crunchyroll's
+# English-dub playlist (not available in South Africa), Miss KUROITSU (age
+# gate), Samurai 7, Romeo x Juliet and Ragnarok (three to 32 countries, none of
+# them South Africa), Tomb Raider King (production country not confirmed),
+# Sonic channels (no Sonic X episodes), Bakugan (compilations only) and
+# low-follower Digimon, Doraemon and Shin-chan channels (not official).
+ENG = "English"
+CR_BLURB = "A free full episode of {s}, posted by Crunchyroll, the series' licensed distributor, on its official channel."
+for vid, holder, slug, title, year, lang, country, genres, extra, age, kids in [
+    ("Y3gDKzPTtpY", "crunchyroll", "black-clover-s2-e1", "Black Clover S2 E1: The Battle Begins", 2018, SUBDUB, "Japan", ["Anime", "Fantasy", "Action"], ["action-and-adventure"], "13+", None),
+    ("iCi9g9ieMYA", "crunchyroll", "the-apothecary-diaries-s3-e1", "The Apothecary Diaries S3 E1: Locusts", None, JSUB, "Japan", ["Anime", "Mystery", "Drama"], ["mystery-and-thriller", "drama"], "13+", None),
+    ("rafBEhZQDxc", "crunchyroll", "the-worlds-strongest-witch-e1", "The World's Strongest Witch E1: I Tried Using the Internet!", None, JSUB, "Japan", ["Anime", "Fantasy", "Comedy"], ["comedy"], "13+", None),
+    ("0APqHPwZf-M", "crunchyroll", "the-rising-of-the-shield-hero-s2-e1", "The Rising of the Shield Hero S2 E1: A New Roar (English dub)", 2022, ENG, "Japan", ["Anime", "Fantasy", "Action"], ["action-and-adventure"], "16+", None),
+    ("5ILlar1UJ88", "crunchyroll", "dr-stone-e1", "Dr. STONE E1: Stone World (English dub)", 2019, ENG, "Japan", ["Anime", "Science Fiction", "Adventure"], ["action-and-adventure"], "13+", None),
+    ("N0bbR6gvGEk", "crunchyroll", "konosuba-e1", "KONOSUBA -God's blessing on this wonderful world! E1 (English dub)", 2016, ENG, "Japan", ["Anime", "Fantasy", "Comedy"], ["comedy"], "13+", None),
+    ("cqkn9-DjrY0", "crunchyroll", "classroom-of-the-elite-e1", "Classroom of the Elite E1 (English dub)", 2017, ENG, "Japan", ["Anime", "Drama", "Thriller"], ["drama", "mystery-and-thriller"], "13+", None),
+    ("deM_OUHPIxk", "crunchyroll", "the-yakuzas-guide-to-babysitting-e1", "The Yakuza's Guide to Babysitting E1 (English dub)", 2022, ENG, "Japan", ["Anime", "Comedy", "Drama"], ["comedy", "drama"], "13+", None),
+    ("eaavz51l87g", "crunchyroll", "noblesse-e1", "Noblesse E1: What Must Be Protected / Ordinary (English dub)", 2020, ENG, "Japan", ["Anime", "Action", "Fantasy"], ["action-and-adventure"], "13+", None),
+    ("o_kSDQGYPmM", "crunchyroll", "miss-kobayashis-dragon-maid-e1", "Miss Kobayashi's Dragon Maid E1: The Strongest Maid in History, Tohru! (English dub)", 2017, ENG, "Japan", ["Anime", "Comedy", "Fantasy"], ["comedy"], "13+", None),
+    ("t118vPoMrag", "crunchyroll", "to-your-eternity-e1", "To Your Eternity E1: The Last One (English dub)", 2021, ENG, "Japan", ["Anime", "Drama", "Fantasy"], ["drama"], "13+", None),
+    ("QowSQt4cXKM", "crunchyroll-dubs", "yona-of-the-dawn-e2", "Yona of the Dawn E2: Broken Bond (English dub)", 2014, ENG, "Japan", ["Anime", "Fantasy", "Adventure"], ["action-and-adventure"], "13+", None),
+    ("9KG431ANr9g", "crunchyroll-dubs", "yona-of-the-dawn-e3", "Yona of the Dawn E3: Faraway Sky (English dub)", 2014, ENG, "Japan", ["Anime", "Fantasy", "Adventure"], ["action-and-adventure"], "13+", None),
+    ("dhr-iGdfbRU", "crunchyroll-dubs", "wise-mans-grandchild-e2", "Wise Man's Grandchild E2: The Unconventional Student (English dub)", 2019, ENG, "Japan", ["Anime", "Fantasy", "Comedy"], ["comedy"], "13+", None),
+    ("nl4yNrI-Y8Q", "crunchyroll-dubs", "psycho-pass-e2", "PSYCHO-PASS E2: Those Capable (English dub)", 2012, ENG, "Japan", ["Anime", "Science Fiction", "Crime"], ["mystery-and-thriller"], "16+", None),
+    ("vBwTjEASGbY", "crunchyroll-dubs", "assassination-classroom-e2", "Assassination Classroom E2: Baseball Time (English dub)", 2015, ENG, "Japan", ["Anime", "Comedy", "Action"], ["comedy", "action-and-adventure"], "13+", None),
+]:
+    series = re.sub(r" (S\d+ )?E\d+\b.*$", "", title)
+    yt(vid, slug, title, year, genres, lang, country, "See the source record", [], "series", age, ANIME_TV + extra, holder, kids=kids, blurb=CR_BLURB.format(s=series))
+
+for vid, slug, title, year, kids, age, holder, lang, blurb in [
+    ("SKDibi-XncE", "mobile-suit-gundam-seed-e2-english-dub", "Mobile Suit Gundam SEED E2 (English dub)", 2002, None, "13+", "gundam-intl", ENG, "Episode 2 of Gundam SEED, in the English dub, from the official Gundam channel."),
+    ("83AkyN33LAw", "mobile-suit-gundam-seed-e3-english-dub", "Mobile Suit Gundam SEED E3 (English dub)", 2002, None, "13+", "gundam-intl", ENG, "Episode 3 of Gundam SEED, in the English dub, from the official Gundam channel."),
+    ("beu95yrJfHI", "mobile-suit-gundam-seed-destiny-e2", "Mobile Suit Gundam SEED DESTINY E2 (English dub)", 2004, None, "13+", "gundam-intl", ENG, "Episode 2 of Gundam SEED DESTINY, in the English dub, from the official Gundam channel."),
+    ("DMVdbd_YsVM", "mobile-suit-gundam-seed-destiny-e3", "Mobile Suit Gundam SEED DESTINY E3 (English dub)", 2004, None, "13+", "gundam-intl", ENG, "Episode 3 of Gundam SEED DESTINY, in the English dub, from the official Gundam channel."),
+    ("gaxjRmRMgFQ", "digimon-adventure-2020-e1", "Digimon Adventure: (2020) E1: Tokyo Digital Crisis", 2020, "9-12", "9+", "toei", JSUB, "Episode 1 of Digimon Adventure: (2020), with English subtitles, from Toei Animation's official channel."),
+    ("pYYEWuxZXTc", "digimon-adventure-2020-e2", "Digimon Adventure: (2020) E2: War Game", 2020, "9-12", "9+", "toei", JSUB, "Episode 2 of Digimon Adventure: (2020), with English subtitles, from Toei Animation's official channel."),
+    ("rkivn7Adtd4", "digimon-adventure-2020-e3", "Digimon Adventure: (2020) E3: And to the Digital World", 2020, "9-12", "9+", "toei", JSUB, "Episode 3 of Digimon Adventure: (2020), with English subtitles, from Toei Animation's official channel."),
+    ("Z1yn4T9GVzQ", "cardfight-vanguard-remastered-e1", "Cardfight!! Vanguard (15th Anniv. Remastered) E1: Vanguard of Destiny!!", 2011, "9-12", "9+", "vanguard", JSUB, "Episode 1 of the original Cardfight!! Vanguard, remastered for its 15th anniversary, with English subtitles, from Bushiroad's official channel."),
+    ("4E6-okVgAzQ", "cardfight-vanguard-remastered-e2", "Cardfight!! Vanguard (15th Anniv. Remastered) E2: Ride to Victory!", 2011, "9-12", "9+", "vanguard", JSUB, "Episode 2 of the original Cardfight!! Vanguard, remastered for its 15th anniversary, with English subtitles, from Bushiroad's official channel."),
+    ("6EJYxNiBhvI", "cardfight-vanguard-overdress-e1", "Cardfight!! Vanguard overDress E1: Night at the Amusement Park (English dub)", 2021, "9-12", "9+", "vanguard", ENG, "Episode 1 of Cardfight!! Vanguard overDress, in English, from Bushiroad's official channel."),
+    ("iQS4ETXD9GM", "cardfight-vanguard-will-dress-e1", "Cardfight!! Vanguard will+Dress E1: An Invitation to the Future (English dub)", 2022, "9-12", "9+", "vanguard", ENG, "Episode 1 of Cardfight!! Vanguard will+Dress, in English, from Bushiroad's official channel."),
+    ("-h6PW2onvQs", "cardfight-vanguard-divinez-e1", "Cardfight!! Vanguard Divinez E1: Fated One of Miracles (English dub)", 2024, "9-12", "9+", "vanguard", ENG, "Episode 1 of Cardfight!! Vanguard Divinez, in English, from Bushiroad's official channel."),
+    ("d7do-uEMWdY", "beyblade-metal-fusion-e2", "Beyblade: Metal Fusion E2: Leone's Roar", 2009, "9-12", "9+", "beyblade", ENG, "Episode 2 of Beyblade: Metal Fusion, in English, from the official Beyblade channel."),
+    ("l6Q2zyGzdiI", "beyblade-metal-fusion-e3", "Beyblade: Metal Fusion E3: The Wolf's Ambition!", 2009, "9-12", "9+", "beyblade", ENG, "Episode 3 of Beyblade: Metal Fusion, in English, from the official Beyblade channel."),
+    ("XZlhwc07mHE", "beyblade-metal-masters-e2", "Beyblade: Metal Masters E2: The Persistent Challenger", 2010, "9-12", "9+", "beyblade", ENG, "Episode 2 of Beyblade: Metal Masters, in English, from the official Beyblade channel."),
+    ("AvHElnOrk1k", "beyblade-metal-masters-e3", "Beyblade: Metal Masters E3: A New Challenge", 2010, "9-12", "9+", "beyblade", ENG, "Episode 3 of Beyblade: Metal Masters, in English, from the official Beyblade channel."),
+    ("fR1bGAsXebU", "beyblade-x-e2", "Beyblade X E2: Multi-Colored Ambush", 2023, "9-12", "9+", "beyblade", ENG, "Episode 2 of Beyblade X, in English, from the official Beyblade channel."),
+    ("yhrsDPZiG1U", "beyblade-x-e3", "Beyblade X E3: Team Persona", 2023, "9-12", "9+", "beyblade", ENG, "Episode 3 of Beyblade X, in English, from the official Beyblade channel."),
+    ("3I3iRevp7KI", "beyblade-g-revolution-e1-e2", "Beyblade G-Revolution E1 and E2", 2003, "9-12", "9+", "beyblade", ENG, "The first two episodes of Beyblade G-Revolution, in English, from the official Beyblade channel."),
+    ("g7EMW8hwxss", "beyblade-burst-evolution-e3-e4", "Beyblade Burst Evolution E3 and E4", 2017, "9-12", "9+", "beyblade", ENG, "Episodes 3 and 4 of Beyblade Burst Evolution, in English, from the official Beyblade channel."),
+    ("MSE6R-ieY9Q", "beyblade-v-force-e3-e4", "Beyblade V-Force E3 and E4", 2002, "9-12", "9+", "beyblade", ENG, "Episodes 3 and 4 of Beyblade V-Force, in English, from the official Beyblade channel."),
+    ("d2P1GaKcSNk", "yu-gi-oh-duel-monsters-s1-e2", "Yu-Gi-Oh! Duel Monsters S1 E2: The Gauntlet is Thrown", 2000, "9-12", "9+", "yugioh", ENG, "Episode 2 of Yu-Gi-Oh! Duel Monsters, in English, from the official Yu-Gi-Oh! channel."),
+    ("h5xX0OGo_XQ", "yu-gi-oh-duel-monsters-s1-e3", "Yu-Gi-Oh! Duel Monsters S1 E3: Journey to the Duelist Kingdom", 2000, "9-12", "9+", "yugioh", ENG, "Episode 3 of Yu-Gi-Oh! Duel Monsters, in English, from the official Yu-Gi-Oh! channel."),
+    ("hSygbVEzWZQ", "yu-gi-oh-sevens-s1-e2", "Yu-Gi-Oh! SEVENS S1 E2: The Future King Of Duels!", 2020, "9-12", "9+", "yugioh", ENG, "Episode 2 of Yu-Gi-Oh! SEVENS, in English, from the official Yu-Gi-Oh! channel."),
+    ("BJz7yyOiG8o", "yu-gi-oh-sevens-s1-e3", "Yu-Gi-Oh! SEVENS S1 E3: Rock the Rush Duel", 2020, "9-12", "9+", "yugioh", ENG, "Episode 3 of Yu-Gi-Oh! SEVENS, in English, from the official Yu-Gi-Oh! channel."),
+    ("l8nNSpgM5Vs", "yu-gi-oh-zexal-s1-e1", "Yu-Gi-Oh! ZEXAL S1 E1: Go with the Flow, Part 1", 2011, "9-12", "9+", "yugioh", ENG, "Episode 1 of Yu-Gi-Oh! ZEXAL, in English, from the official Yu-Gi-Oh! channel."),
+    ("peYucvlbxGo", "yu-gi-oh-zexal-s1-e2", "Yu-Gi-Oh! ZEXAL S1 E2: Go with the Flow, Part 2", 2011, "9-12", "9+", "yugioh", ENG, "Episode 2 of Yu-Gi-Oh! ZEXAL, in English, from the official Yu-Gi-Oh! channel."),
+    ("JNJGST0KN20", "yu-gi-oh-zexal-s1-e3", "Yu-Gi-Oh! ZEXAL S1 E3: In the End, Part 1", 2011, "9-12", "9+", "yugioh", ENG, "Episode 3 of Yu-Gi-Oh! ZEXAL, in English, from the official Yu-Gi-Oh! channel."),
+    ("QUnqM6BeQnE", "pokemon-horizons-s2-e2", "Pokémon Horizons S2 E2: Put Your Heart into It!", None, "6-8", "All", "pokemon", ENG, "Episode 2 of season 2 of Pokémon Horizons: The Series, in English, from the official Pokémon channel."),
+    ("P47US-ZdC7M", "pokemon-horizons-s3-e2", "Pokémon Horizons S3 E2: Eyes to the Skies Once Again (Part 2)", None, "6-8", "All", "pokemon", ENG, "Episode 2 of season 3 of Pokémon Horizons: The Series, in English, from the official Pokémon channel."),
+]:
+    if holder == "gundam-intl":
+        genres, extra = ["Anime", "Science Fiction", "Action"], ["action-and-adventure"]
+    elif holder == "pokemon":
+        genres, extra = ["Anime", "Adventure", "Family"], ["action-and-adventure"]
+    elif holder == "toei":
+        genres, extra = ["Anime", "Adventure", "Fantasy"], ["action-and-adventure"]
+    else:
+        genres, extra = ["Anime", "Action", "Sport"], ["action-and-adventure"]
+    yt(vid, slug, title, year, genres, lang, "Japan", "See the source record", [], "series", age, ANIME_TV + extra, holder, kids=kids, blurb=blurb)
 
 
 # Blender open movies (official uploads)
