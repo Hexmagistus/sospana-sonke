@@ -75,6 +75,8 @@ A careers landing page is enough for that same set, even when the HTML lists no 
 
 ## Session Log
 
+### 2026-11-23 — Grok Bot (for Lungani) — Opportunities today list refreshed
+- `frontend/src/data/opportunitiesToday.json` (date 2026-11-23): 1,272 SA posts at 110 employers = the 666 SA posts the public API listed after #187, plus 606 posts from the 13 Nov list with a stated closing date on or after 24 Nov (not in the API, link answered 200). 13 Nov posts with no closing date and not re-seen were dropped. Category from the old list by employer name, else `companies.source_type` (new "Municipalities" and "SETAs" groups; homepage tag for Municipalities). `public/company-index.json` regenerated.
 ### 2026-11-23 — Grok Bot (for Lungani) — South African posts kept fresh
 - Diagnosis: GitHub ran the */15 `scan.yml` only every 4–8 hours, and each run scanned one ~20 s batch, so about 100 of ~5,000 sources were checked a day (34 of 1,023 SA sources in 7 days). With the 7-day seen rule only 42 SA posts (one employer) stayed public.
 - `app/services/scan_follow_on.py`: after a cron call to `scan_due_companies`, one background thread keeps scanning due sources (batches of 60, 40 s each) for up to `SCAN_FOLLOW_ON_SECONDS` (default 480; 0 switches it off; never under ENV=test), stops when nothing is due, logs a `scan_follow_on` JobRun. Same queue order (SA, rest of SADC, rest of Africa, others) and compare-and-set claims. Done server-side because the push token cannot edit workflow files.
