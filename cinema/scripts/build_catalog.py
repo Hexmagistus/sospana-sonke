@@ -12,6 +12,12 @@ import uuid
 from pathlib import Path
 from urllib.parse import quote
 
+import sys
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import additions  # noqa: E402
+from additions_build import add_verified_additions  # noqa: E402
+
 ROOT = Path(__file__).resolve().parents[1]
 NS = uuid.UUID("6f9c0b2e-1a4d-4e3a-9c11-sospana".replace("-sospana", "-000000000001")[:36])
 
@@ -38,16 +44,16 @@ def item(identifier: str) -> str:
 
 CATEGORIES = [
     ("international-movies", "International Movies", "Verified films and shorts from every country in the catalogue."),
-    ("african-cinema", "African Cinema", "African films whose licence and playback have been checked. None are in this demonstration yet."),
-    ("south-african-movies", "South African Movies", "South African films whose licence and playback have been checked. None are in this demonstration yet."),
+    ("african-cinema", "African Cinema", "African films, series and shorts played from their rights holders' own channels or from verified open-licence records."),
+    ("south-african-movies", "South African Movies", "South African films, series and shorts played from their rights holders' own official channels."),
     ("kids-movies", "Kids Movies", "Titles a person reviewed by hand before they were published in Kids Cinema."),
     ("cartoons", "Kids Cartoons", "Openly licensed cartoons a person approved for children."),
     ("animated-movies", "Animated Movies", "Animated films and shorts with a verified licence, including titles that are not for children."),
-    ("anime", "Anime", "Anime with a verified licence. None are in this demonstration yet."),
-    ("tv-series", "TV Series", "Series with a verified licence. None are in this demonstration yet."),
+    ("anime", "Anime", "Anime played from the rights holder's official channel. Region limits set by the rights holder apply."),
+    ("tv-series", "TV Series", "Series episodes from official channels and public-domain television."),
     ("documentaries", "Documentaries", "Documentaries with a verified licence and an authorized player."),
     ("educational-movies", "Educational Movies", "Films kept for learning, with a verified licence."),
-    ("nature-and-wildlife", "Nature and Wildlife", "Nature films with a verified licence. None are in this demonstration yet."),
+    ("nature-and-wildlife", "Nature and Wildlife", "Nature films from official free releases and public-domain classroom films."),
     ("science-and-technology", "Science and Technology", "Science films with a verified licence."),
     ("classic-cinema", "Classic Cinema", "Older films whose source record carries a public-domain mark or an equivalent statement."),
     ("family-entertainment", "Family Entertainment", "Titles approved for family viewing after a manual review."),
@@ -94,6 +100,25 @@ SOURCES = [
         "apiStatus": "item-on-internet-archive",
         "termsReference": "https://creativecommons.org/publicdomain/zero/1.0/",
     },
+    {
+        "slug": "youtube",
+        "providerName": "YouTube (official embeds)",
+        "websiteUrl": "https://www.youtube.com",
+        "providerType": "official-embed-platform",
+        "apiStatus": "oembed-and-watch-page-checked",
+        "termsReference": "https://www.youtube.com/t/terms",
+    },
+]
+SOURCES += [
+    {
+        "slug": slug,
+        "providerName": name,
+        "websiteUrl": f"https://www.youtube.com/channel/{channel}",
+        "providerType": "rights-holder",
+        "apiStatus": "official-youtube-channel",
+        "termsReference": site,
+    }
+    for slug, (name, channel, _about, site) in additions.YT_HOLDERS.items()
 ]
 
 
@@ -1002,8 +1027,8 @@ def build() -> dict:
         },
     )
 
-    known = {slug for slug, *_rest in [(c[0],) for c in CATEGORIES]}
-    # fix known properly
+    add_verified_additions(rows, ROOT)
+
     known = {c[0] for c in CATEGORIES}
     for movie in rows:
         missing = [c for c in movie["categories"] if c not in known]
@@ -1014,8 +1039,8 @@ def build() -> dict:
         for source in movie["sources"]:
             if not source["licenceEvidenceUrl"].startswith("http"):
                 raise SystemExit(f"{movie['slug']} missing licence")
-            if not source["url"].startswith("https://archive.org/"):
-                raise SystemExit(f"{movie['slug']} playback is not an archive URL")
+            if not source["url"].startswith(("https://archive.org/", "https://www.youtube-nocookie.com/embed/")):
+                raise SystemExit(f"{movie['slug']} playback is not an Internet Archive or official YouTube embed URL")
             if source["rightsVerified"] is not True:
                 raise SystemExit(f"{movie['slug']} unverified")
         kids_cats = [c for c in movie["categories"] if c.startswith("kids-") or c in {"kids-movies", "family-entertainment", "cartoons"}]
