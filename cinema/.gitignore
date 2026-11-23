@@ -1,0 +1,10 @@
+node_modules
+discovery/.venv
+.next
+data/runtime-state.json
+.env
+.env.local
+*.log
+tsconfig.tsbuildinfo
+playwright-report
+test-results

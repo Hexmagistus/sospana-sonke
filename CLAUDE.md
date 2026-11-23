@@ -75,6 +75,10 @@ A careers landing page is enough for that same set, even when the HTML lists no 
 
 ## Session Log
 
+### 2026-11-23 — Cursor (Grok 4.7) — Sospana Cinema
+Built Sospana Cinema as its own Next.js app in `cinema/`, plus a Python discovery service in `cinema/discovery/`. The jobs platform was left as it is, apart from this note. The demonstration catalogue has 35 real public-domain and Creative Commons titles from Internet Archive items checked on 23 November 2026, including Blender open movies and the National Archives copy of NASA's Apollo 11 film. Watch now is shown only when that item has a licence URL and its own player or file. Kids Cinema lists a title only after a manual approval; Sintel is animated and stays off that shelf. There is no viewer login. Admin sign-in reads its password from the environment. The Supabase schema is `cinema/supabase/migrations/202611230001_cinema.sql`. Without those credentials the site runs on the demonstration catalogue.
+Next: load the seed into Supabase when credentials exist, and add a South African title only when both a licence and an authorized player check out.
+
 ### 2026-11-12 — Grok Bot (for Lungani) — South African careers scan, closing-date reader, navigation-title filter
 Offline scan of every South African careers link (1,041 unique URLs from 936 employers) with the repo's own fetch and normalise code, results written to Neon over HTTPS. The box cannot reach Neon port 5432, so no DB write came from `run_scan.py`.
 - New `backend/app/scraper/closing_date.py`: reads a closing date from a vacancy page or PDF text, only when it follows a whole-word label ("Closing date", "Applications close", "Deadline", ...) in the same sentence. Opening and posting dates, a date in the next sentence, a date inside "enclose" or "weekend date", impossible dates and unlabelled dates return None. Tests: `tests/test_closing_date.py`. Not yet called from the scan (it would add one request per vacancy); wiring it into `static_html` for PDF and detail pages is the next step.

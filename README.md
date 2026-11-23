@@ -33,6 +33,10 @@ This repository contains the **Phase 1 foundation** of the platform described in
 
 See [`docs/PHASE1_STATUS.md`](docs/PHASE1_STATUS.md) for exactly what is built and what comes next.
 
+## Sospana Cinema
+
+`cinema/` is a separate free movie catalogue (SOSPANA CINEMA). It does not replace the jobs platform. See `cinema/README.md` for how to run it and how to deploy it on Vercel and Supabase.
+
 ## Repository layout
 
 ```
