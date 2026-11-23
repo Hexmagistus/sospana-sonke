@@ -75,6 +75,12 @@ A careers landing page is enough for that same set, even when the HTML lists no 
 
 ## Session Log
 
+### 2026-11-23 — Grok Bot (for Lungani) — Gauteng Hustle Run tester-access form
+The Android game (Play Console listing "Bond Village Hustle", package `com.bondvillage.hustlerun`) is a closed test, so only tester-list emails can install it.
+- New page `/hustle-run` (`frontend/src/app/hustle-run/page.tsx`, form in `components/HustleTesterForm.tsx`, links in `lib/hustlePlay.ts`, overridable with `NEXT_PUBLIC_HUSTLE_PLAY_URL` / `NEXT_PUBLIC_HUSTLE_TESTING_URL`). Linked from the homepage game card, the footer and the sitemap.
+- API `backend/app/api/routes_game.py`: public `POST /game/tester-requests` (honeypot `website`, 5/min + 20/h per IP, duplicate-safe, sends no email); admin-only `GET /admin/game/tester-requests`, `GET /admin/game/tester-requests/export` (text/csv, one email per line), `POST /admin/game/tester-requests/mark-added`.
+- Table `game_tester_requests` (migration `app/db/migrations/game_tester_requests.py`, model `app/models/game_tester.py`); already created in production Neon on 2026-11-23. Tests: `tests/test_game_testers.py`.
+
 ### 2026-11-12 — Grok Bot (for Lungani) — South African careers scan, closing-date reader, navigation-title filter
 Offline scan of every South African careers link (1,041 unique URLs from 936 employers) with the repo's own fetch and normalise code, results written to Neon over HTTPS. The box cannot reach Neon port 5432, so no DB write came from `run_scan.py`.
 - New `backend/app/scraper/closing_date.py`: reads a closing date from a vacancy page or PDF text, only when it follows a whole-word label ("Closing date", "Applications close", "Deadline", ...) in the same sentence. Opening and posting dates, a date in the next sentence, a date inside "enclose" or "weekend date", impossible dates and unlabelled dates return None. Tests: `tests/test_closing_date.py`. Not yet called from the scan (it would add one request per vacancy); wiring it into `static_html` for PDF and detail pages is the next step.
