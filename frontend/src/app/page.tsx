@@ -119,6 +119,13 @@ export default function HomePage() {
               </span>
               <span className="shrink-0 rounded-full bg-[#B8432A] px-4 py-2 text-sm font-bold text-white group-hover:bg-[#9A3722]">Play now</span>
             </a>
+            <p className="mt-2 max-w-xl text-sm text-[#3A3F47]">
+              📱 On Android?{" "}
+              <Link href="/hustle-run" className={`font-bold text-[#0B6575] underline ${FOCUS}`}>
+                Download it from Google Play
+              </Link>{" "}
+              (in testing; request access if it isn&apos;t available to you).
+            </p>
           </div>
 
           <div className="relative min-w-0">

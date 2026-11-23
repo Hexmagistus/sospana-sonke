@@ -37,3 +37,4 @@ from app.models.organisation import (  # noqa: F401
     EmployerInvoice, EmployerPaymentEvent, EmployerCorrection, EmployerAuditEvent,
 )
 from app.models.cv_audit import CVAudit  # noqa: F401
+from app.models.game_tester import GameTesterRequest  # noqa: F401
