@@ -75,6 +75,11 @@ A careers landing page is enough for that same set, even when the HTML lists no 
 
 ## Session Log
 
+### 2026-11-23 — Grok Bot (for Lungani) — "Recently posted" open roles
+- API: `GET /jobs?sort=recent` (alias `newest`) orders strictly by recency: `coalesce(posting_date, date(first_seen_at))` desc, then `first_seen_at` desc, then country band (SA, rest of SADC, rest of Africa, others). Helpers in `app/services/recent_posts.py`; the offline snapshot fallback sorts the same way. Default sort unchanged. Tests: `tests/test_recent_posts.py`.
+- Frontend: homepage section "Recently posted" (`components/home2/RecentlyPosted.tsx`, max 3 per employer, 18 cards) and full list `/recent-posts` (type chips, 50 per page), both server-rendered from the API with a 15-minute cache and a fallback message when the API is asleep. Footer + sitemap links.
+- Data note: public lists hide rows not seen for 7 days (`STALE_AFTER_DAYS`); on 2026-11-23 only 383 public open rows, 42 of them South African (all one employer, found 20/21 Nov).
+
 ### 2026-11-12 — Grok Bot (for Lungani) — South African careers scan, closing-date reader, navigation-title filter
 Offline scan of every South African careers link (1,041 unique URLs from 936 employers) with the repo's own fetch and normalise code, results written to Neon over HTTPS. The box cannot reach Neon port 5432, so no DB write came from `run_scan.py`.
 - New `backend/app/scraper/closing_date.py`: reads a closing date from a vacancy page or PDF text, only when it follows a whole-word label ("Closing date", "Applications close", "Deadline", ...) in the same sentence. Opening and posting dates, a date in the next sentence, a date inside "enclose" or "weekend date", impossible dates and unlabelled dates return None. Tests: `tests/test_closing_date.py`. Not yet called from the scan (it would add one request per vacancy); wiring it into `static_html` for PDF and detail pages is the next step.
