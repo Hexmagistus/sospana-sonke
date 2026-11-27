@@ -1,20 +1,29 @@
-[main 8d81d85] Add Sospana Sonke Career Agent page and nav link
- 11 files changed, 1164 insertions(+)
- create mode 100644 8-PUSH.bat
- create mode 100644 android/app-release-signed.apk.idsig
- create mode 100644 android/build-aab7.bat
- create mode 100644 android/build-aab8-run.bat
- create mode 100644 android/build-aab8.bat
- create mode 100644 android/build-log7.txt
- create mode 100644 android/local.properties
- create mode 100644 frontend/src/app/agent/page.tsx
- create mode 100644 play-assets/app-icon-512x512.png
+[main 4a62866] Add Sospana Sonke Career Agent page and nav link
+ 13 files changed, 6783 insertions(+)
+ create mode 100644 _to_delete/dast-fixes.patch
+ create mode 100644 _to_delete/hc_1789924741
+ create mode 100644 _to_delete/hjc_1789925110
+ create mode 100644 _to_delete/hkc_1789926216
+ create mode 100644 _to_delete/hld_1789922546
+ create mode 100644 _to_delete/hlz_1789924161
+ create mode 100644 _to_delete/login-alerts.patch
+ create mode 100644 _to_delete/security-hardening.patch
+ create mode 100644 _to_delete/smtp-alias.patch
+ create mode 100644 _to_delete/storage-and-directory.patch
+ create mode 100644 _to_delete/transfer.diff
+ create mode 100644 backend/seed/company_database_import.pre_brics.bak.csv
 To https://github.com/Hexmagistus/sospana-sonke.git
-   8e35233..8d81d85  main -> main
+ ! [rejected]        main -> main (fetch first)
+error: failed to push some refs to 'https://github.com/Hexmagistus/sospana-sonke.git'
+hint: Updates were rejected because the remote contains work that you do not
+hint: have locally. This is usually caused by another repository pushing to
+hint: the same ref. If you want to integrate the remote changes, use
+hint: 'git pull' before pushing again.
+hint: See the 'Note about fast-forwards' in 'git push --help' for details.
  
 === recent commits === 
-8d81d85 Add Sospana Sonke Career Agent page and nav link
-8e35233 Admin: suggest a post/link to relevant candidates, alerted on their own page
-b600f36 Dashboard nudge: complete your profile, referencing what you told us
-84478ef Use registration answers as a matching signal before a profile exists
-445f226 Seed candidate profile from registration answers
+4a62866 Add Sospana Sonke Career Agent page and nav link
+bce7fff Cut Neon network transfer from the 15-minute scan
+be6a86f CV Audit: guarantee ATS-compliant output and keep references
+e1c5a84 Focus the site on English-speaking, SADC and BRICS countries (reversible) (#160)
+6355232 Add offline guide page for maintenance (#159)

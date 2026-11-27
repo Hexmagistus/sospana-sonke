@@ -1033,3 +1033,25 @@ summary:focus-visible {
     0 1px 0 rgba(12, 27, 51, 0.28),
     0 14px 24px -12px rgba(12, 27, 51, 0.55);
 }
+
+/* --- Hero elevation: deeper navy aurora, premium gradient headline. --- */
+.ss-hero.ss-intel {
+  border-radius: var(--ss-radius-xl);
+  background:
+    radial-gradient(640px 300px at 100% -10%, rgba(94, 234, 212, 0.26), transparent 60%),
+    radial-gradient(520px 320px at -8% 120%, rgba(245, 179, 1, 0.13), transparent 60%),
+    radial-gradient(480px 300px at 62% 135%, rgba(124, 92, 255, 0.20), transparent 62%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.06), transparent 24%),
+    var(--ss-intel-navy);
+}
+.ss-intel-title {
+  font-size: clamp(2.1rem, 1.5rem + 2.6vw, 3.25rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+.ss-intel-title .ss-intel-accent {
+  background: linear-gradient(100deg, #ffd76a, #f5b301 42%, #5eead4);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
