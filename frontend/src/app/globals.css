@@ -988,3 +988,48 @@ summary:focus-visible {
 .ss-bal[data-motion="reduced"] .ss-bal-sprite { animation: none !important; }
 .ss-bal[data-motion="reduced"] .ss-bal-pace { left: 50%; margin-left: calc(var(--bw) / -2); }
 .ss-bal[data-motion="reduced"] .ss-bal-sprite { background-position-x: calc(var(--bw) * -2); }
+
+/* ================================================================== */
+/* DESIGN v3 — premium elevation pass (2026-11). Additive only: lifts  */
+/* depth, surfaces and primary actions site-wide. It touches no        */
+/* colour/contrast, map, HUD, admin or layout rule, so nothing the      */
+/* careful work above established can regress.                          */
+/* ================================================================== */
+
+/* Cards read as real, liftable objects. */
+.ss-card {
+  transition: transform var(--ss-dur) var(--ss-ease),
+              box-shadow var(--ss-dur-slow) var(--ss-ease);
+}
+@media (hover: hover) and (pointer: fine) {
+  .ss-card:hover {
+    transform: translateY(-3px);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.92),
+      0 2px 4px rgba(12, 27, 51, 0.06),
+      0 28px 52px -24px rgba(12, 27, 51, 0.42),
+      0 44px 74px -42px rgba(15, 118, 110, 0.32);
+  }
+  :root[data-theme="dark"] .ss-card:hover {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.14),
+      0 30px 58px -24px rgba(0, 0, 0, 0.78);
+  }
+}
+
+/* The intelligence hero band gets a deeper, premium inner glow. */
+.ss-hero.ss-intel {
+  box-shadow:
+    inset 0 1px 0 rgba(94, 234, 212, 0.5),
+    inset 0 80px 120px -90px rgba(94, 234, 212, 0.14),
+    0 30px 60px -30px rgba(4, 10, 20, 0.9);
+}
+
+/* Primary action: a quiet vertical gradient + glass sheen, richer shadow. */
+.ss-intel-button {
+  background-image: linear-gradient(180deg, #86f0de, var(--ss-intel-teal) 72%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.78),
+    0 1px 0 rgba(12, 27, 51, 0.28),
+    0 14px 24px -12px rgba(12, 27, 51, 0.55);
+}

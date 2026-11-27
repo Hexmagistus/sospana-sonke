@@ -1,0 +1,63 @@
+From fc0c3d02508468e64045b3eb6a1b700c1318d8cb Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Wed, 23 Sep 2026 11:39:52 -0600
+Subject: [PATCH] Fix all outgoing email: also read SMTP_USER from the
+ misspelled SMPT_USER
+
+The production Render service has the Gmail sender stored under SMPT_USER (typo), so SMTP_USER was
+empty: Gmail refused the unauthenticated send and no email went out at all (verification, password
+reset, login alerts). Accept both spellings (SMTP_USER wins), with a regression test.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01VijHPrYodcebYeu6E5ZNJ7
+---
+ backend/app/core/config.py              |  7 ++++++-
+ backend/tests/test_security_controls.py | 10 ++++++++++
+ 2 files changed, 16 insertions(+), 1 deletion(-)
+
+diff --git a/backend/app/core/config.py b/backend/app/core/config.py
+index be2d9c9..ca55762 100644
+--- a/backend/app/core/config.py
++++ b/backend/app/core/config.py
+@@ -4,6 +4,7 @@ All secrets and environment-specific values live here so that nothing sensitive
+ is hard-coded in the codebase (Security Architecture, blueprint section 15).
+ """
+ from functools import lru_cache
++from pydantic import AliasChoices, Field
+ from pydantic_settings import BaseSettings, SettingsConfigDict
+ 
+ 
+@@ -117,7 +118,11 @@ class Settings(BaseSettings):
+     TWILIO_FROM: str | None = None
+     SMTP_HOST: str | None = "smtp.gmail.com"   # Gmail SMTP; only used when EMAIL_PROVIDER=smtp
+     SMTP_PORT: int = 587
+-    SMTP_USER: str | None = None
++    # Also read from "SMPT_USER": the production Render service was set up with
++    # that typo, which left SMTP_USER empty and silently stopped ALL email
++    # (verification, password reset, login alerts). Accepting both spellings
++    # fixes it without anyone re-entering settings; SMTP_USER wins if both exist.
++    SMTP_USER: str | None = Field(default=None, validation_alias=AliasChoices("SMTP_USER", "SMPT_USER"))
+     SMTP_PASSWORD: str | None = None
+     # Owner alert on every successful sign-in (password or Google). Recipient(s):
+     # LOGIN_ALERT_EMAIL (comma-separated), falling back to SMTP_USER, then ADMIN_EMAIL. Needs
+diff --git a/backend/tests/test_security_controls.py b/backend/tests/test_security_controls.py
+index 533f798..2de0507 100644
+--- a/backend/tests/test_security_controls.py
++++ b/backend/tests/test_security_controls.py
+@@ -154,3 +154,13 @@ def test_documents_survive_control_characters():
+         {"job_title": nasty, "company": nasty, "responsibilities": nasty}]}
+     assert render_cv_docx(cv)[:2] == b"PK"
+     assert render_letter_docx("Dear hiring manager,\x00\x07\n\nI apply.")[:2] == b"PK"
++
++
++def test_smtp_user_also_read_from_production_typo(monkeypatch):
++    """Render had SMPT_USER (typo); email silently stopped. Both spellings must work."""
++    from app.core.config import Settings
++    monkeypatch.delenv("SMTP_USER", raising=False)
++    monkeypatch.setenv("SMPT_USER", "sender@gmail.com")
++    assert Settings().SMTP_USER == "sender@gmail.com"
++    monkeypatch.setenv("SMTP_USER", "correct@gmail.com")
++    assert Settings().SMTP_USER == "correct@gmail.com"
+-- 
+2.43.0
+

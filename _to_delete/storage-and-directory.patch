@@ -1,0 +1,946 @@
+From 4fc1cb8bfb57e7a6fa6f303fa9ed076ef1a3357b Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Wed, 23 Sep 2026 11:11:29 -0600
+Subject: [PATCH] Durable DB file storage, POPIA document erasure, server-side
+ directory scoping
+
+- storage: new 'db' backend (stored_files table in Postgres); STORAGE_BACKEND=auto resolves to db in
+  production because Render's disk is wiped on every restart; legacy on-disk files are rescued into
+  the DB on first read; already-lost files return a friendly 410 instead of a 500
+- account deletion now deletes CV/generated-document bytes, wipes extracted CV text and generated
+  content, and removes the candidate profile (POPIA right to erasure)
+- /companies: country, q (LIKE-escaped) and ids filters; non-admin requests must be scoped (cap 1500,
+  unscoped 100), 200/hour per account; new /companies/facets and /companies/surprise
+- Companies page loads one slice at a time (cached); Career Agent fetches only what a question needs
+- tests: storage backend, erasure, directory scoping; full suite green; Playwright e2e against a
+  production-mode API with the full seed
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01VijHPrYodcebYeu6E5ZNJ7
+---
+ CLAUDE.md                               |  11 +++
+ backend/app/api/routes_account.py       |  48 ++++++++++
+ backend/app/api/routes_companies.py     |  80 ++++++++++++++--
+ backend/app/core/config.py              |   3 +-
+ backend/app/main.py                     |  10 ++
+ backend/app/models/__init__.py          |   1 +
+ backend/app/models/stored_file.py       |  23 +++++
+ backend/app/services/storage.py         |  88 ++++++++++++++++-
+ backend/tests/test_directory_scoping.py |  71 ++++++++++++++
+ backend/tests/test_storage_db.py        |  82 ++++++++++++++++
+ docs/SECURITY-AUDIT-2026-09-24.md       |  44 ++++++---
+ frontend/src/app/agent/page.tsx         |  44 +++++++--
+ frontend/src/app/companies/page.tsx     | 121 +++++++++++++++---------
+ 13 files changed, 549 insertions(+), 77 deletions(-)
+ create mode 100644 backend/app/models/stored_file.py
+ create mode 100644 backend/tests/test_directory_scoping.py
+ create mode 100644 backend/tests/test_storage_db.py
+
+diff --git a/CLAUDE.md b/CLAUDE.md
+index 7c6a2d8..6dd3a09 100644
+--- a/CLAUDE.md
++++ b/CLAUDE.md
+@@ -49,6 +49,17 @@ commit it (and push, if you pushed the rest of your work). Newest entry on top.
+ 
+ ## Session Log
+ 
++### 2026-09-24 (later) — Claude (Cowork, Opus 5.5) — Durable DB file storage, POPIA document erasure, server-side directory scoping
++Lungani: "I give you all rights ... try your best". Did the code-side items (see §5b of
++`docs/SECURITY-AUDIT-2026-09-24.md`): `STORAGE_BACKEND=auto` → `db` in production (new `stored_files`
++table, legacy-disk rescue, 410 for already-lost files); account deletion now erases CV files/text,
++generated docs and the profile; `/companies` requires scoping for non-admins (+ `/facets`,
++`/surprise`), and the Companies page + Career Agent fetch per slice. Verified e2e with Playwright
++against a prod-mode API + full seed. Also ran OWASP ZAP earlier (see §6).
++**Still needs Lungani (credentials/secrets, can't be done by Claude even with permission):**
++Render `SMTP_USER`/`SMTP_PASSWORD` (Gmail App Password), since the platform sends no email at all;
++GitHub Actions secret `DATABASE_URL`, since the hourly scan fails at its first step without it.
++
+ ### 2026-09-24 — Claude (Cowork, Opus 5.5) — Senior security audit + hardening pass
+ Lungani sent a "senior engineering, security & production master directive" (audit first, threat-model,
+ fix safely, don't rewrite working systems). Full write-up: `docs/SECURITY-AUDIT-2026-09-24.md`.
+diff --git a/backend/app/api/routes_account.py b/backend/app/api/routes_account.py
+index 534ad1e..450c5a7 100644
+--- a/backend/app/api/routes_account.py
++++ b/backend/app/api/routes_account.py
+@@ -15,6 +15,9 @@ from app.models.comment import CompanyComment
+ from app.models.message import Message, UserBlock, MessageReport
+ from app.models.notification import Notification, PushToken
+ from app.models.user import User
++from app.models.cv import CV
++from app.models.document import CVVersion, CoverLetter
++from app.models.profile import CandidateProfile, Education, Certification, WorkExperience, Skill
+ 
+ router = APIRouter(tags=["account"])
+ 
+@@ -60,6 +63,50 @@ def export_my_data(request: Request, db: Session = Depends(get_db), user: User =
+     }
+ 
+ 
++def _erase_documents_and_profile(db: Session, user: User) -> None:
++    """POPIA erasure for everything CV-shaped: stored file bytes (uploaded CVs,
++    generated CVs/cover letters) are deleted, their extracted text/content is
++    wiped, and the candidate profile (education, work history, skills,
++    certifications) is removed. Rows that other records point at are kept as
++    empty, soft-deleted shells so foreign keys stay valid."""
++    import logging
++    from app.services.storage import get_storage
++    storage = get_storage()
++    now = datetime.now(timezone.utc)
++
++    def drop(key):
++        if key:
++            try:
++                storage.delete(key)
++            except Exception:
++                logging.getLogger(__name__).warning("Could not delete stored file %s during erasure", key,
++                                                    exc_info=True)
++
++    for cv in db.query(CV).filter(CV.user_id == user.id).all():
++        drop(cv.storage_key)
++        cv.storage_key, cv.original_filename = "", "deleted"
++        cv.extracted_text, cv.structured, cv.parse_error = None, None, None
++        cv.deleted_at = cv.deleted_at or now
++    for v in db.query(CVVersion).filter(CVVersion.user_id == user.id).all():
++        drop(v.storage_key_pdf); drop(v.storage_key_docx)
++        v.storage_key_pdf = v.storage_key_docx = None
++        v.content, v.label, v.ats_breakdown, v.truthfulness_violations = {}, "deleted", None, None
++        v.deleted_at = v.deleted_at or now
++    for letter in db.query(CoverLetter).filter(CoverLetter.user_id == user.id).all():
++        drop(letter.storage_key_pdf); drop(letter.storage_key_docx)
++        letter.storage_key_pdf = letter.storage_key_docx = None
++        letter.body, letter.label = "", "deleted"
++        letter.deleted_at = letter.deleted_at or now
++    for profile in db.query(CandidateProfile).filter(CandidateProfile.user_id == user.id).all():
++        for child in (Education, Certification, WorkExperience, Skill):
++            db.query(child).filter(child.profile_id == profile.id).delete(synchronize_session=False)
++        # Null every optional personal field on the profile row itself.
++        for col in CandidateProfile.__table__.columns:
++            if col.nullable and col.name not in ("id", "user_id", "created_at", "updated_at", "deleted_at"):
++                setattr(profile, col.key, None)
++        profile.deleted_at = profile.deleted_at or now
++
++
+ @router.post("/account/delete", status_code=status.HTTP_204_NO_CONTENT)
+ @limiter.limit("5/hour")
+ def delete_my_account(request: Request, body: DeleteRequest, db: Session = Depends(get_db),
+@@ -77,6 +124,7 @@ def delete_my_account(request: Request, body: DeleteRequest, db: Session = Depen
+     db.query(CompanyComment).filter(CompanyComment.user_id == user.id).delete(synchronize_session=False)
+     db.query(Notification).filter(Notification.user_id == user.id).delete(synchronize_session=False)
+     db.query(PushToken).filter(PushToken.user_id == user.id).delete(synchronize_session=False)
++    _erase_documents_and_profile(db, user)
+     user.token_version = (user.token_version or 0) + 1  # kill every session now
+     user.email = f"deleted-{user.id}@deleted.invalid"
+     user.first_name = "Deleted"
+diff --git a/backend/app/api/routes_companies.py b/backend/app/api/routes_companies.py
+index 9e1a077..9db372d 100644
+--- a/backend/app/api/routes_companies.py
++++ b/backend/app/api/routes_companies.py
+@@ -7,6 +7,7 @@ from datetime import datetime, timedelta, timezone
+ 
+ from fastapi import APIRouter, Depends, HTTPException, Request, UploadFile, File, Query, status
+ from fastapi.responses import RedirectResponse
++from sqlalchemy import func, or_
+ from sqlalchemy.orm import Session
+ 
+ from app.core.deps import get_current_user, require_admin
+@@ -35,24 +36,85 @@ _FAVICON_RECHECK = timedelta(days=30)
+ router = APIRouter(prefix="/companies", tags=["companies"])
+ 
+ 
++# Anti-bulk-copy: a regular user can't pull the whole directory in one call any
++# more. Every non-admin request must be scoped (one country, one category, a
++# search, or an explicit id list such as a shortlist) and is capped per call.
++# The UI only ever shows one such slice at a time, so this costs it nothing.
++_USER_MAX_ROWS = 1500
++_UNSCOPED_USER_MAX_ROWS = 100
++
++
+ @router.get("", response_model=list[CompanyResponse])
+-@limiter.limit("60/hour", key_func=user_or_ip_key)
++@limiter.limit("200/hour", key_func=user_or_ip_key)
+ def list_companies(
+     request: Request,
+     db: Session = Depends(get_db),
+-    _: User = Depends(get_current_user),
+-    source_type: str | None = Query(default=None, description="Filter by JSE or SOE"),
++    user: User = Depends(get_current_user),
++    source_type: str | None = Query(default=None, max_length=20, description="Category, e.g. SOE, UNI, COLLEGE"),
++    country: str | None = Query(default=None, max_length=80),
++    q: str | None = Query(default=None, max_length=100, description="Search in name / JSE code"),
++    ids: str | None = Query(default=None, max_length=8000, description="Comma-separated company ids"),
+     active: bool | None = Query(default=None),
+-    limit: int = Query(default=100, le=5000),
++    limit: int = Query(default=100, ge=1, le=5000),
+     offset: int = Query(default=0, ge=0),
+ ):
+-    q = db.query(Company).filter(Company.deleted_at.is_(None))
++    query = db.query(Company).filter(Company.deleted_at.is_(None))
+     if source_type:
+-        q = q.filter(Company.source_type == source_type.upper())
++        query = query.filter(Company.source_type == source_type.upper())
++    if country:
++        query = query.filter(Company.country == country)
++    if q and q.strip():
++        # Escape LIKE wildcards so user input is matched literally.
++        raw = q.strip().lower().replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
++        needle = f"%{raw}%"
++        query = query.filter(or_(func.lower(Company.company_name).like(needle, escape="\\"),
++                                 func.lower(func.coalesce(Company.jse_code, "")).like(needle, escape="\\")))
++    if ids:
++        id_list = [i.strip() for i in ids.split(",") if i.strip()][:200]
++        query = query.filter(Company.id.in_(id_list))
+     if active is not None:
+-        q = q.filter(Company.active == active)
+-    q = q.order_by(Company.company_name).offset(offset).limit(limit)
+-    return [CompanyResponse.model_validate(c) for c in q.all()]
++        query = query.filter(Company.active == active)
++    if user.role != "admin":
++        scoped = bool(source_type or country or (q and q.strip()) or ids)
++        limit = min(limit, _USER_MAX_ROWS if scoped else _UNSCOPED_USER_MAX_ROWS)
++    query = query.order_by(Company.company_name).offset(offset).limit(limit)
++    return [CompanyResponse.model_validate(c) for c in query.all()]
++
++
++@router.get("/facets")
++def company_facets(db: Session = Depends(get_db), _: User = Depends(get_current_user)):
++    """Counts for the directory's country tabs and headline stats -- numbers
++    only, no company rows -- so the page never needs the full list."""
++    rows = (db.query(Company.country, Company.source_type,
++                     func.count(Company.id), func.count(Company.careers_url))
++            .filter(Company.deleted_at.is_(None))
++            .group_by(Company.country, Company.source_type).all())
++    country_counts: dict[str, int] = {}
++    country_with_links: dict[str, int] = {}
++    type_counts: dict[str, int] = {}
++    total = with_links = 0
++    for country, st, n, n_links in rows:
++        if country:
++            country_counts[country] = country_counts.get(country, 0) + n
++            country_with_links[country] = country_with_links.get(country, 0) + n_links
++        key = (st or "").upper()
++        type_counts[key] = type_counts.get(key, 0) + n
++        total += n
++        with_links += n_links
++    return {"total": total, "with_links": with_links, "country_counts": country_counts,
++            "country_with_links": country_with_links, "type_counts": type_counts}
++
++
++@router.get("/surprise", response_model=CompanyResponse)
++@limiter.limit("60/hour", key_func=user_or_ip_key)
++def surprise_company(request: Request, db: Session = Depends(get_db), _: User = Depends(get_current_user)):
++    """One random employer with a careers link (the directory's "Surprise me")."""
++    c = (db.query(Company).filter(Company.deleted_at.is_(None), Company.careers_url.isnot(None),
++                                  Company.careers_url != "")
++         .order_by(func.random()).first())
++    if c is None:
++        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No employers yet.")
++    return CompanyResponse.model_validate(c)
+ 
+ 
+ @router.get("/coverage", response_model=list[CoverageRow])
+diff --git a/backend/app/core/config.py b/backend/app/core/config.py
+index 5ac2a66..be2d9c9 100644
+--- a/backend/app/core/config.py
++++ b/backend/app/core/config.py
+@@ -66,7 +66,8 @@ class Settings(BaseSettings):
+ 
+     # File storage (CV uploads and generated documents).
+     # Default is local disk for development; production uses S3-compatible storage.
+-    STORAGE_BACKEND: str = "local"          # local | s3
++    # auto = "db" in production (Render's disk is wiped on every restart), "local" elsewhere.
++    STORAGE_BACKEND: str = "auto"           # auto | local | db | s3
+     STORAGE_DIR: str = "./storage"          # used when STORAGE_BACKEND=local
+     S3_BUCKET: str | None = None
+     S3_ENDPOINT_URL: str | None = None
+diff --git a/backend/app/main.py b/backend/app/main.py
+index 3de7089..1f8099e 100644
+--- a/backend/app/main.py
++++ b/backend/app/main.py
+@@ -130,6 +130,16 @@ def create_app() -> FastAPI:
+             response.headers["Content-Security-Policy"] = "default-src 'none'; frame-ancestors 'none'"
+         return response
+ 
++    # A stored file that no longer exists (e.g. uploaded before storage moved
++    # into the database, when Render's disk was wiped on every restart) used to
++    # surface as a bare 500. Tell the person what happened and what to do.
++    @app.exception_handler(FileNotFoundError)
++    async def missing_file(request, exc):
++        from fastapi.responses import JSONResponse
++        return JSONResponse(status_code=410, content={
++            "detail": "This file is no longer available: it was lost in a server restart before "
++                      "storage was made permanent. Please re-upload your CV or generate the document again."})
++
+     @app.get("/health", tags=["system"])
+     def health() -> dict:
+         return {"status": "ok", "app": settings.APP_NAME, "env": settings.ENV}
+diff --git a/backend/app/models/__init__.py b/backend/app/models/__init__.py
+index 919460e..48de303 100644
+--- a/backend/app/models/__init__.py
++++ b/backend/app/models/__init__.py
+@@ -22,3 +22,4 @@ from app.models.link_report import LinkReport  # noqa: F401
+ from app.models.vacancy_report import VacancyReport  # noqa: F401
+ from app.models.message import Message, UserBlock, MessageReport  # noqa: F401
+ from app.models.comment import CompanyComment, CommentFlag  # noqa: F401
++from app.models.stored_file import StoredFile  # noqa: F401
+diff --git a/backend/app/models/stored_file.py b/backend/app/models/stored_file.py
+new file mode 100644
+index 0000000..249f835
+--- /dev/null
++++ b/backend/app/models/stored_file.py
+@@ -0,0 +1,23 @@
++"""Binary file blobs kept in Postgres (the `db` storage backend).
++
++Render's free instance has an ephemeral disk: everything under ./storage is
++wiped on every redeploy and restart, which silently deleted uploaded CVs and
++generated documents. Storing the bytes in the database we already run (Neon)
++makes them durable without another account, bucket or credential. Files are
++small (CVs are capped at MAX_UPLOAD_MB, generated DOCX/PDFs are ~40 KB).
++"""
++from datetime import datetime
++
++from sqlalchemy import DateTime, Integer, LargeBinary, String, func
++from sqlalchemy.orm import Mapped, mapped_column
++
++from app.db.base import Base
++
++
++class StoredFile(Base):
++    __tablename__ = "stored_files"
++
++    key: Mapped[str] = mapped_column(String(512), primary_key=True)
++    data: Mapped[bytes] = mapped_column(LargeBinary, nullable=False)
++    size: Mapped[int] = mapped_column(Integer, nullable=False)
++    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+diff --git a/backend/app/services/storage.py b/backend/app/services/storage.py
+index 47dc01e..6479bda 100644
+--- a/backend/app/services/storage.py
++++ b/backend/app/services/storage.py
+@@ -1,9 +1,15 @@
+ """File storage abstraction (blueprint sections 8 & 15).
+ 
+-Files (uploaded CVs, later generated documents) are stored in private object
+-storage, never in the database. The interface below has a local-disk
+-implementation for development and an S3-compatible implementation for
+-production. Callers use `get_storage()` and never touch the backend directly.
++Files (uploaded CVs, generated CVs/cover letters, reports) sit behind one small
++interface with three implementations:
++
++- `local`: disk under STORAGE_DIR. Fine for development, but NOT durable on
++  Render, whose disk is wiped on every redeploy/restart.
++- `db`: bytes in the `stored_files` table of the app's own Postgres. Durable,
++  needs no extra account or credential; the production default (`auto`).
++- `s3`: any S3-compatible bucket, for when volume outgrows the database.
++
++Callers use `get_storage()` and never touch the backend directly.
+ """
+ from __future__ import annotations
+ 
+@@ -75,14 +81,86 @@ class S3Storage(Storage):
+         self._client.delete_object(Bucket=self._bucket, Key=key)
+ 
+ 
++class DatabaseStorage(Storage):
++    """Durable storage in the app's own database (see app/models/stored_file.py).
++
++    Each operation uses its own short session so file writes never tangle
++    with the caller's transaction. Reads fall back to the local disk for files
++    written there before this backend existed (still present until the next
++    restart) and copy them into the database on first access.
++    """
++
++    def __init__(self, legacy_dir: str | None = None) -> None:
++        self._legacy = LocalStorage(legacy_dir) if legacy_dir else None
++
++    @staticmethod
++    def _session():
++        from app.db.session import SessionLocal
++        return SessionLocal()
++
++    def put(self, key: str, data: bytes) -> str:
++        from app.models.stored_file import StoredFile
++        db = self._session()
++        try:
++            row = db.get(StoredFile, key)
++            if row is None:
++                db.add(StoredFile(key=key, data=data, size=len(data)))
++            else:
++                row.data, row.size = data, len(data)
++            db.commit()
++        finally:
++            db.close()
++        return key
++
++    def get(self, key: str) -> bytes:
++        from app.models.stored_file import StoredFile
++        db = self._session()
++        try:
++            row = db.get(StoredFile, key)
++            if row is not None:
++                return bytes(row.data)
++        finally:
++            db.close()
++        if self._legacy is not None:
++            try:
++                data = self._legacy.get(key)
++            except FileNotFoundError:
++                pass
++            else:
++                self.put(key, data)  # rescue it before the next restart wipes the disk
++                return data
++        raise FileNotFoundError(key)
++
++    def delete(self, key: str) -> None:
++        from app.models.stored_file import StoredFile
++        db = self._session()
++        try:
++            db.query(StoredFile).filter(StoredFile.key == key).delete(synchronize_session=False)
++            db.commit()
++        finally:
++            db.close()
++        if self._legacy is not None:
++            self._legacy.delete(key)
++
++
++def resolved_backend() -> str:
++    backend = settings.STORAGE_BACKEND
++    if backend == "auto":
++        return "db" if settings.ENV == "production" else "local"
++    return backend
++
++
+ _storage: Storage | None = None
+ 
+ 
+ def get_storage() -> Storage:
+     global _storage
+     if _storage is None:
+-        if settings.STORAGE_BACKEND == "s3":
++        backend = resolved_backend()
++        if backend == "s3":
+             _storage = S3Storage()
++        elif backend == "db":
++            _storage = DatabaseStorage(legacy_dir=settings.STORAGE_DIR)
+         else:
+             _storage = LocalStorage(settings.STORAGE_DIR)
+     return _storage
+diff --git a/backend/tests/test_directory_scoping.py b/backend/tests/test_directory_scoping.py
+new file mode 100644
+index 0000000..12d3a96
+--- /dev/null
++++ b/backend/tests/test_directory_scoping.py
+@@ -0,0 +1,71 @@
++"""Server-side directory scoping (anti bulk-copy) + facets + surprise."""
++import uuid
++
++from app.api import routes_companies
++from tests.conftest import register_and_login, make_admin
++
++
++def _seed(db_engine, n_sa=5, n_bw=3):
++    from sqlalchemy.orm import sessionmaker
++    from app.models.company import Company
++    db = sessionmaker(bind=db_engine)()
++    for country, n in (("South Africa", n_sa), ("Botswana", n_bw)):
++        for i in range(n):
++            db.add(Company(id=str(uuid.uuid4()), company_name=f"{country} Co {i}", country=country,
++                           source_type="SOE" if i % 2 else "PRIVATE", active=True,
++                           careers_url=f"https://example.com/{country[:2]}{i}/careers" if i % 3 else None))
++    db.commit(); db.close()
++
++
++def _h(client, email="thandi@example.com"):
++    _, tok = register_and_login(client, email=email)
++    return {"Authorization": f"Bearer {tok['access_token']}"}
++
++
++def test_unscoped_user_request_is_capped(client, db_engine, monkeypatch):
++    _seed(db_engine)
++    monkeypatch.setattr(routes_companies, "_UNSCOPED_USER_MAX_ROWS", 4)
++    rows = client.get("/api/v1/companies?limit=5000", headers=_h(client)).json()
++    assert len(rows) == 4
++
++
++def test_scoped_by_country_returns_that_country_only(client, db_engine):
++    _seed(db_engine)
++    rows = client.get("/api/v1/companies?country=Botswana&limit=1500", headers=_h(client)).json()
++    assert len(rows) == 3 and {r["country"] for r in rows} == {"Botswana"}
++
++
++def test_search_and_ids(client, db_engine):
++    _seed(db_engine)
++    h = _h(client)
++    hits = client.get("/api/v1/companies?q=africa co 1", headers=h).json()
++    assert [r["company_name"] for r in hits] == ["South Africa Co 1"]
++    wanted = [hits[0]["id"]]
++    got = client.get(f"/api/v1/companies?ids={','.join(wanted)}", headers=h).json()
++    assert [r["id"] for r in got] == wanted
++    # LIKE wildcards in user input are neutralised, not interpreted.
++    assert client.get("/api/v1/companies?q=%25", headers=h).json() == []
++
++
++def test_admin_keeps_full_listing(client, db_engine, monkeypatch):
++    _seed(db_engine)
++    monkeypatch.setattr(routes_companies, "_UNSCOPED_USER_MAX_ROWS", 2)
++    email, pw = make_admin(db_engine)
++    tok = client.post("/api/v1/auth/login", json={"email": email, "password": pw}).json()["access_token"]
++    rows = client.get("/api/v1/companies?limit=5000", headers={"Authorization": f"Bearer {tok}"}).json()
++    assert len(rows) == 8
++
++
++def test_facets_counts_without_rows(client, db_engine):
++    _seed(db_engine)
++    f = client.get("/api/v1/companies/facets", headers=_h(client)).json()
++    assert f["total"] == 8
++    assert f["country_counts"] == {"South Africa": 5, "Botswana": 3}
++    assert f["country_with_links"]["South Africa"] == 3   # i = 1, 2, 4
++    assert f["type_counts"]["SOE"] + f["type_counts"]["PRIVATE"] == 8
++
++
++def test_surprise_returns_one_with_link(client, db_engine):
++    _seed(db_engine)
++    c = client.get("/api/v1/companies/surprise", headers=_h(client)).json()
++    assert c["careers_url"]
+diff --git a/backend/tests/test_storage_db.py b/backend/tests/test_storage_db.py
+new file mode 100644
+index 0000000..fcb4a9e
+--- /dev/null
++++ b/backend/tests/test_storage_db.py
+@@ -0,0 +1,82 @@
++"""Durable database-backed file storage (STORAGE_BACKEND=db / auto in production)."""
++import pytest
++
++from app.core.config import settings
++from app.services.storage import DatabaseStorage, LocalStorage, resolved_backend
++
++
++@pytest.fixture()
++def db_storage(db_engine, tmp_path, monkeypatch):
++    from sqlalchemy.orm import sessionmaker
++    from app.db import session as session_mod
++    monkeypatch.setattr(session_mod, "SessionLocal", sessionmaker(bind=db_engine))
++    return DatabaseStorage(legacy_dir=str(tmp_path / "legacy"))
++
++
++def test_put_get_overwrite_delete(db_storage):
++    db_storage.put("cvs/u1/a.pdf", b"%PDF-1")
++    assert db_storage.get("cvs/u1/a.pdf") == b"%PDF-1"
++    db_storage.put("cvs/u1/a.pdf", b"%PDF-2")
++    assert db_storage.get("cvs/u1/a.pdf") == b"%PDF-2"
++    db_storage.delete("cvs/u1/a.pdf")
++    with pytest.raises(FileNotFoundError):
++        db_storage.get("cvs/u1/a.pdf")
++
++
++def test_legacy_disk_file_is_rescued_into_database(db_storage, tmp_path):
++    LocalStorage(str(tmp_path / "legacy")).put("cvs/u2/old.docx", b"PK-old")
++    assert db_storage.get("cvs/u2/old.docx") == b"PK-old"
++    # Simulate Render wiping the disk on restart: the DB copy survives.
++    (tmp_path / "legacy" / "cvs" / "u2" / "old.docx").unlink()
++    assert db_storage.get("cvs/u2/old.docx") == b"PK-old"
++
++
++def test_auto_backend_is_db_in_production(monkeypatch):
++    monkeypatch.setattr(settings, "STORAGE_BACKEND", "auto")
++    monkeypatch.setattr(settings, "ENV", "production")
++    assert resolved_backend() == "db"
++    monkeypatch.setattr(settings, "ENV", "development")
++    assert resolved_backend() == "local"
++
++
++def test_missing_file_download_returns_friendly_410(client, monkeypatch):
++    from tests.conftest import register_and_login
++    _, tokens = register_and_login(client)
++    h = {"Authorization": f"Bearer {tokens['access_token']}"}
++    up = client.post("/api/v1/cv", headers=h,
++                     files={"file": ("cv.txt", b"Water treatment operator. 5 years experience.", "text/plain")})
++    if up.status_code >= 300:
++        pytest.skip(f"upload path rejected plain text ({up.status_code})")
++    cv_id = up.json()["id"]
++    # Make the stored bytes vanish behind the record, as a Render restart used to.
++    import app.services.storage as sm
++    monkeypatch.setattr(sm._storage, "get", lambda k: (_ for _ in ()).throw(FileNotFoundError(k)))
++    r = client.get(f"/api/v1/cv/{cv_id}/download", headers=h)
++    assert r.status_code == 410
++    assert "re-upload" in r.json()["detail"]
++
++
++def test_account_deletion_erases_cv_files_and_text(client):
++    from tests.conftest import register_and_login
++    import app.services.storage as sm
++    _, tokens = register_and_login(client)
++    h = {"Authorization": f"Bearer {tokens['access_token']}"}
++    up = client.post("/api/v1/cv", headers=h,
++                     files={"file": ("cv.txt", b"Jane Doe. Water treatment operator. 5 years.", "text/plain")})
++    assert up.status_code < 300, up.text
++    cv_id = up.json()["id"]
++    assert client.get(f"/api/v1/cv/{cv_id}/download", headers=h).status_code == 200
++    from app.models.cv import CV
++    from app.db.session import get_db
++    from app.main import app as fastapi_app
++    db = next(fastapi_app.dependency_overrides[get_db]())
++    key = db.get(CV, cv_id).storage_key
++    db.close()
++    assert sm._storage.get(key)
++    assert client.post("/api/v1/account/delete", headers=h, json={"password": "Password123!"}).status_code == 204
++    with pytest.raises(FileNotFoundError):
++        sm._storage.get(key)
++    db = next(fastapi_app.dependency_overrides[get_db]())
++    row = db.get(CV, cv_id)
++    assert row.extracted_text is None and row.structured is None and row.deleted_at is not None
++    db.close()
+diff --git a/docs/SECURITY-AUDIT-2026-09-24.md b/docs/SECURITY-AUDIT-2026-09-24.md
+index 6379faa..6ed0ecc 100644
+--- a/docs/SECURITY-AUDIT-2026-09-24.md
++++ b/docs/SECURITY-AUDIT-2026-09-24.md
+@@ -102,10 +102,7 @@ predates them, with existing rows backfilled to 0/NULL.
+ 
+ ## 5. Not done: roadmap, in priority order
+ 
+-1. **Server-side directory pagination/search.** The UI downloads the whole company directory to
+-   filter in the browser, so any logged-in account can copy it in one request. Per-account limits
+-   slow a scraper down but can't stop a single full copy. The real fix is moving filter/search to
+-   the API and removing `limit=5000`.
++1. ~~Server-side directory pagination/search~~: **done (follow-up pass, below).**
+ 2. **Enforce the CSP** (it's still Report-Only), then consider **httpOnly cookie sessions** instead
+    of localStorage tokens. That's a cross-site cookie + CSRF design across Vercel ↔ Render, so it's
+    its own project.
+@@ -118,15 +115,40 @@ predates them, with existing rows backfilled to 0/NULL.
+ 6. **Real migrations (Alembic)** instead of the boot-time column adder.
+ 7. **Backups:** confirm Neon point-in-time restore is enabled and actually test a restore.
+ 8. **CI security gate:** `pip-audit` + `npm audit` + the test suite on every push.
+-9. **CV storage is on Render's temporary disk.** `STORAGE_DIR=./storage` on a free Render
+-   instance is wiped on every redeploy and restart, and the instance restarts often. So uploaded
+-   CVs and generated documents can silently vanish. Move to object storage (the code already
+-   supports `STORAGE_BACKEND=s3`; Cloudflare R2 has a free tier). This is a reliability *and* a
+-   data-handling issue. (This pass also added `backend/storage/` to `.gitignore`: it was missing,
+-   and the push scripts run `git add -A` on a public repo. History checked: nothing was ever
+-   committed.)
++9. ~~CV storage on Render's temporary disk~~: **done (follow-up pass, below).**
+ 10. ~~Cron secret in the query string~~: fixed in the DAST follow-up (header-only now).
+ 
++## 5b. Follow-up pass (same day): storage + directory scoping
++
++**Durable file storage.** New `db` storage backend (`stored_files` table in the existing Neon
++database; no new account or credential). `STORAGE_BACKEND=auto` (the new default) resolves to `db`
++in production, so it switches on at deploy with no dashboard change. Files still sitting on
++Render's disk are read from there once and copied into the database ("rescued") before the next
++restart can wipe them. A download whose file was already lost now returns a friendly `410` ("please
++re-upload") instead of a 500. Size note: Neon's free tier is 0.5 GB. Uploaded CVs are capped by
++`MAX_UPLOAD_MB` and generated documents are ~40 KB, so this is comfortable for thousands of users. Move
++to `s3` (e.g. Cloudflare R2) when that changes; the switch is one env var.
++
++**POPIA erasure now covers documents.** "Delete my account" previously left CV files, extracted
++CV text, generated CVs/cover letters and the candidate profile behind. It now deletes the stored
++bytes and wipes/soft-deletes those records (`_erase_documents_and_profile` in `routes_account.py`).
++
++**Directory scoping.** `GET /companies` gains `country`, `q` (LIKE-escaped), and `ids` filters.
++Non-admin requests must be scoped and are capped at 1,500 rows (unscoped: 100). The per-account
++budget is now 200 requests/hour. New `GET /companies/facets` (counts only, for tabs and headline
++stats) and `GET /companies/surprise`. The Companies page loads one country/federations/shortlist
++slice at a time (cached per slice). The Career Agent fetches only the slice a question needs, or
++does server-side name search per keyword. Admin tools keep full access.
++
++*Honest limit:* the directory's whole purpose is to be shown to signed-in users, so a determined
++account can still page through it country by country. The difference is that this now takes ~60
++rate-limited, logged requests instead of one silent one.
++
++Verified end-to-end: API in production mode with the full 2,985-row seed, the built Next.js app, and
++headless Chromium. Real form login → Companies (facets + South Africa slice only) → switch to
++Botswana (one scoped request) → Career Agent "bank jobs in Botswana" answered with Botswana
++employers; zero page errors; the UI never requested an unscoped list.
++
+ ## 6. Verification
+ 
+ - Backend: full pytest suite green, including 11 new tests in `tests/test_security_controls.py`
+diff --git a/frontend/src/app/agent/page.tsx b/frontend/src/app/agent/page.tsx
+index 07d5032..8d27d76 100644
+--- a/frontend/src/app/agent/page.tsx
++++ b/frontend/src/app/agent/page.tsx
+@@ -430,7 +430,6 @@ function AgentInner() {
+ 
+   // Caches
+   const companyMap = useRef<Map<string, Company> | null>(null);
+-  const companyList = useRef<Company[] | null>(null);
+   const matchDetailCache = useRef<Map<string, MatchDetail>>(new Map());
+   const profile = useRef<ProfileLite | null>(null);
+   const ranAllMatches = useRef(false);
+@@ -468,15 +467,43 @@ function AgentInner() {
+     setTurns((prev) => [...prev, { id: nextId(), role: "agent", ...t }]);
+   }, []);
+ 
+-  async function ensureCompanies(): Promise<Company[]> {
+-    if (companyList.current) return companyList.current;
+-    const rows = await api.get<Company[]>("/companies?limit=5000");
+-    const m = new Map<string, Company>();
++  // The API only serves scoped slices of the directory (one country, one
++  // category, a name search, or explicit ids), never the whole thing, so the
++  // agent fetches just the slice a question needs and caches it.
++  const sliceCache = useRef<Map<string, Company[]>>(new Map());
++  function remember(rows: Company[]) {
++    const m = companyMap.current ?? new Map<string, Company>();
+     rows.forEach((c) => m.set(c.id, c));
+     companyMap.current = m;
+-    companyList.current = rows;
++  }
++  async function companySlice(path: string): Promise<Company[]> {
++    const hit = sliceCache.current.get(path);
++    if (hit) return hit;
++    const rows = await api.get<Company[]>(path).catch(() => [] as Company[]);
++    sliceCache.current.set(path, rows);
++    remember(rows);
+     return rows;
+   }
++  async function ensureCompanies(scope: { country?: string; sourceType?: string; keyword?: string } = {}): Promise<Company[]> {
++    if (scope.country) {
++      const qs = new URLSearchParams({ country: scope.country, limit: "1500" });
++      if (scope.sourceType) qs.set("source_type", scope.sourceType);
++      return companySlice(`/companies?${qs}`);
++    }
++    if (scope.sourceType) return companySlice(`/companies?source_type=${encodeURIComponent(scope.sourceType)}&limit=1500`);
++    const words = (scope.keyword || "").toLowerCase().split(/\s+/)
++      .filter((w) => w.length > 2 && !STOPWORDS.has(w)).slice(0, 3);
++    if (!words.length) return companySlice(`/companies?country=${encodeURIComponent("South Africa")}&limit=1500`);
++    const seen = new Map<string, Company>();
++    for (const w of words) {
++      for (const c of await companySlice(`/companies?q=${encodeURIComponent(w)}&limit=200`)) seen.set(c.id, c);
++    }
++    return Array.from(seen.values());
++  }
++  async function ensureEmployersFor(companyIds: string[]) {
++    const missing = Array.from(new Set(companyIds)).filter((id) => !companyMap.current?.has(id)).slice(0, 150);
++    if (missing.length) await companySlice(`/companies?ids=${encodeURIComponent(missing.join(","))}&limit=200`);
++  }
+ 
+   async function ensureProfile(): Promise<ProfileLite> {
+     if (profile.current) return profile.current;
+@@ -496,9 +523,9 @@ function AgentInner() {
+   // Employers relevant to the candidate's own profile (field + location).
+   async function employersFromProfile(limitN: number): Promise<{ employers: Company[]; country: string; seed: string }> {
+     const p = await ensureProfile();
+-    const all = await ensureCompanies();
+     const country = (p.preferred_locations || []).map((l) => resolveCountry(l.toLowerCase())).find(Boolean) || "South Africa";
+     const seed = (p.desired_occupations?.[0] || p.current_occupation || user?.preferred_position || "").toLowerCase();
++    const all = await ensureCompanies({ country });
+     let employers = filterEmployers(all, { keyword: seed, country }, limitN);
+     if (employers.length < 3) employers = filterEmployers(all, { country }, limitN); // widen: whole country
+     return { employers, country, seed };
+@@ -655,8 +682,9 @@ function AgentInner() {
+     });
+ 
+     // 2) Employers from the directory (the real, populated data).
+-    const all = await ensureCompanies();
++    const all = await ensureCompanies({ country: f.country, sourceType: f.category?.sourceType, keyword: parsed.keyword });
+     const employers = filterEmployers(all, { keyword: parsed.keyword, country: f.country, sourceType: f.category?.sourceType }, 8);
++    await ensureEmployersFor(vacs.slice(0, 12).map((v) => v.company_id));
+ 
+     const vacCards: VacancyCardData[] = vacs.slice(0, 12).map((v) => {
+       const c = companyMap.current?.get(v.company_id) || null;
+diff --git a/frontend/src/app/companies/page.tsx b/frontend/src/app/companies/page.tsx
+index 24e4fb3..33dfb47 100644
+--- a/frontend/src/app/companies/page.tsx
++++ b/frontend/src/app/companies/page.tsx
+@@ -1,6 +1,6 @@
+ "use client";
+ 
+-import { Suspense, useEffect, useMemo, useState } from "react";
++import { Suspense, useEffect, useMemo, useRef, useState } from "react";
+ import { useSearchParams } from "next/navigation";
+ import Link from "next/link";
+ import Guard from "@/components/Guard";
+@@ -98,9 +98,22 @@ function hashCode(s: string): number {
+ }
+ 
+ 
++type Facets = {
++  total: number;
++  with_links: number;
++  country_counts: Record<string, number>;
++  country_with_links: Record<string, number>;
++  type_counts: Record<string, number>;
++};
++
+ function CompaniesDirectoryInner() {
+   const searchParams = useSearchParams();
++  // Only the slice on screen (one country, federations, or the shortlist) is
++  // ever loaded -- the API no longer hands the whole directory to one request.
+   const [companies, setCompanies] = useState<Company[]>([]);
++  const [facets, setFacets] = useState<Facets | null>(null);
++  const [sliceLoading, setSliceLoading] = useState(false);
++  const sliceCache = useRef<Record<string, Company[]>>({});
+   const [vacancies, setVacancies] = useState<Vacancy[]>([]);
+   const [trending, setTrending] = useState<Set<string>>(new Set());
+   const [err, setErr] = useState("");
+@@ -112,13 +125,8 @@ function CompaniesDirectoryInner() {
+   const [previewCompany, setPreviewCompany] = useState<Company | null>(null);
+ 
+   useEffect(() => {
+-    Promise.all([
+-      api.get<Company[]>("/companies?limit=5000"),
+-      api.getAll<Vacancy>("/vacancies?is_open=true").catch(() => [] as Vacancy[]),
+-    ]).then(([cos, vacs]) => {
+-      setCompanies(cos);
+-      setVacancies(vacs);
+-    }).catch((e) => setErr(e.message));
++    api.get<Facets>("/companies/facets").then(setFacets).catch((e) => setErr(e.message));
++    api.getAll<Vacancy>("/vacancies?is_open=true").then(setVacancies).catch(() => {});
+     // Best-effort: a quiet directory with no watches yet just shows no badges.
+     api.get<TrendingCompany[]>("/companies/trending?days=7&limit=200")
+       .then((rows) => setTrending(new Set(rows.map((r) => r.company_id))))
+@@ -136,6 +144,36 @@ function CompaniesDirectoryInner() {
+     };
+   }, []);
+ 
++  const sliceKey = shortlistOnly
++    ? `ids:${Array.from(shortlistIds).sort().join(",")}`
++    : filter === "Federations" ? "type:FED" : `country:${country}`;
++
++  useEffect(() => {
++    if (!facets) return;
++    const cached = sliceCache.current[sliceKey];
++    if (cached) { setCompanies(cached); return; }
++    let path: string;
++    if (sliceKey.startsWith("ids:")) {
++      const ids = sliceKey.slice(4);
++      if (!ids) { setCompanies([]); return; }
++      path = `/companies?ids=${encodeURIComponent(ids)}&limit=200`;
++    } else if (sliceKey === "type:FED") {
++      path = "/companies?source_type=FED&limit=1500";
++    } else {
++      path = `/companies?country=${encodeURIComponent(country)}&limit=1500`;
++    }
++    let cancelled = false;
++    setSliceLoading(true);
++    api.get<Company[]>(path)
++      .then((rows) => {
++        sliceCache.current[sliceKey] = rows;
++        if (!cancelled) setCompanies(rows);
++      })
++      .catch((e) => { if (!cancelled) setErr(e.message); })
++      .finally(() => { if (!cancelled) setSliceLoading(false); });
++    return () => { cancelled = true; };
++  }, [facets, sliceKey, country]);
++
+   // Deep link from a "Share" button elsewhere (?company=<id>), the Coverage
+   // map (?country=<name>), or the homepage's "SOE vacancies (SA)" shortcut
+   // (?type=SOE&country=South%20Africa -- the same shortcut used to point at
+@@ -144,14 +182,16 @@ function CompaniesDirectoryInner() {
+     const wantedCompany = searchParams.get("company");
+     const wantedCountry = searchParams.get("country");
+     const wantedType = searchParams.get("type");
+-    if (wantedCompany && companies.length) {
+-      const found = companies.find((c) => c.id === wantedCompany);
+-      if (found) {
+-        setCountry(found.country || "South Africa");
+-        setQ(found.company_name);
+-        setFilter("all");
+-        return;
+-      }
++    if (wantedCompany) {
++      api.get<Company[]>(`/companies?ids=${encodeURIComponent(wantedCompany)}`)
++        .then(([found]) => {
++          if (!found) return;
++          setCountry(found.country || "South Africa");
++          setQ(found.company_name);
++          setFilter("all");
++        })
++        .catch(() => {});
++      return;
+     }
+     if (wantedCountry) {
+       setCountry(wantedCountry);
+@@ -160,7 +200,7 @@ function CompaniesDirectoryInner() {
+     if (wantedType && (FILTERS as readonly string[]).includes(wantedType)) {
+       setFilter(wantedType as (typeof FILTERS)[number]);
+     }
+-  }, [searchParams, companies]);
++  }, [searchParams]);
+ 
+   // Real open-position counts per company, from the same vacancy data the
+   // Find Jobs page uses -- never fabricated.
+@@ -170,20 +210,12 @@ function CompaniesDirectoryInner() {
+     return m;
+   }, [vacancies]);
+ 
++  const countryCounts: Record<string, number> = facets?.country_counts ?? {};
+   const countries = useMemo(() => {
+-    const set = Array.from(new Set(companies.map((c) => c.country).filter(Boolean) as string[]));
++    const set = Object.keys(facets?.country_counts ?? {});
+     set.sort((a, b) => (a === "South Africa" ? -1 : b === "South Africa" ? 1 : a.localeCompare(b)));
+     return set;
+-  }, [companies]);
+-
+-  const countryCounts = useMemo(() => {
+-    const m: Record<string, number> = {};
+-    for (const c of companies) {
+-      const k = c.country || "";
+-      if (k) m[k] = (m[k] || 0) + 1;
+-    }
+-    return m;
+-  }, [companies]);
++  }, [facets]);
+ 
+   const shownCompanies = useMemo(() => {
+     const needle = q.trim().toLowerCase();
+@@ -214,25 +246,23 @@ function CompaniesDirectoryInner() {
+   }, [companies, q, filter, country, jobsByCompany, shortlistOnly, shortlistIds]);
+ 
+   function surpriseMe() {
+-    if (!companies.length) return;
+-    const withLinks = companies.filter((c) => c.careers_url);
+-    const pool = withLinks.length ? withLinks : companies;
+-    const pick = pool[Math.floor(Math.random() * pool.length)];
+-    setShortlistOnly(false);
+-    setFilter("all");
+-    setQ("");
+-    setCountry(pick.country || "South Africa");
+-    setPreviewCompany(pick);
++    api.get<Company>("/companies/surprise").then((pick) => {
++      setShortlistOnly(false);
++      setFilter("all");
++      setQ("");
++      setCountry(pick.country || "South Africa");
++      setPreviewCompany(pick);
++    }).catch(() => {});
+   }
+ 
+-  const withLinks = companies.filter((c) => c.careers_url).length;
++  const withLinks = facets?.with_links ?? 0;
+   const flag = COUNTRY_FLAGS[country] || "🌍";
+-  const fedTotal = companies.filter((c) => (c.source_type || "").toUpperCase() === "FED").length;
++  const fedTotal = facets?.type_counts?.FED ?? 0;
+   const countryTotal = filter === "Federations" ? fedTotal : (countryCounts[country] ?? 0);
+-  const countryWithLinks = companies.filter((c) => (c.country || "") === country && c.careers_url).length;
++  const countryWithLinks = facets?.country_with_links?.[country] ?? 0;
+ 
+   if (err) return <Alert kind="error">{err}</Alert>;
+-  if (!companies.length) return <FunSpinner label="Loading the directory…" />;
++  if (!facets) return <FunSpinner label="Loading the directory…" />;
+ 
+   const FILTERS = ["all", "listed", "SOE", "Municipality", "Department", "Private", "NGO", "University", "College", "Hospital", "SETA", "Sports", "Federations", "Music"] as const;
+   const filterLabel: Record<(typeof FILTERS)[number], string> = {
+@@ -262,7 +292,7 @@ function CompaniesDirectoryInner() {
+             subtitle={
+               <>
+                 Browse the full directory and apply on each employer&apos;s official careers page.{" "}
+-                <strong className="text-white"><AnimatedNumber value={companies.length} /></strong> companies across Africa ·{" "}
++                <strong className="text-white"><AnimatedNumber value={facets.total} /></strong> companies across Africa ·{" "}
+                 <strong className="text-white"><AnimatedNumber value={withLinks} /></strong> with direct careers links.
+               </>
+             }
+@@ -455,7 +485,12 @@ function CompaniesDirectoryInner() {
+               </div>
+             );
+           })}
+-          {shownCompanies.length === 0 && (
++          {sliceLoading && shownCompanies.length === 0 && (
++            <div className="md:col-span-2">
++              <FunSpinner label={`Rounding up employers in ${country}…`} />
++            </div>
++          )}
++          {!sliceLoading && shownCompanies.length === 0 && (
+             <div className="md:col-span-2">
+               <EmptyState
+                 icon={shortlistOnly ? "⭐" : "🔍"}
+-- 
+2.43.0
+

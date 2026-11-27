@@ -1,0 +1,312 @@
+diff --git a/.github/workflows/daily-agent.yml b/.github/workflows/daily-agent.yml
+index b8db938..8a6d086 100644
+--- a/.github/workflows/daily-agent.yml
++++ b/.github/workflows/daily-agent.yml
+@@ -45,6 +45,10 @@ jobs:
+           curl -sS -m 120 -X POST \
+             -H "X-Cron-Secret: $CRON_SECRET" \
+             "https://sospana-sonke-api-fra.onrender.com/api/v1/cron/run/close_expired_vacancies"
++          # Once a day: the listing text pass (old years, passed dates, non-jobs).
++          curl -sS -m 180 -X POST \
++            -H "X-Cron-Secret: $CRON_SECRET" \
++            "https://sospana-sonke-api-fra.onrender.com/api/v1/cron/run/review_listing_quality"
+           curl -sS -m 180 -X POST \
+             -H "X-Cron-Secret: $CRON_SECRET" \
+             "https://sospana-sonke-api-fra.onrender.com/api/v1/cron/run/purge_expired_opportunities"
+diff --git a/.github/workflows/scan.yml b/.github/workflows/scan.yml
+index bce956a..d8f0afe 100644
+--- a/.github/workflows/scan.yml
++++ b/.github/workflows/scan.yml
+@@ -72,17 +72,20 @@ jobs:
+               fail=1
+             fi
+           done
+-          code=$(curl -sS -o resp-review_listing_quality.json -w "%{http_code}" --max-time 90 \
+-            -X POST "https://sospana-sonke-api-fra.onrender.com/api/v1/cron/run/review_listing_quality" \
++          # Listing text rules run once a day (daily-agent): that pass reads every
++          # stored title and link, which every 15 minutes used up the Neon
++          # free network allowance. Here only one batch of links is checked.
++          code=$(curl -sS -o resp-check_listing_links.json -w "%{http_code}" --max-time 90 \
++            -X POST "https://sospana-sonke-api-fra.onrender.com/api/v1/cron/run/check_listing_links" \
+             -H "X-Cron-Secret: $CRON_SECRET" || echo "000")
+-          echo "review_listing_quality HTTP $code"
+-          cat resp-review_listing_quality.json 2>/dev/null || true
++          echo "check_listing_links HTTP $code"
++          cat resp-check_listing_links.json 2>/dev/null || true
+           echo
+           if [ "$code" != "200" ]; then
+-            if grep -q "Unknown job" resp-review_listing_quality.json 2>/dev/null; then
+-              echo "The Frankfurt API does not have the listing-quality job yet. Scanning continues."
++            if grep -q "Unknown job" resp-check_listing_links.json 2>/dev/null; then
++              echo "The Frankfurt API does not have the link-check job yet. Scanning continues."
+             else
+-              echo "::error::review_listing_quality returned HTTP $code."
++              echo "::error::check_listing_links returned HTTP $code."
+               fail=1
+             fi
+           fi
+diff --git a/backend/app/scheduler/jobs.py b/backend/app/scheduler/jobs.py
+index 98b915f..97988dd 100644
+--- a/backend/app/scheduler/jobs.py
++++ b/backend/app/scheduler/jobs.py
+@@ -283,6 +283,17 @@ def review_listing_quality(db: Session, job_run_id: str | None = None) -> dict:
+     return _review(db)
+ 
+ 
++def check_listing_links(db: Session, job_run_id: str | None = None) -> dict:
++    """Check one batch of unchecked listing links. 404 and 410 expire the row.
++
++    The 15-minute scan workflow calls this instead of review_listing_quality.
++    The text pass reads every stored title and link, so it runs once a day
++    (daily-agent workflow) to keep the database's network transfer down.
++    """
++    from app.services.listing_quality import check_dead_links
++    return check_dead_links(db)
++
++
+ DISABLED_MATCHING = {
+     "status": "disabled",
+     "detail": "Job matching has been removed; this job does nothing. "
+diff --git a/backend/app/scheduler/registry.py b/backend/app/scheduler/registry.py
+index 8e17561..a867234 100644
+--- a/backend/app/scheduler/registry.py
++++ b/backend/app/scheduler/registry.py
+@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session
+ from app.models.match import SystemSetting
+ from app.scheduler.jobs import (
+     scan_all_companies, scan_south_africa, scan_due_companies, match_all_candidates, check_link_changes,
+-    test_all_urls, close_expired_vacancies, purge_expired_opportunities, review_listing_quality, run_daily_agent, purge_expired_messages,
++    test_all_urls, close_expired_vacancies, purge_expired_opportunities, review_listing_quality, check_listing_links, run_daily_agent, purge_expired_messages,
+     send_admin_login_digest, send_daily_digest,
+     discover_company_icons,
+ )
+@@ -24,6 +24,7 @@ JOBS = {
+     "close_expired_vacancies": close_expired_vacancies,  # DB-only sweep: is_open=False past closing_date
+     "purge_expired_opportunities": purge_expired_opportunities,  # backup, then delete expired rows
+     "review_listing_quality": review_listing_quality,  # hide non-jobs, stale posts and dead links
++    "check_listing_links": check_listing_links,  # 15-min: one batch of listing links (404/410 expire)
+     "discover_company_icons": discover_company_icons,  # polite fetch-once icon store (robots.txt, rate-limited, small batch)
+     "match_all_candidates": match_all_candidates,  # RETIRED: harmless "disabled" reply so a scheduler that still calls it gets a 200
+     "check_link_changes": check_link_changes,   # fast rotating batch: page-hash "did it change" check
+@@ -40,6 +41,7 @@ DEFAULT_SCHEDULE = {
+     "close_expired_vacancies": "0 1 * * *",      # nightly at 01:00 — keeps is_open accurate
+     "purge_expired_opportunities": "30 1 * * *",  # 01:30 — backup, then delete expired rows
+     "review_listing_quality": "15 1 * * *",  # 01:15 — quality pass before the purge
++    "check_listing_links": "*/15 * * * *",       # with the scan; the text pass stays daily
+     "discover_company_icons": "*/30 * * * *",      # ~12 companies per run, spaced out; never on a page view
+     "check_link_changes": "0 */4 * * *",         # every 4 hours — rotates through the list
+     "test_all_urls": "0 4 * * *",                # daily 04:00 — rotating careers-URL health check
+diff --git a/backend/app/services/scan_batch.py b/backend/app/services/scan_batch.py
+index fea3d8a..52369fe 100644
+--- a/backend/app/services/scan_batch.py
++++ b/backend/app/services/scan_batch.py
+@@ -54,7 +54,7 @@ from app.models.vacancy import VacancySource
+ from app.scraper import aia
+ from app.scraper.politeness import backoff_retry_cap
+ from app.services.scan_runner import (
+-    DueItem, _stamp_failure, claim_source, release_claims, select_due,
++    DueItem, _stamp_failure, claim_source, release_claims, select_due, select_due_cached,
+ )
+ from app.services.scan_service import (
+     FetchOutcome, SourceSnapshot, apply_fetch, ensure_source, fetch_source, snapshot_of,
+@@ -329,7 +329,10 @@ def run_scan_batch(db: Session, limit: int = 60, max_seconds: float = 18.0,
+     submit_until = fetch_deadline - SUBMIT_RESERVE_SECONDS
+     write_until = end - RELEASE_RESERVE_SECONDS
+     now = now or datetime.now(timezone.utc)
+-    queue: deque[DueItem] = deque(select_due(db, limit, now))
++    # Production reuses one hourly queue (select_due_cached) so the full
++    # company and source lists are not read from the database every call.
++    pick = select_due if settings.ENV == "test" else select_due_cached
++    queue: deque[DueItem] = deque(pick(db, limit, now))
+     selected = len(queue)
+     inflight: dict = {}             # future -> (item, source_id, previous)
+     inflight_hosts: set[str] = set()
+diff --git a/backend/app/services/scan_runner.py b/backend/app/services/scan_runner.py
+index 5519ded..3210e9e 100644
+--- a/backend/app/services/scan_runner.py
++++ b/backend/app/services/scan_runner.py
+@@ -260,6 +260,40 @@ def _is_slow(row) -> bool:
+     return elapsed_ms >= SLOW_SOURCE_MS or category == "TIMEOUT"
+ 
+ 
++# The due queue reads every active company and every source (two light
++# columns sets, but about 12,000 rows each). Building it on every 15-minute
++# call was a large share of the database's monthly network transfer, so one
++# ordered queue is kept in this process and handed out in slices until it is
++# DUE_CACHE_TTL_SECONDS old or used up. A slice is still claimed with
++# compare-and-set on last_checked, so a source scanned since the queue was
++# built is skipped, never scanned twice. A source that becomes due later
++# waits for the next rebuild, at most this long.
++DUE_CACHE_TTL_SECONDS = 3600.0
++_due_cache: dict = {"at": 0.0, "items": [], "next": 0}
++
++
++def invalidate_due_cache() -> None:
++    _due_cache["at"] = 0.0
++    _due_cache["items"] = []
++    _due_cache["next"] = 0
++
++
++def select_due_cached(db: Session, limit: int, now: datetime | None = None) -> list[DueItem]:
++    """select_due, built at most once an hour and handed out in slices."""
++    clock = time.monotonic()
++    items = _due_cache["items"]
++    start = _due_cache["next"]
++    if not items or start >= len(items) or clock - _due_cache["at"] >= DUE_CACHE_TTL_SECONDS:
++        # Large enough for four 15-minute calls; the rest wait for the rebuild.
++        items = select_due(db, max(limit, 1) * 4, now)
++        _due_cache["at"] = clock
++        _due_cache["items"] = items
++        start = 0
++    batch = items[start:start + limit]
++    _due_cache["next"] = start + len(batch)
++    return batch
++
++
+ def select_due_company_ids(db: Session, limit: int, now: datetime | None = None) -> list[str]:
+     """Company ids of select_due, in the same order."""
+     return [item.company_id for item in select_due(db, limit, now)]
+diff --git a/backend/app/services/scan_service.py b/backend/app/services/scan_service.py
+index c8957da..4cb960f 100644
+--- a/backend/app/services/scan_service.py
++++ b/backend/app/services/scan_service.py
+@@ -17,8 +17,8 @@ from dataclasses import dataclass, field
+ from datetime import datetime, timezone
+ 
+ import httpx
+-from sqlalchemy import func
+-from sqlalchemy.orm import Session
++from sqlalchemy import func, update
++from sqlalchemy.orm import Session, load_only
+ 
+ from app.core.config import settings
+ from app.models.company import Company
+@@ -269,13 +269,16 @@ def apply_fetch(db: Session, source: VacancySource, outcome: FetchOutcome) -> Sc
+         )
+         if "title" in adapter.validate(fields):
+             continue
+-        matches = _identity_matches(db, source, fields)
+-        if matches:
+-            existing = matches[0]
++        match_ids = _identity_match_ids(db, source, fields)
++        if match_ids:
+             # Other open rows with the same employer id stay. They are reported,
+             # not closed or deleted, when this scan recognises the id.
+-            for extra in matches:
+-                seen_ids.add(extra.id)
++            seen_ids.update(match_ids)
++            if _touch_if_unchanged(db, match_ids[0], fields, now):
++                report.updated += 1
++                report.duplicates_prevented += 1
++                continue
++            existing = db.get(Vacancy, match_ids[0])
+             was_open = existing.is_open
+             _apply_fields(existing, fields, now)
+             _replace_requirements(db, existing, fields["requirement_rows"])
+@@ -340,7 +343,11 @@ def apply_fetch(db: Session, source: VacancySource, outcome: FetchOutcome) -> Sc
+     # The row is closed only after MISS_CLOSE_AFTER such scans. An empty
+     # result is "couldn't read the page", not "every role closed".
+     if raw_list:
++        # Only the columns the miss counter and mark_expired use. The full row
++        # (description, raw content) is not sent back from the database.
+         stale = (db.query(Vacancy)
++                 .options(load_only(Vacancy.id, Vacancy.consecutive_misses, Vacancy.is_open,
++                                    Vacancy.status, Vacancy.expired_at, Vacancy.lifecycle_status))
+                  .filter(Vacancy.source_id == source.id, Vacancy.is_open.is_(True))
+                  .all())
+         for vac in stale:
+@@ -393,16 +400,17 @@ def _external_key(value: str | None) -> str:
+     return (value or "").strip().casefold()
+ 
+ 
+-def _identity_matches(db: Session, source: VacancySource, fields: dict) -> list[Vacancy]:
+-    """Open rows this listing already is. The first row is the one to update.
++def _identity_match_ids(db: Session, source: VacancySource, fields: dict) -> list[str]:
++    """Ids of the open rows this listing already is. The first id is the one to update.
+ 
+     An employer id is the identity, including a difference of case or surrounding
+     space. Every open row that shares it is returned so a later miss does not
+     close the extras. Those extras are left in place for the duplicate report.
++    Only ids are read, so an unchanged listing costs no row transfer.
+     """
+     key = _external_key(fields.get("external_id"))
+     if key:
+-        rows = (db.query(Vacancy)
++        rows = (db.query(Vacancy.id)
+                 .filter(Vacancy.company_id == source.company_id,
+                         Vacancy.deleted_at.is_(None),
+                         Vacancy.is_open.is_(True),
+@@ -411,19 +419,69 @@ def _identity_matches(db: Session, source: VacancySource, fields: dict) -> list[
+                 .order_by(Vacancy.first_seen_at.asc(), Vacancy.id.asc())
+                 .all())
+         if rows:
+-            return rows
+-    existing = (db.query(Vacancy)
++            return [row[0] for row in rows]
++    existing = (db.query(Vacancy.id)
+                 .filter(Vacancy.company_id == source.company_id,
+                         Vacancy.deleted_at.is_(None),
+                         Vacancy.fingerprint == fields["fingerprint"])
+                 .first())
+     if existing is None and not key:
+-        existing = (db.query(Vacancy)
++        existing = (db.query(Vacancy.id)
+                     .filter(Vacancy.company_id == source.company_id,
+                             Vacancy.deleted_at.is_(None),
+                             Vacancy.content_hash == fields["content_hash"])
+                     .first())
+-    return [existing] if existing is not None else []
++    return [existing[0]] if existing is not None else []
++
++
++def _identity_matches(db: Session, source: VacancySource, fields: dict) -> list[Vacancy]:
++    """Full rows for _identity_match_ids, in the same order."""
++    ids = _identity_match_ids(db, source, fields)
++    return [row for row in (db.get(Vacancy, i) for i in ids) if row is not None]
++
++
++def _touch_if_unchanged(db: Session, vacancy_id: str, fields: dict, now: datetime) -> bool:
++    """Stamp last seen on a row the listing would not change. True when done.
++
++    The comparison runs in the database: the new values go in and only the id
++    comes back, so a rescan of an unchanged board does not read descriptions
++    out of Neon. Anything that differs, a closed listing, a passed closing day,
++    or a row that is not plainly active falls through to the full update.
++    """
++    from app.services.opportunity_expiry import STATUS_ACTIVE, closing_has_passed
++
++    if fields.get("lifecycle_status") == "CLOSED" or not fields.get("is_open", True):
++        return False
++    if closing_has_passed(fields.get("closing_date")):
++        return False
++    conditions = [
++        Vacancy.id == vacancy_id,
++        Vacancy.is_open.is_(True),
++        Vacancy.status == STATUS_ACTIVE,
++        Vacancy.lifecycle_status == "ACTIVE",
++        Vacancy.expired_at.is_(None),
++        Vacancy.opportunity_reviewed.is_(True),
++        Vacancy.verification_state.isnot(None),
++        Vacancy.title == fields["title"],
++        Vacancy.content_hash == fields["content_hash"],
++        Vacancy.fingerprint == fields["fingerprint"],
++        Vacancy.quality_score.is_not_distinct_from(fields["quality_score"]),
++    ]
++    for key in _COPY_IF_PRESENT:
++        value = fields.get(key)
++        if value is not None:
++            conditions.append(getattr(Vacancy, key).is_not_distinct_from(value))
++    row = (db.query(Vacancy.id, Vacancy.quality_flags, Vacancy.opportunity_type)
++           .filter(*conditions)
++           .first())
++    if row is None or row[1]:
++        return False
++    values = {"last_seen_at": now, "consecutive_misses": 0}
++    if row[2] and row[2] != "job":
++        values["verified_at"] = now
++    db.execute(update(Vacancy).where(Vacancy.id == vacancy_id).values(**values)
++               .execution_options(synchronize_session=False))
++    return True
+ 
+ 
+ def _apply_fields(vac: Vacancy, fields: dict, now: datetime) -> None:

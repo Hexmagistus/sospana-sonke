@@ -1,0 +1,300 @@
+From 8906cc433398e7a7d115ac929cb2785cc1a640ee Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Wed, 23 Sep 2026 10:04:57 -0600
+Subject: [PATCH] Email the owner on every successful login (password or
+ Google)
+
+New app/notifications/login_alert.py: after each successful sign-in, a
+FastAPI background task emails name, email, role, method, SAST time, IP
+and device to LOGIN_ALERT_EMAIL (comma-separated), falling back to
+SMTP_USER then ADMIN_EMAIL. Independent of NOTIFY_EMAILS; never blocks or
+breaks login if SMTP fails. LOGIN_ALERTS_ENABLED=false turns it off.
+Google sign-ins flag first-time (new account) logins.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01VijHPrYodcebYeu6E5ZNJ7
+---
+ backend/.env.example                     |  5 +-
+ backend/app/api/routes_auth.py           | 12 +++-
+ backend/app/core/config.py               |  5 ++
+ backend/app/notifications/login_alert.py | 77 ++++++++++++++++++++++++
+ backend/tests/test_login_alert.py        | 72 ++++++++++++++++++++++
+ render.yaml                              |  2 +
+ 6 files changed, 169 insertions(+), 4 deletions(-)
+ create mode 100644 backend/app/notifications/login_alert.py
+ create mode 100644 backend/tests/test_login_alert.py
+
+diff --git a/backend/.env.example b/backend/.env.example
+index 97838d9..df3f54c 100644
+--- a/backend/.env.example
++++ b/backend/.env.example
+@@ -20,7 +20,10 @@ ADMIN_PASSWORD=
+ PAYMENT_PROVIDER=mock
+ # PAYSTACK_SECRET_KEY=sk_live_xxx
+ 
+-# Notifications — console works offline; set smtp + NOTIFY_EMAILS=true for real email.
++# Notifications — console works offline; set smtp + NOTIFY_EMAILS=true
++# Owner gets an email on every sign-in. Blank = send to SMTP_USER (then ADMIN_EMAIL).
++LOGIN_ALERTS_ENABLED=true
++LOGIN_ALERT_EMAIL= for real email.
+ EMAIL_PROVIDER=console
+ NOTIFY_EMAILS=false
+ 
+diff --git a/backend/app/api/routes_auth.py b/backend/app/api/routes_auth.py
+index cf9c08a..0386c48 100644
+--- a/backend/app/api/routes_auth.py
++++ b/backend/app/api/routes_auth.py
+@@ -5,7 +5,7 @@ import secrets
+ 
+ import httpx
+ import jwt
+-from fastapi import APIRouter, Depends, HTTPException, Request, status
++from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request, status
+ from sqlalchemy.orm import Session
+ 
+ from app.core import security
+@@ -14,6 +14,7 @@ from app.core.rate_limit import limiter
+ from app.db.session import get_db
+ from app.models.user import User
+ from app.core.config import settings
++from app.notifications.login_alert import queue_login_alert
+ from app.schemas.auth import (
+     RegisterRequest, RegisterResponse, LoginRequest, TokenResponse,
+     RefreshRequest, UserResponse, MFASetupResponse, MFACodeRequest,
+@@ -90,7 +91,8 @@ def verify_email(token: str, db: Session = Depends(get_db)):
+ 
+ @router.post("/login", response_model=TokenResponse)
+ @limiter.limit("10/minute")
+-def login(request: Request, body: LoginRequest, db: Session = Depends(get_db)):
++def login(request: Request, body: LoginRequest, background_tasks: BackgroundTasks,
++          db: Session = Depends(get_db)):
+     user = db.query(User).filter(User.email == body.email.lower()).first()
+     # Constant-ish response regardless of which check fails, to avoid user enumeration.
+     if user is None or not security.verify_password(body.password, user.password_hash):
+@@ -101,6 +103,7 @@ def login(request: Request, body: LoginRequest, db: Session = Depends(get_db)):
+         if not security.verify_totp(user.mfa_secret, body.otp_code):
+             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                                 detail="MFA code required or invalid.")
++    queue_login_alert(background_tasks, request, user, method="email & password")
+     return TokenResponse(
+         access_token=security.create_access_token(user.id, user.role),
+         refresh_token=security.create_refresh_token(user.id),
+@@ -109,7 +112,8 @@ def login(request: Request, body: LoginRequest, db: Session = Depends(get_db)):
+ 
+ @router.post("/google", response_model=TokenResponse)
+ @limiter.limit("20/minute")
+-def google_login(request: Request, body: GoogleLoginRequest, db: Session = Depends(get_db)):
++def google_login(request: Request, body: GoogleLoginRequest, background_tasks: BackgroundTasks,
++                 db: Session = Depends(get_db)):
+     """Sign in (or sign up) with a Google account.
+ 
+     The frontend obtains a Google ID token via Google Identity Services and posts it
+@@ -140,6 +144,7 @@ def google_login(request: Request, body: GoogleLoginRequest, db: Session = Depen
+         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                             detail="Google account email is not verified.")
+     user = db.query(User).filter(User.email == email).first()
++    new_account = user is None
+     if user is None:
+         user = User(
+             email=email,
+@@ -153,6 +158,7 @@ def google_login(request: Request, body: GoogleLoginRequest, db: Session = Depen
+         db.refresh(user)
+     if not user.is_active or user.deleted_at is not None:
+         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Account is disabled.")
++    queue_login_alert(background_tasks, request, user, method="Google", new_account=new_account)
+     return TokenResponse(
+         access_token=security.create_access_token(user.id, user.role),
+         refresh_token=security.create_refresh_token(user.id),
+diff --git a/backend/app/core/config.py b/backend/app/core/config.py
+index c503620..1edf9fe 100644
+--- a/backend/app/core/config.py
++++ b/backend/app/core/config.py
+@@ -111,6 +111,11 @@ class Settings(BaseSettings):
+     SMTP_PORT: int = 587
+     SMTP_USER: str | None = None
+     SMTP_PASSWORD: str | None = None
++    # Owner alert on every successful sign-in (password or Google). Recipient(s):
++    # LOGIN_ALERT_EMAIL (comma-separated), falling back to SMTP_USER, then ADMIN_EMAIL. Needs
++    # EMAIL_PROVIDER=smtp to actually deliver. Independent of NOTIFY_EMAILS.
++    LOGIN_ALERTS_ENABLED: bool = True
++    LOGIN_ALERT_EMAIL: str | None = None
+ 
+     # Application automation (blueprint sections 13, 14, 28 — Phase 2).
+     # OFF by default: a global kill-switch so automated submission is opt-in and safe.
+diff --git a/backend/app/notifications/login_alert.py b/backend/app/notifications/login_alert.py
+new file mode 100644
+index 0000000..43cd8f7
+--- /dev/null
++++ b/backend/app/notifications/login_alert.py
+@@ -0,0 +1,77 @@
++"""Owner alert: email the platform owner every time someone signs in.
++
++Recipient is LOGIN_ALERT_EMAIL (comma-separated allowed), falling back to
++SMTP_USER (the Gmail inbox that sends the platform's mail), then ADMIN_EMAIL. Independent of NOTIFY_EMAILS (that toggle is for candidate-facing
++mail). Runs as a FastAPI background task so SMTP never slows down the login
++response, and never raises — a failed alert must not break sign-in.
++"""
++from __future__ import annotations
++
++import logging
++from datetime import datetime, timedelta, timezone
++
++from app.core.config import settings
++
++logger = logging.getLogger(__name__)
++
++SAST = timezone(timedelta(hours=2), "SAST")
++
++
++def alert_recipients() -> list[str]:
++    if not settings.LOGIN_ALERTS_ENABLED:
++        return []
++    raw = settings.LOGIN_ALERT_EMAIL or settings.SMTP_USER or settings.ADMIN_EMAIL or ""
++    return [e.strip() for e in raw.split(",") if e.strip()]
++
++
++def client_ip(request) -> str:
++    # Render/Vercel sit behind a proxy: the real client is the first X-Forwarded-For hop.
++    fwd = request.headers.get("x-forwarded-for", "")
++    if fwd:
++        return fwd.split(",")[0].strip()
++    return request.client.host if request.client else "unknown"
++
++
++def build_login_alert(*, first_name: str, last_name: str, email: str, role: str,
++                      method: str, ip: str, user_agent: str, new_account: bool = False,
++                      when: datetime | None = None) -> tuple[str, str]:
++    when = (when or datetime.now(timezone.utc)).astimezone(SAST)
++    name = f"{first_name} {last_name}".strip()
++    tag = " (NEW account)" if new_account else ""
++    subject = f"🔔 {settings.APP_NAME} login: {name}{tag}"
++    body = (
++        f"Someone just signed in to {settings.APP_NAME}.\n\n"
++        f"Name:    {name}\n"
++        f"Email:   {email}\n"
++        f"Role:    {role}\n"
++        f"Method:  {method}{' — first sign-in, account created' if new_account else ''}\n"
++        f"Time:    {when:%a %d %b %Y, %H:%M:%S} SAST\n"
++        f"IP:      {ip}\n"
++        f"Device:  {user_agent or 'unknown'}\n"
++    )
++    return subject, body
++
++
++def send_login_alert(subject: str, body: str) -> None:
++    recipients = alert_recipients()
++    if not recipients:
++        return
++    try:
++        from app.notifications.email import get_email_provider
++        provider = get_email_provider()
++        for to in recipients:
++            provider.send(to, subject, body)
++    except Exception:
++        logger.error("Failed to send login alert", exc_info=True)
++
++
++def queue_login_alert(background_tasks, request, user, *, method: str, new_account: bool = False) -> None:
++    """Build the alert from the request now; send it after the response goes out."""
++    if not alert_recipients():
++        return
++    subject, body = build_login_alert(
++        first_name=user.first_name, last_name=user.last_name, email=user.email,
++        role=user.role, method=method, ip=client_ip(request),
++        user_agent=request.headers.get("user-agent", ""), new_account=new_account,
++    )
++    background_tasks.add_task(send_login_alert, subject, body)
+diff --git a/backend/tests/test_login_alert.py b/backend/tests/test_login_alert.py
+new file mode 100644
+index 0000000..baa8ba9
+--- /dev/null
++++ b/backend/tests/test_login_alert.py
+@@ -0,0 +1,72 @@
++"""Owner gets an email every time someone signs in."""
++from app.core.config import settings
++from app.notifications.email import ConsoleEmailProvider
++
++
++def _register(client, email="thandi@example.com"):
++    r = client.post("/api/v1/auth/register", json={
++        "email": email, "password": "StrongPass123!", "first_name": "Thandi", "last_name": "Mokoena",
++        "accepted_policy": True})
++    assert r.status_code == 201, r.text
++
++
++def _alerts(to):
++    return [m for m in ConsoleEmailProvider.outbox if m["to"] == to and "login" in m["subject"]]
++
++
++def test_login_emails_owner(client, monkeypatch):
++    monkeypatch.setattr(settings, "LOGIN_ALERT_EMAIL", "owner@example.com")
++    ConsoleEmailProvider.outbox.clear()
++    _register(client)
++    assert _alerts("owner@example.com") == []          # registering alone is not a login
++    r = client.post("/api/v1/auth/login", json={"email": "thandi@example.com", "password": "StrongPass123!"},
++                    headers={"X-Forwarded-For": "41.13.2.9, 10.0.0.1", "User-Agent": "TestPhone/1.0"})
++    assert r.status_code == 200
++    [msg] = _alerts("owner@example.com")
++    assert "Thandi Mokoena" in msg["subject"]
++    for part in ("thandi@example.com", "email & password", "41.13.2.9", "TestPhone/1.0", "SAST"):
++        assert part in msg["body"]
++
++
++def test_failed_login_sends_nothing(client, monkeypatch):
++    monkeypatch.setattr(settings, "LOGIN_ALERT_EMAIL", "owner@example.com")
++    _register(client)
++    ConsoleEmailProvider.outbox.clear()
++    r = client.post("/api/v1/auth/login", json={"email": "thandi@example.com", "password": "wrong-pass-123"})
++    assert r.status_code == 401
++    assert _alerts("owner@example.com") == []
++
++
++def test_multiple_recipients_and_fallback(client, monkeypatch):
++    monkeypatch.setattr(settings, "LOGIN_ALERT_EMAIL", "a@example.com, b@example.com")
++    _register(client)
++    ConsoleEmailProvider.outbox.clear()
++    client.post("/api/v1/auth/login", json={"email": "thandi@example.com", "password": "StrongPass123!"})
++    assert len(_alerts("a@example.com")) == 1 and len(_alerts("b@example.com")) == 1
++
++    monkeypatch.setattr(settings, "LOGIN_ALERT_EMAIL", None)
++    monkeypatch.setattr(settings, "SMTP_USER", "sender@gmail.com")
++    ConsoleEmailProvider.outbox.clear()
++    client.post("/api/v1/auth/login", json={"email": "thandi@example.com", "password": "StrongPass123!"})
++    assert len(_alerts("sender@gmail.com")) == 1
++
++
++def test_alerts_can_be_disabled(client, monkeypatch):
++    monkeypatch.setattr(settings, "LOGIN_ALERT_EMAIL", "owner@example.com")
++    monkeypatch.setattr(settings, "LOGIN_ALERTS_ENABLED", False)
++    _register(client)
++    ConsoleEmailProvider.outbox.clear()
++    r = client.post("/api/v1/auth/login", json={"email": "thandi@example.com", "password": "StrongPass123!"})
++    assert r.status_code == 200
++    assert _alerts("owner@example.com") == []
++
++
++def test_email_failure_does_not_break_login(client, monkeypatch):
++    monkeypatch.setattr(settings, "LOGIN_ALERT_EMAIL", "owner@example.com")
++    _register(client)
++
++    def boom(self, to, subject, body):
++        raise RuntimeError("SMTP down")
++    monkeypatch.setattr(ConsoleEmailProvider, "send", boom)
++    r = client.post("/api/v1/auth/login", json={"email": "thandi@example.com", "password": "StrongPass123!"})
++    assert r.status_code == 200 and r.json()["access_token"]
+diff --git a/render.yaml b/render.yaml
+index 009aff9..7d79053 100644
+--- a/render.yaml
++++ b/render.yaml
+@@ -42,6 +42,8 @@ services:
+         sync: false                 # your Gmail address
+       - key: SMTP_PASSWORD
+         sync: false                 # Gmail App Password (2FA required), NOT the account password
++      - key: LOGIN_ALERT_EMAIL
++        sync: false                 # optional: who gets an email on every login (defaults to SMTP_USER)
+       - key: EMAIL_FROM
+         sync: false                 # e.g. Sospana Sonke <youraddress@gmail.com>
+       - key: NOTIFY_EMAILS
+-- 
+2.43.0
+
