@@ -33,7 +33,7 @@ from app.schemas.vacancy import (
 from app.services.visible_countries import visible_country_clause
 from app.services.flagship import FLAGSHIP_COUNTRY, countries_flagship_first, flagship_role_rank
 from app.services.recent_posts import RECENT_SORTS, recent_day_expr, region_band_rank, sort_recent
-from app.services.opportunity_expiry import expired_role_clauses, is_publicly_listed, public_role_clauses
+from app.services.opportunity_expiry import expired_role_clauses, is_publicly_listed, public_role_clauses, sa_today
 from app.services.opportunity_tombstone import public_id_was_deleted
 from app.services.opportunity_type import OPPORTUNITY_TYPES
 from app.services.search_terms import expand_title_terms, opportunity_types_for
@@ -42,6 +42,8 @@ import re
 from app.services.scan_service import scan_company
 from app.services import jobs_snapshot
 import logging
+import json
+from pathlib import Path
 from sqlalchemy.exc import SQLAlchemyError
 
 log = logging.getLogger(__name__)
@@ -146,6 +148,59 @@ def _public_job(vacancy: Vacancy, company: Company) -> PublicJobResponse:
 
 def _open_public(query):
     return query.filter(Company.deleted_at.is_(None), visible_country_clause(Company.country), *public_role_clauses())
+
+
+# --- Opportunities-today snapshot (internal) -------------------------------
+# The public "Opportunities found today" page reads a committed static file
+# (frontend/src/data/opportunitiesToday.json). A daily GitHub workflow calls
+# this endpoint and writes the result into the frontend repo, so that page
+# refreshes itself instead of going stale between manual rebuilds.
+_CATEGORY_MAP_PATH = Path(__file__).resolve().parent.parent / "data" / "employer_categories.json"
+try:
+    _EMPLOYER_CATEGORY: dict[str, str] = json.loads(_CATEGORY_MAP_PATH.read_text(encoding="utf-8"))
+except Exception:  # pragma: no cover - a missing/corrupt map just falls back to ownership type
+    _EMPLOYER_CATEGORY = {}
+
+
+def _snapshot_category(company: Company) -> str:
+    """The grouping label the page expects. A known employer keeps its exact label;
+    a new one falls back to its ownership type."""
+    mapped = _EMPLOYER_CATEGORY.get(company.company_name)
+    if mapped:
+        return mapped
+    source_type = (company.source_type or "").upper()
+    if source_type == "SOE":
+        return "State-owned companies"
+    if source_type == "JSE" and company.jse_code:
+        return "JSE-listed companies"
+    return "Private companies"
+
+
+@router.get("/jobs/opportunities-snapshot", dependencies=[Depends(require_internal_key)])
+@limiter.limit("6/minute")
+def opportunities_snapshot(request: Request, response: Response, db: Session = Depends(get_db)):
+    """Every open, publicly listed role in the exact shape opportunitiesToday.json uses.
+    Internal (anti-scraping gate on X-Internal-Key); the data itself is already public."""
+    response.headers["Cache-Control"] = "no-store"
+    rows = (
+        _open_public(db.query(Vacancy, Company).join(Company, Company.id == Vacancy.company_id))
+        .order_by(Company.company_name.asc(), Vacancy.title.asc())
+        .all()
+    )
+    posts = []
+    for vacancy, company in rows:
+        url = _apply_link(vacancy)
+        if not url:
+            continue
+        posts.append({
+            "employer": company.company_name,
+            "title": vacancy.title,
+            "location": vacancy.location,
+            "closingDate": vacancy.closing_date.isoformat() if vacancy.closing_date else None,
+            "url": url,
+            "category": _snapshot_category(company),
+        })
+    return {"date": sa_today().isoformat(), "posts": posts}
 
 
 @router.get("/jobs/counts", response_model=OpportunityCountResponse)

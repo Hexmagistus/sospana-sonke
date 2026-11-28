@@ -1,0 +1,83 @@
+name: Refresh opportunities snapshot
+
+# Rebuilds the public "Opportunities found today" page's data.
+# That page reads a committed static file (frontend/src/data/opportunitiesToday.json).
+# This job asks the API for every open post and commits the file, so the page
+# refreshes itself daily instead of freezing between manual rebuilds.
+#
+# Requires the backend deployed with the /jobs/opportunities-snapshot endpoint.
+# If SITEMAP_API_KEY is set on Render, add the SAME value as a GitHub Actions
+# secret named SITEMAP_API_KEY so this job can authenticate (otherwise the
+# endpoint is open and the empty header is ignored).
+
+on:
+  schedule:
+    - cron: "40 4 * * *"   # 04:40 UTC = 06:40 SAST, after the nightly scan/agent
+  workflow_dispatch: {}
+
+concurrency:
+  group: refresh-snapshot
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Wake the API (Render free tier sleeps when idle)
+        run: |
+          curl -sS --max-time 90 -o /dev/null -w "wake status=%{http_code}\n" \
+            https://sospana-sonke-api-fra.onrender.com/health || true
+          sleep 5
+
+      - name: Fetch the opportunities snapshot
+        env:
+          SITEMAP_API_KEY: ${{ secrets.SITEMAP_API_KEY }}
+        run: |
+          code=$(curl -sS -o snapshot.json -w "%{http_code}" --max-time 120 \
+            -H "X-Internal-Key: ${SITEMAP_API_KEY}" \
+            "https://sospana-sonke-api-fra.onrender.com/api/v1/jobs/opportunities-snapshot" || echo "000")
+          echo "HTTP $code"
+          if [ "$code" != "200" ]; then
+            echo "::error::opportunities-snapshot returned HTTP $code (404 = endpoint not deployed yet; 403 = SITEMAP_API_KEY mismatch)."
+            head -c 500 snapshot.json || true
+            exit 1
+          fi
+
+      - name: Validate and install the snapshot
+        run: |
+          python3 - <<'PY'
+          import json, sys, pathlib
+          data = json.load(open("snapshot.json", encoding="utf-8"))
+          posts = data.get("posts")
+          if not isinstance(data.get("date"), str) or not isinstance(posts, list):
+              sys.exit("snapshot shape is wrong (need {date, posts[]})")
+          if len(posts) < 100:
+              sys.exit(f"only {len(posts)} posts - refusing to overwrite (guard against a bad/empty scan)")
+          for p in posts[:50]:
+              for k in ("employer", "title", "url", "category"):
+                  if k not in p:
+                      sys.exit(f"post missing '{k}': {p}")
+          pathlib.Path("frontend/src/data/opportunitiesToday.json").write_text(
+              json.dumps(data, ensure_ascii=False, indent=1), encoding="utf-8")
+          print(f"wrote {len(posts)} posts dated {data['date']}")
+          PY
+
+      - name: Commit if changed
+        run: |
+          git config user.name "sospana-sonke-bot"
+          git config user.email "noreply@github.com"
+          if git diff --quiet -- frontend/src/data/opportunitiesToday.json; then
+            echo "No change - snapshot already current."
+            exit 0
+          fi
+          n=$(python3 -c "import json;print(len(json.load(open('frontend/src/data/opportunitiesToday.json'))['posts']))")
+          d=$(python3 -c "import json;print(json.load(open('frontend/src/data/opportunitiesToday.json'))['date'])")
+          git add frontend/src/data/opportunitiesToday.json
+          git commit -m "Refresh Opportunities today: ${n} open posts (${d})"
+          git push
