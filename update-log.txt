@@ -1,17 +1,13 @@
-[main 17bfb8a] Add Sospana Sonke Career Agent page and nav link
- 2 files changed, 48 insertions(+), 17 deletions(-)
+[main 5029e43] Add Sospana Sonke Career Agent page and nav link
+ 3 files changed, 251 insertions(+), 1 deletion(-)
+ create mode 100644 .github/workflows/refresh-snapshot.yml
+ create mode 100644 backend/app/data/employer_categories.json
 To https://github.com/Hexmagistus/sospana-sonke.git
- ! [rejected]        main -> main (fetch first)
-error: failed to push some refs to 'https://github.com/Hexmagistus/sospana-sonke.git'
-hint: Updates were rejected because the remote contains work that you do not
-hint: have locally. This is usually caused by another repository pushing to
-hint: the same ref. If you want to integrate the remote changes, use
-hint: 'git pull' before pushing again.
-hint: See the 'Note about fast-forwards' in 'git push --help' for details.
+   0dcbe32..5029e43  main -> main
  
 === recent commits === 
+5029e43 Add Sospana Sonke Career Agent page and nav link
+0dcbe32 Merge branch 'main' of https://github.com/Hexmagistus/sospana-sonke
+3beb3e8 Update update-log.txt
 17bfb8a Add Sospana Sonke Career Agent page and nav link
 4a62866 Add Sospana Sonke Career Agent page and nav link
-bce7fff Cut Neon network transfer from the 15-minute scan
-be6a86f CV Audit: guarantee ATS-compliant output and keep references
-e1c5a84 Focus the site on English-speaking, SADC and BRICS countries (reversible) (#160)
