@@ -184,6 +184,7 @@ def opportunities_snapshot(request: Request, response: Response, db: Session = D
     response.headers["Cache-Control"] = "no-store"
     rows = (
         _open_public(db.query(Vacancy, Company).join(Company, Company.id == Vacancy.company_id))
+        .filter(Company.country == FLAGSHIP_COUNTRY)
         .order_by(Company.company_name.asc(), Vacancy.title.asc())
         .all()
     )
