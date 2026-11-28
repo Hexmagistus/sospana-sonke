@@ -59,7 +59,7 @@ export default function PolicyConsent() {
             type="checkbox"
             checked={agreed}
             onChange={(e) => setAgreed(e.target.checked)}
-            className="mt-1 h-4 w-4 shrink-0 accent-[#f5b301]"
+            className="mt-1 h-4 w-4 shrink-0 accent-[#FCC033]"
           />
           <span>
             I have read the{" "}
@@ -73,7 +73,7 @@ export default function PolicyConsent() {
             type="checkbox"
             checked={alerts}
             onChange={(e) => setAlerts(e.target.checked)}
-            className="mt-1 h-4 w-4 shrink-0 accent-[#f5b301]"
+            className="mt-1 h-4 w-4 shrink-0 accent-[#FCC033]"
           />
           <span>
             Optional: let an administrator notify me about posts that match a preferred role I have saved.

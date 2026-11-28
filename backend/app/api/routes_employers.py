@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session, defer
 
 from app.services.visible_countries import visible_country_clause
 from app.api.routes_vacancies import _public_job
+from app.core.internal_key import require_internal_key
 from app.core.rate_limit import limiter
 from app.db.session import get_db
 from app.models.company import Company
@@ -48,13 +49,13 @@ def stored_careers_scope(notes: str | None) -> str | None:
 
 
 @router.get("", response_model=PublicEmployerListResponse)
-@limiter.limit("60/minute")
+@limiter.limit("30/minute;500/day")
 def list_public_employers(
     request: Request,
     response: Response,
     db: Session = Depends(get_db),
-    limit: int = Query(default=50, ge=1, le=200),
-    offset: int = Query(default=0, ge=0, le=20000),
+    limit: int = Query(default=30, ge=1, le=50),
+    offset: int = Query(default=0, ge=0, le=2000),
 ):
     """Employers with a careers link, in the standing country order."""
     response.headers["Cache-Control"] = "public, max-age=300"
@@ -85,13 +86,13 @@ def list_public_employers(
     )
 
 
-@router.get("/ids", response_model=PublicEmployerIdsResponse)
-@limiter.limit("30/minute")
+@router.get("/ids", response_model=PublicEmployerIdsResponse, dependencies=[Depends(require_internal_key)])
+@limiter.limit("10/minute;100/day")
 def list_public_employer_ids(
     request: Request,
     response: Response,
     db: Session = Depends(get_db),
-    limit: int = Query(default=5000, ge=1, le=5000),
+    limit: int = Query(default=500, ge=1, le=500),
     offset: int = Query(default=0, ge=0, le=20000),
 ):
     """Ids for the sitemap, in the same order as the public list. One query."""
@@ -112,7 +113,7 @@ def list_public_employer_ids(
 
 
 @router.get("/{company_id}", response_model=PublicEmployerResponse)
-@limiter.limit("120/minute")
+@limiter.limit("30/minute;1000/day")
 def public_employer(
     request: Request,
     company_id: str,

@@ -25,10 +25,11 @@ export async function GET() {
     jobs = [];
   }
   const items = jobs.map((job) => {
-    const link = `${SITE_URL}/jobs/${job.id}`;
-    return `<item><title>${escapeXml(job.title)}</title><link>${link}</link><guid>${link}</guid><pubDate>${escapeXml(job.last_seen_at)}</pubDate><description>${escapeXml(jobSummary(job))}</description></item>`;
+    const link = escapeXml(job.application_url || `${SITE_URL}/opportunities-today`);
+    const guid = `${SITE_URL}/jobs/${job.id}`;
+    return `<item><title>${escapeXml(job.title)}</title><link>${link}</link><guid isPermaLink="false">${guid}</guid><pubDate>${escapeXml(job.last_seen_at)}</pubDate><description>${escapeXml(jobSummary(job))}</description></item>`;
   }).join("");
-  const xml = `<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><title>${escapeXml(SITE_NAME)} new stored roles</title><link>${SITE_URL}/jobs</link><description>Open roles last seen on the employer site within seven days. A closed role is not included.</description>${items}</channel></rss>`;
+  const xml = `<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><title>${escapeXml(SITE_NAME)} new stored roles</title><link>${SITE_URL}/opportunities-today</link><description>Open roles last seen on the employer site within seven days. A closed role is not included.</description>${items}</channel></rss>`;
   return new Response(xml, {
     headers: {
       "Content-Type": "application/rss+xml; charset=utf-8",

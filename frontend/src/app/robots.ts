@@ -4,6 +4,17 @@ import { SITE_URL } from "@/lib/seo";
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: [
+      // AI-training and bulk scraper crawlers (list from PR #161). robots.txt is honoured only by
+      // polite bots; the Vercel Firewall rule enforces the block for the same user agents.
+      {
+        userAgent: [
+          "GPTBot", "ChatGPT-User", "OAI-SearchBot", "CCBot", "ClaudeBot", "Claude-Web", "anthropic-ai",
+          "Google-Extended", "Applebot-Extended", "PerplexityBot", "Bytespider", "Amazonbot", "meta-externalagent",
+          "FacebookBot", "cohere-ai", "Diffbot", "ImagesiftBot", "Omgilibot", "Timpibot", "YouBot",
+          "AhrefsBot", "SemrushBot", "MJ12bot", "DotBot", "DataForSeoBot", "PetalBot", "BLEXBot", "Scrapy",
+        ],
+        disallow: "/",
+      },
       {
         userAgent: "*",
         allow: "/",

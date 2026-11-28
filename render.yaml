@@ -18,6 +18,9 @@ services:
     # SQLAlchemy pool and the imported app. uvloop + httptools ship with
     # uvicorn[standard]. limit-concurrency keeps a stampede from spawning more
     # threads than the 5+2 DB pool can serve. timeout-keep-alive frees idle sockets.
+    # Apply additive columns and private tables before the process serves traffic.
+    # init_db is idempotent. The process runs it again on startup.
+    preDeployCommand: python -c "from app.db.session import init_db; init_db()"
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT --workers 1 --loop uvloop --http httptools --timeout-keep-alive 5 --limit-concurrency 40
     envVars:
       - key: PYTHON_VERSION

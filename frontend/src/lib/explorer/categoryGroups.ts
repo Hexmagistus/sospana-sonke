@@ -71,7 +71,7 @@ export const CATEGORY_GROUPS: readonly CategoryGroup[] = [
     icon: "🏫",
     types: [
       { code: "COLLEGE", label: "Colleges (TVET, public & private)", noun: "colleges", badge: "🏫 College", badgeCls: "bg-teal/10 text-teal" },
-      { code: "SETA", label: "SETAs", noun: "SETAs", badge: "🛠️ SETA", badgeCls: "bg-[#1a9e5f]/10 text-[#137a48]" },
+      { code: "SETA", label: "SETAs", noun: "SETAs", badge: "🛠️ SETA", badgeCls: "bg-[#269958]/10 text-[#137a48]" },
     ],
   },
   {

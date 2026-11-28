@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import Link from "next/link";
 import { Bricolage_Grotesque, Inter } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
@@ -7,14 +8,16 @@ import { ThemeProvider } from "@/lib/theme";
 import { THEME_BOOTSTRAP_SCRIPT } from "@/lib/themeBootstrap";
 import Nav from "@/components/Nav";
 import MobileBottomNav from "@/components/MobileBottomNav";
-import CommandPalette from "@/components/CommandPalette";
+import MusicDock from "@/components/MusicDock";
 import PwaRegister from "@/components/PwaRegister";
 import PolicyConsent from "@/components/PolicyConsent";
 import TaggingChoiceBanner from "@/components/TaggingChoiceBanner";
 import MentionPopup from "@/components/MentionPopup";
 import PwaExtras from "@/components/PwaExtras";
 import CopyGuard from "@/components/CopyGuard";
-import { SiteMaintenanceBanner } from "@/components/AuthMaintenance";
+import { Analytics } from "@vercel/analytics/next";
+import VisitCounter from "@/components/VisitCounter";
+import VisitorStrip from "@/components/VisitorStrip";
 import PhotoWash from "@/components/PhotoWash";
 import WelcomeNote from "@/components/WelcomeNote";
 import { OutboundClickListener } from "@/components/CountOutboundLink";
@@ -98,13 +101,15 @@ export const metadata: Metadata = {
       "max-video-preview": -1,
     },
   },
+  // Opt-out signals for AI training / image datasets (ignored by search engines' indexing).
+  other: { robots: "noai, noimageai", copyright: "© 2026 Sospana Sonke. All rights reserved." },
   verification: {
     google: "MyvgoPaRTncHGCuCDG_i2ibqlRPZ02uCdjVLOsrzbcg",
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0f766e",
+  themeColor: "#067589",
   width: "device-width",
   initialScale: 1,
 };
@@ -160,6 +165,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <CopyGuard />
         <OutboundClickListener />
         <CardTilt />
+        <VisitCounter />
+        <Analytics />
         <a
           href="#main-content"
           className="sr-only focus-visible:not-sr-only focus-visible:fixed focus-visible:left-4 focus-visible:top-4 focus-visible:z-50 focus-visible:rounded-md focus-visible:bg-navy focus-visible:px-4 focus-visible:py-2 focus-visible:text-white"
@@ -168,8 +175,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </a>
         <ThemeProvider>
           <AuthProvider>
-            <SiteMaintenanceBanner />
+            <VisitorStrip />
             <Nav />
+            <MusicDock />
             <main id="main-content" className="relative z-0 mx-auto max-w-6xl px-4 py-6 pb-24 md:pb-6">
               <PhotoWash />
               {children}
@@ -182,7 +190,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               >
                 <p className="text-sm font-semibold leading-relaxed sm:text-base">
                   <span className="text-xl align-middle">🐢💨</span>{" "}
-                  <span className="animate-gradient-text bg-gradient-to-r from-[#0b5e58] via-[#6b4700] to-[#5b3fd6] bg-clip-text font-extrabold text-transparent dark:from-[#22d3ee] dark:via-[#f5b301] dark:to-[#a78bfa]">
+                  <span className="animate-gradient-text bg-gradient-to-r from-[#05606F] via-[#6b4700] to-[#5b3fd6] bg-clip-text font-extrabold text-transparent dark:from-[#22d3ee] dark:via-[#FCC033] dark:to-[#a78bfa]">
                     Our server rides the free tier
                   </span>{" "}
                   — so it can be a little slow to wake up, and we&apos;re actively speeding it up. We keep Sospana Sonke{" "}
@@ -192,9 +200,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <p className="mx-auto mt-4 max-w-2xl text-center text-xs leading-relaxed text-ss-muted">
                 Organisation names and logos belong to their owners; listing them does not imply
                 partnership or endorsement.{" "}
-                <a href="/jobs" className="underline hover:text-ss-text">Jobs</a>
+                <a href="/opportunities-today" className="underline hover:text-ss-text">Opportunities today</a>
                 {" · "}
-                <a href="/opportunities" className="underline hover:text-ss-text">Opportunities</a>
+                <a href="/recent-posts" className="underline hover:text-ss-text">Recently posted</a>
                 {" · "}
                 <a href="/data" className="underline hover:text-ss-text">Labour data</a>
                 {" · "}
@@ -202,15 +210,38 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 {" · "}
                 <a href="/for-organisations" className="underline hover:text-ss-text">For organisations</a>
                 {" · "}
-                <a href="/pricing" className="underline hover:text-ss-text">Pricing</a>
-                {" · "}
                 <a href="/ranking" className="underline hover:text-ss-text">Ranking</a>
                 {" · "}
                 <a href="/status" className="underline hover:text-ss-text">Status</a>
                 {" · "}
+                <Link href="/music" className="underline hover:text-ss-text">Music</Link>
+                {" · "}
+                <a href="/game/play.html" className="underline hover:text-ss-text">🎮 Play game</a>
+                {" · "}
+                <a href="/hustle-run" className="underline hover:text-ss-text">Get the game on Android</a>
+                {" · "}
+                <a href="https://whatsapp.com/channel/0029VbDRxdBFy72Keo1GCv11" target="_blank" rel="noopener noreferrer" className="underline hover:text-ss-text">WhatsApp channel</a>
+                {" · "}
                 <a href="/privacy" className="underline hover:text-ss-text">Privacy</a>
                 {" · "}
                 <a href="/terms" className="underline hover:text-ss-text">Terms</a>
+              </p>
+              <div className="mx-auto mt-6 flex max-w-2xl flex-col items-center gap-3 text-center">
+                <a
+                  href="https://whatsapp.com/channel/0029VbDRxdBFy72Keo1GCv11"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-full bg-[#25D366] px-5 py-2.5 text-sm font-bold text-[#1F2328] shadow-md transition-colors hover:bg-[#1EBE5A] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1F2328] motion-reduce:transition-none"
+                >
+                  <span aria-hidden="true">💬</span> Join our WhatsApp channel
+                </a>
+                <p className="text-sm font-bold uppercase tracking-[0.12em] text-[#7A5200]">
+                  Informed citizens. Transparent development. A stronger South Africa.
+                </p>
+              </div>
+              <p className="mx-auto mt-3 max-w-2xl text-center text-xs leading-relaxed text-ss-muted">
+                © 2026 Sospana Sonke. All rights reserved. Directory compilation protected under the Copyright Act 98 of 1978
+                (South Africa). Sospana Sonke™
               </p>
             </footer>
             <PwaExtras />
@@ -218,7 +249,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <PolicyConsent />
             <TaggingChoiceBanner />
             <MentionPopup />
-            <CommandPalette />
           </AuthProvider>
         </ThemeProvider>
       </body>

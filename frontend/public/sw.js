@@ -2,14 +2,14 @@
 // Caches only public, non-personal data (static assets, pages, the employer directory).
 // Also keeps the public jobs list (stale-while-revalidate) so /jobs works offline.
 // Never caches messages, notifications, account, tips or any other personal API call.
-const VERSION = "v8";
+const VERSION = "v11";
 const STATIC = `ss-static-${VERSION}`;
 const PAGES = `ss-pages-${VERSION}`;
 const DATA = `ss-data-${VERSION}`;
 const KEEP = [STATIC, PAGES, DATA];
 const PUBLIC_API = /\/api\/v1\/(companies(\/trending)?|jobs)(\?|$)/;
 // App shell: opened once on install so the site starts with no signal.
-const SHELL = ["/offline.html", "/", "/jobs", "/login", "/register", "/sa-careers", "/offline-guide", "/manifest.webmanifest", "/icons/icon-192.png", "/logo-mark.png"];
+const SHELL = ["/offline.html", "/", "/sa-careers", "/offline-guide", "/opportunities-today", "/company-index.json", "/manifest.webmanifest", "/icons/icon-192.png", "/logo-mark.png"];
 
 self.addEventListener("install", (e) => {
   e.waitUntil(
@@ -40,6 +40,8 @@ self.addEventListener("fetch", (event) => {
   const req = event.request;
   if (req.method !== "GET") return;
   const url = new URL(req.url);
+  // The game at /game/ has its own service worker (scope /game/); never touch it here.
+  if (url.origin === self.location.origin && url.pathname.startsWith("/game/")) return;
 
   // Employer directory and jobs list (public): stale-while-revalidate so they open
   // instantly and offline. The page filters expired roles before showing them.

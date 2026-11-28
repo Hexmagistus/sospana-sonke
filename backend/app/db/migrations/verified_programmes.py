@@ -17,7 +17,7 @@ def upgrade(bind: Engine) -> None:
     if "vacancies" not in inspect(bind).get_table_names():
         return
     columns = {col["name"] for col in inspect(bind).get_columns("vacancies")}
-    if "opportunity_type" not in columns:
+    if "opportunity_type" not in columns or "quality_flags" not in columns:
         return
     if bind.dialect.name == "postgresql" and "field_of_study" in columns:
         with bind.begin() as conn:

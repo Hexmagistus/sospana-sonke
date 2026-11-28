@@ -32,11 +32,7 @@ function sceneFor(path: string): Scene | null {
   // Long public lists already have the navy header. A full-width photograph
   // there became the largest paint and stretched the main thread.
   if (
-    path === "/jobs"
-    || path === "/opportunities"
-    || path.startsWith("/jobs/in/")
-    || path.startsWith("/jobs/category/")
-    || (path.startsWith("/opportunities/") && path.length > "/opportunities/".length)
+    path === "/opportunities-today"
   ) {
     return null;
   }

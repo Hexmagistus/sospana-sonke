@@ -20,7 +20,7 @@ const BY_NAME = new Map(SHAPES.map((s) => [s.name, s]));
 
 const TIER_FILL: Record<TierId, string> = Object.fromEntries(TIERS.map((t) => [t.id, t.fill])) as Record<TierId, string>;
 
-const GOLD = "#f5b301";
+const GOLD = "#FCC033";
 const OCEAN = "var(--map-ocean)";
 const LAND = "var(--map-land)";
 const LAND_STROKE = "var(--map-land-stroke)";

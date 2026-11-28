@@ -2,7 +2,8 @@
 
 A role is outdated when its closing day has ended, when the scanner or the
 weekly clean-up has closed it (is_open false, lifecycle REMOVED), or when it
-has not been seen on the employer's own site for more than 7 days. Such rows
+has not been seen on the employer's own site for more than 21 days (60 days
+when its own closing date is still ahead). Such rows
 must not be listed or counted, and the scanner must not store a brand-new
 posting whose closing day has already passed.
 """
@@ -49,16 +50,28 @@ def _seed_mix(db):
         "past_close": _row(db, c, "Past Closing", closing_date=today - timedelta(days=1)),
         "removed": _row(db, c, "Removed Role", is_open=False, lifecycle_status="REMOVED"),
         "removed_flag_only": _row(db, c, "Removed Flag Only", lifecycle_status="REMOVED"),
-        "stale": _row(db, c, "Not Seen Eight Days", last_seen_at=now - timedelta(days=8)),
+        "stale": _row(db, c, "Not Seen Twenty Two Days", last_seen_at=now - timedelta(days=22)),
         "seen_six_days": _row(db, c, "Seen Six Days Ago", last_seen_at=now - timedelta(days=6)),
+        "seen_eight_days": _row(db, c, "Seen Eight Days Ago", last_seen_at=now - timedelta(days=8)),
+        "closing_ahead_seen_30": _row(db, c, "Closing Ahead Seen Thirty Days Ago",
+                                      closing_date=today + timedelta(days=10),
+                                      last_seen_at=now - timedelta(days=30)),
+        "closing_ahead_seen_61": _row(db, c, "Closing Ahead Seen Sixty One Days Ago",
+                                      closing_date=today + timedelta(days=10),
+                                      last_seen_at=now - timedelta(days=61)),
+        "no_close_seen_30": _row(db, c, "No Closing Seen Thirty Days Ago",
+                                 last_seen_at=now - timedelta(days=30)),
     }
     return c, rows
+
+
+_SHOWN = ("fresh", "closes_today", "seen_six_days", "seen_eight_days", "closing_ahead_seen_30")
 
 
 def test_public_rule_hides_every_kind_of_outdated_row(db):
     _, rows = _seed_mix(db)
     shown = {v.id for v in db.query(Vacancy).filter(*public_role_clauses()).all()}
-    assert shown == {rows["fresh"].id, rows["closes_today"].id, rows["seen_six_days"].id}
+    assert shown == {rows[k].id for k in _SHOWN}
     for key, v in rows.items():
         assert is_publicly_listed(v) == (v.id in shown), key
 
@@ -67,9 +80,10 @@ def test_public_jobs_api_lists_and_counts_no_outdated_rows(client, db):
     _, rows = _seed_mix(db)
     body = client.get("/api/v1/jobs").json()
     ids = {job["id"] for job in body["jobs"]}
-    assert ids == {rows["fresh"].id, rows["closes_today"].id, rows["seen_six_days"].id}
-    assert body["matched"] == 3
-    for key in ("past_close", "removed", "removed_flag_only", "stale"):
+    assert ids == {rows[k].id for k in _SHOWN}
+    assert body["matched"] == len(_SHOWN)
+    for key in ("past_close", "removed", "removed_flag_only", "stale",
+                "closing_ahead_seen_61", "no_close_seen_30"):
         assert client.get(f"/api/v1/jobs/{rows[key].id}").status_code in (404, 410), key
 
 
@@ -152,3 +166,11 @@ def test_purge_does_nothing_unless_switched_on(db, monkeypatch):
     out = purge_expired_opportunities(db)
     assert out["deleted"] == 0 and out.get("disabled") is True
     assert db.get(Vacancy, v.id) is not None
+
+
+def test_expired_rule_is_the_mirror_of_the_public_rule(db):
+    from app.services.opportunity_expiry import expired_role_clauses
+    _, rows = _seed_mix(db)
+    hidden = {v.id for v in db.query(Vacancy).filter(*expired_role_clauses()).all()}
+    shown = {rows[k].id for k in _SHOWN}
+    assert hidden == {v.id for v in rows.values()} - shown

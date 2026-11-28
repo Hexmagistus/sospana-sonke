@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Gauteng Hustle Run" />
+<meta name="theme-color" content="#1a140e" />
+<meta name="description" content="Gauteng Hustle Run - a free endless runner through 34 areas of Gauteng by Sospana Sonke. Plays offline once opened." />
+<link rel="manifest" href="manifest.json" />
+<link rel="icon" type="image/png" sizes="32x32" href="favicon.png" />
+<link rel="apple-touch-icon" href="icons/icon-180.png" />
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png" />
+<title>Gauteng Hustle Run — v3.2 Gauteng Edition</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div id="app">
+
+  <!-- Game canvas -->
+  <canvas id="game" width="960" height="540"></canvas>
+
+  <!-- Loading screen -->
+  <div id="loadingScreen" class="screen">
+    <div class="brandmark">
+      <div class="brand-title">GAUTENG<span>HUSTLE RUN</span></div>
+      <div class="brand-sub">SOWETO · SANDTON · TSHWANE · THE VAAL</div>
+    </div>
+    <div class="loadbar-track"><div id="loadbar" class="loadbar-fill"></div></div>
+    <div id="loadingText" class="loading-text">Loading the hustle… 0%</div>
+  </div>
+
+  <!-- Start / Menu screen -->
+  <div id="startScreen" class="screen hidden">
+    <div class="brandmark small">
+      <div class="brand-title">GAUTENG<span>HUSTLE RUN</span></div>
+      <div class="brand-sub">FROM SOWETO TO SANDTON, TSHWANE TO THE VAAL</div>
+    </div>
+    <div class="char-title">CHOOSE YOUR RUNNER</div>
+    <div id="charSelect" class="char-select" role="radiogroup" aria-label="Choose your runner"></div>
+    <div class="char-tagline"><b id="selName">GUPTA</b> — <span id="selTag"></span></div>
+    <div class="diff-title">DIFFICULTY</div>
+    <div id="diffSelect" class="diff-select" role="radiogroup" aria-label="Difficulty">
+      <button type="button" class="diff-btn" data-diff="easy" role="radio" style="--dc:#5fd16a">EASY</button>
+      <button type="button" class="diff-btn" data-diff="normal" role="radio" style="--dc:#ffd23f">NORMAL</button>
+      <button type="button" class="diff-btn" data-diff="difficult" role="radio" style="--dc:#ff5252">DIFFICULT</button>
+    </div>
+    <div id="diffDesc" class="diff-desc"></div>
+    <button id="playBtn" class="btn btn-primary">▶ RUN AS GUPTA</button>
+    <div class="menu-row">
+      <button id="howtoBtn" class="btn btn-ghost">HOW TO PLAY</button>
+      <button id="muteBtn" class="btn btn-ghost">🔊 SOUND</button>
+      <button id="creditsBtn" class="btn btn-ghost">🎬 CREDITS</button>
+    </div>
+    <div class="menu-row pwa-row">
+      <button id="offlineBtn" class="btn btn-ghost hidden">⬇ DOWNLOAD FOR OFFLINE PLAY</button>
+      <button id="installBtn" class="btn btn-ghost hidden">📲 INSTALL APP</button>
+      <button id="fsBtn" class="btn btn-ghost hidden">⛶ FULLSCREEN</button>
+    </div>
+    <div id="offlineStatus" class="offline-status hidden"></div>
+    <div id="iosHint" class="offline-status hidden">On iPhone / iPad: tap <b>Share</b> → <b>Add to Home Screen</b> to install.</div>
+    <div class="hiscore-line">Best on <b id="menuBestLevel">NORMAL</b>: <span id="menuBest">0</span>m &nbsp;·&nbsp; Best Cash: R<span id="menuBestCash">0</span></div>
+    <div class="shop-note">🏪 Find the <b>SOSPANA SONKE</b> shop on the road — run in for <b>+2 lives</b>!</div>
+    <div class="credits">Run every street of Gauteng — Soweto, Joburg, Sandton, Pretoria, Ekurhuleni, the West Rand and the Vaal. Triple-jump, skate, blast and hustle. <span class="char-keys">(← → or 1·2·3 to pick, Enter to run)</span></div>
+    <div id="gameVersion" class="version">v3.2 Gauteng Edition</div>
+  </div>
+
+  <!-- How to play overlay -->
+  <div id="howtoScreen" class="screen hidden">
+    <div class="panel">
+      <h2>How To Hustle across Gauteng</h2>
+      <ul class="howto-list">
+        <li>🏃 Pick <b>GUPTA</b>, <b>BIZA</b> or <b>LEBZA</b>, then tap / Space to <b>jump</b> — your runner keeps running by themselves. Jump again in mid-air for a <b>TRIPLE JUMP</b> (3 pips under your feet)</li>
+        <li>📍 You run through <b>34 areas</b> of Gauteng — from the Vaal up through Johannesburg, Tshwane, Ekurhuleni and the West Rand — watch for the street signs and the “Now entering…” banner!</li>
+        <li>🛞 Jump crates, barrels, rocks, spikes, pots and rolling tyres</li>
+        <li>💰 Collect coins, gems &amp; money bags. Grab ❤️ hearts for lives</li>
+        <li>🔥 Chain pickups and near-misses for a COMBO — Sharp! Yebo! Lekker! (up to x5)</li>
+        <li>🛹 <b>Skateboard</b> pick-up: ~8 seconds of fast, unstoppable rolling (and it turns up to rescue your runner on the last life)</li>
+        <li>💥 <b>Pulse blaster</b> pick-up: toy blaster with limited ammo — it auto-fires at obstacles, or tap FIRE / press F</li>
+        <li>🚕 Quantum Taxi: a few seconds of smash-everything speed</li>
+        <li>🏪 <b>SOSPANA SONKE</b> shop appears now and then (Easy ~700 m, Normal ~850 m, Difficult ~1000 m) — run into the door or press ENTER for <b>+2 LIVES</b></li>
+        <li>🎚️ <b>Three levels</b> (pick on the start screen, ↑/↓ on a keyboard; each has its own best score):<br>
+          <span class="lv" style="color:#5fd16a"><b>EASY</b></span> — 5 lives, slow ramp, long grace time after a hit.<br>
+          <span class="lv" style="color:#ffd23f"><b>NORMAL</b></span> — 3 lives, faster, closer gaps, more obstacles.<br>
+          <span class="lv" style="color:#ff5252"><b>DIFFICULT</b></span> — 2 lives, very fast, double obstacles, smaller rewards, rarer power-ups &amp; shops — but your <b>score counts x1.5</b>.</li>
+        <li>📴 <b>Plays offline</b>: open the game once, tap “Download for offline play”, and it works with no internet — add it to your Home Screen to install.</li>
+        <li>❤️ <span class="hero-name-txt">GUPTA</span> starts with 2–5 lives depending on the level — survive as far as you can!</li>
+      </ul>
+      <button id="closeHowto" class="btn btn-primary">GOT IT</button>
+    </div>
+  </div>
+
+  <!-- HUD (during gameplay) -->
+  <div id="hud" class="hidden">
+    <div class="hud-top">
+      <div id="lives" class="hud-lives"></div>
+      <div id="heroBadge" class="hero-badge">GUPTA</div>
+      <div id="diffBadge" class="hero-badge diff-badge">NORMAL</div>
+      <div class="hud-zone" id="zoneLabel">Vaal · Evaton Road</div>
+      <button id="pauseBtn" class="hud-pause">⏸</button>
+    </div>
+    <div class="hud-stats">
+      <div class="stat">📍 <span id="distVal">0</span> m</div>
+      <div class="stat">💰 R<span id="cashVal">0</span></div>
+      <div class="stat">⭐ <span id="scoreVal">0</span></div>
+    </div>
+    <button id="fireBtn" class="act-btn act-fire hidden">💥<span>FIRE</span></button>
+    <button id="enterBtn" class="act-btn act-enter hidden">🏪<span>ENTER SHOP</span></button>
+    <div id="powerupBar" class="powerup-bar"></div>
+    <div id="journey" class="journey"><div id="journeyTxt" class="journey-txt">Gauteng journey 1/34</div><div id="journeyStrip" class="journey-strip"></div></div>
+    <div id="zoneBanner" class="zone-banner"></div>
+  </div>
+
+  <!-- Touch controls -->
+  <div id="touchControls" class="hidden">
+    <div id="touchJump" class="touch-zone touch-jump"><span>TAP TO JUMP</span></div>
+  </div>
+
+  <!-- Pause overlay -->
+  <div id="pauseScreen" class="screen hidden">
+    <div class="panel">
+      <h2>Paused</h2>
+      <button id="resumeBtn" class="btn btn-primary">▶ RESUME</button>
+      <button id="restartBtnPause" class="btn btn-ghost">↻ RESTART</button>
+      <button id="quitBtn" class="btn btn-ghost">🏠 MENU</button>
+    </div>
+  </div>
+
+  <!-- Game Over screen -->
+  <div id="gameOverScreen" class="screen hidden">
+    <div class="panel">
+      <h2 id="gameOverTitle">Caught Slippin'!</h2>
+      <div id="newHighBadge" class="new-high hidden">🏆 NEW HIGH SCORE!</div>
+      <div id="goHero" class="go-hero"></div>
+      <div id="goLevel" class="go-level"></div>
+      <div class="go-stats">
+        <div>Distance: <b id="goDist">0</b> m</div>
+        <div>Cash Collected: <b>R<span id="goCash">0</span></b></div>
+        <div>Final Score: <b id="goScore">0</b></div>
+        <div>Best Distance: <b id="goBestDist">0</b> m</div>
+        <div>Best Combo: <b id="goCombo">0</b> &nbsp;·&nbsp; Near Misses: <b id="goNear">0</b></div>
+      </div>
+      <button id="retryBtn" class="btn btn-primary">↻ RUN AGAIN</button>
+      <button id="creditsBtn2" class="btn btn-ghost">🎬 CREDITS</button>
+      <button id="menuBtn" class="btn btn-ghost">🏠 MENU</button>
+    </div>
+  </div>
+
+  <!-- Credits (auto-scrolling) -->
+  <div id="creditsScreen" class="screen hidden credits-screen">
+    <div class="credits-window">
+      <div id="creditsRoll" class="credits-roll">
+        <div class="cr-title">GAUTENG<span>HUSTLE RUN</span></div>
+        <div class="cr-sub">v3.2 Gauteng Edition</div>
+        <img id="creditsHero" class="cr-hero" src="" alt="GUPTA" />
+        <div class="cr-role">STARRING</div>
+        <div class="cr-big" id="creditsStar">GUPTA</div>
+        <div class="cr-role">LEVEL</div>
+        <div class="cr-big" id="creditsLevel">NORMAL</div>
+        <div class="cr-role">A</div>
+        <div class="cr-big gold">SOSPANA SONKE</div>
+        <div class="cr-role">PROJECT</div>
+        <div class="cr-thanks">Thanks to the people who contributed to the game's development:</div>
+        <div class="cr-name">Thabiso Matlabe</div>
+        <div class="cr-name">Ntuthuko Buthelezi</div>
+        <div class="cr-name">Sthembiso Jali</div>
+        <div class="cr-name">Ntsikelelo Alam</div>
+        <div class="cr-name">Victor Zikalala</div>
+        <div class="cr-name">Anathi Mbewuleni</div>
+        <div class="cr-name">Constance Tshabalala</div>
+        <div class="cr-thanks">Ubuntu — we are, because of each other.</div>
+        <div class="cr-sub">Made in Gauteng · Soweto · Joburg · Pretoria · Ekurhuleni · West Rand · the Vaal</div>
+        <div class="cr-big">Thanks for playing! ❤️</div>
+      </div>
+    </div>
+    <button id="creditsBack" class="btn btn-primary credits-back">⏭ SKIP / BACK</button>
+  </div>
+
+  <div id="offlineBadge" class="offline-badge hidden" role="status">📴 Offline mode · playing from your device</div>
+
+  <div id="rotateHint" class="screen hidden">
+    <div class="panel">
+      <div style="font-size:48px;">📱↔️</div>
+      <p>Rotate your phone for the full Gauteng experience — or just keep hustling!</p>
+      <button id="rotateDismiss" class="btn btn-primary">CONTINUE</button>
+    </div>
+  </div>
+
+</div>
+
+<script src="game.js"></script>
+<script src="pwa.js"></script>
+</body>
+</html>

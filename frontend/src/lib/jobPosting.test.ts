@@ -32,7 +32,7 @@ describe("public job posting schema", () => {
     assert.equal(node["@type"], "JobPosting");
     assert.equal(node.title, "Operations Manager");
     assert.equal(node.datePosted, "2026-10-11");
-    assert.equal(node.url, "https://sospana-sonke.vercel.app/jobs/v1");
+    assert.equal(node.url, "https://example.com/jobs/ops");
     assert.equal(node.directApply, false);
     assert.equal("baseSalary" in node, false);
     assert.equal("validThrough" in node, false);

@@ -39,6 +39,15 @@ export default function TermsPage() {
             it to send spam or unlawful content.
           </p>
 
+          <h2 className="pt-2 text-lg font-semibold text-ss-text">Directory content and scraping</h2>
+          <p>
+            The careers directory (its selection, arrangement and compilation of links) is © 2026 Sospana
+            Sonke. You may browse it and open its links for your own job search. You may not scrape, crawl,
+            harvest or bulk-download the directory with bots, scripts or other automated means, or copy,
+            republish or redistribute it (in whole or substantial part) without our written permission.
+            Search engines indexing pages for search results are permitted.
+          </p>
+
           <h2 className="pt-2 text-lg font-semibold text-ss-text">Messaging between members</h2>
           <p>
             Messaging is optional and temporary: messages are deleted after 24 hours. You must not use it

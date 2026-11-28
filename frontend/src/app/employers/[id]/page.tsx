@@ -92,7 +92,6 @@ export default async function EmployerPage({ params }: Props) {
           "@type": "ListItem",
           position: index + 1,
           name: role.title,
-          url: `${SITE_URL}/jobs/${role.id}`,
         })),
       }
     : null;

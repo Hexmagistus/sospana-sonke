@@ -8,7 +8,7 @@
 
 export const TIERS = [
   { id: "south-africa", label: "South Africa", fill: "#ffe08a" },
-  { id: "sadc", label: "Rest of SADC", fill: "#f5b301" },
+  { id: "sadc", label: "Rest of SADC", fill: "#FCC033" },
   { id: "africa", label: "Rest of Africa", fill: "#c47d12" },
   { id: "oceania", label: "Oceania", fill: "#5fe0d0" },
   { id: "europe", label: "Europe", fill: "#8ec5ff" },

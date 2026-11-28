@@ -23,10 +23,8 @@ describe("entry flow is always bright", () => {
     assert.equal(effectiveTheme("/companies", "light"), "light");
   });
 
-  it("the pre-hydration script applies the same rule, so there is no dark flash", () => {
-    for (const p of ENTRY_FLOW_PATHS) assert.ok(THEME_BOOTSTRAP_SCRIPT.includes(`"${p}"`), p);
-    assert.match(THEME_BOOTSTRAP_SCRIPT, /theme = 'light'/);
-    assert.match(THEME_BOOTSTRAP_SCRIPT, /prefers-color-scheme: dark/);
-    assert.match(THEME_BOOTSTRAP_SCRIPT, /location\.pathname/);
+  it("the pre-hydration script always forces light (light-only site)", () => {
+    assert.match(THEME_BOOTSTRAP_SCRIPT, /setAttribute\('data-theme', 'light'\)/);
+    assert.doesNotMatch(THEME_BOOTSTRAP_SCRIPT, /'dark'/);
   });
 });

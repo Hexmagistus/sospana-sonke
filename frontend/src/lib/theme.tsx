@@ -62,7 +62,9 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     return () => media.removeEventListener("change", apply);
   }, [followSystem]);
 
-  const theme = effectiveTheme(pathname, stored);
+  // Light-only site: never apply dark, whatever was saved or the OS prefers.
+  void effectiveTheme(pathname, stored);
+  const theme: Theme = "light";
   useEffect(() => {
     // Leave the bootstrap script's attribute alone until we know the saved choice,
     // so a system dark theme does not flash light on the first paint.

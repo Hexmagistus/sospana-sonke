@@ -187,7 +187,7 @@ export default async function LabourDataPage() {
               is named as the source, and it forbids selling the data.
             </p>
             <p className="text-sm font-semibold">
-              <Link href="/jobs" className="text-navy underline">
+              <Link href="/opportunities-today" className="text-navy underline">
                 Search stored roles
               </Link>
             </p>

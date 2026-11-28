@@ -39,7 +39,7 @@ export function BalungileWalker({ loading, label = "Loading employers…", reduc
     <div
       data-balungile
       data-motion={still ? "reduced" : "walk"}
-      className="ss-bal mt-2 w-full rounded-xl border border-gold/40 bg-[#071528]/75 px-3 pb-2 pt-1 text-center shadow-lg backdrop-blur-sm"
+      className="ss-bal mt-2 w-full rounded-xl border border-gold/40 bg-[#04172C]/75 px-3 pb-2 pt-1 text-center shadow-lg backdrop-blur-sm"
     >
       <div aria-hidden="true" className="ss-bal-track">
         <div className="ss-bal-pace">

@@ -13,6 +13,7 @@ from slowapi.middleware import SlowAPIMiddleware
 from starlette.middleware.gzip import GZipMiddleware
 
 from app.core.config import settings
+from app.core.bulk_access_log import bulk_line, is_bulk
 from app.core.logging import configure_logging, install_uvicorn_scrubbers
 from app.core.request_id import RequestTimer, access_line, access_log, request_id_from
 from app.core.memory import limit_malloc_arenas
@@ -24,13 +25,14 @@ from app.api import (
     routes_documents, routes_applications, routes_subscription, routes_donation, routes_dashboard,
     routes_notifications, routes_cron, routes_tailor, routes_watches, routes_career, routes_messages, routes_account, routes_comments, routes_spark, routes_ads,
     routes_intelligence, routes_employers, routes_alerts, routes_labour, routes_organisations,
-    routes_cv_audit,
+    routes_cv_audit, routes_game,
 )
 
 # Set up logging (and Sentry, if SENTRY_DSN is configured) before anything else
 # runs, so startup itself — and every request/job after it — is observable.
 configure_logging()
 logger = logging.getLogger(__name__)
+bulk_access_log = logging.getLogger("app.bulk_access")
 # Before uvicorn starts any threadpool thread: cap glibc malloc arenas so
 # memory freed after a burst is reused instead of parked per thread.
 limit_malloc_arenas()
@@ -94,8 +96,9 @@ def create_app() -> FastAPI:
         # pattern to consume the whole origin. See app/core/origins.py.
         allow_origin_regex=VERCEL_ORIGIN_REGEX,
         allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
+        allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+        allow_headers=["Authorization", "Content-Type", "X-Privacy-Opt-Out"],
+        max_age=600,
     )
 
     # Generous global cap on declared request size, ahead of everything else. The
@@ -151,6 +154,11 @@ def create_app() -> FastAPI:
             access_log.info(access_line(
                 request_id, request.method, request.url.path, status_code, timer.elapsed_ms(),
             ))
+            if request.method == "GET" and is_bulk(request.url.path):
+                try:
+                    bulk_access_log.info(bulk_line(request, status_code))
+                except Exception:
+                    pass
 
     @app.middleware("http")
     async def add_security_headers(request, call_next):
@@ -265,6 +273,8 @@ def create_app() -> FastAPI:
     app.include_router(routes_organisations.router, prefix=settings.API_V1_PREFIX)
     app.include_router(routes_organisations.admin_router, prefix=settings.API_V1_PREFIX)
     app.include_router(routes_cv_audit.router, prefix=settings.API_V1_PREFIX)
+    app.include_router(routes_game.router, prefix=settings.API_V1_PREFIX)
+    app.include_router(routes_game.admin_router, prefix=settings.API_V1_PREFIX)
 
     # Outermost user middleware (last add_middleware is wrapped latest). Compresses
     # JSON directory payloads. /health and other tiny bodies stay plain: the

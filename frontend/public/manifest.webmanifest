@@ -2,7 +2,7 @@
   "name": "Sospana Sonke",
   "short_name": "Sospana Sonke",
   "description": "Jobs, internships, learnerships, bursaries and graduate programmes from official pages. Works offline with the last saved list; expired roles are never shown.",
-  "start_url": "/dashboard",
+  "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",

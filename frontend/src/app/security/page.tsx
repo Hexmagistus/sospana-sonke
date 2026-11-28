@@ -64,7 +64,7 @@ function SecurityInner() {
     try {
       await api.post("/auth/logout-all");
       logout();
-      router.push("/login");
+      router.push("/");
     } catch (e) {
       setErr(e instanceof Error ? e.message : "Could not sign out other devices");
     }
@@ -74,7 +74,7 @@ function SecurityInner() {
     try {
       await api.post("/account/delete", { password: delPw });
       logout();
-      router.push("/login");
+      router.push("/");
     } catch (e) {
       setErr(e instanceof Error ? e.message : "Could not delete your account");
     }
@@ -127,17 +127,6 @@ function SecurityInner() {
           device at once, including this one. Resetting your password does this automatically too.
         </p>
         <Button variant="secondary" onClick={signOutEverywhere}>Sign out everywhere</Button>
-      </Card>
-
-      <Card>
-        <h2 className="mb-2 text-lg font-semibold text-ss-text">Preferences</h2>
-        <p className="mb-3 text-sm text-ss-muted">
-          Tagging by an administrator, the kind of post you want to be considered for, and alerts each have their own
-          page now. Each one is saved separately.
-        </p>
-        <Link href="/preferences" className="inline-flex min-h-11 items-center rounded-lg bg-ss-primary px-3 text-sm font-semibold text-navy">
-          Open my preferences
-        </Link>
       </Card>
 
       <Card>

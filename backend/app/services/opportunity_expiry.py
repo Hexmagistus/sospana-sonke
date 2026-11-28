@@ -21,9 +21,14 @@ STATUS_EXPIRED = "expired"
 # Scanner words that mean the listing is closed or no longer on the board.
 _SCANNER_GONE = ("CLOSED", "EXPIRED", "REMOVED")
 _STILL_OPEN = ("ACTIVE", "OPEN")
-# Matches the weekly clean-up: a role not seen on the employer's own site for
-# more than this many days is outdated and never shown.
-STALE_AFTER_DAYS = 7
+# A role not seen on the employer's own site for more than this many days is
+# outdated and never shown. It was 7, but the scanner cannot revisit about
+# 5,000 careers pages every week on the free plan (GitHub runs the scan cron
+# only every few hours), so a 7-day rule hid roles that were still open.
+STALE_AFTER_DAYS = 21
+# A role whose own closing date is still ahead stays listed until that date,
+# as long as it was seen on the employer's site within this many days.
+STALE_WITH_CLOSING_DATE_DAYS = 60
 
 
 def stale_cutoff(moment: datetime | None = None, today: date | None = None) -> datetime:
@@ -40,12 +45,40 @@ def stale_cutoff(moment: datetime | None = None, today: date | None = None) -> d
     return when - timedelta(days=STALE_AFTER_DAYS)
 
 
-def seen_too_long_ago(last_seen: datetime | None, moment: datetime | None = None) -> bool:
+def stale_cutoff_with_closing(moment: datetime | None = None, today: date | None = None) -> datetime:
+    """Like stale_cutoff, for a row whose closing date has not passed.
+
+    Never shorter than STALE_AFTER_DAYS (tests widen that window to switch the
+    staleness rule off).
+    """
+    extra = max(0, STALE_WITH_CLOSING_DATE_DAYS - STALE_AFTER_DAYS)
+    return stale_cutoff(moment, today) - timedelta(days=extra)
+
+
+def seen_too_long_ago(last_seen: datetime | None, moment: datetime | None = None,
+                      closing: date | None = None, today: date | None = None) -> bool:
+    """Not seen on the employer's site for too long?
+
+    STALE_AFTER_DAYS in general; STALE_WITH_CLOSING_DATE_DAYS when the role
+    states a closing date that has not passed yet.
+    """
     if last_seen is None:
         return False
     if last_seen.tzinfo is None:
         last_seen = last_seen.replace(tzinfo=timezone.utc)
+    if closing is not None and not closing_has_passed(closing, today):
+        return last_seen < stale_cutoff_with_closing(moment)
     return last_seen < stale_cutoff(moment)
+
+
+def _seen_recently_clause(day: date, today: date | None):
+    """SQL twin of ``not seen_too_long_ago``."""
+    return or_(
+        Vacancy.last_seen_at.is_(None),
+        Vacancy.last_seen_at >= stale_cutoff(today=today),
+        and_(Vacancy.closing_date.isnot(None), Vacancy.closing_date >= day,
+             Vacancy.last_seen_at >= stale_cutoff_with_closing(today=today)),
+    )
 
 
 def closing_value_has_passed(value, today: date | None = None) -> bool:
@@ -101,7 +134,7 @@ def is_publicly_listed(vacancy: Vacancy, today: date | None = None) -> bool:
     if closing_has_passed(vacancy.closing_date, day):
         return False
     end_of_day = None if today is None else datetime.combine(today + timedelta(days=1), datetime.min.time(), SA_ZONE)
-    if seen_too_long_ago(vacancy.last_seen_at, end_of_day):
+    if seen_too_long_ago(vacancy.last_seen_at, end_of_day, vacancy.closing_date, day):
         return False
     from app.services.listing_quality import removal_reasons_for
     if removal_reasons_for(vacancy, day):
@@ -121,7 +154,7 @@ def expired_role_clauses(today: date | None = None):
             Vacancy.is_open.is_(False),
             func.upper(func.coalesce(Vacancy.lifecycle_status, "")).in_(_SCANNER_GONE),
             and_(Vacancy.closing_date.isnot(None), Vacancy.closing_date < day),
-            and_(Vacancy.last_seen_at.isnot(None), Vacancy.last_seen_at < stale_cutoff(today=today)),
+            not_(_seen_recently_clause(day, today)),
             quality_failure_clause(day),
         ),
     )
@@ -151,7 +184,7 @@ def public_role_clauses(today: date | None = None):
         Vacancy.is_open.is_(True),
         or_(Vacancy.lifecycle_status.is_(None), Vacancy.lifecycle_status.in_(_STILL_OPEN)),
         or_(Vacancy.closing_date.is_(None), Vacancy.closing_date >= day),
-        or_(Vacancy.last_seen_at.is_(None), Vacancy.last_seen_at >= stale_cutoff(today=today)),
+        _seen_recently_clause(day, today),
         not_(quality_failure_clause(day)),
     )
 
