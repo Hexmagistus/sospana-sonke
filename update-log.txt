@@ -1,17 +1,5 @@
-[main 4a62866] Add Sospana Sonke Career Agent page and nav link
- 13 files changed, 6783 insertions(+)
- create mode 100644 _to_delete/dast-fixes.patch
- create mode 100644 _to_delete/hc_1789924741
- create mode 100644 _to_delete/hjc_1789925110
- create mode 100644 _to_delete/hkc_1789926216
- create mode 100644 _to_delete/hld_1789922546
- create mode 100644 _to_delete/hlz_1789924161
- create mode 100644 _to_delete/login-alerts.patch
- create mode 100644 _to_delete/security-hardening.patch
- create mode 100644 _to_delete/smtp-alias.patch
- create mode 100644 _to_delete/storage-and-directory.patch
- create mode 100644 _to_delete/transfer.diff
- create mode 100644 backend/seed/company_database_import.pre_brics.bak.csv
+[main 17bfb8a] Add Sospana Sonke Career Agent page and nav link
+ 2 files changed, 48 insertions(+), 17 deletions(-)
 To https://github.com/Hexmagistus/sospana-sonke.git
  ! [rejected]        main -> main (fetch first)
 error: failed to push some refs to 'https://github.com/Hexmagistus/sospana-sonke.git'
@@ -22,8 +10,8 @@ hint: 'git pull' before pushing again.
 hint: See the 'Note about fast-forwards' in 'git push --help' for details.
  
 === recent commits === 
+17bfb8a Add Sospana Sonke Career Agent page and nav link
 4a62866 Add Sospana Sonke Career Agent page and nav link
 bce7fff Cut Neon network transfer from the 15-minute scan
 be6a86f CV Audit: guarantee ATS-compliant output and keep references
 e1c5a84 Focus the site on English-speaking, SADC and BRICS countries (reversible) (#160)
-6355232 Add offline guide page for maintenance (#159)
